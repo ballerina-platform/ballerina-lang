@@ -264,7 +264,7 @@ public class HTTPClientRedirectTestCase {
 
             redirectServer = TestUtil
                     .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION);
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
@@ -305,11 +305,12 @@ public class HTTPClientRedirectTestCase {
 
             HttpServer redirectServer1 = TestUtil
                     .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), ABSOLUTE_REDIRECT_URL);
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), ABSOLUTE_REDIRECT_URL, 0);
 
             HttpServer redirectServer2 = TestUtil
                     .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT2, testValueForLoopRedirect,
-                            Constants.TEXT_PLAIN, HttpResponseStatus.TEMPORARY_REDIRECT.code(), RELATIVE_REDIRECT_URL1);
+                            Constants.TEXT_PLAIN, HttpResponseStatus.TEMPORARY_REDIRECT.code(),
+                            RELATIVE_REDIRECT_URL1, 0);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
@@ -331,6 +332,48 @@ public class HTTPClientRedirectTestCase {
 
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testRedirectionLoop", e);
+        }
+    }
+
+    /**
+     * In case of a timeout during redirection, check whether the proper error response is sent to the client.
+     */
+    @Test
+    public void integrationTestForTimeout() {
+        try {
+
+            SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                    .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+            senderConfiguration.setFollowRedirect(true);
+            senderConfiguration.setMaxRedirectCount(5);
+            senderConfiguration.setSocketIdleTimeout(2000);
+
+            HttpClientConnector httpClientConnector = connectorFactory
+                    .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                            senderConfiguration);
+
+            HttpServer httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants
+                    .TEXT_PLAIN);
+
+            HttpServer redirectServer = TestUtil
+                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 3000);
+
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector
+                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(60, TimeUnit.SECONDS);
+
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            assertEquals(101504, response.getMessagingException().getErrorCode());
+            redirectServer.shutdown();
+            httpServer.shutdown();
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running integrationTestForTimeout", e);
         }
     }
 

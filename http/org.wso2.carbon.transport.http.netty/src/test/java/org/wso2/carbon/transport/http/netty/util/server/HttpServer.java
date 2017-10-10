@@ -90,4 +90,8 @@ public class HttpServer implements TestServer {
     public void setLocation(String location) {
         httpServerInitializer.setLocation(location);
     }
+
+    public void setDelay(long delay) {
+        httpServerInitializer.setDelay(delay);
+    }
 }

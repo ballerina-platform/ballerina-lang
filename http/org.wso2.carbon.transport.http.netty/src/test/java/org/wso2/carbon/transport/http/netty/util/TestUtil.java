@@ -176,7 +176,7 @@ public class TestUtil {
     }
 
     public static HttpServer startHTTPServerForRedirect(int port, String message, String contentType, int
-            responseCode, String location) {
+            responseCode, String location, int delay) {
         HttpServer httpServer = new HttpServer(port);
         CountDownLatch latch = new CountDownLatch(1);
         ServerThread serverThread = new ServerThread(latch, httpServer);
@@ -186,6 +186,7 @@ public class TestUtil {
             httpServer.setMessage(message, contentType);
             httpServer.setResponseCode(responseCode);
             httpServer.setLocation(location);
+            httpServer.setDelay(delay);
         } catch (Exception e) {
             log.error("Thread Interrupted while sleeping ", e);
         }

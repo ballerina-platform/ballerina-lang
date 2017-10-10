@@ -42,6 +42,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
     private String contentType;
     private int responseCode = 200;
     private String location;
+    private long delay;
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
@@ -60,6 +61,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
         httpServerHandler.setMessage(message, contentType);
         httpServerHandler.setResponseStatusCode(responseCode);
         httpServerHandler.setLocation(location);
+        httpServerHandler.setDelay(delay);
         p.addLast("handler", httpServerHandler);
     }
 
@@ -78,5 +80,9 @@ public class HTTPServerInitializer extends ChannelInitializer {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void setDelay(long delay) {
+        this.delay = delay;
     }
 }

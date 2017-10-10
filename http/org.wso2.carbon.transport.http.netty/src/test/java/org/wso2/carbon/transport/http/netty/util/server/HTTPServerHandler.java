@@ -35,6 +35,8 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
@@ -57,6 +59,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     private int responseStatusCode = 200;
     private HttpRequest req;
     private String location;
+    private long delay;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -86,7 +89,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
                     logger.debug("Closing the client-connector connection");
                 } else {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    ctx.writeAndFlush(response);
+                    ctx.executor().schedule(() -> ctx.writeAndFlush(response), delay, TimeUnit.MILLISECONDS);
                     logger.debug("Writing response with data to client-connector");
                 }
             }
@@ -143,5 +146,9 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void setDelay(long delay) {
+        this.delay = delay;
     }
 }
