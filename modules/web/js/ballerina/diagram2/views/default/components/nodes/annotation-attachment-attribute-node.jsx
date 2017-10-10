@@ -332,9 +332,10 @@ class AnnotationAttribute extends React.Component {
             const packageName = (<span>{annotationAttachment.getPackageAlias().getValue()}</span>);
             const name = (<span>{annotationAttachment.getAnnotationName().getValue()}</span>);
             const actionMenuItems = [];
-            const fullPackageName = AnnotationHelper.resolveFullPackageName(this.context.astRoot, annotationAttachment.getPackageAlias().getValue());
+            const fullPackageName = AnnotationHelper.resolveFullPackageName(this.context.astRoot,
+                                                                    annotationAttachment.getPackageAlias().getValue());
             const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
-                this.context.environment, fullPackageName, annotationAttachment.getAnnotationName());
+                this.context.environment, fullPackageName, annotationAttachment.getAnnotationName().getValue());
             if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
                 // Add attribute button
                 const addAttributeButton = {

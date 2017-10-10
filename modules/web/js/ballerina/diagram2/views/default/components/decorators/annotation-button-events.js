@@ -152,23 +152,23 @@ function addAttribute(annotationAttachment) {
 function getArrayValue(environment, annotationAttributeKey, annotationDefinitionModel) {
     const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(environment, annotationAttributeKey,
         annotationDefinitionModel.getPackagePath(), annotationDefinitionModel.getName());
+    annotationAttributeDef.setPackagePath(annotationDefinitionModel.getPackagePath());
     const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
-    if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
+    if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType().replace('[]', ''))) {
         const bValueInArray = NodeFactory.createLiteral();
         // bValueInArray.setBType(annotationAttributeDef.getBType());
-        arrayAnnotationAttributeValue.addValueArray(bValueInArray);
+        arrayAnnotationAttributeValue.setValue(bValueInArray);
     } else {
         const annotationAttachmentInArray = NodeFactory.createAnnotationAttachment({
-            packageAlias: NodeFactory.createLiteral({ value: annotationAttributeDef.getPackagePath() ? annotationAttributeDef.getPackagePath().split('.').pop() : '' }),
-            annotationName: NodeFactory.createLiteral({ value: annotationAttributeDef.getBType() }),
+            packageAlias: NodeFactory.createLiteral({
+                value: annotationAttributeDef.getPackagePath() ?
+                                                        annotationAttributeDef.getPackagePath().split('.').pop() : '',
+            }),
+            annotationName: NodeFactory.createLiteral({
+                value: annotationAttributeDef.getBType().split(':').pop().replace('[]', ''),
+            }),
         });
-        // annotationAttachmentInArray.setFullPackageName(annotationAttributeDef.getPackagePath());
-        // if (annotationAttributeDef.getPackagePath() !== undefined &&
-        //                                                 annotationAttributeDef.getPackagePath() !== 'Current Package') {
-        //     annotationAttachmentInArray.setPackageName(annotationAttributeDef.getPackagePath().split('.').pop());
-        // }
-        // annotationAttachmentInArray.setName(annotationAttributeDef.getBType());
-        arrayAnnotationAttributeValue.addValueArray(annotationAttachmentInArray);
+        arrayAnnotationAttributeValue.setValue(annotationAttachmentInArray);
     }
     return arrayAnnotationAttributeValue;
 }

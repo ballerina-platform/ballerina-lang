@@ -90,34 +90,42 @@ class AnnotationAttributeKey extends React.Component {
             const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
                                                 this.context.environment, suggestionValue,
                                                 attributeDefinition.getPackagePath(), attributeDefinition.getName());
-            const annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
+            annotationAttributeDef.setPackagePath(attributeDefinition.getPackagePath());
+            let annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
             if (annotationAttributeDef.isArrayType()) {
                 // Adding an init array item
-                const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
-                if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
-                    const bValueInArray = NodeFactory.createBValue();
-                    bValueInArray.setBType(annotationAttributeDef.getBType());
-                    arrayAnnotationAttributeValue.addChild(bValueInArray);
+                if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType().replace('[]', ''))) {
+                    annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
+                        value: undefined,
+                    });
                 } else {
-                    const annotationAttachmentInArray = NodeFactory.createAnnotationAttachment();
-                    annotationAttachmentInArray.setFullPackageName(annotationAttributeDef.getPackagePath());
-                    annotationAttachmentInArray.setPackageName(
-                                                            annotationAttributeDef.getPackagePath().split('.').pop());
-                    annotationAttachmentInArray.setName(annotationAttributeDef.getBType());
-                    arrayAnnotationAttributeValue.addChild(annotationAttachmentInArray);
+                    const annotationAttachmentInArray = NodeFactory.createAnnotationAttachment({
+                        packageAlias: NodeFactory.createLiteral({
+                            value: annotationAttributeDef.getPackagePath().split('.').pop(),
+                        }),
+                        annotationName: NodeFactory.createLiteral({
+                            value: annotationAttributeDef.getBType().split(':').pop().replace('[]', ''),
+                        }),
+                    });
+                    const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
+                        value: undefined,
+                    });
+                    arrayAnnotationAttributeValue.setValueArray([annotationAttachmentInArray]);
+                    annotationAttributeValue.setValue(arrayAnnotationAttributeValue);
                 }
-
-                annotationAttributeValue.addChild(arrayAnnotationAttributeValue);
             } else if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
                 const bValue = NodeFactory.createLiteral();
                 // bValue.setBType(annotationAttributeDef.getBType());
                 annotationAttributeValue.setValue(bValue);
             } else {
                 const annotationAttachment = NodeFactory.createAnnotationAttachment();
-                annotationAttachment.setFullPackageName(annotationAttributeDef.getPackagePath());
-                annotationAttachment.setPackageName(annotationAttributeDef.getPackagePath().split('.').pop());
-                annotationAttachment.setName(annotationAttributeDef.getBType());
-                annotationAttributeValue.addChild(annotationAttachment);
+                annotationAttachment.setPackageAlias(NodeFactory.createLiteral({
+                    value: annotationAttributeDef.getPackagePath().split('.').pop(),
+                }));
+                annotationAttachment.setAnnotationName(NodeFactory.createLiteral({
+                    value: annotationAttributeDef.getBType().split(':').pop(),
+                }));
+                annotationAttributeValue.setValue(annotationAttachment);
             }
             this.props.attributeModel.setValue(annotationAttributeValue);
         }

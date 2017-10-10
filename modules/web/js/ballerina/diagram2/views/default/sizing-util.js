@@ -694,7 +694,7 @@ class SizingUtil {
         if (!node.viewState.showAnnotationContainer) {
             components.annotation.h = 0;
         } else {
-            // components.annotation.h = this.getAnnotationHeight(node, 20);
+            components.annotation.h = this._getAnnotationHeight(node, 20);
         }
 
         components.variablesPane.h = 0;

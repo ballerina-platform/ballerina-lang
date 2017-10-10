@@ -35,10 +35,12 @@ class AnnotationRenderingVisitor {
     }
 
     beginVisit(node) {
-        if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
-            TreeUtil.isConnector(node) || TreeUtil.isAction(node) ||
-            TreeUtil.isAnnotation(node) || TreeUtil.isStruct(node) ||
-            (TreeUtil.isFunction(node) && !(node.isLambda && node.isLambda()))) {
+        const isTopLevelNode = (TreeUtil.isService(node) || TreeUtil.isConnector(node) ||
+                                TreeUtil.isAnnotation(node) || TreeUtil.isStruct(node) ||
+                                (TreeUtil.isFunction(node) && !node.lambda)) && TreeUtil.isCompilationUnit(node.parent);
+        const isSecondLevelNode = (TreeUtil.isResource(node) && TreeUtil.isService(node.parent)) ||
+                                    (TreeUtil.isAction(node) && TreeUtil.isConnector(node.parent));
+        if (isTopLevelNode || isSecondLevelNode) {
             const annotations = node.getAnnotationAttachments();
             if (node.viewState.showAnnotationContainer && !node.parent.viewState.collapsed) {
                 const bBox = Object.assign({}, node.viewState.bBox);
