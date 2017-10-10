@@ -21,7 +21,7 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
-import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
+import org.wso2.carbon.transport.jms.sender.wrappers.SessionWrapper;
 
 import javax.jms.JMSException;
 
