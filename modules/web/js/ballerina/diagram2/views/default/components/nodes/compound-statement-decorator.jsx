@@ -26,7 +26,7 @@ import './compound-statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
-// import Breakpoint from './breakpoint';
+import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
 const CLASS_MAP = {
