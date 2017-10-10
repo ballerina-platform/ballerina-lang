@@ -1,0 +1,2 @@
+//Will demonstrate how CSV file could be read as records through records API
+//The sample will also cover transformation of records and writing the records to TCP socket

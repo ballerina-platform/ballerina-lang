@@ -1,6 +1,7 @@
 package ballerina.lang.files;
 
 import ballerina.doc;
+import ballerina.io;
 
 @doc:Description { value:"Closes a given file and its stream"}
 @doc:Param { value:"file: The file to be closed" }
@@ -48,7 +49,8 @@ public native function writeln (blob content, File file);
 
 @doc:Description {value:"Retrieves the stream from a local file"}
 @doc:Param {value:"file: The file to be opened"}
-native function openAsync (File file, string accessMode);
+@doc:Return{value:"Channel representation to perform I/O operations"}
+public native function openChannel (File file, string accessMode)(io:ByteChannel);
 
 public struct File {
     string path;

@@ -5,8 +5,7 @@ io:CharacterChannel characterChannel;
 
 function initFileChannel(string filePath,string permission,string encoding){
     files:File src = {path:filePath};
-    files:openAsync(src, permission);
-    io:ByteChannel channel = io:toByteChannel(src);
+    io:ByteChannel channel = files:openChannel(src, permission);
     characterChannel = io:toCharacterChannel(channel,encoding);
 }
 

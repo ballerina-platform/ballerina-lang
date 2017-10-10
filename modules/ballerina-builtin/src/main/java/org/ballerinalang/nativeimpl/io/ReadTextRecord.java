@@ -50,9 +50,9 @@ public class ReadTextRecord extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, 0);
 
-            BTextRecordChannel characterChannel = (BTextRecordChannel) channel.getNativeData(IOConstants
+            BTextRecordChannel textRecordChannel = (BTextRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            String[] recordValue = characterChannel.read();
+            String[] recordValue = textRecordChannel.read();
             record = new BStringArray(recordValue);
 
         } catch (Throwable e) {

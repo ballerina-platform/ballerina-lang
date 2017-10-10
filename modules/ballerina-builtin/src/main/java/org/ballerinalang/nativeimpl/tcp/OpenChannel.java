@@ -34,8 +34,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 /**
  * Native function ballerina.tcp#OpenChannel
@@ -45,8 +50,8 @@ import java.nio.channels.SocketChannel;
 @BallerinaFunction(
         packageName = "ballerina.tcp",
         functionName = "openChannel",
-        args = {@Argument(name = "address", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT)},
+        args = {@Argument(name = "socket", type = TypeKind.STRUCT),
+                @Argument(name = "permission", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )
@@ -95,9 +100,71 @@ public class OpenChannel extends AbstractNativeFunction {
      * @param port    destination TCP port
      * @return I/O channel representation
      */
-    private ByteChannel createTcpSocket(String address, int port) throws IOException {
+    private ByteChannel createTcpSocketForWriting(String address, int port) throws IOException {
         InetSocketAddress destinationAddress = new InetSocketAddress(address, port);
         return SocketChannel.open(destinationAddress);
+    }
+
+    private void accept(Selector selector, SelectionKey key) throws IOException {
+        // For an accept to be pending the channel must be a server socket channel.
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+
+        // Accept the connection and make it non-blocking
+        SocketChannel socketChannel = serverSocketChannel.accept();
+        Socket socket = socketChannel.socket();
+        socketChannel.configureBlocking(false);
+
+        // Register the new SocketChannel with our Selector, indicating
+        // we'd like to be notified when there's data waiting to be read
+        socketChannel.register(selector, SelectionKey.OP_READ);
+    }
+
+    /**
+     * <p>
+     * Will listen to a connection in the given port
+     * </p>
+     * <p>
+     * <b>Note : </b> This is a blocking call
+     * </p>
+     *
+     * @param address destination ip address
+     * @param port    Port which will accept messages
+     * @return I/O channel representation
+     */
+    private ByteChannel createTcpSocketForReading(String address, int port) throws IOException {
+        Selector tcpSocketSelector = Selector.open();
+        ServerSocketChannel server = ServerSocketChannel.open();
+        InetSocketAddress destinationAddress = new InetSocketAddress(address, port);
+
+        server.bind(destinationAddress);
+
+        server.configureBlocking(false);
+
+        server.register(tcpSocketSelector, SelectionKey.OP_ACCEPT);
+
+        while (true) {
+
+            tcpSocketSelector.select();
+
+            // Iterate over the set of keys for which events are available
+            Iterator selectedKeys = tcpSocketSelector.selectedKeys().iterator();
+
+            while (selectedKeys.hasNext()) {
+                SelectionKey key = (SelectionKey) selectedKeys.next();
+                selectedKeys.remove();
+
+                if (!key.isValid()) {
+                    continue;
+                }
+
+                // Check what event is available and deal with it
+                if (key.isAcceptable()) {
+                    accept(tcpSocketSelector, key);
+                } else if (key.isReadable()) {
+                    return (ByteChannel) key.channel();
+                }
+            }
+        }
     }
 
 
@@ -113,13 +180,22 @@ public class OpenChannel extends AbstractNativeFunction {
         BStruct byteStruct;
 
         try {
-            String address = getStringArgument(context, 0);
-            int port = (int) getIntArgument(context, 0);
+            BStruct address = (BStruct) getRefArgument(context, 0);
+            String destination = address.getStringField(0);
+            int port = (int) address.getIntField(0);
+            String permission = getStringArgument(context, 0);
+            ByteChannel tcpSocket;
 
             byteStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context), CHANNEL_TYPE);
 
-            //We create a socket
-            ByteChannel tcpSocket = createTcpSocket(address, port);
+            if ("r".contains(permission)) {
+                tcpSocket = createTcpSocketForReading(destination, port);
+            } else {
+                //We create a socket
+                tcpSocket = createTcpSocketForWriting(destination, port);
+            }
+
+
             BByteChannel byteChannel = new BByteChannel(tcpSocket);
 
             byteStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);

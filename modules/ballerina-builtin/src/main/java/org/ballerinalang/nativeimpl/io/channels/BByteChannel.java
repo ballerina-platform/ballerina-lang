@@ -65,8 +65,12 @@ public class BByteChannel {
      *
      * @param channel the channel which will source/sink
      */
-    public BByteChannel(ByteChannel channel) {
-        this.channel = channel;
+    public BByteChannel(ByteChannel channel) throws IOException {
+        if (null != channel) {
+            this.channel = channel;
+        } else {
+            throw new IOException("The provided channel cannot be null");
+        }
     }
 
     /**

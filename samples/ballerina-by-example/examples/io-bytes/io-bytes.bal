@@ -3,8 +3,7 @@ import ballerina.io;
 
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     files:File src = {path:filePath};
-    files:openAsync(src, permission);
-    io:ByteChannel channel = io:toByteChannel(src);
+    io:ByteChannel channel = files:openChannel(src, permission);
     return channel;
 }
 
@@ -32,7 +31,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
 }
 
 function main (string[] args) {
-    io:ByteChannel sourceChannel = getFileChannel("/tmp/ballerina.png", "r");
-    io:ByteChannel destinationChannel = getFileChannel("/tmp/ballerinadup.png", "w");
+    io:ByteChannel sourceChannel = getFileChannel("./files/ballerina.jpg", "r");
+    io:ByteChannel destinationChannel = getFileChannel("./files/ballerinaCopy.jpg", "w");
     copy(sourceChannel, destinationChannel);
 }
