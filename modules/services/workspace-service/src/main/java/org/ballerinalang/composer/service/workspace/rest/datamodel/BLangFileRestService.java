@@ -300,7 +300,9 @@ public class BLangFileRestService {
                 // This is since the invocation symbol abstract method has not currently been exposed from the runtime
                 // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
                 if (kindName.equals("Invocation")) {
-                    nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                    if (((BLangInvocation) node).symbol != null) {
+                        nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                    }
                 }
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
