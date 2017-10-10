@@ -22,13 +22,11 @@ import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
-import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -41,19 +39,14 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
     private SSLEngine sslEngine; //Add SSL support to channel
     private boolean httpTraceLogEnabled; //Will be used, if enabled, to log events
     private ChannelHandlerContext originalChannelContext; //Original channel context
-    private ChannelHandlerContext childChannelContext; //Previously created channel context for redirection
     private int maxRedirectCount;
-    private long socketTimeout;
 
-    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, ChannelHandlerContext
-            childChannelContext, SSLEngine sslEngine, boolean
-            httpTraceLogEnabled, int maxRedirectCount, long remainingTimeForRedirection) {
+    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine,
+            boolean httpTraceLogEnabled, int maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.originalChannelContext = originalChannelContext;
-        this.childChannelContext = childChannelContext;
         this.maxRedirectCount = maxRedirectCount;
-        this.socketTimeout = remainingTimeForRedirection;
     }
 
     @Override
@@ -72,9 +65,6 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
-        ch.pipeline().addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketTimeout, socketTimeout, 0,
-                TimeUnit.MILLISECONDS));
-        childChannelContext.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext, sslEngine, httpTraceLogEnabled,
                 maxRedirectCount);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);

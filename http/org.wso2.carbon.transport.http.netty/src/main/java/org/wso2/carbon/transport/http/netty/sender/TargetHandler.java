@@ -140,7 +140,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {

@@ -35,6 +35,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -51,6 +52,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLEngine;
 
@@ -68,6 +70,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private SSLEngine sslEngine;
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
+    private AtomicInteger currentRedirectCount;
     private HTTPCarbonMessage targetRespMsg;
 
     public RedirectHandler(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine,
@@ -167,6 +170,16 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 targetRespMsg.addHttpContent(httpContent);
                 targetRespMsg.setEndOfMsgAdded(true);
                 targetRespMsg = null;
+
+                AtomicInteger redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
+                if (redirectCount != null) {
+                    redirectCount.set(0);
+                    currentRedirectCount.set(0);
+                    ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+                }
+                if (ctx.channel().attr(Constants.ORIGINAL_REQUEST).get() != null) {
+                    ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
+                }
             }
         }
     }
@@ -197,13 +210,14 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             if (isRedirectEligible) {
                 isCrossDoamin = isCrossDomain(location, originalRequest);
 
-                AtomicInteger redirectCount = originalChannelContext.channel().attr(Constants.REDIRECT_COUNT).get();
+                AtomicInteger redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
                 if (redirectCount != null && redirectCount.intValue() != 0) {
                     redirectCount.getAndIncrement();
                 } else {
                     redirectCount = new AtomicInteger(1);
                 }
-                originalChannelContext.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+                currentRedirectCount = redirectCount;
+                ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
 
                 if (redirectCount.intValue() <= maxRedirectCount) {
                     if (LOG.isDebugEnabled()) {
@@ -216,7 +230,13 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     }
                     //Fire next handler in the original channel
                     isRedirect = false;
-                    originalChannelContext.fireChannelRead(msg);
+                    if (originalChannelContext.channel().isActive()) {
+                        originalChannelContext.fireChannelRead(msg);
+                    } else {
+                        HttpResponseFuture responseFuture = ctx.channel()
+                                .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+                        responseFuture.notifyHttpListener(setUpCarbonMessage(msg));
+                    }
                 }
             } else {
                /* Fire next handler in the original channel if it's still alive. Else send the response directly to
@@ -432,15 +452,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (Constants.HTTP_SCHEME.equals(redirectUrl.getProtocol())) {
             sslEngine = null;
         }
-
-        long channelStartTime = channelHandlerContext.channel()
-                .attr(Constants.ORIGINAL_CHANNEL_START_TIME).get();
-
-        int timeoutOfOriginalRequest = channelHandlerContext.channel()
-                .attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
-
-        long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
-        long remainingTimeForRedirection = timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
+        long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).get();
+        int timeoutOfOriginalRequest = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
 
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap clientBootstrap = new Bootstrap();
@@ -448,9 +461,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(originalChannelContext, channelHandlerContext, sslEngine,
-                        httpTraceLogEnabled,
-                        maxRedirectCount, remainingTimeForRedirection));
+                new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
+                        maxRedirectCount));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         channelFuture.addListener(new ChannelFutureListener() {
@@ -461,8 +473,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                             .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
                     future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
                     future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+                    future.channel().attr(Constants.REDIRECT_COUNT).set(currentRedirectCount);
                     future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
                     future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
+                    long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
+                    long remainingTimeForRedirection = timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
+                    future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
+                            new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
+                                    TimeUnit.MILLISECONDS));
+                    //channelHandlerContext.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                 } else {
@@ -520,15 +539,17 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
                         + "</errorMessage>";
                 HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
                         .get();
-                responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+                if (responseFuture != null) {
+                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+                    responseFuture.removeHttpListener();
+                }
+                ctx.close();
             }
         }
-        ctx.close();
     }
 }
 
