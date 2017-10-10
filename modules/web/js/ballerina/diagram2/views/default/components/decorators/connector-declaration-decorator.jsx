@@ -26,34 +26,12 @@ import ImageUtil from '../../../../image-util';
  * */
 class ConnectorDeclarationDecorator extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     /**
      * ToDo Update the edited expression
      */
     updateExpression(value) {
     }
 
-    createJSONForConnectorProperties() {
-        const node = this.props.model;
-        const bBox = Object.assign({}, node.viewState.bBox);
-        const statementContainerBBox = node.viewState.bBox;
-        bBox.x = statementContainerBBox.x + ((statementContainerBBox.w - 120) / 2);
-        bBox.y = statementContainerBBox.y + 30;
-        const overlayComponents = {
-            kind: 'ConnectorPropertiesForm',
-            props: {
-                key: node.getID(),
-                model: node,
-                bBox,
-                editor: this.context.editor,
-                environment: this.context.environment,
-            },
-        };
-        return overlayComponents;
-    }
     /**
      * Render Function for the Connector Declaration Decorator
      * */
@@ -73,7 +51,6 @@ class ConnectorDeclarationDecorator extends React.Component {
                     icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
                     editorOptions={this.editorOptions}
                     iconColor='#1a8278'
-                    connectorProps={this.createJSONForConnectorProperties()}
                 />
             </g>
         );
@@ -84,8 +61,4 @@ ConnectorDeclarationDecorator.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-ConnectorDeclarationDecorator.contextTypes = {
-    environment: PropTypes.instanceOf(Object).isRequired,
-    editor: PropTypes.instanceOf(Object).isRequired,
-};
 export default ConnectorDeclarationDecorator;

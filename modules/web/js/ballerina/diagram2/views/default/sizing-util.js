@@ -591,7 +591,7 @@ class SizingUtil {
         // add side padding to the resource.
         width += (this.config.innerPanel.wrapper.gutter.h * 2);
         // calculate the initFunction for service.
-        if (viewState.globalsExpanded) {
+        if (viewState.variablesExpanded) {
             const topGutter = 10;
             const topBarHeight = 25;
             const importInputHeight = 40;

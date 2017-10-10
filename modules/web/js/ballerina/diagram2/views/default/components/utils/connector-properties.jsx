@@ -63,7 +63,7 @@ class ConnectorPropertiesForm extends React.Component {
         const props = this.props.model.props;
         // Get the pkg alias
         const pkgAlias = props.model.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value;
-        const connectorProps = ConnectorHelper.getConnectorParameters(props.environment, pkgAlias);
+        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment, pkgAlias);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
             if (addedValues.length > 0 && (index <= addedValues.length - 1)) {
@@ -266,7 +266,6 @@ class ConnectorPropertiesForm extends React.Component {
                 key={`connectorProp/${props.model.id}`}
                 styles={styles}
                 supportedProps={this.getSupportedProps()}
-                editor={props.editor}
                 addedValues={this.setDataToConnectorInitArgs}
             />);
     }
@@ -276,5 +275,4 @@ export default ConnectorPropertiesForm;
 
 ConnectorPropertiesForm.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
-    editor: PropTypes.instanceOf(Object).isRequired,
 };
