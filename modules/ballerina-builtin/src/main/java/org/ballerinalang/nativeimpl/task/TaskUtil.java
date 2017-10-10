@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.task;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 
 import java.lang.management.ManagementFactory;
@@ -26,8 +28,12 @@ import java.lang.management.ManagementFactory;
  * Utility methods for ballerina task.
  */
 public class TaskUtil {
+    private static final Log log = LogFactory.getLog(TaskUtil.class.getName());
 
     protected static synchronized int generateTaskId(Context ctx) {
+        if (log.isDebugEnabled()) {
+            log.info("Generating the task id");
+        }
         int taskId = -1;
         String process = ManagementFactory.getRuntimeMXBean().getName();
         int pid = Integer.parseInt(process.substring(0, process.indexOf('@')));
