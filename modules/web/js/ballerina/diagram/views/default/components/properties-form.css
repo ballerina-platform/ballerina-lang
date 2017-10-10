@@ -14,16 +14,18 @@
     margin-top: 8px;
     font-weight: 300;
     text-align: right;
+    padding-top: 3px;
 }
 
 .property-dialog-form-control{
     width: 100%;
-    background-color: rgb(249, 249, 249);
-    border-style: none;
+    background-color: #fff;
     padding-left: 10px;
     color: #232222;
-    font-weight:600;
+    font-weight:300;
     margin-top: 8px;
+    border: dashed 1px #999;
+    height: 27px;
 }
 
 .property-dialog-form-control::-webkit-input-placeholder { /* Chrome */
@@ -65,17 +67,17 @@
 .tagInput{
     outline: none;
     border: none;
-    background-color: rgb(249, 249, 249);
     color: #232222;
     width: 40%;
 }
 
 .tagLabel{
     width: 100%;
-    background-color: rgb(249, 249, 249);
-    border-style: none;
-    padding-left: 10px;
     color: #232222;
+    background-color: #fff;
+    border: dashed 1px #999;
+    padding-left: 10px;
+    font-weight: 300
 }
 
 .toggle {
@@ -140,15 +142,19 @@
 
 /*New popup window*/
 #property-modal {
-    background-color: lightgray;
+    background-color: #efefef;
     position: absolute;
     width: 40%;
     z-index:1000;
-    box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42)
+    box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42);
+    border-left: 3px solid #0c7a9d;
 }
 
 .form-header{
     text-align: left;
+    background: gainsboro;
+    margin: 0;
+    padding: 1px 10px;
 }
 
 .form-body {
@@ -174,8 +180,19 @@
     color: #6f6f6f;
 }
 
+.close > span {
+    padding-top: 9px;
+    float: left;
+}
+
+.close > span:hover {
+    color: #333;
+    opacity: 1;
+}
+
 .propertyForm{
     text-align: left;
+    margin-top: 19px;
 }
 
 .panel-heading a:after {
@@ -214,11 +231,11 @@
 
 #popover-arrow {
     position: absolute;
-    top: 0px;
+    top: 0;
     left: 4px;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 10px solid rgb(211, 211, 211);
+    border-bottom: 10px solid #dcdcdc;
     width: 0;
     height: 0;
 }
@@ -227,7 +244,6 @@
 .paginationProgress {
     text-align: center;
     height: 50px;
-    background-color: #d3d3d3;
     box-shadow: none;
     position:absolute;
     bottom:0;
@@ -236,11 +252,9 @@
 .paginationProgress .circle,
 .paginationProgress .bar {
     display: inline-block;
-    background: #fff;
-    width: 26px;
+    width: 28px;
     height: 28px;
     border-radius: 34px;
-    border: 1px solid #d5d5da;
     margin-right: 30px;
 }
 .paginationProgress .bar {
@@ -258,16 +272,17 @@
     display: inline-block;
     width: 21px;
     height: 21px;
-    line-height: 16px;
+    line-height: 18px;
     border-radius: 32px;
     margin-top: 3px;
     color: #b5b5ba;
     font-size: 12px;
+    border:0;
 }
 /* Done / Active */
 .paginationProgress .bar.done,
 .paginationProgress .circle.done {
-    background: #eee;
+
 }
 .paginationProgress .bar.active {
     background: linear-gradient(to right, #EEE 40%, #FFF 60%);
@@ -276,7 +291,14 @@
     color: #FFF;
     background: rgba(140, 140, 140, 0.46);
     box-shadow: inset 0 0 63px rgba(0,0,0,.2);
+    cursor: pointer;
 }
+
+.paginationProgress .circle.done .label:hover {
+    background-color: #0c95be;
+    cursor:pointer;
+}
+
 .paginationProgress .circle.done .title {
     color: #444;
 }
@@ -291,17 +313,22 @@
 
 .paginationProgress .prevNext {
     display: inline-block;
-    background: #fff;
     width: 78px;
     height: 32px;
-    border: 1px solid #d5d5da;
     margin-right: 30px;
+    cursor: pointer;
+}
+
+.paginationProgress .prevNext.done .label:hover{
+    background-color: #0c95be;
 }
 
 .paginationProgress .prevNext.done .label {
     color: #FFF;
     background: #8c8c8c;
     box-shadow: inset 0 0 63px rgba(0,0,0,.2);
+    border-radius: 0;
+    font-weight: 400;
 }
 
 .paginationProgress .prevNext .label {
