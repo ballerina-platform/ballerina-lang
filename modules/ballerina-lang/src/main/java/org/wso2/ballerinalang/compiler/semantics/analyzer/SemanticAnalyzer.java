@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -686,6 +687,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
+            checkRetryStmtValidity(transactionNode.retryCount);
         }
     }
 
@@ -695,6 +697,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+
     }
 
     private boolean isJoinResultType(BLangVariable var) {
@@ -958,5 +961,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangComment commentNode) {
         // do nothing
+    }
+
+    private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
+        boolean error = true;
+        NodeKind retryKind = retryCountExpr.getKind();
+        if (retryKind == NodeKind.LITERAL) {
+            if (retryCountExpr.type.tag == TypeTags.INT) {
+                int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
+                if (retryCount >= 0) {
+                    error = false;
+                }
+            }
+        } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
+            if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.CONST) {
+                if (((BLangSimpleVarRef) retryCountExpr).symbol.type.tag == TypeTags.INT) {
+                    error = false;
+                }
+            }
+        }
+        if (error) {
+            this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
+        }
     }
 }
