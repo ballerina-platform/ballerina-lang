@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -58,7 +59,8 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     }
 
     public boolean isMultiReturnExpr() {
-        return true;
+        // Unsafe conversions are multi return expressions
+        return conversionSymbol == null || !((BConversionOperatorSymbol) conversionSymbol).safe;
     }
 
     @Override

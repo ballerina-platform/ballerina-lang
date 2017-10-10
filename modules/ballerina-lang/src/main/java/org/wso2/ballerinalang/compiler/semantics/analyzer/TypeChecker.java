@@ -705,13 +705,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void setExprType(BLangExpression expr, List<BType> expTypes) {
         int expected = expTypes.size();
-        int actual = resultTypes.size();
         if (expr.isMultiReturnExpr()) {
             MultiReturnExpr multiReturnExpr = (MultiReturnExpr) expr;
             multiReturnExpr.setTypes(resultTypes);
         } else {
             if (expected > 1) {
-                dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+                dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 1);
                 resultTypes = getListWithErrorTypes(expected);
             }
         }
