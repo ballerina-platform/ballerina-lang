@@ -65,7 +65,6 @@ public class ScheduleAppointment extends AbstractNativeFunction {
     private static final Log log = LogFactory.getLog(ScheduleAppointment.class.getName());
 
     public BValue[] execute(Context ctx) {
-        log.info("Request has come to schedule the appointment");
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = null;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
@@ -82,6 +81,8 @@ public class ScheduleAppointment extends AbstractNativeFunction {
         long dayOfWeek = ((BStruct) scheduler).getIntField(2);
         long dayOfMonth = ((BStruct) scheduler).getIntField(3);
         long month = ((BStruct) scheduler).getIntField(4);
+        log.info("Request has come to schedule the appointment with the expression: " + minute + " " + hour + " "
+                + dayOfWeek + " " + dayOfMonth + " " + month);
         int taskId = -1;
         BString error = new BString("Unable to schedule the appointment");
         taskId = TaskUtil.generateTaskId(ctx);
