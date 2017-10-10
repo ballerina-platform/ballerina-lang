@@ -159,10 +159,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.statementReturns = false;
     }
 
-    private void resetFinalStatement() {
+    private void resetLastStatement() {
         this.lastStatement = false;
     }
-    
+
     public BLangPackage analyze(BLangPackage pkgNode) {
         pkgNode.accept(this);
         return pkgNode;
@@ -220,7 +220,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForkJoin forkJoin) {
         this.forkJoinCount++;
         this.initNewWorkerActionSystem();
-        this.checkUnreachableCode(forkJoin);
+        this.checkStatementExecutionValidity(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
         forkJoin.joinedBody.accept(this);
         if (forkJoin.timeoutBody != null) {
@@ -231,7 +231,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.finalizeCurrentWorkerActionSystem();
         this.forkJoinCount--;
     }
-    
+
     private boolean inForkJoin() {
         return this.forkJoinCount > 0;
     }
@@ -251,7 +251,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean inWorker() {
         return this.workerCount > 0;
     }
-    
+
     @Override
     public void visit(BLangWorker worker) {
         this.workerCount++;
@@ -267,18 +267,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
-        this.resetFinalStatement();
+        this.resetLastStatement();
         if (transactionNode.failedBody != null) {
             this.failedBlockCount++;
             transactionNode.failedBody.accept(this);
             this.failedBlockCount--;
-            this.resetFinalStatement();
+            this.resetStatementReturns();
+            this.resetLastStatement();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
+            this.resetStatementReturns();
         }
         if (transactionNode.abortedBody != null) {
             transactionNode.abortedBody.accept(this);
+            this.resetStatementReturns();
         }
     }
 
@@ -292,9 +295,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRetry abortNode) {
+    public void visit(BLangRetry retryNode) {
         if (this.failedBlockCount == 0) {
-            this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
             return;
         }
         this.lastStatement = true;
@@ -307,7 +310,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (lastStatement) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
-            this.resetFinalStatement();
+            this.resetLastStatement();
         }
     }
     
@@ -320,11 +323,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
-        this.resetFinalStatement();
+        this.resetLastStatement();
     }
     
     @Override
     public void visit(BLangReturn returnStmt) {
+        this.checkStatementExecutionValidity(returnStmt);
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
@@ -350,11 +354,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount++;
         whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
-        this.resetFinalStatement();
+        this.resetLastStatement();
     }
     
     @Override
     public void visit(BLangNext continueNode) {
+        this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
             return;
@@ -454,6 +459,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
+        this.checkStatementExecutionValidity(breakNode);
         if (this.loopCount == 0) {
             this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
@@ -462,7 +468,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangThrow throwNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(throwNode);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -478,6 +484,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        this.checkStatementExecutionValidity(tryNode);
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             if (caughtTypes.contains(bLangCatch.getParameter().type)) {
