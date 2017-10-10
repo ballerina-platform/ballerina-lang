@@ -74,22 +74,12 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
     protected void fetchPossibleTokens(Parser parser, Token currentToken, IntervalSet expectedTokens) {
         ParserRuleContext currentContext = parser.getContext();
+        // Currently disabling the check since the possible token based implementation has been skipped
+
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
-            expectedTokens.getIntervals().forEach((interval) -> {
-                int a = interval.a;
-                int b = interval.b;
-                if (a == b) {
-                    possibleTokens.add(new PossibleToken(a, parser.getVocabulary().getDisplayName(a),
-                            currentContext));
-                } else {
-                    for (int i = a; i <= b; ++i) {
-                        possibleTokens.add(new PossibleToken(i, parser.getVocabulary().getDisplayName(i),
-                                currentContext));
-                    }
-                }
-            });
             this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
         }
+//        this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
 
     }
     /**
@@ -99,6 +89,7 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
      * @return true|false
      */
     protected boolean isCursorBetweenGivenTokenAndLastNonHiddenToken(Token token, Parser parser) {
+        this.setContextException(parser);
         boolean isCursorBetween = false;
         if (cursorPosition.equals(getSourcePosition(token))) {
             isCursorBetween = true;
@@ -128,6 +119,14 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
         }
         return isCursorBetween;
+    }
+
+    @Override
+    protected void setContextException(Parser parser) {
+        // Here the type of the exception is not important.
+        InputMismatchException e = new InputMismatchException(parser);
+        ParserRuleContext context = parser.getContext();
+        context.exception = e;
     }
 
     protected Position getSourcePosition(Token token) {

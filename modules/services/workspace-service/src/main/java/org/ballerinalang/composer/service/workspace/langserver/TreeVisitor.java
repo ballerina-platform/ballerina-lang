@@ -21,7 +21,10 @@ package org.ballerinalang.composer.service.workspace.langserver;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -29,14 +32,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -75,6 +81,7 @@ import java.util.Stack;
  * @since 0.94
  */
 public class TreeVisitor extends BLangNodeVisitor {
+    private String cUnitName;
     private SymbolEnv symbolEnv;
     private SymbolTable symTable;
     private SymbolResolver symbolResolver;
@@ -85,9 +92,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
+    private static final Logger logger = LoggerFactory.getLogger(TreeVisitor.class);
 
-    public TreeVisitor(CompilerContext compilerContext,
-                       List<SymbolInfo> symbolInfoList, Position pos, SuggestionsFilterDataModel filterDataModel) {
+    public TreeVisitor(String cUnitName, CompilerContext compilerContext, List<SymbolInfo> symbolInfoList,
+                       Position pos, SuggestionsFilterDataModel filterDataModel) {
+        this.cUnitName = cUnitName;
         this.symTable = SymbolTable.getInstance(compilerContext);
         this.symbolEnter = SymbolEnter.getInstance(compilerContext);
         this.symbolResolver = SymbolResolver.getInstance(compilerContext);
@@ -103,11 +112,17 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
 
-        // Visit all the imported packages
-        pkgNode.imports.forEach(importNode -> this.acceptNode(importNode, pkgEnv));
-
         // Then visit each top-level element sorted using the compilation unit
-        pkgNode.topLevelNodes.forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode, pkgEnv));
+        TopLevelNode topLevelNode = null;
+        try {
+            topLevelNode = pkgNode.topLevelNodes.stream().findFirst().filter(node ->
+                    node.getPosition().getSource().getCompilationUnitName().equals(this.cUnitName)
+            ).orElseThrow(CompilationUnitNotFoundException::new);
+        } catch (CompilationUnitNotFoundException e) {
+            logger.error(e.getMessage());
+        }
+
+        this.acceptNode((BLangNode) topLevelNode, pkgEnv);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -141,7 +156,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         BSymbol structSymbol = structNode.symbol;
         this.symbolEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
         Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-        this.populateSymbols(visibleSymbolEntries);
+        this.populateSymbols(visibleSymbolEntries, null);
         this.terminateVisitor = true;
     }
 
@@ -169,7 +184,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         this.blockStmtStack.push(blockNode);
-        blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        if (blockNode.stmts.isEmpty()) {
+            this.isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockNode, blockEnv);
+        } else {
+            blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        }
         this.blockStmtStack.pop();
     }
 
@@ -231,6 +250,23 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        BSymbol serviceSymbol = serviceNode.symbol;
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
+        serviceNode.vars.forEach(v -> this.acceptNode(v, serviceEnv));
+        serviceNode.resources.forEach(r -> this.acceptNode(r, serviceEnv));
+    }
+
+    public void visit(BLangResource resourceNode) {
+        BSymbol resourceSymbol = resourceNode.symbol;
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
+
+        // TODO:Handle Annotation attachments
+
+        resourceNode.params.forEach(p -> this.acceptNode(p, resourceEnv));
+        resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
+        this.blockOwnerStack.push(resourceNode);
+        acceptNode(resourceNode.body, resourceEnv);
+        this.blockOwnerStack.pop();
     }
 
     @Override
@@ -379,15 +415,20 @@ public class TreeVisitor extends BLangNodeVisitor {
      * @return all visible symbols for current scope
      */
     private Map<Name, Scope.ScopeEntry> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
-        return symbolResolver.lookupAllVisibleSymbols(symbolEnv);
+        return symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
     }
 
     /**
      * Populate the symbols
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries) {
-        this.filterDataModel.setSymbolEnvNode(this.symbolEnv.node);
+    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
+        if (symbolEnv != null) {
+            this.filterDataModel.setSymbolEnvNode(symbolEnv.node);
+        } else {
+            this.filterDataModel.setSymbolEnvNode(this.symbolEnv.node);
+        }
+
         symbolEntries.forEach((k, v) -> {
             SymbolInfo symbolInfo = new SymbolInfo(k.getValue(), v);
             symbols.add(symbolInfo);
@@ -441,7 +482,22 @@ public class TreeVisitor extends BLangNodeVisitor {
                 (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                         (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.populateSymbols(visibleSymbolEntries, null);
+            this.terminateVisitor = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isCursorWithinBlock(DiagnosticPos nodePosition, Node node, SymbolEnv symbolEnv) {
+        int line = position.getLine();
+        int nodeSLine = nodePosition.sLine;
+        int nodeELine = nodePosition.eLine;
+
+        if ((nodeSLine <= line && nodeELine >= line)) {
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbolEntries, symbolEnv);
             this.terminateVisitor = true;
             return true;
         }
@@ -555,6 +611,12 @@ public class TreeVisitor extends BLangNodeVisitor {
             } else {
                 return ifNode.elseStmt.getPosition().getEndLine();
             }
+        }
+    }
+
+    public class CompilationUnitNotFoundException extends Exception {
+        public CompilationUnitNotFoundException() {
+            super("Cannot Find Compilation Unit");
         }
     }
 }
