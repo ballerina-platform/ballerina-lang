@@ -338,7 +338,7 @@ public class TransactionStmtFlowTest {
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*continue statement " +
             "cannot be used to exit from a transaction.*")
-    public void testTransactionWithContinueInvalid() {
+    public void testTransactionWithNextInvalid() {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-continue-invalid.bal");
     }
     */
@@ -374,16 +374,16 @@ public class TransactionStmtFlowTest {
     }
 
     @Test()
-    public void testTransactionWithContinueValid() {
-        BValue[] returns = BTestUtils.invoke(programFile, "transactionWithContinue1", new BValue[0]);
+    public void testTransactionWithNextValid() {
+        BValue[] returns = BTestUtils.invoke(programFile, "transactionWithNext1", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
-        returns = BTestUtils.invoke(programFile, "transactionWithContinue2", new BValue[0]);
+        returns = BTestUtils.invoke(programFile, "transactionWithNext2", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
-        returns = BTestUtils.invoke(programFile, "transactionWithContinue3", new BValue[0]);
+        returns = BTestUtils.invoke(programFile, "transactionWithNext3", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
     }

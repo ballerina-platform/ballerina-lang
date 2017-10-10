@@ -18,13 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.ContinueNode;
+import org.ballerinalang.model.tree.statements.NextNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
  */
-public class BLangContinue extends BLangStatement implements ContinueNode {
+public class BLangNext extends BLangStatement implements NextNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

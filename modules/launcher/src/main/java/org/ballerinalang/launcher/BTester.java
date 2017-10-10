@@ -33,7 +33,7 @@ public class BTester {
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
-//      options.put(SOURCE_ROOT, "./");
+//        options.put(SOURCE_ROOT, "./");
         options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -47,7 +47,7 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
 //        compiler.compile("bar.bal");
-        compiler.compile("foo.bal");
+        compiler.compile("pkg.bal");
 //        compiler.compile("a.b.c");
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
 
