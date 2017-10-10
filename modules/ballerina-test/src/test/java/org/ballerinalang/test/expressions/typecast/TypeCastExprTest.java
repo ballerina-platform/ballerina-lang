@@ -640,14 +640,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(targetType, "A");
     }
 
-    @Test(enabled = false, description = "Test returning a mismatching error when casting",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
-                    "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
+    @Test(description = "Test returning a mismatching error when casting")
     public void testMistmatchErrorInMultiReturnCasting() {
         CompileResult res = BTestUtils.compile("test-src/expressions/typecast/multi-return-casting-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BTestUtils.validateError(res, 0, "", 0, 0);
+        BTestUtils.validateError(res, 0, "incompatible types: expected 'Error', found 'TypeCastError'", 18, 14);
     }
 
     @Test(description = "Test casting with too many returns")

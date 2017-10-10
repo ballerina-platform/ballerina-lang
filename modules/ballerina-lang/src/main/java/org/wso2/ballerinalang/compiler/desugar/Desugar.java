@@ -260,7 +260,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        varNode.expr = rewriteExpr(varNode.expr);
+        if ((varNode.symbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            varNode.expr = rewriteExpr(varNode.expr);
+        } else {
+            varNode.expr = null;
+        }
         result = varNode;
     }
 

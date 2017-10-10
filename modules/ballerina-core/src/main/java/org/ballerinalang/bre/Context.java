@@ -85,9 +85,13 @@ public class Context {
             if (this.debugInfoHolder != null) {
                 return;
             }
-            this.debugInfoHolder = debugInfoHolder;
+            this.setDebugInfoHolder(debugInfoHolder);
             this.debugInfoHolder.init(programFile);
         }
+    }
+    
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
     }
 
     public String getThreadId() {

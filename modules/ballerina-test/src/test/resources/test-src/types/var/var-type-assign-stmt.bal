@@ -1,7 +1,7 @@
 function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, TypeConversionError) {
     int a;
-    float f = 10.0;
-    var a, err = <int>f;
+    string s = "10";
+    var a, err = <int>s;
     return a, err;
 }
 
