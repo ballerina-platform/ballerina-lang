@@ -93,7 +93,13 @@ stream.once('open', () => {
                     } else {
                         pushWithWS(js, 'node.' + getter, getter);
                     }
-                    condition.push(getter);
+
+                    if (getter === 'joinCount') {
+                        // HACK
+                        condition.push(getter + ' >= 0');
+                    } else {
+                        condition.push(getter);
+                    }
                 } else if (p.match(/^<.*>[*+]$/)) {
                     const getter = p.slice(1, -2).split('-')[0];
                     const params = ['node.' + getter, 'pretty', 'l', 'w', wQuoted(getter) || '\'\''];
@@ -111,11 +117,14 @@ stream.once('open', () => {
                     }
                 } else {
                     if (p === '}' && kind !== 'RecordLiteralExpr') {
+                        // HACK
                         js.push('outdent()');
                     }
                     js.push(wWrapped(p) + '\'' + p + '\'' + wAfterWrapped(p));
+                    // HACK
                     if ((p === '{' && kind !== 'RecordLiteralExpr')) {
                         if (kind === 'If') {
+                            // HACK
                             // We need to spacial case If to handle 'else if' case correctly.
                             js.unshift('(node.parent.kind === \'If\' ? \'\' : dent())');
                         } else {

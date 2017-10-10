@@ -96,7 +96,12 @@ FieldBasedAccessExpr
    ;
 
 ForkJoin
-   : fork { <workers>* } <joinResultVar.source>
+   : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> } timeout ( <timeOutExpression.source> ) ( <timeOutVariable.source> ) { <timeoutBody.source> }
+   : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> }
+   : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { }
+   : fork { <workers>* } join ( <joinType> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> } timeout ( <timeOutExpression.source> ) ( <timeOutVariable.source> ) { <timeoutBody.source> }
+   : fork { <workers>* } join ( <joinType> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> }
+   | fork { <workers>* } join ( <joinType> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { }
    ;
 
 Function
@@ -142,6 +147,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
+   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
    : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
@@ -209,7 +215,7 @@ While
    ;
 
 Worker
-   : { <body.source> }
+   : worker <name.value> { <body.source> }
    ;
 
 WorkerReceive
