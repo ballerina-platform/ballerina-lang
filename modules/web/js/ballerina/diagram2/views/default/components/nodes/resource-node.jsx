@@ -29,6 +29,7 @@ import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 
 class ResourceNode extends React.Component {
 
@@ -82,7 +83,18 @@ class ResourceNode extends React.Component {
         };
         const argumentParameters = this.props.model.getParameters();
 
+        const connectors = this.props.model.body.statements
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });        
+
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
+        const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
         // const nodeFactory = ASTFactory;
         // Check for connector declaration children
         // const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
@@ -130,23 +142,9 @@ class ResourceNode extends React.Component {
                             icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                             iconColor='#025482'
                         />
-                        {/* { connectorChildren.length > 0 &&
-                        <g>
-                            <rect
-                                x={workerScopeContainerBBox.x}
-                                y={workerScopeContainerBBox.y}
-                                width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                                height={workerScopeContainerBBox.h}
-                                style={{ fill: 'none',
-                                    stroke: '#67696d',
-                                    strokeWidth: 2,
-                                    strokeLinecap: 'round',
-                                    strokeLinejoin: 'miter',
-                                    strokeMiterlimit: 4,
-                                    strokeOpacity: 1,
-                                    strokeDasharray: 5 }}
-                            /> </g> }*/}
                         {blockNode}
+                        {workers}
+                        {connectors}
                     </g>
                 </PanelDecorator>
                 {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtn &&

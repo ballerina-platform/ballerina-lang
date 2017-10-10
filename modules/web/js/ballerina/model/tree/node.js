@@ -290,6 +290,22 @@ class Node extends EventChannel {
             }
         }
     }
+
+    /**
+     * Clear the whitespace of the node.
+     *
+     * @memberof Node
+     */
+    clearWS() {
+        this.accept({
+            beginVisit: (node) => {
+                node.ws = [];
+            },
+            endVisit: (node) => {
+                //do nothing.
+            },
+        });
+    }
 }
 
 export default Node;
