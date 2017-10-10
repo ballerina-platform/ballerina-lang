@@ -375,6 +375,8 @@ public class HttpUtil {
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.setMessageDataSource(payload);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+        httpCarbonMessage.setAlreadyRead(true);
         return AbstractNativeFunction.VOID_RETURN;
     }
 
