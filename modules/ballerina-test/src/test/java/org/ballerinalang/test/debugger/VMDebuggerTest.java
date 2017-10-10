@@ -85,7 +85,7 @@ public class VMDebuggerTest {
                 expectedBreakPoints, debugCommand);
     }
 
-    @Test(description = "Testing Step Over.")
+    @Test(description = "Testing Step Over.", enabled = false)
     public void testStepOver() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 3);
         Step[] debugCommand = {Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
@@ -115,6 +115,31 @@ public class VMDebuggerTest {
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 FILE, 13, 14, 19, 13, 19, 13, 19, 13, 19, 13, 21);
         VMDebuggerUtil.startDebug("test-src/debugger/testDebug.bal", breakPoints,
+                expectedBreakPoints, debugCommand);
+    }
+
+    @Test(description = "Testing while statement resume", enabled = false)
+    public void testWhileStatementResume() {
+        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
+                "while-statement.bal", 5);
+        Step[] debugCommand = {Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME};
+        BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
+                "while-statement.bal", 5, 5, 5, 5, 5);
+        VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints,
+                expectedBreakPoints, debugCommand);
+    }
+
+    @Test(description = "Testing try catch finally scenario for path", enabled = false)
+    public void testTryCatchScenarioForPath() {
+        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
+                "try-catch-finally.bal", 22);
+        Step[] debugCommand = {Step.STEP_IN, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
+                Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
+                Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.RESUME};
+        BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
+                "try-catch-finally.bal", 22, 30, 32,
+                34, 35, 36, 37, 38, 46, 47, 48, 53, 58, 59, 61, 63);
+        VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints,
                 expectedBreakPoints, debugCommand);
     }
 }
