@@ -377,6 +377,81 @@ class HttpClient extends React.Component {
         }
     }
 
+    renderResponseHeaders(responseHeaders) {
+        if (this.state.responseHeaders !== '') {
+            const responseHeaderList = [];
+
+            for (const key in responseHeaders) {
+                if (responseHeaders.hasOwnProperty(key)) {
+                    responseHeaderList.push({ name: key, value: responseHeaders[key] });
+                }
+            }
+
+            return responseHeaderList.map((header) => {
+                return (<div key={`${header.name}`} className="form-inline">
+                    <input
+                        key={`key-${header.name}`}
+                        ref={(ref) => {
+                            if (header.name === '' && header.value === '') {
+                                this.headerKey = ref;
+                            }
+                        }}
+                        placeholder='Key'
+                        type='text'
+                        className="header-input form-control"
+                        value={header.name}
+                        onChange={e => this.onHeaderKeyChange(header.value, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                    />
+                    :
+                    <input
+                        key={`value-${header.id}`}
+                        placeholder='Value'
+                        type='text'
+                        className="header-input form-control"
+                        value={header.value}
+                        onChange={e => this.onHeaderValueChange(header.name, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                        onKeyDown={this.onHeaderValueKeyDown}
+                        readOnly
+                    />
+                </div>);
+            });
+        }
+
+        return this.state.requestHeaders.map((header) => {
+            return (<div key={`${header.id}`} className="form-inline">
+                <input
+                    key={`key-${header.id}`}
+                    ref={(ref) => {
+                        if (header.key === '' && header.value === '') {
+                            this.headerKey = ref;
+                        }
+                    }}
+                    placeholder='Key'
+                    type='text'
+                    className="header-input form-control"
+                    value={header.key}
+                    onChange={e => this.onHeaderKeyChange(header.value, e)}
+                    onBlur={() => { this.focusTarget = undefined; }}
+                    readOnly
+                />
+                :
+                <input
+                    key={`value-${header.id}`}
+                    placeholder='Value'
+                    type='text'
+                    className="header-input form-control"
+                    value={header.value}
+                    onChange={e => this.onHeaderValueChange(header.key, e)}
+                    onBlur={() => { this.focusTarget = undefined; }}
+                    onKeyDown={this.onHeaderValueKeyDown}
+                />
+                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
+            </div>);
+        });
+    }
+
     /**
      * Renders the view of the http client.
      * @returns {ReactElement} The view.
@@ -484,10 +559,10 @@ class HttpClient extends React.Component {
                                             <hr />
                                             {this.state.responseHeaders.length > 0 ? (
                                                 <div>
-                                                {this.state.responseHeaders}
+                                                    {this.renderResponseHeaders(JSON.parse(this.state.responseHeaders))}
                                                 </div>
                                             ) : (
-                                                <div className="message message-warning">
+                                                <div className="try-it-message message message-warning">
                                                     <h4><i className="icon fw fw-warning"></i>
                                                         Hit the send button to see the headers.</h4>
                                                 </div>
@@ -499,10 +574,11 @@ class HttpClient extends React.Component {
                                             <hr />
                                             {this.state.returnedRequestHeaders.length > 0 ? (
                                                 <div>
-                                                    {this.state.returnedRequestHeaders}
+                                                    {this.renderResponseHeaders(
+                                                                        JSON.parse(this.state.returnedRequestHeaders))}
                                                 </div>
                                             ) : (
-                                                <div className="message message-warning">
+                                                <div className="try-it-message message message-warning">
                                                     <h4><i className="icon fw fw-warning"></i>
                                                         Hit the send button to see the headers.</h4>
 

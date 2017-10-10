@@ -99,6 +99,25 @@
 .http-client-response {
     padding-left: 20px;
 
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
+
+    input[type=text]{
+        color: #fff;
+        height: 33px;
+        padding: 6px;
+        background-color: #575757;
+        border: none;
+    }
+
+
     h3{
         font-size: 18px;
         border-bottom: 3px solid #f17b31;
@@ -161,4 +180,8 @@ hr{
     display: block;
     padding: 0px 5px;
     border: 1px solid rgba(241, 123, 49, 0.41);
+}
+
+.try-it-message {
+  background: #333333;
 }
