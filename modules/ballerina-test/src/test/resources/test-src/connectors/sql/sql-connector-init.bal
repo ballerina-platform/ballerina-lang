@@ -19,7 +19,7 @@ function testConnectorWithDataSource () (string firstName) {
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -45,7 +45,7 @@ function testConnectionPoolProperties () (string firstName) {
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }

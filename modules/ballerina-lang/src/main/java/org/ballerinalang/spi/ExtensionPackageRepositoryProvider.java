@@ -15,10 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.spi;
+
+import org.ballerinalang.repository.PackageRepository;
 
 /**
+ * This represents the Java SPI interface for a Ballerina extension package repository provider.
+ * 
  * @since 0.94
  */
-public interface ContinueNode extends StatementNode {
+public interface ExtensionPackageRepositoryProvider {
+
+    /**
+     * Loads the extension package repository exposed by this service.
+     * 
+     * @return the loaded {@link PackageRepository} object 
+     */
+    PackageRepository loadRepository();
+    
 }
