@@ -37,7 +37,7 @@ public class ForkJoinReturnAnyTest {
         result = BTestUtils.compile("test-src/workers/fork-join-return-any.bal");
     }
 
-    @Test(description = "Test Fork Join With workers returning any type", enabled = false)
+    @Test(description = "Test Fork Join With workers returning any type")
     public void testForkJoinReturnAnyType() {
         BValue[] returns = BTestUtils.invoke(result, "testForkJoinReturnAnyType");
         Assert.assertEquals(returns.length, 2);
