@@ -53,6 +53,11 @@ public class BStructType extends BType implements StructType {
     }
 
     @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
     public String toString() {
         return this.tsymbol.toString();
     }

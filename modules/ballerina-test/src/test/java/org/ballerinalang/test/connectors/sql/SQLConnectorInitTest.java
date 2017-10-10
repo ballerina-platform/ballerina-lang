@@ -35,12 +35,12 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/sql-connector-init.bal");
+        result = BTestUtils.compile("test-src/connectors/sql/sql-connector-init.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test
     public void testConnectorWithDataSource() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSource", args);
@@ -49,7 +49,7 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest" , enabled = false)
+    @Test
     public void testConnectionPoolProperties() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testConnectionPoolProperties", args);

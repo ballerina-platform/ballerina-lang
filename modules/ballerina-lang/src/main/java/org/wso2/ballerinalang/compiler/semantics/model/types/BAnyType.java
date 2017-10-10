@@ -15,29 +15,32 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.ContinueNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
  * @since 0.94
  */
-public class BLangContinue extends BLangStatement implements ContinueNode {
+public class BAnyType extends BBuiltInRefType {
 
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
+    public BAnyType(int tag, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
+    }
+
+    public String getDesc() {
+        return TypeDescriptor.SIG_ANY;
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.CONTINUE;
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
     }
 
     @Override
-    public String toString() {
-        return "Continue";
+    public TypeKind getKind() {
+        return TypeKind.ANY;
     }
 }

@@ -68,6 +68,10 @@ public class BType implements ValueType {
         return new ArrayList<>(0);
     }
 
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
     @Override
     public TypeKind getKind() {
         switch (tag) {
