@@ -111,7 +111,7 @@ public class TaskScheduler {
                     callFunction(ctx, onTriggerFunction, onErrorFunction);
                 }
             };
-            long delay = calculateDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
+            long delay = computeNextDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
             executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
             if (log.isDebugEnabled()) {
                 log.info("Appointment is scheduled with the delay " + delay + " MILLISECONDS");
@@ -217,7 +217,7 @@ public class TaskScheduler {
         return response;
     }
 
-    private static long calculateDelay(int taskId, Context ctx, long minute, long hour, long dayOfWeek,
+    private static long computeNextDelay(int taskId, Context ctx, long minute, long hour, long dayOfWeek,
                                          long dayOfMonth, long month) {
         if (minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
                 || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1) {
