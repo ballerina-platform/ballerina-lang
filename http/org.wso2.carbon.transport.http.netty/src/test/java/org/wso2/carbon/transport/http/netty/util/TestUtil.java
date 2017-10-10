@@ -187,7 +187,7 @@ public class TestUtil {
             httpServer.setResponseCode(responseCode);
             httpServer.setLocation(location);
             httpServer.setDelay(delay);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;

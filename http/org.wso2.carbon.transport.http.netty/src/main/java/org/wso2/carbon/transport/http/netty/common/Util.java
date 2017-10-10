@@ -498,6 +498,12 @@ public class Util {
         return host + ":" + port;
     }
 
+    /**
+     * Create an error response message with the given payload when a timeout occurs.
+     *
+     * @param payload Message payload.
+     * @return HTTPCarbonMessage
+     */
     public static HTTPCarbonMessage createErrorMessage(String payload) {
 
         HTTPCarbonMessage response = new HTTPCarbonMessage(

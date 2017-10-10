@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
 
     private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
 
-    private SSLEngine sslEngine;
-    private boolean httpTraceLogEnabled;
-    private ChannelHandlerContext originalChannelContext;
-    private ChannelHandlerContext childChannelContext;
+    private SSLEngine sslEngine; //Add SSL support to channel
+    private boolean httpTraceLogEnabled; //Will be used, if enabled, to log events
+    private ChannelHandlerContext originalChannelContext; //Original channel context
+    private ChannelHandlerContext childChannelContext; //Previously created channel context for redirection
     private int maxRedirectCount;
     private long socketTimeout;
 
@@ -61,7 +61,9 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
         if (sslEngine != null) {
-            log.debug("adding ssl handler");
+            if (log.isDebugEnabled()) {
+                log.debug("adding ssl handler");
+            }
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
