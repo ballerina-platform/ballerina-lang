@@ -35,8 +35,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
-import java.io.PrintStream;
-
 /**
  * Native function ballerina.model.task:scheduleTimer.
  */
@@ -78,7 +76,8 @@ public class ScheduleTimer extends AbstractNativeFunction {
         BValue scheduler = getRefArgument(ctx, 2);
         long delay = ((BStruct) scheduler).getIntField(0);
         long interval = ((BStruct) scheduler).getIntField(1);
-        log.info("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: " + interval);
+        log.info("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: "
+                + interval);
         int taskId = -1;
         BString error = new BString("Unable to schedule the timer");
         taskId = TaskUtil.generateTaskId(ctx);

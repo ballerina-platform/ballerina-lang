@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 
 import java.lang.management.ManagementFactory;
 
-
 /**
  * Utility methods for ballerina task.
  */

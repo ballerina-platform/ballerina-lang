@@ -29,13 +29,11 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.io.PrintStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -113,7 +111,7 @@ public class TaskScheduler {
                     callFunction(ctx, onTriggerFunction, onErrorFunction);
                 }
             };
-            long delay = computeNextDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
+            long delay = calculateDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
             executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
             if (log.isDebugEnabled()) {
                 log.info("Appointment is scheduled with the delay " + delay + " MILLISECONDS");
@@ -219,7 +217,7 @@ public class TaskScheduler {
         return response;
     }
 
-    private static long computeNextDelay(int taskId, Context ctx, long minute, long hour, long dayOfWeek,
+    private static long calculateDelay(int taskId, Context ctx, long minute, long hour, long dayOfWeek,
                                          long dayOfMonth, long month) {
         if (minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
                 || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1) {
@@ -266,9 +264,9 @@ public class TaskScheduler {
             if (dayOfWeek != -1 && dayOfMonth != -1) {
                 newTimeAccordingToDOW = fixTheDateByDOW(now, newTimeAccordingToDOW, dayOfWeek, month);
                 newTimeAccordingToDOM = fixTheDateByDOM(now, newTimeAccordingToDOM, dayOfMonth);
-                newTimeAccordingToDOW = calculateRemainingTime(now, newTimeAccordingToDOW, minute, hour, dayOfWeek,
+                newTimeAccordingToDOW = fixTheDateByMonth(now, newTimeAccordingToDOW, minute, hour, dayOfWeek,
                         dayOfMonth, month);
-                newTimeAccordingToDOM = calculateRemainingTime(now, newTimeAccordingToDOM, minute, hour, dayOfWeek,
+                newTimeAccordingToDOM = fixTheDateByMonth(now, newTimeAccordingToDOM, minute, hour, dayOfWeek,
                         dayOfMonth, month);
                 startTime = newTimeAccordingToDOW.before(newTimeAccordingToDOM) ?
                         newTimeAccordingToDOW :
@@ -276,15 +274,9 @@ public class TaskScheduler {
             } else {
                 startTime = fixTheDateByDOW(now, startTime, dayOfWeek, month);
                 startTime = fixTheDateByDOM(now, startTime, dayOfMonth);
-                startTime = calculateRemainingTime(now, startTime, minute, hour, dayOfWeek, dayOfMonth, month);
+                startTime = fixTheDateByMonth(now, startTime, minute, hour, dayOfWeek, dayOfMonth, month);
             }
-            LocalDateTime localNow = LocalDateTime.now();
-            ZoneId currentZone = ZoneId.systemDefault();
-            ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-            LocalDateTime localNext = LocalDateTime.ofInstant(startTime.toInstant(), currentZone);
-            ZonedDateTime zonedNextTarget = ZonedDateTime.of(localNext, currentZone);
-            Duration duration = Duration.between(zonedNow, zonedNextTarget);
-            return duration.toMillis();
+            return calculateDuration(startTime);
         }
         return 0;
     }
@@ -326,8 +318,8 @@ public class TaskScheduler {
         return startTime;
     }
 
-    private static Calendar calculateRemainingTime(Calendar now, Calendar startTime, long minute, long hour,
-                                                   long dayOfWeek, long dayOfMonth, long month) {
+    private static Calendar fixTheDateByMonth(Calendar now, Calendar startTime, long minute, long hour,
+                                              long dayOfWeek, long dayOfMonth, long month) {
         if ((minute == 0 && hour > -1) || (minute == -1 && hour > -1)) {
             startTime.set(Calendar.MINUTE, 0);
             startTime.set(Calendar.SECOND, 0);
@@ -337,16 +329,19 @@ public class TaskScheduler {
         } else if (minute > 0 && hour != -1) {
             startTime.set(Calendar.SECOND, 0);
         }
-        if (month == -1 && ((startTime.before(now) || startTime.equals(now))) && !(dayOfWeek != -1
-                && dayOfMonth != -1)) {
-            startTime.add(Calendar.MONTH, 1);
-        } else if (month > -1) {
+        if (month > -1) {
             if (startTime.get(Calendar.MONTH) < (int) month) {
                 startTime.add(Calendar.MONTH, (int) month - startTime.get(Calendar.MONTH));
+                if (dayOfWeek == -1 && dayOfMonth == -1) {
+                    startTime.set(Calendar.DATE, 1);
+                }
             } else if (startTime.get(Calendar.MONTH) > (int) month) {
                 int months = (int) month - startTime.get(Calendar.MONTH);
                 startTime.add(Calendar.YEAR, 1);
                 startTime.add(Calendar.MONTH, months);
+                if (dayOfWeek == -1 && dayOfMonth == -1) {
+                    startTime.set(Calendar.DATE, 1);
+                }
             } else if (startTime.get(Calendar.MONTH) == (int) month && startTime.before(now)) {
                 startTime.add(Calendar.YEAR, 1);
             }
@@ -377,6 +372,16 @@ public class TaskScheduler {
             }
         }
         return startTime;
+    }
+
+    private static long calculateDuration(Calendar startTime) {
+        LocalDateTime localNow = LocalDateTime.now();
+        ZoneId currentZone = ZoneId.systemDefault();
+        ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
+        LocalDateTime localNext = LocalDateTime.ofInstant(startTime.toInstant(), currentZone);
+        ZonedDateTime zonedNextTarget = ZonedDateTime.of(localNext, currentZone);
+        Duration duration = Duration.between(zonedNow, zonedNextTarget);
+        return duration.toMillis();
     }
 
     protected static void stopTask(Context ctx, int taskId) {

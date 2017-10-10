@@ -30,9 +30,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.io.PrintStream;
-
-
 /**
  * Native function ballerina.model.task:stopTask.
  */

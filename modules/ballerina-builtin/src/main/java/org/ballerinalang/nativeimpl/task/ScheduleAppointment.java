@@ -35,8 +35,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
-import java.io.PrintStream;
-
 /**
  * Native function ballerina.model.task:scheduleAppointment.
  */
