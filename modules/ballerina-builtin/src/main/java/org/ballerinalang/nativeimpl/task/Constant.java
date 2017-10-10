@@ -21,7 +21,10 @@ package org.ballerinalang.nativeimpl.task;
  * Constants used in ballerina task.
  */
 public class Constant {
+    //Name of the Hashmap where we keep the ScheduledExecutorServices.
     protected static final String SERVICEMAP = "executorServiceMap";
+    //The name of the context property which is used to keep the error.
     protected static final String ERROR = "ERROR";
+    //The name of the context property which is used to generate the task id.
     protected static final String ID = "id";
 }
