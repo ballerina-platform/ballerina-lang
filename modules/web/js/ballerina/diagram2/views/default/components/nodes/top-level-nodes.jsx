@@ -89,7 +89,7 @@ class TopLevelNodes extends React.Component {
             });
         }
         if (this.state.packageDefValue) {
-            const pkgName = 'package ' + this.state.packageDefValue + ';';
+            const pkgName = `package ${this.state.packageDefValue};`;
             const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
             const parsedJson = FragmentUtils.parseFragment(fragment);
             // If there's no packageDeclaration node, then create one
@@ -129,6 +129,8 @@ class TopLevelNodes extends React.Component {
 
     /**
      * Get the full package name
+     * @param model: CompilationUnit node
+     * @returns if exists: the full pkg name else: undefined
      */
     getPackageName(model) {
         // model is the compilation level node
@@ -161,7 +163,7 @@ class TopLevelNodes extends React.Component {
         if (!value) {
             return;
         }
-        value = 'import ' + value + ';\n';
+        value = `import ${value};\n`;
         const fragment = FragmentUtils.createTopLevelNodeFragment(value);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         this.props.model.addImport(TreeBuilder.build(parsedJson));
@@ -217,7 +219,7 @@ class TopLevelNodes extends React.Component {
         const model = this.props.model;
         // TODO fix for the model not being parsed properly
         if (model.viewState.components.topLevelNodes === undefined) {
-            return <g />;
+            return (null);
         }
         const bBox = model.viewState.components.topLevelNodes;
         const headerHeight = packageDefinition.header.height;
@@ -225,7 +227,7 @@ class TopLevelNodes extends React.Component {
         // TODO fix for the model not being parsed properly
         if (this.props.model.viewState.components.importDeclaration === undefined ||
             this.props.model.viewState.components.importsExpanded === undefined) {
-            return <g />;
+            return (null);
         }
         const importsExpanded = this.props.model.viewState.importsExpanded;
         const globalsExpanded = this.props.model.viewState.globalsExpanded;
