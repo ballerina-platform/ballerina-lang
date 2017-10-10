@@ -221,27 +221,29 @@ class TreeUtil extends AbstractTreeUtil {
         /* TODO: handle expression, argument parameter and return parameter. */
         // check node kind.
         if (node.isStatement) {
+            // get the parent of the node.
+            const statementParentNode = node.parent;
+
             // invoke the fragment util for the coresponding kind.
             const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
-            const newNode = TreeBuilder.build(parsedJson);
-            // get the parent of the node.
-            const parentNode = node.parent;
-            newNode.parent = parentNode;
+            const newStatementNode = TreeBuilder.build(parsedJson,statementParentNode, statementParentNode.kind);
+
             // replace the old node with new node.
-            parentNode.replaceStatements(node, newNode, false);
+            statementParentNode.replaceStatements(node, newStatementNode, false);
         } else if (node.isExpression) {
+            // Get the parent node.
+            const expressionParentNode = node.parent;
+
             // invoke the fragment util and get the new node.
             const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
-            const newNode = TreeBuilder.build(parseJson);
+            const newExpressionNode = TreeBuilder.build(parseJson, expressionParentNode, expressionParentNode.kind);
 
-            // Get the parent node.
-            const parentNode = node.parent;
-
-            // Set the parent for new node.
-            newNode.parent(parentNode);
-
-            // Set the condition using new node.
-            parentNode.setCondition(newNode);
+            // Get the initial expression from returning node.
+            if (newExpressionNode && newExpressionNode.variable.initialExpression) {
+                newExpressionNode.variable.initialExpression.parent = expressionParentNode;
+                // Set the condition using new node.
+                expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
+            }
         }
     }
 }
