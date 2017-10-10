@@ -219,8 +219,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         forkJoin.workers.forEach(e -> e.accept(this));
         forkJoin.joinedBody.accept(this);
         if (forkJoin.timeoutBody != null) {
-            forkJoin.timeoutBody.accept(this);
+            boolean joinReturns = this.statementReturns;
             this.resetStatementReturns();
+            forkJoin.timeoutBody.accept(this);
+            this.statementReturns = joinReturns && this.statementReturns;
         }
         this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
