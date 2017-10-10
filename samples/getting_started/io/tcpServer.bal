@@ -12,6 +12,8 @@ function getRecordChannel (io:ByteChannel channel, string rs, string fs) (io:Tex
 
 function main (string[] args) {
 
+    system:println("Starting TCP Server...");
+
     tcp:Socket serverSocketAddress = {address:"localhost", port:8989};
     io:ByteChannel dstByteChannel = tcp:openChannel(serverSocketAddress, "r");
     io:TextRecordChannel dstTxtRecordChannel = getRecordChannel(dstByteChannel, "\n", "\\|");
@@ -23,5 +25,7 @@ function main (string[] args) {
         recordLength = lengthof records;
         system:println(records);
     }
+
+    system:println("Shutting Down TCP Server...");
 
 }

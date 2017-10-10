@@ -1,1 +1,0 @@
-$ ballerina run io-records-client.bal

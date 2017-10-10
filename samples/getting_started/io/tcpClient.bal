@@ -1,6 +1,7 @@
 import ballerina.tcp;
 import ballerina.io;
 import ballerina.lang.files;
+import ballerina.lang.system;
 
 
 function getRecordChannel (io:ByteChannel channel, string rs, string fs) (io:TextRecordChannel) {
@@ -12,7 +13,7 @@ function getRecordChannel (io:ByteChannel channel, string rs, string fs) (io:Tex
 
 function main (string[] args) {
 
-    files:File srcFilePath = {path:"./files/sample.csv"};
+    files:File srcFilePath = {path:"../samples/io/files/sample.csv"};
     tcp:Socket dstSocketAddress = {address:"localhost", port:8989};
 
     io:ByteChannel srcByteChannel = files:openChannel(srcFilePath, "r");
@@ -23,10 +24,14 @@ function main (string[] args) {
 
     int numberOfFields = -1;
 
+    system:println("Sending Records...");
+
     while (numberOfFields != 0) {
         string [] records = io:readTextRecord(srcTxtRecordChannel);
         io:writeTextRecord(dstTxtRecordChannel, records);
         numberOfFields = lengthof records;
     }
+
+    system:println("Record Processing Complete!");
 
 }
