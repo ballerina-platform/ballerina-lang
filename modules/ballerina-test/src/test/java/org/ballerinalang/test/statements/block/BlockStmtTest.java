@@ -40,7 +40,7 @@ public class BlockStmtTest {
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         //testUnreachableStmtInIfFunction1
         BTestUtils.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
@@ -51,5 +51,13 @@ public class BlockStmtTest {
         BTestUtils.validateError(resultNegative, 3, "unreachable code", 46, 13);
         //testCommentAfterReturnStmt
         BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 5);
+        //testUnreachableTryCatch
+        BTestUtils.validateError(resultNegative, 5, "unreachable code", 73, 5);
+        //testUnreachableNext
+        BTestUtils.validateError(resultNegative, 6, "unreachable code", 84, 9);
+        //testUnreachableBreak
+        BTestUtils.validateError(resultNegative, 7, "unreachable code", 92, 9);
+        //testUnreachableThrow
+        BTestUtils.validateError(resultNegative, 8, "unreachable code", 108, 9);
     }
 }
