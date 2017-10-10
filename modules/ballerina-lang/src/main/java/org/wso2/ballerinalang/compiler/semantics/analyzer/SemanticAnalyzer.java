@@ -62,10 +62,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -722,9 +722,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
-        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, folkJoinEnv));
-        forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
+        SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
+        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, forkJoinEnv));
+        forkJoin.workers.forEach(e -> this.analyzeDef(e, forkJoinEnv));
         if (!this.isJoinResultType(forkJoin.joinResultVar)) {
             this.dlog.error(forkJoin.joinResultVar.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
         }
@@ -752,6 +752,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
             this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
         }
+        
+        this.validateJoinWorkerList(forkJoin, forkJoinEnv);
+    }
+    
+    private void validateJoinWorkerList(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv) {
+        forkJoin.joinedWorkers.forEach(e -> {
+            if (!this.workerExists(forkJoinEnv, e.value)) {
+                this.dlog.error(forkJoin.pos, DiagnosticCode.UNDEFINED_WORKER, e.value);
+            }
+        });
     }
 
     @Override
@@ -857,7 +867,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(node, env, symTable.noType, null);
     }
 
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
         /* ignore */
     }
 
@@ -913,6 +923,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ignoredCount++;
                 simpleVarRef.type = this.symTable.noType;
                 expTypes.add(symTable.noType);
+                typeChecker.checkExpr(simpleVarRef, env);
                 continue;
             }
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);

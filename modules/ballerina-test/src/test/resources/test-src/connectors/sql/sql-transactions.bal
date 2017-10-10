@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.errors;
 import ballerina.lang.datatables;
 
 struct ResultCount {
@@ -7,9 +6,8 @@ struct ResultCount {
 }
 
 function testLocalTransacton () (int returnVal, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -24,10 +22,10 @@ function testLocalTransacton () (int returnVal, int count) {
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -36,9 +34,8 @@ function testLocalTransacton () (int returnVal, int count) {
 }
 
 function testTransactonRollback () (int returnVal, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     sql:Parameter[] parameters = [];
     try {
@@ -50,15 +47,15 @@ function testTransactonRollback () (int returnVal, int count) {
         } aborted {
             returnVal = -1;
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         // ignore.
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -67,9 +64,8 @@ function testTransactonRollback () (int returnVal, int count) {
 }
 
 function testTransactonAbort () (int returnVal, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -89,10 +85,10 @@ function testTransactonAbort () (int returnVal, int count) {
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -101,9 +97,8 @@ function testTransactonAbort () (int returnVal, int count) {
 }
 
 function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -113,20 +108,20 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')", parameters);
             int i = 0;
             if (i == 0) {
-                errors:Error err = {msg:"error"};
+                error err = {msg:"error"};
                 throw err;
             }
         } aborted {
             returnVal = -1;
         }
-    } catch (errors:Error err) {
+    } catch (error err) {
         catchValue = -1;
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -135,9 +130,8 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
 }
 
 function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -147,22 +141,22 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         int i = 0;
         try {
             if (i == 0) {
-                errors:Error err = {msg:"error"};
+                error err = {msg:"error"};
                 throw err;
             }
-        } catch (errors:Error err) {
+        } catch (error err) {
             catchValue = -1;
         }
     } aborted {
         returnVal = -1;
     }
     //check whether update action is performed
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCount rs;
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -171,9 +165,8 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
 }
 
 function testTransactonCommitted () (int returnVal, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -186,10 +179,10 @@ function testTransactonCommitted () (int returnVal, int count) {
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -198,9 +191,8 @@ function testTransactonCommitted () (int returnVal, int count) {
 }
 
 function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                        0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     returnVal1 = 0;
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
@@ -233,7 +225,7 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -242,9 +234,8 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
 }
 
 function testTransactonWithoutHandlers () (int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
     transaction {
         testDB.update("Insert into Customers
@@ -259,7 +250,7 @@ function testTransactonWithoutHandlers () (int count) {
                                       registrationID = 350", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -268,9 +259,8 @@ function testTransactonWithoutHandlers () (int count) {
 }
 
 function testLocalTransactionFailed () (string, int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
     string a = "beforetx";
     int count = -1;
@@ -291,7 +281,7 @@ function testLocalTransactionFailed () (string, int) {
         } committed {
             a = a + " inCmt";
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
@@ -299,7 +289,7 @@ function testLocalTransactionFailed () (string, int) {
                                           registrationID = 111", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -308,9 +298,8 @@ function testLocalTransactionFailed () (string, int) {
 }
 
 function testLocalTransactonSuccessWithFailed () (string, int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                        "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
     string a = "beforetx";
     int count = -1;
@@ -339,14 +328,14 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         } committed {
             a = a + " inCmt";
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }

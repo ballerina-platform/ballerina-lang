@@ -232,7 +232,7 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
-    |   continueStatement
+    |   nextStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -333,8 +333,8 @@ whileStatement
     :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-continueStatement
-    :   CONTINUE SEMICOLON
+nextStatement
+    :   NEXT SEMICOLON
     ;
 
 breakStatement

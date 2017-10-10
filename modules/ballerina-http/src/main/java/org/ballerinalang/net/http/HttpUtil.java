@@ -31,8 +31,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -50,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -58,13 +55,11 @@ import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -419,27 +414,13 @@ public class HttpUtil {
         for (String entry : entries) {
             int index = entry.indexOf('=');
             if (index != -1) {
-                BValue bValue;
                 String name = entry.substring(0, index).trim();
                 String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
                 if (value.matches("")) {
                     params.put(name, new BString(""));
                     continue;
                 }
-                if (value.matches("[0-9.]*")) {
-                    if (value.contains(".")) {
-                        bValue = new BFloat(Double.valueOf(value));
-                    } else {
-                        bValue = new BInteger(Integer.valueOf(value));
-                    }
-                } else {
-                    if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-                        bValue = new BBoolean(Boolean.valueOf(value));
-                    } else {
-                        bValue = new BString(value);
-                    }
-                }
-                params.put(name, bValue);
+                params.put(name, new BString(value));
             }
         }
         return params;
@@ -453,11 +434,7 @@ public class HttpUtil {
     public static void startPendingHttpConnectors() throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            PrintStream outStream = System.out;
-            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
-                    .startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
-                    "server connector " + serverConnector));
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
@@ -519,7 +496,6 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        httpCarbonMessage.setEndOfMsgAdded(true);
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
@@ -681,9 +657,11 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
     }

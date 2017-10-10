@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -74,10 +75,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -127,6 +128,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private int failedBlockCount;
     private boolean statementReturns;
+    private int forkJoinCount;
+    private int workerCount;
     private SymbolEnter symbolEnter;
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
@@ -210,6 +213,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        this.forkJoinCount++;
         this.initNewWorkerActionSystem();
         this.checkUnreachableCode(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
@@ -218,14 +222,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             forkJoin.timeoutBody.accept(this);
             this.resetStatementReturns();
         }
+        this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
+        this.forkJoinCount--;
+    }
+    
+    private boolean inForkJoin() {
+        return this.forkJoinCount > 0;
+    }
+    
+    private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
+        if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
+            int wc = forkJoin.joinedWorkers.size();
+            if (wc == 0) {
+                wc = forkJoin.workers.size();
+            }
+            if (forkJoin.joinedWorkerCount > wc) {
+                this.dlog.error(forkJoin.pos, DiagnosticCode.FORK_JOIN_INVALID_WORKER_COUNT);
+            }
+        }
+    }
+    
+    private boolean inWorker() {
+        return this.workerCount > 0;
     }
     
     @Override
     public void visit(BLangWorker worker) {
+        this.workerCount++;
         this.workerActionSystemStack.peek().startWorkerActionStateMachine(worker.name.value, worker.pos);
         worker.body.accept(this);
         this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+        this.workerCount--;
     }
 
     @Override
@@ -281,6 +309,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangReturn returnStmt) {
+        if (this.inForkJoin() && this.inWorker()) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
+            return;
+        }
         this.statementReturns = true;
     }
     
@@ -305,7 +337,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     @Override
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
         }

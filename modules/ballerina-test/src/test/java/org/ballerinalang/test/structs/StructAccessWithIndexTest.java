@@ -132,7 +132,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accesing a struct with a dynamic index")
     public void testExpressionAsStructIndex() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct-access-with-dynamic-index.bal");
+        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct-access-dynamic-index-negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
@@ -141,35 +141,35 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitField() {
         BTestUtils.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitArrayField() {
         BTestUtils.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitLastField() {
         BTestUtils.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitField() {
         BTestUtils.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitLastField() {
         BTestUtils.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }

@@ -41,7 +41,7 @@ public class UriTemplateBestMatchTest {
     @BeforeClass()
     public void setup() {
         application = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/uri-template-matching.bal");
+                .setupProgramFile("test-src/services/dispatching/uri-template-matching.bal");
     }
 
     @Test(description = "Test dispatching with URL. /hello/world/echo2?regid=abc")
@@ -207,7 +207,7 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar", enabled = false)
+    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
     public void testParamDefaultValues() {
         String path = "/hello/echo3/shafreen+anfar?foo=bar";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -327,7 +327,7 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test suitable method with URL. /echo13?foo=1 ", enabled = false)
+    @Test(description = "Test suitable method with URL. /echo13?foo=1 ")
     public void testIntegerQueryParam() {
         String path = "/hello/echo13?foo=1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -357,7 +357,7 @@ public class UriTemplateBestMatchTest {
 //                , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test suitable method with URL. /echo14?foo=1.11 ", enabled = false)
+    @Test(description = "Test suitable method with URL. /echo14?foo=1.11 ")
     public void testFloatQueryParam() {
         String path = "/hello/echo14?foo=1.11";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");

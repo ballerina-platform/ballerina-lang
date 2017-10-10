@@ -42,7 +42,7 @@ public class UriTemplateDispatcherTest {
     @BeforeClass()
     public void setup() {
         application = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/uri-template.bal");
+                .setupProgramFile("test-src/services/dispatching/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
@@ -147,7 +147,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test dispatching with URL. /products")
     public void testUrlTemplateWithMultipleQueryParamDispatching() {
-        String path = "/ecommerceservice/products?prodId=PID123&regID=RID123";
+        String path = "/ecommerceservice/products?prodID=PID123&regID=RID123";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
@@ -162,9 +162,9 @@ public class UriTemplateDispatcherTest {
     }
 
     @Test(description = "Test dispatching with URL. /products?productId={productId}&regID={regID} "
-            + "Ex: products?productId=PID%20123&regID=RID%201123")
+            + "Ex: products?productID=PID%20123&regID=RID%201123")
     public void testUrlTemplateWithMultipleQueryParamWithURIEncodeCharacterDispatching() {
-        String path = "/ecommerceservice/products?prodId=PID%20123&regID=RID%20123";
+        String path = "/ecommerceservice/products?prodID=PID%20123&regID=RID%20123";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
@@ -286,7 +286,7 @@ public class UriTemplateDispatcherTest {
                 , "Response code mismatch");
 
         String allowHeader = response.getHeader(Constants.ALLOW);
-        Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, HEAD, OPTIONS");
+        Assert.assertEquals(allowHeader, "UPDATE, POST, PUT, GET, HEAD, OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request to Root")

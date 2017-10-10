@@ -423,7 +423,7 @@ public class ProgramFileWriter {
 
         dataOutStream.writeInt(forkjoinInfo.getJoinTypeCPIndex());
 
-//        dataOutStream.writeInt(forkjoinInfo.getWorkerCount()); //TODO
+        dataOutStream.writeInt(forkjoinInfo.getWorkerCount());
 
         int[] joinWrkrNameCPIndexes = forkjoinInfo.getJoinWrkrNameIndexes();
         dataOutStream.writeShort(joinWrkrNameCPIndexes.length);

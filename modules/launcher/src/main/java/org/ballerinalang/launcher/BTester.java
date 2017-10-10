@@ -32,8 +32,8 @@ public class BTester {
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
-//        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(SOURCE_ROOT, "./");
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+//        options.put(SOURCE_ROOT, "./");
         options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -53,10 +53,9 @@ public class BTester {
 
         if (programFile != null) {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
-            traceCode(executableProgram.getEntryPackage());
-            BValue[] returnVals = BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
-                                                           "main", new BValue[0]);
-            System.out.printf("");
+//            traceCode(executableProgram.getEntryPackage());
+            BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
+                                                           "main", new BValue[1]);
         }
     }
 
