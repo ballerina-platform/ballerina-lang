@@ -89,6 +89,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private String verifyClient;
 
+    @XmlAttribute
+    private String sslProtocol;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -164,8 +167,16 @@ public class ListenerConfiguration {
         this.verifyClient = verifyClient;
     }
 
-    public String getVerifyClient(String verifyClient) {
+    public String getVerifyClient() {
         return verifyClient;
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
+    }
+
+    public String getSslProtocol() {
+        return sslProtocol;
     }
 
     public int getPort() {
@@ -214,7 +225,7 @@ public class ListenerConfiguration {
         }
 
         return Util.getSSLConfigForListener(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters, verifyClient);
+                parameters, verifyClient, sslProtocol);
     }
 
     private List<Parameter> getDefaultParameters() {

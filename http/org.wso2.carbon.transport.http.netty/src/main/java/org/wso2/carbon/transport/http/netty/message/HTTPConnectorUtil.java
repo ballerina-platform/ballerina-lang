@@ -2,12 +2,15 @@ package org.wso2.carbon.transport.http.netty.message;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -100,6 +103,23 @@ public class HTTPConnectorUtil {
             }
             if (properties.get(Constants.SSL_VERIFY_CLIENT) != null) {
                 config.setVerifyClient(properties.get(Constants.SSL_VERIFY_CLIENT));
+            }
+            List<Parameter> serverParams = new ArrayList<>();
+            if (properties.get(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS) != null) {
+                Parameter serverProtocols = new Parameter(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS,
+                        properties.get(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS));
+                serverParams.add(serverProtocols);
+            }
+            if (properties.get(Constants.SERVER_SUPPORT_CIPHERS) != null) {
+                Parameter serverCiphers = new Parameter(Constants.SERVER_SUPPORT_CIPHERS,
+                        properties.get(Constants.SERVER_SUPPORT_CIPHERS));
+                serverParams.add(serverCiphers);
+            }
+            if (!serverParams.isEmpty()) {
+                config.setParameters(serverParams);
+            }
+            if (properties.get(Constants.SSL_PROTOCOL) != null) {
+                config.setSslProtocol(properties.get(Constants.SSL_PROTOCOL));
             }
         }
         return config;

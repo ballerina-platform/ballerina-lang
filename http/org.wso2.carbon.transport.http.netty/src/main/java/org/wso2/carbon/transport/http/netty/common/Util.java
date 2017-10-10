@@ -224,7 +224,8 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient,
+            String sslProtocol) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
@@ -240,7 +241,6 @@ public class Util {
             if (parameter.getName()
                     .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
                 sslConfig.setCipherSuites(parameter.getValue());
-
             } else if (parameter.getName()
                     .equals(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
                 sslConfig.setEnableProtocols(parameter.getValue());
@@ -258,6 +258,10 @@ public class Util {
         if (verifyClient != null && verifyClient.equalsIgnoreCase("require")) {
             sslConfig.setNeedClientAuth(true);
         }
+
+        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
+        sslConfig.setSslProtocol(sslProtocol);
+
         if (trustStoreFilePath != null) {
 
             File trustStore = new File(substituteVariables(trustStoreFilePath));
@@ -274,7 +278,7 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String sslProtocol) {
 
         if (certPass == null) {
             certPass = keyStorePass;
@@ -295,6 +299,8 @@ public class Util {
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);
+        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
+        sslConfig.setSslProtocol(sslProtocol);
         if (parametersList != null) {
             for (Parameter parameter : parametersList) {
                 String paramName = parameter.getName();

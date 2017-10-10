@@ -71,6 +71,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean httpTraceLogEnabled;
 
+    @XmlAttribute
+    private String sslProtocol;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
@@ -85,6 +88,14 @@ public class SenderConfiguration {
     public SenderConfiguration(String id) {
         this.id = id;
 
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
+    }
+
+    public String getSslProtocol() {
+        return sslProtocol;
     }
 
     public String getCertPass() {
@@ -156,7 +167,7 @@ public class SenderConfiguration {
             return null;
         }
         return Util.getSSLConfigForSender(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters);
+                parameters, sslProtocol);
     }
 
     public int getSocketIdleTimeout(int defaultValue) {

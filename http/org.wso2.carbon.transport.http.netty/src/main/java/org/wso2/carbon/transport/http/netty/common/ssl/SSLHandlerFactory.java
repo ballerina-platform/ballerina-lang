@@ -59,7 +59,7 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class SSLHandlerFactory {
 
-    private static final String protocol = "TLS";
+    private String protocol = null;
     private final SSLContext serverContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
@@ -74,6 +74,7 @@ public class SSLHandlerFactory {
             algorithm = "SunX509";
         }
         needClientAuth = sslConfig.isNeedClientAuth();
+        protocol = sslConfig.getSslProtocol();
         try {
             KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
             // Set up key manager factory to use our key store
