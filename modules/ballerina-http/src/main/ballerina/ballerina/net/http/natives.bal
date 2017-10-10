@@ -15,6 +15,9 @@ public struct Options{
 	string trustStorePassword;
 	string keyStoreFile;
 	string keyStorePassword;
+	string sslEnabledProtocols;
+	string ciphers;
+	string sslProtocol;
 }
 
 public connector ClientConnector (string serviceUri, Options connectorOptions) {

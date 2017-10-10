@@ -13,6 +13,9 @@ public annotation configuration attach service<>, service<ws> {
     string trustStorePassword;
     string sslVerifyClient;
     string certPassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
     string[] allowOrigins;
     boolean allowCredentials;
     string[] allowMethods;

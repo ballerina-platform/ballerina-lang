@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
@@ -65,6 +66,8 @@ public class HttpConnectionManager {
     private TransportsConfiguration trpConfig;
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
+    private static final String CIPHERS = "ciphers";
+    private static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
 
     private HttpConnectionManager() {
         String nettyConfigFile = System.getProperty(HTTP_TRANSPORT_CONF,
@@ -177,6 +180,9 @@ public class HttpConnectionManager {
         String trustStorePassword = options.getStringField(1);
         String keyStoreFile = options.getStringField(2);
         String keyStorePassword = options.getStringField(3);
+        String sslEnabledProtocols = options.getStringField(4);
+        String ciphers = options.getStringField(5);
+        String sslProtocol = options.getStringField(6);
 
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
@@ -192,7 +198,21 @@ public class HttpConnectionManager {
         if (StringUtils.isNotBlank(keyStorePassword)) {
             senderConfiguration.setKeyStorePassword(keyStorePassword);
         }
-
+        List<Parameter> clientParams = new ArrayList<>();
+        if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+            Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+            clientParams.add(clientProtocols);
+        }
+        if (StringUtils.isNotBlank(ciphers)) {
+            Parameter clientCiphers = new Parameter(CIPHERS, ciphers);
+            clientParams.add(clientCiphers);
+        }
+        if (StringUtils.isNotBlank(sslProtocol)) {
+            senderConfiguration.setSslProtocol(sslProtocol);
+        }
+        if (!clientParams.isEmpty()) {
+            senderConfiguration.setParameters(clientParams);
+        }
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
 
