@@ -45,7 +45,7 @@ class TreeUtil extends AbstractTreeUtil {
 
     /**
      * Generate default name for root level statements.
-     * @param {Node} root - root node.
+     * @param {CompilationUnitNode} root - root node.
      * @param {Node} node - current node.
      * @return {Object} undefined if unsuccessful.
      * */
@@ -57,6 +57,8 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isFunction(node) && node.getName().value !== 'main') {
             const functionDefaultName = 'function';
             const functionNodes = root.filterTopLevelNodes(this.isFunction);
+
+            // Get the existing function names.
             const names = {};
             for (let i = 0; i < functionNodes.length; i++) {
                 const name = functionNodes[i].getName().value;
@@ -64,6 +66,7 @@ class TreeUtil extends AbstractTreeUtil {
             }
 
             if (functionNodes.length > 0) {
+                // Set the function name.
                 for (let i = 1; i <= functionNodes.length + 1; i++) {
                     if (!names[`${functionDefaultName}${i}`]) {
                         node.getName().setValue(`${functionDefaultName}${i}`, true);
@@ -72,7 +75,71 @@ class TreeUtil extends AbstractTreeUtil {
                     }
                 }
             } else {
+                // If this is the first function set name to be function1.
                 node.getName().setValue(`${functionDefaultName}1`, true);
+                node.setName(node.getName(), true);
+            }
+        } else if (this.isService(node)) {
+            const serviceDefaultName = 'service';
+            const serviceNodes = root.filterTopLevelNodes(this.isService);
+            const names = {};
+            for (let i = 0; i < serviceNodes.length; i++) {
+                const name = serviceNodes[i].getName().value;
+                names[name] = name;
+            }
+
+            if (serviceNodes.length > 0) {
+                for (let i = 1; i <= serviceNodes.length + 1; i++) {
+                    if (!names[`${serviceDefaultName}${i}`]) {
+                        node.getName().setValue(`${serviceDefaultName}${i}`, true);
+                        node.setName(node.getName(), true);
+                        break;
+                    }
+                }
+            } else {
+                node.getName().setValue(`${serviceDefaultName}1`, true);
+                node.setName(node.getName(), true);
+            }
+        } else if (this.isConnector(node)) {
+            const connectorDefaultName = 'ClientConnector';
+            const connectorNodes = root.filterTopLevelNodes(this.isConnector);
+            const names = {};
+            for (let i = 0; i < connectorNodes.length; i++) {
+                const name = connectorNodes[i].getName().value;
+                names[name] = name;
+            }
+
+            if (connectorNodes.length > 0) {
+                for (let i = 1; i <= connectorNodes.length + 1; i++) {
+                    if (!names[`${connectorDefaultName}${i}`]) {
+                        node.getName().setValue(`${connectorDefaultName}${i}`, true);
+                        node.setName(node.getName(), true);
+                        break;
+                    }
+                }
+            } else {
+                node.getName().setValue(`${connectorDefaultName}1`, true);
+                node.setName(node.getName(), true);
+            }
+        } else if (this.isStruct(node)) {
+            const structDefaultName = 'Struct';
+            const structNodes = root.filterTopLevelNodes(this.isStruct);
+            const names = {};
+
+            for (let i = 0; i < structNodes.length; i++) {
+                const name = structNodes[i].getName().value;
+                names[name] = name;
+            }
+
+            if (structNodes.length > 0) {
+                for (let i = 1; i <= structNodes.length; i++) {
+                    if (!names[`${structDefaultName}${i}`]) {
+                        node.getName().setValue(`${structDefaultName}${i}`, true);
+                        node.setName(node.getName(), true);
+                    }
+                }
+            } else {
+                node.getName().setValue(`${structDefaultName}1`, true);
                 node.setName(node.getName(), true);
             }
         }
