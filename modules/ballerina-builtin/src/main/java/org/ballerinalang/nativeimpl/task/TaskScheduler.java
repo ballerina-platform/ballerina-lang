@@ -18,6 +18,8 @@
 package org.ballerinalang.nativeimpl.task;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -46,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private static long period = 0;
+    private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
 
     protected static void triggerTimer(Context ctx, int taskId, long delay, long interval,
                                        FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) {
@@ -55,17 +58,22 @@ public class TaskScheduler {
         try {
             final Runnable schedulerFunc = new Runnable() {
                 public void run() {
-                    Calendar now = Calendar.getInstance();
+                    if (log.isDebugEnabled()) {
+                        log.info("Timer starts the execution");
+                    }
                     triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
                     callFunction(ctx, onTriggerFunction, onErrorFunction);
                 }
             };
             if (interval > 0) {
-                Calendar now = Calendar.getInstance();
                 executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
+                if (log.isDebugEnabled()) {
+                    log.info("Timer is scheduled with the interval " + interval + " MILLISECONDS");
+                }
                 executorServiceMap.put(taskId, executorService);
                 ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
             } else {
+                log.error("The vale of interval is invalid");
                 String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
                         ctx.getProperty(Constant.ERROR + "_" + taskId)
                                 + ",The vale of interval has to be greater than 0" :
@@ -73,6 +81,7 @@ public class TaskScheduler {
                 ctx.setProperty(Constant.ERROR + "_" + taskId, error);
             }
         } catch (RejectedExecutionException | NullPointerException | IllegalArgumentException e) {
+            log.error("Error occurred while scheduling the task: " + e.getMessage());
             String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
                     ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
                     e.getMessage();
@@ -90,7 +99,9 @@ public class TaskScheduler {
             final Runnable schedulerFunc = new Runnable() {
                 @Override
                 public void run() {
-                    Date now = new Date();
+                    if (log.isDebugEnabled()) {
+                        log.info("Appointment starts the execution");
+                    }
                     if (period > 0) {
                         period = 0;
                         triggerAppointment(ctx, taskId, -1, -1, dayOfWeek, dayOfMonth, month, onTriggerFunction,
@@ -103,9 +114,10 @@ public class TaskScheduler {
                 }
             };
             long delay = computeNextDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
-            Calendar now = Calendar.getInstance();
-            now.add(Calendar.MILLISECOND, (int) delay);
             executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
+            if (log.isDebugEnabled()) {
+                log.info("Appointment is scheduled with the delay " + delay + " MILLISECONDS");
+            }
             executorServiceMap.put(taskId, executorService);
             ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
             if (period > 0) {
@@ -113,6 +125,7 @@ public class TaskScheduler {
                 stopExecution(ctx, taskId, period);
             }
         } catch (RejectedExecutionException | NullPointerException | IllegalArgumentException e) {
+            log.error("Error occurred while scheduling the appointment: " + e.getMessage());
             String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
                     ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
                     e.getMessage();
@@ -125,6 +138,9 @@ public class TaskScheduler {
         HashMap<Integer, ScheduledExecutorService> executorServiceMap =
                 (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP);
         if (executorServiceMap != null) {
+            if (log.isDebugEnabled()) {
+                log.info("Attempting to stop the task: " + taskId);
+            }
             executorServiceToStopTheTask.schedule(new Runnable() {
                 public void run() {
                     ScheduledExecutorService executorService = executorServiceMap.get(taskId);
@@ -136,6 +152,7 @@ public class TaskScheduler {
                                 ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
                                 ctx.setProperty(Constant.ERROR + "_" + taskId, "");
                             } else {
+                                log.error("Unable to stop the task");
                                 String error =
                                         StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))
                                                 ? ctx.getProperty(Constant.ERROR + "_" + taskId)
@@ -144,6 +161,7 @@ public class TaskScheduler {
                                 ctx.setProperty(Constant.ERROR + "_" + taskId, error);
                             }
                         } catch (SecurityException e) {
+                            log.error("Unable to stop the task: " + e.getMessage());
                             String error = StringUtils.isNotEmpty(ctx.getProperty(Constant.ERROR + "_"
                                     + taskId).toString()) ? ctx.getProperty(Constant.ERROR + "_" + taskId) + ","
                                     + e.getMessage() : e.getMessage();
@@ -152,6 +170,8 @@ public class TaskScheduler {
                     }
                 }
             }, sPeriod, TimeUnit.SECONDS);
+        } else {
+            log.error("Unable to find the corresponding task");
         }
     }
 
@@ -172,18 +192,28 @@ public class TaskScheduler {
             response = BLangFunctions
                     .invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
             if (response.length == 1 && StringUtils.isEmpty(response[0].stringValue())) {
+                if (log.isDebugEnabled()) {
+                    log.info("Invoking the onError function due to no response from the triggered function");
+                }
                 BValue[] error = abstractNativeFunction.getBValues(
                         new BString("Unable to get the response from the triggered function"));
                 if (onErrorFunction != null) {
                     BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error,
                             newContext);
+                } else {
+                    log.error("The onError function is not provided");
                 }
             }
         } catch (BLangRuntimeException e) {
+            if (log.isDebugEnabled()) {
+                log.info("Invoking the onError function");
+            }
             BValue[] error = abstractNativeFunction.getBValues(new BString(e.getMessage()));
             if (onErrorFunction != null) {
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error,
                         newContext);
+            } else {
+                log.error("The onError function is not provided");
             }
         }
         return response;
@@ -193,6 +223,7 @@ public class TaskScheduler {
                                          long dayOfMonth, long month) {
         if (minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
                 || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1) {
+            log.error("Invalid input");
             String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
                     ctx.getProperty(Constant.ERROR + "_" + taskId) + ",Wrong input" : "Wrong input";
             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
