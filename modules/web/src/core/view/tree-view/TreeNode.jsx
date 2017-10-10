@@ -44,12 +44,10 @@ class TreeNode extends React.Component {
      * @inheritdoc
      */
     componentDidMount() {
-        if (!_.isNil(this.nameInput)) {
-            // if the node is not visible, scroll down to it. Also increase height of bkground overlay
-            if (!this.props.isDOMElementVisible(this.nameInput)) {
-                this.focusHighligher.style.height = (this.nameInput.offsetTop
-                        + this.focusHighligher.offsetHeight + 250) + 'px';
-                this.nameInput.scrollIntoView(false);
+        if (this.props.node.enableEdit && !_.isNil(this.nameInput)) {
+            if (_.isFunction(this.context.getScroller)) {
+                const scroller = this.context.getScroller();
+                this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
             }
             this.nameInput.focus();
         }
@@ -342,7 +340,6 @@ TreeNode.propTypes = {
     children: PropTypes.node,
     onClick: PropTypes.func,
     onDoubleClick: PropTypes.func,
-    isDOMElementVisible: PropTypes.func.isRequired,
     panelResizeInProgress: PropTypes.bool,
 };
 
@@ -366,6 +363,7 @@ TreeNode.contextTypes = {
         on: PropTypes.func,
         dispatch: PropTypes.func,
     }),
+    getScroller: PropTypes.func,
 };
 
 export default TreeNode;

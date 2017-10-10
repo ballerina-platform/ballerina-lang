@@ -57,7 +57,6 @@ class WorkspaceExplorer extends View {
                     workspaceManager={this.props.workspaceManager}
                     onSelect={this.onSelectNode}
                     panelResizeInProgress={this.props.panelResizeInProgress}
-                    containerHeight={this.props.height}
                 />
             ));
         });

@@ -92,7 +92,7 @@ class ExplorerItem extends React.Component {
         if (!ref) {
             return false;
         }
-        const { containerHeight } = this.props;
+        const { containerHeight, getScroller } = this.props;
         const { offsetParent, offsetTop, offsetLeft } = ref;
         // TODO verify that offsetParent is panel-content-scroll-container
         return offsetTop < containerHeight;
@@ -175,7 +175,6 @@ class ExplorerItem extends React.Component {
                             onOpen={this.onOpen}
                             onSelect={this.props.onSelect}
                             panelResizeInProgress={this.props.panelResizeInProgress}
-                            isDOMElementVisible={this.isDOMElementVisible}
                         />
                     </div>
                 </Collapse>
@@ -185,7 +184,6 @@ class ExplorerItem extends React.Component {
 }
 
 ExplorerItem.propTypes = {
-    containerHeight: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     onSelect: PropTypes.func,
     folderPath: PropTypes.string.isRequired,

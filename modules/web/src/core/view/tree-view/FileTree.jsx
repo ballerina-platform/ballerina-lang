@@ -137,7 +137,6 @@ class FileTree extends React.Component {
                     }}
                     parentNode={parentNode}
                     panelResizeInProgress={this.props.panelResizeInProgress}
-                    isDOMElementVisible={this.props.isDOMElementVisible}
                 >
                     {
                         node.children
@@ -169,7 +168,6 @@ FileTree.propTypes = {
     onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
-    isDOMElementVisible: PropTypes.func.isRequired,
     extensions: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 

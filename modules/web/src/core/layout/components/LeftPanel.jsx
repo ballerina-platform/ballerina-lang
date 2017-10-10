@@ -24,6 +24,16 @@ class LeftPanelTab extends React.Component {
         this.scroller = undefined;
     }
 
+    /**
+     * @override
+     */
+    getChildContext() {
+        return {
+            getScroller: () => {
+                return this.scroller;
+            },
+        };
+    }
 
     /**
      * @inheritdoc
@@ -95,6 +105,10 @@ LeftPanelTab.propTypes = {
     panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+};
+
+LeftPanelTab.childContextTypes = {
+    getScroller: PropTypes.func.isRequired,
 };
 
 /**
