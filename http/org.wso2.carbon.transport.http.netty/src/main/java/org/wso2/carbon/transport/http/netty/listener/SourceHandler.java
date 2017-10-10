@@ -39,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpCarbonRequest;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -197,7 +198,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
               .getHandlerExecutor().executeAtSourceRequestReceiving(sourceReqCmsg);
         }
 
-        sourceReqCmsg = new HTTPCarbonMessage(httpMessage);
+        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage);
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
