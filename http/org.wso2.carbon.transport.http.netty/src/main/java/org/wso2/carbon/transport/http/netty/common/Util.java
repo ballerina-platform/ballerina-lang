@@ -242,7 +242,7 @@ public class Util {
                     .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
                 sslConfig.setCipherSuites(parameter.getValue());
             } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
+                    .equals(Constants.SERVER_SUPPORT_SSL_PROTOCOLS)) {
                 sslConfig.setEnableProtocols(parameter.getValue());
             } else if (parameter.getName()
                     .equals(Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
@@ -255,7 +255,7 @@ public class Util {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
             }
         }
-        if (verifyClient != null && verifyClient.equalsIgnoreCase("require")) {
+        if ("require".equalsIgnoreCase(verifyClient)) {
             sslConfig.setNeedClientAuth(true);
         }
 
@@ -306,7 +306,7 @@ public class Util {
                 String paramName = parameter.getName();
                 if (Constants.CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
                     sslConfig.setCipherSuites(parameter.getValue());
-                } else if (Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS.equals(paramName)) {
+                } else if (Constants.CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
                     sslConfig.setEnableProtocols(parameter.getValue());
                 } else if (Constants.CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
                     sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));

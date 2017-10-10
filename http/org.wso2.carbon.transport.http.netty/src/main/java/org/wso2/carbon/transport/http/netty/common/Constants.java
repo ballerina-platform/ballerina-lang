@@ -47,7 +47,7 @@ public final class Constants {
     //Server side SSL Parameters
     public static final String SSL_HANDLER = "ssl";
     public static final String CLIENT_SUPPORT_CIPHERS = "ciphers";
-    public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "sslEnabledProtocols";
+    public static final String CLIENT_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "client.enable.session.creation";
 
     // Server Bootstrap related
@@ -80,7 +80,7 @@ public final class Constants {
 
     //Server side SSL Parameters
     public static final String SERVER_SUPPORT_CIPHERS = "ciphers";
-    public static final String SERVER_SUPPORT_HTTPS_PROTOCOLS = "sslEnabledProtocols";
+    public static final String SERVER_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
     public static final String SERVER_ENABLE_SESSION_CREATION = "server.enable.session.creation";
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";

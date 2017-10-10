@@ -33,7 +33,6 @@ public class SSLConnectorListener extends HTTPSConnectorListener {
 
     public void onError(Throwable throwable) {
         throwables.add(throwable);
-        //latch.countDown();
     }
 
     public List<Throwable> getThrowables() {

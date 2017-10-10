@@ -75,7 +75,6 @@ public class CipherSuitesTest {
     public static Object[][] cipherSuites() {
 
         return new Object[][] {
-
                 // true = expecting a SSL hand shake failure.
                 // false = expecting no errors.
                 { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false, 9099},
@@ -123,7 +122,6 @@ public class CipherSuitesTest {
         listenerConfiguration.setKeyStoreFile(keyStoreFile);
         listenerConfiguration.setTrustStorePass(password);
         listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(scheme);
         listenerConfiguration.setParameters(serverParams);
 
@@ -133,8 +131,7 @@ public class CipherSuitesTest {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        httpClientConnector = connectorFactory
+        httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
 
@@ -159,14 +156,14 @@ public class CipherSuitesTest {
             SSLConnectorListener listener = new SSLConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
-            latch.await(3, TimeUnit.SECONDS);
+            latch.await(5, TimeUnit.SECONDS);
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
 
             if (hasException) {
                 assertNotNull(listener.getThrowables());
                 boolean hasSSLException = false;
-                for (Throwable t : listener.getThrowables()) {
-                    if (t.getMessage() != null && t.getMessage().contains("handshake_failure")) {
+                for (Throwable throwable : listener.getThrowables()) {
+                    if (throwable.getMessage() != null && throwable.getMessage().contains("handshake_failure")) {
                         hasSSLException = true;
                         break;
                     }
@@ -182,7 +179,6 @@ public class CipherSuitesTest {
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testCiphersuites", e);
         }
-
     }
 
 }

@@ -105,9 +105,9 @@ public class HTTPConnectorUtil {
                 config.setVerifyClient(properties.get(Constants.SSL_VERIFY_CLIENT));
             }
             List<Parameter> serverParams = new ArrayList<>();
-            if (properties.get(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS) != null) {
-                Parameter serverProtocols = new Parameter(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS,
-                        properties.get(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS));
+            if (properties.get(Constants.SERVER_SUPPORT_SSL_PROTOCOLS) != null) {
+                Parameter serverProtocols = new Parameter(Constants.SERVER_SUPPORT_SSL_PROTOCOLS,
+                        properties.get(Constants.SERVER_SUPPORT_SSL_PROTOCOLS));
                 serverParams.add(serverProtocols);
             }
             if (properties.get(Constants.SERVER_SUPPORT_CIPHERS) != null) {

@@ -60,7 +60,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Tests for SSL protocols.
  */
-public class HTTPSProtocolsTest {
+public class SSLProtocolsTest {
 
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
@@ -117,7 +117,6 @@ public class HTTPSProtocolsTest {
         listenerConfiguration.setKeyStoreFile(keyStoreFile);
         listenerConfiguration.setTrustStorePass(password);
         listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(scheme);
         listenerConfiguration.setParameters(severParams);
         serverConnector = factory
@@ -125,14 +124,13 @@ public class HTTPSProtocolsTest {
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        httpClientConnector = connectorFactory
+        httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
-        testHttpsProtocols(hasException, serverPort);
+        testSSLProtocols(hasException, serverPort);
     }
 
-    public void testHttpsProtocols(boolean hasException, int serverPort) {
+    public void testSSLProtocols(boolean hasException, int serverPort) {
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HTTPCarbonMessage(
@@ -155,9 +153,10 @@ public class HTTPSProtocolsTest {
             if (hasException) {
                 assertNotNull(listener.getThrowables());
                 boolean hasSSLException = false;
-                for (Throwable t : listener.getThrowables()) {
-                    if (t.getMessage() != null && (t.getMessage().contains("javax.net.ssl.SSLHandshakeException") || t
-                            .getMessage().contains("handshake_failure"))) {
+                for (Throwable throwable : listener.getThrowables()) {
+                    if (throwable.getMessage() != null && (
+                            throwable.getMessage().contains("javax.net.ssl.SSLHandshakeException") || throwable
+                                    .getMessage().contains("handshake_failure"))) {
                         hasSSLException = true;
                         break;
                     }
@@ -171,7 +170,7 @@ public class HTTPSProtocolsTest {
                 assertEquals(testValue, result);
             }
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running testHttpsProtocols", e);
+            TestUtil.handleException("Exception occurred while running testSSLProtocols", e);
         }
     }
 }
