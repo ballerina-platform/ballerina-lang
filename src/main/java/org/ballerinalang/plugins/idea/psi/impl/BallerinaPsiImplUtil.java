@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
@@ -1927,6 +1928,49 @@ public class BallerinaPsiImplUtil {
         return null;
     }
 
+    @Nullable
+    public static StructDefinitionNode getAnonymousStruct(@NotNull Object element,
+                                                          @NotNull List<ParameterListNode> parameterListNodes,
+                                                          int offset) {
+        int index = BallerinaParameterInfoHandler.getCurrentParameterIndex(element, offset);
+        ParameterListNode parameterListNode = parameterListNodes.get(0);
+
+        List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
+                ParameterNode.class);
+
+        if (index <= -1) {
+            return null;
+        }
+        ParameterNode parameterNode = parameterNodes.get(index);
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(parameterNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return null;
+        }
+        PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null || !(resolvedElement.getParent() instanceof StructDefinitionNode)) {
+            return null;
+        }
+        return (StructDefinitionNode) resolvedElement.getParent();
+    }
+
+    @Nullable
+    public static StructDefinitionNode resolveAnonymousStruct(IdentifierPSINode identifier) {
+        Object element = BallerinaParameterInfoHandler.findElement(identifier, null);
+        if (element == null) {
+            return null;
+        }
+        List<ParameterListNode> parameters = BallerinaParameterInfoHandler.getParameters(element);
+        if (parameters.isEmpty()) {
+            return null;
+        }
+        int index = identifier.getStartOffset() + identifier.getTextLength();
+        return BallerinaPsiImplUtil.getAnonymousStruct(element, parameters, index);
+    }
+
     /**
      * Returns corresponding error struct for type casts and type conversions.
      *
@@ -2148,22 +2192,5 @@ public class BallerinaPsiImplUtil {
             }
         }
         return attachedFunctions;
-    }
-
-
-    @Nullable
-    public static PsiElement findDefinition(IdentifierPSINode identifier) {
-        PsiReference reference = identifier.getReference();
-        if (reference == null) {
-            return null;
-        }
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null) {
-            return null;
-        }
-        if (resolvedElement.getParent() instanceof VariableDefinitionNode) {
-
-        }
-        return null;
     }
 }

@@ -51,26 +51,50 @@ public class StructKeyReference extends BallerinaElementReference {
     @Override
     public PsiElement resolve() {
         IdentifierPSINode identifier = getElement();
-
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
         if (variableDefinitionNode != null) {
-            return resolveDefinition(variableDefinitionNode);
+            return resolve(variableDefinitionNode);
         }
 
         AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
                 AssignmentStatementNode.class);
         if (assignmentStatementNode != null) {
-            VariableReferenceListNode variableReferenceListNode =
-                    PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
-            if (variableReferenceListNode == null) {
-                return null;
+            PsiElement resolvedElement = resolve(assignmentStatementNode);
+            if (resolvedElement != null) {
+                return resolvedElement;
             }
-            PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
-            if (variableReferenceNode == null) {
-                return null;
+        }
+
+        // Try to resolve to fields in anonymous struct.
+        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+        if (structDefinitionNode == null) {
+            return null;
+        }
+        IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode.class);
+        if (structNameNode == null) {
+            return null;
+        }
+        Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
+                    IdentifierPSINode.class);
+            if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
+                return fieldName;
             }
-            PsiReference reference = variableReferenceNode.findReferenceAt(0);
+        }
+        return null;
+    }
+
+    @Nullable
+    private PsiElement resolve(@NotNull PsiElement definitionNode) {
+        IdentifierPSINode identifier = getElement();
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return null;
+        } else {
+            PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
             if (reference == null) {
                 return null;
             }
@@ -78,22 +102,57 @@ public class StructKeyReference extends BallerinaElementReference {
             if (resolvedElement == null) {
                 return null;
             }
-            PsiElement parent = resolvedElement.getParent();
-            if (parent instanceof VariableDefinitionNode || parent instanceof ParameterNode) {
-                return resolveDefinition(parent);
-            } else if (parent instanceof NameReferenceNode) {
-                StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
-                if (structDefinitionNode == null) {
-                    return null;
-                }
+            PsiElement resolvedElementParent = resolvedElement.getParent();
+            if (resolvedElementParent instanceof StructDefinitionNode) {
+                // Todo - use an util method
                 Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                        PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+                        PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
                 for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
                     IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
                             IdentifierPSINode.class);
                     if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
                         return fieldName;
                     }
+                }
+            }
+        }
+        return null;
+    }
+
+    private PsiElement resolve(@NotNull AssignmentStatementNode assignmentStatementNode) {
+        IdentifierPSINode identifier = getElement();
+        VariableReferenceListNode variableReferenceListNode =
+                PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
+        if (variableReferenceListNode == null) {
+            return null;
+        }
+        PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
+        if (variableReferenceNode == null) {
+            return null;
+        }
+        PsiReference reference = variableReferenceNode.findReferenceAt(0);
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement parent = resolvedElement.getParent();
+        if (parent instanceof VariableDefinitionNode || parent instanceof ParameterNode) {
+            return resolve(parent);
+        } else if (parent instanceof NameReferenceNode) {
+            StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
+            if (structDefinitionNode == null) {
+                return null;
+            }
+            Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                    PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+            for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+                IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
+                        IdentifierPSINode.class);
+                if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
+                    return fieldName;
                 }
             }
         }
@@ -119,22 +178,35 @@ public class StructKeyReference extends BallerinaElementReference {
     @NotNull
     private List<LookupElement> getVariantsFromCurrentPackage() {
         List<LookupElement> results = new LinkedList<>();
-
         IdentifierPSINode identifier = getElement();
-
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
         if (variableDefinitionNode == null) {
-            StructDefinitionNode structDefinition = resolveStructDefinition(identifier);
-            if (structDefinition == null) {
+            StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
+            if (structDefinitionNode == null) {
+                // Try to get fields from an anonymous struct.
+                structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+                if (structDefinitionNode == null) {
+                    return results;
+                }
+                IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
+                        IdentifierPSINode.class);
+                if (structNameNode == null) {
+                    return results;
+                }
+                Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                        PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+                results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                        structNameNode, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 return results;
             }
-            IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinition, IdentifierPSINode.class);
+            IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
+                    IdentifierPSINode.class);
             if (structNameNode == null) {
                 return results;
             }
             Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                    PsiTreeUtil.findChildrenOfType(structDefinition, FieldDefinitionNode.class);
+                    PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
             results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
                     structNameNode, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         } else {
@@ -166,38 +238,6 @@ public class StructKeyReference extends BallerinaElementReference {
     @NotNull
     private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
         return new LinkedList<>();
-    }
-
-    @Nullable
-    private PsiElement resolveDefinition(@NotNull PsiElement definitionNode) {
-        IdentifierPSINode identifier = getElement();
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
-        if (typeNameNode == null) {
-            return null;
-        } else {
-            PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
-            if (reference == null) {
-                return null;
-            }
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null) {
-                return null;
-            }
-            PsiElement resolvedElementParent = resolvedElement.getParent();
-            if (resolvedElementParent instanceof StructDefinitionNode) {
-                // Todo - use an util method
-                Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                        PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
-                for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-                    IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
-                            IdentifierPSINode.class);
-                    if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
-                        return fieldName;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     @Nullable

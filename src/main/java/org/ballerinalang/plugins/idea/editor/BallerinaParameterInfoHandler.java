@@ -122,6 +122,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (element == null) {
             return null;
         }
+        PsiElement prevElement = context.getFile().findElementAt(context.getOffset() - 1);
+        return findElement(element, prevElement);
+    }
+
+    @Nullable
+    public static Object findElement(@NotNull PsiElement element, @Nullable PsiElement prevElement) {
         // If the element at offset is ), that means we are at the end of a parameter list. Ex:- setData(name,|)
         // So in that case, we get the element at the "offset - 1". Ex:- setData(name|,)
         // This will allow us to identify the correct ExpressionListNode element.
@@ -159,7 +165,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             }
             // If a FunctionReferenceNode is not found, get the element at previous offset. This will most probably
             // contain "(".
-            element = context.getFile().findElementAt(context.getOffset() - 1);
+            if (prevElement != null) {
+                element = prevElement;
+            }
         }
         PsiElement node = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
         // ExpressionListNode can be null if there are no arguments provided.
@@ -197,6 +205,107 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // This method will be called with the return object of the findElementForParameterInfo(). If it is null,
         // this method will not be called.
         // Since we know the type, we check and cast the object.
+        PsiElement currentElement = null;
+        PsiElement parentElement = null;
+
+        List<ParameterListNode> list = getParameters(element);
+
+        if (element instanceof ExpressionListNode) {
+            ExpressionListNode expressionListNode = (ExpressionListNode) element;
+            // We need to get the ExpressionListNode parent of current ExpressionListNode.
+            // Current ExpressionListNode - "WSO2"
+            // Parent ExpressionListNode - setName("WSO2")
+            // By doing this, we get the function name because setName("WSO2") is also a ExpressionNode.
+            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
+            // If the parent is null, that means there is no parent ExpressionListNode. That can happen if the parent
+            // node is a FunctionInvocationNode.
+            if (parent == null) {
+                // So if the parent is null, we consider the FunctionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationNode.class);
+            }
+            if (parent == null) {
+                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ActionInvocationNode.class);
+            }
+            if (parent == null) {
+                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
+            }
+            if (parent == null) {
+                // So if the parent is null, we consider the ExpressionListNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionListNode.class);
+            }
+            if (parent == null) {
+                parent = expressionListNode;
+            }
+            currentElement = expressionListNode;
+            parentElement = parent;
+        } else if (element instanceof FunctionInvocationNode) {
+            FunctionInvocationNode functionInvocationNode = (FunctionInvocationNode) element;
+            currentElement = functionInvocationNode;
+            parentElement = functionInvocationNode;
+        } else if (element instanceof ActionInvocationNode) {
+            ActionInvocationNode actionInvocationNode = (ActionInvocationNode) element;
+            currentElement = actionInvocationNode;
+            parentElement = actionInvocationNode;
+        } else if (element instanceof ConnectorInitExpressionNode) {
+            ConnectorInitExpressionNode connectorInitExpressionNode = (ConnectorInitExpressionNode) element;
+            currentElement = connectorInitExpressionNode;
+            parentElement = connectorInitExpressionNode;
+        } else if (element instanceof ExpressionNode) {
+            ExpressionNode expressionNode = (ExpressionNode) element;
+            currentElement = expressionNode;
+            parentElement = expressionNode;
+        } else if (element instanceof NameReferenceNode) {
+            NameReferenceNode nameReferenceNode = (NameReferenceNode) element;
+            currentElement = nameReferenceNode;
+            parentElement = nameReferenceNode;
+        } else if (element instanceof FunctionReferenceNode) {
+            FunctionReferenceNode functionReferenceNode = (FunctionReferenceNode) element;
+            currentElement = functionReferenceNode;
+            parentElement = functionReferenceNode;
+        } else if (element instanceof ConnectorReferenceNode) {
+            ConnectorReferenceNode connectorReferenceNode = (ConnectorReferenceNode) element;
+            currentElement = connectorReferenceNode;
+            parentElement = connectorReferenceNode;
+        } else if (element instanceof IdentifierPSINode) {
+            IdentifierPSINode identifier = (IdentifierPSINode) element;
+            currentElement = identifier;
+            parentElement = identifier;
+        }
+
+        PsiElement namedIdentifierDefNode = getNameIdentifierDefinitionNode(parentElement);
+        PsiElement nameIdentifier = getNameIdentifier(currentElement, namedIdentifierDefNode);
+
+        if (currentElement == null || nameIdentifier == null || !(nameIdentifier instanceof IdentifierPSINode)) {
+            return;
+        }
+
+        if (list == null) {
+            list = new LinkedList<>();
+        }
+
+        // Sometimes we might not be able to resolve elements. In that case, we should not show "No parameters"
+        // message. To identify this situation, we use this variable.
+        // If there are no items to show, set a custom object. Otherwise set the list as an array.
+        if (list.isEmpty() && canResolve(nameIdentifier)) {
+            // Todo - change how to identify no parameter situation
+            context.setItemsToShow(new Object[]{"Empty"});
+        } else {
+            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+        }
+        context.showHint(currentElement, currentElement.getTextRange().getStartOffset(), this);
+    }
+
+    /**
+     * Returns the {@link ParameterListNode} for the given element.
+     *
+     * @param element
+     * @return
+     */
+    @NotNull
+    public static List<ParameterListNode> getParameters(@NotNull Object element) {
+        List<ParameterListNode> list = new LinkedList<>();
         if (element instanceof ExpressionListNode) {
             ExpressionListNode expressionListNode = (ExpressionListNode) element;
             // We need to get the ExpressionListNode parent of current ExpressionListNode.
@@ -226,74 +335,58 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             if (parent == null) {
                 parent = expressionListNode;
             }
-            setItemsToShow(expressionListNode, parent, context);
+            list = getItemsToShow(expressionListNode, parent);
         } else if (element instanceof FunctionInvocationNode) {
             FunctionInvocationNode functionInvocationNode = (FunctionInvocationNode) element;
-            setItemsToShow(functionInvocationNode, functionInvocationNode, context);
+            list = getItemsToShow(functionInvocationNode, functionInvocationNode);
         } else if (element instanceof ActionInvocationNode) {
             ActionInvocationNode actionInvocationNode = (ActionInvocationNode) element;
-            setItemsToShow(actionInvocationNode, actionInvocationNode, context);
+            list = getItemsToShow(actionInvocationNode, actionInvocationNode);
         } else if (element instanceof ConnectorInitExpressionNode) {
             ConnectorInitExpressionNode connectorInitExpressionNode = (ConnectorInitExpressionNode) element;
-            setItemsToShow(connectorInitExpressionNode, connectorInitExpressionNode, context);
+            list = getItemsToShow(connectorInitExpressionNode, connectorInitExpressionNode);
         } else if (element instanceof ExpressionNode) {
             ExpressionNode expressionNode = (ExpressionNode) element;
-            setItemsToShow(expressionNode, expressionNode, context);
+            list = getItemsToShow(expressionNode, expressionNode);
         } else if (element instanceof NameReferenceNode) {
             NameReferenceNode nameReferenceNode = (NameReferenceNode) element;
-            setItemsToShow(nameReferenceNode, nameReferenceNode, context);
+            list = getItemsToShow(nameReferenceNode, nameReferenceNode);
         } else if (element instanceof FunctionReferenceNode) {
             FunctionReferenceNode functionReferenceNode = (FunctionReferenceNode) element;
-            setItemsToShow(functionReferenceNode, functionReferenceNode, context);
+            list = getItemsToShow(functionReferenceNode, functionReferenceNode);
         } else if (element instanceof ConnectorReferenceNode) {
             ConnectorReferenceNode connectorReferenceNode = (ConnectorReferenceNode) element;
-            setItemsToShow(connectorReferenceNode, connectorReferenceNode, context);
+            list = getItemsToShow(connectorReferenceNode, connectorReferenceNode);
         } else if (element instanceof IdentifierPSINode) {
             IdentifierPSINode identifier = (IdentifierPSINode) element;
-            setItemsToShow(identifier, identifier, context);
+            list = getItemsToShow(identifier, identifier);
         }
+        return list;
     }
 
-    private void setItemsToShow(PsiElement element, PsiElement parent, CreateParameterInfoContext context) {
+    /**
+     * Returns an list of {@link ParameterListNode} which corresponds to the given element and parent element.
+     *
+     * @param element
+     * @param parent
+     * @return
+     */
+    private static List<ParameterListNode> getItemsToShow(PsiElement element, PsiElement parent) {
         // This method can be a overloaded method. So there can be multiple signatures. To store all of these, we
         // create a list.
         List<ParameterListNode> list = new ArrayList<>();
         // Function name will be at NameReferenceNode. So we search for this child node.
-        PsiElement namedIdentifierDefNode = null;
-
-        if (parent instanceof ExpressionListNode || parent instanceof FunctionInvocationNode
-                || parent instanceof ExpressionNode) {
-            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
-        } else if (parent instanceof NameReferenceNode || parent instanceof FunctionReferenceNode
-                || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode) {
-            namedIdentifierDefNode = parent;
-        } else if (parent instanceof ConnectorInitExpressionNode) {
-            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
-        }
-
-        PsiElement nameIdentifier = null;
-        if (namedIdentifierDefNode != null) {
-            // Get the identifier of this node.
-            nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
-        } else if (element instanceof IdentifierPSINode) {
-            nameIdentifier = element;
-        }
-
+        PsiElement namedIdentifierDefNode = getNameIdentifierDefinitionNode(parent);
+        PsiElement nameIdentifier = getNameIdentifier(element, namedIdentifierDefNode);
         if (nameIdentifier == null || !(nameIdentifier instanceof IdentifierPSINode)) {
-            return;
+            return list;
         }
-
-        // Sometimes we might not be able to resolve elements. In that case, we should not show "No parameters"
-        // message. To identify this situation, we use this variable.
-        boolean isResolved = false;
 
         PsiReference reference = nameIdentifier.findReferenceAt(nameIdentifier.getTextLength());
-
         if (reference != null) {
             // Resolve the reference
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement != null) {
-                isResolved = true;
                 // Resolved element will be the identifier of the function node. So we get the parent
                 // node (FunctionDefinitionNode).
                 PsiElement definitionNode = resolvedElement.getParent();
@@ -306,15 +399,43 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
         }
-        // If there are no items to show, set a custom object. Otherwise set the list as an array.
-        if (list.isEmpty() && isResolved) {
-            // Todo - change how to identify no parameter situation
-            context.setItemsToShow(new Object[]{"Empty"});
-        } else {
-            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
-        }
-        context.showHint(element, element.getTextRange().getStartOffset(), this);
 
+        return list;
+    }
+
+    private static PsiElement getNameIdentifierDefinitionNode(PsiElement parent) {
+        PsiElement namedIdentifierDefNode = null;
+        if (parent instanceof ExpressionListNode || parent instanceof FunctionInvocationNode
+                || parent instanceof ExpressionNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        } else if (parent instanceof NameReferenceNode || parent instanceof FunctionReferenceNode
+                || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode) {
+            namedIdentifierDefNode = parent;
+        } else if (parent instanceof ConnectorInitExpressionNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
+        }
+        return namedIdentifierDefNode;
+    }
+
+    @Nullable
+    private static PsiElement getNameIdentifier(PsiElement element, PsiElement namedIdentifierDefNode) {
+        PsiElement nameIdentifier = null;
+        if (namedIdentifierDefNode != null) {
+            // Get the identifier of this node.
+            nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
+        } else if (element instanceof IdentifierPSINode) {
+            nameIdentifier = element;
+        }
+        return nameIdentifier;
+    }
+
+    private boolean canResolve(@NotNull PsiElement identifier) {
+        PsiReference reference = identifier.findReferenceAt(identifier.getTextLength());
+        if (reference == null) {
+            return false;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        return resolvedElement != null;
     }
 
     @Nullable
@@ -325,6 +446,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
     @Override
     public void updateParameterInfo(@NotNull Object o, @NotNull UpdateParameterInfoContext context) {
+        int index = getCurrentParameterIndex(o, context.getOffset());
+        if (index != -1) {
+            context.setCurrentParameter(index);
+        }
+    }
+
+    public static int getCurrentParameterIndex(@NotNull Object o, int offset) {
         // This method updates parameter index node. This will be used to highlight the current parameter in the
         // parameter popup.
         PsiElement element;
@@ -335,35 +463,27 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             PsiElement parent = ((FunctionReferenceNode) o).getParent();
             ExpressionListNode expressionListNode = PsiTreeUtil.getChildOfType(parent, ExpressionListNode.class);
             if (expressionListNode == null) {
-                context.setCurrentParameter(0);
-                return;
+                return 0;
             }
             PsiElement[] children = expressionListNode.getChildren();
-            int index = children.length / 2;
-            context.setCurrentParameter(index);
-            return;
+            return children.length / 2;
         } else if (o instanceof ConnectorReferenceNode) {
             PsiElement parent = ((ConnectorReferenceNode) o).getParent();
             ExpressionListNode expressionListNode = PsiTreeUtil.getChildOfType(parent, ExpressionListNode.class);
             if (expressionListNode == null) {
-                context.setCurrentParameter(0);
-                return;
+                return 0;
             }
             PsiElement[] children = expressionListNode.getChildren();
-            int index = children.length / 2;
-            context.setCurrentParameter(index);
-            return;
+            return children.length / 2;
         } else if (o instanceof IdentifierPSINode) {
             StatementNode statementNode = PsiTreeUtil.getParentOfType((IdentifierPSINode) o, StatementNode.class);
             if (statementNode == null) {
-                context.setCurrentParameter(0);
-                return;
+                return 0;
             }
             PsiFile containingFile = statementNode.getContainingFile();
-            PsiElement elementAtOffset = containingFile.findElementAt(context.getOffset());
+            PsiElement elementAtOffset = containingFile.findElementAt(offset);
             if (elementAtOffset == null) {
-                context.setCurrentParameter(0);
-                return;
+                return 0;
             }
             int count = 0;
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
@@ -377,25 +497,24 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
                 }
             } while (prevVisibleLeaf != null);
-
-            context.setCurrentParameter(count);
-            return;
+            return count;
         } else {
-            context.setCurrentParameter(0);
-            return;
+            return 0;
         }
 
+        if (!(o instanceof PsiElement)) {
+            return -1;
+        }
         // Get the element at offset.
-        PsiElement psiElement = context.getFile().findElementAt(context.getOffset());
+        PsiElement psiElement = ((PsiElement) o).getContainingFile().findElementAt(offset);
         if (psiElement == null) {
-            return;
+            return -1;
         }
         // Get the child nodes of element.
         PsiElement[] children = element.getChildren();
         // If there are no child nodes, set current parameter to 0 and return.
         if (children.length == 0) {
-            context.setCurrentParameter(0);
-            return;
+            return 0;
         }
 
         // If the number of children are not 0, we need to calculate the correct index.
@@ -408,8 +527,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // In the above example, if we consider the caret position as X, child text offset is X+1. Then the
             // following condition is true. So we set the current parameter and return.
             if (psiElement.getTextOffset() <= childTextOffset) {
-                context.setCurrentParameter(index);
-                return;
+                return index;
             }
             // If the child is a LeafPsiElement, increment the index.
             if (child instanceof LeafPsiElement) {
@@ -421,7 +539,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // ("WSO2") is not a LeafPsiElement. So the index does not get incremented in the for loop. At this point,
         // the index is 0 which is correct. This can be other than 0 depending on the number of parameters. So we set
         // the calculated current parameter.
-        context.setCurrentParameter(index);
+        return index;
     }
 
     @Nullable
@@ -443,7 +561,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     public static String updatePresentation(Object p, @NotNull ParameterInfoUIContext context) {
         // This method contains the logic which we use to show the parameters in the popup.
         // The object should be of type ParameterListNode. This method will be called for each element we set using the
-        // context.setItemsToShow() in showParameterInfo method.
+        // context.getItemsToShow() in showParameterInfo method.
         if (p instanceof ParameterListNode) {
             // Caste the object.
             ParameterListNode element = (ParameterListNode) p;
