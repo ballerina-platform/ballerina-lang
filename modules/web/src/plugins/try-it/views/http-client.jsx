@@ -107,7 +107,7 @@ class HttpClient extends React.Component {
 
         if (emptyHeaderIndex === -1) {
             const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
-            headerClone.splice(0, 0, { id: uuid(), key: '', value: '' });
+            headerClone.push({ id: uuid(), key: '', value: '' });
             this.setState({
                 requestHeaders: headerClone,
             });
@@ -166,13 +166,17 @@ class HttpClient extends React.Component {
     onHeaderKeyChange(headerValue, event) {
         const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
         headerClone.forEach((header, index, headers) => {
-            if (header.value === headerValue) {
+            if (header.id === event.currentTarget.id) {
                 headers[index].key = event.currentTarget.value;
             }
         });
 
         this.setState({
             requestHeaders: headerClone,
+        }, function () {
+            if (headerClone[headerClone.length - 1].value === '' && headerClone[headerClone.length - 1].key !== '') {
+                this.onAddNewHeader(false);
+            }
         });
     }
 
@@ -185,7 +189,7 @@ class HttpClient extends React.Component {
     onHeaderValueChange(headerKey, event) {
         const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
         headerClone.forEach((header, index, headers) => {
-            if (header.key === headerKey) {
+            if (header.id === event.currentTarget.id) {
                 headers[index].value = event.currentTarget.value;
             }
         });
@@ -332,6 +336,7 @@ class HttpClient extends React.Component {
         return this.state.requestHeaders.map((header) => {
             return (<div key={`${header.id}`} className="form-inline">
                 <input
+                    id={header.id}
                     key={`key-${header.id}`}
                     ref={(ref) => {
                         if (header.key === '' && header.value === '') {
@@ -342,17 +347,18 @@ class HttpClient extends React.Component {
                     type='text'
                     className="header-input form-control"
                     value={header.key}
-                    onChange={e => this.onHeaderKeyChange(header.value, e)}
+                    onChange={e => this.onHeaderKeyChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
                 />
                 :
                 <input
+                    id={header.id}
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
                     className="header-input form-control"
                     value={header.value}
-                    onChange={e => this.onHeaderValueChange(header.key, e)}
+                    onChange={e => this.onHeaderValueChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
                     onKeyDown={this.onHeaderValueKeyDown}
                 />
@@ -503,10 +509,6 @@ class HttpClient extends React.Component {
                             </div>
                             <div className='http-client-headers-wrapper'>
                                 <span className="section-header">Headers</span>
-                                <span className='add-header-button' onClick={() => this.onAddNewHeader(true)}>
-                                    <i className='fw fw-add' />
-                                    Add New
-                                </span>
                                 <hr />
                                 <div className='current-headers'>
                                     {headers}
