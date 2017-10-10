@@ -26,7 +26,6 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.util.Lists;
 
 /**
  * Test cases for usages of fork-join in functions.
@@ -48,7 +47,6 @@ public class ForkJoinInFunctionTest {
     @Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
         CompileResult result = BTestUtils.compile("test-src/workers/fork-join-some.bal");
-        Lists.of(result.getDiagnostics()).forEach(e -> System.out.println(e.getMessage() + ":" + e.getPosition()));
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testForkJoinAny", args);
         Assert.assertEquals(returns.length, 1);
