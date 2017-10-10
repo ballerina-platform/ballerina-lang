@@ -121,7 +121,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder FINALLY;
     private static final LookupElementBuilder ITERATE;
     private static final LookupElementBuilder WHILE;
-    private static final LookupElementBuilder CONTINUE;
+    private static final LookupElementBuilder NEXT;
     private static final LookupElementBuilder BREAK;
     private static final LookupElementBuilder THROW;
 
@@ -187,7 +187,7 @@ public class BallerinaCompletionUtils {
         FINALLY = createKeywordLookupElement("finally");
         ITERATE = createKeywordLookupElement("iterate");
         WHILE = createKeywordLookupElement("while");
-        CONTINUE = createKeywordLookupElement("continue", ";");
+        NEXT = createKeywordLookupElement("next", ";");
         BREAK = createKeywordLookupElement("break", ";");
         THROW = createKeywordLookupElement("throw");
 
@@ -393,7 +393,7 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(FINALLY));
         lookupElements.add(createKeywordAsLookup(ITERATE));
         lookupElements.add(createKeywordAsLookup(WHILE));
-        lookupElements.add(createKeywordAsLookup(CONTINUE));
+        lookupElements.add(createKeywordAsLookup(NEXT));
         lookupElements.add(createKeywordAsLookup(BREAK));
         lookupElements.add(createKeywordAsLookup(THROW));
         return lookupElements;

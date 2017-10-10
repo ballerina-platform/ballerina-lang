@@ -66,6 +66,7 @@ import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
+import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.InvocationNode;
@@ -153,7 +154,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ABORTED, ACTION, ALL, ANNOTATION, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
-            CONTINUE, CREATE, ELSE, ENUM, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF, NATIVE,
+            CREATE, ELSE, ENUM, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF, NATIVE, NEXT,
             PACKAGE, PARAMETER, PUBLIC, REPLY, RESOURCE, RETRY, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORM, TRY, TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT,
             TYPE_FLOAT, TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE,
@@ -395,6 +396,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new EnumFieldNode(node);
             case BallerinaParser.RULE_builtInReferenceTypeName:
                 return new BuiltInReferenceTypeNameNode(node);
+            case BallerinaParser.RULE_functionTypeName:
+                return new FunctionTypeNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

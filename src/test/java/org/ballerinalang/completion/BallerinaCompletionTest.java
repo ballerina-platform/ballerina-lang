@@ -33,7 +33,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
             "worker", "transform", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
-            "iterate", "while", "continue", "break", "throw");
+            "iterate", "while", "next", "break", "throw");
     private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
@@ -614,7 +614,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("timeout");
         expectedLookups.add("transaction");
         expectedLookups.add("finally");
-        expectedLookups.add("continue");
         expectedLookups.add("iterate");
         expectedLookups.add("while");
         expectedLookups.add("committed");
@@ -1843,7 +1842,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testContinueKeyword() {
-        doCheckResult("test.bal", "function test(){ continue<caret> }", "function test(){ continue; }", null);
+        doCheckResult("test.bal", "function test(){ next<caret> }", "function test(){ next; }", null);
     }
 
     public void testBreakKeyword() {

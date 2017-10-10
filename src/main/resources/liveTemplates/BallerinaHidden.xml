@@ -191,8 +191,8 @@
         </context>
     </template>
 
-    <template description='Continue Statement' id='ballerina_lang_continue' name='ballerina_lang_continue'
-              toReformat='false' toShortenFQNames='true' value='continue;'>
+    <template description='Next Statement' id='ballerina_lang_next' name='ballerina_lang_next'
+              toReformat='false' toShortenFQNames='true' value='next;'>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>

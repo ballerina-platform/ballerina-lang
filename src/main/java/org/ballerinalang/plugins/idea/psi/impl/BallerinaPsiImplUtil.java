@@ -55,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
@@ -65,6 +66,7 @@ import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementN
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -1399,6 +1401,28 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
+    }
+
+    @Nullable
+    public static PsiElement resolveFunctionInPackage(@NotNull IdentifierPSINode identifier,
+                                                      boolean matchLocalVariables, boolean matchParameters,
+                                                      boolean matchGlobalVariables) {
+        PsiElement element = resolveElementInScope(identifier, matchLocalVariables, matchParameters,
+                matchGlobalVariables, false);
+        if (element == null) {
+            return null;
+        }
+        BuiltInReferenceTypeNameNode builtInReferenceTypeNameNode = PsiTreeUtil.findChildOfType(element.getParent(),
+                BuiltInReferenceTypeNameNode.class);
+        if (builtInReferenceTypeNameNode == null) {
+            return null;
+        }
+        FunctionTypeNameNode functionTypeNameNode = PsiTreeUtil.getChildOfType(builtInReferenceTypeNameNode,
+                FunctionTypeNameNode.class);
+        if (functionTypeNameNode == null) {
+            return null;
+        }
+        return element;
     }
 
     @Nullable
