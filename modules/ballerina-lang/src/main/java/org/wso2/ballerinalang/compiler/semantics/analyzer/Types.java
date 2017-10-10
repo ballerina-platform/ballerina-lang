@@ -379,6 +379,49 @@ public class Types {
                 false, safe, opcode, null, null);
     }
 
+    private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS) {
+        if (t.tag == TypeTags.ARRAY && s.tag == TypeTags.ARRAY) {
+            return getExplicitArrayCastOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
+
+        } else if (t.tag == TypeTags.ARRAY) {
+            if (s == symTable.jsonType) {
+                return getExplicitArrayCastOperator(((BArrayType) t).eType, symTable.jsonType, origT, origS);
+            }
+
+            // If only the target type is an array type, then the source type must be of type 'any'
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            }
+            return symTable.notFoundSymbol;
+
+        } else if (s.tag == TypeTags.ARRAY) {
+            if (t == symTable.jsonType) {
+                return getExplicitArrayCastOperator(symTable.jsonType, ((BArrayType) s).eType, origT, origS);
+            }
+
+            // If only the source type is an array type, then the target type must be of type 'any'
+            if (t.tag == TypeTags.ANY) {
+                return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+            }
+            return symTable.notFoundSymbol;
+        }
+
+        // Now both types are not array types
+        if (s == t) {
+            return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+        }
+
+        // In this case, target type should be of type 'any' and the source type cannot be a value type
+        if (t == symTable.anyType && !isValueType(s)) {
+            return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+        }
+
+        if (!isValueType(t) && s == symTable.anyType) {
+            return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+        }
+        return symTable.notFoundSymbol;
+    }
+
     private BTypeVisitor<BSymbol> castVisitor = new BTypeVisitor<BSymbol>() {
 
         @Override
@@ -419,7 +462,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BArrayType t, BType s) {
-            throw new AssertionError();
+            return getExplicitArrayCastOperator(t, s, t, s);
         }
 
         @Override
