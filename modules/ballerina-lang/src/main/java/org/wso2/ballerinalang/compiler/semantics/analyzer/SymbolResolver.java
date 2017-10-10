@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -426,6 +427,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         BInvokableType bInvokableType = new BInvokableType(paramTypes, retParamTypes, null);
         bInvokableType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
         resultType = bInvokableType;
+    }
+
+    /**
+     * Lookup all the visible in-scope symbols for a given environment scope
+     * @param env Symbol environment
+     * @return all the visible symbols
+     */
+    public Map<Name, ScopeEntry> getAllVisibleInScopeSymbols(SymbolEnv env) {
+        Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
+        visibleEntries.putAll(env.scope.entries);
+        if (env.enclEnv != null) {
+            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+        }
+        return visibleEntries;
     }
 
 
