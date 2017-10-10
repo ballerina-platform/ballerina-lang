@@ -8,9 +8,94 @@ import ActivityBar from './ActivityBar';
 import { HISTORY } from './../constants';
 import { createViewFromViewDef } from './utils';
 
-
 const activityBarWidth = 42;
 const panelTitleHeight = 36;
+
+/**
+ * A Tab inside Left Panel
+ */
+class LeftPanelTab extends React.Component {
+
+    /**
+     * @inheritdoc
+     */
+    constructor(...args) {
+        super(...args);
+        this.scroller = undefined;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    render() {
+        const { viewDef, width, height, panelResizeInProgress,
+                viewDef: {
+                    id,
+                    regionOptions: {
+                        panelTitle,
+                        panelActions,
+                    },
+                },
+            } = this.props;
+        const actions = [];
+        if (!_.isNil(panelActions) && _.isArray(panelActions)) {
+            panelActions.forEach(({ icon, isActive, handleAction }, index) => {
+                const isActionactive = _.isFunction(isActive) ? isActive() : true;
+                actions.push((
+                    <i
+                        key={id + index}
+                        className={classnames('fw', `fw-${icon}`, { active: isActionactive })}
+                        onClick={() => {
+                            if (isActionactive && _.isFunction(handleAction)) {
+                                handleAction();
+                            }
+                        }}
+                    />
+                ));
+            });
+        }
+        const dimensions = {
+            width: width - activityBarWidth,
+            height: height - panelTitleHeight,
+        };
+        const viewProps = {
+            ...dimensions,
+            panelResizeInProgress,
+        };
+        return (
+            <div>
+                <div>
+                    <div className="panel-title">
+                        {panelTitle}
+                    </div>
+                    <div className="panel-actions">{actions}</div>
+                </div>
+                <Scrollbars
+                    style={dimensions}
+                    className="panel-content-scroll-container"
+                    ref={(ref) => {
+                        this.scroller = ref;
+                    }}
+                >
+                    <div className="panel-content">
+                        {
+                            createViewFromViewDef(viewDef, viewProps)
+                        }
+                    </div>
+                </Scrollbars>
+            </div>
+        );
+    }
+
+}
+
+LeftPanelTab.propTypes = {
+    viewDef: PropTypes.instanceOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+};
 
 /**
  * React component for LeftPanel Region.
@@ -36,66 +121,26 @@ class LeftPanel extends React.Component {
     render() {
         const tabs = [];
         const panes = [];
-        this.props.views.forEach((viewDef) => {
+        const { views, onActiveViewChange, ...restProps } = this.props;
+        views.forEach((viewDef) => {
             const {
                     id,
                     regionOptions: {
                         activityBarIcon,
-                        panelTitle,
-                        panelActions,
                     },
                   } = viewDef;
-            const actions = [];
             tabs.push((
                 <NavItem key={id} eventKey={id}>
                     <i className={`fw fw-${activityBarIcon} fw-lg`} />
                 </NavItem>
             ));
-
-            if (!_.isNil(panelActions) && _.isArray(panelActions)) {
-                panelActions.forEach(({ icon, isActive, handleAction }, index) => {
-                    const isActionactive = _.isFunction(isActive) ? isActive() : true;
-                    actions.push((
-                        <i
-                            key={id + index}
-                            className={classnames('fw', `fw-${icon}`, { active: isActionactive })}
-                            onClick={() => {
-                                if (isActionactive && _.isFunction(handleAction)) {
-                                    handleAction();
-                                }
-                            }}
-                        />
-                    ));
-                });
-            }
-            const dimensions = {
-                width: this.props.width - activityBarWidth,
-                height: this.props.height - panelTitleHeight,
-            };
-            const viewProps = {
-                ...dimensions,
-                panelResizeInProgress: this.props.panelResizeInProgress,
+            const propsForTab = {
+                viewDef,
+                ...restProps,
             };
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
-                    <div>
-                        <div>
-                            <div className="panel-title">
-                                {panelTitle}
-                            </div>
-                            <div className="panel-actions">{actions}</div>
-                        </div>
-                        <Scrollbars
-                            style={dimensions}
-                            className="panel-content-scroll-container"
-                        >
-                            <div className="panel-content">
-                                {
-                                    createViewFromViewDef(viewDef, viewProps)
-                                }
-                            </div>
-                        </Scrollbars>
-                    </div>
+                    <LeftPanelTab {...propsForTab} />
                 </Tab.Pane>
             ));
         });
@@ -112,7 +157,7 @@ class LeftPanel extends React.Component {
                             this.setState({
                                 activeView,
                             });
-                            this.props.onActiveViewChange(activeView);
+                            onActiveViewChange(activeView);
                         }}
                     >
                         <div>
