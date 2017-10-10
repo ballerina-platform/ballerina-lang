@@ -1959,7 +1959,7 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static StructDefinitionNode resolveAnonymousStruct(IdentifierPSINode identifier) {
-        Object element = BallerinaParameterInfoHandler.findElement(identifier, null);
+        Object element = BallerinaParameterInfoHandler.findElement(identifier, PsiTreeUtil.prevVisibleLeaf(identifier));
         if (element == null) {
             return null;
         }

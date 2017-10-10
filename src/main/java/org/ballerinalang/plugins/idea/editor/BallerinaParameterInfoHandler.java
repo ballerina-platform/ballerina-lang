@@ -197,7 +197,33 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (node != null) {
             return node;
         }
+        if (prevElement != null && prevElement.getText().matches("[{,]") || prevElement instanceof LeafPsiElement) {
+            return resolve(prevElement);
+        }
         return null;
+    }
+
+    private static PsiElement resolve(@NotNull PsiElement element) {
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
+        if (prevVisibleLeaf != null) {
+            if (prevVisibleLeaf.getText().equals("(")) {
+                PsiElement functionName = prevVisibleLeaf.getPrevSibling();
+                if (functionName != null) {
+                    return functionName;
+                }
+                return PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+            }
+            return resolve(prevVisibleLeaf);
+        }
+        PsiElement prevSibling = element.getPrevSibling();
+        if (prevSibling.getText().equals("(")) {
+            PsiElement functionName = prevSibling.getPrevSibling();
+            if (functionName != null) {
+                return functionName;
+            }
+            return PsiTreeUtil.prevVisibleLeaf(prevSibling);
+        }
+        return resolve(prevSibling);
     }
 
     @Override
@@ -216,12 +242,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Current ExpressionListNode - "WSO2"
             // Parent ExpressionListNode - setName("WSO2")
             // By doing this, we get the function name because setName("WSO2") is also a ExpressionNode.
-            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
+            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationNode.class);
             // If the parent is null, that means there is no parent ExpressionListNode. That can happen if the parent
             // node is a FunctionInvocationNode.
             if (parent == null) {
                 // So if the parent is null, we consider the FunctionInvocationNode as the parent node.
-                parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationNode.class);
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
             }
             if (parent == null) {
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
@@ -311,14 +337,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // We need to get the ExpressionListNode parent of current ExpressionListNode.
             // Current ExpressionListNode - "WSO2"
             // Parent ExpressionListNode - setName("WSO2")
-            // By doing this, we get the function name because setName("WSO2") is also a ExpressionNode.
-            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
-            // If the parent is null, that means there is no parent ExpressionListNode. That can happen if the parent
-            // node is a FunctionInvocationNode.
-            if (parent == null) {
-                // So if the parent is null, we consider the FunctionInvocationNode as the parent node.
-                parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationNode.class);
-            }
+
+            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationNode.class);
             if (parent == null) {
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ActionInvocationNode.class);
@@ -327,6 +347,14 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
             }
+
+            if (parent == null) {
+                // So if the parent is null, we consider the FunctionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
+            }
+            // If the parent is null, that means there is no parent ExpressionListNode. That can happen if the parent
+            // node is a FunctionInvocationNode.
+
             if (parent == null) {
                 // So if the parent is null, we consider the ExpressionListNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionListNode.class);
@@ -405,11 +433,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
     private static PsiElement getNameIdentifierDefinitionNode(PsiElement parent) {
         PsiElement namedIdentifierDefNode = null;
-        if (parent instanceof ExpressionListNode || parent instanceof FunctionInvocationNode
-                || parent instanceof ExpressionNode) {
+        if (parent instanceof ExpressionListNode || parent instanceof ExpressionNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        } else if (parent instanceof FunctionInvocationNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, FunctionReferenceNode.class);
         } else if (parent instanceof NameReferenceNode || parent instanceof FunctionReferenceNode
-                || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode) {
+                || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode
+                || parent instanceof IdentifierPSINode) {
             namedIdentifierDefNode = parent;
         } else if (parent instanceof ConnectorInitExpressionNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
@@ -420,11 +450,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Nullable
     private static PsiElement getNameIdentifier(PsiElement element, PsiElement namedIdentifierDefNode) {
         PsiElement nameIdentifier = null;
-        if (namedIdentifierDefNode != null) {
+        if (element instanceof IdentifierPSINode) {
+            nameIdentifier = element;
+        }
+        if (namedIdentifierDefNode != null && namedIdentifierDefNode instanceof IdentifierDefSubtree) {
             // Get the identifier of this node.
             nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
-        } else if (element instanceof IdentifierPSINode) {
-            nameIdentifier = element;
         }
         return nameIdentifier;
     }
@@ -486,11 +517,17 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 return 0;
             }
             int count = 0;
+            int commas = 0;
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
             do {
                 if (prevVisibleLeaf != null) {
-                    if (prevVisibleLeaf.getText().matches(",")) {
+                    if (prevVisibleLeaf.getText().matches("[,]")) {
                         count++;
+                        commas++;
+                    } else if (prevVisibleLeaf.getText().matches("[}]")) {
+                        count++;
+                    } else if (prevVisibleLeaf.getText().matches("[{]")) {
+                        count = count - commas;
                     } else if ("(".equals(prevVisibleLeaf.getText())) {
                         break;
                     }
