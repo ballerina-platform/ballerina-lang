@@ -192,10 +192,7 @@ class SwaggerView extends React.Component {
      */
     genSwaggerAndID() {
         if (!_.isNil(this.props.targetService)) {
-            const sourceGenVisitor = new SourceGenVisitor();
-            this.context.astRoot.accept(sourceGenVisitor);
-            const formattedContent = sourceGenVisitor.getGeneratedSource();
-            getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
+            getSwaggerDefinition(this.context.astRoot.getSource(), this.props.targetService.getName().getValue())
                 .then((swaggerDefinition) => {
                     // Update host url if try it url is available.
                     const swaggerJson = JSON.parse(swaggerDefinition);

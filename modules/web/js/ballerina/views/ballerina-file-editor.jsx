@@ -290,6 +290,19 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Display the swagger view for given service def node
+     *
+     * @param {ServiceDefinition} serviceDef Service def node to display
+     */
+    showSwaggerViewForService(serviceDef) {
+        // not using setState to avoid multiple re-renders
+        // this.update() will finally trigger re-render
+        this.state.swaggerViewTargetService = serviceDef;
+        this.state.activeView = SWAGGER_VIEW;
+        this.update();
+    }
+
+    /**
      * Open documentation for the given symbol
      *
      * @param {string} pkgName

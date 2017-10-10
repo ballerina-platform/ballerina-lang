@@ -152,39 +152,41 @@ public class SwaggerServiceMapper {
             Map<String, SecuritySchemeDefinition> securitySchemeDefinitionMap = new HashMap<>();
             for (AnnotationAttachmentAttributeValueNode authorizationValues :
                                                                             annotationAttributeValue.getValueArray()) {
-                AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode) authorizationValues;
-                Map<String, AnnotationAttachmentAttributeValueNode> authAttributes =
-                        this.listToMap(authAnnotationAttachment);
-                if (authAttributes.containsKey("name") &&
-                    authAttributes.containsKey("authType")) {
-                    String name = this.getStringLiteralValue(authAttributes.get("name"));
-                    String type = this.getStringLiteralValue(authAttributes.get("authType"));
-                    String description = "";
-                    if (authAttributes.containsKey("description")) {
-                        description = this.getStringLiteralValue(authAttributes.get("description"));
-                    }
-                    if ("basic".equals(type)) {
-                        BasicAuthDefinition basicAuthDefinition = new BasicAuthDefinition();
-                        basicAuthDefinition.setDescription(description);
-                        securitySchemeDefinitionMap.put(name, basicAuthDefinition);
-                    } else if ("apiKey".equals(type)) {
-                        ApiKeyAuthDefinition apiKeyAuthDefinition = new ApiKeyAuthDefinition();
-                        apiKeyAuthDefinition.setName(this.getStringLiteralValue(authAttributes.get("apiName")));
-                        apiKeyAuthDefinition.setIn(In.forValue(this.getStringLiteralValue(authAttributes.get("in"))));
-                        apiKeyAuthDefinition.setDescription(description);
-                        securitySchemeDefinitionMap.put(name, apiKeyAuthDefinition);
-                    } else if ("oauth2".equals(type)) {
-                        OAuth2Definition oAuth2Definition = new OAuth2Definition();
-                        oAuth2Definition.setFlow(this.getStringLiteralValue(authAttributes.get("flow")));
-                        oAuth2Definition.setAuthorizationUrl(
-                                                    this.getStringLiteralValue(authAttributes.get("authorizationUrl")));
-                        oAuth2Definition.setTokenUrl(this.getStringLiteralValue(authAttributes.get("tokenUrl")));
+                if (authorizationValues instanceof AnnotationAttachmentNode) {
+                    AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode) authorizationValues;
+                    Map<String, AnnotationAttachmentAttributeValueNode> authAttributes =
+                                                                            this.listToMap(authAnnotationAttachment);
+                    if (authAttributes.containsKey("name") && authAttributes.containsKey("authType")) {
+                        String name = this.getStringLiteralValue(authAttributes.get("name"));
+                        String type = this.getStringLiteralValue(authAttributes.get("authType"));
+                        String description = "";
+                        if (authAttributes.containsKey("description")) {
+                            description = this.getStringLiteralValue(authAttributes.get("description"));
+                        }
+                        if ("basic".equals(type)) {
+                            BasicAuthDefinition basicAuthDefinition = new BasicAuthDefinition();
+                            basicAuthDefinition.setDescription(description);
+                            securitySchemeDefinitionMap.put(name, basicAuthDefinition);
+                        } else if ("apiKey".equals(type)) {
+                            ApiKeyAuthDefinition apiKeyAuthDefinition = new ApiKeyAuthDefinition();
+                            apiKeyAuthDefinition.setName(this.getStringLiteralValue(authAttributes.get("apiName")));
+                            apiKeyAuthDefinition.setIn(In.forValue(this.getStringLiteralValue(authAttributes
+                                                                                                        .get("in"))));
+                            apiKeyAuthDefinition.setDescription(description);
+                            securitySchemeDefinitionMap.put(name, apiKeyAuthDefinition);
+                        } else if ("oauth2".equals(type)) {
+                            OAuth2Definition oAuth2Definition = new OAuth2Definition();
+                            oAuth2Definition.setFlow(this.getStringLiteralValue(authAttributes.get("flow")));
+                            oAuth2Definition.setAuthorizationUrl(this.getStringLiteralValue(authAttributes
+                                                                                            .get("authorizationUrl")));
+                            oAuth2Definition.setTokenUrl(this.getStringLiteralValue(authAttributes.get("tokenUrl")));
     
-                        this.createSecurityDefinitionScopesModel(authAttributes.get("authorizationScopes"),
+                            this.createSecurityDefinitionScopesModel(authAttributes.get("authorizationScopes"),
                                                                                                     oAuth2Definition);
-                        
-                        oAuth2Definition.setDescription(description);
-                        securitySchemeDefinitionMap.put(name, oAuth2Definition);
+    
+                            oAuth2Definition.setDescription(description);
+                            securitySchemeDefinitionMap.put(name, oAuth2Definition);
+                        }
                     }
                 }
             }
@@ -201,12 +203,14 @@ public class SwaggerServiceMapper {
                                                      OAuth2Definition oAuth2Definition) {
         Map<String, String> scopes = new HashMap<>();
         for (AnnotationAttachmentAttributeValueNode authScopeValue : authorizationScopes.getValueArray()) {
-            AnnotationAttachmentNode authScopeAnnotationAttachment = (AnnotationAttachmentNode) authScopeValue;
-            Map<String, AnnotationAttachmentAttributeValueNode> authScopeAttributes =
-                    this.listToMap(authScopeAnnotationAttachment);
-            String name = this.getStringLiteralValue(authScopeAttributes.get("name"));
-            String description = this.getStringLiteralValue(authScopeAttributes.get("description"));
-            scopes.put(name, description);
+            if (authScopeValue instanceof AnnotationAttachmentNode) {
+                AnnotationAttachmentNode authScopeAnnotationAttachment = (AnnotationAttachmentNode) authScopeValue;
+                Map<String, AnnotationAttachmentAttributeValueNode> authScopeAttributes =
+                        this.listToMap(authScopeAnnotationAttachment);
+                String name = this.getStringLiteralValue(authScopeAttributes.get("name"));
+                String description = this.getStringLiteralValue(authScopeAttributes.get("description"));
+                scopes.put(name, description);
+            }
         }
         oAuth2Definition.setScopes(scopes);
     }
