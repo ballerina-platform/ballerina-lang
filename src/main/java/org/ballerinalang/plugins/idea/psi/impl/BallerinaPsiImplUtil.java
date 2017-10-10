@@ -66,6 +66,8 @@ import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementN
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -1850,38 +1852,12 @@ public class BallerinaPsiImplUtil {
             if (resolvedFunctionIdentifier == null) {
                 return null;
             }
-            // Check whether the resolved element's parent is a function definiton.
-            PsiElement parent = resolvedFunctionIdentifier.getParent();
-            if (!(parent instanceof FunctionDefinitionNode)) {
+            // Check whether the resolved element's parent is a function definition.
+            PsiElement definitionNode = resolvedFunctionIdentifier.getParent();
+            if (!(definitionNode instanceof FunctionDefinitionNode)) {
                 return null;
             }
-            // Now we need to know the index of the provided struct reference node in the assignment statement node.
-            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
-            if (index < 0) {
-                return null;
-            }
-            // Now we get all of the return types from the function.
-            List<TypeNameNode> returnTypes = getReturnTypes(((FunctionDefinitionNode) parent));
-            // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
-            // at least 1, etc.
-            if (returnTypes.size() <= index) {
-                return null;
-            }
-            // Get the corresponding return type.
-            PsiElement elementType = returnTypes.get(index);
-            // If this is a struct, we need to resolve it to the definition.
-            PsiReference referenceAtElementType = elementType.findReferenceAt(elementType.getTextLength());
-            if (referenceAtElementType == null) {
-                return null;
-            }
-            PsiElement resolvedIdentifier = referenceAtElementType.resolve();
-            if (resolvedIdentifier != null) {
-                // If we can resolve it to a definition, parent should be a struct definition node.
-                PsiElement structDefinition = resolvedIdentifier.getParent();
-                if (structDefinition instanceof StructDefinitionNode) {
-                    return (StructDefinitionNode) structDefinition;
-                }
-            }
+            return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
         } else if (node instanceof NameReferenceNode) {
             // If the node is a NameReferenceNode, that means RHS contains a variable.
             PsiReference reference = node.findReferenceAt(node.getTextLength());
@@ -1895,6 +1871,58 @@ public class BallerinaPsiImplUtil {
             }
             // Then recursively call the findStructDefinition method to get the correct definition.
             return findStructDefinition((IdentifierPSINode) resolvedDefinition);
+        } else if (node instanceof FunctionInvocationNode) {
+            FunctionReferenceNode functionReferenceNode = PsiTreeUtil.getChildOfType(node, FunctionReferenceNode.class);
+            if (functionReferenceNode == null) {
+                return null;
+            }
+            PsiReference reference = functionReferenceNode.findReferenceAt(functionReferenceNode.getTextLength());
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedDefinition = reference.resolve();
+            if (resolvedDefinition == null || !(resolvedDefinition instanceof IdentifierPSINode)) {
+                return null;
+            }
+            PsiElement definitionNode = resolvedDefinition.getParent();
+            if (!(definitionNode instanceof FunctionDefinitionNode)) {
+                return null;
+            }
+            return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
+        }
+        return null;
+    }
+
+    @Nullable
+    public static StructDefinitionNode getStructDefinition(@NotNull AssignmentStatementNode assignmentStatementNode,
+                                                           @NotNull IdentifierPSINode structReferenceNode,
+                                                           @NotNull PsiElement definitionNode) {
+        // Now we need to know the index of the provided struct reference node in the assignment statement node.
+        int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+        if (index < 0) {
+            return null;
+        }
+        // Now we get all of the return types from the function.
+        List<TypeNameNode> returnTypes = getReturnTypes(((FunctionDefinitionNode) definitionNode));
+        // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
+        // at least 1, etc.
+        if (returnTypes.size() <= index) {
+            return null;
+        }
+        // Get the corresponding return type.
+        PsiElement elementType = returnTypes.get(index);
+        // If this is a struct, we need to resolve it to the definition.
+        PsiReference referenceAtElementType = elementType.findReferenceAt(elementType.getTextLength());
+        if (referenceAtElementType == null) {
+            return null;
+        }
+        PsiElement resolvedIdentifier = referenceAtElementType.resolve();
+        if (resolvedIdentifier != null) {
+            // If we can resolve it to a definition, parent should be a struct definition node.
+            PsiElement structDefinition = resolvedIdentifier.getParent();
+            if (structDefinition instanceof StructDefinitionNode) {
+                return (StructDefinitionNode) structDefinition;
+            }
         }
         return null;
     }
@@ -1929,7 +1957,7 @@ public class BallerinaPsiImplUtil {
         // Now we need to find the error.bal file which contains the definition of these error structs.
         Project project = referenceNode.getProject();
         VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(project, referenceNode,
-                "/ballerina/lang/errors/error.bal");
+                "/ballerina/builtin/core/source.bal");
         if (errorFile == null) {
             return null;
         }
