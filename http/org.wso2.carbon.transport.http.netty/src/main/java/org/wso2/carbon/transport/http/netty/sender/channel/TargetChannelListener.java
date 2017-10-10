@@ -59,7 +59,7 @@ public class TargetChannelListener implements ChannelFutureListener {
             channelFuture.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
                     .set(httpResponseFuture);
             targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
-            targetChannel.setEndPointTimeout(socketIdleTimeout);
+            targetChannel.setEndPointTimeout(socketIdleTimeout, false);
             targetChannel.setCorrelationIdForLogging();
 
             targetChannel.setRequestWritten(true);

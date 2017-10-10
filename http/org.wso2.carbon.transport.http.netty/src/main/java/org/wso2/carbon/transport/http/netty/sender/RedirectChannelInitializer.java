@@ -22,11 +22,13 @@ import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -40,13 +42,15 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
     private boolean httpTraceLogEnabled;
     private ChannelHandlerContext originalChannelContext;
     private int maxRedirectCount;
+    private long socketTimeout;
 
     public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine, boolean
-            httpTraceLogEnabled, int maxRedirectCount) {
+            httpTraceLogEnabled, int maxRedirectCount, long remainingTimeForRedirection) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.originalChannelContext = originalChannelContext;
         this.maxRedirectCount = maxRedirectCount;
+        this.socketTimeout = remainingTimeForRedirection;
     }
 
     @Override
@@ -63,6 +67,8 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
+        ch.pipeline().addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketTimeout, socketTimeout, 0,
+                TimeUnit.MILLISECONDS));
         RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext, sslEngine, httpTraceLogEnabled,
                 maxRedirectCount);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);

@@ -27,12 +27,15 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -493,5 +496,26 @@ public class Util {
      */
     public static String createServerConnectorID(String host, int port) {
         return host + ":" + port;
+    }
+
+    public static HTTPCarbonMessage createErrorMessage(String payload) {
+
+        HTTPCarbonMessage response = new HTTPCarbonMessage(
+                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR));
+
+        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
+        response.setEndOfMsgAdded(true);
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+        response.setHeader(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
+        response.setHeader(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
+
+        response.setProperty(Constants.HTTP_STATUS_CODE, 504);
+        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        MessagingException messagingException = new MessagingException("read timeout", 101504);
+        response.setMessagingException(messagingException);
+        return response;
+
     }
 }

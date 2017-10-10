@@ -16,28 +16,23 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -198,7 +193,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 getHttpRoute().toString() + "</errorMessage>";
         if (httpResponseFuture != null) {
             try {
-                httpResponseFuture.notifyHttpListener(createErrorMessage(payload));
+                httpResponseFuture.notifyHttpListener(Util.createErrorMessage(payload));
             } catch (Exception e) {
                 LOG.error("Error while notifying response to listener ", e);
             }
@@ -206,26 +201,4 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             LOG.error("Cannot correlate callback with request callback is null ");
         }
     }
-
-    private HTTPCarbonMessage createErrorMessage(String payload) {
-
-        HTTPCarbonMessage response = new HTTPCarbonMessage(
-                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR));
-
-        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
-        response.setEndOfMsgAdded(true);
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-
-        response.setHeader(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
-        response.setHeader(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
-
-        response.setProperty(Constants.HTTP_STATUS_CODE, 504);
-        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        MessagingException messagingException = new MessagingException("read timeout", 101504);
-        response.setMessagingException(messagingException);
-        return response;
-
-    }
-
 }

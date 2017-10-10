@@ -33,6 +33,8 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -431,6 +433,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             sslEngine = null;
         }
 
+        long channelStartTime = channelHandlerContext.channel()
+                .attr(Constants.ORIGINAL_CHANNEL_START_TIME).get();
+
+        int timeoutOfOriginalRequest = channelHandlerContext.channel()
+                .attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
+
+        long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
+        long remainingTimeForRedirection = timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
+
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
@@ -438,7 +449,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
                 new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
-                        maxRedirectCount));
+                        maxRedirectCount, remainingTimeForRedirection));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         channelFuture.addListener(new ChannelFutureListener() {
@@ -452,7 +463,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                 } else {
-                    future.cause().printStackTrace();
+                    LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
                     originalChannelContext.fireExceptionCaught(future.cause());
                 }
             }
@@ -499,6 +510,25 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             }
             ctx.close();
         }
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent) evt;
+            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
+                if (originalChannelContext.channel().isActive()) {
+                    originalChannelContext.fireUserEventTriggered(evt);
+                } else {
+                    String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
+                            + "</errorMessage>";
+                    HttpResponseFuture responseFuture = ctx.channel()
+                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+                }
+            }
+        }
+        ctx.close();
     }
 }
 
