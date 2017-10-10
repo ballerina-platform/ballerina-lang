@@ -30,8 +30,12 @@ export const ExpressionType = {
 export const VarPrefix = {
     TEMP: '__temp',
     OUTPUT: '__output',
+    NEWVAR: '__newVar',
 };
 
+/**
+ * Transform utilities class
+ */
 export default class TransformUtils {
     /**
      * Get a new name for temporary variable
@@ -44,26 +48,25 @@ export default class TransformUtils {
         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
         const tempVarSuffixes = [];
 
-        let checkedExpressionType = ExpressionType.TEMPVAR;
-
-        if (varPrefix === VarPrefix.OUTPUT) {
-            checkedExpressionType = ExpressionType.PLACEHOLDER;
-        }
-
         transformNode.body.getStatements().forEach((stmt) => {
-            this.getOutputExpressions(transformNode, stmt).forEach((mapping) => {
-                const expStr = mapping.expression.getSource();
-                if ((mapping.type === checkedExpressionType) && varNameRegex.test(expStr)) {
+            let variables = [];
+            if (TreeUtil.isAssignment(stmt)) {
+                variables = stmt.getVariables();
+            } else if (TreeUtil.isVariableDef(stmt)) {
+                variables.push(stmt.getVariable());
+            }
+
+            variables.forEach((varExp) => {
+                const expStr = varExp.getSource();
+                if (varNameRegex.test(expStr)) {
                     const index = Number.parseInt(expStr.substring(varPrefix.length + 1), 10) || 0;
                     tempVarSuffixes.push(index);
                 }
             });
         });
 
-        function sortNumber(a, b) {
-            return a - b;
-        }
-        tempVarSuffixes.sort(sortNumber);
+        // numeric sort by difference
+        tempVarSuffixes.sort((a, b) => a - b);
         const index = (tempVarSuffixes[tempVarSuffixes.length - 1] || 0) + 1;
         return varPrefix + index;
     }
