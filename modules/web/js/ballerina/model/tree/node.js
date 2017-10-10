@@ -299,7 +299,7 @@ class Node extends EventChannel {
     clearWS() {
         this.accept({
             beginVisit: (node) => {
-                node.ws = [];
+                delete node.ws;
             },
             endVisit: (node) => {
                 //do nothing.
