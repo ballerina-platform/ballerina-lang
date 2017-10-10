@@ -18,6 +18,20 @@ service<http> echo {
     resource echo (http:Request req, http:Response res) {
         response:send(res);
     }
+    
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/message_worker"
+    }
+    resource echo_worker (http:Request req, http:Response res) {
+        worker w1 {
+            response:send(res);
+        }
+        worker w2 {
+            int x = 0;
+            int a = x + 1;
+        }
+    }
 
     @http:resourceConfig {
         methods:["POST"],

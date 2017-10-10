@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -204,11 +205,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeStmt(funcNode.body, funcEnv);
 
-        if (funcNode.workers.size() > 0) {
-            // Process workers
-            funcEnv.scope.entries.putAll(funcNode.body.scope.entries);
-            funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
-            funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
+        this.processWorkers(funcNode, funcEnv);
+    }
+    
+    private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
+        if (invNode.workers.size() > 0) {
+            invEnv.scope.entries.putAll(invNode.body.scope.entries);
+            invNode.workers.forEach(e -> this.symbolEnter.defineNode(e, invEnv));
+            invNode.workers.forEach(e -> analyzeNode(e, invEnv));
         }
     }
 
@@ -622,9 +626,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
-        // Process workers
-        actionNode.workers.forEach(e -> this.symbolEnter.defineNode(e, actionEnv));
-        actionNode.workers.forEach(e -> analyzeNode(e, actionEnv));
+        this.processWorkers(actionNode, actionEnv);
     }
 
     public void visit(BLangService serviceNode) {
@@ -655,8 +657,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
-        resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
+        this.processWorkers(resourceNode, resourceEnv);
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
