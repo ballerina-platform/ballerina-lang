@@ -2,11 +2,12 @@ import ballerina.lang.system;
 import ballerina.data.sql;
 
 function main (string[] args) {
+    sql:ClientConnector testDB;
     //Create a SQL connector by providing the required database connection
     //pool properties.
     sql:ConnectionProperties properties = {maximumPoolSize:5};
-    sql:ClientConnector testDB = create sql:ClientConnector(
-      sql:MYSQL, "localhost", 3306, "testdb", "test", "test", properties);
+    testDB = create sql:ClientConnector(
+             sql:MYSQL, "localhost", 3306, "testdb", "root", "root", properties);
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.
     sql:Parameter[] params = [];
@@ -43,7 +44,7 @@ function main (string[] args) {
                       (AGE,NAME) VALUES (?, ?)", params, keyColumns);
     system:println("Inserted row count:" + ret);
     system:println("Generated key:" + ids[0]);
-    
+
     //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];

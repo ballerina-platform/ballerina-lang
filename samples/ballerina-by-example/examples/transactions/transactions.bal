@@ -2,9 +2,8 @@ import ballerina.lang.system;
 import ballerina.data.sql;
 
 function main (string[] args) {
-    sql:ConnectionProperties properties = {maximumPoolSize:5};
     sql:ClientConnector testDB = create sql:ClientConnector(
-        sql:MYSQL, "localhost", 3306, "testdb", "test", "test", properties);
+                                 sql:MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     //Create the tables required for the transaction.
     sql:Parameter[] emptyParams = [];
     testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT, NAME VARCHAR(30))",

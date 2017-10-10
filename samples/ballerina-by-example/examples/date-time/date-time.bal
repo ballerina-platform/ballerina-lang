@@ -67,7 +67,7 @@ function main (string[] args) {
     system:println("After subtract duration:" + time:toString(tmSub));
     //Convert to a different time zone.
     time:Time t1 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
-                                                            "America/Panama");
+                                   "America/Panama");
     system:println("Before convert zone:" + time:toString(t1));
     time:Time t2 = time:toTimezone(t1, "Asia/Colombo");
     system:println("After convert zone:" + time:toString(t2));

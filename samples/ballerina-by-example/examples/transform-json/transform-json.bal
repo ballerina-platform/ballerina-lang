@@ -1,8 +1,8 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.lang.errors;
 import ballerina.lang.system;
 import ballerina.doc;
+import ballerina.net.http.response;
+import ballerina.net.http.request;
 
 @doc:Description {
     value: "Defining Person struct."
@@ -14,7 +14,7 @@ struct Person {
 }
 
 @http:configuration {
-    basePath: "/person"
+    basePath:"/person"
 }
 @doc:Description {
     value: "Defining Person service which provides person details."
@@ -28,27 +28,27 @@ service<http> PersonService {
     @doc:Description {
         value: "Defining POST resource for the service to get person details."
     }
-    resource getPerson (message m) {
-        // Get the JSON payload from the request.
-        json j = messages:getJsonPayload(m);
-        
-        // Declare a Person variable.
+    resource getPerson (http:Request req, http:Response res) {
+        // Get the JSON payload from the request
+        json j = request:getJsonPayload(req);
+
+        // Declare a Person variable
         Person p;
-        
-        // Declare a type conversion error to accept any type conversion errors thrown.
-        errors:TypeConversionError err;
-        // Convert JSON to a Person type variable.
-        p, err = <Person> j;
-        
-        // Print if an error is thrown.
+
+        // Declare a type conversion error to accept any type conversion errors thrown
+        TypeConversionError err;
+        // Convert JSON to a Person type variable
+        p, err = <Person>j;
+
+        // Print if an error is thrown
         if (err != null) {
             system:println(err);
         }
-        
+
         // Define a constant city value as "London".
         string city = "London";
-        
-        // Create a new JSON variable constrained by Person struct.
+
+        // Create a new json variable constrained by Person struct.
         json<Person> response = {};
 
         // Use p, Person variable as input to transform fields of response JSON which is the output.
@@ -57,11 +57,11 @@ service<http> PersonService {
             response.age = p.age;
             response.city = city;
         }
-        
-        // Set the new JSON payload to the message.
-        messages:setJsonPayload(m, response);
-        
+
+        // Set the new JSON payload to the message
+        response:setJsonPayload(res, response);
+
         // Reply from the resource with message m.
-        reply m;
+        response:send(res);
     }
 }
