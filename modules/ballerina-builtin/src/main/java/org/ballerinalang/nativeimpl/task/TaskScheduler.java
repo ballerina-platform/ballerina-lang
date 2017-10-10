@@ -46,7 +46,6 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private static long period = 0;
-    static PrintStream out = System.out;
 
     protected static void triggerTimer(Context ctx, int taskId, long delay, long interval,
                                        FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) {
@@ -57,15 +56,12 @@ public class TaskScheduler {
             final Runnable schedulerFunc = new Runnable() {
                 public void run() {
                     Calendar now = Calendar.getInstance();
-                    out.println(taskId + ": triggerTimer: RUNS @ " + now.getTime());
                     triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
                     callFunction(ctx, onTriggerFunction, onErrorFunction);
                 }
             };
             if (interval > 0) {
                 Calendar now = Calendar.getInstance();
-                out.print("triggerTimer: Scheduling the timer @ " + now.getTime() + " with delay: " + delay
-                        + " interval: " + interval);
                 executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
                 executorServiceMap.put(taskId, executorService);
                 ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
@@ -95,7 +91,6 @@ public class TaskScheduler {
                 @Override
                 public void run() {
                     Date now = new Date();
-                    out.println(taskId + ": triggerAppointment: RUNS @ " + now);
                     if (period > 0) {
                         period = 0;
                         triggerAppointment(ctx, taskId, -1, -1, dayOfWeek, dayOfMonth, month, onTriggerFunction,
@@ -109,9 +104,7 @@ public class TaskScheduler {
             };
             long delay = computeNextDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
             Calendar now = Calendar.getInstance();
-            out.println("triggerAppointment: Scheduling the appointment @ " + now.getTime() + " with delay: " + delay);
             now.add(Calendar.MILLISECOND, (int) delay);
-            out.println(" and Scheduled to: " + now.getTime());
             executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
             executorServiceMap.put(taskId, executorService);
             ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
@@ -132,7 +125,6 @@ public class TaskScheduler {
         HashMap<Integer, ScheduledExecutorService> executorServiceMap =
                 (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP);
         if (executorServiceMap != null) {
-            out.println("TaskScheduler : stopExecution: executorServiceMap SIZE: " + executorServiceMap.size());
             executorServiceToStopTheTask.schedule(new Runnable() {
                 public void run() {
                     ScheduledExecutorService executorService = executorServiceMap.get(taskId);
@@ -247,8 +239,6 @@ public class TaskScheduler {
                         dayOfMonth, month);
                 newTimeAccordingToDOM = calculateRemainingTime(now, newTimeAccordingToDOM, minute, hour, dayOfWeek,
                         dayOfMonth, month);
-                out.println("newTimeAccordingToDOW: " + newTimeAccordingToDOW.getTime());
-                out.println("newTimeAccordingToDOM: " + newTimeAccordingToDOM.getTime());
                 startTime = newTimeAccordingToDOW.before(newTimeAccordingToDOM) ?
                         newTimeAccordingToDOW :
                         newTimeAccordingToDOM;
@@ -262,7 +252,6 @@ public class TaskScheduler {
             ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
             LocalDateTime localNext = LocalDateTime.ofInstant(startTime.toInstant(), currentZone);
             ZonedDateTime zonedNextTarget = ZonedDateTime.of(localNext, currentZone);
-            out.println("Scheduled from : " + now.getTime() + " ---- to: " + startTime.getTime());
             Duration duration = Duration.between(zonedNow, zonedNextTarget);
             return duration.toMillis();
         }

@@ -62,8 +62,6 @@ import java.io.PrintStream;
 public class ScheduleAppointment extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        PrintStream out = System.out;
-        out.println("In Schedule Appointment Class!!!!!");
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = null;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
@@ -84,7 +82,6 @@ public class ScheduleAppointment extends AbstractNativeFunction {
         BString error = new BString("Unable to schedule the appointment");
         taskId = TaskUtil.generateTaskId(ctx);
         if (taskId != -1) {
-            out.println("ScheduleAppointment taskId: " + taskId);
             TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
                     onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             String schedulerError = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))

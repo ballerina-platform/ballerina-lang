@@ -51,11 +51,8 @@ public class StopTask extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BString error = new BString("");
-        PrintStream out = System.out;
-        out.println("In Stop Task Class!!!!!");
         long taskId = getIntArgument(ctx, 0);
         TaskScheduler.stopTask(ctx, (int) taskId);
-        out.println("StopTask:: " + taskId);
         return getBValues(error);
     }
 }

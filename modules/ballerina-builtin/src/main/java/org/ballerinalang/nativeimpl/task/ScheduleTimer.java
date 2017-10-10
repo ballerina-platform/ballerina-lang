@@ -62,8 +62,6 @@ import java.io.PrintStream;
 public class ScheduleTimer extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        PrintStream out = System.out;
-        out.println("In Schedule Timer Class!!!!!");
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = null;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
@@ -81,7 +79,6 @@ public class ScheduleTimer extends AbstractNativeFunction {
         BString error = new BString("Unable to schedule the timer");
         taskId = TaskUtil.generateTaskId(ctx);
         if (taskId != -1) {
-            out.println("ScheduleTimer taskId: " + taskId);
             TaskScheduler
                     .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             String schedulerError = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))
