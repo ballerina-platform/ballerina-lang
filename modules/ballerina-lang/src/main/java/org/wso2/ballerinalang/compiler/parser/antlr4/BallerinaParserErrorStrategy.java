@@ -139,12 +139,4 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int endCol = -1;
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
     }
-
-    /**
-     * Set diagnosticSource
-     * @param diagnosticSrc diagnosticSource
-     */
-    public void setDiagnosticSrc(BDiagnosticSource diagnosticSrc){
-        this.diagnosticSrc = diagnosticSrc;
-    }
 }
