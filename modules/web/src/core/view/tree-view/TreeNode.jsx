@@ -239,6 +239,7 @@ class TreeNode extends React.Component {
                         ref={(ref) => {
                             this.focusHighligher = ref;
                         }}
+                        title=""
                     />
                 }
                 {enableEdit &&
@@ -260,6 +261,7 @@ class TreeNode extends React.Component {
                             ref={(nameInput) => {
                                 this.nameInput = nameInput;
                             }}
+                            title=""
                         />
                         {!_.isEmpty(this.state.editError) && this.nameInput &&
                             <div

@@ -88,7 +88,7 @@ class LeftPanelTab extends React.Component {
                         this.scroller = ref;
                     }}
                 >
-                    <div className="panel-content">
+                    <div className="panel-content" style={{ width: width - activityBarWidth }}>
                         {
                             createViewFromViewDef(viewDef, viewProps)
                         }
