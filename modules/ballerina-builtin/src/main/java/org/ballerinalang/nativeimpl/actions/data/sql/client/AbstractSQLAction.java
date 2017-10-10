@@ -41,6 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.Array;
+import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -56,6 +57,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -184,30 +186,41 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                                       String query, BRefValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
+        int[] updatedCount;
+        int paramArrayCount = 0;
         try {
             conn = datasource.getSQLConnection();
             stmt = conn.prepareStatement(query);
             setConnectionAutoCommit(conn, false);
-            int paramArrayCount = (int) parameters.size();
+            paramArrayCount = (int) parameters.size();
             for (int index = 0; index < paramArrayCount; index++) {
                 BRefValueArray params = (BRefValueArray) parameters.get(index);
                 createProcessedStatement(conn, stmt, params);
                 stmt.addBatch();
             }
-            int[] updatedCount = stmt.executeBatch();
+            updatedCount = stmt.executeBatch();
             conn.commit();
-            BIntArray countArray = new BIntArray();
-            int iSize = updatedCount.length;
-            for (int i = 0; i < iSize; ++i) {
-                countArray.add(i, updatedCount[i]);
-            }
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+        } catch (BatchUpdateException e) {
+            updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             setConnectionAutoCommit(conn, true);
             SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);
         }
+        //After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the driver
+        // may or may not continue to process the remaining commands in the batch. If the driver does not continue
+        // processing after a failure, the array returned by the method will have -3 (EXECUTE_FAILED) for those updates.
+        long[] returnedCount = new long[paramArrayCount];
+        Arrays.fill(returnedCount, Statement.EXECUTE_FAILED);
+        BIntArray countArray = new BIntArray(returnedCount);
+        if (updatedCount != null) {
+            int iSize = updatedCount.length;
+            for (int i = 0; i < iSize; ++i) {
+                countArray.add(i, updatedCount[i]);
+            }
+        }
+        context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
     }
 
     private void setConnectionAutoCommit(Connection conn, boolean status) {

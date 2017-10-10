@@ -356,6 +356,67 @@ function testBatchUpdate () (int[]) {
     return updateCount;
 }
 
+function testBatchUpdateWithFailure () (int[] updateCount, int count) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+
+    //Batch 1
+    sql:Parameter para0 = {sqlType:"integer", value:111, direction:0};
+    sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
+    sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
+    sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para0 = {sqlType:"integer", value:222, direction:0};
+    para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    para3 = {sqlType:"integer", value:20, direction:0};
+    para4 = {sqlType:"double", value:3400.5, direction:0};
+    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
+
+
+    //Batch 3
+    para0 = {sqlType:"integer", value:222, direction:0};
+    para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    para3 = {sqlType:"integer", value:20, direction:0};
+    para4 = {sqlType:"double", value:3400.5, direction:0};
+    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
+
+    //Batch 4
+    para0 = {sqlType:"integer", value:333, direction:0};
+    para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    para3 = {sqlType:"integer", value:20, direction:0};
+    para4 = {sqlType:"double", value:3400.5, direction:0};
+    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
+
+    sql:Parameter[][] parameters = [parameters1, parameters2, parameters3,parameters4];
+
+    updateCount = testDB.batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+        country) values (?,?,?,?,?,?)", parameters);
+
+
+    sql:Parameter[] params = [];
+    datatable dt = testDB.select ("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
+                                  params);
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:getNext(dt);
+        rs, _ = (ResultCount) dataStruct;
+        count = rs.COUNTVAL;
+    }
+
+    testDB.close();
+    return updateCount, count;
+}
+
 function testDateTimeInParameters () (int[]) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});

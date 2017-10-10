@@ -338,6 +338,17 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithFailure() {
+        BValue[] returns = BTestUtils.invoke(result, "testBatchUpdateWithFailure");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+        Assert.assertEquals(retValue.get(2), -3);
+        Assert.assertEquals(retValue.get(3), -3);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTimeData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testDateTimeInParameters", args);
