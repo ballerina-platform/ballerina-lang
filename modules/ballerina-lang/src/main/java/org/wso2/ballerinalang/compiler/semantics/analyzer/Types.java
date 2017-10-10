@@ -448,6 +448,8 @@ public class Types {
             // Handle constrained JSON
             if (isConstrainedTypeAssignable(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.ARRAY) { 
+                return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {
                 return symTable.notFoundSymbol;
             }
