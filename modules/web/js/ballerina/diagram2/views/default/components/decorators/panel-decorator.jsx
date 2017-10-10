@@ -174,9 +174,6 @@ class PanelDecorator extends React.Component {
         const titleHeight = panel.heading.height;
         const iconSize = 14;
         const collapsed = this.props.model.viewState.collapsed || false;
-        const annotationViewCollapsed = this.props.model.viewState.annotationViewCollapsed || false;
-
-        const annotationBodyClassName = 'annotation-body';
         let annotationBodyHeight = 0;
 
         // TODO: Fix Me
@@ -184,11 +181,7 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
 
-        const annotations = []; // this.props.model.getChildren().filter(
-                              //                          child => ASTFactory.isAnnotationAttachment(child));
-        const annotationString = this.getAnnotationsString(annotations);
-        const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
-
+        // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const titleWidth = util.getTextWidth(this.state.editingTitle);
 
         // calculate the panel bBox;

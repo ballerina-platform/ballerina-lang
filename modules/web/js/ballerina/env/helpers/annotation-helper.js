@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from '../../ast/ast-factory';
+import TreeUtils from 'ballerina/model/tree-util';
 
 /**
  * A helper class relations ballerina environment annotations.
@@ -48,10 +48,12 @@ class AnnotationHelper {
             }
         }
 
-        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
-            if (annotationDefinition.getName() === annotationDefinitionName) {
-                for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
-                    annotationAttributes.push(annotationAttribute);
+        if (environment.getCurrentPackage()) {
+            for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+                if (annotationDefinition.getName() === annotationDefinitionName) {
+                    for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
+                        annotationAttributes.push(annotationAttribute);
+                    }
                 }
             }
         }
@@ -81,9 +83,11 @@ class AnnotationHelper {
             }
         }
 
-        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
-            if (annotationDefinition.getName() === annotationDefinitionName) {
-                matchingAnnotationDefintion = annotationDefinition;
+        if (environment.getCurrentPackage()) {
+            for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+                if (annotationDefinition.getName() === annotationDefinitionName) {
+                    matchingAnnotationDefintion = annotationDefinition;
+                }
             }
         }
 
@@ -102,21 +106,20 @@ class AnnotationHelper {
      */
     static getNames(environment, astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
         const annotationIdentifiers = new Set();
-        const factory = ASTFactory;
         let attachmentType = '';
-        if (factory.isServiceDefinition(astNode)) {
+        if (TreeUtils.isService(astNode)) {
             attachmentType = 'service';
-        } else if (factory.isResourceDefinition(astNode)) {
+        } else if (TreeUtils.isResource(astNode)) {
             attachmentType = 'resource';
-        } else if (factory.isFunctionDefinition(astNode)) {
+        } else if (TreeUtils.isFunction(astNode)) {
             attachmentType = 'function';
-        } else if (factory.isConnectorDefinition(astNode)) {
+        } else if (TreeUtils.isConnector(astNode)) {
             attachmentType = 'connector';
-        } else if (factory.isConnectorAction(astNode)) {
+        } else if (TreeUtils.isAction(astNode)) {
             attachmentType = 'action';
-        } else if (factory.isAnnotationDefinition(astNode)) {
+        } else if (TreeUtils.isAnnotation(astNode)) {
             attachmentType = 'annotation';
-        } else if (factory.isStructDefinition(astNode)) {
+        } else if (TreeUtils.isStruct(astNode)) {
             attachmentType = 'struct';
         }
 
@@ -135,7 +138,7 @@ class AnnotationHelper {
                     }
                 }
             }
-        } else {
+        } else if (environment.getCurrentPackage()) {
             for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
                 if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
                     annotationIdentifiers.add(annotationDefinition.getName());
@@ -161,22 +164,21 @@ class AnnotationHelper {
      * @memberof AnnotationHelper
      */
     static getPackageNames(environment, astNode, allowAnnotationWithNoAttachmentType = true) {
-        const factory = ASTFactory;
         const packageNames = new Set();
         let attachmentType = '';
-        if (factory.isServiceDefinition(astNode)) {
+        if (TreeUtils.isService(astNode)) {
             attachmentType = 'service';
-        } else if (factory.isResourceDefinition(astNode)) {
+        } else if (TreeUtils.isResource(astNode)) {
             attachmentType = 'resource';
-        } else if (factory.isFunctionDefinition(astNode)) {
+        } else if (TreeUtils.isFunction(astNode)) {
             attachmentType = 'function';
-        } else if (factory.isConnectorDefinition(astNode)) {
+        } else if (TreeUtils.isConnector(astNode)) {
             attachmentType = 'connector';
-        } else if (factory.isConnectorAction(astNode)) {
+        } else if (TreeUtils.isAction(astNode)) {
             attachmentType = 'action';
-        } else if (factory.isAnnotationDefinition(astNode)) {
+        } else if (TreeUtils.isAnnotation(astNode)) {
             attachmentType = 'annotation';
-        } else if (factory.isStructDefinition(astNode)) {
+        } else if (TreeUtils.isStruct(astNode)) {
             attachmentType = 'struct';
         }
 
@@ -192,14 +194,15 @@ class AnnotationHelper {
             }
         }
 
+        if (environment.getCurrentPackage()) {
+            for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+                if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                    packageNames.add(environment.getCurrentPackage().getName());
+                }
 
-        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
-            if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
-                packageNames.add(environment.getCurrentPackage().getName());
-            }
-
-            if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
-                packageNames.add(environment.getCurrentPackage().getName());
+                if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
+                    packageNames.add(environment.getCurrentPackage().getName());
+                }
             }
         }
 
@@ -248,6 +251,19 @@ class AnnotationHelper {
             }
         }
         return annotationAttachments;
+    }
+
+    static resolveFullPackageName(astRoot, alias) {
+        let packageName = [];
+        astRoot.getImports().forEach((importNode) => {
+            if (importNode.getAlias().getValue() === alias) {
+                packageName = importNode.getPackageName().map((packageNameLiteral) => {
+                    return packageNameLiteral.getValue();
+                });
+            }
+        });
+
+        return packageName.join('.');
     }
 
 }
