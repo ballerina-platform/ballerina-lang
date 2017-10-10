@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.composer.service.workspace.suggetions;
 
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
@@ -25,6 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -79,7 +79,6 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
             this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
         }
-//        this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
 
     }
     /**
@@ -126,6 +125,12 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
         // Here the type of the exception is not important.
         InputMismatchException e = new InputMismatchException(parser);
         ParserRuleContext context = parser.getContext();
+        // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
+        // the run time
+        if (context instanceof BallerinaParser.CallableUnitBodyContext) {
+            context.exception = null;
+            return;
+        }
         context.exception = e;
     }
 
