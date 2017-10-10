@@ -18,6 +18,8 @@
 package org.ballerinalang.nativeimpl.task;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -60,6 +62,7 @@ import java.io.PrintStream;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
         value = "The error which is occurred while scheduling the task") })
 public class ScheduleTimer extends AbstractNativeFunction {
+    private static final Log log = LogFactory.getLog(ScheduleTimer.class.getName());
 
     public BValue[] execute(Context ctx) {
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = null;
@@ -75,6 +78,7 @@ public class ScheduleTimer extends AbstractNativeFunction {
         BValue scheduler = getRefArgument(ctx, 2);
         long delay = ((BStruct) scheduler).getIntField(0);
         long interval = ((BStruct) scheduler).getIntField(1);
+        log.info("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: " + interval);
         int taskId = -1;
         BString error = new BString("Unable to schedule the timer");
         taskId = TaskUtil.generateTaskId(ctx);

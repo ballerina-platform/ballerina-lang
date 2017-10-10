@@ -18,6 +18,8 @@
 package org.ballerinalang.nativeimpl.task;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -60,8 +62,10 @@ import java.io.PrintStream;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
         value = "The error which is occurred while scheduling the task") })
 public class ScheduleAppointment extends AbstractNativeFunction {
+    private static final Log log = LogFactory.getLog(ScheduleAppointment.class.getName());
 
     public BValue[] execute(Context ctx) {
+        log.info("Request has come to schedule the appointment");
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = null;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()

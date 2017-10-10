@@ -169,7 +169,7 @@ public class TaskScheduler {
                         }
                     }
                 }
-            }, sPeriod, TimeUnit.SECONDS);
+            }, sPeriod, TimeUnit.MILLISECONDS);
         } else {
             log.error("Unable to find the corresponding task");
         }
@@ -332,7 +332,7 @@ public class TaskScheduler {
             startTime.set(Calendar.MINUTE, 0);
             startTime.set(Calendar.SECOND, 0);
             if (minute == -1) {
-                period = 59 * 60;
+                period = 59 * 60000;
             }
         } else if (minute > 0 && hour != -1) {
             startTime.set(Calendar.SECOND, 0);

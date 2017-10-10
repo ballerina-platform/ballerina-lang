@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.task;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
@@ -48,8 +50,10 @@ import java.io.PrintStream;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
         value = "The error which is occurred while stopping the task") })
 public class StopTask extends AbstractNativeFunction {
+    private static final Log log = LogFactory.getLog(StopTask.class.getName());
 
     public BValue[] execute(Context ctx) {
+        log.info("Request has come to stop the task");
         BString error = new BString("");
         long taskId = getIntArgument(ctx, 0);
         TaskScheduler.stopTask(ctx, (int) taskId);
