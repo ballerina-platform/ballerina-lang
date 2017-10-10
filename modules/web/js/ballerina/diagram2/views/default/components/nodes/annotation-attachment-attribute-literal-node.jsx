@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import LiteralTreeNode from 'ballerina/model/tree/literal-node';
@@ -36,9 +35,9 @@ class AnnotationAttributeLiteralValue extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isInEdit: false,
+            isInEdit: this.props.model.getValue() === undefined || this.props.model.getValue().trim() === '',
             bValueText: this.props.model.getValue(),
-            focusBValueInput: false,
+            focusBValueInput: this.props.model.getValue() === undefined || this.props.model.getValue().trim() === '',
         };
 
         this.bValueInput = undefined;
@@ -88,6 +87,9 @@ class AnnotationAttributeLiteralValue extends React.Component {
             isInEdit: false,
             focusBValueInput: false,
         });
+        if (this.state.bValueText === undefined || this.state.bValueText.trim() === '') {
+            this.props.model.parent.parent.removeValueArray(this.props.model.parent);
+        }
     }
 
     /**
