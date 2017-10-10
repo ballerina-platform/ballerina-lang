@@ -226,7 +226,7 @@ class TreeUtil extends AbstractTreeUtil {
 
             // invoke the fragment util for the coresponding kind.
             const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
-            const newStatementNode = TreeBuilder.build(parsedJson,statementParentNode, statementParentNode.kind);
+            const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
 
             // replace the old node with new node.
             statementParentNode.replaceStatements(node, newStatementNode, false);
@@ -243,6 +243,25 @@ class TreeUtil extends AbstractTreeUtil {
                 newExpressionNode.variable.initialExpression.parent = expressionParentNode;
                 // Set the condition using new node.
                 expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
+            }
+        } else {
+            const parent = node.parent;
+            if (parent.filterParameters instanceof Function
+                && parent.filterParameters((param) => (param.id === node.id))) {
+                // Invoke the fragment parser util for parsing argument parameter.
+                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
+                const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
+
+                // Replace the old parameter with the newly created parameter node.
+                parent.replaceParameters(node, newParameterNode, false);
+            } else if (parent.filterReturnParameters instanceof Function
+                && parent.filterReturnParameters((returnParam) => (returnParam.id === node.id))) {
+                // Invoke the fragment parser util for parsing return parameter.
+                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
+                const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
+
+                // Replace the old parameter with the newly created parameter node.
+                parent.replaceReturnParameters(node, newReturnParameterNode, false);
             }
         }
     }

@@ -66,8 +66,6 @@ class ParameterDefinition extends React.Component {
             propertyType: 'text',
             key: 'ParameterDefinition',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.setEditedSource,
             fontSize: 12,
             isCustomHeight: true,
         };

@@ -79,9 +79,10 @@ export default class GlobalDefinitionItem extends React.Component {
         value += ';\n';
         parseContent(value)
             .then((jsonTree) => {
-                if (jsonTree.topLevelNodes[0]) {
+                if (jsonTree.model.topLevelNodes[0]) {
                     this.parent.removeTopLevelNodes(oldNode);
-                    this.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                    this.parent.addTopLevelNodes(
+                        TreeBuilder.build(jsonTree.model.topLevelNodes[0], this.parent, this.parent.kind));
                 }
             })
             .catch(log.error);
@@ -91,18 +92,15 @@ export default class GlobalDefinitionItem extends React.Component {
      * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
      */
     openEditor(bBox) {
-        let getterFunc;
         let setterFunc;
         const editorOuterPadding = 10;
         if (_.includes(this.props.globalDec.parent.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
-            getterFunc = this.props.globalDec.getSource;
             setterFunc = this.setEditedSource;
         }
         const options = {
             propertyType: 'text',
             key: 'Global Variable',
             model: this.props.globalDec,
-            getterMethod: getterFunc,
             setterMethod: setterFunc,
         };
 
@@ -140,10 +138,7 @@ export default class GlobalDefinitionItem extends React.Component {
         if (this.state.highlighted) {
             className = 'global-definition-item-hightlighted';
         }
-
-        debugger;
         this.props.getValue(this.props.globalDec);
-
         return (
 
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
