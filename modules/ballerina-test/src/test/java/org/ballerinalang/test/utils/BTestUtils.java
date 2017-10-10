@@ -224,6 +224,10 @@ public class BTestUtils {
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
+            for (int i=0;i<compileResult.getDiagnostics().length;i++)
+            {
+                System.out.println(compileResult.getDiagnostics()[i].getMessage());
+            }
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
