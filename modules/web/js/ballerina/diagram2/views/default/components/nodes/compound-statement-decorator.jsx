@@ -218,7 +218,7 @@ class CompoundStatementDecorator extends React.Component {
             parameterText = this.props.parameterEditorOptions.value;
         }
 
-        this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
+        this.conditionBox = new SimpleBBox(p1X, statementBBox.y, bBox.w, titleH);
         const { designer } = this.context;
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
@@ -323,6 +323,7 @@ class CompoundStatementDecorator extends React.Component {
 
 CompoundStatementDecorator.defaultProps = {
     draggable: null,
+    children: null,
     undeletable: false,
     titleWidth: blockStatement.heading.width,
     editorOptions: null,
@@ -341,7 +342,7 @@ CompoundStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    children: PropTypes.arrayOf(React.PropTypes.node).isRequired,
+    children: PropTypes.arrayOf(React.PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),

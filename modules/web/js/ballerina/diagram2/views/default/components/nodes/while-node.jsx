@@ -28,11 +28,6 @@ class WhileNode extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'While condition',
-            model: props.model.getCondition(),
-        };
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
 
@@ -44,6 +39,11 @@ class WhileNode extends React.Component {
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const dropZone = model.viewState.components['drop-zone'];
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'While condition',
+            model: model.getCondition(),
+        };
 
         return (
             <g>
@@ -55,13 +55,14 @@ class WhileNode extends React.Component {
                     baseComponent="rect"
                     dropTarget={model.parent}
                     dropBefore={model}
+                    renderUponDragStart
                 />
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={'While'}
                     expression={expression}
-                    editorOptions={this.editorOptions}
+                    editorOptions={editorOptions}
                     model={model}
                     body={model.body}
                 />

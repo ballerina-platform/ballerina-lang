@@ -30,40 +30,6 @@ class ForkJoinNode extends React.Component {
             innerDropZoneExist: false,
             active: 'hidden',
         };
-
-        this.joinConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Join condition',
-            model: props.model.getJoinBody(),
-            getterMethod: props.model.getJoinType,
-            setterMethod: props.model.setJoinType,
-        };
-
-        this.timeoutConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout condition',
-            model: props.model.getTimeoutBody(),
-            getterMethod: props.model.getTimeOutExpression,
-            setterMethod: props.model.setTimeOutExpression,
-        };
-
-        this.joinParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Join parameter',
-            value: props.model.getJoinResultVar().getSource(),
-            model: props.model.getJoinBody(),
-            getterMethod: props.model.getJoinResultVar,
-            setterMethod: props.model.setJoinResultVar,
-        };
-
-        this.timeoutParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout parameter',
-            value: props.model.getTimeOutVariable().getSource(),
-            model: props.model.getTimeoutBody(),
-            getterMethod: props.model.getTimeOutVariable,
-            setterMethod: props.model.setTimeOutVariable,
-        };
     }
 
     render() {
@@ -82,6 +48,40 @@ class ForkJoinNode extends React.Component {
             (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
         const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
             : 0;
+
+        const joinConditionEditorOptions = {
+            propertyType: 'text',
+            key: 'Join condition',
+            model: model.getJoinBody(),
+            getterMethod: model.getJoinType,
+            setterMethod: model.setJoinType,
+        };
+
+        const timeoutConditionEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout condition',
+            model: model.getTimeoutBody(),
+            getterMethod: model.getTimeOutExpression,
+            setterMethod: model.setTimeOutExpression,
+        };
+
+        const joinParameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Join parameter',
+            value: model.getJoinResultVar().getSource(),
+            model: model.getJoinBody(),
+            getterMethod: model.getJoinResultVar,
+            setterMethod: model.setJoinResultVar,
+        };
+
+        const timeoutParameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout parameter',
+            value: model.getTimeOutVariable().getSource(),
+            model: model.getTimeoutBody(),
+            getterMethod: model.getTimeOutVariable,
+            setterMethod: model.setTimeOutVariable,
+        };
 
         return (
             <g>
@@ -127,8 +127,8 @@ class ForkJoinNode extends React.Component {
                     model={model.getJoinBody()}
                     body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
-                    parameterEditorOptions={this.joinParameterEditorOptions}
-                    editorOptions={this.joinConditionEditorOptions}
+                    parameterEditorOptions={joinParameterEditorOptions}
+                    editorOptions={joinConditionEditorOptions}
                 />
                 }
                 {model.getTimeoutBody() &&
@@ -145,12 +145,12 @@ class ForkJoinNode extends React.Component {
                     dropTarget={model.getTimeoutBody()}
                     bBox={model.getTimeoutBody().viewState.bBox}
                     parameterBbox={model.getTimeoutBody().viewState.components.param}
-                    expression={{text: model.getTimeOutExpression().getSource()}}
+                    expression={{ text: model.getTimeOutExpression().getSource() }}
                     title={'Timeout'}
                     model={model.getTimeoutBody()}
                     body={model.getTimeoutBody()}
-                    parameterEditorOptions={this.timeoutParameterEditorOptions}
-                    editorOptions={this.timeoutConditionEditorOptions}
+                    parameterEditorOptions={timeoutParameterEditorOptions}
+                    editorOptions={timeoutConditionEditorOptions}
                 />
                 }
             </g>
