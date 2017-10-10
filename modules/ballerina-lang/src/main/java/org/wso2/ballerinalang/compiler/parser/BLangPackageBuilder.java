@@ -771,6 +771,11 @@ public class BLangPackageBuilder {
         }
     }
 
+    public void attachWorkerWS(Set<Whitespace> ws) {
+        BLangWorker worker = (BLangWorker) this.invokableNodeStack.peek();
+        worker.addWS(ws);
+    }
+
     public void startForkJoinStmt() {
         this.forkJoinNodesStack.push(TreeBuilder.createForkJoinNode());
     }
@@ -786,18 +791,20 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addJoinCause(String identifier, Set<Whitespace> ws) {
+    public void addJoinCause(Set<Whitespace> ws, String identifier) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
-        forkJoin.joinResultVar = resultVar;
+        Set<Whitespace> varWS = removeThirdFromLast(ws);
+        forkJoin.addWS(ws);
+        forkJoin.joinResultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
     }
 
-    public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
+    public void addJoinCondition(Set<Whitespace> ws, String joinType, List<String> workerNames, int joinCount) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedWorkerCount = joinCount;
         forkJoin.joinType = ForkJoinNode.JoinType.valueOf(joinType);
+        forkJoin.addWS(ws);
         workerNames.forEach(s -> forkJoin.joinedWorkers.add((BLangIdentifier) createIdentifier(s)));
     }
 
@@ -805,13 +812,14 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addTimeoutCause(String identifier, Set<Whitespace> ws) {
+    public void addTimeoutCause(Set<Whitespace> ws, String identifier) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
         forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
-        forkJoin.timeoutVariable = resultVar;
+        Set<Whitespace> varWS = removeThirdFromLast(ws);
+        forkJoin.addWS(ws);
+        forkJoin.timeoutVariable = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
     }
 
     public void endCallableUnitBody(Set<Whitespace> ws) {
@@ -1632,5 +1640,20 @@ public class BLangPackageBuilder {
             singletonSet.add(last);
         }
         return singletonSet;
+    }
+
+    private Set<Whitespace> removeThirdFromLast(Set<Whitespace> ws) {
+        Iterator<Whitespace> iterator = ((TreeSet<Whitespace>) ws).descendingIterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            Whitespace next = iterator.next();
+            if (i++ == 3) {
+                Set<Whitespace> varWS = new TreeSet<>();
+                varWS.add(next);
+                iterator.remove();
+                return varWS;
+            }
+        }
+        return null;
     }
 }

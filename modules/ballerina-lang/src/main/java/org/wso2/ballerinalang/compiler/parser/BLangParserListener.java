@@ -913,7 +913,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        getWS(ctx);
+        this.pkgBuilder.attachWorkerWS(getWS(ctx));
     }
 
     @Override
@@ -1595,7 +1595,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        this.pkgBuilder.addJoinCause(ctx.Identifier().getText(), this.getWS(ctx));
+        this.pkgBuilder.addJoinCause(this.getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override
@@ -1617,7 +1617,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
             }
         }
-        this.pkgBuilder.addJoinCondition("SOME", workerNames, joinCount);
+        this.pkgBuilder.addJoinCondition(getWS(ctx), "SOME", workerNames, joinCount);
     }
 
     @Override
@@ -1630,7 +1630,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
-        this.pkgBuilder.addJoinCondition("ALL", workerNames, -1);
+        this.pkgBuilder.addJoinCondition(getWS(ctx), "ALL", workerNames, -1);
     }
 
     @Override
@@ -1648,7 +1648,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText(), this.getWS(ctx));
+        this.pkgBuilder.addTimeoutCause(this.getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override
