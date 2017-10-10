@@ -56,7 +56,7 @@ function main (string[] args) {
     system:sleep(600000);
 
     any stopTaskError = task:stopTask(appointmentSchedulerTaskId);
-    var stopTaskErrorMessage, castErrorST = (string) stopTaskError;
+    var stopTaskErrorMessage, castErrorST = (string)stopTaskError;
     if (stopTaskErrorMessage != "") {
         system:println("Error while stopping the task: " + stopTaskErrorMessage);
     }

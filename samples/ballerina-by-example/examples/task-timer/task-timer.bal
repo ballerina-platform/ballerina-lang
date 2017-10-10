@@ -1,7 +1,5 @@
 import ballerina.lang.system;
 import ballerina.task;
-import org.wso2.ballerina.connectors.googlespreadsheet;
-import ballerina.lang.messages;
 
 function main (string[] args) {
 
@@ -33,7 +31,7 @@ function main (string[] args) {
     system:sleep(100000);
 
     any stopTaskError = task:stopTask(schedulerTaskId);
-    var stopTaskErrorMessage, castErrorST = (string) stopTaskError;
+    var stopTaskErrorMessage, castErrorST = (string)stopTaskError;
     if (stopTaskErrorMessage != "") {
         system:println("Error while stopping the task: " + stopTaskErrorMessage);
     }
