@@ -419,7 +419,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (defAttribute.expr != null) {
                     BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
                     value.value = defAttribute.expr;
-                    annAttachmentNode.addAttribute(defAttribute.name.getValue(), value);
+                    BLangAnnotAttachmentAttribute attribute =
+                            new BLangAnnotAttachmentAttribute(defAttribute.name.getValue(), value);
+                    annAttachmentNode.addAttribute(attribute);
                 }
                 continue;
             }
