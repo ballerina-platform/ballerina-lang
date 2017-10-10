@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -1379,8 +1380,9 @@ public class BLangPackageBuilder {
         invokableNodeStack.push(resourceNode);
     }
 
-    public void endResourceDef(String resourceName, int annotCount) {
-        ResourceNode resourceNode = (ResourceNode) invokableNodeStack.pop();
+    public void endResourceDef(DiagnosticPos pos, String resourceName, int annotCount) {
+        BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
+        resourceNode.pos = pos;
         resourceNode.setName(createIdentifier(resourceName));
         attachAnnotations(resourceNode, annotCount);
         varListStack.pop().forEach(resourceNode::addParameter);

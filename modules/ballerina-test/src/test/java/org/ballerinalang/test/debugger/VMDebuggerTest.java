@@ -85,7 +85,7 @@ public class VMDebuggerTest {
                 expectedBreakPoints, debugCommand);
     }
 
-    @Test(description = "Testing Step Over.", enabled = false)
+    @Test(description = "Testing Step Over.")
     public void testStepOver() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 3);
         Step[] debugCommand = {Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
@@ -96,7 +96,7 @@ public class VMDebuggerTest {
                 expectedBreakPoints, debugCommand);
     }
 
-    @Test(description = "Testing Step over in IfCondition.", enabled = false)
+    @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 26);
         Step[] debugCommand = {Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
@@ -118,7 +118,7 @@ public class VMDebuggerTest {
                 expectedBreakPoints, debugCommand);
     }
 
-    @Test(description = "Testing while statement resume", enabled = false)
+    @Test(description = "Testing while statement resume")
     public void testWhileStatementResume() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "while-statement.bal", 5);
@@ -129,7 +129,7 @@ public class VMDebuggerTest {
                 expectedBreakPoints, debugCommand);
     }
 
-    @Test(description = "Testing try catch finally scenario for path", enabled = false)
+    @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "try-catch-finally.bal", 22);

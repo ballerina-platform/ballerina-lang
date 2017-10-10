@@ -236,7 +236,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endResourceDef(ctx.Identifier().getText(), ctx.annotationAttachment().size());
+        this.pkgBuilder.endResourceDef(getCurrentPos(ctx),
+                ctx.Identifier().getText(), ctx.annotationAttachment().size());
     }
 
     /**

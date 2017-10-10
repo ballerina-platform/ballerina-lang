@@ -46,7 +46,8 @@ public class CommentStmtTest {
         Assert.assertEquals(result.getErrorCount(), 0);
         List<BLangStatement> statements = compiledPackage.functions.get(0).body.getStatements();
         Assert.assertNotNull(statements, "statements not found");
-        Assert.assertEquals(statements.size(), 4, "statement count mismatched");
+        //since return statement is added at desugar phase, expected statement count is 5
+        Assert.assertEquals(statements.size(), 5, "statement count mismatched");
         Assert.assertEquals(statements.get(0).getKind(), NodeKind.COMMENT, "1st statement is not a comment statement");
         Assert.assertEquals(statements.get(2).getKind(), NodeKind.COMMENT, "1st statement is not a comment statement");
         Assert.assertEquals(((BLangComment) statements.get(0)).getComment(), "//comment1");

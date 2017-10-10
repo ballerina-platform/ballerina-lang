@@ -29,11 +29,9 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 
 import java.util.ArrayList;
@@ -46,11 +44,6 @@ import java.util.concurrent.Semaphore;
  * @since 0.90
  */
 public class VMDebuggerUtil {
-
-    private static final String STEP_IN = "1";
-    private static final String STEP_OVER = "2";
-    private static final String STEP_OUT = "3";
-    private static final String RESUME = "5";
 
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
                                   Step[] debugCommand) {
@@ -71,7 +64,7 @@ public class VMDebuggerUtil {
                         expectedPoints[i].getLineNumber());
                 Assert.assertEquals(debugSessionObserver.haltPosition, expected,
                         "Unexpected halt position for debug step " + (i + 1));
-                executeDebuggerCmd(bContext, debugCommand[i].toString());
+                executeDebuggerCmd(bContext, debugCommand[i]);
             } else {
                 Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
             }
@@ -106,7 +99,7 @@ public class VMDebuggerUtil {
         return breakPointDTOS;
     }
 
-    public static void executeDebuggerCmd(Context bContext, String cmd) {
+    public static void executeDebuggerCmd(Context bContext, Step cmd) {
         switch (cmd) {
             case STEP_IN:
                 bContext.getDebugInfoHolder().stepIn();

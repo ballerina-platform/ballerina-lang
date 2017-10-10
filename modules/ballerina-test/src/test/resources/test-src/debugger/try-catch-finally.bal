@@ -1,4 +1,3 @@
-
 struct testError {
     string msg;
     error cause;
@@ -12,7 +11,6 @@ struct testDataError {
     stackFrame[] stackTrace;
     string data;
 }
-
 struct testInputError {
     string msg;
     error cause;
@@ -79,20 +77,17 @@ function testFunctionThrow (int arg)(boolean, string){
     a = a + "4";
     return false, a;
 }
-
 function testThrow(int a)(int) {
     int c = a + 10;
     return testNestedThrow(c);
 }
-
 function testNestedThrow(int a)(int){
     error e  = {msg : "test message"};
     if (e != null) {
         throw e;
     }
-    return 7;
+    return 9;
 }
-
 function mockFunction ()(string) {
     return "done";
 }
@@ -103,8 +98,8 @@ function testMethodCallInFinally ()(string) {
         error e = {msg:"test"};
         throw e;
     }finally {
-         s = s + mockFunction();
-     }
+        s = s + mockFunction();
+    }
     return s;
 }
 
