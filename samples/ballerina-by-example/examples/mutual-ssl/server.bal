@@ -15,19 +15,16 @@ import ballerina.net.http.response;
     //Set trustStore password
     trustStorePassword:"wso2carbon"
 }
-
 service<http> mutualSSL {
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-
     resource sayHello (http:Request req, http:Response res) {
         //Set response payload
         response:setStringPayload(res, "Successful");
         //Send response to client
         response:send(res);
     }
-
 }
 

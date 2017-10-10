@@ -8,7 +8,7 @@ public struct Request {
 public struct Response {
 }
 
-public struct Options{
+public struct Options {
     boolean followRedirect = false;
     int maximumRedirectCount = 5;
 	string trustStoreFile;

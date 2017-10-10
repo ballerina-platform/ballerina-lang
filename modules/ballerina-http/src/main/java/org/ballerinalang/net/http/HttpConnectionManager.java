@@ -68,6 +68,16 @@ public class HttpConnectionManager {
     private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
     private static final String CIPHERS = "ciphers";
     private static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    private static final int OPTIONS_INDEX = 0;
+    private static final int FOLLOW_REDIRECT_INDEX = 0;
+    private static final int MAX_REDIRECT_COUNT = 0;
+    private static final int TRUST_STORE_FILE_INDEX = 0;
+    private static final int TRUST_STORE_PASSWORD_INDEX = 1;
+    private static final int KEY_STORE_FILE_INDEX = 2;
+    private static final int KEY_STORE_PASSWORD_INDEX = 3;
+    private static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
+    private static final int CIPHERS_INDEX = 5;
+    private static final int SSL_PROTOCOL_INDEX = 6;
 
     private HttpConnectionManager() {
         String nettyConfigFile = System.getProperty(HTTP_TRANSPORT_CONF,
@@ -173,16 +183,16 @@ public class HttpConnectionManager {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
 
-        BStruct options = (BStruct) bConnector.getRefField(0);
-        int followRedirect = options.getBooleanField(0);
-        Long maxRedirectCount = options.getIntField(0);
-        String trustStoreFile = options.getStringField(0);
-        String trustStorePassword = options.getStringField(1);
-        String keyStoreFile = options.getStringField(2);
-        String keyStorePassword = options.getStringField(3);
-        String sslEnabledProtocols = options.getStringField(4);
-        String ciphers = options.getStringField(5);
-        String sslProtocol = options.getStringField(6);
+        BStruct options = (BStruct) bConnector.getRefField(OPTIONS_INDEX);
+        int followRedirect = options.getBooleanField(FOLLOW_REDIRECT_INDEX);
+        Long maxRedirectCount = options.getIntField(MAX_REDIRECT_COUNT);
+        String trustStoreFile = options.getStringField(TRUST_STORE_FILE_INDEX);
+        String trustStorePassword = options.getStringField(TRUST_STORE_PASSWORD_INDEX);
+        String keyStoreFile = options.getStringField(KEY_STORE_FILE_INDEX);
+        String keyStorePassword = options.getStringField(KEY_STORE_PASSWORD_INDEX);
+        String sslEnabledProtocols = options.getStringField(SSL_ENABLED_PROTOCOLS_INDEX);
+        String ciphers = options.getStringField(CIPHERS_INDEX);
+        String sslProtocol = options.getStringField(SSL_PROTOCOL_INDEX);
 
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
