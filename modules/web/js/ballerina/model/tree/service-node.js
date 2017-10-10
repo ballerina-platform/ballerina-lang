@@ -19,7 +19,39 @@
 import AbstractServiceNode from './abstract-tree/service-node';
 
 class ServiceNode extends AbstractServiceNode {
+    /**
+     * Generate default name for service level statements.
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateDefaultName(parent, node) {
+        if (!parent) {
+            return undefined;
+        }
 
+        const resourceDefaultName = 'echo';
+        const resourceNodes = parent.getResources();
+        const names = {};
+        for (let i = 0; i < resourceNodes.length; i++) {
+            const name = resourceNodes[i].getName().value;
+            names[name] = name;
+        }
+
+        if (resourceNodes.length > 0) {
+            for (let i = 1; i <= resourceNodes.length + 1; i++) {
+                if (!names[`${resourceDefaultName}${i}`]) {
+                    node.getName().setValue(`${resourceDefaultName}${i}`, true);
+                    node.setName(node.getName(), true);
+                    break;
+                }
+            }
+        } else {
+            node.getName().setValue(`${resourceDefaultName}1`, true);
+            node.setName(node.getName(), true);
+        }
+        return undefined;
+    }
 }
 
 export default ServiceNode;

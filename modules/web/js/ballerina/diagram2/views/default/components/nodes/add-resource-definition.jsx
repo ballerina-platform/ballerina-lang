@@ -50,7 +50,9 @@ class AddResourceDefinition extends React.Component {
         }
         // Check if service of http
         if (serviceDef.getProtocolPackageIdentifier().value === 'http') {
-            serviceDef.addResources(DefaultNodeFactory.createHTTPResource(), thisNodeIndex);
+            const resource = DefaultNodeFactory.createHTTPResource();
+            serviceDef.addResources(resource, thisNodeIndex);
+            serviceDef.generateDefaultName(serviceDef, resource);
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'ws') {
             let bBox;
             // Check if the node is a service
