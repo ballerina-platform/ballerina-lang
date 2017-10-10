@@ -179,11 +179,6 @@ public class Types {
             return checkArrayEquivalent(actualType, expType);
         }
 
-        // If both types are structs then check for their equivalency
-        if (checkStructEquivalency(actualType, expType)) {
-            return true;
-        }
-
         // If both types are constrained types, then check whether they are assignable
         if (isConstrainedTypeAssignable(actualType, expType)) {
             return true;
