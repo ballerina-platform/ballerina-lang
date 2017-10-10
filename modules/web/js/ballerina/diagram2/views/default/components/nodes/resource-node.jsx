@@ -155,25 +155,15 @@ class ResourceNode extends React.Component {
                     onMouseOut={this.onMouseOut}
                 >
                     <rect
-                        x={bBox.x - 20}
+                        x={bBox.x - 50}
                         y={bBox.y + bBox.h}
                         width={bBox.w + 20}
                         height='50'
                         fillOpacity="0"
                         strokeOpacity="0"
                     />
-                    <line
-                        x1={bBox.x - 20}
-                        y1={bBox.y + bBox.h + 25}
-                        x2={bBox.x + 40}
-                        y2={bBox.y + bBox.h + 25}
-                        strokeDasharray="5, 5"
-                        strokeWidth="3"
-                        className="protocol-line"
-                    />
                     <AddResourceDefinition
                         model={this.props.model}
-                        bBox={bBox}
                         style={this.state.style}
                     />
                 </g>

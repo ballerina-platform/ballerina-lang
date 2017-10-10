@@ -45,7 +45,7 @@ class ServiceNode extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            style: 'hideResourceGroup',
+            addResource: false,
         };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
@@ -99,7 +99,7 @@ class ServiceNode extends React.Component {
      * Handles the mouse enter event on the service definition
      */
     onMouseEnter() {
-        this.setState({ style: 'showResourceGroup' });
+        this.setState({ style: 'showResourceGroup', addResource: true });
     }
 
     /**
@@ -107,7 +107,7 @@ class ServiceNode extends React.Component {
      */
     onMouseLeave() {
         if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
-            this.setState({ style: 'hideResourceGroup' });
+            this.setState({ style: 'hideResourceGroup', addResource: false });
         }
     }
     /**
@@ -181,8 +181,8 @@ class ServiceNode extends React.Component {
                     <ServiceTransportLine
                         model={this.props.model}
                         bBox={this.props.model.viewState.components.transportLine}
-                        style={this.state.style}
                         resources={resources}
+                        addResource={this.state.addResource}
                     />
                     {
                             viewState.variablesExpanded ?
