@@ -20,7 +20,6 @@ package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
@@ -234,8 +233,6 @@ public class ServerConnectorMessageHandler {
         StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
-        int[] retRegs = {0};
-        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs, properties);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
@@ -265,6 +262,24 @@ public class ServerConnectorMessageHandler {
             optionalErrorHandler
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
                     .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
+        } catch (Exception e) {
+            breLog.error("Cannot handle error using the error handler for: " + protocol, e);
+        }
+
+    }
+
+    public static void handleError(String protocol, Throwable throwable) {
+        String errorMsg = throwable.getMessage();
+
+        // bre log should contain bre stack trace, not the ballerina stack trace
+        breLog.error("error: " + errorMsg, throwable);
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause()), null, null);
         } catch (Exception e) {
             breLog.error("Cannot handle error using the error handler for: " + protocol, e);
         }

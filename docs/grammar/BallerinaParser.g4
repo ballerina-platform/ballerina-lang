@@ -21,7 +21,11 @@ packageDeclaration
     ;
 
 packageName
-    :   Identifier (DOT Identifier)*
+    :   Identifier (DOT Identifier)* version?
+    ;
+
+version
+    : (VERSION Identifier)
     ;
 
 importDeclaration
@@ -33,6 +37,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   enumDefinition
     |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -44,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -52,12 +57,14 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* workerDeclaration* RIGHT_BRACE
+    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
 
+
 functionDefinition
-    :   NATIVE FUNCTION  callableUnitSignature SEMICOLON
-    |   FUNCTION callableUnitSignature callableUnitBody
+    :   (PUBLIC)? NATIVE FUNCTION  callableUnitSignature SEMICOLON
+    |   (PUBLIC)? FUNCTION (LT parameter GT)? callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
@@ -69,11 +76,11 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   (PUBLIC)? CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
-    :   LEFT_BRACE variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -82,7 +89,7 @@ actionDefinition
     ;
 
 structDefinition
-    :   STRUCT Identifier structBody
+    :   (PUBLIC)? STRUCT Identifier structBody
     ;
 
 structBody
@@ -90,11 +97,19 @@ structBody
     ;
 
 annotationDefinition
-    : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+    ;
+
+enumDefinition
+    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    ;
+
+enumFieldList
+    : Identifier (COMMA Identifier)*
     ;
 
 globalVariableDefinition
-    :   typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -128,11 +143,12 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* workerDeclaration*RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
 
 workerDefinition
@@ -149,7 +165,11 @@ typeName
 
 referenceTypeName
     :   builtInReferenceTypeName
-    |   nameReference
+    |   userDefineTypeName
+    ;
+
+userDefineTypeName
+    :   nameReference
     ;
 
 valueTypeName
@@ -161,8 +181,7 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MESSAGE
-    |   TYPE_MAP (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_DATATABLE
@@ -213,17 +232,15 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
-    |   continueStatement
+    |   nextStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
     |   returnStatement
-    |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   actionInvocationStatement
-    |   functionInvocationStatement
+    |   expressionStmt
     |   transformStatement
     |   transactionStatement
     |   abortStatement
@@ -251,7 +268,11 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | actionInvocation | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    ;
+
+connectorDeclarationStmt
+    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -267,11 +288,11 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
     ;
 
 filterInitExpression
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 filterInitExpressionList
@@ -279,7 +300,8 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | actionInvocation | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
     ;
 
 variableReferenceList
@@ -311,8 +333,8 @@ whileStatement
     :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-continueStatement
-    :   CONTINUE SEMICOLON
+nextStatement
+    :   NEXT SEMICOLON
     ;
 
 breakStatement
@@ -364,11 +386,6 @@ returnStatement
     :   RETURN expressionList? SEMICOLON
     ;
 
-// below Identifier is only a type of TYPE_MESSAGE
-replyStatement
-    :   REPLY expression SEMICOLON
-    ;
-
 workerInteractionStatement
     :   triggerWorker
     |   workerReply
@@ -391,10 +408,11 @@ commentStatement
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
+    |   variableReference invocation                                            # invocationReference
     ;
 
 field
@@ -409,17 +427,20 @@ xmlAttrib
     : AT (LEFT_BRACKET expression RIGHT_BRACKET)?
     ;
 
+functionInvocation
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+invocation
+    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
-functionInvocationStatement
-    :   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
-    ;
-
-actionInvocationStatement
-    :   actionInvocation SEMICOLON
-    |   variableReferenceList ASSIGN actionInvocation SEMICOLON
+expressionStmt
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -450,10 +471,6 @@ retryStatement
     :   RETRY expression SEMICOLON
     ;
 
-actionInvocation
-    :   nameReference DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
 namespaceDeclarationStatement
     :   namespaceDeclaration
     ;
@@ -474,6 +491,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
@@ -593,10 +611,6 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
-    |   stringTemplateText
-    ;
-
-stringTemplateText
-    :   StringTemplateText
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
+    |   StringTemplateText
     ;

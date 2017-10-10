@@ -132,7 +132,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -962,9 +962,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ReplyStmt replyStmt) {
         if (replyStmt.getReplyExpr() != null) {
             replyStmt.getReplyExpr().accept(this);
-            emit(InstructionCodes.REP, replyStmt.getReplyExpr().getTempOffset());
+//            emit(InstructionCodes.REP, replyStmt.getReplyExpr().getTempOffset());
         } else {
-            emit(InstructionCodes.REP, -1);
+//            emit(InstructionCodes.REP, -1);
         }
     }
 
@@ -1619,7 +1619,7 @@ public class CodeGenerator implements NodeVisitor {
 
         if (functionInfo.isNative()) {
             // TODO Move this to the place where we create function info entry
-            functionInfo.setNativeFunction((AbstractNativeFunction) funcIExpr.getCallableUnit());
+            functionInfo.setNativeFunction(NativeUnitLoader.getInstance().loadNativeFunction(pkgPath, funcName));
             emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallIndex);
         } else {
             emit(InstructionCodes.CALL, funcRefCPIndex, funcCallIndex);
@@ -1671,7 +1671,8 @@ public class CodeGenerator implements NodeVisitor {
 
         if (actionInfo.isNative()) {
             // TODO Move this to the place where we create action info entry
-            actionInfo.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
+            actionInfo.setNativeAction(NativeUnitLoader.getInstance().loadNativeAction(
+                    pkgPath, connectorDef.getName(), actionName));
             emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);

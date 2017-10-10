@@ -226,6 +226,8 @@ public interface InstructionCodes {
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
     int FORKJOIN = 192;
+    int WRKSTART = 193;
+    int WRKRETURN = 194;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -243,7 +245,6 @@ public interface InstructionCodes {
     int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
-    int REP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;

@@ -1,8 +1,9 @@
 import ballerina.net.http;
 import ballerina.lang.xmls;
-import ballerina.lang.messages;
 import ballerina.doc;
-@doc:Description {value:"Consumes and Produces annotation attributes contain MIME types as an array of strings."}
+import ballerina.net.http.request;
+import ballerina.net.http.response;
+@doc:Description {value:"Consumes and Produces annotations contain MIME types as an array of strings."}
 service<http> infoService {
 
     @http:resourceConfig {
@@ -13,17 +14,16 @@ service<http> infoService {
     }
     @doc:Description {value:"Resource can consume/accept text/json and application/json media types only. Therefore Content-Type header must have one of the types."}
     @doc:Description {value:"Resource can produce application/xml payloads. Therefore Accept header should be set accordingly."}
-    resource student (message m) {
+    resource student (http:Request req, http:Response res) {
         //Get JSON payload from the request message.
-        json jsonMsg = messages:getJsonPayload(m);
+        json jsonMsg = request:getJsonPayload(req);
         //Get the string value relevant to the key "name".
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
-        message response = {};
         //Create XML payload and respond back.
         xml name = xmls:parse("<name>"+nameString+"</name>");
-        messages:setXmlPayload(response,name);
-        reply response;
+        response:setXmlPayload(res, name);
+        response:send(res);
     }
 }
 

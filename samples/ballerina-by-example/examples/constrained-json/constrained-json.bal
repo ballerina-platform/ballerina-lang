@@ -1,7 +1,8 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.doc;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @doc:Description {
     value: "Defining people array"
@@ -44,13 +45,13 @@ service<http> PeopleManagementService {
     @doc:Description {
         value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
     }
-    resource getEmployee (message m, @http:QueryParam {value:"index"}
-                                     int index) {
-        //Define a struct constrained by Employee struct. With this constraint, the 'json', employeeJson can only
-        // contain the fields of Employee struct.
+    resource getEmployee (http:Request req, http:Response res) {
+        //Define a struct constrained by Employee struct. With this constraint, the json, employeeJson can only
+        // contain the fields of Employee struct
         json<Employee> employeeJson = {};
-
-        // Transform statement to construct the employeeJson 'json' with Person with the given index from the people array.
+        map params = request:getQueryParams(req);
+        var index, _ = (int)params.index;
+        // Transform statement to construct the employeeJson json with Person with the given index from the people array
         transform {
             // split name from " " to separate first and last names
             string[] _temp = strings:split(people[index].name, " ");
@@ -62,9 +63,9 @@ service<http> PeopleManagementService {
             // E.g. : employeeJson.city will give an error as "unknown field 'city' in json with struct constraint 'Employee'"
         }
 
-        // Set the new employeeJson as the payload.
-        messages:setJsonPayload(m, employeeJson);
-        reply m;
+        // Set the new employeeJson as the payload
+        response:setJsonPayload(res, employeeJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -74,13 +75,13 @@ service<http> PeopleManagementService {
     @doc:Description {
         value: "Resource to update person by index which can be invoked with /people/update?index={index}"
     }
-    resource updatePerson (message m, @http:QueryParam{value:"index"}
-                                      int index) {
-        //Get the JSON payload from the request message m.
-        json j = messages:getJsonPayload(m);
+    resource updatePerson (http:Request req, http:Response res) {
+        //Get the json payload from the request message m
+        json j = request:getJsonPayload(req);
         var jsonPerson, _ = (json<Person>)j;
-
-        // Define an error that can be used during conversion from JSON to person struct.
+        map params = request:getQueryParams(req);
+        var index, _ = (int)params.index;
+        // Define an error that can be used during conversion from json to person struct.
 
         transform {
             people[index].name, _ = (string) jsonPerson.name;
@@ -90,12 +91,9 @@ service<http> PeopleManagementService {
             // E.g. : employeeJson.address will give an error as "unknown field 'address' in json with struct constraint 'Person'"
         }
 
-        //Empty the message
-        m = {};
-
-        //Set the status code to 202 Accepted.
-        http:setStatusCode(m, 202);
-        reply m;
+        // set the status code to 202 Accepted
+        response:setStatusCode(res, 202);
+        response:send(res);
     }
 
 
@@ -106,8 +104,8 @@ service<http> PeopleManagementService {
     @doc:Description {
         value: "Get all people which can be invoked as /people/"
     }
-    resource GetPeople (message m) {
-        // Define empty JSON array
+    resource GetPeople (http:Request req, http:Response res) {
+        // define empty json array
         json jsonResponse = [];
         int index = 0;
         while (index < lengthof people) {
@@ -116,8 +114,8 @@ service<http> PeopleManagementService {
             index = index + 1;
         }
 
-        // Set the people array as the JSON response in the message.
-        messages:setJsonPayload(m, jsonResponse);
-        reply m;
+        // set the people array as the json response in the message
+        response:setJsonPayload(res, jsonResponse);
+        response:send(res);
     }
 }

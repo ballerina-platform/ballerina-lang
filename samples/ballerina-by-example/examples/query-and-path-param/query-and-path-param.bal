@@ -1,6 +1,7 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 import ballerina.doc;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 service<http> sample {
 
@@ -9,15 +10,15 @@ service<http> sample {
         path:"/path/{foo}"
     }
     @doc:Description {value:"PathParam and QueryParam extract values from the request URI."}
-    resource params (message m, @http:PathParam {value:"foo"} string foo,
-                                @http:QueryParam {value:"bar"} string bar) {
-        // Create a response message.
-        message response = {};
-        // Create JSON payload with the extracted values.
+    resource params (http:Request req, http:Response res, string foo) {
+        // Get QueryParam
+        map params = request:getQueryParams(req);
+        var bar, _ = (string)params.bar;
+        // Create json payload with the extracted values.
         json responseJson = {"queryParam":foo, "pathParam":bar};
-        // A util method to set the JSON payload to the response message.
-        messages:setJsonPayload(response, responseJson);
+        // A util method to set the json payload to the response message.
+        response:setJsonPayload(res, responseJson);
         // Send a response to the client.
-        reply response;
+        response:send(res);
     }
 }

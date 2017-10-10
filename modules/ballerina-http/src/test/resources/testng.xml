@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="ballerina-natives-test-suite">
+
+    <!-- Native Function Related Test Cases. -->
+    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <!--<package name="org.ballerinalang.net.http.nativeimpl.request"/>-->
+        </packages>
+    </test>
+
+    <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
+    <!-- Native Function Related Test Cases. -->
+    <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.nativeimpl.functions"/>-->
+        <!--</packages>-->
+    <!--</test>-->
+
+    <test name="ballerina-Req/Res-native-functions-unit-tests" preserve-order="true" parallel="false" enabled="false">
+        <packages>
+            <package name="org.ballerinalang.net.http.nativeimpl"/>
+        </packages>
+    </test>
+
+    <!--<test name="ballerina-native-stmt-unit-tests" preserve-order="true" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.statements"/>-->
+        <!--</packages>-->
+    <!--</test>-->
+
+    <!-- Service Related Test Cases -->
+
+    <test name="ballerina-service-unit-tests" preserve-order="false" parallel="false" enabled="false">
+        <classes>
+             <!--TODO : Add other testcases. -->
+            <class name="org.ballerinalang.service.ServiceTest"/>
+            <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
+            <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
+            <class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>
+            <class name="org.ballerinalang.service.HTTPCorsTest"/>
+        </classes>
+    </test>
+
+    <!--<test name="ballerina-global-var-test-suite">-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>-->
+            <!--<class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
+
+    <!--<test name="ballerina-identifier-literal-test-suite">-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
+
+    <!--<test name="ballerina-interceptor-test-suite">-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
+</suite>
