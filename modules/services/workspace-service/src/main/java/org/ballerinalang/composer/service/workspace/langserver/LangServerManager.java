@@ -67,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -100,6 +101,8 @@ public class LangServerManager {
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
 
     private Map<Path, BLangProgram> programMap;
+
+    private static final String BAL_EXTENTION = ".bal";
 
     /**
      * Caching the built in packages.
@@ -468,6 +471,7 @@ public class LangServerManager {
      */
     private void getCompletionItems(Message message) {
         if (message instanceof RequestMessage) {
+            String comilationUnitId = getRandomComilationUnitId();
             ArrayList<CompletionItem> completionItems;
             ArrayList<SymbolInfo> symbols = new ArrayList<>();
 
@@ -494,19 +498,21 @@ public class LangServerManager {
             names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
             PackageID tempPackageID = new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID, "",
-                    "temp.bal", textContent.getBytes(StandardCharsets.UTF_8));
+                    comilationUnitId, textContent.getBytes(StandardCharsets.UTF_8));
             compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
 
-            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(compilerContext, position, filterDataModel);
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(compilerContext,
+                    position, filterDataModel);
             compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package
-            compiler.compile("temp.bal");
+            compiler.compile(comilationUnitId);
             BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
 
             // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
+            TreeVisitor treeVisitor = new TreeVisitor(comilationUnitId, compilerContext,
+                    symbols, position, filterDataModel);
             bLangPackage.accept(treeVisitor);
             // Set the symbol table
             filterDataModel.setSymbolTable(treeVisitor.getSymTable());
@@ -542,6 +548,10 @@ public class LangServerManager {
      */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
+    }
+
+    private static String getRandomComilationUnitId() {
+        return UUID.randomUUID().toString().replace("-","") + BAL_EXTENTION;
     }
 
     // End Notification Handlers
