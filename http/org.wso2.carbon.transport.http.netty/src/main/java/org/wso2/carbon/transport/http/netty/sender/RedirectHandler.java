@@ -448,7 +448,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
+                new RedirectChannelInitializer(originalChannelContext, channelHandlerContext, sslEngine,
+                        httpTraceLogEnabled,
                         maxRedirectCount, remainingTimeForRedirection));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
@@ -460,6 +461,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                             .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
                     future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
                     future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+                    future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
+                    future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                 } else {
@@ -517,15 +520,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                if (originalChannelContext.channel().isActive()) {
-                    originalChannelContext.fireUserEventTriggered(evt);
-                } else {
-                    String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
-                            + "</errorMessage>";
-                    HttpResponseFuture responseFuture = ctx.channel()
-                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
-                }
+                ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
+                        + "</errorMessage>";
+                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
+                        .get();
+                responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
             }
         }
         ctx.close();

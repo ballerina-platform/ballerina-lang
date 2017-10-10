@@ -41,14 +41,17 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
     private SSLEngine sslEngine;
     private boolean httpTraceLogEnabled;
     private ChannelHandlerContext originalChannelContext;
+    private ChannelHandlerContext childChannelContext;
     private int maxRedirectCount;
     private long socketTimeout;
 
-    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine, boolean
+    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, ChannelHandlerContext
+            childChannelContext, SSLEngine sslEngine, boolean
             httpTraceLogEnabled, int maxRedirectCount, long remainingTimeForRedirection) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.originalChannelContext = originalChannelContext;
+        this.childChannelContext = childChannelContext;
         this.maxRedirectCount = maxRedirectCount;
         this.socketTimeout = remainingTimeForRedirection;
     }
@@ -69,6 +72,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         }
         ch.pipeline().addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketTimeout, socketTimeout, 0,
                 TimeUnit.MILLISECONDS));
+        childChannelContext.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext, sslEngine, httpTraceLogEnabled,
                 maxRedirectCount);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
