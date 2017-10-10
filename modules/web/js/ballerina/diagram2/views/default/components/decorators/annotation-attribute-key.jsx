@@ -84,7 +84,7 @@ class AnnotationAttributeKey extends React.Component {
         });
 
         if (this.props.attributeModel.getName() !== suggestionValue) {
-            this.props.attributeModel.setName(suggestionValue, undefined, true);
+            this.props.attributeModel.setName(suggestionValue, true);
 
             const attributeDefinition = this.props.annotationDefinitionModel;
             const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
@@ -94,10 +94,10 @@ class AnnotationAttributeKey extends React.Component {
             let annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
             if (annotationAttributeDef.isArrayType()) {
                 // Adding an init array item
+                annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
+                    value: undefined,
+                });
                 if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType().replace('[]', ''))) {
-                    annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
-                        value: undefined,
-                    });
                 } else {
                     const annotationAttachmentInArray = NodeFactory.createAnnotationAttachment({
                         packageAlias: NodeFactory.createLiteral({
@@ -107,11 +107,9 @@ class AnnotationAttributeKey extends React.Component {
                             value: annotationAttributeDef.getBType().split(':').pop().replace('[]', ''),
                         }),
                     });
-                    const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
-                        value: undefined,
-                    });
-                    arrayAnnotationAttributeValue.setValueArray([annotationAttachmentInArray]);
-                    annotationAttributeValue.setValue(arrayAnnotationAttributeValue);
+                    const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
+                    arrayAnnotationAttributeValue.setValue(annotationAttachmentInArray);
+                    annotationAttributeValue.addValueArray(arrayAnnotationAttributeValue);
                 }
             } else if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
                 const bValue = NodeFactory.createLiteral();

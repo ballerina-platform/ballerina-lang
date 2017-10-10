@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 
-const DEFAULT_MENU_ITEM_HEIGHT = '25';
+const DEFAULT_MENU_ITEM_HEIGHT = '24';
 
 /**
  * React component for the action menu.

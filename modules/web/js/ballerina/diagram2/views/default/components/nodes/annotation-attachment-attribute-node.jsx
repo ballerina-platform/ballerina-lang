@@ -112,8 +112,8 @@ class AnnotationAttribute extends React.Component {
         });
         this.props.model.viewState.isInEdit = false;
         const attributeValue = this.props.model.getValue();
-        const bValue = attributeValue.getValue();
-        bValue.setValue(event.target.value);
+        const literal = attributeValue.getValue();
+        literal.setValue(event.target.value);
     }
 
     /**
@@ -287,7 +287,7 @@ class AnnotationAttribute extends React.Component {
                                     className='annotation-attribute-b-value-input'
                                     ref={(ref) => { this.bValueInput = ref; }}
                                     type="text"
-                                    value={literalNode.getValue()}
+                                    value={this.state.bValueText}
                                     onChange={this.onBValueChange}
                                     onBlur={this.onBValueEditFinished}
                                     onKeyPress={this.onBValueKeyPress}
