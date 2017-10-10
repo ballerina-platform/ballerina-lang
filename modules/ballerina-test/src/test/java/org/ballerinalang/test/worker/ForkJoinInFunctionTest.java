@@ -73,7 +73,7 @@ public class ForkJoinInFunctionTest {
         Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
     }
 
-    @Test(description = "Test Fork Join Without Timeout Expression", enabled = false)
+    @Test(description = "Test Fork Join Without Timeout Expression")
     public void testForkJoinWithoutTimeoutExpression() {
         CompileResult result = BTestUtils.compile("test-src/workers/fork-join-without-timeout.bal");
         BValue[] returns = BTestUtils.invoke(result, "testForkJoinWithoutTimeoutExpression");
