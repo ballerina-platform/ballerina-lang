@@ -128,6 +128,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private int failedBlockCount;
     private boolean statementReturns;
+    private boolean lastStatement;
     private int forkJoinCount;
     private int workerCount;
     private SymbolEnter symbolEnter;
@@ -156,6 +157,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private void resetStatementReturns() {
         this.statementReturns = false;
+    }
+
+    private void resetFinalStatement() {
+        this.lastStatement = false;
     }
     
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -262,10 +267,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
+        this.resetFinalStatement();
         if (transactionNode.failedBody != null) {
             this.failedBlockCount++;
             transactionNode.failedBody.accept(this);
             this.failedBlockCount--;
+            this.resetFinalStatement();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
@@ -279,20 +286,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         if (this.transactionCount == 0) {
             this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            return;
         }
+        this.lastStatement = true;
     }
 
     @Override
     public void visit(BLangRetry abortNode) {
         if (this.failedBlockCount == 0) {
             this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+            return;
         }
+        this.lastStatement = true;
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetStatementReturns();
+        }
+        if (lastStatement) {
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.resetFinalStatement();
         }
     }
     
@@ -305,6 +320,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
+        this.resetFinalStatement();
     }
     
     @Override
@@ -334,13 +350,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount++;
         whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
+        this.resetFinalStatement();
     }
     
     @Override
     public void visit(BLangContinue continueNode) {
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            return;
         }
+        this.lastStatement = true;
     }
 
     @Override
@@ -435,7 +454,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        if (this.loopCount == 0) {
+            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
+            return;
+        }
+        this.lastStatement = true;
     }
 
     public void visit(BLangThrow throwNode) {

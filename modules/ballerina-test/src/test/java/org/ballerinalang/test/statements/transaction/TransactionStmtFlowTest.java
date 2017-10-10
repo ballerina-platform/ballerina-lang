@@ -306,28 +306,11 @@ public class TransactionStmtFlowTest {
     }
 
 
-    /*@Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry2.bal:7: " +
-            "unreachable statement*")
-    public void testTransactionInvalidRetry2() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry2.bal");
-    }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry3.bal:7: " +
-            "invalid retry count*")
-    public void testTransactionInvalidRetry3() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry3.bal");
-    }
-
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry5.bal:8: " +
+    /*@Test(expectedExceptions = SemanticException.class,expectedExceptionsMessageRegExp = ".*invalid-retry5.bal:8: " +
             "retry statement should be a root level statement within failed block*")
     public void testTransactionInvalidRetry5() {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry5.bal");
-    }
-
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry6.bal:8: " +
-            "invalid retry count*")
-    public void testTransactionInvalidRetry6() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry6.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*break statement cannot " +
@@ -390,13 +373,26 @@ public class TransactionStmtFlowTest {
 
 
     @Test(description = "Test transaction statement with errors")
-    public void testAssignmentNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+    public void testTransactionNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 19, 15);
-        BTestUtils.validateError(resultNegative, 1, "retry cannot be used outside of a transaction failed block", 7, 9);
-        BTestUtils.validateError(resultNegative, 2, "abort cannot be used outside of a transaction block", 33, 9);
-        BTestUtils.validateError(resultNegative, 3, "abort cannot be used outside of a transaction block", 43, 9);
-        BTestUtils.validateError(resultNegative, 4, "abort cannot be used outside of a transaction block", 49, 5);
+        BTestUtils.validateError(resultNegative, 1, "invalid transaction retry count", 19, 15);
+        BTestUtils.validateError(resultNegative, 2, "retry cannot be used outside of a transaction failed block", 7, 9);
+        BTestUtils.validateError(resultNegative, 3, "abort cannot be used outside of a transaction block", 33, 9);
+        BTestUtils.validateError(resultNegative, 4, "abort cannot be used outside of a transaction block", 43, 9);
+        BTestUtils.validateError(resultNegative, 5, "abort cannot be used outside of a transaction block", 49, 5);
+        BTestUtils.validateError(resultNegative, 6, "unreachable code", 58, 9);
+        BTestUtils.validateError(resultNegative, 7, "unreachable code", 70, 9);
+        BTestUtils.validateError(resultNegative, 8, "unreachable code", 89, 17);
+        BTestUtils.validateError(resultNegative, 9, "unreachable code", 93, 9);
+    }
+
+    @Test(description = "Test transaction statement with errors")
+    public void testRetryNegativeCases() {
+        CompileResult res = BTestUtils.compile("test-src/statements/transaction/transaction-retry-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 2);
+        BTestUtils.validateError(res, 0, "invalid transaction retry count", 7, 15);
+        BTestUtils.validateError(res, 1, "invalid transaction retry count", 23, 15);
     }
 
 }

@@ -93,10 +93,10 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check invalid continue statement location.", enabled = false)
+    @Test(description = "Check invalid continue statement location.")
     public void testNegative() {
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
         BTestUtils.validateError(negativeCompileResult, 0, "continue cannot be used outside of a loop", 14, 5);
-        // Todo - Fix unreachable statement
-        BTestUtils.validateError(negativeCompileResult, 1, "", 0, 0);
+        BTestUtils.validateError(negativeCompileResult, 1, "unreachable code", 29, 13);
     }
 }
