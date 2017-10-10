@@ -27,11 +27,7 @@ class IfNode extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'If condition',
-            model: props.model.getCondition(),
-        };
+
         this.state = {
             active: 'hidden',
         };
@@ -68,6 +64,11 @@ class IfNode extends React.Component {
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
         const dropZone = model.viewState.components['drop-zone'];
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: model.getCondition(),
+        };
 
         return (
             <g>
@@ -88,7 +89,7 @@ class IfNode extends React.Component {
                     bBox={bBox}
                     title={title}
                     expression={expression}
-                    editorOptions={this.editorOptions}
+                    editorOptions={editorOptions}
                     model={model}
                     body={model.body}
                 />
