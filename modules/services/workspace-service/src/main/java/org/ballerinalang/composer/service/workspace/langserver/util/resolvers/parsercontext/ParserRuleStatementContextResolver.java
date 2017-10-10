@@ -64,6 +64,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+            this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);

@@ -119,7 +119,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                     node.getPosition().getSource().getCompilationUnitName().equals(this.cUnitName)
             ).orElseThrow(CompilationUnitNotFoundException::new);
         } catch (CompilationUnitNotFoundException e) {
-            logger.error(e.getMessage());
+            this.terminateVisitor = true;
         }
 
         this.acceptNode((BLangNode) topLevelNode, pkgEnv);
