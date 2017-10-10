@@ -54,7 +54,8 @@ class EditorTabs extends View {
         this.previewSplitRef = undefined;
 
         const { history } = props.editorPlugin.appContext.pref;
-        const previewPanelEnabled = history.get(HISTORY.PREVIEW_VIEW_IS_ACTIVE);
+        const previewPanelEnabledHistory = history.get(HISTORY.PREVIEW_VIEW_IS_ACTIVE);
+        const previewPanelEnabled = !_.isNil(previewPanelEnabledHistory) ? previewPanelEnabledHistory : false;
         const previewPanelSize = previewPanelEnabled
                                 ? (parseInt(history.get(HISTORY.PREVIEW_VIEW_PANEL_SIZE), 10)
                                         || this.props.width / 2)
