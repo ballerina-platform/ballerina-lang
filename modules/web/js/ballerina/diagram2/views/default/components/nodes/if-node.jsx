@@ -80,6 +80,7 @@ class IfNode extends React.Component {
                         baseComponent="rect"
                         dropTarget={model.parent}
                         dropBefore={model}
+                        renderUponDragStart
                     />
                 }
                 <CompoundStatementDecorator
