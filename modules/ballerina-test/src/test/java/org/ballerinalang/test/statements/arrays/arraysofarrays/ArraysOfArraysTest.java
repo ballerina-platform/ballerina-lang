@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -88,12 +87,12 @@ public class ArraysOfArraysTest {
         Assert.assertEquals(returns[0].stringValue(), "4");
     }
 
-    @Test(description = "Test setting incorrect type",
-          expectedExceptions = {BallerinaException.class}, enabled = false)
+    @Test(description = "Test setting incorrect type")
     public void testAssignIncorrectValue() {
-        BTestUtils.compile("test-src/statements/arrays/arraysofarrays/arraysOfArraysFailures.bal");
-        // TODO: Check if this is correct!!!
-       // BTestUtils.parseBalFile("test-src/statements/arrays/arraysofarrays/arraysOfArraysFailures.bal");
+        CompileResult result =
+                BTestUtils.compile("test-src/statements/arrays/arraysofarrays/arraysOfArraysFailures.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BTestUtils.validateError(result, 0, "incompatible types: expected 'string[]', found 'int[]'", 3, 22);
     }
 
     @Test(description = "Test Basic arrays of arrays operations")

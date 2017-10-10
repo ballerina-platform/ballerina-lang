@@ -43,6 +43,6 @@ public class ForkJoinReturnAnyTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);
-        //Assert.assertEquals(((BMap) returns[0]).size(), 4);
     }
+    
 }

@@ -49,3 +49,49 @@ function testTransactionAbort3 () {
     abort;
     i = i + 11;
 }
+
+function testTransactionAbort4 () {
+    int i = 10;
+    transaction {
+        i = i + 1;
+        abort;
+        i = i + 2;
+    } aborted {
+        i = i + 10;
+    }
+}
+
+function testTransactionRetry(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        retry 4;
+        a = a + " inFailed";
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionAbort5 () {
+    int i = 10;
+    transaction {
+        i = i + 1;
+        if (i > 10) {
+            abort;
+        }
+        while (i < 40) {
+            i = i + 2;
+            if (i == 44) {
+                break;
+                int k = 9;
+            }
+        }
+        abort;
+        i = i + 2;
+    } aborted {
+        i = i + 10;
+    }
+}

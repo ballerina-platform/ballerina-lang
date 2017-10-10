@@ -22,8 +22,8 @@ function testForkJoinAny()(string[]) {
                 results[0], _ = (string) xyz[0];
             }
             return results;
-        } timeout (30000) (any[][] airlineResponses) {
-            results[0] = -1;
+        } timeout (30000) (map airlineResponses) {
+            results[0] = "";
             return results;
         }
 }

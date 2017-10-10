@@ -1,7 +1,7 @@
 function floattoint(float value)(int) {
     int result;
     //float to int should be a conversion
-    result, _ = <int>value;
+    result = <int>value;
     return result;
 }
  
