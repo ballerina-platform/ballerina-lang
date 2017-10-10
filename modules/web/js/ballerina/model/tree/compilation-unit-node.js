@@ -66,7 +66,7 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      * Add import as a top level node
      * @param importNode
      */
-    addImport(importNode) {
+    addImport(importNode, silent) {
         const pkgName = this.getPackageName(importNode);
         if (this.isExistingPackage(pkgName)) {
             const errorString = 'Package "' + pkgName + '" is already imported.';
@@ -74,16 +74,14 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             return;
         }
 
-        let index = _.findLastIndex(this.getTopLevelNodes(), (child) => {
-            return TreeUtils.isImport(child);
-        });
+        let index = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isImport));
+        const pkgDecl = this.filterTopLevelNodes(TreeUtils.isPackageDeclaration);
 
         // If there are no imports index is -1. Then we need to add the first import after the package
         // definition which is the first child of the ast root
-        if (index === -1) {
-            index = 0;
-        }
-        this.addTopLevelNodes(importNode, index + 1);
+        index = ((index !== -1) ? (index + 1) : ((pkgDecl.length === 0) ? 0 : 1));
+
+        this.addTopLevelNodes(importNode, index, silent);
     }
 
     getImports() {
