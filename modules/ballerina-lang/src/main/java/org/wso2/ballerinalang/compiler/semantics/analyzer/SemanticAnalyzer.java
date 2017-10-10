@@ -500,7 +500,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // variable symbol in the symbol environment
             // e.g. int a = x + a;
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-            typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
+
+            // If the variable is a package/service/connector level variable, we don't need to check types.
+            // It will we done during the init-function of the respective construct is visited.
+            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
+                    (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE &&
+                    (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
+                typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
+            }
+
             if (varNode.symbol.flags == Flags.CONST) {
                 varNode.annAttachments.forEach(a -> {
                     a.attachmentPoint =
