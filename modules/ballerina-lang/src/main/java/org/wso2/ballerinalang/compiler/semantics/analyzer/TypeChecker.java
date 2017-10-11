@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -491,8 +492,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
             } else {
-                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
-                        unaryExpr.operator, exprType);
+                BSymbol symbol;
+                // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
+                // This is because the JSON arrays are internally handled as a normal JSON.
+                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator) && getElementType(exprType).tag == TypeTags.JSON) {
+                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
+                } else {
+                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
+                }
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
@@ -517,9 +524,21 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = Lists.of(symTable.errType);
             return;
         }
+        BSymbol symbol;
+        if (targetType == sourceType) {
+            List<BType> paramTypes = Lists.of(sourceType, targetType);
+            List<BType> retTypes = Lists.of(targetType, this.symTable.errTypeCastType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BCastOperatorSymbol opSymbol = new BCastOperatorSymbol(this.symTable.rootPkgSymbol.pkgID,
+                    opType, this.symTable.rootPkgSymbol,
+                    false, true, InstructionCodes.NOP);
+            opSymbol.kind = SymbolKind.CAST_OPERATOR;
+            symbol = opSymbol;
+        } else {
+            // Lookup type explicit cast operator symbol
+            symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+        }
 
-        // Lookup type explicit cast operator symbol
-        BSymbol symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
         } else {
@@ -538,8 +557,20 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        // Lookup type conversion operator symbol
-        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+        BSymbol symbol;
+        if (sourceType == targetType) {
+            List<BType> paramTypes = Lists.of(sourceType, targetType);
+            List<BType> retTypes = Lists.of(targetType, this.symTable.errTypeConversionType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BConversionOperatorSymbol opSymbol = new BConversionOperatorSymbol(this.symTable.rootPkgSymbol.pkgID,
+                    opType, this.symTable.rootPkgSymbol, true, InstructionCodes.NOP);
+            opSymbol.kind = SymbolKind.CONVERSION_OPERATOR;
+            symbol = opSymbol;
+        } else {
+            // Lookup type conversion operator symbol
+            symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+        }
+
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
         } else {
@@ -1138,5 +1169,13 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.tag != TypeTags.ARRAY) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 }

@@ -18,6 +18,8 @@
 
 package org.ballerinalang.natives.annotations;
 
+import org.ballerinalang.model.types.TypeKind;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -71,4 +73,11 @@ public @interface BallerinaFunction {
      * @return Constants related this function
      */
     BallerinaConstant[] consts() default {};
+
+    /**
+     * Receiver for the function.
+     *
+     * @return returns argument of Receiver for the function.
+     */
+    Receiver receiver() default @Receiver(type = TypeKind.NONE);
 }
