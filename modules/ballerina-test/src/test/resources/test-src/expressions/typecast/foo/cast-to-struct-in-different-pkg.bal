@@ -1,6 +1,6 @@
-package lang.expressions.btype.cast.foo;
+package expressions.typecast.foo;
 
-import lang.expressions.btype.cast.foo.bar;
+import expressions.typecast.foo.bar;
 
 struct Person {
     string name;

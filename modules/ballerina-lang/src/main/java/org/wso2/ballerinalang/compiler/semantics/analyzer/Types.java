@@ -319,11 +319,6 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
-            // TODO
-            // return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
-        }
-
         return targetType.accept(conversionVisitor, sourceType);
     }
 
@@ -560,7 +555,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BStructType t, BType s) {
-            if (s == symTable.anyType || s.tag == TypeTags.MAP) {
+            if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
 
