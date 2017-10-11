@@ -97,13 +97,13 @@ class TopLevelNodes extends React.Component {
                 this.props.model.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
             } else {
                 // If a packageDeclaratioNode already exists then remove that node, and add a new one
-                const pkgDeclarationNode = this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+                const pkgDeclarationNode = this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
                 this.props.model.removeTopLevelNodes(pkgDeclarationNode, true);
                 this.props.model.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
             }
         } else if (this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
             this.props.model.removeTopLevelNodes(this.props.model.filterTopLevelNodes(
-                    { kind: 'PackageDeclaration' }));
+                    { kind: 'PackageDeclaration' })[0]);
         }
 
         this.setState({ packageNameEditing: false });
@@ -297,6 +297,7 @@ class TopLevelNodes extends React.Component {
                         ry={headerHeight / 2}
                         className="package-definition-header"
                     />
+                    { packageDefExpanded &&
                     <g>
                         <rect
                             x={bBox.x}
@@ -327,7 +328,7 @@ class TopLevelNodes extends React.Component {
                         >
                             {this.state.packageDefValue || ''}
                         </EditableText>
-                    </g>
+                    </g> }
                     <image
                         width={iconSize}
                         height={iconSize}
