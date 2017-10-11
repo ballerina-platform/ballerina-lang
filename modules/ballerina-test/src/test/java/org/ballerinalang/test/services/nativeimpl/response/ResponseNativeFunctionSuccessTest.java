@@ -100,12 +100,12 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(responseMsg.getProperty(propertyName), propertyValue);
     }
 
+    ////TODO Test this with multipart support, not needed for now
     @Test(enabled = false)
     public void testGetBinaryPayloadMethod() {
         BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
-        //TODO add payload properly and enable test
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         cMsg.setMessageDataSource(dataSource);

@@ -470,7 +470,7 @@ public class Types {
 
             if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT) {
+            } else if (s.tag == TypeTags.STRUCT || s.tag == TypeTags.ANY) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
 

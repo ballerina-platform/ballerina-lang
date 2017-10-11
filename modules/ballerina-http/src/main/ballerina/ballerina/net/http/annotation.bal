@@ -33,11 +33,3 @@ public annotation resourceConfig attach resource {
     int maxAge;
     string[] exposeHeaders;
 }
-
-public annotation PathParam attach parameter {
-    string value;
-}
-
-public annotation QueryParam attach parameter {
-    string value;
-}
