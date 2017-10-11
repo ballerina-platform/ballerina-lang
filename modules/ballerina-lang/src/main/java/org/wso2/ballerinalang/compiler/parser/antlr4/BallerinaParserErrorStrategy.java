@@ -124,7 +124,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
      * 
      * @param parser Current parser
      */
-    protected void setContextException(Parser parser) {
+    private void setContextException(Parser parser) {
         // Here the type of the exception is not important.
         InputMismatchException e = new InputMismatchException(parser);
         for (ParserRuleContext context = parser.getContext(); context != null; context = context.getParent()) {
