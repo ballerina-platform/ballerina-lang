@@ -569,6 +569,7 @@ class SizingUtil {
         cmp.body = new SimpleBBox();
         cmp.initFunction = new SimpleBBox();
         cmp.transportLine = new SimpleBBox();
+        cmp.connectors = new SimpleBBox();
 
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
@@ -588,7 +589,7 @@ class SizingUtil {
             // set the x of the resource or action.
             height += child.viewState.bBox.h + this.config.innerPanel.wrapper.gutter.v;
         });
-        // add side padding to the resource.
+        // add side padding to the service.
         width += (this.config.innerPanel.wrapper.gutter.h * 2);
         // calculate the initFunction for service.
         if (viewState.variablesExpanded) {
@@ -611,6 +612,24 @@ class SizingUtil {
         cmp.body.h = height;
         cmp.body.w = width;
 
+        // If there are connector declarations add them to service width.
+        const statements = node.getVariables();
+        let connectorWidth = 0;
+        const connectorHeight = node.filterVariables((statement) => { return TreeUtil.isConnectorDeclaration(statement); })
+            .length > 0 ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                if (TreeUtil.isConnectorDeclaration(statement)) {
+                    statement.viewState.bBox.w = this.config.lifeLine.width;
+                    // add the connector width to body width.
+                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                    statement.viewState.bBox.h = cmp.body.h - 60;
+                }
+            });
+        }
+        // add the connector to width
+        width += connectorWidth;
+        cmp.connectors.w = connectorWidth;
         // calculate header related components.
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
@@ -619,10 +638,9 @@ class SizingUtil {
         cmp.heading.h = this.config.panel.heading.height;
 
         viewState.bBox.w = width;
-        viewState.bBox.h = cmp.body.h + cmp.heading.h;
+        viewState.bBox.h = cmp.body.h + cmp.heading.h + connectorHeight;
         // set the components.
         viewState.components = cmp;
-
 
         cmp.annotation = new SimpleBBox();
 
@@ -635,15 +653,6 @@ class SizingUtil {
         } else {
             cmp.annotation.h = this._getAnnotationHeight(node, 40);
         }
-        /*
-        components.annotation.w = bodyWidth;
-        components.transportLine.h = totalResourceHeight;
-        // Set initial height to the body
-
-        // Set the height if globals inside the service node is expanded
-        if (viewState.globalsExpanded) {
-;
-        }*/
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {

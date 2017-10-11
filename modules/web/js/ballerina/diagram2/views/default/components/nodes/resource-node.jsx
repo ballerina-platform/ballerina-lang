@@ -69,7 +69,6 @@ class ResourceNode extends React.Component {
         const parentNode = this.props.model.parent;
         const body = this.props.model.body;
         const bodyBBox = this.props.model.body.viewState.bBox;
-        // const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
         resource_worker_bBox.x = bodyBBox.x + (bodyBBox.w - lifeLine.width) / 2;

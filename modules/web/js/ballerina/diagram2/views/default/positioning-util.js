@@ -453,9 +453,29 @@ class PositioningUtil {
             // check of the resource is collapsed.
             y += child.viewState.bBox.h;
             // expand the resource to match service.
-            child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2);
+            child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2) -
+            viewState.components.connectors.w;
         });
 
+        // Position Connectors
+        const widthOffsetForConnectors = node.getResources().length > 0 ?
+            (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
+        let xIndex = viewState.bBox.x + widthOffsetForConnectors;
+        const yIndex = viewState.bBox.y + viewState.components.heading.h
+            + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v;
+        const statements = node.getVariables();
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                if (TreeUtil.isConnectorDeclaration(statement)) {
+                    statement.viewState.bBox.x = xIndex;
+                    statement.viewState.bBox.y = yIndex;
+                    xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
+                    if (statement.viewState.showOverlayContainer) {
+                        OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
+                    }
+                }
+            });
+        }
         // Setting the overlay container if its true
         if (viewState.showOverlayContainer) {
             OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
