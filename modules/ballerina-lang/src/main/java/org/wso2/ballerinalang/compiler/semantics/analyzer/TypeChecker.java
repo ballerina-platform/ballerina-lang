@@ -851,7 +851,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
             checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
-
+            actualTypes = funcSymbol.type.getReturnTypes();
         } else if (paramTypes.size() > iExpr.argExprs.size()) {
             dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
 
