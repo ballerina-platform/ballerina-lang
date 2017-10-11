@@ -23,8 +23,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  * ballerina.model.messages:addHeader
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "send",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
         isPublic = true
 )
 public class Send extends AbstractNativeFunction {
