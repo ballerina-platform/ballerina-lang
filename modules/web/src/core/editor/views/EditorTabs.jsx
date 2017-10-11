@@ -19,6 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import Tabs, { TabPane } from 'rc-tabs';
 import SplitPane from 'react-split-pane';
 import TabContent from 'rc-tabs/lib/TabContent';
@@ -181,12 +182,18 @@ class EditorTabs extends View {
                     data-extra="tabpane"
                     key={id}
                 >
-                    <editor.component
-                        isActive={activeEditorID === id}
-                        {...propsProvider()}
-                        {...dimensions}
-                        panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
-                    />
+                    <Scrollbars
+                        style={dimensions}
+                        autoHide // Hide delay in ms
+                        autoHideTimeout={1000}
+                    >
+                        <editor.component
+                            isActive={activeEditorID === id}
+                            {...propsProvider()}
+                            {...dimensions}
+                            panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
+                        />
+                    </Scrollbars>
                 </TabPane>
             );
         } else {
