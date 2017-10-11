@@ -148,9 +148,6 @@ class TreeNode extends React.Component {
      * Upon name modification completion
      */
     onEditComplete() {
-        if (!_.isEmpty(this.state.editError)) {
-            this.onEditEscape();
-        }
         const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
         const newFullPath = parent + getPathSeperator() + this.state.inputValue;
 
@@ -253,7 +250,13 @@ class TreeNode extends React.Component {
                 {enableEdit &&
                     <div
                         className="tree-node-focus-highlighter"
-                        onClick={this.onEditComplete}
+                        onClick={() => {
+                            if (!_.isEmpty(this.state.editError)) {
+                                this.onEditEscape();
+                            } else {
+                                this.onEditComplete();
+                            }
+                        }}
                         ref={(ref) => {
                             this.focusHighligher = ref;
                         }}
@@ -295,7 +298,7 @@ class TreeNode extends React.Component {
                             >
                                 <p
                                     style={{
-                                        width: this.nameInput.offsetWidth,
+                                        width: this.nameInput.offsetWidth - 10,
                                     }}
                                 >
                                     {this.state.editError}
