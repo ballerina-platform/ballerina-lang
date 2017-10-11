@@ -87,6 +87,8 @@ class LeftPanelTab extends React.Component {
                     ref={(ref) => {
                         this.scroller = ref;
                     }}
+                    autoHide // Hide delay in ms
+                    autoHideTimeout={1000}
                 >
                     <div className="panel-content" style={{ width: width - activityBarWidth }}>
                         {
