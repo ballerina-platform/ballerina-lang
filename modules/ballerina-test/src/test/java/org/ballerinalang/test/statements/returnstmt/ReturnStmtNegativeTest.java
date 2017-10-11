@@ -119,18 +119,18 @@ public class ReturnStmtNegativeTest {
         BTestUtils.validateError(result, 0, "this function must return a result", 1, 1);
     }
 
-    @Test(description = "Test missing return", enabled = false)
+    @Test(description = "Test missing return")
     public void testMissingReturnForkJoin1() {
         CompileResult result = BTestUtils.compile("test-src/statements/returnstmt/missing-return-forkjoin-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BTestUtils.validateError(result, 0, "missing return statement", 7, 9);
+        BTestUtils.validateError(result, 0, "this function must return a result", 1, 1);
     }
 
-    @Test(description = "Test missing return", enabled = false)
+    @Test(description = "Test missing return")
     public void testMissingReturnForkJoin2() {
         CompileResult result = BTestUtils.compile("test-src/statements/returnstmt/missing-return-forkjoin-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BTestUtils.validateError(result, 0, "missing return statement", 7, 9);
+        BTestUtils.validateError(result, 0, "this function must return a result", 1, 1);
     }
 
     @Test(description = "Test unreachable return statement")
