@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +118,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveExplicitCastOperator(BType sourceType,
                                                BType targetType) {
-        return resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
+        return types.getCastOperator(sourceType, targetType);
     }
 
     public BSymbol resolveImplicitCastOperator(BType sourceType,
@@ -151,6 +152,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                                         OperatorKind opKind,
                                         BType type) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+    }
+
+    public BSymbol resolveOperator(Name name, List<BType> types) {
+        ScopeEntry entry = symTable.rootScope.lookup(name);
+        return resolveOperator(entry, types);
     }
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
@@ -283,7 +289,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (pkgAlias != Names.EMPTY) {
             BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
             if (pkgSymbol == symTable.notFoundSymbol) {
-                dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias);
                 return pkgSymbol;
             }
             return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
@@ -423,13 +428,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = bInvokableType;
     }
 
+    /**
+     * Lookup all the visible in-scope symbols for a given environment scope
+     * @param env Symbol environment
+     * @return all the visible symbols
+     */
+    public Map<Name, ScopeEntry> getAllVisibleInScopeSymbols(SymbolEnv env) {
+        Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
+        visibleEntries.putAll(env.scope.entries);
+        if (env.enclEnv != null) {
+            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+        }
+        return visibleEntries;
+    }
+
 
     // private methods
-
-    private BSymbol resolveOperator(Name name, List<BType> types) {
-        ScopeEntry entry = symTable.rootScope.lookup(name);
-        return resolveOperator(entry, types);
-    }
 
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
         BSymbol foundSymbol = symTable.notFoundSymbol;

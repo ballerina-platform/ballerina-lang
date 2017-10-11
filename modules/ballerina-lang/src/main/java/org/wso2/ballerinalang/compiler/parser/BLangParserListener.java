@@ -236,7 +236,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endResourceDef(ctx.Identifier().getText(), ctx.annotationAttachment().size());
+        this.pkgBuilder.endResourceDef(getWS(ctx), ctx.Identifier().getText(), ctx.annotationAttachment().size());
     }
 
     /**
@@ -1061,7 +1061,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.setAnnotationAttachmentName();
+        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx));
     }
 
     /**
@@ -1526,7 +1526,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
+    public void enterNextStatement(BallerinaParser.NextStatementContext ctx) {
     }
 
     /**
@@ -1535,12 +1535,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
+    public void exitNextStatement(BallerinaParser.NextStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addContinueStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addNextStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

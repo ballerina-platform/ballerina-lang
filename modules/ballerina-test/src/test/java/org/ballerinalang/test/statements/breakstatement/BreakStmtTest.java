@@ -38,8 +38,7 @@ public class BreakStmtTest {
     @BeforeClass
     public void setup() {
         positiveCompileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt.bal");
-        // Todo - Fix empty stack error
-//        negativeCompileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt-negative.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt-negative.bal");
     }
 
     @Test(description = "Test break statement in a while loop.")
@@ -94,11 +93,10 @@ public class BreakStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check not reachable statements.", enabled = false)
+    @Test(description = "Check not reachable statements.")
     public void testNegative() {
-        // Todo - break outside of a loop
-        BTestUtils.validateError(negativeCompileResult, 0, "", 0, 0);
-        // Todo - unreachable statement
-        BTestUtils.validateError(negativeCompileResult, 1, "", 0, 0);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
+        BTestUtils.validateError(negativeCompileResult, 0, "break cannot be used outside of a loop", 14, 5);
+        BTestUtils.validateError(negativeCompileResult, 1, "unreachable code", 29, 13);
     }
 }

@@ -40,6 +40,7 @@ public class IfElseStmtTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/statements/ifelse/if-stmt.bal");
+        negativeResult = BTestUtils.compile("test-src/statements/ifelse/if-stmt-negative.bal");
     }
 
     @Test(description = "Check a == b")
@@ -49,16 +50,15 @@ public class IfElseStmtTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        // TODO Uncomment following line once the multiple return feature is implemented
-//        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 110;
         Assert.assertEquals(actual, expected);
 
-//        actual = ((BInteger) returns[1]).intValue();
-//        expected = 21;
-//        Assert.assertEquals(actual, expected);
+        actual = ((BInteger) returns[1]).intValue();
+        expected = 21;
+        Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check a == b + 1")
@@ -68,16 +68,15 @@ public class IfElseStmtTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        // TODO Uncomment following line once the multiple return feature is implemented
-//        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 210;
         Assert.assertEquals(actual, expected);
 
-//        actual = ((BInteger) returns[1]).intValue();
-//        expected = 21;
-//        Assert.assertEquals(actual, expected);
+        actual = ((BInteger) returns[1]).intValue();
+        expected = 21;
+        Assert.assertEquals(actual, expected);
 
     }
 
@@ -88,16 +87,15 @@ public class IfElseStmtTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        // TODO Uncomment following line once the multiple return feature is implemented
-//        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 310;
         Assert.assertEquals(actual, expected);
 
-//        actual = ((BInteger) returns[1]).intValue();
-//        expected = 21;
-//        Assert.assertEquals(actual, expected);
+        actual = ((BInteger) returns[1]).intValue();
+        expected = 21;
+        Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check else")
@@ -107,16 +105,15 @@ public class IfElseStmtTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        // TODO Uncomment following line once the multiple return feature is implemented
-//        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 410;
         Assert.assertEquals(actual, expected);
 
-//        actual = ((BInteger) returns[1]).intValue();
-//        expected = 21;
-//        Assert.assertEquals(actual, expected);
+        actual = ((BInteger) returns[1]).intValue();
+        expected = 21;
+        Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check simple ifElse")
@@ -143,23 +140,22 @@ public class IfElseStmtTest {
 
     @Test(description = "Check the scope managing in ifelse block")
     public void testIfElseBlockScopes() {
-        CompileResult resultLocal = BTestUtils.compile("test-src/statements/ifelse/if-stmt.bal");
         BValue[] args = { new BInteger(1) };
-        BValue[] returns = BTestUtils.invoke(resultLocal, "ifElseScope", args);
+        BValue[] returns = BTestUtils.invoke(result, "ifElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
 
         args = new BValue[] { new BInteger(2) };
-        returns = BTestUtils.invoke(resultLocal, "ifElseScope", args);
+        returns = BTestUtils.invoke(result, "ifElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
 
         args = new BValue[] { new BInteger(16) };
-        returns = BTestUtils.invoke(resultLocal, "ifElseScope", args);
+        returns = BTestUtils.invoke(result, "ifElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
@@ -168,45 +164,43 @@ public class IfElseStmtTest {
 
     @Test(description = "Check the scope managing in nested ifelse block")
     public void testNestedIfElseBlockScopes() {
-        CompileResult resultLocal = BTestUtils.compile("test-src/statements/ifelse/if-stmt.bal");
-
         BValue[] args = { new BInteger(1), new BInteger(1) };
-        BValue[] returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        BValue[] returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 100, "mismatched output value");
 
         args = new BValue[] { new BInteger(1), new BInteger(2) };
-        returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
 
         args = new BValue[] { new BInteger(2), new BInteger(2) };
-        returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 300, "mismatched output value");
 
         args = new BValue[] { new BInteger(2), new BInteger(3) };
-        returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
 
         args = new BValue[] { new BInteger(3), new BInteger(3) };
-        returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 500, "mismatched output value");
 
         args = new BValue[] { new BInteger(3), new BInteger(4) };
-        returns = BTestUtils.invoke(resultLocal, "nestedIfElseScope", args);
+        returns = BTestUtils.invoke(result, "nestedIfElseScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
@@ -215,9 +209,6 @@ public class IfElseStmtTest {
 
     @Test(description = "Test if condition parameter resolver scope")
     public void testIfConditionScope() {
-        result = BTestUtils.compile("test-src/statements/ifelse/if-condition-scope.bal");
-
-
         BValue[] args1 = { new BInteger(3)};
         BValue[] returns = BTestUtils.invoke(result, "testConditionScope", args1);
         Assert.assertEquals(returns.length, 1);
@@ -233,18 +224,12 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual.intValue(), 20, "elseif condition scope not set properly");
     }
 
-    @Test(description = "Test else-if statement with incompatible types")
-    public void testElseIfStmtWithIncompatibleTypes() {
-        negativeResult = BTestUtils.compile("test-src/statements/ifelse/elseif-stmnt-with-incompatible-types.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'string'", 4, 13);
-        BTestUtils.validateError(negativeResult, 1, "this function must return a result", 1, 1);
-    }
-
     @Test
     public void ifStmtNegativeTest() {
-        negativeResult = BTestUtils.compile("test-src/statements/ifelse/if-stmt-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
+        BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'boolean', found 'string'", 22, 16);
+        BTestUtils.validateError(negativeResult, 3, "this function must return a result", 19, 1);
+        BTestUtils.validateError(negativeResult, 2, "incompatible types: expected 'boolean', found 'string'", 28, 9);
     }
 }

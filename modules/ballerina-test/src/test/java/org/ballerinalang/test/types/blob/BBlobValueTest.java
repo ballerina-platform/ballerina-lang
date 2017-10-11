@@ -21,16 +21,14 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This test class will test the behaviour of double values with expressions.
+ * This test class will test the blob values.
  */
 public class BBlobValueTest {
-    private ProgramFile bLangProgram;
 
     private CompileResult result;
     private final String funcName = "testIfStmt";
