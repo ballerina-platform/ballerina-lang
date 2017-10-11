@@ -52,10 +52,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -401,8 +401,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         isCursorBeforeStatement(returnNode.getPosition(), returnNode);
     }
 
-    public void visit(BLangContinue continueNode) {
-        isCursorBeforeStatement(continueNode.getPosition(), continueNode);
+    public void visit(BLangNext nextNode) {
+        isCursorBeforeStatement(nextNode.getPosition(), nextNode);
         /* ignore */
     }
 
