@@ -203,10 +203,11 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         return null;
     }
 
+    @Nullable
     private static PsiElement resolve(@NotNull PsiElement element) {
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
         if (prevVisibleLeaf != null) {
-            if (prevVisibleLeaf.getText().equals("(")) {
+            if ("(".equals(prevVisibleLeaf.getText())) {
                 PsiElement functionName = prevVisibleLeaf.getPrevSibling();
                 if (functionName != null) {
                     return functionName;
@@ -216,7 +217,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             return resolve(prevVisibleLeaf);
         }
         PsiElement prevSibling = element.getPrevSibling();
-        if (prevSibling.getText().equals("(")) {
+        if (prevSibling == null) {
+            return null;
+        }
+        if ("(".equals(prevSibling.getText())) {
             PsiElement functionName = prevSibling.getPrevSibling();
             if (functionName != null) {
                 return functionName;

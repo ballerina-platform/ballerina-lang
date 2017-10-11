@@ -125,10 +125,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     // If we are currently resolving a var variable, we don't need to resolve it since it is the
                     // definition.
                     PsiElement element = getPsi();
-                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
-                    if (prevVisibleLeaf != null && prevVisibleLeaf.getText().equals("{")) {
-                        return new StructKeyReference(this);
-                    }
                     if (element instanceof IdentifierPSINode) {
                         AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(element,
                                 AssignmentStatementNode.class);

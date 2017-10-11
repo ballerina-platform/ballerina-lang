@@ -705,8 +705,10 @@ public class BallerinaCompletionUtils {
     public static List<LookupElement> createGlobalVariableLookupElements(@NotNull List<IdentifierPSINode> variables) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode variable : variables) {
-            LookupElement lookupElement = createGlobalVariableLookupElement(variable);
-            lookupElements.add(lookupElement);
+            if (variable != null) {
+                LookupElement lookupElement = createGlobalVariableLookupElement(variable);
+                lookupElements.add(lookupElement);
+            }
         }
         return lookupElements;
     }

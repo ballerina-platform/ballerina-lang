@@ -31,10 +31,12 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
@@ -44,6 +46,7 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -213,6 +216,21 @@ public class NameReference extends BallerinaElementReference {
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true);
             results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         }
+
+        // Try to get fields from an anonymous struct.
+        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+        if (structDefinitionNode == null) {
+            return results;
+        }
+        IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
+                IdentifierPSINode.class);
+        if (structNameNode == null) {
+            return results;
+        }
+        Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+        results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                structNameNode, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         return results;
     }
 
