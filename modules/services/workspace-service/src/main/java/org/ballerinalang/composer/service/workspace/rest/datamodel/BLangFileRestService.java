@@ -293,8 +293,6 @@ public class BLangFileRestService {
                 for (Object obj : vars) {
                     listVarJson.add(obj.toString());
                 }
-            } else if (prop instanceof TypeKind) {
-                nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
             } else if (prop instanceof NodeKind) {
                 String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
                 // This is since the invocation symbol abstract method has not currently been exposed from the runtime
@@ -316,6 +314,8 @@ public class BLangFileRestService {
                 nodeJson.addProperty(jsonName, (Number) prop);
             } else if (prop instanceof Boolean) {
                 nodeJson.addProperty(jsonName, (Boolean) prop);
+            } else if (prop instanceof Enum) {
+                nodeJson.addProperty(jsonName, ((Enum) prop).name().toLowerCase());
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
                 String message = "Node " + node.getClass().getSimpleName() +
