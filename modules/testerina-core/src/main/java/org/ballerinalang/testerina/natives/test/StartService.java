@@ -19,34 +19,38 @@ package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+//import org.ballerinalang.natives.annotations.Argument;
+//import org.ballerinalang.natives.annotations.Attribute;
+//import org.ballerinalang.natives.annotations.BallerinaAnnotation;
+//import org.ballerinalang.natives.annotations.BallerinaFunction;
+//import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.services.MessageProcessor;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -66,9 +70,9 @@ import java.util.stream.Collectors;
  * @since 0.8.0
  */
 @BallerinaFunction(packageName = "ballerina.test",
-        functionName = "startService", args = {
-        @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
-        @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
+                   functionName = "startService", args = {
+        @Argument(name = "serviceName", type = TypeKind.STRING)}, returnType = {
+        @ReturnType(type = TypeKind.STRING)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = { @Attribute(name = "value",
                                                value = "Starts the service specified in the 'serviceName' argument") })
@@ -127,6 +131,7 @@ public class StartService extends AbstractNativeFunction {
 
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
+        ServerConnectorRegistry.getInstance().initServerConnectors();
 
         if (!programFile.isServiceEPAvailable()) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
@@ -154,13 +159,9 @@ public class StartService extends AbstractNativeFunction {
             throw new BLangRuntimeException("error: " + stackTraceStr);
         }
 
-        if (!DispatcherRegistry.getInstance().protocolPkgExist(matchingService.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    matchingService.getProtocolPkgPath());
-        }
         // Deploy service
-        DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(matchingService.getProtocolPkgPath())
-                .serviceRegistered(matchingService);
+        ServerConnectorRegistry.getInstance().registerService(matchingService);
+
         serviceCount++;
 
         if (serviceCount == 0) {
@@ -171,13 +172,9 @@ public class StartService extends AbstractNativeFunction {
             List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
                     .startPendingConnectors();
             startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                    serverConnector));
+                                                                                   serverConnector));
 
-            // Starting up HTTP Server connectors
-            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
-                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                    serverConnector));
+            ServerConnectorRegistry.getInstance().deploymentComplete();
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }
@@ -223,7 +220,7 @@ public class StartService extends AbstractNativeFunction {
         Set<ListenerConfiguration> listenerConfigurationSet;
         if (listenerProp == null || listenerProp.isEmpty()) {
             listenerConfigurationSet =
-                    BallerinaConnectorManager.getInstance().getDefaultListenerConfiugrationSet();
+                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         } else {
             listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
         }
@@ -343,7 +340,7 @@ public class StartService extends AbstractNativeFunction {
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
             Map<String, String> propMap = entry.getValue();
             String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPMessageUtil
+            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil
                     .buildListenerConfig(entryListenerInterface, propMap);
             listenerConfigurationSet.add(listenerConfiguration);
         }

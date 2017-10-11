@@ -78,7 +78,7 @@ public class TesterinaFunction {
         Context ctx = new Context(programFile);
         ctx.disableNonBlocking = true;
         return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), 
-                args, ctx);
+                args, ctx, 10);
     }
 
 

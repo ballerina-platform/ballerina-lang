@@ -100,7 +100,7 @@ public class BTestRunner {
             }
             // if there are no exception thrown, test is passed
             TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
-                    errorMessage);
+                                                                 errorMessage);
             tReport.addFunctionResult(functionResult);
         }
 
