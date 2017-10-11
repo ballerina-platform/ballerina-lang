@@ -36,10 +36,10 @@
                 }
             }
             .tree-node-highlight-row {
-                width: calc(100% + 600px);
+                left: 0;
+                width: 100%;
                 height: 24px;
                 position: absolute;
-                margin-left: -600px;
                 z-index: -2;
             }
             .tree-node-focus-highlighter {
