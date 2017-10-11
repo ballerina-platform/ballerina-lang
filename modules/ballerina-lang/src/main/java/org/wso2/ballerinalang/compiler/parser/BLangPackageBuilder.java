@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -1373,11 +1372,10 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String protocolPkg, String serviceName) {
+    public void endServiceDef(Set<Whitespace> ws, String protocolPkg, String serviceName) {
         ServiceNode serviceNode = serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));
         serviceNode.setProtocolPackageIdentifier(createIdentifier(protocolPkg));
-        ((BLangService) serviceNode).pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
     }
@@ -1387,11 +1385,10 @@ public class BLangPackageBuilder {
         invokableNodeStack.push(resourceNode);
     }
 
-    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, int annotCount) {
+    public void endResourceDef(Set<Whitespace> ws, String resourceName, int annotCount) {
         ResourceNode resourceNode = (ResourceNode) invokableNodeStack.pop();
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
-        ((BLangResource) resourceNode).pos = pos;
         attachAnnotations(resourceNode, annotCount);
         varListStack.pop().forEach(resourceNode::addParameter);
         serviceNodeStack.peek().addResource(resourceNode);
