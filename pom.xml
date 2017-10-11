@@ -168,6 +168,11 @@
                 <version>${guava.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
+            </dependency>
 
             <!-- Carbon Metrics Dependency -->
             <dependency>
@@ -185,6 +190,12 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockftpserver</groupId>
+                <artifactId>MockFtpServer</artifactId>
+                <version>${mock.ftp.server.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -355,6 +366,8 @@
         <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
 
         <javax.jms.version>2.0.1</javax.jms.version>
+        <jsch.version>0.1.51.wso2v1</jsch.version>
+        <mock.ftp.server.version>2.7.1</mock.ftp.server.version>
     </properties>
 
 </project>
