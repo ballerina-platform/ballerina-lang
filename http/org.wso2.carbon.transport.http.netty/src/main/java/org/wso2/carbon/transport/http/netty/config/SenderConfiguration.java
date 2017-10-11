@@ -54,7 +54,7 @@ public class SenderConfiguration {
     private String keyStoreFile;
 
     @XmlAttribute
-    private String keyStorePass;
+    private String keyStorePassword;
 
     @XmlAttribute
     private String trustStoreFile;
@@ -74,9 +74,16 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean chunkDisabled;
 
+    @XmlAttribute
+    private String sslProtocol;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
+
+    private boolean followRedirect;
+
+    private int maxRedirectCount;
 
     public SenderConfiguration() {
     }
@@ -84,6 +91,14 @@ public class SenderConfiguration {
     public SenderConfiguration(String id) {
         this.id = id;
 
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
+    }
+
+    public String getSslProtocol() {
+        return sslProtocol;
     }
 
     public String getCertPass() {
@@ -110,12 +125,12 @@ public class SenderConfiguration {
         this.keyStoreFile = keyStoreFile;
     }
 
-    public String getKeyStorePass() {
-        return keyStorePass;
+    public String getKeyStorePassword() {
+        return keyStorePassword;
     }
 
-    public void setKeyStorePass(String keyStorePass) {
-        this.keyStorePass = keyStorePass;
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
     }
 
     public String getScheme() {
@@ -154,8 +169,8 @@ public class SenderConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
-        return Util.getSSLConfigForSender(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters);
+        return Util.getSSLConfigForSender(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
+                parameters, sslProtocol);
     }
 
     public int getSocketIdleTimeout(int defaultValue) {
@@ -183,5 +198,21 @@ public class SenderConfiguration {
 
     public void setChunkDisabled(boolean chunkDisabled) {
         this.chunkDisabled = chunkDisabled;
+    }
+
+    public boolean isFollowRedirect() {
+        return followRedirect;
+    }
+
+    public void setFollowRedirect(boolean followRedirect) {
+        this.followRedirect = followRedirect;
+    }
+
+    public int getMaxRedirectCount() {
+        return maxRedirectCount;
+    }
+
+    public void setMaxRedirectCount(int maxRedirectCount) {
+        this.maxRedirectCount = maxRedirectCount;
     }
 }

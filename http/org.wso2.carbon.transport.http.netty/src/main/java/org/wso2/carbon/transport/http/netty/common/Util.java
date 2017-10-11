@@ -102,12 +102,11 @@ public class Util {
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        Headers headers = msg.getHeaders();
         if (connectionCloseAfterResponse) {
-            headers.set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+            msg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 
-        Util.setHeaders(outgoingResponse, headers);
+        outgoingResponse.headers().setAll(msg.getHeaders());
 
         return outgoingResponse;
     }
@@ -131,8 +130,8 @@ public class Util {
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty(Constants.TO), false);
-        Headers headers = msg.getHeaders();
-        Util.setHeaders(outgoingRequest, headers);
+        HttpHeaders headers = msg.getHeaders();
+        outgoingRequest.headers().setAll(headers);
         return outgoingRequest;
     }
 
@@ -225,12 +224,13 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient,
+            String sslProtocol) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
         if (keyStoreFilePath == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for HTTPS scheme");
+            throw new IllegalArgumentException("keyStoreFile or keyStorePassword not defined for HTTPS scheme");
         }
         File keyStore = new File(substituteVariables(keyStoreFilePath));
         if (!keyStore.exists()) {
@@ -241,9 +241,8 @@ public class Util {
             if (parameter.getName()
                     .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
                 sslConfig.setCipherSuites(parameter.getValue());
-
             } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
+                    .equals(Constants.SERVER_SUPPORT_SSL_PROTOCOLS)) {
                 sslConfig.setEnableProtocols(parameter.getValue());
             } else if (parameter.getName()
                     .equals(Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
@@ -254,11 +253,15 @@ public class Util {
             } else if (parameter.getName()
                     .equals(Constants.SERVER_ENABLE_SESSION_CREATION)) {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
-            } else if (parameter.getName()
-                    .equals(Constants.SSL_VERIFY_CLIENT)) {
-                sslConfig.setNeedClientAuth(Boolean.parseBoolean(parameter.getValue()));
             }
         }
+        if ("require".equalsIgnoreCase(verifyClient)) {
+            sslConfig.setNeedClientAuth(true);
+        }
+
+        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
+        sslConfig.setSslProtocol(sslProtocol);
+
         if (trustStoreFilePath != null) {
 
             File trustStore = new File(substituteVariables(trustStoreFilePath));
@@ -275,13 +278,13 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String sslProtocol) {
 
         if (certPass == null) {
             certPass = keyStorePass;
         }
         if (trustStoreFilePath == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusStoreFile or trustStorePass not defined for HTTPS scheme");
+            throw new IllegalArgumentException("TrusStoreFile or trustStorePassword not defined for HTTPS scheme");
         }
         SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
 
@@ -296,12 +299,14 @@ public class Util {
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);
+        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
+        sslConfig.setSslProtocol(sslProtocol);
         if (parametersList != null) {
             for (Parameter parameter : parametersList) {
                 String paramName = parameter.getName();
                 if (Constants.CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
                     sslConfig.setCipherSuites(parameter.getValue());
-                } else if (Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS.equals(paramName)) {
+                } else if (Constants.CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
                     sslConfig.setEnableProtocols(parameter.getValue());
                 } else if (Constants.CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
                     sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));

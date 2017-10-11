@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -38,13 +39,21 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     private HttpConnectorListener httpConnectorListener;
     private WebSocketConnectorListener wsConnectorListener;
-    private ChannelFuture channelFuture;
+    private PortBindingEventListener portBindingEventListener;
+
+    private ChannelFuture nettyChannelFuture;
+
+    private String openingServerConnectorId;
+    private boolean isOpeningSCHttps;
+    private String closingServerConnectorId;
+    private boolean isClosingSCHttps;
+    private Throwable connectorInitException;
 
     public HttpWsServerConnectorFuture() {
     }
 
-    public HttpWsServerConnectorFuture(ChannelFuture channelFuture) {
-        this.channelFuture = channelFuture;
+    public HttpWsServerConnectorFuture(ChannelFuture nettyChannelFuture) {
+        this.nettyChannelFuture = nettyChannelFuture;
     }
 
     @Override
@@ -123,14 +132,62 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     @Override
     public void sync() throws InterruptedException {
-        channelFuture.sync();
+        nettyChannelFuture.sync();
     }
 
     @Override
     public void notifyErrorListener(Throwable cause) throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set");
+            throw new ServerConnectorException("HTTP connector listener is not set", new Exception(cause));
         }
         httpConnectorListener.onError(cause);
+    }
+
+    @Override
+    public void setPortBindingEventListener(PortBindingEventListener portBindingEventListener) {
+        this.portBindingEventListener = portBindingEventListener;
+        if (openingServerConnectorId != null) {
+            notifyPortBindingEvent(openingServerConnectorId, isOpeningSCHttps);
+            openingServerConnectorId = null;
+            isOpeningSCHttps = false;
+        }
+        if (closingServerConnectorId != null) {
+            notifyPortUnbindingEvent(closingServerConnectorId, isClosingSCHttps);
+            closingServerConnectorId = null;
+            isClosingSCHttps = false;
+        }
+        if (connectorInitException != null) {
+            notifyPortBindingError(connectorInitException);
+            connectorInitException = null;
+        }
+    }
+
+    @Override
+    public void notifyPortBindingEvent(String serverConnectorId, boolean isHttps) {
+        if (portBindingEventListener == null) {
+            this.openingServerConnectorId = serverConnectorId;
+            this.isOpeningSCHttps = isHttps;
+        } else {
+            portBindingEventListener.onOpen(serverConnectorId, isHttps);
+        }
+    }
+
+    @Override
+    public void notifyPortUnbindingEvent(String serverConnectorId, boolean isHttps) {
+        if (portBindingEventListener == null) {
+            this.closingServerConnectorId = serverConnectorId;
+            this.isClosingSCHttps = isHttps;
+        } else {
+            portBindingEventListener.onClose(serverConnectorId, isHttps);
+        }
+    }
+
+    @Override
+    public void notifyPortBindingError(Throwable throwable) {
+        if (portBindingEventListener == null) {
+            this.connectorInitException = throwable;
+        } else {
+            portBindingEventListener.onError(throwable);
+        }
     }
 }

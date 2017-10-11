@@ -19,7 +19,10 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware;
 
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -41,7 +44,8 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
-            HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+            HTTPCarbonMessage cMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+                    HttpResponseStatus.OK));
             cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
             cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
             cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);

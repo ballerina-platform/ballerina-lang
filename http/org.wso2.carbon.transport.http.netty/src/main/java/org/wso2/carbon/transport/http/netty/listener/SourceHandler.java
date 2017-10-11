@@ -35,11 +35,11 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpCarbonRequest;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -54,7 +54,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     protected ChannelHandlerContext ctx;
     private HTTPCarbonMessage sourceReqCmsg;
-    private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
+    private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
 
@@ -62,6 +62,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             throws Exception {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
+        this.targetChannelPool = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -90,11 +91,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             ByteBuf content = ((FullHttpMessage) msg).content();
             sourceReqCmsg.addHttpContent(new DefaultLastHttpContent(content));
             sourceReqCmsg.setEndOfMsgAdded(true);
-            // TODO: Revisit when the refactor is complete
-//            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-//             .executeAtSourceRequestSending(sourceReqCmsg);
-//            }
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                                            .executeAtSourceRequestSending(sourceReqCmsg);
+            }
 
         } else if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
@@ -108,11 +108,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     sourceReqCmsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
                         sourceReqCmsg.setEndOfMsgAdded(true);
-                        // TODO: Revisit when the refactor is complete
-//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                    executeAtSourceRequestSending(sourceReqCmsg);
-//                        }
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtSourceRequestSending(sourceReqCmsg);
+                        }
                         sourceReqCmsg = null;
                     }
                 }
@@ -124,11 +123,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     //immediately
     protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
             throws URISyntaxException {
-        // TODO: Revisit when the refactor is complete
-//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                    executeAtSourceRequestReceiving(httpRequestMsg);
-//        }
+
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                    executeAtSourceRequestReceiving(httpRequestMsg);
+        }
 
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //
@@ -140,6 +139,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 //                    });
 //
 //        }
+
         boolean continueRequest = true;
         if (continueRequest) {
             if (serverConnectorFuture != null) {
@@ -192,13 +192,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
-        sourceReqCmsg = new HTTPCarbonMessage();
-        boolean isSecuredConnection = false;
-        // TODO: Revisit when the refactor is complete
-//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance()
-//              .getHandlerExecutor().executeAtSourceRequestReceiving(sourceReqCmsg);
-//        }
+
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance()
+              .getHandlerExecutor().executeAtSourceRequestReceiving(sourceReqCmsg);
+        }
+
+        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage);
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
@@ -210,15 +210,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
         sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
         sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
+
+        boolean isSecuredConnection = false;
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecuredConnection = true;
         }
         sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
-        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
 
+        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
         sourceReqCmsg.setProperty(Constants.TO, httpRequest.getUri());
-        sourceReqCmsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
 
         return sourceReqCmsg;

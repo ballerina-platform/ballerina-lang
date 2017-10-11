@@ -25,14 +25,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 
 import java.net.InetSocketAddress;
 
@@ -48,6 +49,7 @@ public class ServerConnectorBootstrap {
     private ServerBootstrap serverBootstrap;
     private HTTPServerChannelInitializer httpServerChannelInitializer;
     private boolean initialized = false;
+    private boolean isHttps = false;
 
     public ServerConnectorBootstrap() {
         serverBootstrap = new ServerBootstrap();
@@ -130,6 +132,7 @@ public class ServerConnectorBootstrap {
     public void addSecurity(SSLConfig sslConfig) {
         if (sslConfig != null) {
             httpServerChannelInitializer.setSslConfig(sslConfig);
+            isHttps = true;
         }
     }
 
@@ -179,12 +182,10 @@ public class ServerConnectorBootstrap {
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
             channelFuture.addListener(channelFuture -> {
                 if (channelFuture.isSuccess()) {
-                    log.info("HTTP(S) Interface starting on host " + this.getHost()
-                            + " and port " + this.getPort());
+                    log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());
+                    serverConnectorFuture.notifyPortBindingEvent(this.connectorID, isHttps);
                 } else {
-                    String msg = "Cannot bind server connector to interface " + this.getHost() + " : " + this.getPort();
-                    log.error(msg);
-                    serverConnectorFuture.notifyErrorListener(new Exception(msg));
+                    serverConnectorFuture.notifyPortBindingError(channelFuture.cause());
                 }
             });
             httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);
@@ -193,12 +194,21 @@ public class ServerConnectorBootstrap {
 
         @Override
         public boolean stop() {
+            boolean connectorStopped = false;
+            
             try {
-                return serverConnectorBootstrap.unBindInterface(this);
+                connectorStopped = serverConnectorBootstrap.unBindInterface(this);
+                if (connectorStopped) {
+                    serverConnectorFuture.notifyPortUnbindingEvent(this.connectorID, isHttps);
+                }
             } catch (InterruptedException e) {
                 log.error("Couldn't close the port", e);
                 return false;
+            } catch (ServerConnectorException e) {
+                log.error("Error in notifying life cycle event listener", e);
             }
+
+            return connectorStopped;
         }
 
         @Override

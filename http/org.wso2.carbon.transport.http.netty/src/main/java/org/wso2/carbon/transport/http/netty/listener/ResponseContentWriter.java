@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Writer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 import java.nio.ByteBuffer;
 
@@ -36,6 +35,7 @@ import java.nio.ByteBuffer;
  * A class which wraps Inbound Channel Handler ctx and write content directly to netty IO works.
  */
 public class ResponseContentWriter implements Writer {
+    // TODO: This class not needed anymore. This is here only for references purposes and will remove in next release.
 
     private ChannelHandlerContext channelHandlerContext;
 
@@ -55,10 +55,10 @@ public class ResponseContentWriter implements Writer {
     @Override
     public void writeLastContent(CarbonMessage carbonMessage) {
         ChannelFuture future = channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                    executeAtSourceResponseSending(carbonMessage);
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                    executeAtSourceResponseSending(carbonMessage);
+//        }
         String connection = carbonMessage.getHeader(Constants.HTTP_CONNECTION);
         if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
             future.addListener(ChannelFutureListener.CLOSE);

@@ -52,6 +52,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import javax.net.ssl.SSLException;
 
 /**
@@ -69,13 +70,14 @@ public class WebSocketTestClient {
     private Channel channel = null;
     private WebSocketClientHandler handler;
     private EventLoopGroup group;
-    private boolean isHandshakeSuccessful = false;
+    private CountDownLatch latch;
 
     public WebSocketTestClient() {
         this.subProtocol = null;
     }
 
     public WebSocketTestClient(String url) {
+        this.url = url;
         this.subProtocol = null;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
@@ -89,11 +91,26 @@ public class WebSocketTestClient {
         }
     }
 
-    public WebSocketTestClient(String url, String subProtocol, Map<String, String> customHeaders) {
+    public WebSocketTestClient(CountDownLatch latch) {
+        this.subProtocol = null;
+        this.latch = latch;
+    }
+
+    public WebSocketTestClient(String url, CountDownLatch latch) {
+        this.url = url;
+        this.subProtocol = null;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+        this.latch = latch;
+    }
+
+    public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders, CountDownLatch latch) {
         this.subProtocol = subProtocol;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
         }
+        this.latch = latch;
     }
 
     /**
@@ -102,7 +119,7 @@ public class WebSocketTestClient {
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
     public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
-        boolean isDone;
+        boolean isSuccess;
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -145,9 +162,8 @@ public class WebSocketTestClient {
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
             handler =
                     new WebSocketClientHandler(
-                            WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, subProtocol,
-                                    true, headers));
+                            WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13, subProtocol,
+                                                                           true, headers), latch);
 
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -168,9 +184,9 @@ public class WebSocketTestClient {
                     });
 
             channel = b.connect(uri.getHost(), port).sync().channel();
-            isDone = handler.handshakeFuture().sync().isSuccess();
-            logger.debug("WebSocket Handshake successful : " + isDone);
-            return isDone;
+            isSuccess = handler.handshakeFuture().sync().isSuccess();
+            logger.debug("WebSocket Handshake successful : " + isSuccess);
+            return isSuccess;
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage());
             throw new ProtocolException("Protocol exception: " + e.getMessage());
@@ -235,6 +251,8 @@ public class WebSocketTestClient {
     public boolean isOpen() {
        return handler.isOpen();
     }
+
+
 
     /**
      * Shutdown the WebSocket Client.

@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -41,7 +42,7 @@ public class HttpResponseListener implements HttpConnectorListener {
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
-        requestDataHolder = new RequestDataHolder(requestMsg);
+        this.requestDataHolder = new RequestDataHolder(requestMsg);
     }
 
     @Override
@@ -50,11 +51,9 @@ public class HttpResponseListener implements HttpConnectorListener {
 
         Util.prepareBuiltMessageForTransfer(httpMessage);
         Util.setupTransferEncodingForResponse(httpMessage, requestDataHolder);
-//      TODO: Revisit this once the refactor is completed
-//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-        // .executeAtSourceResponseReceiving(httpMessage);
-//        }
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(httpMessage);
+        }
         final HttpResponse response = Util.createHttpResponse(httpMessage, connectionCloseAfterResponse);
 
         sourceContext.write(response);
@@ -73,11 +72,10 @@ public class HttpResponseListener implements HttpConnectorListener {
                 if (connectionCloseAfterResponse) {
                     future.addListener(ChannelFutureListener.CLOSE);
                 }
-//      TODO: Revisit this once the refactor is completed
-//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                executeAtSourceResponseSending(httpMessage);
-//                    }
+                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                            executeAtSourceResponseSending(httpMessage);
+                }
                 break;
             }
             sourceContext.write(httpContent);
