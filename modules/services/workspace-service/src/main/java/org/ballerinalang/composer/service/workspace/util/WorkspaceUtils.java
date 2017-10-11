@@ -138,15 +138,17 @@ public class WorkspaceUtils {
 
     /**
      * Get All Native Packages
+     *
      * @return {@link Map} Package name, package functions and connectors
      */
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
 
         CompilerContext context = prepareCompilerContext("", "");
-        PackageRepository packageRepository = context.get(PackageRepository.class);
         PackageLoader packageLoader = PackageLoader.getInstance(context);
-        Set<PackageID> packages = packageRepository.listPackages();
+        // max depth for the recursive function which search for child directories
+        int maxDepth = 15;
+        Set<PackageID> packages = packageLoader.listPackages(maxDepth);
         packages.stream().forEach(pkg -> {
             Name version = pkg.getPackageVersion();
             BLangIdentifier bLangIdentifier = new BLangIdentifier();
@@ -160,11 +162,9 @@ public class WorkspaceUtils {
                     && !"[ballerina, mock]".equals(pkgNameComps.toString())
                     && !"[ballerina, test]".equals(pkgNameComps.toString())
                     && !"[ballerina, lang, messages]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, uri]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, ws]".equals(pkgNameComps.toString())
-                    && !"[ballerina, utils, logger]".equals(pkgNameComps.toString())
-                    && !"[ballerina, utils]".equals(pkgNameComps.toString())
-                    && !"[ballerina, lang, errors]".equals(pkgNameComps.toString())
+                    && !"[ballerina, builtin]".equals(pkgNameComps.toString())
+                    && !"[ballerina, builtin, core]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, jms]".equals(pkgNameComps.toString())
                     && !pkgNameComps.toString().contains("[org, wso2, ballerina, connectors")) {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
