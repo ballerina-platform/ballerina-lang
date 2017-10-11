@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
@@ -66,6 +67,7 @@ public class WebSocketDispatcher {
             }
             return service;
         } catch (Throwable throwable) {
+            ErrorHandlerUtils.printError(throwable);
             throw new BallerinaConnectorException("no Service found to handle the service request");
         }
     }
