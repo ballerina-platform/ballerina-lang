@@ -29,7 +29,7 @@ class FunctionNode extends AbstractFunctionNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isWorker(node);
+        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node);
     }
 
     /**
@@ -44,6 +44,9 @@ class FunctionNode extends AbstractFunctionNode {
         if (TreeUtil.isWorker(node)) {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
+        } else if (TreeUtil.isConnectorDeclaration(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
+            this.getBody().addStatements(node, index);
         }
     }
 

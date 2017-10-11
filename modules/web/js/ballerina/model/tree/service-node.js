@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractServiceNode from './abstract-tree/service-node';
+import TreeUtil from './../tree-util';
 
 class ServiceNode extends AbstractServiceNode {
     /**
@@ -51,6 +52,32 @@ class ServiceNode extends AbstractServiceNode {
             node.setName(node.getName(), true);
         }
         return undefined;
+    }
+
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtil.isConnectorDeclaration(node);
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        if (TreeUtil.isConnectorDeclaration(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfVariables(dropBefore) : -1;
+            this.addVariables(node, index);
+        }
     }
 }
 

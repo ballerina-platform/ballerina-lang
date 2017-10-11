@@ -19,7 +19,13 @@
 import AbstractConnectorInitExprNode from './abstract-tree/connector-init-expr-node';
 
 class ConnectorInitExprNode extends AbstractConnectorInitExprNode {
+    setFullPackageName(fullPackageName) {
+        this._fullPackageName = fullPackageName;
+    }
 
+    getFullPackageName(fullPackageName) {
+        return this._fullPackageName;
+    }
 }
 
 export default ConnectorInitExprNode;

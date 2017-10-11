@@ -28,6 +28,7 @@ import PanelDecoratorButton from './../decorators/panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * React component for a service definition.
@@ -61,19 +62,9 @@ class ServiceNode extends React.Component {
         this.context.editor.showSwaggerViewForService(this.props.model);
     }
 
-    /**
-     * Checks if a specific type of node can be dropped.
-     *
-     * @param {ASTNode} nodeBeingDragged The node that is being dropped.
-     * @returns {boolean} True if can be dropped, else false.
-     * @memberof ServiceNode
-     */
-    canDropToPanelBody(nodeBeingDragged) {
-        /* const nodeFactory = ASTFactory;
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for resource defs and connector declarations only.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isResourceDefinition(nodeBeingDragged);*/
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorDeclaration(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -174,7 +165,7 @@ class ServiceNode extends React.Component {
                     bBox={bBox}
                     model={model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
                     protocol={model.getProtocolPackageIdentifier().value}
                 >

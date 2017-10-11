@@ -18,6 +18,7 @@
 import FragmentUtils from './../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import TreeUtils from './tree-util';
+import Environment from '../env/environment';
 /**
  * Creates the node instance for given source fragment
  *
@@ -41,7 +42,7 @@ class DefaultNodeFactory {
 
         }           
     }
-`
+`,
             ));
         node.viewState.showOverlayContainer = true;
         return node;
@@ -62,7 +63,7 @@ class DefaultNodeFactory {
 
         }
     }
-`
+`,
             ));
         node.viewState.showOverlayContainer = true;
         return node;
@@ -79,7 +80,7 @@ class DefaultNodeFactory {
                 function main(string[] args) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -89,7 +90,7 @@ class DefaultNodeFactory {
                 function function1(string arg1) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -99,7 +100,7 @@ class DefaultNodeFactory {
                 connector ClientConnector(string url) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -109,7 +110,7 @@ class DefaultNodeFactory {
                 action action1(message msg) (message){
 
                 }
-            `)
+            `),
         );
     }
 
@@ -119,13 +120,13 @@ class DefaultNodeFactory {
                 resource echo1 (http:Request req, http:Response res) {
 
                 }
-            `)
+            `),
         );
     }
 
     createWSResource(fragment) {
         return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(fragment)
+            FragmentUtils.createServiceResourceFragment(fragment),
         );
     }
 
@@ -136,7 +137,7 @@ class DefaultNodeFactory {
                     string name;
                     int age;
                 }
-            `)
+            `),
         );
     }
 
@@ -145,7 +146,7 @@ class DefaultNodeFactory {
             FragmentUtils.createWorkerFragment(`
                 worker worker1 {
                 }
-            `)
+            `),
         );
     }
 
@@ -155,7 +156,7 @@ class DefaultNodeFactory {
                 public annotation Annotation1 {
                     string attrib1;
                 }
-            `)
+            `),
         );
     }
 
@@ -291,6 +292,63 @@ class DefaultNodeFactory {
         `));
     }
 
+    createConnectorDeclaration(args) {
+        const { connector, packageName, fullPackageName } = args;
+
+        // Iterate through the params and create the parenthesis with the default param values
+        let paramString = '';
+        if (connector.getParams()) {
+            const connectorParams = connector.getParams().map((param) => {
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                return defaultValue;
+            });
+            paramString = connectorParams.join(', ')
+        }
+        const connectorInit = `${packageName}:${connector.getName()} endpoint1 
+                = create ${packageName}:${connector.getName()}(${paramString})`;
+        const fragment = FragmentUtils.createStatementFragment(connectorInit);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const connectorDeclaration = TreeBuilder.build(parsedJson);
+        connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+        connectorDeclaration.viewState.showOverlayContainer = true;
+        return connectorDeclaration;
+    }
+
+    createConnectorActionInvocationAssignmentStatement(args) {
+        const { action, packageName, fullPackageName } = args;
+
+        let actionInvokeString = '';
+        if (packageName && packageName !== 'Current Package') {
+            actionInvokeString = `endpoint1.`;
+        }
+        const actionParams = action.getParameters().map((param) => {
+            let defaultValue = Environment.getDefaultValue(param.type);
+            if (defaultValue === undefined) {
+                defaultValue = '{}';
+            }
+            return defaultValue;
+        });
+        const paramString = actionParams.join(', ')
+
+        actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString})`;
+
+        const varRefNames = args.action.getReturnParams().map((param, index) => {
+            return '_output' + index + 1;
+        });
+
+        if (varRefNames.length > 0) {
+            const varRefListString = `var ${varRefNames.join(', ')}`;
+            actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
+        }
+        const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const assignmentNode = TreeBuilder.build(parsedJson);
+        assignmentNode.getExpression().setFullPackageName(fullPackageName);
+        return assignmentNode;
+    }
 }
 
 export default new DefaultNodeFactory();
