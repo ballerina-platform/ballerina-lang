@@ -70,6 +70,7 @@ class App extends React.Component {
         return {
             history: this.props.appContext.pref.history,
             command: this.props.appContext.command,
+            alert: this.props.appContext.alert,
         };
     }
 
@@ -291,6 +292,12 @@ App.childContextTypes = {
     command: PropTypes.shape({
         on: PropTypes.func,
         dispatch: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
     }).isRequired,
 };
 

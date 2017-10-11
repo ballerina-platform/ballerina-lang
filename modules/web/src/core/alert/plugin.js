@@ -77,11 +77,14 @@ class AlertPlugin extends Plugin {
 
     /**
      * Show an alert
-     * @param {String} type Alert type
-     * @param {Object} alert Alert Def
+     * @param {String} level Alert type
+     * @param {String} message Alert message
      */
-    showAlert(type, alert) {
-        // TODO
+    showAlert(level, message) {
+        this.notificationSystem.addNotification({
+            message,
+            level,
+        });
     }
 
     /**
