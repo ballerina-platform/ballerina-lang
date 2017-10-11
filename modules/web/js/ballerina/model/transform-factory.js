@@ -72,7 +72,7 @@ class TransformFactory {
      * @return {object} statement object
      */
     static createVariableDefFromStatement(statement) {
-        const fragment = FragmentUtils.createStatementFragment(statement);
+        const fragment = FragmentUtils.createStatementFragment(`${statement};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson);
         return refExpr;
@@ -105,7 +105,7 @@ class TransformFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);

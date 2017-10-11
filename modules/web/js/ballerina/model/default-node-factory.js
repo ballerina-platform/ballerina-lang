@@ -264,7 +264,7 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transaction {
 
-            }
+            } 
         `));
     }
 
@@ -315,7 +315,7 @@ class DefaultNodeFactory {
             paramString = connectorParams.join(', ')
         }
         const connectorInit = `${packageName}:${connector.getName()} endpoint1
-                = create ${packageName}:${connector.getName()}(${paramString})`;
+                = create ${packageName}:${connector.getName()}(${paramString});`;
         const fragment = FragmentUtils.createStatementFragment(connectorInit);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const connectorDeclaration = TreeBuilder.build(parsedJson);
@@ -340,7 +340,7 @@ class DefaultNodeFactory {
         });
         const paramString = actionParams.join(', ')
 
-        actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString})`;
+        actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString});`;
 
         const varRefNames = args.action.getReturnParams().map((param, index) => {
             return '_output' + index + 1;
@@ -348,7 +348,7 @@ class DefaultNodeFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
+            actionInvokeString = `${varRefListString} = ${actionInvokeString};`;
         }
         const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -367,9 +367,9 @@ class DefaultNodeFactory {
         const functionParams = functionDef.getParameters().map((param) => {
             return Environment.getDefaultValue(param.type) || 'null';
         });
-        const paramString = functionParams.join(', ')
+        const paramString = functionParams.join(', ');
 
-        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
+        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString});`;
 
         const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
             return 'variable' + index + 1;
@@ -377,7 +377,7 @@ class DefaultNodeFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
