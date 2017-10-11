@@ -140,7 +140,7 @@ function breakpointHoc(WrappedComponent) {
                 || !packageDeclaration[0].packageName.length) {
                 return '.';
             }
-            return packageDeclaration[0].packageName[0].value;
+            return packageDeclaration[0].packageName[0].value || '.';
         }
         /**
          * add breakpoint

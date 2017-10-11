@@ -3,6 +3,7 @@ export const CONFIGS = {
 };
 
 export const CONTEXT_NAMESPACES = {
+    ALERT: 'alert',
     COMMAND: 'command',
     LAYOUT: 'layout',
     MENU: 'menu',

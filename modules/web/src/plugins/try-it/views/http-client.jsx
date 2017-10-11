@@ -17,12 +17,14 @@
  */
 
 import 'brace';
+import _ from 'lodash';
 import { invokeTryIt } from 'api-client/api-client';
+import cn from 'classnames';
 import AceEditor from 'react-ace';
 import AutoSuggest from 'ballerina/diagram/views/default/components/utils/autosuggest-html';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import React from 'react';
-// import ServiceDefinition from 'ballerina/ast/service-definition';
+import CompilationUnitTreeNode from 'ballerina/model/tree/compilation-unit-node';
 import uuid from 'uuid/v1';
 import 'brace/mode/json';
 import 'brace/mode/xml';
@@ -47,7 +49,8 @@ class HttpClient extends React.Component {
         super(props);
         this.state = {
             httpMethod: 'GET',
-            appendUrl: this.getAppendUrl(),
+            httpMethods: this.getHttpMethods(),
+            appendUrl: this.compileURL(),
             contentType: 'application/json',
             responseBody: '',
             responseCode: '',
@@ -58,6 +61,8 @@ class HttpClient extends React.Component {
             returnedRequestHeaders: '',
             timeConsumed: '0',
             waitingForResponse: false,
+            selectedService: '',
+            selectedResource: '',
         };
 
         this.onAddNewHeader = this.onAddNewHeader.bind(this);
@@ -71,6 +76,8 @@ class HttpClient extends React.Component {
         this.onInvoke = this.onInvoke.bind(this);
         this.onInvokeCancel = this.onInvokeCancel.bind(this);
         this.onRequestBodyChange = this.onRequestBodyChange.bind(this);
+        this.onServiceSelected = this.onServiceSelected.bind(this);
+        this.onResourceSelected = this.onResourceSelected.bind(this);
 
         this.headerKey = undefined;
         this.focusOnHeaderKey = false;
@@ -254,7 +261,8 @@ class HttpClient extends React.Component {
                         waitingForResponse: false,
                     });
                 }
-            }).catch(() => {
+            }).catch((error) => {
+                console.log(error);
                 this.setState({
                     waitingForResponse: false,
                 });
@@ -272,12 +280,30 @@ class HttpClient extends React.Component {
     }
 
     /**
-     * The initial value for the url path.
-     * @returns {string} The url path.
+     * Event handler when a service is selected.
+     * @param {Object} event The select event.
+     * @param {string} suggestionValue The selected value.
      * @memberof HttpClient
      */
-    getAppendUrl() {
-        return '/';
+    onServiceSelected(event, { suggestionValue }) {
+        this.setState({
+            selectedService: suggestionValue,
+        });
+    }
+
+    /**
+     * Event handler when a resource is selected.
+     * @param {Object} event The select event.
+     * @param {string} suggestionValue The selected value.
+     * @memberof HttpClient
+     */
+    onResourceSelected(event, { suggestionValue }) {
+        const appendUrl = this.compileURL(this.state.selectedService, suggestionValue);
+        this.setState({
+            selectedResource: suggestionValue,
+            appendUrl,
+            httpMethods: this.getHttpMethods(this.state.selectedService, suggestionValue),
+        });
     }
 
     /**
@@ -285,8 +311,17 @@ class HttpClient extends React.Component {
      * @returns {string[]} Http methods.
      * @memberof HttpClient
      */
-    getHttpMethods() {
+    getHttpMethods(serviceName, resourceName) {
         return ['GET', 'POST', 'PUT', 'HEAD', 'PATCH'];
+        // if (serviceName !== undefined && resourceName !== undefined) {
+        //     httpMethods = this.getResourceNode(serviceName, resourceName).getHttpMethodValues().map((method) => {
+        //         return _.trim(method, '"');
+        //     });
+        // }
+        // if (httpMethods.length === 0) {
+        //     return ['GET'];
+        // } else {
+        // }
     }
 
     /**
@@ -302,6 +337,24 @@ class HttpClient extends React.Component {
         } else {
             return 'text';
         }
+    }
+
+    /**
+     * Finds the matching resource for a given service name and resource name;
+     * @param {string} serviceName The name of the service.
+     * @param {string} resourceName The name of the resource.
+     * @returns {ResourceNode} The matching resource node.
+     * @memberof HttpClient
+     */
+    getResourceNode(serviceName, resourceName) {
+        const serviceNodes = this.props.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
+        const selectedServiceNode = serviceNodes.filter((serviceNode) => {
+            return serviceNode.getName().getValue() === serviceName;
+        })[0];
+
+        return selectedServiceNode.getResources().filter((resourceNode) => {
+            return resourceNode.getName().getValue() === resourceName;
+        })[0];
     }
 
     /**
@@ -325,6 +378,22 @@ class HttpClient extends React.Component {
         }
 
         return 'text';
+    }
+
+    /**
+     * Gets the url for invoking a resrouce.
+     * @param {string} serviceName The name of the service.
+     * @param {string} resourceName The name of the resource.
+     * @returns {string} The url.
+     * @memberof HttpClient
+     */
+    compileURL(serviceName, resourceName) {
+        let url = '/';
+        if (serviceName !== undefined && resourceName !== undefined) {
+            url = this.getResourceNode(serviceName, resourceName).compileURL();
+        }
+
+        return url;
     }
 
     /**
@@ -370,6 +439,60 @@ class HttpClient extends React.Component {
                 {removeButton}
             </div>);
         });
+    }
+
+    /**
+     * Renders the service and resource selection component;
+     * @returns {ReactElement} The view.
+     * @memberof HttpClient
+     */
+    renderSelectServiceComponent() {
+        if (this.props.compilationUnit) {
+            const serviceNodes = this.props.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
+            const serviceNames = serviceNodes.map((serviceNode) => {
+                return serviceNode.getName().getValue();
+            });
+            let resourceNames = [];
+            if (this.state.selectedService && this.state.selectedService.trim() !== '') {
+                const selectedServiceNode = serviceNodes.filter((serviceNode) => {
+                    return serviceNode.getName().getValue() === this.state.selectedService;
+                });
+                if (selectedServiceNode.length > 0) {
+                    resourceNames = selectedServiceNode[0].getResources().map((resourceNode) => {
+                        return resourceNode.getName().getValue();
+                    });
+                }
+            }
+            return (<div className='row http-client-select-service-wrapper'>
+                <div className='selectors'>
+                    <span>Select Service:</span>
+                    <AutoSuggest
+                        items={serviceNames}
+                        onSuggestionSelected={this.onServiceSelected}
+                        disableAutoFocus
+                        initialValue={this.state.selectedService}
+                        showAllAtStart
+                        placeholder='Select Service'
+                    />
+                </div>
+                <div
+                    className={cn('selectors',
+                        { hide: this.state.selectedService === undefined || this.state.selectedService.trim() === '' })}
+                >
+                    <span>Select Resource:</span>
+                    <AutoSuggest
+                        items={resourceNames}
+                        onSuggestionSelected={this.onResourceSelected}
+                        disableAutoFocus
+                        initialValue={this.state.selectedResource}
+                        showAllAtStart
+                        placeholder='Select Resource'
+                    />
+                </div>
+            </div>);
+        } else {
+            return (null);
+        }
     }
 
     /**
@@ -471,158 +594,164 @@ class HttpClient extends React.Component {
     render() {
         const headers = this.renderHeaders();
         const sendOrCancelButton = this.renderSendOrCancelButton();
+        const selectServiceComponent = this.renderSelectServiceComponent();
         return (<div className="container-fluid">
-                    <div className="row http-client-wrapper">
-                    <div className='col-md-6 http-client-request'>
-                        <h3>Request</h3>
-                        <hr />
-                        <div className="form-horizontal">
-                            <div className='http-client-action-wrapper'>
-                                <AutoSuggest
-                                    items={this.getHttpMethods()}
-                                    onSuggestionSelected={this.onHttpMethodSelected}
-                                    disableAutoFocus
-                                    initialValue={this.state.httpMethod}
-                                    showAllAtStart
-                                    alwaysRenderSuggestions={true}
+            {selectServiceComponent}
+            <div className="row http-client-wrapper">
+                <div className='col-md-6 http-client-request'>
+                    <h3>Request</h3>
+                    <hr />
+                    <div className="form-horizontal">
+                        <div className='http-client-action-wrapper'>
+                            <AutoSuggest
+                                items={this.state.httpMethods}
+                                onSuggestionSelected={this.onHttpMethodSelected}
+                                disableAutoFocus
+                                initialValue={this.state.httpMethod}
+                                showAllAtStart
+                                alwaysRenderSuggestions
+                            />
+                            <div className="input-group">
+                                <input
+                                    className='http-client-path form-control'
+                                    placeholder='/v1/pets?id=5'
+                                    type='text'
+                                    value={this.state.appendUrl}
+                                    onChange={this.onAppendUrlChange}
                                 />
-                                <div className="input-group">
-                                    <input
-                                        className='http-client-path form-control'
-                                        placeholder='/v1/pets?id=5'
-                                        type='text'
-                                        value={this.state.appendUrl}
-                                        onChange={this.onAppendUrlChange}
-                                    />
-                                    <span className="input-group-btn">
-                                            {sendOrCancelButton}
-                                    </span>
-                                </div>
+                                <span className="input-group-btn">
+                                        {sendOrCancelButton}
+                                </span>
+                            </div>
 
+                        </div>
+                        <div className='form-group http-client-content-type-wrapper'>
+                            <label className="col-sm-2 control-label">Content-Type : </label>
+                            <div className="col-sm-10">
+                                <input
+                                    className='http-client-content-type form-control'
+                                    placeholder='application/json'
+                                    type='text'
+                                    value={this.state.contentType}
+                                    onChange={this.onContentTypeChange}
+                                />
                             </div>
-                            <div className='form-group http-client-content-type-wrapper'>
-                                <label className="col-sm-2 control-label">Content-Type : </label>
-                                <div className="col-sm-10">
-                                    <input
-                                        className='http-client-content-type form-control'
-                                        placeholder='application/json'
-                                        type='text'
-                                        value={this.state.contentType}
-                                        onChange={this.onContentTypeChange}
-                                    />
-                                </div>
+                        </div>
+                        <div className='http-client-headers-wrapper'>
+                            <span className="section-header">Headers</span>
+                            <hr />
+                            <div className='current-headers'>
+                                {headers}
                             </div>
-                            <div className='http-client-headers-wrapper'>
-                                <span className="section-header">Headers</span>
-                                <hr />
-                                <div className='current-headers'>
-                                    {headers}
-                                </div>
-                            </div>
-                            <div className='http-client-body-wrapper'>
-                                <span className="section-header">Body</span>
-                                <hr />
-                                <div>
-                                    <AceEditor
-                                        mode={this.getRequestBodyMode()}
-                                        theme='monokai'
-                                        onChange={this.onRequestBodyChange}
-                                        value={this.state.requestBody}
-                                        name='RequestBody'
-                                        editorProps={{
-                                            $blockScrolling: Infinity,
-                                        }}
-                                        setOptions={{
-                                            showLineNumbers: false,
-                                        }}
-                                        maxLines={Infinity}
-                                        minLines={10}
-                                        width='auto'
-                                    />
-                                </div>
+                        </div>
+                        <div className='http-client-body-wrapper'>
+                            <span className="section-header">Body</span>
+                            <hr />
+                            <div>
+                                <AceEditor
+                                    mode={this.getRequestBodyMode()}
+                                    theme='monokai'
+                                    onChange={this.onRequestBodyChange}
+                                    value={this.state.requestBody}
+                                    name='RequestBody'
+                                    editorProps={{
+                                        $blockScrolling: Infinity,
+                                    }}
+                                    setOptions={{
+                                        showLineNumbers: false,
+                                    }}
+                                    maxLines={Infinity}
+                                    minLines={10}
+                                    width='auto'
+                                />
                             </div>
                         </div>
                     </div>
-                    <div className='col-md-6 http-client-response'>
-                        <h3>Response</h3>
-                        <hr />
-                        <div className='http-client-response-attributes'>
-                            <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
-                            <br />
-                            <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
-                            <br />
-                            <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
-                        </div>
-                        <div className='http-client-response-content'>
-                            <ul className="nav nav-tabs" role="tablist">
-                                <li role="presentation" className="active"><a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a></li>
-                                <li role="presentation"><a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a></li>
-                            </ul>
-                            <div className="tab-content">
-                                <div role="tabpanel" className="tab-pane active fade in" id="headers">
-                                    <div className='header-content'>
-                                        <div className='response-headers'>
-                                            <span className="section-header">Response Headers</span>
-                                            <hr />
-                                            {this.state.responseHeaders.length > 0 ? (
-                                                <div>
-                                                    {this.renderResponseHeaders(JSON.parse(this.state.responseHeaders))}
-                                                </div>
-                                            ) : (
-                                                <div className="try-it-message message message-warning">
-                                                    <h4><i className="icon fw fw-warning"></i>
-                                                        Hit the send button to see the headers.</h4>
-                                                </div>
-                                            )}
+                </div>
+                <div className='col-md-6 http-client-response'>
+                    <h3>Response</h3>
+                    <hr />
+                    <div className='http-client-response-attributes'>
+                        <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
+                        <br />
+                        <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
+                        <br />
+                        <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
+                    </div>
+                    <div className='http-client-response-content'>
+                        <ul className="nav nav-tabs" role="tablist">
+                            <li role="presentation" className="active"><a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a></li>
+                            <li role="presentation"><a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a></li>
+                        </ul>
+                        <div className="tab-content">
+                            <div role="tabpanel" className="tab-pane active fade in" id="headers">
+                                <div className='header-content'>
+                                    <div className='response-headers'>
+                                        <span className="section-header">Response Headers</span>
+                                        <hr />
+                                        {this.state.responseHeaders.length > 0 ? (
+                                            <div>
+                                                {this.renderResponseHeaders(JSON.parse(this.state.responseHeaders))}
+                                            </div>
+                                        ) : (
+                                            <div className="try-it-message message message-warning">
+                                                <h4><i className="icon fw fw-warning"></i>
+                                                    Hit the send button to see the headers.</h4>
+                                            </div>
+                                        )}
 
-                                        </div>
-                                        <div className='request-headers'>
-                                            <span className="section-header">Request Headers</span>
-                                            <hr />
-                                            {this.state.returnedRequestHeaders.length > 0 ? (
-                                                <div>
-                                                    {this.renderResponseHeaders(
-                                                                        JSON.parse(this.state.returnedRequestHeaders))}
-                                                </div>
-                                            ) : (
-                                                <div className="try-it-message message message-warning">
-                                                    <h4><i className="icon fw fw-warning"></i>
-                                                        Hit the send button to see the headers.</h4>
+                                    </div>
+                                    <div className='request-headers'>
+                                        <span className="section-header">Request Headers</span>
+                                        <hr />
+                                        {this.state.returnedRequestHeaders.length > 0 ? (
+                                            <div>
+                                                {this.renderResponseHeaders(
+                                                                    JSON.parse(this.state.returnedRequestHeaders))}
+                                            </div>
+                                        ) : (
+                                            <div className="try-it-message message message-warning">
+                                                <h4><i className="icon fw fw-warning"></i>
+                                                    Hit the send button to see the headers.</h4>
 
-                                                </div>
-                                            )}
+                                            </div>
+                                        )}
 
-                                        </div>
                                     </div>
                                 </div>
-                                <div role="tabpanel" className="tab-pane fade" id="body">
-                                    <AceEditor
-                                        mode={this.getResponseBodyMode()}
-                                        theme='monokai'
-                                        name='ResponseBody'
-                                        value={this.state.responseBody}
-                                        editorProps={{
-                                            $blockScrolling: Infinity,
-                                        }}
-                                        setOptions={{
-                                            showLineNumbers: false,
-                                        }}
-                                        maxLines={Infinity}
-                                        minLines={10}
-                                        readOnly='true'
-                                        width='auto'
-                                    />
-                                </div>
+                            </div>
+                            <div role="tabpanel" className="tab-pane fade" id="body">
+                                <AceEditor
+                                    mode={this.getResponseBodyMode()}
+                                    theme='monokai'
+                                    name='ResponseBody'
+                                    value={this.state.responseBody}
+                                    editorProps={{
+                                        $blockScrolling: Infinity,
+                                    }}
+                                    setOptions={{
+                                        showLineNumbers: false,
+                                    }}
+                                    maxLines={Infinity}
+                                    minLines={10}
+                                    readOnly='true'
+                                    width='auto'
+                                />
                             </div>
                         </div>
                     </div>
-                    </div>
-                </div>);
+                </div>
+            </div>
+        </div>);
     }
 }
 
-// HttpClient.propTypes = {
-//     serviceDefinition: PropTypes.instanceOf(ServiceDefinition).isRequired,
-// };
+HttpClient.propTypes = {
+    compilationUnit: PropTypes.instanceOf(CompilationUnitTreeNode),
+};
+
+HttpClient.defaultProps = {
+    compilationUnit: undefined,
+};
 
 export default HttpClient;

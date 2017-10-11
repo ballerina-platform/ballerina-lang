@@ -582,7 +582,19 @@ class SizingUtil {
         } else if (TreeUtil.isConnector(node)) {
             children = node.getActions();
         }
-
+        let variables = [];
+        let connectors = [];
+        if (TreeUtil.isService(node)) {
+            variables = node.getVariables();
+            connectors = node.filterVariables((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            });
+        } else if (TreeUtil.isConnector(node)) {
+            variables = node.getVariableDefs();
+            connectors = node.filterVariableDefs((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            });
+        }
         // calculate the annotation height.
         cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
 
@@ -602,7 +614,7 @@ class SizingUtil {
             const topGutter = 10;
             const topBarHeight = 25;
             const importInputHeight = 40;
-            const globals = node.getVariables();
+            const globals = variables;
             cmp.initFunction.h = topGutter + topBarHeight + importInputHeight +
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
         } else {
@@ -618,28 +630,24 @@ class SizingUtil {
         cmp.body.h = height;
         cmp.body.w = width;
         let connectorHeight = 0;
-        if (TreeUtil.isService(node)) {
             // If there are connector declarations add them to service width.
-            const statements = node.getVariables();
-            let connectorWidth = 0;
-            connectorHeight = node.filterVariables((statement) => {
-                return TreeUtil.isConnectorDeclaration(statement);
-            })
-                .length > 0 ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
-            if (statements instanceof Array) {
-                statements.forEach((statement) => {
-                    if (TreeUtil.isConnectorDeclaration(statement)) {
-                        statement.viewState.bBox.w = this.config.lifeLine.width;
+        const statements = variables;
+        let connectorWidth = 0;
+        connectorHeight = connectors.length > 0
+            ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                if (TreeUtil.isConnectorDeclaration(statement)) {
+                    statement.viewState.bBox.w = this.config.lifeLine.width;
                         // add the connector width to body width.
-                        connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
-                        statement.viewState.bBox.h = cmp.body.h - 60;
-                    }
-                });
-            }
-            // add the connector to width
-            width += connectorWidth;
-            cmp.connectors.w = connectorWidth;
+                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                    statement.viewState.bBox.h = cmp.body.h - 60;
+                }
+            });
         }
+            // add the connector to width
+        width += connectorWidth;
+        cmp.connectors.w = connectorWidth;
         // calculate header related components.
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
@@ -1091,7 +1099,8 @@ class SizingUtil {
      *
      */
     sizeExpressionStatementNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -1336,8 +1345,10 @@ class SizingUtil {
             maxWidth = Math.max(maxWidth, catchBlock.body.viewState.bBox.w);
         });
 
-        height += finallyBody ? finallyBody.viewState.bBox.h : 0;
-        maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
+        if (finallyBody) {
+            height += finallyBody.viewState.bBox.h;
+            maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
+        }
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = maxWidth;

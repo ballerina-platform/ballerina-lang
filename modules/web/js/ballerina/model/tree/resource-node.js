@@ -157,6 +157,53 @@ class ResourceNode extends AbstractResourceNode {
     }
 
     /**
+     * Generates the URL for the resource
+     * @returns {string} The url.
+     * @memberof ResourceNode
+     */
+    compileURL() {
+        let url = '/';
+        // Setting basepath using service node.
+        let basePath = this.parent.getBasePathAnnotationValue();
+        if (basePath === undefined || basePath.trim() === '') {
+            basePath = this.parent.getName().getValue();
+        }
+
+        url += basePath;
+
+        // Setting path using this resource node.
+        let path = this.getPathAnnotationValue();
+        if (path === undefined || path.trim() === '') {
+            path = _.trim(this.getName().getValue(), '"');
+        } else {
+            path = _.trim(path, '"/');
+        }
+
+        url += '/' + path;
+
+        // Generating query params.
+        let queryParams = '';
+        this.getParameters().forEach((currentParam, currentIndex) => {
+            if (currentParam.getAnnotationAttachments().length > 0) {
+                const annotation = currentParam.getAnnotationAttachments()[0];
+                if (annotation.getAnnotationName().getValue() === 'QueryParam' &&
+                                                            annotation.getAttributes().length > 0) {
+                    const attribute = annotation.getAttributes()[0];
+                    const attributeValue = attribute.getValue();
+                    const literal = attributeValue.getValue();
+                    if (currentIndex === 2) {
+                        queryParams += `?${_.trim(literal.getValue(), '"')}=`;
+                    } else {
+                        queryParams += `&${_.trim(literal.getValue(), '"')}=`;
+                    }
+                }
+            }
+        });
+
+        return url + queryParams;
+    }
+
+    /**
      * Indicates whether the given instance of node can be accepted when dropped
      * on top of this node.
      *
@@ -177,11 +224,22 @@ class ResourceNode extends AbstractResourceNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isWorker(node)) {
+            // if a worker does not exist we need to create aanother worker for default.
+            if (this.getWorkers().length === 0) {
+                const defaultWorker = node.meta;
+                delete node.meta;
+                const connectors = this.getBody().getStatements()
+                        .filter((statement) => { return TreeUtil.isConnectorDeclaration(statement); });
+                const statements = this.getBody().getStatements()
+                        .filter((statement) => { return !TreeUtil.isConnectorDeclaration(statement); });
+                this.getBody().setStatements(connectors, true);
+                defaultWorker.getBody().setStatements(statements);
+                this.addWorkers(defaultWorker, -1, true);
+            }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
         } else if (TreeUtil.isConnectorDeclaration(node)) {
-            const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
-            this.getBody().addStatements(node, index);
+            this.getBody().addStatements(node, 0);
         }
     }
 }

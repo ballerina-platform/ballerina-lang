@@ -433,11 +433,17 @@ class PositioningUtil {
         transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
 
         let children = [];
-
+        let connectors = [];
         if (TreeUtil.isService(node)) {
             children = node.getResources();
+            connectors = node.filterVariables((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            });
         } else if (TreeUtil.isConnector(node)) {
             children = node.getActions();
+            connectors = node.filterVariableDefs((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            });
         }
 
         let y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
@@ -462,26 +468,21 @@ class PositioningUtil {
             viewState.components.connectors.w;
         });
 
-        if (TreeUtil.isService(node)) {
-            // Position Connectors
-            const widthOffsetForConnectors = node.getResources().length > 0 ?
+                    // Position Connectors
+        const widthOffsetForConnectors = children.length > 0 ?
                 (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
-            let xIndex = viewState.bBox.x + widthOffsetForConnectors;
-            const yIndex = viewState.bBox.y + viewState.components.heading.h
-                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v;
-            const statements = node.getVariables();
-            if (statements instanceof Array) {
-                statements.forEach((statement) => {
-                    if (TreeUtil.isConnectorDeclaration(statement)) {
-                        statement.viewState.bBox.x = xIndex;
-                        statement.viewState.bBox.y = yIndex;
-                        xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
-                        if (statement.viewState.showOverlayContainer) {
-                            OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                        }
-                    }
-                });
-            }
+        let xIndex = viewState.bBox.x + widthOffsetForConnectors;
+        const yIndex = viewState.bBox.y + viewState.components.heading.h
+                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v + 40;
+        if (connectors instanceof Array) {
+            connectors.forEach((statement) => {
+                statement.viewState.bBox.x = xIndex;
+                statement.viewState.bBox.y = yIndex;
+                xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
+                if (statement.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
+                }
+            });
         }
         // Setting the overlay container if its true
         if (viewState.showOverlayContainer) {
@@ -830,7 +831,7 @@ class PositioningUtil {
      * @param {object} node ExpressionStatement object
      */
     positionExpressionStatementNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -1171,22 +1172,24 @@ class PositioningUtil {
             catchBlocks[itr].body.viewState.bBox.y = y + catchBlocks[itr].viewState.components['block-header'].h;
         }
 
-        const finallyX = node.viewState.bBox.x;
-        let finallyY;
-        // If there are no catch blocks, position the finally block wrt the try node
-        if (catchBlocks.length) {
-            // Position based on the last catch block
-            finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
-                + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
-        } else {
-            finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
-        }
+        if (finallyBody) {
+            const finallyX = node.viewState.bBox.x;
+            let finallyY;
+            // If there are no catch blocks, position the finally block wrt the try node
+            if (catchBlocks.length) {
+                // Position based on the last catch block
+                finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
+                    + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
+            } else {
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+            }
 
-        // Position the finally block
-        finallyBody.viewState.bBox.x = finallyX;
-        finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
-        this.increaseNodeComponentWidth(finallyBody, newWidth);
-        this.positionCompoundStatementComponents(finallyBody);
+            // Position the finally block
+            finallyBody.viewState.bBox.x = finallyX;
+            finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
+            this.increaseNodeComponentWidth(finallyBody, newWidth);
+            this.positionCompoundStatementComponents(finallyBody);
+        }
     }
 
 

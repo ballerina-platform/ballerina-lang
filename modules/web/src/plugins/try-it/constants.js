@@ -32,4 +32,8 @@ export const LABELS = {
     TRY_IT_HEADING: 'Try-It',
 };
 
+export const TOOLS = {
+    SHOW_TRY_IT: 'composer.tool.debugger.tryit',
+};
+
 export const TRY_IT_PLUGIN_ID = 'composer.tryit.ballerina';

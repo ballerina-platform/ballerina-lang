@@ -18,18 +18,28 @@
 
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS } from 'core/layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { TOOLS as DEBUGGER_TOOLS } from 'plugins/debugger/constants';
+import LaunchManager from 'plugins/debugger/LaunchManager';
 /** Plugin imports */
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { getMenuDefinitions } from './menus';
 import TryIt from './views/try-it-container';
-import { VIEWS as TRY_IT_VIEW, TRY_IT_PLUGIN_ID, LABELS } from './constants';
+import { VIEWS as TRY_IT_VIEW,
+    TRY_IT_PLUGIN_ID,
+    LABELS,
+    TOOLS as TRY_IT_TOOLS,
+    COMMANDS as TRY_IT_COMMANDS } from './constants';
 
 /**
- * Plugin for Ballerina Lang
+ * Plugin for Try-it
  */
 class TryItPlugin extends Plugin {
+
+    constructor() {
+        super();
+        this.activeFile = undefined;
+    }
 
     /**
      * @inheritdoc
@@ -41,25 +51,56 @@ class TryItPlugin extends Plugin {
     /**
      * @inheritdoc
      */
+    onAfterInitialRender() {
+        const { command } = this.appContext;
+
+        command.on('debugger-run-with-debug-executed', (file) => {
+            this.activeFile = file;
+        });
+
+        command.on('debugger-run-executed', (file) => {
+            this.activeFile = file;
+        });
+        command.on('debugger-stop-executed', () => {
+            command.dispatch(LAYOUT_COMMANDS.HIDE_VIEW, TRY_IT_VIEW.TRY_IT_VIEW_ID);
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS, TOOLS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
-            [MENUS]: getMenuDefinitions(this),
             [VIEWS]: [
                 {
                     id: TRY_IT_VIEW.TRY_IT_VIEW_ID,
                     component: TryIt,
                     propsProvider: () => {
                         return {
+                            balFile: this.activeFile,
                         };
                     },
                     region: REGIONS.EDITOR_TABS,
-                    // region specific options for editor-tabs views
                     regionOptions: {
                         tabTitle: LABELS.TRY_IT_HEADING,
                         customTitleClass: 'try-it-title',
+                    },
+                },
+            ],
+            [TOOLS]: [
+                {
+                    id: TRY_IT_TOOLS.SHOW_TRY_IT,
+                    group: DEBUGGER_TOOLS.GROUP,
+                    icon: 'dgm-try-catch',
+                    commandID: TRY_IT_COMMANDS.SHOW_TRY_IT,
+                    isActive: () => {
+                        return LaunchManager.active;
+                    },
+                    isVisible: () => {
+                        return LaunchManager.active;
                     },
                 },
             ],

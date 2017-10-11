@@ -16,7 +16,6 @@
  * under the License.
  */
 import log from 'log';
-import alerts from 'alerts';
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -411,7 +410,7 @@ class BallerinaFileEditor extends React.Component {
                                 // TODOX astRoot.setFile(this.props.file);
                                 newState.model = astRoot;
                                 resolve(newState);
-                                alerts.error('Seems to be there is a bug in back-end parser.'
+                                this.context.alert.showError('Seems to be there is a bug in back-end parser.'
                                         + 'Please report an issue attaching current source.');
                                 return;
                             }
@@ -595,6 +594,15 @@ BallerinaFileEditor.propTypes = {
 
 BallerinaFileEditor.defaultProps = {
     isPreviewViewEnabled: false,
+};
+
+BallerinaFileEditor.contextTypes = {
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+    }).isRequired,
 };
 
 BallerinaFileEditor.childContextTypes = {

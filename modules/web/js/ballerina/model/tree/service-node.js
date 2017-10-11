@@ -19,7 +19,34 @@ import _ from 'lodash';
 import AbstractServiceNode from './abstract-tree/service-node';
 import TreeUtil from './../tree-util';
 
+/**
+ * Tree node for a service definition.
+ * @class ServiceNode
+ * @extends {AbstractServiceNode}
+ */
 class ServiceNode extends AbstractServiceNode {
+    /**
+     * Gets the base path value in the @http:configuration annotation.
+     * @param {string} [httpPackageAlias='http'] The ballerina.net.http package alias.
+     * @returns {string} The base path value.
+     * @memberof ResourceNode
+     */
+    getBasePathAnnotationValue(httpPackageAlias = 'http') {
+        let basePathValue;
+        this.getAnnotationAttachments().forEach((annotationNode) => {
+            if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
+                annotationNode.getAnnotationName().getValue() === 'configuration') {
+                annotationNode.getAttributes().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getName() === 'basePath') {
+                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
+                        basePathValue = pathAnnotationAttributeValue.getValue().getValue();
+                    }
+                });
+            }
+        });
+        return basePathValue;
+    }
+
     /**
      * Generate default name for service level statements.
      * @param {Node} parent - parent node.
@@ -43,13 +70,13 @@ class ServiceNode extends AbstractServiceNode {
             for (let i = 1; i <= resourceNodes.length + 1; i++) {
                 if (!names[`${resourceDefaultName}${i}`]) {
                     node.getName().setValue(`${resourceDefaultName}${i}`, true);
-                    node.setName(node.getName(), true);
+                    node.setName(node.getName(), false);
                     break;
                 }
             }
         } else {
             node.getName().setValue(`${resourceDefaultName}1`, true);
-            node.setName(node.getName(), true);
+            node.setName(node.getName(), false);
         }
         return undefined;
     }
@@ -75,8 +102,7 @@ class ServiceNode extends AbstractServiceNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            const index = !_.isNil(dropBefore) ? this.getIndexOfVariables(dropBefore) : -1;
-            this.addVariables(node, index);
+            this.addVariables(node, 0);
         }
     }
 

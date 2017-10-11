@@ -69,6 +69,7 @@ class TryNode extends React.Component {
                     body={model.body}
                 />
                 {catchViews}
+                {model.finallyBody &&
                 <CompoundStatementDecorator
                     bBox={bBox}
                     title={'Finally'}
@@ -76,6 +77,7 @@ class TryNode extends React.Component {
                     model={model.finallyBody}
                     body={model.finallyBody}
                 />
+                }
             </g>
         );
     }

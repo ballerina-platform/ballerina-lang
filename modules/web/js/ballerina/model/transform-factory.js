@@ -72,10 +72,40 @@ class TransformFactory {
      * @return {object} statement object
      */
     static createVariableDefFromStatement(statement) {
-        const fragment = FragmentUtils.createStatementFragment(statement);
+        const fragment = FragmentUtils.createStatementFragment(`${statement};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson);
         return refExpr;
+    }
+
+    /**
+     * Create type cast expression
+     * @static
+     * @param {any} expression expression
+     * @param {any} targetType target type
+     * @returns {Expression} type cast expression
+     * @memberof TransformFactory
+     */
+    static createTypeCastExpr(expression, targetType) {
+        const fragment = FragmentUtils.createExpressionFragment(`(${targetType})${expression.getSource()}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return castExpr;
+    }
+
+    /**
+     * Create type conversion expression
+     * @static
+     * @param {any} expression expression
+     * @param {any} targetType target type
+     * @returns {Expression} type conversion expression
+     * @memberof TransformFactory
+     */
+    static createTypeConversionExpr(expression, targetType) {
+        const fragment = FragmentUtils.createExpressionFragment(`<${targetType}>${expression.getSource()}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return castExpr;
     }
 
     /**
@@ -105,7 +135,7 @@ class TransformFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);

@@ -146,6 +146,13 @@ class FileSaveDialog extends React.Component {
                             </Col>
                             <Col sm={10}>
                                 <FormControl
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            this.onFileSave();
+                                        } else if (e.key === 'Escape') {
+                                            this.onDialogHide();
+                                        }
+                                    }}
                                     value={this.state.filePath}
                                     onChange={(evt) => {
                                         this.setState({
@@ -164,6 +171,13 @@ class FileSaveDialog extends React.Component {
                             </Col>
                             <Col sm={10}>
                                 <FormControl
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            this.onFileSave();
+                                        } else if (e.key === 'Escape') {
+                                            this.onDialogHide();
+                                        }
+                                    }}
                                     value={this.state.fileName}
                                     onChange={(evt) => {
                                         this.setState({

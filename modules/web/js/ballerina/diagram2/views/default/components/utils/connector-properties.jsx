@@ -132,9 +132,11 @@ class ConnectorPropertiesForm extends React.Component {
             }
         });
         // According to the values added, construct the nodes again
-        Object.keys(data).forEach((key) => {
+        Object.keys(data).forEach((key, indexOfKey) => {
             // We need the supported props to preserve the order of the entered params
             this.getSupportedProps().map((property) => {
+                let nodeToBeAdded = null;
+                let indexOfThisNode = 0;
                 if (key === property.identifier) {
                     // Check for options
                     if (key === 'connectorOptions') {
@@ -148,7 +150,8 @@ class ConnectorPropertiesForm extends React.Component {
                             if (index === -1) {
                                 index = 0;
                             }
-                            connectorInit.addExpressions(simpleVarDefNode, index + 1);
+                            nodeToBeAdded = simpleVarDefNode;
+                            indexOfThisNode = index + 1;
                         } else {
                             // No reference value, then add the values for the fields
                             // Create a RecordLiteralExprNode
@@ -181,7 +184,7 @@ class ConnectorPropertiesForm extends React.Component {
                                                     index = 0;
                                                 }
                                                 // Add the key-value pair node to the RecordLiteralExpr node
-                                                recordLiteralExprNode.addKeyValuePairs(recordLiteralKeyValueNode, index + 1);
+                                                recordLiteralExprNode.addKeyValuePairs(recordLiteralKeyValueNode, index + 1, true);
                                             }
                                         });
                                     }
@@ -192,7 +195,8 @@ class ConnectorPropertiesForm extends React.Component {
                             if (index === -1) {
                                 index = 0;
                             }
-                            connectorInit.addExpressions(recordLiteralExprNode, index + 1);
+                            nodeToBeAdded = recordLiteralExprNode;
+                            indexOfThisNode = index + 1;
                         }
                     } else {
                         // Assuming for the literals user can only give that type variables
@@ -205,7 +209,13 @@ class ConnectorPropertiesForm extends React.Component {
                         if (index === -1) {
                             index = 0;
                         }
-                        connectorInit.addExpressions(literalNode, index + 1);
+                        nodeToBeAdded = literalNode;
+                        indexOfThisNode = index + 1;
+                    }
+                    if (indexOfKey === ((Object.keys(data).length - Object.keys(optionProps).length) - 1)) {
+                        connectorInit.addExpressions(nodeToBeAdded, indexOfThisNode);
+                    } else {
+                        connectorInit.addExpressions(nodeToBeAdded, indexOfThisNode, true);
                     }
                 }
             });
