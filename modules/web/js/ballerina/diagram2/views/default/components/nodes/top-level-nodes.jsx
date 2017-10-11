@@ -103,7 +103,7 @@ class TopLevelNodes extends React.Component {
             }
         } else if (this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
             this.props.model.removeTopLevelNodes(this.props.model.filterTopLevelNodes(
-                    { kind: 'PackageDeclaration' }));
+                    { kind: 'PackageDeclaration' })[0]);
         }
 
         this.setState({ packageNameEditing: false });
