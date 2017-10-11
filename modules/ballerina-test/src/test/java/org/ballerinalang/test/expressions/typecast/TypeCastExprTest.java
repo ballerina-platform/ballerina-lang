@@ -479,7 +479,13 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
                     "to 'map', try conversion")
     public void testStructToMap() {
-        BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
+        System.out.println(res.getDiagnostics().length);
+        for (int i=0;i<res.getDiagnostics().length;i++)
+        {
+            System.out.println(res.getDiagnostics()[i].getMessage());
+        }
+
     }
 
     @Test(enabled = false, description = "Test casting a map to struct",
@@ -487,14 +493,24 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
                     "'Person', try conversion")
     public void testMapToStruct() {
-        BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
+        System.out.println(res.getDiagnostics().length);
+        for (int i=0;i<res.getDiagnostics().length;i++)
+        {
+            System.out.println(res.getDiagnostics()[i].getMessage());
+        }
     }
 
     @Test(enabled = false, description = "Test casting a json to map",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "json-to-map.bal:9: incompatible types: 'json' cannot be cast to 'map'")
     public void testJsonToMap() {
-        BTestUtils.compile("test-src/expressions/typecast/json-to-map-negative.bal");
+       CompileResult res =  BTestUtils.compile("test-src/expressions/typecast/json-to-map-negative.bal");
+        System.out.println(res.getDiagnostics().length);
+        for (int i=0;i<res.getDiagnostics().length;i++)
+        {
+            System.out.println(res.getDiagnostics()[i].getMessage());
+        }
     }
 
     @Test(enabled = false, description = "Test casting a json to struct",
@@ -502,7 +518,12 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
                     " 'Person', try conversion")
     public void testJsonToStruct() {
-        BTestUtils.compile("test-src/expressions/typecast/json-to-struct-negative.bal");
+       CompileResult res = BTestUtils.compile("test-src/expressions/typecast/json-to-struct--negative.bal");
+        System.out.println(res.getDiagnostics().length);
+        for (int i=0;i<res.getDiagnostics().length;i++)
+        {
+            System.out.println(res.getDiagnostics()[i].getMessage());
+        }
     }
 
     @Test(enabled = false, description = "Test casting a map to json",
@@ -510,7 +531,12 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-json-error.bal:7: incompatible types: 'map' cannot " +
                     "be cast to 'json'")
     public void testMapToJsonCastingError() {
-        BTestUtils.compile("test-src/expressions/typecast/map-to-json-negative.bal");
+       CompileResult res = BTestUtils.compile("test-src/expressions/typecast/map-to-json-negative.bal");
+        System.out.println(res.getDiagnostics().length);
+        for (int i=0;i<res.getDiagnostics().length;i++)
+        {
+            System.out.println(res.getDiagnostics()[i].getMessage());
+        }
     }
 
     @Test(description = "Test casting struct stored as any to struct")
