@@ -1,15 +1,19 @@
 import ballerina.lang.system;
 
 function workerDeclTest() {
-   worker w1 {
-     int a = 10;
-     int c = a + 1;
-   }
-   worker w2 {
+   worker wx {
      int a = 20;
-     a = a + 1;
-     int c = 1;
+     fork {
+	   worker w1 {
+	     int x = 0;
+	   }
+	   worker w2 {
+	     int y = 0;
+	     int g = y + 1;
+	   }
+	} join (all) (map results) { system:println(results); }
    }
+   worker wy { }
 }
 
 function forkJoinWithMessageParsingTest() (int) {
@@ -121,7 +125,6 @@ function forkJoinWithSomeJoin() (map) {
 	   worker w3 {
 	     int a = 0;
 	     int b = 15;
-         system:sleep(2);
 	     m["x"] = b;
 	   }
 	} join (some 1) (map results) {  system:println(results);  }

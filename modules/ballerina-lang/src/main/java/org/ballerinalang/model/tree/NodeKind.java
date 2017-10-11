@@ -75,7 +75,7 @@ public enum NodeKind {
     ASSIGNMENT,
     BLOCK,
     BREAK,
-    CONTINUE,
+    NEXT,
     EXPRESSION_STATEMENT,
     FORK_JOIN,
     IF,

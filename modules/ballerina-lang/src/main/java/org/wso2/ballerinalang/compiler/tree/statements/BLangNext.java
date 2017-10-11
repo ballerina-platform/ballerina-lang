@@ -33,7 +33,7 @@ public class BLangNext extends BLangStatement implements NextNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CONTINUE;
+        return NodeKind.NEXT;
     }
 
     @Override
