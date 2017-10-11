@@ -56,7 +56,7 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
-HTTP Redirection
+HTTP Redirects
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
