@@ -93,7 +93,7 @@ class ServiceTransportLine extends React.Component {
                 />
                 <line
                     x1={bBox.x + 60}
-                    y1={bBox.y}
+                    y1={bBox.y - 5}
                     x2={bBox.x + 60}
                     y2={bBox.y + 16}
                     stroke="black"

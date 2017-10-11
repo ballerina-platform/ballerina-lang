@@ -9,6 +9,21 @@
     fill: #3498db;
 }
 
+.protocol-ws .protocol-box{
+    fill: #E65100;
+    cursor: pointer;
+}
+
+.protocol-http .protocol-box{
+    fill: #3498db;
+    cursor: pointer;
+}
+
+.protocol-label{
+    fill: #fff;
+    cursor: pointer;
+}
+
 .add-resource-button-label{
     cursor: pointer;
     fill: #fff;

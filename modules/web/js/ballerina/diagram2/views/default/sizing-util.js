@@ -273,6 +273,14 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
+
+        // initialize the annotation status.
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
+        }
+        // calculate the annotation height.
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
@@ -295,16 +303,6 @@ class SizingUtil {
         cmp.panelBody.h = (viewState.collapsed) ? 0 : cmp.panelBody.h;
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
-
-        if (_.isNil(viewState.showAnnotationContainer)) {
-            viewState.showAnnotationContainer = true;
-        }
-
-        if (!viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
-            cmp.annotation.h = 0;
-        } else {
-            cmp.annotation.h = this._getAnnotationHeight(node, 40);
-        }
 
         viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
 
@@ -570,6 +568,11 @@ class SizingUtil {
         cmp.initFunction = new SimpleBBox();
         cmp.transportLine = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
+        cmp.annotation = new SimpleBBox();
+        // initialize annotation view if not defined.
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
+        }
 
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
@@ -579,6 +582,9 @@ class SizingUtil {
         } else if (TreeUtil.isConnector(node)) {
             children = node.getActions();
         }
+
+        // calculate the annotation height.
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
 
         let width = 0;
         // we will start the height with top padding.
@@ -642,21 +648,10 @@ class SizingUtil {
         cmp.heading.h = this.config.panel.heading.height;
 
         viewState.bBox.w = width;
-        viewState.bBox.h = cmp.body.h + cmp.heading.h + connectorHeight;
+
+        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
         // set the components.
         viewState.components = cmp;
-
-        cmp.annotation = new SimpleBBox();
-
-        if (_.isNil(viewState.showAnnotationContainer)) {
-            viewState.showAnnotationContainer = true;
-        }
-
-        if (!viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
-            cmp.annotation.h = 0;
-        } else {
-            cmp.annotation.h = this._getAnnotationHeight(node, 40);
-        }
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
@@ -691,8 +686,6 @@ class SizingUtil {
         components.heading = new SimpleBBox();
         components.body = new SimpleBBox();
         components.annotation = new SimpleBBox();
-        components.variablesPane = new SimpleBBox();
-        components.transportLine = new SimpleBBox();
         components.heading.h = this.config.panel.heading.height;
         if (node.viewState.collapsed) {
             components.body.h = 0;

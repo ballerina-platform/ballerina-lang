@@ -185,7 +185,7 @@ class ServiceNode extends React.Component {
                     {
                             viewState.variablesExpanded ?
                                 <GlobalExpanded
-                                    bBox={expandedVariablesBBox}
+                                    bBox={viewState.components.initFunction}
                                     globals={variables}
                                     onCollapse={this.handleVarialblesBadgeClick}
                                     title="Variables"
@@ -197,7 +197,7 @@ class ServiceNode extends React.Component {
                                     getValue={g => (g.getStatementString())}
                                 /> :
                                 <GlobalDefinitions
-                                    bBox={expandedVariablesBBox}
+                                    bBox={viewState.components.initFunction}
                                     numberOfItems={variables.length}
                                     title={'Variables'}
                                     onExpand={this.handleVarialblesBadgeClick}
@@ -207,7 +207,7 @@ class ServiceNode extends React.Component {
                     {connectors}
                 </PanelDecorator>
                 <ServerConnectorProperties
-                    bBox={bBox}
+                    bBox={this.props.model.viewState.components.transportLine}
                     model={this.props.model}
                     protocol={model.getProtocolPackageIdentifier().value}
                 />
