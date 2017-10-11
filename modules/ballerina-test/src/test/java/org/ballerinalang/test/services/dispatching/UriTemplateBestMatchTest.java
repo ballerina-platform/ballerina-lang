@@ -387,7 +387,7 @@ public class UriTemplateBestMatchTest {
 //                , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test suitable method with URL. /echo15?foo=1.11 ", enabled = false)
+    @Test(description = "Test suitable method with URL. /echo15?foo=1.11 ")
     public void testBooleanQueryParam() {
         String path = "/hello/echo15?foo=true";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
