@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.Context;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,6 +32,7 @@ public class WorkerCounter {
 
     final Semaphore lock = new Semaphore(0);
     final AtomicInteger count = new AtomicInteger(0);
+    Context resourceContext;
 
     /**
      * Count up worker count.
@@ -44,6 +47,10 @@ public class WorkerCounter {
     public void countDown() {
         if (count.decrementAndGet() == 0) {
             lock.release();
+            if (resourceContext != null && resourceContext.getConnectorFuture() != null) {
+                // Asynchronously notify the resource.
+                resourceContext.getConnectorFuture().notifySuccess();
+            }
         }
     }
 
@@ -78,4 +85,7 @@ public class WorkerCounter {
         return success;
     }
 
+    public void setResourceContext(Context resourceContext) {
+        this.resourceContext = resourceContext;
+    }
 }

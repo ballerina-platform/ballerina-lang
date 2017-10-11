@@ -185,6 +185,7 @@ public class ResourceExecutor {
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.startTrackWorkers();
+        context.workerCounter.setResourceContext(context);
         if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             context.setAndInitDebugInfoHolder(new DebugInfoHolder());
@@ -193,8 +194,5 @@ public class ResourceExecutor {
             debugManager.setDebuggerContext(context);
         }
         bLangVM.run(context);
-        if (!context.isNonBlockingActionCall()) {
-            connectorFuture.notifySuccess();
-        }
     }
 }
