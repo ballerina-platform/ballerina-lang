@@ -830,7 +830,7 @@ class PositioningUtil {
      * @param {object} node ExpressionStatement object
      */
     positionExpressionStatementNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 

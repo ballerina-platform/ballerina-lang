@@ -1091,7 +1091,8 @@ class SizingUtil {
      *
      */
     sizeExpressionStatementNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
