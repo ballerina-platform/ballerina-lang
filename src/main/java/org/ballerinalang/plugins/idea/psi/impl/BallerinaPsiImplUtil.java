@@ -1937,31 +1937,34 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static StructDefinitionNode getAnonymousStruct(@NotNull Object element,
-                                                          @NotNull List<ParameterListNode> parameterListNodes,
+                                                          @NotNull List<PsiElement> parameterListNodes,
                                                           int offset) {
         int index = BallerinaParameterInfoHandler.getCurrentParameterIndex(element, offset);
-        ParameterListNode parameterListNode = parameterListNodes.get(0);
+        PsiElement parameterListNode = parameterListNodes.get(0);
 
-        List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
-                ParameterNode.class);
+        if (parameterListNode instanceof ParameterListNode) {
+            List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
+                    ParameterNode.class);
 
-        if (index <= -1) {
-            return null;
+            if (index <= -1) {
+                return null;
+            }
+            ParameterNode parameterNode = parameterNodes.get(index);
+            TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(parameterNode, TypeNameNode.class);
+            if (typeNameNode == null) {
+                return null;
+            }
+            PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null || !(resolvedElement.getParent() instanceof StructDefinitionNode)) {
+                return null;
+            }
+            return (StructDefinitionNode) resolvedElement.getParent();
         }
-        ParameterNode parameterNode = parameterNodes.get(index);
-        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(parameterNode, TypeNameNode.class);
-        if (typeNameNode == null) {
-            return null;
-        }
-        PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
-        if (reference == null) {
-            return null;
-        }
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null || !(resolvedElement.getParent() instanceof StructDefinitionNode)) {
-            return null;
-        }
-        return (StructDefinitionNode) resolvedElement.getParent();
+        return null;
     }
 
     @Nullable
@@ -1970,7 +1973,7 @@ public class BallerinaPsiImplUtil {
         if (element == null) {
             return null;
         }
-        List<ParameterListNode> parameters = BallerinaParameterInfoHandler.getParameters(element);
+        List<PsiElement> parameters = BallerinaParameterInfoHandler.getParameters(element);
         if (parameters.isEmpty()) {
             return null;
         }

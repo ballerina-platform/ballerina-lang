@@ -46,6 +46,9 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -238,7 +241,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         PsiElement currentElement = null;
         PsiElement parentElement = null;
 
-        List<ParameterListNode> list = getParameters(element);
+        List<PsiElement> list = getParameters(element);
 
         if (element instanceof ExpressionListNode) {
             ExpressionListNode expressionListNode = (ExpressionListNode) element;
@@ -322,20 +325,20 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Todo - change how to identify no parameter situation
             context.setItemsToShow(new Object[]{"Empty"});
         } else {
-            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+            context.setItemsToShow(list.toArray(new PsiElement[list.size()]));
         }
         context.showHint(currentElement, currentElement.getTextRange().getStartOffset(), this);
     }
 
     /**
-     * Returns the {@link ParameterListNode} for the given element.
+     * Returns the parameter list for the given element.
      *
      * @param element
      * @return
      */
     @NotNull
-    public static List<ParameterListNode> getParameters(@NotNull Object element) {
-        List<ParameterListNode> list = new LinkedList<>();
+    public static List<PsiElement> getParameters(@NotNull Object element) {
+        List<PsiElement> list = new LinkedList<>();
         if (element instanceof ExpressionListNode) {
             ExpressionListNode expressionListNode = (ExpressionListNode) element;
             // We need to get the ExpressionListNode parent of current ExpressionListNode.
@@ -403,10 +406,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
      * @param parent
      * @return
      */
-    private static List<ParameterListNode> getItemsToShow(PsiElement element, PsiElement parent) {
+    private static List<PsiElement> getItemsToShow(PsiElement element, PsiElement parent) {
         // This method can be a overloaded method. So there can be multiple signatures. To store all of these, we
         // create a list.
-        List<ParameterListNode> list = new ArrayList<>();
+        List<PsiElement> list = new ArrayList<>();
         // Function name will be at NameReferenceNode. So we search for this child node.
         PsiElement namedIdentifierDefNode = getNameIdentifierDefinitionNode(parent);
         PsiElement nameIdentifier = getNameIdentifier(element, namedIdentifierDefNode);
@@ -422,12 +425,23 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 // Resolved element will be the identifier of the function node. So we get the parent
                 // node (FunctionDefinitionNode).
                 PsiElement definitionNode = resolvedElement.getParent();
-                // Since we need the ParameterListNode, search for ParameterListNode child node.
-                ParameterListNode parameterListNode =
-                        PsiTreeUtil.findChildOfType(definitionNode, ParameterListNode.class);
-                // Add to the list if the result is not null.
-                if (parameterListNode != null) {
-                    list.add(parameterListNode);
+
+                if (definitionNode instanceof ParameterNode) {
+                    boolean isLambda = BallerinaPsiImplUtil.isALambdaFunction(resolvedElement);
+                    if (isLambda) {
+                        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(definitionNode, TypeListNode.class);
+                        if (typeListNode != null) {
+                            list.add(typeListNode);
+                        }
+                    }
+                } else {
+                    // Since we need the ParameterListNode, search for ParameterListNode child node.
+                    ParameterListNode parameterListNode =
+                            PsiTreeUtil.findChildOfType(definitionNode, ParameterListNode.class);
+                    // Add to the list if the result is not null.
+                    if (parameterListNode != null) {
+                        list.add(parameterListNode);
+                    }
                 }
             }
         }
@@ -639,6 +653,42 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Call setupUIComponentPresentation with necessary arguments.
             return context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
                     context.getDefaultParameterColor());
+        } else if (p instanceof TypeListNode) {
+            // Caste the object.
+            TypeListNode element = (TypeListNode) p;
+            // Get the parameter presentations.
+            List<String> parameterPresentations = getParameterPresentations(element);
+            // These will be used to identify which parameter is selected. This will be highlighted in the popup.
+            int start = 0;
+            int end = 0;
+            StringBuilder builder = new StringBuilder();
+            // If there are no parameter nodes, set "no parameters" message.
+            if (parameterPresentations.isEmpty()) {
+                builder.append(CodeInsightBundle.message("parameter.info.no.parameters"));
+            } else {
+                // Get the current parameter index.
+                int selected = context.getCurrentParameterIndex();
+                // Iterate through each parameter presentation.
+                for (int i = 0; i < parameterPresentations.size(); i++) {
+                    // If i != 0, we need to add the , between parameters.
+                    if (i != 0) {
+                        builder.append(", ");
+                    }
+                    // If the current parameter is the selected parameter, get the start index.
+                    if (i == selected) {
+                        start = builder.length();
+                    }
+                    // Append the parameter.
+                    builder.append(parameterPresentations.get(i));
+                    // If the current parameter is the selected parameter, get the end index.
+                    if (i == selected) {
+                        end = builder.length();
+                    }
+                }
+            }
+            // Call setupUIComponentPresentation with necessary arguments.
+            return context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
+                    context.getDefaultParameterColor());
         } else if (p.equals("Empty")) {
             // This will be called if there are no arguments in the method.
             // Todo - change how to identify no parameter situation
@@ -668,6 +718,19 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(node, ParameterNode.class);
         for (ParameterNode parameterNode : parameterNodes) {
             params.add(parameterNode.getText());
+        }
+        return params;
+    }
+
+    public static List<String> getParameterPresentations(TypeListNode node) {
+        List<String> params = new LinkedList<>();
+        if (node == null) {
+            return params;
+        }
+        // Get type name nodes.
+        Collection<TypeNameNode> typeNameNodes = PsiTreeUtil.findChildrenOfType(node, TypeNameNode.class);
+        for (TypeNameNode typeNameNode : typeNameNodes) {
+            params.add(typeNameNode.getText());
         }
         return params;
     }
