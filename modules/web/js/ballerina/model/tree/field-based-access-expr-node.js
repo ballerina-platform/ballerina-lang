@@ -24,7 +24,7 @@ class FieldBasedAccessExprNode extends AbstractFieldBasedAccessExprNode {
      * @return {string} field name
      */
     getVariableName() {
-        return this.getExpression().getVariableName().getValue();
+        return this.getExpression().getVariableName();
     }
 }
 
