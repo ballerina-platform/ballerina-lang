@@ -19,6 +19,7 @@
 import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
+import './operator.css';
 import ASTFactory from '../../../../../ast/ast-factory';
 import opClassMap from './op-class-map';
 
