@@ -20,6 +20,20 @@ import AbstractTryNode from './abstract-tree/try-node';
 
 class TryNode extends AbstractTryNode {
 
+    /**
+     * Set the children alias.
+     * */
+    setChildrenAlias() {
+        if (this.finallyBody) {
+            this.finallyBody.viewState.alias = 'Finally';
+        }
+
+        if (this.catchBlocks.length > 0) {
+            for (const catchBlock in this.catchBlocks) {
+                this.catchBlocks[catchBlock].body.viewState.alias = 'Catch';
+            }
+        }
+    }
 }
 
 export default TryNode;

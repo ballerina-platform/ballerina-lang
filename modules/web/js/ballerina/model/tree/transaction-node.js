@@ -19,7 +19,23 @@
 import AbstractTransactionNode from './abstract-tree/transaction-node';
 
 class TransactionNode extends AbstractTransactionNode {
-
+    /**
+     * Set Children Alias
+     * */
+    setChildrenAlias() {
+        if (this.abortedBody) {
+            this.abortedBody.viewState.alias = 'Aborted';
+        }
+        if (this.committedBody) {
+            this.committedBody.viewState.alias = 'Committed';
+        }
+        if (this.failedBody) {
+            this.failedBody.viewState.alias = 'Failed';
+        }
+        if (this.transactionBody) {
+            this.transactionBody.viewState.alias = 'Transaction';
+        }
+    }
 }
 
 export default TransactionNode;
