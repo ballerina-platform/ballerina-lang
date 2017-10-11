@@ -261,22 +261,26 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
-    public void addConstraintType(DiagnosticPos pos, String typeName) {
+    public void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         // TODO : Fix map<int> format.
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         constraintType.pos = pos;
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
+        constraintType.addWS(nameReference.ws);
+        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
+        refType.addWS(refTypeWS);
 
         BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
         constrainedType.type = refType;
         constrainedType.constraint = constraintType;
         constrainedType.pos = pos;
+        constrainedType.addWS(ws);
 
         addType(constrainedType);
     }
@@ -794,7 +798,7 @@ public class BLangPackageBuilder {
     public void addJoinCause(Set<Whitespace> ws, String identifier) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        Set<Whitespace> varWS = removeThirdFromLast(ws);
+        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
         forkJoin.addWS(ws);
         forkJoin.joinResultVar = (BLangVariable) this.generateBasicVarNode(
                 (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
@@ -816,7 +820,7 @@ public class BLangPackageBuilder {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
         forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        Set<Whitespace> varWS = removeThirdFromLast(ws);
+        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
         forkJoin.addWS(ws);
         forkJoin.timeoutVariable = (BLangVariable) this.generateBasicVarNode(
                 (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
@@ -1642,12 +1646,12 @@ public class BLangPackageBuilder {
         return singletonSet;
     }
 
-    private Set<Whitespace> removeThirdFromLast(Set<Whitespace> ws) {
+    private Set<Whitespace> removeNthFromLast(Set<Whitespace> ws, int n) {
         Iterator<Whitespace> iterator = ((TreeSet<Whitespace>) ws).descendingIterator();
         int i = 0;
         while (iterator.hasNext()) {
             Whitespace next = iterator.next();
-            if (i++ == 3) {
+            if (i++ == n) {
                 Set<Whitespace> varWS = new TreeSet<>();
                 varWS.add(next);
                 iterator.remove();
