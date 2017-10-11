@@ -46,40 +46,48 @@ public class HttpResponseListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpMessage) {
-        boolean connectionCloseAfterResponse = shouldConnectionClose(httpMessage);
+    public void onMessage(HTTPCarbonMessage httpResponseMessage) {
+        sourceContext.channel().eventLoop().execute(() -> {
+            try {
+                boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
 
-        Util.prepareBuiltMessageForTransfer(httpMessage);
-        Util.setupTransferEncodingForResponse(httpMessage, requestDataHolder);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(httpMessage);
-        }
-        final HttpResponse response = Util.createHttpResponse(httpMessage, connectionCloseAfterResponse);
-
-        sourceContext.write(response);
-
-        while (true) {
-            if (httpMessage.isEndOfMsgAdded() && httpMessage.isEmpty()) {
-                ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                if (connectionCloseAfterResponse) {
-                    future.addListener(ChannelFutureListener.CLOSE);
-                }
-                break;
-            }
-            HttpContent httpContent = httpMessage.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                ChannelFuture future = sourceContext.writeAndFlush(httpContent);
-                if (connectionCloseAfterResponse) {
-                    future.addListener(ChannelFutureListener.CLOSE);
-                }
+                Util.prepareBuiltMessageForTransfer(httpResponseMessage);
+                Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
                 if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                            executeAtSourceResponseSending(httpMessage);
+                    HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                            .executeAtSourceResponseReceiving(httpResponseMessage);
                 }
-                break;
+
+                final HttpResponse response = Util
+                        .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
+                sourceContext.write(response);
+
+                while (true) {
+                    if (httpResponseMessage.isEndOfMsgAdded() && httpResponseMessage.isEmpty()) {
+                        ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                        if (connectionCloseAfterResponse) {
+                            future.addListener(ChannelFutureListener.CLOSE);
+                        }
+                        break;
+                    }
+                    HttpContent httpContent = httpResponseMessage.getHttpContent();
+                    if (httpContent instanceof LastHttpContent) {
+                        ChannelFuture future = sourceContext.writeAndFlush(httpContent);
+                        if (connectionCloseAfterResponse) {
+                            future.addListener(ChannelFutureListener.CLOSE);
+                        }
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtSourceResponseSending(httpResponseMessage);
+                        }
+                        break;
+                    }
+                    sourceContext.write(httpContent);
+                }
+            } finally {
+                httpResponseMessage.release();
             }
-            sourceContext.write(httpContent);
-        }
+        });
     }
 
     // Decides whether to close the connection after sending the response

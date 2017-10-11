@@ -278,4 +278,9 @@ public class HTTPCarbonMessage {
         markMessageEnd();
         return newCopy;
     }
+
+    @Override
+    protected void finalize() {
+        release();
+    }
 }
