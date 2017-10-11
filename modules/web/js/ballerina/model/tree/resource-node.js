@@ -177,6 +177,18 @@ class ResourceNode extends AbstractResourceNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isWorker(node)) {
+            // if a worker does not exist we need to create aanother worker for default.
+            if (this.getWorkers().length === 0) {
+                const defaultWorker = node.meta;
+                delete node.meta;
+                const connectors = this.getBody().getStatements()
+                        .filter((statement) => { return TreeUtil.isConnectorDeclaration(statement); });
+                const statements = this.getBody().getStatements()
+                        .filter((statement) => { return !TreeUtil.isConnectorDeclaration(statement); });
+                this.getBody().setStatements(connectors, true);
+                defaultWorker.getBody().setStatements(statements);
+                this.addWorkers(defaultWorker, -1, true);
+            }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
         } else if (TreeUtil.isConnectorDeclaration(node)) {
