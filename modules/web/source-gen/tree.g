@@ -208,7 +208,7 @@ ValueType
 
 Variable
    : <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <typeNode.source> <name.value> = <initialExpression.source> <global?;>
+   | <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
    | <typeNode.source> <name.value> = <initialExpression.source>
    | <annotationAttachments>* <typeNode.source> <name.value>
    | <typeNode.source>
