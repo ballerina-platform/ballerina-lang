@@ -522,7 +522,7 @@ class TransformNodeMapper {
     removeInputToOutputMapping(sourceName, targetName) {
         const assignmentStmt = _.find(this._transformStmt.body.getStatements(), (stmt) => {
             if (TreeUtil.isAssignment(stmt)) {
-                return stmt.getVariables().find((varExp) => {
+                return this.getVariables(stmt).find((varExp) => {
                     const varExpStr = varExp.getSource().trim();
                     const expStr = this.getMappableExpression(stmt.getExpression()).getSource().trim();
                     return (varExpStr === targetName) && (expStr === sourceName);
@@ -620,13 +620,14 @@ class TransformNodeMapper {
 
     /**
      * Remove input variable to operator mapping.
-     * @param {any} sourceName source name
+     * @param {any} source source
      * @param {any} target target
      * @memberof TransformNodeMapper
      */
-    removeInputToOperatorMapping(sourceName, target) {
+    removeInputToOperatorMapping(source, target) {
         const operatorExp = target.operator;
-        const defaultExp = NodeFactory.createLiteral({ basicLiteralType: 'int', basicLiteralValue: 0 });
+
+        const defaultExp = TransformFactory.createDefaultOperatorExpression(operatorExp, target.index);
 
         if (TreeUtil.isUnaryExpr(operatorExp) && target.index === 0) {
             operatorExp.setExpression(defaultExp, true);
@@ -641,7 +642,7 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
-            title: `Remove mapping ${sourceName} to ${operatorExp.getOperatorKind()}`,
+            title: `Remove mapping ${source.name} to ${operatorExp.getOperatorKind()}`,
             data: {},
         });
     }

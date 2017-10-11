@@ -18,6 +18,7 @@
 
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
+import TreeUtil from './tree-util';
 import Environment from '../env/environment';
 import { VarPrefix } from '../utils/transform-utils';
 
@@ -57,6 +58,35 @@ class TransformFactory {
      */
     static createDefaultExpression(type) {
         const defaultValue = Environment.getDefaultValue(type);
+        let fragment = FragmentUtils.createExpressionFragment('null');
+        if (defaultValue !== undefined) {
+            fragment = FragmentUtils.createExpressionFragment(defaultValue);
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return exp;
+    }
+
+    /**
+     * Create default expression based on operator type
+     * @static
+     * @param {Expression} operator operator expression
+     * @param {int} index index of the operator
+     * @memberof TransformFactory
+     * @return {object} expression object
+     */
+    static createDefaultOperatorExpression(operator, index) {
+        const operatorLattice = Environment.getOperatorLattice();
+        const operatorKind = operator.getOperatorKind();
+        let compatibility;
+        if (TreeUtil.isBinaryExpr(operator)) {
+            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
+        } else if (TreeUtil.isUnaryExpr(operator)) {
+            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
+        } else {
+            return;
+        }
+        const defaultValue = Environment.getDefaultValue('string');
         let fragment = FragmentUtils.createExpressionFragment('null');
         if (defaultValue !== undefined) {
             fragment = FragmentUtils.createExpressionFragment(defaultValue);

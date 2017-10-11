@@ -107,30 +107,37 @@ class OperatorLattice {
      * @returns {[string]} compatible types
      * @memberof OperatorLattice
      */
-    getCompatibleBinaryTypes(operator, lhType, rhType, retType) {
+    getCompatibleBinaryTypes(operator, lhType, rhType) {
         if (operator === 'typeof') {
             // typeof is a special binary operator that needs to be handled specially
             // TODO
         }
-        if (lhType && rhType && !retType) {
+        if (lhType && rhType) {
             return this._binaryLattice[operator][lhType][rhType];
+        } else if (lhType) {
+            return this._binaryLattice[operator][lhType];
+        } else if (rhType) {
+            return this._binaryLattice[operator].filter((edge) => {
+                return (edge[rhType]);
+            });
+        } else {
+            return this._binaryLattice[operator];
         }
-        return undefined;
     }
 
     /**
      * Get operator compatibility for given types
      * @param {string} operator operator
      * @param {string} rhType right hand type
-     * @param {string} retType return type
      * @returns {[string]} compatible types
      * @memberof OperatorLattice
      */
-    getCompatibleUnaryTypes(operator, rhType, retType) {
-        if (rhType && !retType) {
+    getCompatibleUnaryTypes(operator, rhType) {
+        if (rhType) {
             return this._unaryLattice[operator][rhType];
+        } else {
+            return this._unaryLattice[operator];
         }
-        return undefined;
     }
 }
 
