@@ -1243,7 +1243,7 @@ public class BLangPackageBuilder {
         TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         failedBlock.pos = pos;
-        failedBlock.addWS(ws);
+        transactionNode.addWS(ws);
         transactionNode.setFailedBody(failedBlock);
     }
 
@@ -1255,7 +1255,7 @@ public class BLangPackageBuilder {
         TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         committedBlock.pos = pos;
-        committedBlock.addWS(ws);
+        transactionNode.addWS(ws);
         transactionNode.setCommittedBody(committedBlock);
     }
 
@@ -1267,7 +1267,7 @@ public class BLangPackageBuilder {
         TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         abortedBlock.pos = pos;
-        abortedBlock.addWS(ws);
+        transactionNode.addWS(ws);
         transactionNode.setAbortedBody(abortedBlock);
     }
 
@@ -1298,7 +1298,9 @@ public class BLangPackageBuilder {
         retryNode.addWS(ws);
         addStmtToCurrentBlock(retryNode);
         TransactionNode transactionNode = transactionNodeStack.peek();
-        transactionNode.setRetryCount(exprNodeStack.pop());
+        ExpressionNode count = exprNodeStack.pop();
+        retryNode.addWS(count.getWS());
+        transactionNode.setRetryCount(count);
     }
 
     public void addIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
