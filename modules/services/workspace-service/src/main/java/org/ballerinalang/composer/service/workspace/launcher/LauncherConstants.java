@@ -58,9 +58,9 @@ public class LauncherConstants {
     public static final String SET_BAL_PATH_MESSAGE = "Please set BALLERINA_HOME environment variable pointing to " +
                                                       "ballerina runtime.";
 
-    public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG = "ballerina: started server " +
-                                                                                    "connector";
-    public static final String SERVER_CONNECTOR_STARTED_LOG = "ballerina: started server connector";
+    public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL = "ballerina: started HTTP/WS server connector";
+    // TODO: Update cloud URL.
+    public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD = "ballerina: started HTTP/WS server connector";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
     public static final String UNSUPPORTED_OPERATING_SYSTEM = "Unsupported operating system";
     public static final String LOCAL_TRY_IT_URL = "http://%s:%s";

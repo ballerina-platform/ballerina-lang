@@ -19,7 +19,34 @@ import _ from 'lodash';
 import AbstractServiceNode from './abstract-tree/service-node';
 import TreeUtil from './../tree-util';
 
+/**
+ * Tree node for a service definition.
+ * @class ServiceNode
+ * @extends {AbstractServiceNode}
+ */
 class ServiceNode extends AbstractServiceNode {
+    /**
+     * Gets the base path value in the @http:configuration annotation.
+     * @param {string} [httpPackageAlias='http'] The ballerina.net.http package alias.
+     * @returns {string} The base path value.
+     * @memberof ResourceNode
+     */
+    getBasePathAnnotationValue(httpPackageAlias = 'http') {
+        let basePathValue;
+        this.getAnnotationAttachments().forEach((annotationNode) => {
+            if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
+                annotationNode.getAnnotationName().getValue() === 'configuration') {
+                annotationNode.getAttributes().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getName() === 'basePath') {
+                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
+                        basePathValue = pathAnnotationAttributeValue.getValue().getValue();
+                    }
+                });
+            }
+        });
+        return basePathValue;
+    }
+
     /**
      * Generate default name for service level statements.
      * @param {Node} parent - parent node.

@@ -157,6 +157,53 @@ class ResourceNode extends AbstractResourceNode {
     }
 
     /**
+     * Generates the URL for the resource
+     * @returns {string} The url.
+     * @memberof ResourceNode
+     */
+    compileURL() {
+        let url = '/';
+        // Setting basepath using service node.
+        let basePath = this.parent.getBasePathAnnotationValue();
+        if (basePath === undefined || basePath.trim() === '') {
+            basePath = this.parent.getName().getValue();
+        }
+
+        url += basePath;
+
+        // Setting path using this resource node.
+        let path = this.getPathAnnotationValue();
+        if (path === undefined || path.trim() === '') {
+            path = _.trim(this.getName().getValue(), '"');
+        } else {
+            path = _.trim(path, '"/');
+        }
+
+        url += '/' + path;
+
+        // Generating query params.
+        let queryParams = '';
+        this.getParameters().forEach((currentParam, currentIndex) => {
+            if (currentParam.getAnnotationAttachments().length > 0) {
+                const annotation = currentParam.getAnnotationAttachments()[0];
+                if (annotation.getAnnotationName().getValue() === 'QueryParam' &&
+                                                            annotation.getAttributes().length > 0) {
+                    const attribute = annotation.getAttributes()[0];
+                    const attributeValue = attribute.getValue();
+                    const literal = attributeValue.getValue();
+                    if (currentIndex === 2) {
+                        queryParams += `?${_.trim(literal.getValue(), '"')}=`;
+                    } else {
+                        queryParams += `&${_.trim(literal.getValue(), '"')}=`;
+                    }
+                }
+            }
+        });
+
+        return url + queryParams;
+    }
+
+    /**
      * Indicates whether the given instance of node can be accepted when dropped
      * on top of this node.
      *

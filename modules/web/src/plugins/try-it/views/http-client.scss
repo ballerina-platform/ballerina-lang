@@ -86,8 +86,6 @@
             background-color: #333333;
         }
     }
-
-
 }
 
 .http-client-action-wrapper .input-group-btn .btn, .http-client-action-wrapper .input-group-btn .btn:hover,
@@ -184,4 +182,48 @@ hr{
 
 .try-it-message {
   background: #333333;
+}
+
+.http-client-select-service-wrapper {
+    .selectors {
+        float: left;
+        > span {
+            float: left;
+            padding: 7px 10px 0 10px;
+        }
+    }
+    .react-autosuggest__container {
+        float: left;
+        color: black;
+        position: relative;
+    }
+    .react-autosuggest__input {
+        padding: 1px 10px;
+        border-right: 1px solid #333;
+    }
+    .react-autosuggest__suggestions-container {
+        z-index: 10000;
+        overflow: visible;
+        background: #E2E2E5;
+        width: 187px;
+        position: absolute
+    }
+
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
+
+    input[type=text]{
+        color: #fff;
+        height: 33px;
+        padding: 6px;
+        background-color: #575757;
+        border: none;
+    }
 }
