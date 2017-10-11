@@ -172,8 +172,10 @@ public class HttpConnectionManager {
         BStruct options = (BStruct) bConnector.getRefField(0);
         int followRedirect = options.getBooleanField(0);
         Long maxRedirectCount = options.getIntField(0);
+        int chunkDisabled = options.getBooleanField(1);
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
+        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
 
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }

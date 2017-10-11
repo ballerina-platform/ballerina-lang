@@ -11,6 +11,7 @@ public struct Response {
 public struct Options{
     boolean followRedirect = false;
     int maximumRedirectCount = 5;
+    boolean chunkDisabled = false;
 }
 
 public connector ClientConnector (string serviceUri, Options connectorOptions) {
