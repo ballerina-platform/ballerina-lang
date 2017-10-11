@@ -23,13 +23,14 @@ import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
-import * as DesignerDefaults from './../../designer-defaults';
 import PanelDecoratorButton from './../decorators/panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from "../decorators/connector-declaration-decorator";
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * React component for a service definition.
@@ -50,6 +51,7 @@ class ServiceNode extends React.Component {
             addResource: false,
         };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
+        this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
@@ -74,7 +76,20 @@ class ServiceNode extends React.Component {
      * @memberof ServiceNode
      */
     handleDeleteVariable(deletedGlobal) {
-        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
+        this.props.model.removeVariables(deletedGlobal);
+    }
+
+    /**
+     * Handles global variable add event.
+     *
+     * @param {ASTNode} addGlobal Variable AST.
+     * @memberof ServiceNode
+     */
+    handleAddVariable(value) {
+        const fragment = FragmentUtils.createStatementFragment(`${value};`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const index = this.props.model.getVariables().length - 1;
+        this.props.model.addVariables(TreeBuilder.build(parsedJson), index + 1);
     }
 
     /**
@@ -184,10 +199,10 @@ class ServiceNode extends React.Component {
                                     title="Variables"
                                     addText={'+ Add Variable'}
                                     model={this.props.model}
-                                    // onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
+                                    onAddNewValue={this.handleAddVariable}
                                     newValuePlaceholder={''}
                                     onDeleteClick={this.handleDeleteVariable}
-                                    getValue={g => (g.getStatementString())}
+                                    getValue={g => (g.getSource())}
                                 /> :
                                 <GlobalDefinitions
                                     bBox={viewState.components.initFunction}

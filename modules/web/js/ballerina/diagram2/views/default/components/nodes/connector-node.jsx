@@ -22,13 +22,10 @@ import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
-import * as DesignerDefaults from './../../designer-defaults';
-import PanelDecoratorButton from './../decorators/panel-decorator-button';
-import ServiceTransportLine from './service-transport-line';
-import ImageUtil from './../../../../image-util';
-import ServerConnectorProperties from '../utils/server-connector-properties';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from "../decorators/connector-declaration-decorator";
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * React component for a connector definition.
@@ -46,6 +43,7 @@ class ConnectorNode extends React.Component {
     constructor(props) {
         super(props);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
+        this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
 
@@ -72,10 +70,23 @@ class ConnectorNode extends React.Component {
      * Handles global variable delete event.
      *
      * @param {ASTNode} deletedGlobal Variable AST.
-     * @memberof ConnectorNode
+     * @memberof ServiceNode
      */
     handleDeleteVariable(deletedGlobal) {
-        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
+        this.props.model.removeVariableDefs(deletedGlobal);
+    }
+
+    /**
+     * Handles global variable add event.
+     *
+     * @param {ASTNode} addGlobal Variable AST.
+     * @memberof ServiceNode
+     */
+    handleAddVariable(value) {
+        const fragment = FragmentUtils.createStatementFragment(`${value};`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const index = this.props.model.getVariableDefs().length - 1;
+        this.props.model.addVariableDefs(TreeBuilder.build(parsedJson), index + 1);
     }
 
     /**
@@ -134,6 +145,7 @@ class ConnectorNode extends React.Component {
                                 title="Variables"
                                 addText={'+ Add Variable'}
                                 model={this.props.model}
+                                onAddNewValue={this.handleAddVariable}
                                 newValuePlaceholder={''}
                                 onDeleteClick={this.handleDeleteVariable}
                                 getValue={g => (g.getSource())}

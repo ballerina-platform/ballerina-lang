@@ -25,6 +25,7 @@ import { variablesPane as variablesPaneDefaults } from '../../designer-defaults'
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
+import TreeUtils from './../../../../../model/tree-util';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.
@@ -94,7 +95,11 @@ export default class GlobalDefinitionItem extends React.Component {
     openEditor(bBox) {
         let setterFunc;
         const editorOuterPadding = 10;
-        if (_.includes(this.props.globalDec.parent.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
+        let parentNode = this.props.globalDec.parent;
+        if (TreeUtils.isService(parentNode) || TreeUtils.isConnector(parentNode)) {
+            parentNode = parentNode.parent;
+        }
+        if (_.includes(parentNode.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
             setterFunc = this.setEditedSource;
         }
         const options = {
