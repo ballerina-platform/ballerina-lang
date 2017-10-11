@@ -79,6 +79,23 @@ class ServiceNode extends AbstractServiceNode {
             this.addVariables(node, index);
         }
     }
+
+    /**
+     * Set the full package name of the service
+     * @param fullPackageName
+     */
+    setFullPackageName(fullPackageName) {
+        this._fullPackageName = fullPackageName;
+    }
+
+    /**
+     * Get the full package name of the service
+     * @param fullPackageName
+     * @returns {*}
+     */
+    getFullPackageName(fullPackageName) {
+        return this._fullPackageName;
+    }
 }
 
 export default ServiceNode;

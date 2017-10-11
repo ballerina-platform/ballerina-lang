@@ -45,6 +45,7 @@ class DefaultNodeFactory {
 `,
             ));
         node.viewState.showOverlayContainer = true;
+        node.setFullPackageName('ballerina.net.http');
         return node;
     }
 
@@ -66,6 +67,7 @@ class DefaultNodeFactory {
 `,
             ));
         node.viewState.showOverlayContainer = true;
+        node.setFullPackageName('ballerina.net.ws');
         return node;
     }
 
