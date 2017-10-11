@@ -24,6 +24,7 @@ import org.ballerinalang.composer.service.workspace.langserver.util.filters.Pack
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -58,7 +59,10 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
             List<SymbolInfo> filteredList = symbols.stream()
-                    .filter(symbolInfo -> !(symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol))
+                    .filter(
+                            symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                                    && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol))
+                    )
                     .collect(Collectors.toList());
             populateCompletionItemList(filteredList, completionItems);
             completionItems.add(createKeyword);
