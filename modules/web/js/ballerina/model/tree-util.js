@@ -297,7 +297,13 @@ class TreeUtil extends AbstractTreeUtil {
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
 
             // replace the old node with new node.
-            statementParentNode.replaceStatements(node, newStatementNode, false);
+            if (this.isService(statementParentNode)) {
+                statementParentNode.replaceVariables(node, newStatementNode, false);
+            } else if (this.isConnector(statementParentNode)) {
+                statementParentNode.replaceVariableDefs(node, newStatementNode, false);
+            } else {
+                statementParentNode.replaceStatements(node, newStatementNode, false);
+            }
         } else if (node.isExpression) {
             // Get the parent node.
             const expressionParentNode = node.parent;
@@ -315,7 +321,7 @@ class TreeUtil extends AbstractTreeUtil {
         } else {
             const parent = node.parent;
             if (parent.filterParameters instanceof Function
-                && parent.filterParameters((param) => (param.id === node.id))) {
+                && parent.filterParameters(param => (param.id === node.id))) {
                 // Invoke the fragment parser util for parsing argument parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
                 const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
@@ -323,7 +329,7 @@ class TreeUtil extends AbstractTreeUtil {
                 // Replace the old parameter with the newly created parameter node.
                 parent.replaceParameters(node, newParameterNode, false);
             } else if (parent.filterReturnParameters instanceof Function
-                && parent.filterReturnParameters((returnParam) => (returnParam.id === node.id))) {
+                && parent.filterReturnParameters(returnParam => (returnParam.id === node.id))) {
                 // Invoke the fragment parser util for parsing return parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
                 const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
@@ -351,13 +357,13 @@ class TreeUtil extends AbstractTreeUtil {
                     packageName: fileData.packageName,
                 };
 
-                return client.getCompletions(options)
+                return client.getCompletions(options);
             })
             .then((response) => {
                 const varNameRegex = new RegExp(varPrefix + '[\\d]*');
                 const completions = response.result.filter((completionItem) => {
                     // all variables have type as 9 as per the declaration in lang server
-                    return (completionItem.kind === 9) && varNameRegex.test(completionItem.label)
+                    return (completionItem.kind === 9) && varNameRegex.test(completionItem.label);
                 });
                 const tempVarSuffixes = completions.map((varName) => {
                     return Number.parseInt(varName.label.substring(varPrefix.length), 10) || 0;
@@ -365,8 +371,8 @@ class TreeUtil extends AbstractTreeUtil {
 
                 tempVarSuffixes.sort((a, b) => (a - b));
                 const varNames = [];
-                for (var i = 0; i < numberOfVars; i++) {
-                    varNames.push(`${varPrefix}${(tempVarSuffixes[tempVarSuffixes.length-1] || 0) + i + 1}`);
+                for (let i = 0; i < numberOfVars; i++) {
+                    varNames.push(`${varPrefix}${(tempVarSuffixes[tempVarSuffixes.length - 1] || 0) + i + 1}`);
                 }
                 return varNames;
             });

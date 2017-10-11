@@ -657,7 +657,9 @@ class SizingUtil {
 
         viewState.bBox.w = width;
 
-        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
+        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight +
+            (viewState.variablesExpanded ? (variables.length *
+                this.config.packageDefinition.importDeclaration.itemHeight) + 35 : 0);
         // set the components.
         viewState.components = cmp;
     }
