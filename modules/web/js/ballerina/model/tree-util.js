@@ -19,6 +19,7 @@ import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
+import { getLangServerClientInstance } from 'langserver/lang-server-client-controller';
 
 class TreeUtil extends AbstractTreeUtil {
 
@@ -331,6 +332,44 @@ class TreeUtil extends AbstractTreeUtil {
                 parent.replaceReturnParameters(node, newReturnParameterNode, false);
             }
         }
+    }
+
+    getNewTempVarName(node, varPrefix, numberOfVars = 1) {
+        const fileData = node.getRoot().getFile();
+        return getLangServerClientInstance()
+            .then((client) => {
+                const position = node.parent.getPosition();
+
+                const options = {
+                    textDocument: fileData.content,
+                    position: {
+                        line: position.endLine,
+                        character: position.endColumn,
+                    },
+                    fileName: fileData.name,
+                    filePath: fileData.path,
+                    packageName: fileData.packageName,
+                };
+
+                return client.getCompletions(options)
+            })
+            .then((response) => {
+                const varNameRegex = new RegExp(varPrefix + '[\\d]*');
+                const completions = response.result.filter((completionItem) => {
+                    // all variables have type as 9 as per the declaration in lang server
+                    return (completionItem.kind === 9) && varNameRegex.test(completionItem.label)
+                });
+                const tempVarSuffixes = completions.map((varName) => {
+                    return Number.parseInt(varName.label.substring(varPrefix.length), 10) || 0;
+                });
+
+                tempVarSuffixes.sort((a, b) => (a - b));
+                const varNames = [];
+                for (var i = 0; i < numberOfVars; i++) {
+                    varNames.push(`${varPrefix}${(tempVarSuffixes[tempVarSuffixes.length-1] || 0) + i + 1}`);
+                }
+                return varNames;
+            });
     }
 }
 

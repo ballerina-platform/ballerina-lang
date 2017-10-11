@@ -27,7 +27,7 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import { binaryOpTools, unaryOpTools } from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TransformFactory from '../model/transform-factory';
-import DefaultNodeFactory from './../model/default-node-factory';
+import DefaultNodeFactory from '../model/default-node-factory';
 
 const searchBoxHeight = 30;
 
@@ -412,7 +412,7 @@ class ToolPaletteView extends React.Component {
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
-                    functionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedFunctionInvocationStatement;
+                    functionTool.nodeFactoryMethod = DefaultNodeFactory.createFunctionInvocationStatement;
                     functionTool.factoryArgs = {
                         functionDef,
                         packageName,

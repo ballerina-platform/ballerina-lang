@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import FragmentUtils from './../utils/fragment-utils';
+import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import TreeUtils from './tree-util';
 import Environment from '../env/environment';
+
 /**
  * Creates the node instance for given source fragment
  *
@@ -36,11 +37,11 @@ class DefaultNodeFactory {
     createHTTPServiceDef() {
         const node = getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(
-`    
+`
     service<http> service1 {
         resource echo1 (http:Request req, http:Response res) {
 
-        }           
+        }
     }
 `,
             ));
@@ -171,7 +172,7 @@ class DefaultNodeFactory {
     }
 
     createVarDefStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1'));
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isConnectorDeclaration(node)) {
             node.viewState.showOverlayContainer = true;
@@ -183,7 +184,7 @@ class DefaultNodeFactory {
     createIf() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             if (true) {
-                
+
             }
         `));
     }
@@ -197,7 +198,7 @@ class DefaultNodeFactory {
     createWhile() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             while(true) {
-                
+
             }
         `));
     }
@@ -205,7 +206,7 @@ class DefaultNodeFactory {
     createTransform() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transform {
-                
+
             }
         `));
     }
@@ -260,7 +261,7 @@ class DefaultNodeFactory {
     createTransaction() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transaction {
-                
+
             }
         `));
     }
@@ -307,7 +308,7 @@ class DefaultNodeFactory {
             });
             paramString = connectorParams.join(', ')
         }
-        const connectorInit = `${packageName}:${connector.getName()} endpoint1 
+        const connectorInit = `${packageName}:${connector.getName()} endpoint1
                 = create ${packageName}:${connector.getName()}(${paramString})`;
         const fragment = FragmentUtils.createStatementFragment(connectorInit);
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -344,6 +345,35 @@ class DefaultNodeFactory {
             actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
         }
         const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const assignmentNode = TreeBuilder.build(parsedJson);
+        assignmentNode.getExpression().setFullPackageName(fullPackageName);
+        return assignmentNode;
+    }
+
+    createFunctionInvocationStatement(args) {
+        const { functionDef, packageName, fullPackageName } = args;
+
+        let functionInvokeString = '';
+        if (packageName && packageName !== 'Current Package') {
+            functionInvokeString = `${packageName}:`;
+        }
+        const functionParams = functionDef.getParameters().map((param) => {
+            return Environment.getDefaultValue(param.type) || 'null';
+        });
+        const paramString = functionParams.join(', ')
+
+        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
+
+        const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
+            return 'variable' + index + 1;
+        });
+
+        if (varRefNames.length > 0) {
+            const varRefListString = `var ${varRefNames.join(', ')}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+        }
+        const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const assignmentNode = TreeBuilder.build(parsedJson);
         assignmentNode.getExpression().setFullPackageName(fullPackageName);

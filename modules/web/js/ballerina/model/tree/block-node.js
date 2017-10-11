@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
+import TreeUtil from '../tree-util';
 
 class BlockNode extends AbstractBlockNode {
 
@@ -41,9 +42,25 @@ class BlockNode extends AbstractBlockNode {
      */
     acceptDrop(node, dropBefore) {
         const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
-        this.addStatements(node, index);
+        if (TreeUtil.isAssignment(node)) {
+            const variables = node.getVariables();
+            TreeUtil.getNewTempVarName(this, '__output', variables.length)
+                .then((varNames) => {
+                    variables.forEach((variable, index) => {
+                        variable.getVariableName().setValue(varNames[index]);
+                    });
+                    this.addStatements(node, index);
+                })
+        } else if (TreeUtil.isVariableDef(node)) {
+            TreeUtil.getNewTempVarName(this, '__temp')
+                .then((varNames) => {
+                    node.getVariable().getName().setValue(varNames[0]);
+                    this.addStatements(node, index);
+                })
+        } else {
+            this.addStatements(node, index);
+        }
     }
-
 }
 
 export default BlockNode;
