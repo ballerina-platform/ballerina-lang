@@ -162,6 +162,21 @@ public class Symbols {
         return symbol;
     }
 
+    public static BConversionOperatorSymbol createConversionOperatorSymbol(BType sourceType,
+                                                               BType targetType,
+                                                               BType errorType,
+                                                               boolean safe,
+                                                               int opcode,
+                                                               PackageID pkgID,
+                                                               BSymbol owner) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, errorType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(pkgID, opType, owner, safe, opcode);
+        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
+        return symbol;
+    }
+    
     public static boolean isNative(BSymbol sym) {
         return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
     }

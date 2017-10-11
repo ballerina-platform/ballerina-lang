@@ -139,7 +139,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveConversionOperator(BType sourceType,
                                              BType targetType) {
-        return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+//        return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+        return types.getConversionOperator(sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
