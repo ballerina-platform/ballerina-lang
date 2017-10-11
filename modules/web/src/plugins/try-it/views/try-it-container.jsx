@@ -16,9 +16,12 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import React from 'react';
-// import ServiceDefinition from 'ballerina/ast/service-definition';
 import PropTypes from 'prop-types';
+import { parseFile } from 'api-client/api-client';
+import TreeBuilder from 'ballerina/model/tree-builder';
+import File from 'core/workspace/model/file';
 import HttpClient from './http-client';
 
 import './try-it-container.scss';
@@ -31,6 +34,37 @@ import './try-it-container.scss';
  */
 class TryItContainer extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            compilationUnit: undefined,
+        };
+    }
+
+    componentDidMount() {
+        this.updateView();
+        this.forceUpdate();
+    }
+
+    updateView() {
+        if (this.props.balFile) {
+            parseFile(this.props.balFile)
+                .then((jsonTree) => {
+                    if (!(_.isNil(jsonTree.model) || _.isNil(jsonTree.model.kind))) {
+                        const ast = TreeBuilder.build(jsonTree.model);
+                        this.setState({
+                            compilationUnit: ast,
+                        });
+                    }
+                }).catch((error) => {
+                    console.log(error);
+                    this.setState({
+                        compilationUnit: undefined,
+                    });
+                });
+        }
+    }
+
     /**
      * Renders the client
      * @returns {ReactElement} The client.
@@ -38,7 +72,7 @@ class TryItContainer extends React.Component {
      */
     renderClient() {
         // if (this.props.serviceDefinition.getProtocolPkgName() === 'http') {
-        return (<HttpClient />);
+        return (<HttpClient compilationUnit={this.state.compilationUnit} />);
         // } else {
             // return (null);
         // }
@@ -58,7 +92,11 @@ class TryItContainer extends React.Component {
 }
 
 TryItContainer.propTypes = {
-//     serviceDefinition: PropTypes.instanceOf(ServiceDefinition).isRequired,
+    balFile: PropTypes.instanceOf(File),
+};
+
+TryItContainer.defaultProps = {
+    balFile: undefined,
 };
 
 export default TryItContainer;

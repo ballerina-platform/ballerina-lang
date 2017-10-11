@@ -43,6 +43,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
                     });
+                    dispatch('debugger-run-with-debug-executed', activeEditor.file);
                 }
             },
         },
@@ -55,6 +56,8 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 if (LaunchManager.active) {
                     LaunchManager.stop();
                 }
+                const { command } = debuggerPlugin.appContext;
+                command.dispatch('debugger-stop-executed');
             },
         },
         {
@@ -70,6 +73,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
                     });
+                    dispatch('debugger-run-executed', activeEditor.file);
                 }
             },
         },

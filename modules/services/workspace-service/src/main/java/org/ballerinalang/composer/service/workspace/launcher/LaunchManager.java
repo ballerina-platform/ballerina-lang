@@ -50,7 +50,7 @@ public class LaunchManager {
 
     private String startedServiceURL;
     
-    private String port;
+    private String port = StringUtils.EMPTY;
 
     /**
      * Instantiates a new Debug manager.
@@ -151,17 +151,18 @@ public class LaunchManager {
             while ((line = reader.readLine()) != null) {
                 // improve "server connector started" log message to have the service URL in it.
                 // This is to handle the cloud use case.
-                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
+                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD)
                         && startedServiceURL != null) {
-                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
+                    this.updatePort(startedServiceURL);
+                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD + " " + startedServiceURL;
                 }
 
                 // This is to handle local service run use case.
-                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
+                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
                         && startedServiceURL == null) {
-                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " +
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST,
-                                    this.getUpdatedPort(line));
+                    this.updatePort(line);
+                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST, this.port);
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
@@ -306,20 +307,18 @@ public class LaunchManager {
     
     /**
      * Gets the port of the from console log that starts with
-     * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG
+     * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL
      * @param line The log line.
-     * @return The port. 
      */
-    private String getUpdatedPort(String line) {
+    private void updatePort(String line) {
         String hostPort = StringUtils.substringAfterLast(line,
-                                            LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG).trim();
-        String port = StringUtils.substringAfterLast(hostPort, "-");
+                                            LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
+        String port = StringUtils.substringAfterLast(hostPort, ":");
         if (StringUtils.isNotBlank(port)) {
             this.port = port;
         } else {
             this.port = "9090";
         }
-        return this.port;
     }
     
     /**

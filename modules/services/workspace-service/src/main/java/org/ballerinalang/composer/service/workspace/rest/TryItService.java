@@ -61,8 +61,9 @@ public class TryItService {
     public Response tryIt(@Context Request request, @PathParam("protocol") String protocol, String clientArgs) {
         try {
             String hostName = getHostName(request);
-            String port = LaunchManager.getInstance().getPort();
-            TryItClient tryItClient = tryItClientFactory.getClient(protocol, hostName + ":" + port, clientArgs);
+            String hostAndPort = "".equals(LaunchManager.getInstance().getPort()) ? hostName :
+                                                                hostName + ":" + LaunchManager.getInstance().getPort();
+            TryItClient tryItClient = tryItClientFactory.getClient(protocol, hostAndPort, clientArgs);
             String responseContent = tryItClient.execute();
             
             return Response
