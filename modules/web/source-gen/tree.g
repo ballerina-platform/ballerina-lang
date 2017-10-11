@@ -20,6 +20,7 @@ Annotation
 
 AnnotationAttachment
    : @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
+   | @ <annotationName.value> { <attributes-joined-by,>* }
    ;
 
 AnnotationAttachmentAttribute
@@ -32,15 +33,12 @@ AnnotationAttachmentAttributeValue
    ;
 
 AnnotationAttribute
-   : <typeNode.source> <name.value>
+   : <typeNode.source> <name.value> = <initialExpression.source>
+   | <typeNode.source> <name.value>
    ;
 
 ArrayLiteralExpr
    : [ <expressions-joined-by,>* ]
-   ;
-
-ArrayType
-   : <elementType.source> [ ]
    ;
 
 Assignment
@@ -65,6 +63,10 @@ BuiltInRefType
    : <typeKind>
    ;
 
+Catch
+   : catch ( <parameter.source> ) { <body.source> }
+   ;
+
 Comment
    : <comment>
    ;
@@ -80,7 +82,7 @@ ConnectorInitExpr
    ;
 
 ConstrainedType
-   : 
+   : <type.source> < <constraint.source> >
    ;
 
 Continue
@@ -105,7 +107,9 @@ ForkJoin
    ;
 
 Function
-   : <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
+   : <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
    | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
@@ -176,6 +180,10 @@ Transform
    : transform { <body.source> }
    ;
 
+Try
+   : try { <body.source> } <catchBlocks>*
+   ;
+
 TypeCastExpr
    : ( <typeNode.source> ) <expression.source>
    ;
@@ -202,7 +210,7 @@ Variable
    : <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
    | <typeNode.source> <name.value> = <initialExpression.source> <global?;>
    | <typeNode.source> <name.value> = <initialExpression.source>
-   | <typeNode.source> <name.value>
+   | <annotationAttachments>* <typeNode.source> <name.value>
    | <typeNode.source>
    ;
 
@@ -219,27 +227,24 @@ Worker
    ;
 
 WorkerReceive
-   : <expressions>* <- <workerName.value> ;
+   : <expressions-joined-by,>* <- <workerName.value> ;
    ;
 
 WorkerSend
-   : <expressions>* -> <workerName.value> ;
+   : <expressions-joined-by,>* -> <forkJoinedSend?fork> ;
+   | <expressions-joined-by,>* -> <workerName.value> ;
    ;
 
 XmlAttribute
-   : <name.source> <value.source> =
-   | <value.source> =
-   | =
+   : <name.source> = <value.source>
    ;
 
 XmlCommentLiteral
-   : <textFragments>*
-   | 
+   : xml` <-- <textFragments>* --> `
    ;
 
 XmlElementLiteral
-   : < <attributes>* > <content>* <endTagName.source>
-   | < <attributes>* />
+   : xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
    ;
 
 XmlPiLiteral
@@ -249,13 +254,12 @@ XmlPiLiteral
    ;
 
 XmlQname
-   : </ <localname.value> >
+   : <localname.value>
    | 
    ;
 
 XmlQuotedString
    : <textFragments>*
-   | 
    ;
 
 XmlTextLiteral
