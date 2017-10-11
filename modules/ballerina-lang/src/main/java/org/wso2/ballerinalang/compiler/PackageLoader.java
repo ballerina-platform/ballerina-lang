@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
@@ -122,6 +123,14 @@ public class PackageLoader {
 
     public BLangPackage loadPackageNode(PackageID pkgId) {
         return loadPackage(pkgId, this.packageRepo.loadPackage(pkgId));
+    }
+
+    /**
+     * List all the packages of packageRepo
+     * @return a set of PackageIDs
+     */
+    public Set<PackageID> listPackages() {
+        return this.packageRepo.listPackages();
     }
 
     private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
