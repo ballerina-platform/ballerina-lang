@@ -52,8 +52,8 @@ public final class Constants {
 
     //Server side SSL Parameters
     public static final String SSL_HANDLER = "ssl";
-    public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";
-    public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
+    public static final String CLIENT_SUPPORT_CIPHERS = "ciphers";
+    public static final String CLIENT_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "client.enable.session.creation";
 
     // Server Bootstrap related
@@ -85,12 +85,13 @@ public final class Constants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     //Server side SSL Parameters
-    public static final String SERVER_SUPPORT_CIPHERS = "server.ssl.ciphers";
-    public static final String SERVER_SUPPORT_HTTPS_PROTOCOLS = "server.ssl.http.protocols";
+    public static final String SERVER_SUPPORT_CIPHERS = "ciphers";
+    public static final String SERVER_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
     public static final String SERVER_ENABLE_SESSION_CREATION = "server.enable.session.creation";
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
-    public static final String SSL_VERIFY_CLIENT = "ssl.verify.client";
+    public static final String SSL_VERIFY_CLIENT = "sslVerifyClient";
+    public static final String SSL_PROTOCOL = "sslProtocol";
 
     public static final String IS_SECURED_CONNECTION = "IS_SECURED_CONNECTION";
 
@@ -193,9 +194,12 @@ public final class Constants {
     public static final String HTTP_PORT = "port";
     public static final String SCHEME = "scheme";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
-    public static final String HTTP_KEY_STORE_PASS = "keyStorePass";
-    public static final String HTTP_CERT_PASS = "certPass";
+    public static final String HTTP_KEY_STORE_PASS = "keyStorePassword";
+    public static final String HTTP_CERT_PASS = "certPassword";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final String HTTP_TRUST_STORE_FILE = "trustStoreFile";
+    public static final String HTTP_TRUST_STORE_PASS = "trustStorePassword";
+
 
     public static final String TRANSPORT_HEADERS = "TRANSPORT_HEADERS";
 

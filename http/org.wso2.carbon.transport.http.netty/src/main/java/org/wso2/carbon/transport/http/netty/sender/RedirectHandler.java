@@ -481,7 +481,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
                             new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
                                     TimeUnit.MILLISECONDS));
-                    //channelHandlerContext.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                 } else {

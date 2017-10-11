@@ -171,8 +171,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        httpResponseFuture.notifyHttpListener(cause);
         if (ctx != null && ctx.channel().isActive()) {
-            httpResponseFuture.notifyHttpListener(cause);
             ctx.close();
         }
     }
