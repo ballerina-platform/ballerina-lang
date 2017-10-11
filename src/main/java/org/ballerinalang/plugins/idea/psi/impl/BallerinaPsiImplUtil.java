@@ -1129,6 +1129,10 @@ public class BallerinaPsiImplUtil {
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(scope,
                 ParameterNode.class);
         for (ParameterNode parameter : parameterNodes) {
+            ScopeNode parentScope = PsiTreeUtil.getParentOfType(parameter, ScopeNode.class);
+            if (!scope.equals(parentScope)) {
+                continue;
+            }
             PsiElement identifier = parameter.getNameIdentifier();
             if (identifier != null && identifier instanceof IdentifierPSINode) {
                 results.add(((IdentifierPSINode) identifier));
