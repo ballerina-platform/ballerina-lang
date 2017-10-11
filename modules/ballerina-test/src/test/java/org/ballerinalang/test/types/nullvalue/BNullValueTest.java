@@ -126,8 +126,8 @@ public class BNullValueTest {
         Assert.assertEquals(vals[0], null);
     }
 
-    // Todo
-    @Test(description = "Test null in worker", enabled = false)
+
+    @Test(description = "Test null in worker")
     public void testNullInWorker() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
