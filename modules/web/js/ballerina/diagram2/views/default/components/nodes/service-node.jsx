@@ -29,6 +29,7 @@ import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
 import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from "../decorators/connector-declaration-decorator";
 
 /**
  * React component for a service definition.
@@ -116,9 +117,15 @@ class ServiceNode extends React.Component {
         // get the service name
         const title = model.getName().value;
 
-        /* const childrenWithNoVariables = model.filterChildren(
-                                                child => !ASTFactory.isVariableDefinitionStatement(child));*/
-
+        const connectors = variables
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });
         /**
          * Here we skip rendering the variables
          */
@@ -197,6 +204,7 @@ class ServiceNode extends React.Component {
                                 />
                         }
                     {blockNode}
+                    {connectors}
                 </PanelDecorator>
                 <ServerConnectorProperties
                     bBox={bBox}
