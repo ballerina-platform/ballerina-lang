@@ -142,13 +142,14 @@ public class Command {
         }
 
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
-        List<String> pkgNameCompsInString = ballerinaFile.getBLangPackage().pkgDecl.pkgNameComps.stream()
-                .map(WorkspaceUtils.bLangIdentifierToString).collect(Collectors.<String>toList());
-        if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
-            packagePath = String.join(File.separator, pkgNameCompsInString);
-            packageDir = Utils.getProgramDirectory(pkgNameCompsInString.size(), Paths.get(scriptLocation)).toString();
+        if (ballerinaFile.getBLangPackage().pkgDecl != null) {
+            List<String> pkgNameCompsInString = ballerinaFile.getBLangPackage().pkgDecl.pkgNameComps.stream()
+                    .map(WorkspaceUtils.bLangIdentifierToString).collect(Collectors.<String>toList());
+            if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
+                packagePath = String.join(File.separator, pkgNameCompsInString);
+                packageDir = Utils.getProgramDirectory(pkgNameCompsInString.size(), Paths.get(scriptLocation)).toString();
+            }
         }
-
         if (packagePath == null) {
             return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
         } else {
