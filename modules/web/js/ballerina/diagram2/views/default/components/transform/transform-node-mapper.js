@@ -790,9 +790,9 @@ class TransformNodeMapper {
     removeInputExpressions(stmt, expStr) {
         const rightExpression = stmt.getExpression();
         if ((TreeUtil.isSimpleVariableRef(rightExpression)
-              && rightExpression.variableName.getValue() === expStr) ||
+              && rightExpression.variableName === expStr) ||
             (TreeUtil.isFieldBasedAccessExpr(rightExpression)
-              && rightExpression.expression.variableName.getValue() === expStr)) {
+              && rightExpression.expression.variableName === expStr)) {
             this._transformStmt.body.removeStatements(stmt, true);
         } else {
             this.removeInputNestedExpressions(rightExpression, expStr);

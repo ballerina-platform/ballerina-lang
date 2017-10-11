@@ -950,10 +950,12 @@ class TransformExpanded extends React.Component {
     convertFieldType(properties, type) {
         if (properties) {
             properties.forEach((property) => {
-                if (property.innerType) {
-                    this.convertFieldType(property.innerType.properties, type);
+                if (property.typeName) {
+                    this.convertFieldType(property.properties, type);
+                    property.typeName = type;
+                } else {
+                    property.type = type;
                 }
-                property.type = type;
             });
         }
     }
