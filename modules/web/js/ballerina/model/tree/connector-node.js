@@ -17,8 +17,67 @@
  */
 
 import AbstractConnectorNode from './abstract-tree/connector-node';
+import TreeUtil from './../tree-util';
 
 class ConnectorNode extends AbstractConnectorNode {
+    /**
+     * Generate default name for service level statements.
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateDefaultName(parent, node) {
+        if (!parent) {
+            return undefined;
+        }
+
+        const actionDefaultName = 'echo';
+        const actionNodes = parent.getActions();
+        const names = {};
+        for (let i = 0; i < actionNodes.length; i++) {
+            const name = actionNodes[i].getName().value;
+            names[name] = name;
+        }
+
+        if (actionNodes.length > 0) {
+            for (let i = 1; i <= actionNodes.length + 1; i++) {
+                if (!names[`${actionDefaultName}${i}`]) {
+                    node.getName().setValue(`${actionDefaultName}${i}`, true);
+                    node.setName(node.getName(), true);
+                    break;
+                }
+            }
+        } else {
+            node.getName().setValue(`${actionDefaultName}1`, true);
+            node.setName(node.getName(), true);
+        }
+        return undefined;
+    }
+
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        if (TreeUtil.isConnectorDeclaration(node)) {
+            this.addVariables(node, 0);
+        }
+    }
 
 }
 

@@ -75,8 +75,7 @@ class ServiceNode extends AbstractServiceNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            const index = !_.isNil(dropBefore) ? this.getIndexOfVariables(dropBefore) : -1;
-            this.addVariables(node, index);
+            this.addVariables(node, 0);
         }
     }
 

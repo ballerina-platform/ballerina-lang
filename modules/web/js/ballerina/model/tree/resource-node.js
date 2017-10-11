@@ -180,8 +180,7 @@ class ResourceNode extends AbstractResourceNode {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
         } else if (TreeUtil.isConnectorDeclaration(node)) {
-            const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
-            this.getBody().addStatements(node, index);
+            this.getBody().addStatements(node, 0);
         }
     }
 }
