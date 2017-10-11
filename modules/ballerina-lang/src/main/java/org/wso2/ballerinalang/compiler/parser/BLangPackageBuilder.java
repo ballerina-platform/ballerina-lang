@@ -506,6 +506,7 @@ public class BLangPackageBuilder {
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
         variableNode.name = (BLangIdentifier) createIdentifier(paramName);
         variableNode.pos = variableNode.typeNode.pos;
+        variableNode.addWS(removeNthFromLast(ws, 3));
 
         BLangCatch catchNode = (BLangCatch) TreeBuilder.createCatchNode();
         catchNode.pos = poc;
