@@ -7,7 +7,9 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
 
 import java.nio.file.Paths;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -96,6 +98,10 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
                 return code;
             }
         }
+    }
+
+    public Set<PackageID> listPackages(int maxDepth){
+        return  new LinkedHashSet<>();
     }
 }
 
