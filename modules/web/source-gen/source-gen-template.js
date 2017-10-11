@@ -1,14 +1,6 @@
 let join;
 const tab = '    ';
 
-function times(n, f) {
-    let s = '';
-    for (let i = 0; i < n; i++) {
-        s += f();
-    }
-    return s;
-}
-
 export default function getSourceOf(node, pretty = false, l = 0) {
     if (!node) {
         return '';
@@ -65,8 +57,6 @@ export default function getSourceOf(node, pretty = false, l = 0) {
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, l, w) + w();
-        case 'ArrayType':
-            return getSourceOf(node.elementType, pretty, l) + times(node.dimensions, () => w() + '[' + w() + ']');
         // auto gen start
 // auto-gen-code
         // auto gen end

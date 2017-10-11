@@ -1,14 +1,6 @@
 let join;
 const tab = '    ';
 
-function times(n, f) {
-    let s = '';
-    for (let i = 0; i < n; i++) {
-        s += f();
-    }
-    return s;
-}
-
 export default function getSourceOf(node, pretty = false, l = 0) {
     if (!node) {
         return '';
@@ -65,8 +57,6 @@ export default function getSourceOf(node, pretty = false, l = 0) {
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, l, w) + w();
-        case 'ArrayType':
-            return getSourceOf(node.elementType, pretty, l) + times(node.dimensions, () => w() + '[' + w() + ']');
         // auto gen start
 
         case 'PackageDeclaration':
@@ -102,16 +92,9 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + '}';
             }
         case 'AnnotationAttachment':
-            if (node.packageAlias.value && node.annotationName.value
-                         && node.attributes) {
-                return dent() + w() + '@' + w() + node.packageAlias.value + w() + ':'
+            return dent() + w() + '@' + w() + node.packageAlias.value + w() + ':'
                  + w() + node.annotationName.value + w() + '{' + indent()
                  + join(node.attributes, pretty, l, w, '', ',') + outdent() + w() + '}';
-            } else {
-                return dent() + w() + '@' + w() + node.annotationName.value + w() + '{'
-                 + indent() + join(node.attributes, pretty, l, w, '', ',')
-                 + outdent() + w() + '}';
-            }
         case 'AnnotationAttachmentAttribute':
             return w() + node.name + w() + ':' + getSourceOf(node.value, pretty, l);
         case 'AnnotationAttachmentAttributeValue':
@@ -122,15 +105,12 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + ']';
             }
         case 'AnnotationAttribute':
-            if (node.typeNode && node.name.value && node.initialExpression) {
-                return getSourceOf(node.typeNode, pretty, l) + w() + node.name.value
-                 + w() + '=' + getSourceOf(node.initialExpression, pretty, l);
-            } else {
-                return getSourceOf(node.typeNode, pretty, l) + w() + node.name.value;
-            }
+            return getSourceOf(node.typeNode, pretty, l) + w() + node.name.value;
         case 'ArrayLiteralExpr':
             return w() + '[' + join(node.expressions, pretty, l, w, '', ',') + w()
                  + ']';
+        case 'ArrayType':
+            return getSourceOf(node.elementType, pretty, l) + w() + '[' + w() + ']';
         case 'Assignment':
             if (node.declaredWithVar && node.variables && node.expression) {
                 return dent() + w() + 'var' + a(' ')
@@ -150,24 +130,21 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return dent() + w() + 'break' + w() + ';';
         case 'BuiltInRefType':
             return w() + node.typeKind;
-        case 'Catch':
-            return dent() + w() + 'catch' + w() + '('
-                 + getSourceOf(node.parameter, pretty, l) + w() + ')' + w() + '{' + indent()
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
         case 'Comment':
             return w() + node.comment;
         case 'Connector':
             if (node.name.value && node.parameters && node.variableDefs
                          && node.actions) {
-                return dent() + w() + 'connector' + w() + node.name.value + w() + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w()
-                 + '{' + indent() + join(node.variableDefs, pretty, l, w, '')
-                 + join(node.actions, pretty, l, w, '') + outdent() + w() + '}';
+                return dent() + w() + 'connector' + w(' ') + node.name.value + w(' ')
+                 + '(' + join(node.parameters, pretty, l, w, '', ',') + w() + ')'
+                 + w(' ') + '{' + indent()
+                 + join(node.variableDefs, pretty, l, w, '') + join(node.actions, pretty, l, w, '') + outdent() + w()
+                 + '}';
             } else {
-                return dent() + w() + 'connector' + w() + node.name.value + w() + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w()
-                 + '{' + indent() + join(node.actions, pretty, l, w, '') + outdent()
-                 + w() + '}';
+                return dent() + w() + 'connector' + w(' ') + node.name.value + w(' ')
+                 + '(' + join(node.parameters, pretty, l, w, '', ',') + w() + ')'
+                 + w(' ') + '{' + indent() + join(node.actions, pretty, l, w, '')
+                 + outdent() + w() + '}';
             }
         case 'ConnectorInitExpr':
             if (node.connectorType && node.expressions) {
@@ -179,8 +156,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + getSourceOf(node.connectorType, pretty, l) + w() + '(' + w() + ')';
             }
         case 'ConstrainedType':
-            return getSourceOf(node.type, pretty, l) + w() + '<'
-                 + getSourceOf(node.constraint, pretty, l) + w() + '>';
+            return '';
         case 'Continue':
             return dent() + w() + 'continue' + w() + ';';
         case 'ExpressionStatement':
@@ -254,22 +230,6 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'Function':
             if (node.annotationAttachments && node.name.value && node.parameters
                          && node.returnParameters && node.returnParameters.length
-                         && node.workers && node.workers.length) {
-                return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
-                 + 'function' + w(' ') + node.name.value + w(' ') + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '('
-                 + join(node.returnParameters, pretty, l, w, '', ',') + w() + ')'
-                 + w(' ') + '{' + indent() + join(node.workers, pretty, l, w, '')
-                 + outdent() + w() + '}';
-            } else if (node.annotationAttachments && node.name.value && node.parameters
-                         && node.workers && node.workers.length) {
-                return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
-                 + 'function' + w(' ') + node.name.value + w(' ') + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '{'
-                 + indent() + join(node.workers, pretty, l, w, '') + outdent()
-                 + w() + '}';
-            } else if (node.annotationAttachments && node.name.value && node.parameters
-                         && node.returnParameters && node.returnParameters.length
                          && node.body) {
                 return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
                  + 'function' + w(' ') + node.name.value + w(' ') + '('
@@ -294,14 +254,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
                  + '(' + getSourceOf(node.condition, pretty, l) + w() + ')'
                  + w(' ') + '{' + indent() + getSourceOf(node.body, pretty, l)
-                 + outdent() + w() + '}' + w() + 'else'
+                 + outdent() + w() + '}' + w(' ') + 'else' + a(' ')
                  + getSourceOf(node.elseStatement, pretty, l);
             } else if (node.condition && node.body && node.elseStatement) {
                 return (node.parent.kind === 'If' ? '' : dent())
                  + (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ') + '('
                  + getSourceOf(node.condition, pretty, l) + w() + ')' + w(' ') + '{' + indent()
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}' + w()
-                 + 'else' + w(' ') + '{' + indent()
+                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}'
+                 + w(' ') + 'else' + a(' ') + w(' ') + '{' + indent()
                  + getSourceOf(node.elseStatement, pretty, l) + outdent() + w() + '}';
             } else {
                 return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
@@ -344,14 +304,16 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             if (node.annotationAttachments && node.name.value && node.parameters
                          && node.workers && node.workers.length) {
                 return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
-                 + 'resource' + w() + node.name.value + w() + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w() + '{'
-                 + indent() + join(node.workers, pretty, l, w, '') + outdent() + w() + '}';
+                 + 'resource' + w(' ') + node.name.value + w(' ') + '('
+                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '{'
+                 + indent() + join(node.workers, pretty, l, w, '') + outdent()
+                 + w() + '}';
             } else {
                 return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
-                 + 'resource' + w() + node.name.value + w() + '('
-                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w() + '{'
-                 + indent() + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
+                 + 'resource' + w(' ') + node.name.value + w(' ') + '('
+                 + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '{'
+                 + indent() + getSourceOf(node.body, pretty, l) + outdent() + w()
+                 + '}';
             }
         case 'Return':
             return dent() + w() + 'return' + a(' ')
@@ -371,19 +333,15 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             }
         case 'Struct':
             return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
-                 + 'struct' + w() + node.name.value + w() + '{' + indent()
-                 + join(node.fields, pretty, l, w, '', ';', true) + outdent() + w()
-                 + '}';
+                 + 'struct' + w(' ') + node.name.value + w(' ') + '{' + indent()
+                 + join(node.fields, pretty, l, w, '', ';', true) + outdent()
+                 + w() + '}';
         case 'Throw':
             return dent() + w() + 'throw' + getSourceOf(node.expressions, pretty, l)
                  + w() + ';';
         case 'Transform':
             return dent() + w() + 'transform' + w() + '{' + indent()
                  + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
-        case 'Try':
-            return dent() + w() + 'try' + w() + '{' + indent()
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}'
-                 + join(node.catchBlocks, pretty, l, w, '');
         case 'TypeCastExpr':
             return w() + '(' + getSourceOf(node.typeNode, pretty, l) + w() + ')'
                  + getSourceOf(node.expression, pretty, l);
@@ -417,9 +375,8 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return getSourceOf(node.typeNode, pretty, l) + w(' ') + node.name.value
                  + w(' ') + '=' + a(' ')
                  + getSourceOf(node.initialExpression, pretty, l);
-            } else if (node.annotationAttachments && node.typeNode && node.name.value) {
-                return join(node.annotationAttachments, pretty, l, w, '')
-                 + getSourceOf(node.typeNode, pretty, l) + w(' ') + node.name.value;
+            } else if (node.typeNode && node.name.value) {
+                return getSourceOf(node.typeNode, pretty, l) + w(' ') + node.name.value;
             } else {
                 return getSourceOf(node.typeNode, pretty, l);
             }
@@ -434,27 +391,30 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + indent() + getSourceOf(node.body, pretty, l) + outdent() + w()
                  + '}';
         case 'WorkerReceive':
-            return dent() + join(node.expressions, pretty, l, w, '', ',') + w()
-                 + '<-' + w() + node.workerName.value + w() + ';';
+            return dent() + join(node.expressions, pretty, l, w, '') + w() + '<-'
+                 + w() + node.workerName.value + w() + ';';
         case 'WorkerSend':
-            if (node.expressions && node.forkJoinedSend) {
-                return dent() + join(node.expressions, pretty, l, w, '', ',') + w()
-                 + '->' + w() + 'fork' + w() + ';';
-            } else {
-                return dent() + join(node.expressions, pretty, l, w, '', ',') + w()
-                 + '->' + w() + node.workerName.value + w() + ';';
-            }
+            return dent() + join(node.expressions, pretty, l, w, '') + w() + '->'
+                 + w() + node.workerName.value + w() + ';';
         case 'XmlAttribute':
-            return getSourceOf(node.name, pretty, l) + w() + '='
-                 + getSourceOf(node.value, pretty, l);
+            if (node.name && node.value) {
+                return getSourceOf(node.name, pretty, l)
+                 + getSourceOf(node.value, pretty, l) + w() + '=';
+            } else if (node.value) {
+                return getSourceOf(node.value, pretty, l) + w() + '=';
+            } else {
+                return w() + '=';
+            }
         case 'XmlCommentLiteral':
-            return w() + 'xml`' + w() + '<--'
-                 + join(node.textFragments, pretty, l, w, '') + w() + '-->' + w() + '`';
+            return join(node.textFragments, pretty, l, w, '');
         case 'XmlElementLiteral':
-            return w() + 'xml`' + w() + '<'
-                 + getSourceOf(node.startTagName, pretty, l) + join(node.attributes, pretty, l, w, '') + w() + '>'
-                 + join(node.content, pretty, l, w, '') + w() + '</'
-                 + getSourceOf(node.endTagName, pretty, l) + w() + '>';
+            if (node.attributes && node.content && node.endTagName) {
+                return w() + '<' + join(node.attributes, pretty, l, w, '') + w() + '>'
+                 + join(node.content, pretty, l, w, '')
+                 + getSourceOf(node.endTagName, pretty, l);
+            } else {
+                return w() + '<' + join(node.attributes, pretty, l, w, '') + w() + '/>';
+            }
         case 'XmlPiLiteral':
             if (node.target && node.dataTextFragments) {
                 return getSourceOf(node.target, pretty, l)
@@ -465,7 +425,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return getSourceOf(node.target, pretty, l);
             }
         case 'XmlQname':
-            return w() + node.localname.value;
+            return w() + '</' + w() + node.localname.value + w() + '>';
         case 'XmlQuotedString':
             return join(node.textFragments, pretty, l, w, '');
         case 'XmlTextLiteral':
