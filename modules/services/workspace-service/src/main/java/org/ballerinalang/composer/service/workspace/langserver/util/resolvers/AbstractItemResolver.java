@@ -34,6 +34,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
@@ -170,7 +172,20 @@ public abstract class AbstractItemResolver {
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
 
         CompletionItemData data = new CompletionItemData();
-//        data.addData("type", type);
+        Type type = new Type();
+
+        type.setPkgName(symbolInfo.getScopeEntry().symbol.pkgID.toString());
+        if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
+            BJSONType bJsonType = (BJSONType)symbolInfo.getScopeEntry().symbol.getType();
+            type.setConstraint(true);
+            type.setConstraintName(bJsonType.getConstraint().toString());
+            type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
+        } else if (symbolInfo.getScopeEntry().symbol.getType() instanceof BArrayType) {
+            type.setIsArrayType(true);
+            type.setArrayType(symbolInfo.getScopeEntry().symbol.getType().toString());
+        }
+
+        data.addData("type", type);
         completionItem.setData(data);
 
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
@@ -294,10 +309,22 @@ public abstract class AbstractItemResolver {
      * @return {@link Boolean}
      */
     protected boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
         TokenStream tokenStream = dataModel.getTokenStream();
         int searchTokenIndex = dataModel.getTokenIndex();
+        String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
 
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        if (terminalTokens.contains(currentTokenStr)) {
+            searchTokenIndex -= 1;
+            while (true) {
+                if (tokenStream.get(searchTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
+                    break;
+                } else {
+                    searchTokenIndex -= 1;
+                }
+            }
+        }
+
         while (true) {
             if (searchTokenIndex >= tokenStream.size()) {
                 return false;
@@ -448,5 +475,62 @@ public abstract class AbstractItemResolver {
                         ItemResolverConstants.PRIORITY_4, insertText));
             }
         });
+    }
+
+    public class Type {
+        private boolean isArrayType;
+        private boolean constraint;
+        private String arrayType = null;
+        private String pkgName = null;
+        private String constraintName = null;
+        private String constraintPkgName = null;
+
+        public boolean isArrayType() {
+            return isArrayType;
+        }
+
+        public void setIsArrayType(boolean arrayType) {
+            isArrayType = arrayType;
+        }
+
+        public boolean isConstraint() {
+            return constraint;
+        }
+
+        public void setConstraint(boolean constraint) {
+            this.constraint = constraint;
+        }
+
+        public String getArrayType() {
+            return arrayType;
+        }
+
+        public void setArrayType(String arrayType) {
+            this.arrayType = arrayType;
+        }
+
+        public String getPkgName() {
+            return pkgName;
+        }
+
+        public void setPkgName(String pkgName) {
+            this.pkgName = pkgName;
+        }
+
+        public String getConstraintName() {
+            return constraintName;
+        }
+
+        public void setConstraintName(String constraintName) {
+            this.constraintName = constraintName;
+        }
+
+        public String getConstraintPkgName() {
+            return constraintPkgName;
+        }
+
+        public void setConstraintPkgName(String constraintPkgName) {
+            this.constraintPkgName = constraintPkgName;
+        }
     }
 }
