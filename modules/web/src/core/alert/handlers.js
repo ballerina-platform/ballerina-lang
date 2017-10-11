@@ -10,8 +10,8 @@ export function getHandlerDefinitions(plugin) {
     return [
         {
             cmdID: COMMANDS.SHOW_ALERT,
-            handler: () => {
-                plugin.reRender();
+            handler: ({ level, message }) => {
+                plugin.showAlert(level, message);
             },
         },
     ];

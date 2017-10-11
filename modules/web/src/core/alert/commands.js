@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { COMMANDS } from './constants';
 
 /**
@@ -10,7 +11,11 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions() {
     return [
         {
-            id: COMMANDS.UPDATE_TOOL_BAR,
+            id: COMMANDS.SHOW_ALERT,
+            argTypes: {
+                level: PropTypes.string.isRequired,
+                message: PropTypes.string.isRequired,
+            },
         },
     ];
 }
