@@ -119,7 +119,7 @@ public class BLangVMErrors {
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
 
         String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
-        BStruct error = createBStruct(errorStructInfo, errorMsg, null,
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null, null,
                 sourceType.toString(), targetType.toString());
 
         // Set StackTrace.

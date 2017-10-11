@@ -1,18 +1,18 @@
-function testNullInForkJoin () (message, message) {
-    message m = null;
+function testNullInForkJoin () (string, string) {
+    string m = "";
     fork {
         worker foo {
-            message resp1 = null;
+            string resp1 = "";
             resp1 -> fork;
         }
 
         worker bar {
-            message resp2 = {};
+            string resp2 = "";
             resp2 -> fork;
         }
     } join (all) (map allReplies) {
 
     } timeout (30000) (map msgs) {
-        return null, null;
+        return "", "";
     }
 }

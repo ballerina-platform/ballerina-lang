@@ -19,6 +19,13 @@ function stringtoint(string value)(int) {
     return result;
 }
 
+function testJsonIntToString() (string) {
+    json j = 5;
+    int value;
+    value, _ = (int)j;
+    return <string> value;
+}
+
 function stringtofloat(string value)(float) {
     float result;
     //string to float should be a conversion

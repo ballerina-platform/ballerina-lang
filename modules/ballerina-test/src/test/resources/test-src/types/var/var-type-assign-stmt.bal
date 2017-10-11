@@ -1,3 +1,15 @@
+struct Person {
+    string name;
+    int age;
+    Person parent;
+    json info;
+    map address;
+    int[] marks;
+    any a;
+    float score;
+    boolean alive;
+}
+
 function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, TypeConversionError) {
     int a;
     string s = "10";
@@ -123,4 +135,66 @@ function testAnyToMapWithErrors()(map, TypeCastError) {
     var b, err = (map) a;
 
     return b, err;
+}
+
+
+function testIncompatibleJsonToStructWithErrors() (Person, TypeConversionError) {
+    json j = { name:"Child",
+               age:25,
+               parent:{
+                    name:"Parent",
+                    age:50,
+                    parent: "Parent",
+                    address:{"city":"Colombo", "country":"SriLanka"},
+                    info:null,
+                    marks:null
+               },
+               address:{"city":"Colombo", "country":"SriLanka"},
+               info:{status:"single"},
+               marks:[87,94,72]
+             };
+    var p, err = <Person> j;
+    return p, err;
+}
+
+struct PersonA {
+    string name;
+    int age;
+}
+
+function testJsonToStructWithErrors() (PersonA, TypeConversionError) {
+    json j = {name:"supun", age:"25"};
+
+    var person, err = <PersonA> j;
+
+    return person, err;
+}
+
+struct A {
+    string x;
+    int y;
+}
+
+struct B {
+    string x;
+}
+
+function testCompatibleStructForceCasting()(A, TypeCastError) {
+    A a = {x: "x-valueof-a", y:4};
+    B b = {x: "x-valueof-b"};
+
+    b = (B) a;
+
+    var c, err = (A) b;
+
+    a.x = "updated-x-valueof-a";
+    return c, err;
+}
+
+function testInCompatibleStructForceCasting()(A, TypeCastError) {
+    B b = {x: "x-valueof-b"};
+
+    var a, err = (A) b;
+
+    return a, err;
 }

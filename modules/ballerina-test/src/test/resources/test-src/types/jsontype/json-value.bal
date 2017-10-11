@@ -297,3 +297,27 @@ function testJsonLength () (int, int) {
 
     return lengthof j1, lengthof j2;
 }
+
+function testJsonArrayToJsonCasting () (json) {
+    json[][] j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
+
+    json j2 = (json)j1;
+    return j2;
+}
+
+function testJsonToJsonArrayCasting () (json[], json[][], TypeCastError) {
+    json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
+
+    var j2, e = (json[])j1;
+    var j3, e = (json[][])j1;
+
+    return j2, j3, e;
+}
+
+function testJsonToJsonArrayInvalidCasting () (json[][][], TypeCastError) {
+    json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
+
+    var j2, e = (json[][][])j1;
+
+    return j2, e;
+}
