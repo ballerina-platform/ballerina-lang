@@ -965,8 +965,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
+            BLangExpression varRef = assignNode.varRefs.get(i);
+            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
+            }
             BType actualType = rhsTypes.get(i);
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) assignNode.varRefs.get(i);
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
             Name varName = names.fromIdNode(simpleVarRef.variableName);
             if (newVariables.contains(varName)) {
                 // define new variables

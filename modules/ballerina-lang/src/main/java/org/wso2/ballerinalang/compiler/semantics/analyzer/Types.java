@@ -405,18 +405,19 @@ public class Types {
             return getExplicitArrayCastOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
 
         } else if (t.tag == TypeTags.ARRAY) {
-            if (s == symTable.jsonType) {
-                return getExplicitArrayCastOperator(((BArrayType) t).eType, symTable.jsonType, origT, origS);
+            // If the target type is JSON array, and the source type is a JSON
+            if (s.tag == TypeTags.JSON && getElementType(t).tag == TypeTags.JSON) {
+                return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
             }
 
             // If only the target type is an array type, then the source type must be of type 'any'
-            if (s == symTable.anyType) {
+            if (s.tag == TypeTags.ANY) {
                 return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
             }
             return symTable.notFoundSymbol;
 
         } else if (s.tag == TypeTags.ARRAY) {
-            if (t == symTable.jsonType) {
+            if (t.tag == TypeTags.JSON) {
                 return getExplicitArrayCastOperator(symTable.jsonType, ((BArrayType) s).eType, origT, origS);
             }
 
