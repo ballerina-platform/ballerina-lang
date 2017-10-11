@@ -66,7 +66,7 @@ public class ListenerConfiguration {
     private String keyStoreFile;
 
     @XmlAttribute
-    private String keyStorePass;
+    private String keyStorePassword;
 
     @XmlAttribute
     private String trustStoreFile;
@@ -85,6 +85,12 @@ public class ListenerConfiguration {
 
     @XmlAttribute
     private boolean httpTraceLogEnabled;
+
+    @XmlAttribute
+    private String verifyClient;
+
+    @XmlAttribute
+    private String sslProtocol;
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
@@ -129,16 +135,48 @@ public class ListenerConfiguration {
         return keyStoreFile;
     }
 
+    public void setTrustStoreFile(String trustStoreFile) {
+        this.trustStoreFile = trustStoreFile;
+    }
+
+    public String getTrustStoreFile() {
+        return trustStoreFile;
+    }
+
     public void setKeyStoreFile(String keyStoreFile) {
         this.keyStoreFile = keyStoreFile;
     }
 
     public String getKeyStorePass() {
-        return keyStorePass;
+        return keyStorePassword;
     }
 
-    public void setKeyStorePass(String keyStorePass) {
-        this.keyStorePass = keyStorePass;
+    public String getTrustStorePass() {
+        return trustStorePass;
+    }
+
+    public void setTrustStorePass(String trustStorePass) {
+        this.trustStorePass = trustStorePass;
+    }
+
+    public void setKeyStorePass(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public void setVerifyClient(String verifyClient) {
+        this.verifyClient = verifyClient;
+    }
+
+    public String getVerifyClient() {
+        return verifyClient;
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
+    }
+
+    public String getSslProtocol() {
+        return sslProtocol;
     }
 
     public int getPort() {
@@ -186,8 +224,8 @@ public class ListenerConfiguration {
             return null;
         }
 
-        return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters);
+        return Util.getSSLConfigForListener(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
+                parameters, verifyClient, sslProtocol);
     }
 
     private List<Parameter> getDefaultParameters() {
