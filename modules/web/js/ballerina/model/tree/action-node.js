@@ -15,10 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractActionNode from './abstract-tree/action-node';
+import TreeUtil from './../tree-util';
 
 class ActionNode extends AbstractActionNode {
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node);
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        if (TreeUtil.isWorker(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
+            this.addWorkers(node, index);
+        } else if (TreeUtil.isConnectorDeclaration(node)) {
+            this.getBody().addStatements(node, 0);
+        }
+    }
 
 }
 

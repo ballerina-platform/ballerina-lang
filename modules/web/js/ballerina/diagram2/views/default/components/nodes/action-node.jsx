@@ -25,45 +25,20 @@ import { getComponentForNodeArray } from './../../../../diagram-util';
 import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
-import AddResourceDefinition from './add-resource-definition';
+import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 
 class ActionNode extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            style: 'hideResourceGroup',
-        };
-        this.onMouseOver = this.onMouseOver.bind(this);
-        this.onMouseOut = this.onMouseOut.bind(this);
-    }
-
-    canDropToPanelBody(nodeBeingDragged) {
-    }
-
-    /**
-     * Handles the mouse enter event on the service definition
-     */
-    onMouseOver() {
-        this.setState({ style: 'showResourceGroup' });
-    }
-
-    /**
-     * Handles the mouse leave event on the service definition
-     */
-    onMouseOut() {
-        if (!this.props.model.viewState.showWebSocketMethods) {
-            this.setState({ style: 'hideResourceGroup' });
-        }
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorDeclaration(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
-        const parentNode = this.props.model.parent;
         const statementContainerBBox = this.props.model.body.viewState.bBox;
-        // const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
-        // lets calculate function worker lifeline bounding box.
         const action_worker_bBox = {};
         action_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
         action_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
@@ -77,10 +52,16 @@ class ActionNode extends React.Component {
         const argumentParameters = this.props.model.getParameters();
 
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
-        // const nodeFactory = ASTFactory;
-        // Check for connector declaration children
-        // const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
-
+        const connectors = this.props.model.body.statements
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });
+        const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
         let annotationBodyHeight = 0;
         if (!_.isNil(this.props.model.viewState.components.annotation)) {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
@@ -88,9 +69,6 @@ class ActionNode extends React.Component {
 
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
-        const thisNodeIndex = parentNode.getIndexOfActions(this.props.model);
-        const showAddActionBtn = true;
-
         return (
             <g>
                 <PanelDecorator
@@ -99,7 +77,7 @@ class ActionNode extends React.Component {
                     bBox={bBox}
                     model={this.props.model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
                 >
                     <g>
@@ -111,39 +89,10 @@ class ActionNode extends React.Component {
                             iconColor='#025482'
                         />
                         {blockNode}
+                        {workers}
+                        {connectors}
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getActions().length - 1 && showAddActionBtn &&
-                !this.props.model.viewState.collapsed) &&
-                <g
-                    className={this.state.style}
-                    onMouseOver={this.onMouseOver}
-                    onMouseOut={this.onMouseOut}
-                >
-                    <rect
-                        x={bBox.x - 20}
-                        y={bBox.y + bBox.h}
-                        width={bBox.w + 20}
-                        height='50'
-                        fillOpacity="0"
-                        strokeOpacity="0"
-                    />
-                    <line
-                        x1={bBox.x - 20}
-                        y1={bBox.y + bBox.h + 25}
-                        x2={bBox.x + 40}
-                        y2={bBox.y + bBox.h + 25}
-                        strokeDasharray="5, 5"
-                        strokeWidth="3"
-                        className="protocol-line"
-                    />
-                    <AddResourceDefinition
-                        model={this.props.model}
-                        bBox={bBox}
-                        style={this.state.style}
-                    />
-                </g>
-                }
             </g>);
     }
 }

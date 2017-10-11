@@ -27,6 +27,8 @@ import PanelDecoratorButton from './../decorators/panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
+import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from "../decorators/connector-declaration-decorator";
 
 /**
  * React component for a connector definition.
@@ -43,13 +45,8 @@ class ConnectorNode extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.state = {
-            style: 'hideResourceGroup',
-        };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
-        this.onMouseEnter = this.onMouseEnter.bind(this);
-        this.onMouseLeave = this.onMouseLeave.bind(this);
     }
 
     /**
@@ -67,12 +64,8 @@ class ConnectorNode extends React.Component {
      * @returns {boolean} True if can be dropped, else false.
      * @memberof ConnectorNode
      */
-    canDropToPanelBody(nodeBeingDragged) {
-        /* const nodeFactory = ASTFactory;
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for resource defs and connector declarations only.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isResourceDefinition(nodeBeingDragged);*/
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorDeclaration(dragSource) || TreeUtil.isAction(dragSource);
     }
 
     /**
@@ -95,21 +88,6 @@ class ConnectorNode extends React.Component {
         this.context.editor.update();
     }
     /**
-     * Handles the mouse enter event on the connector definition
-     */
-    onMouseEnter() {
-        this.setState({ style: 'showResourceGroup' });
-    }
-
-    /**
-     * Handles the mouse leave event on the connector definition
-     */
-    onMouseLeave() {
-        if (!this.props.model.viewState.showWebSocketMethods) {
-            this.setState({ style: 'hideResourceGroup' });
-        }
-    }
-    /**
      * Renders the view for a connector definition.
      *
      * @returns {ReactElement} The view.
@@ -123,16 +101,16 @@ class ConnectorNode extends React.Component {
 
         // get the connector name
         const title = model.getName().value;
-
-        /**
-         * Here we skip rendering the variables
-         */
         const blockNode = getComponentForNodeArray(model.getActions(), this.context.mode);
-
-        const expandedVariablesBBox = {
-            x: bBox.x + DesignerDefaults.panel.body.padding.left + 10,
-            y: bBox.y + DesignerDefaults.panel.body.padding.top + 5,
-        };
+        const connectors = variables
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });
 
         const rightComponents = [];
 
@@ -144,13 +122,13 @@ class ConnectorNode extends React.Component {
                     bBox={bBox}
                     model={model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
                 >
                     {
                         viewState.variablesExpanded ?
                             <GlobalExpanded
-                                bBox={expandedVariablesBBox}
+                                bBox={viewState.components.initFunction}
                                 globals={variables}
                                 onCollapse={this.handleVarialblesBadgeClick}
                                 title="Variables"
@@ -161,18 +139,15 @@ class ConnectorNode extends React.Component {
                                 getValue={g => (g.getSource())}
                             /> :
                             <GlobalDefinitions
-                                bBox={expandedVariablesBBox}
+                                bBox={viewState.components.initFunction}
                                 numberOfItems={variables.length}
                                 title={'Variables'}
                                 onExpand={this.handleVarialblesBadgeClick}
                             />
                         }
                     {blockNode}
+                    {connectors}
                 </PanelDecorator>
-                {/*<ServerConnectorProperties*/}
-                    {/*bBox={bBox}*/}
-                    {/*model={this.props.model}*/}
-                {/*/>*/}
             </g>);
     }
 }

@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import AbstractConnectorNode from './abstract-tree/connector-node';
 import TreeUtil from './../tree-util';
 
@@ -43,13 +44,13 @@ class ConnectorNode extends AbstractConnectorNode {
             for (let i = 1; i <= actionNodes.length + 1; i++) {
                 if (!names[`${actionDefaultName}${i}`]) {
                     node.getName().setValue(`${actionDefaultName}${i}`, true);
-                    node.setName(node.getName(), true);
+                    node.setName(node.getName(), false);
                     break;
                 }
             }
         } else {
             node.getName().setValue(`${actionDefaultName}1`, true);
-            node.setName(node.getName(), true);
+            node.setName(node.getName(), false);
         }
         return undefined;
     }
@@ -62,7 +63,7 @@ class ConnectorNode extends AbstractConnectorNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
+        return TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
     }
 
     /**
@@ -75,7 +76,10 @@ class ConnectorNode extends AbstractConnectorNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            this.addVariables(node, 0);
+            this.addVariableDefs(node, 0);
+        } else if (TreeUtil.isAction(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfActions(dropBefore) : -1;
+            this.addActions(node, index);
         }
     }
 
