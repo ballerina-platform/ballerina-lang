@@ -26,6 +26,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
 
 /**
  * Test cases for usages of fork-join in functions.
@@ -64,14 +65,15 @@ public class ForkJoinInFunctionTest {
         Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
     }
 
-    @Test(description = "Test Fork Join Any of specific", enabled = false)
+    @Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
         CompileResult result = BTestUtils.compile("test-src/workers/fork-join-any-specific.bal");
+        Lists.of(result.getDiagnostics()).forEach(e -> System.out.println(e.getMessage() + ":" + e.getPosition()));
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 1);
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
     }
 
     @Test(description = "Test Fork Join Without Timeout Expression")
