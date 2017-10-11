@@ -492,8 +492,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
             } else {
-                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
-                        unaryExpr.operator, exprType);
+                BSymbol symbol;
+                // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
+                // This is because the JSON arrays are internally handled as a normal JSON.
+                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator) && getElementType(exprType).tag == TypeTags.JSON) {
+                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
+                } else {
+                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
+                }
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
@@ -1163,5 +1169,13 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.tag != TypeTags.ARRAY) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 }
