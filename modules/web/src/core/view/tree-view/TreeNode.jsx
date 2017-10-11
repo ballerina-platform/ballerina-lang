@@ -105,7 +105,7 @@ class TreeNode extends React.Component {
             .then((resp) => {
                 let editError = '';
                 let editTargetExists = false;
-                if (resp.exists) {
+                if (resp.exists && (this.props.node.label !== inputValue)) {
                     editError = `A file or folder "${inputValue}" already exists at this location.
                     Please choose a different name`;
                     editTargetExists = true;
@@ -123,7 +123,7 @@ class TreeNode extends React.Component {
             });
         } else {
             this.setState({
-                editError: '',
+                editError: _.isEmpty(inputValue) ? 'A file or folder name must be provided.' : '',
                 editTargetExists: false,
             });
         }
