@@ -297,6 +297,7 @@ class TopLevelNodes extends React.Component {
                         ry={headerHeight / 2}
                         className="package-definition-header"
                     />
+                    { packageDefExpanded &&
                     <g>
                         <rect
                             x={bBox.x}
@@ -327,7 +328,7 @@ class TopLevelNodes extends React.Component {
                         >
                             {this.state.packageDefValue || ''}
                         </EditableText>
-                    </g>
+                    </g> }
                     <image
                         width={iconSize}
                         height={iconSize}
