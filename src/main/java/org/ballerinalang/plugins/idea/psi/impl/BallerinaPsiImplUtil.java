@@ -1415,17 +1415,24 @@ public class BallerinaPsiImplUtil {
         if (element == null) {
             return null;
         }
+        if (isALambdaFunction(element)) {
+            return element;
+        }
+        return null;
+    }
+
+    public static boolean isALambdaFunction(@NotNull PsiElement element) {
         BuiltInReferenceTypeNameNode builtInReferenceTypeNameNode = PsiTreeUtil.findChildOfType(element.getParent(),
                 BuiltInReferenceTypeNameNode.class);
         if (builtInReferenceTypeNameNode == null) {
-            return null;
+            return false;
         }
         FunctionTypeNameNode functionTypeNameNode = PsiTreeUtil.getChildOfType(builtInReferenceTypeNameNode,
                 FunctionTypeNameNode.class);
         if (functionTypeNameNode == null) {
-            return null;
+            return false;
         }
-        return element;
+        return true;
     }
 
     @Nullable

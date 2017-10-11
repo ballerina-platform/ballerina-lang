@@ -182,18 +182,16 @@ public class NameReference extends BallerinaElementReference {
                 if (scope != null) {
                     int caretOffset = identifier.getStartOffset();
 
-                    List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope
-                            (scope,
-                                    caretOffset);
+                    List<IdentifierPSINode> variables =
+                            BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
                     results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
                     List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
                             caretOffset);
                     results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
-                    List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil
-                            .getAllGlobalVariablesInResolvableScope
-                                    (scope);
+                    List<IdentifierPSINode> globalVariables =
+                            BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
                     results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
                     List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);

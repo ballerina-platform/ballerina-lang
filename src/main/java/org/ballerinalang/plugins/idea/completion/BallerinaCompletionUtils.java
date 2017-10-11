@@ -644,7 +644,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    private static LookupElement createVariableLookupElement(@NotNull IdentifierPSINode element) {
+    public static LookupElement createVariableLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -661,7 +661,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    private static LookupElement createParameterLookupElement(@NotNull IdentifierPSINode element) {
+    public static LookupElement createParameterLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -695,7 +695,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    private static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
+    public static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
