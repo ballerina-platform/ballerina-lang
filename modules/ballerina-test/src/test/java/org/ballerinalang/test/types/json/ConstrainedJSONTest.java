@@ -104,7 +104,7 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
-    @Test(description = "Test json imported struct constraint", enabled = false)
+    @Test(description = "Test json imported struct constraint")
     public void testStructConstraintInPkg() {
         CompileResult compileResult = BTestUtils.compile("test-src/types/jsontype/pkg", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
