@@ -203,7 +203,7 @@ class PanelDecorator extends React.Component {
 
         let protocolOffset = 0;
         if (this.props.protocol) {
-            protocolOffset = 35;
+            protocolOffset = 40;
         }
 
         return (<g className="panel">
