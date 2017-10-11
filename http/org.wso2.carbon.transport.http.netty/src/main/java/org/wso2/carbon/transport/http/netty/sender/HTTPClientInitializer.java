@@ -68,6 +68,9 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
         if (followRedirect) {
+            if (log.isDebugEnabled()) {
+                log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
+            }
             RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }

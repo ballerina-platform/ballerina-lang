@@ -22,7 +22,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
@@ -53,7 +52,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -70,7 +68,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private SSLEngine sslEngine;
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
-    private AtomicInteger currentRedirectCount;
+    private Integer currentRedirectCount;
     private HTTPCarbonMessage targetRespMsg;
 
     public RedirectHandler(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine,
@@ -98,7 +96,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         /* Preserve original context, as it is needed to write the final response back to the original channel when
         multiple redirections are involved with different channels.*/
@@ -128,58 +126,52 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Handles the actual redirect.
+     * When an exception occurs, if the original channel is still active send it to the next handler else, notify
+     * listener.
      *
-     * @param ctx Channel handler context
-     * @param msg Response message
+     * @param ctx   Channel context
+     * @param cause Exception occurred
+     * @throws Exception
      */
-    private void redirectRequest(ChannelHandlerContext ctx, Object msg) {
-        if (isRedirect) {
-            try {
-                URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
-                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
-                Util.setupTransferEncodingForRequest(httpCarbonRequest);
-                HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
-
-                if (isCrossDoamin) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Send redirect request using a new channel");
-                    }
-                    writeContentToNewChannel(ctx, locationUrl, httpCarbonRequest, httpRequest);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Use existing channel to send the redirect request");
-                    }
-                    ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
-                    ctx.write(httpRequest);
-                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                }
-            } catch (MalformedURLException e) {
-                LOG.error("Error occurred when parsing redirect url", e);
-                originalChannelContext.fireExceptionCaught(e);
-            } catch (Exception e) {
-                LOG.error("Error occurred during redirection", e);
-                originalChannelContext.fireExceptionCaught(e);
-            }
-        } else {
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("Exception occurred in RedirectHandler.", cause);
+        if (ctx != null && ctx.channel().isActive()) {
             if (originalChannelContext.channel().isActive()) {
-                originalChannelContext.fireChannelRead(msg);
+                originalChannelContext.fireExceptionCaught(cause);
             } else {
-                //If the original channel is not active mark the end of the target message.
-                HttpContent httpContent = (HttpContent) msg;
-                targetRespMsg.addHttpContent(httpContent);
-                targetRespMsg.setEndOfMsgAdded(true);
-                targetRespMsg = null;
+                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
+                        .get();
+                responseFuture.notifyHttpListener(cause);
+            }
+            ctx.close();
+        }
+    }
 
-                AtomicInteger redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
-                if (redirectCount != null) {
-                    redirectCount.set(0);
-                    currentRedirectCount.set(0);
-                    ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+    /**
+     * When a timeout occurs, notify listener and close the channel.
+     *
+     * @param ctx Channel context
+     * @param evt Event
+     * @throws Exception
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent) evt;
+            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
                 }
-                if (ctx.channel().attr(Constants.ORIGINAL_REQUEST).get() != null) {
-                    ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
+                String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
+                        + "</errorMessage>";
+                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
+                        .get();
+                if (responseFuture != null) {
+                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+                    responseFuture.removeHttpListener();
                 }
+                ctx.close();
             }
         }
     }
@@ -190,83 +182,185 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param ctx ChannelHandler context
      * @param msg Response message
      */
-    private void handleRedirectState(ChannelHandlerContext ctx, HttpResponse msg) {
+    private void handleRedirectState(ChannelHandlerContext ctx, HttpResponse msg)
+            throws UnsupportedEncodingException, MalformedURLException {
         try {
             originalRequest = ctx.channel().attr(Constants.ORIGINAL_REQUEST).get();
-            String location = msg.headers().get(HttpHeaderNames.LOCATION) != null ?
-                    URLDecoder.decode(msg.headers().get(HttpHeaderNames.LOCATION), Constants.UTF8) :
-                    null;
-            int statusCode = msg.getStatus().code();
+            String location = getLocationFromResponseHeader(msg);
+            int statusCode = msg.status().code();
             if (location != null) {
                 redirectState = getRedirectState(location, statusCode, originalRequest);
             } else {
                 redirectState = null;
             }
-
-            boolean isRedirectEligible =
-                    redirectState != null && !redirectState.isEmpty() && redirectState.get(Constants.LOCATION) != null
-                            && redirectState.get(Constants.HTTP_METHOD) != null;
-
-            if (isRedirectEligible) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Redirect state for channel : " + ctx.channel().id() + " is: ");
+            }
+            if (isRedirectEligible()) {
                 isCrossDoamin = isCrossDomain(location, originalRequest);
-
-                AtomicInteger redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
-                if (redirectCount != null && redirectCount.intValue() != 0) {
-                    redirectCount.getAndIncrement();
-                } else {
-                    redirectCount = new AtomicInteger(1);
-                }
-                currentRedirectCount = redirectCount;
-                ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
-
-                if (redirectCount.intValue() <= maxRedirectCount) {
+                currentRedirectCount = updateAndGetRedirectCount(ctx);
+                if (currentRedirectCount <= maxRedirectCount) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Redirection required");
+                        LOG.debug("Redirection required.");
                     }
                     isRedirect = true;
                 } else {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Maximum redirect count reached.");
                     }
-                    //Fire next handler in the original channel
                     isRedirect = false;
-                    if (originalChannelContext.channel().isActive()) {
-                        originalChannelContext.fireChannelRead(msg);
-                    } else {
-                        HttpResponseFuture responseFuture = ctx.channel()
-                                .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-                        responseFuture.notifyHttpListener(setUpCarbonMessage(msg));
-                    }
+                    sendResponseHeadersToClient(ctx, msg);
                 }
             } else {
-               /* Fire next handler in the original channel if it's still alive. Else send the response directly to
-                client using the original future.*/
-                isRedirect = false;
-                if (originalChannelContext.channel().isActive()) {
-                    originalChannelContext.fireChannelRead(msg);
-                } else {
-                    HttpResponseFuture responseFuture = ctx.channel()
-                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-                    responseFuture.notifyHttpListener(setUpCarbonMessage(msg));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Request is not eligible for redirection.");
                 }
+                isRedirect = false;
+                sendResponseHeadersToClient(ctx, msg);
             }
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error occurred when deciding whether a redirection is required", e);
-            originalChannelContext.fireExceptionCaught(e);
+            throw new UnsupportedEncodingException();
         }
     }
 
-    private HTTPCarbonMessage setUpCarbonMessage(Object msg) {
-        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtTargetResponseReceiving(targetRespMsg);
+    /**
+     * Handles the actual redirect.
+     *
+     * @param ctx Channel handler context
+     * @param msg Response message
+     */
+    private void redirectRequest(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (isRedirect) {
+            try {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Getting ready for actual redirection for channel " + ctx.channel().id());
+                }
+                URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
+                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
+                Util.setupTransferEncodingForRequest(httpCarbonRequest);
+                HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
+
+                if (isCrossDoamin) {
+                    writeContentToNewChannel(ctx, locationUrl, httpCarbonRequest, httpRequest);
+                } else {
+                    writeContentToExistingChannel(ctx, httpCarbonRequest, httpRequest);
+                }
+            } catch (MalformedURLException e) {
+                LOG.error("Error occurred when parsing redirect url", e);
+                throw new MalformedURLException();
+            } catch (Exception e) {
+                LOG.error("Error occurred during redirection", e);
+                throw new Exception();
+            }
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Last content of the response received for channel " + ctx.channel().id() + ", but is not "
+                        + "a redirect.");
+            }
+            if (originalChannelContext.channel().isActive()) {
+                originalChannelContext.fireChannelRead(msg);
+            } else {
+                //If the original channel is not active mark the end of the target message.
+                markEndOfMessage(ctx, (HttpContent) msg);
+            }
         }
-        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        HttpResponse httpResponse = (HttpResponse) msg;
-        targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-        return targetRespMsg;
+    }
+
+    /**
+     * Write content to backend using existing channel.
+     *
+     * @param ctx               Channel handler context
+     * @param httpCarbonRequest Carbon request
+     * @param httpRequest       Http request
+     */
+    private void writeContentToExistingChannel(ChannelHandlerContext ctx, HTTPCarbonMessage httpCarbonRequest,
+            HttpRequest httpRequest) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Use existing channel" + ctx.channel().id() + " to send the redirect request.");
+        }
+        ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+        ctx.write(httpRequest);
+        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+    }
+
+    /**
+     * Mark the end of response and reset channel attributes.
+     *
+     * @param ctx         Channel context
+     * @param httpContent Http content
+     */
+    private void markEndOfMessage(ChannelHandlerContext ctx, HttpContent httpContent) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Mark end of the message and reset channel attributes. ");
+        }
+        targetRespMsg.addHttpContent(httpContent);
+        targetRespMsg.setEndOfMsgAdded(true);
+        targetRespMsg = null;
+        currentRedirectCount = 0;
+        Util.resetChannelAttributes(ctx);
+    }
+
+    /**
+     * Fire next handler in the original channel if it's still active else notify listener.
+     *
+     * @param ctx Channel context
+     * @param msg Http response message
+     */
+    private void sendResponseHeadersToClient(ChannelHandlerContext ctx, HttpResponse msg) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Pass along received response headers to client.");
+        }
+        if (originalChannelContext.channel().isActive()) {
+            originalChannelContext.fireChannelRead(msg);
+        } else {
+            HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+            responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg));
+        }
+    }
+
+    /**
+     * Check whether the request is redirect eligible.
+     *
+     * @return boolean indicating redirect eligibility
+     */
+    private boolean isRedirectEligible() {
+        return redirectState != null && !redirectState.isEmpty() && redirectState.get(Constants.LOCATION) != null
+                && redirectState.get(Constants.HTTP_METHOD) != null;
+    }
+
+    /**
+     * Get the location from the received response header.
+     *
+     * @param msg HttpResponse message
+     * @return a string containing location value
+     * @throws UnsupportedEncodingException
+     */
+    private String getLocationFromResponseHeader(HttpResponse msg) throws UnsupportedEncodingException {
+        return msg.headers().get(HttpHeaderNames.LOCATION) != null ?
+                URLDecoder.decode(msg.headers().get(HttpHeaderNames.LOCATION), Constants.UTF8) :
+                null;
+    }
+
+    /**
+     * Increment redirect count by 1.
+     *
+     * @param ctx Channel handler context
+     * @return integer indicating current redirect count
+     */
+    private Integer updateAndGetRedirectCount(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Increment redirect count.");
+        }
+        Integer redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
+        if (redirectCount != null && redirectCount.intValue() != 0) {
+            redirectCount++;
+        } else {
+            redirectCount = 1;
+        }
+        currentRedirectCount = redirectCount;
+        ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+        return redirectCount;
     }
 
     /**
@@ -292,7 +386,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                     .equals(originalRequestMethod)) {
                 redirectState.put(Constants.HTTP_METHOD, originalRequestMethod);
-                redirectState.put(Constants.LOCATION, getLocation(location, originalRequest));
+                redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
             }
             break;
         case 301:
@@ -300,17 +394,16 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                     .equals(originalRequestMethod)) {
                 redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                redirectState.put(Constants.LOCATION, getLocation(location, originalRequest));
+                redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
             }
             break;
         case 303:
             redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-            redirectState.put(Constants.LOCATION, getLocation(location, originalRequest));
+            redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
             break;
         default:
             return null;
         }
-
         return redirectState;
     }
 
@@ -322,11 +415,14 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @return a string that holds redirect url
      * @throws UnsupportedEncodingException
      */
-    private String getLocation(String location, HTTPCarbonMessage originalRequest) throws UnsupportedEncodingException {
-
+    private String getLocationURI(String location, HTTPCarbonMessage originalRequest)
+            throws UnsupportedEncodingException {
         if (location != null) {
             //if location url starts either with http ot https that means an absolute path has been set in header
             if (!isRelativePath(location)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Location contain an absolute path : " + location);
+                }
                 return location;
             } else {
                 //Use relative path to build redirect url
@@ -339,36 +435,52 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (host == null) {
                     return null;
                 }
-
                 int defaultPort = getDefaultPort(protocol);
                 Integer port = originalRequest != null ?
                         originalRequest.getProperty(Constants.PORT) != null ?
                                 (Integer) originalRequest.getProperty(Constants.PORT) :
                                 defaultPort :
                         defaultPort;
-
-                String newPath =
-                        requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
-                if (location.startsWith(Constants.FORWRD_SLASH)) {
-                    newPath = location;
-                } else if (newPath.endsWith(Constants.FORWRD_SLASH)) {
-                    newPath += location;
-                } else {
-                    newPath += Constants.FORWRD_SLASH + location;
-                }
-                StringBuilder newLocation = new StringBuilder(protocol);
-                newLocation.append(Constants.URL_AUTHORITY).append(host);
-                if (Constants.DEFAULT_HTTP_PORT != port) {
-                    newLocation.append(Constants.COLON).append(port);
-                }
-                if (newPath.charAt(0) != Constants.FORWRD_SLASH.charAt(0)) {
-                    newLocation.append(Constants.FORWRD_SLASH.charAt(0));
-                }
-                newLocation.append(newPath);
-                return newLocation.toString();
+                return buildRedirectURL(requestPath, location, protocol, host, port);
             }
         }
         return null;
+    }
+
+    /**
+     * Build redirect URL from relative path.
+     *
+     * @param requestPath request path of the original request
+     * @param location    relative path received as the location
+     * @param protocol    protocol used in the request
+     * @param host        host used in the request
+     * @param port        port used in the request
+     * @return a string containing absolute path for redirection
+     * @throws UnsupportedEncodingException
+     */
+    private String buildRedirectURL(String requestPath, String location, String protocol, String host, Integer port)
+            throws UnsupportedEncodingException {
+        String newPath = requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
+        if (location.startsWith(Constants.FORWRD_SLASH)) {
+            newPath = location;
+        } else if (newPath.endsWith(Constants.FORWRD_SLASH)) {
+            newPath += location;
+        } else {
+            newPath += Constants.FORWRD_SLASH + location;
+        }
+        StringBuilder newLocation = new StringBuilder(protocol);
+        newLocation.append(Constants.URL_AUTHORITY).append(host);
+        if (Constants.DEFAULT_HTTP_PORT != port) {
+            newLocation.append(Constants.COLON).append(port);
+        }
+        if (newPath.charAt(0) != Constants.FORWRD_SLASH.charAt(0)) {
+            newLocation.append(Constants.FORWRD_SLASH.charAt(0));
+        }
+        newLocation.append(newPath);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Redirect URL build from relative path is : " + newLocation.toString());
+        }
+        return newLocation.toString();
     }
 
     /**
@@ -380,8 +492,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @throws UnsupportedEncodingException
      */
     private boolean isCrossDomain(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
-
+            throws UnsupportedEncodingException, MalformedURLException {
         if (!isRelativePath(location)) {
             try {
                 URL locationUrl = new URL(location);
@@ -393,17 +504,25 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                                 Integer.toString((Integer) originalRequest.getProperty(Constants.PORT)) :
                                 null :
                         null;
-
                 if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
                         && locationUrl.getPort() == Integer.parseInt(port)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Is cross domain url : " + false);
+                    }
                     return false;
                 } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Is cross domain url : " + true);
+                    }
                     return true;
                 }
-
             } catch (MalformedURLException e) {
-                originalChannelContext.fireExceptionCaught(e);
+                LOG.error("MalformedURLException occurred while deciding whether the redirect url is cross domain", e);
+                throw new MalformedURLException();
             }
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Is cross domain url : " + false);
         }
         return false;
     }
@@ -415,6 +534,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @throws MalformedURLException
      */
     private HTTPCarbonMessage createHttpCarbonRequest() throws MalformedURLException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Create redirect request with http method  : " + redirectState.get(Constants.HTTP_METHOD));
+        }
         URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
 
         HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
@@ -439,6 +561,25 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
+     * Create response message that needs to be sent to the client.
+     *
+     * @param msg Http message
+     * @return HTTPCarbonMessage
+     */
+    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg) {
+        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtTargetResponseReceiving(targetRespMsg);
+        }
+        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        HttpResponse httpResponse = (HttpResponse) msg;
+        targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+        return targetRespMsg;
+    }
+
+    /**
      * Send the redirect request using a new channel.
      *
      * @param redirectUrl       Redirect URL
@@ -448,14 +589,53 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      */
     private void writeContentToNewChannel(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
             HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
-
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Send redirect request using a new channel");
+        }
         if (Constants.HTTP_SCHEME.equals(redirectUrl.getProtocol())) {
             sslEngine = null;
         }
         long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).get();
         int timeoutOfOriginalRequest = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
 
-        EventLoopGroup group = new NioEventLoopGroup();
+        ChannelFuture channelFuture = bootstrapClient(channelHandlerContext, redirectUrl);
+        channelFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess() && future.isDone()) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Connected to the new channel " + future.channel().id() + " and getting ready to "
+                                + "write request.");
+                    }
+                    setChannelAttributes(channelHandlerContext, future, httpCarbonRequest, channelStartTime,
+                            timeoutOfOriginalRequest);
+                    long remainingTimeForRedirection = getRemainingTimeForRedirection(channelStartTime,
+                            timeoutOfOriginalRequest);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Remaining time for redirection is : " + remainingTimeForRedirection);
+                    }
+                    future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
+                            new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
+                                    TimeUnit.MILLISECONDS));
+                    future.channel().write(httpRequest);
+                    future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                } else {
+                    LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
+                    exceptionCaught(channelHandlerContext, future.cause());
+                }
+            }
+        });
+    }
+
+    /**
+     * Bootstrap a netty client to send the redirect request.
+     *
+     * @param channelHandlerContext Channel handler context
+     * @param redirectUrl           Redirect URL
+     * @return ChannelFuture
+     */
+    private ChannelFuture bootstrapClient(ChannelHandlerContext channelHandlerContext, URL redirectUrl) {
+        EventLoopGroup group = channelHandlerContext.channel().eventLoop();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
@@ -464,31 +644,39 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
                         maxRedirectCount));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
-        ChannelFuture channelFuture = clientBootstrap.connect();
-        channelFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) {
-                if (future.isSuccess() && future.isDone()) {
-                    HttpResponseFuture responseFuture = channelHandlerContext.channel()
-                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-                    future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
-                    future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
-                    future.channel().attr(Constants.REDIRECT_COUNT).set(currentRedirectCount);
-                    future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
-                    future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
-                    long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
-                    long remainingTimeForRedirection = timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
-                    future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
-                            new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
-                                    TimeUnit.MILLISECONDS));
-                    future.channel().write(httpRequest);
-                    future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                } else {
-                    LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
-                    originalChannelContext.fireExceptionCaught(future.cause());
-                }
-            }
-        });
+        return clientBootstrap.connect();
+    }
+
+    /**
+     * Set channel attributes to the new channel.
+     *
+     * @param channelHandlerContext    Chanel handler context
+     * @param future                   ChannelFuture of newly created channel
+     * @param httpCarbonRequest        Carbon request
+     * @param channelStartTime         Original channel start time
+     * @param timeoutOfOriginalRequest Timeout of the original channel
+     */
+    private void setChannelAttributes(ChannelHandlerContext channelHandlerContext, ChannelFuture future,
+            HTTPCarbonMessage httpCarbonRequest, long channelStartTime, int timeoutOfOriginalRequest) {
+        HttpResponseFuture responseFuture = channelHandlerContext.channel()
+                .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+        future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
+        future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+        future.channel().attr(Constants.REDIRECT_COUNT).set(currentRedirectCount);
+        future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
+        future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
+    }
+
+    /**
+     * Calculate remaining time for redirection.
+     *
+     * @param channelStartTime         Original channel start time
+     * @param timeoutOfOriginalRequest Timeout of the original channel
+     * @return a long value indicating the remaining time in milliseconds
+     */
+    private long getRemainingTimeForRedirection(long channelStartTime, int timeoutOfOriginalRequest) {
+        long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
+        return timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
     }
 
     /**
@@ -518,37 +706,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
 
         return defaultPort;
     }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (ctx != null && ctx.channel().isActive()) {
-            if (originalChannelContext.channel().isActive()) {
-                originalChannelContext.fireExceptionCaught(cause);
-            } else {
-                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
-                        .get();
-                responseFuture.notifyHttpListener(cause);
-            }
-            ctx.close();
-        }
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
-                        + "</errorMessage>";
-                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
-                        .get();
-                if (responseFuture != null) {
-                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
-                    responseFuture.removeHttpListener();
-                }
-                ctx.close();
-            }
-        }
-    }
 }
+
+
 

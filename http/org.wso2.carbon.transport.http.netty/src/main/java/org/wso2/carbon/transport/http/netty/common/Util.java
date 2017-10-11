@@ -15,6 +15,7 @@
 
 package org.wso2.carbon.transport.http.netty.common;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -511,7 +512,6 @@ public class Util {
      * @return HTTPCarbonMessage
      */
     public static HTTPCarbonMessage createErrorMessage(String payload) {
-
         HTTPCarbonMessage response = new HTTPCarbonMessage(
                 new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR));
 
@@ -528,6 +528,19 @@ public class Util {
         MessagingException messagingException = new MessagingException("read timeout", 101504);
         response.setMessagingException(messagingException);
         return response;
+    }
 
+    /**
+     * Reset channel attributes.
+     *
+     * @param ctx Channel handler context
+     */
+    public static void resetChannelAttributes(ChannelHandlerContext ctx) {
+        Integer redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
+        if (redirectCount != null) {
+            redirectCount = 0;
+            ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+        }
+        ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
     }
 }

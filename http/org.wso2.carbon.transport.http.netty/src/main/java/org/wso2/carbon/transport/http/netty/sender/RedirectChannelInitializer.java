@@ -18,6 +18,7 @@ package org.wso2.carbon.transport.http.netty.sender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.logging.LogLevel;
@@ -59,6 +60,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
             }
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
+        ch.pipeline().addLast("compressor", new HttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         if (httpTraceLogEnabled) {

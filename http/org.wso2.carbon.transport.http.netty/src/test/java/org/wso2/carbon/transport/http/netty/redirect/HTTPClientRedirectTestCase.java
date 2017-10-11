@@ -56,7 +56,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
@@ -129,7 +128,7 @@ public class HTTPClientRedirectTestCase {
         response.headers().set(HttpHeaders.Names.LOCATION, ABSOLUTE_REDIRECT_URL);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_POST_METHOD, ABSOLUTE_REDIRECT_URL));
-        embeddedChannel.attr(Constants.REDIRECT_COUNT).set(new AtomicInteger(5));
+        embeddedChannel.attr(Constants.REDIRECT_COUNT).set(5);
         embeddedChannel.writeInbound(response);
         embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);
         assertNull(embeddedChannel.readOutbound());
@@ -227,7 +226,6 @@ public class HTTPClientRedirectTestCase {
             TestUtil.handleException("IllegalAccessException occurred while running unitTestToDetermineCrossDomainURLs",
                     e);
         }
-
     }
 
     /**
@@ -250,7 +248,6 @@ public class HTTPClientRedirectTestCase {
         } catch (IllegalAccessException e) {
             TestUtil.handleException("IllegalAccessException occurred while running unitTestForSameDomain", e);
         }
-
     }
 
     /**
@@ -259,9 +256,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void integrationTestForSingleRedirect() {
         try {
-
             httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
-
             redirectServer = TestUtil
                     .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0);

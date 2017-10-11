@@ -19,8 +19,6 @@ import io.netty.util.AttributeKey;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Common Constants used by gate way.
  */
@@ -272,7 +270,7 @@ public final class Constants {
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
-    public static final AttributeKey<AtomicInteger> REDIRECT_COUNT = AttributeKey.<AtomicInteger>valueOf
+    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.<Integer>valueOf
             ("REDIRECT_COUNT");
     public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf
             ("ORIGINAL_REQUEST");
