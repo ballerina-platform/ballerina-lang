@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
+import TreeUtil from './../tree-util';
 
 class BlockNode extends AbstractBlockNode {
 
@@ -28,7 +29,7 @@ class BlockNode extends AbstractBlockNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return node.isStatement;
+        return node.isStatement && !TreeUtil.isConnectorDeclaration(node);
     }
 
     /**
