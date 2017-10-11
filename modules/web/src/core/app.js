@@ -18,9 +18,10 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import Plugin from './plugin/plugin';
-import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
+import { ACTIVATION_POLICIES, CONTRIBUTIONS, EVENTS } from './plugin/constants';
 import { CONTEXT_NAMESPACES } from './constants';
 
+import AlertPlugin from './alert/plugin';
 import CommandPlugin from './command/plugin';
 import LayoutPlugin from './layout/plugin';
 import { COMMANDS as LAYOUT_COMMANDS } from './layout/constants';
@@ -30,7 +31,6 @@ import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
 import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
-import { EVENTS } from './plugin/constants';
 
 /**
  * Composer Application
@@ -67,6 +67,7 @@ class Application {
         this.workspacePlugin = new WorkspacePlugin();
         this.editorPlugin = new EditorPlugin();
         this.preferencesPlugin = new PreferencesPlugin();
+        this.alertPlugin = new AlertPlugin();
 
         // Unless the necessities to keep direct references within app
         // & to be the very first set of plugins to be init/activate,
@@ -78,6 +79,7 @@ class Application {
         this.loadPlugin(this.workspacePlugin);
         this.loadPlugin(this.editorPlugin);
         this.loadPlugin(this.preferencesPlugin);
+        this.loadPlugin(this.alertPlugin);
 
         // load plugins contributed via config
         this.loadOtherPlugins();
@@ -96,6 +98,8 @@ class Application {
                     .pluginContexts[this.editorPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.PREFERENCES] = this.appContext
                     .pluginContexts[this.preferencesPlugin.getID()];
+        this.appContext[CONTEXT_NAMESPACES.ALERT] = this.appContext
+                    .pluginContexts[this.alertPlugin.getID()];
 
         // Since now we have loaded all the plugins
         // Make appContext object read only.
