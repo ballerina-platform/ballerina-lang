@@ -19,13 +19,6 @@
 import AbstractFieldBasedAccessExprNode from './abstract-tree/field-based-access-expr-node';
 
 class FieldBasedAccessExprNode extends AbstractFieldBasedAccessExprNode {
-    /**
-     * Returns field name
-     * @return {string} field name
-     */
-    getVariableName() {
-        return this.getExpression().getVariableName();
-    }
 }
 
 export default FieldBasedAccessExprNode;

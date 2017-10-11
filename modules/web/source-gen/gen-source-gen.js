@@ -127,6 +127,8 @@ stream.once('open', () => {
                             // HACK
                             // We need to spacial case If to handle 'else if' case correctly.
                             js.unshift('(node.parent.kind === \'If\' ? \'\' : dent())');
+                        } else if (rule[0] === '<annotationAttachments>*') {
+                            js.splice(1, 0, 'dent()');
                         } else {
                             js.unshift('dent()');
                         }

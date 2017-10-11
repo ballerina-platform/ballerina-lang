@@ -1345,8 +1345,10 @@ class SizingUtil {
             maxWidth = Math.max(maxWidth, catchBlock.body.viewState.bBox.w);
         });
 
-        height += finallyBody ? finallyBody.viewState.bBox.h : 0;
-        maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
+        if (finallyBody) {
+            height += finallyBody.viewState.bBox.h;
+            maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
+        }
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = maxWidth;
