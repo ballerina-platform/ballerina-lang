@@ -473,17 +473,14 @@ class PositioningUtil {
                 (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
         let xIndex = viewState.bBox.x + widthOffsetForConnectors;
         const yIndex = viewState.bBox.y + viewState.components.heading.h
-                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v;
-        const statements = connectors;
-        if (statements instanceof Array) {
-            statements.forEach((statement) => {
-                if (TreeUtil.isConnectorDeclaration(statement)) {
-                    statement.viewState.bBox.x = xIndex;
-                    statement.viewState.bBox.y = yIndex;
-                    xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
-                    if (statement.viewState.showOverlayContainer) {
-                        OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                    }
+                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v + 40;
+        if (connectors instanceof Array) {
+            connectors.forEach((statement) => {
+                statement.viewState.bBox.x = xIndex;
+                statement.viewState.bBox.y = yIndex;
+                xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
+                if (statement.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
                 }
             });
         }

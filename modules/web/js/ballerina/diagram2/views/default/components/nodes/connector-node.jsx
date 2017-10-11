@@ -65,8 +65,7 @@ class ConnectorNode extends React.Component {
      * @memberof ConnectorNode
      */
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource) || TreeUtil.isWorker(dragSource) ||
-            TreeUtil.isAction(dragSource);
+        return TreeUtil.isConnectorDeclaration(dragSource) || TreeUtil.isAction(dragSource);
     }
 
     /**

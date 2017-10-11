@@ -44,13 +44,13 @@ class ConnectorNode extends AbstractConnectorNode {
             for (let i = 1; i <= actionNodes.length + 1; i++) {
                 if (!names[`${actionDefaultName}${i}`]) {
                     node.getName().setValue(`${actionDefaultName}${i}`, true);
-                    node.setName(node.getName(), true);
+                    node.setName(node.getName(), false);
                     break;
                 }
             }
         } else {
             node.getName().setValue(`${actionDefaultName}1`, true);
-            node.setName(node.getName(), true);
+            node.setName(node.getName(), false);
         }
         return undefined;
     }
@@ -63,7 +63,7 @@ class ConnectorNode extends AbstractConnectorNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
+        return TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
     }
 
     /**
