@@ -19,11 +19,11 @@
 import ASTVisitor from './ast-visitor';
 
 /**
- * Finds line numbers of breakpoints in the model
- * @class FindLineNumbers
+ * Finds line numbers in new ASTmodel and replaces in oldASTModel
+ * @class SyncLineNumbers
  * @extends {ASTVisitor}
  */
-class FindLineNumbers extends ASTVisitor {
+class SyncLineNumbers extends ASTVisitor {
     /**
      * @inheritdoc
      */
@@ -41,4 +41,4 @@ class FindLineNumbers extends ASTVisitor {
     }
 }
 
-export default FindLineNumbers;
+export default SyncLineNumbers;

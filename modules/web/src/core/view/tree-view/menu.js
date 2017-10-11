@@ -90,10 +90,15 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
                     label: '',
                     parent: targetNode.id,
                 };
+                // first expand the tree if in collapsed state
+                if (node.collapsed) {
+                    node.collapsed = false;
+                    onNodeUpdate(node);
+                }
                 targetNode.children.splice(0, 0, tempNode);
-                targetNode.collapsed = false;
                 onNodeUpdate(targetNode);
             };
+
             // if node children are not loaded yet
             if (_.isBoolean(node.children)) {
                 // empty folder
@@ -134,8 +139,12 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
                     label: '',
                     parent: targetNode.id,
                 };
+                // first expand the tree if in collapsed state
+                if (node.collapsed) {
+                    node.collapsed = false;
+                    onNodeUpdate(node);
+                }
                 targetNode.children.splice(0, 0, tempNode);
-                targetNode.collapsed = false;
                 onNodeUpdate(targetNode);
             };
             // if node children are not loaded yet
