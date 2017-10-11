@@ -3,5 +3,4 @@ function testOverloading(string a) (string) {
 }
 
 function testOverloading(string a) {
-    return a;
 }

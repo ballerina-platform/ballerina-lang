@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.InvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -63,5 +64,59 @@ public class BInvokableType extends BType implements InvokableType {
 
     public void setReceiverType(BType receiverType) {
         this.receiverType = receiverType;
+    }
+
+    @Override
+    public String toString() {
+        return getTypeName(typeDescriptor, paramTypes, retTypes);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BInvokableType)) {
+            return false;
+        }
+        BInvokableType that = (BInvokableType) o;
+
+        if (paramTypes != null ? !paramTypes.equals(that.paramTypes) : that.paramTypes != null) {
+            return false;
+        }
+        if (retTypes != null ? !retTypes.equals(that.retTypes) : that.retTypes != null) {
+            return false;
+        }
+        if (typeDescriptor != null ? !typeDescriptor.equals(that.typeDescriptor) : that.typeDescriptor != null) {
+            return false;
+        }
+        return receiverType != null ? receiverType.equals(that.receiverType) : that.receiverType == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = paramTypes != null ? paramTypes.hashCode() : 0;
+        result = 31 * result + (retTypes != null ? retTypes.hashCode() : 0);
+        result = 31 * result + (typeDescriptor != null ? typeDescriptor.hashCode() : 0);
+        result = 31 * result + (receiverType != null ? receiverType.hashCode() : 0);
+        return result;
+    }
+
+    public static String getTypeName(String typeDescriptor, List<BType> paramType, List<BType> retType) {
+        return (TypeDescriptor.SIG_FUNCTION.equals(typeDescriptor) ? "function " : "")
+                + "(" + (paramType.size() != 0 ? getBTypListAsString(paramType) : "") + ")"
+                + (retType.size() != 0 ? " returns (" + getBTypListAsString(retType) + ")" : "");
+    }
+
+    private static String getBTypListAsString(List<BType> typeNames) {
+        StringBuffer br = new StringBuffer();
+        int i = 0;
+        for (BType type : typeNames) {
+            br.append(type);
+            if (++i < typeNames.size()) {
+                br.append(",");
+            }
+        }
+        return br.toString();
     }
 }

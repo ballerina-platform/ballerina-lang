@@ -230,12 +230,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
-        BSymbol symbol = lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structSymbol);
-        }
-
-        return symbol;
+        return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
