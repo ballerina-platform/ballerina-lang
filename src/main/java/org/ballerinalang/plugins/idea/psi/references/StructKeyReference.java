@@ -24,6 +24,7 @@ import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -57,6 +58,12 @@ public class StructKeyReference extends BallerinaElementReference {
             return resolve(variableDefinitionNode);
         }
 
+        GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
+                GlobalVariableDefinitionNode.class);
+        if (globalVariableDefinitionNode != null) {
+            return resolve(globalVariableDefinitionNode);
+        }
+
         AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
                 AssignmentStatementNode.class);
         if (assignmentStatementNode != null) {
@@ -71,7 +78,8 @@ public class StructKeyReference extends BallerinaElementReference {
         if (structDefinitionNode == null) {
             return null;
         }
-        IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode.class);
+        IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
+                IdentifierPSINode.class);
         if (structNameNode == null) {
             return null;
         }
@@ -94,9 +102,17 @@ public class StructKeyReference extends BallerinaElementReference {
         if (typeNameNode == null) {
             return null;
         } else {
+            // Todo - Add getType util method
             PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
             if (reference == null) {
-                return null;
+                TypeNameNode actualType = PsiTreeUtil.getChildOfType(typeNameNode, TypeNameNode.class);
+                if (actualType == null) {
+                    return null;
+                }
+                reference = actualType.findReferenceAt(actualType.getTextLength());
+                if (reference == null) {
+                    return null;
+                }
             }
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement == null) {
