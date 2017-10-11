@@ -1121,8 +1121,12 @@ class SizingUtil {
         this.sizeCompoundNode(joinStmt);
         this.sizeCompoundNode(timeoutStmt);
 
+        // Calculate join keyword length;
+        joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
+        timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
+
         // Calculate join and timeout expression lengths.
-        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinType());
+        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
         timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
 
         // Calculate join and timeout parameter expression lengths.
@@ -1171,6 +1175,8 @@ class SizingUtil {
         } else {
             conditionBoxWidth += timeoutStmt.viewState.components.expression.w;
         }
+
+        conditionBoxWidth += timeoutStmt.viewState.components.titleWidth.w;
 
         // Get the forkJoin node width
         nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;

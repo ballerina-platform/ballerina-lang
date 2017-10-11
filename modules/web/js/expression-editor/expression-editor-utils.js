@@ -45,11 +45,11 @@ class ExpressionEditor {
         let didSemicolon = false;
         this.destroy();
         this.props = props;
-        this.file = props.model.getFile();
+        this.file = props.model ? props.model.getFile() : null;
 
         // Get the expression for the statement or expression.
-        const expression = props.getterMethod instanceof Function ? props.getterMethod.call() : (_.isNil(props.model.getSource()) ? '' :
-            props.model.getSource().replace(/(?:\r\n|\r|\n)/g, ' '));
+        const expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
+            (_.isNil(props.model.getSource()) ? '' : props.model.getSource().replace(/(?:\r\n|\r|\n)/g, ' '));
 
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;

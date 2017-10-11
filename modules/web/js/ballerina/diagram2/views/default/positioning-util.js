@@ -854,7 +854,8 @@ class PositioningUtil {
 
         // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w, 0, 0, 0, 0, 0);
+            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
+                joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
 
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
