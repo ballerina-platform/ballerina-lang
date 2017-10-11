@@ -79,6 +79,36 @@ class TransformFactory {
     }
 
     /**
+     * Create type cast expression
+     * @static
+     * @param {any} expression expression
+     * @param {any} targetType target type
+     * @returns {Expression} type cast expression
+     * @memberof TransformFactory
+     */
+    static createTypeCastExpr(expression, targetType) {
+        const fragment = FragmentUtils.createExpressionFragment(`(${targetType})${expression.getSource()}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return castExpr;
+    }
+
+    /**
+     * Create type conversion expression
+     * @static
+     * @param {any} expression expression
+     * @param {any} targetType target type
+     * @returns {Expression} type conversion expression
+     * @memberof TransformFactory
+     */
+    static createTypeConversionExpr(expression, targetType) {
+        const fragment = FragmentUtils.createExpressionFragment(`<${targetType}>${expression.getSource()}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return castExpr;
+    }
+
+    /**
      * Create assignment statement with function invocation.
      * @static
      * @param {any} args arguments

@@ -26,7 +26,7 @@ import log from 'log';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
-import ASTNode from '../../../../../ast/node';
+import TransformNode from '../../../../../model/tree/abstract-tree/transform-node';
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
@@ -163,52 +163,34 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        if (TreeUtil.isAssignment(statement)) {
-            const variables = statement.getVariables();
-            const { exp: expression, isTemp } = this.transformNodeManager
-                            .getResolvedExpression(statement.getExpression(), statement);
-            if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
-                TreeUtil.isSimpleVariableRef(expression))) {
-                _.forEach(variables, (variable) => {
-                    // TODO : remove replace whitespace once its handled from backend
-                    const sourceExprString = expression.getSource().replace(/ /g, '').trim();
-                    let sourceId = `${sourceExprString}:${viewId}`;
-                    let folded = false;
-                    if (!this.sourceElements[sourceId]) {
-                        folded = true;
-                        sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
-                    }
-                    // TODO : remove replace whitespace once its handled from backend
-                    const targetExprString = variable.getSource().replace(/ /g, '').trim();
-                    let targetId = `${targetExprString}:${viewId}`;
-                    if (!this.targetElements[targetId]) {
-                        folded = true;
-                        targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
-                    }
+        let variables = [];
+        let stmtExp;
 
-                    this.drawConnection(sourceId, targetId, folded);
-                });
-            }
-            if (TreeUtil.isInvocation(expression)
-                    || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)) {
-                this.drawIntermediateNode(variables, expression, statement, isTemp);
-            }
+        if (TreeUtil.isAssignment(statement)) {
+            variables = statement.getVariables();
+            stmtExp = statement.getExpression();
         } else if (TreeUtil.isVariableDef(statement)) {
-            const variable = statement.getVariable();
-            const { exp: expression, isTemp } = this.transformNodeManager
-                            .getResolvedExpression(statement.variable.getInitialExpression(), statement);
-            if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
-                TreeUtil.isSimpleVariableRef(expression))) {
-                const sourceExprString = expression.getSource().trim();
+            variables.push(statement.getVariable().getName());
+            stmtExp = statement.getVariable().getInitialExpression();
+        } else {
+            log.error('Invalid statement type in transformer');
+            return;
+        }
+
+        const { exp: expression, isTemp } = this.transformNodeManager
+                        .getResolvedExpression(stmtExp, statement);
+        if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
+            variables.forEach((variable) => {
+                // TODO : remove replace whitespace once its handled from backend
+                const sourceExprString = expression.getSource().replace(/ /g, '').trim();
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
-
-                const targetExprString = variable.getSource().trim();
+                // TODO : remove replace whitespace once its handled from backend
+                const targetExprString = variable.getSource().replace(/ /g, '').trim();
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -216,14 +198,12 @@ class TransformExpanded extends React.Component {
                 }
 
                 this.drawConnection(sourceId, targetId, folded);
-            }
-            if (TreeUtil.isInvocation(expression)
-                    || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)) {
-                this.drawIntermediateNode(variables, expression, statement, isTemp);
-            }
-        } else {
-            log.error('Invalid statement type in transformer');
+            });
+        }
+        if (TreeUtil.isInvocation(expression)
+                || TreeUtil.isBinaryExpr(expression)
+                || TreeUtil.isUnaryExpr(expression)) {
+            this.drawIntermediateNode(variables, expression, statement, isTemp);
         }
     }
 
@@ -611,7 +591,7 @@ class TransformExpanded extends React.Component {
 
         if (this.state.vertices.length > 0) {
             // if there are no vertices, cannot draw assignment connections
-            _.forEach(this.props.model.getChildren(), (statement) => {
+            this.props.model.body.getStatements().forEach((statement) => {
                 this.createConnection(statement);
             });
         }
@@ -865,10 +845,7 @@ class TransformExpanded extends React.Component {
             langServerClient.getCompletions(options, (response) => {
                 const completions = response.result.filter((completionItem) => {
                     // all variables have type as 9 as per the declaration in lang server
-                    return ((completionItem.kind === 9)
-                        && !completionItem.label.startsWith('__temp')
-                        && !completionItem.label.startsWith('__output')
-                        && completionItem.label !== '_');
+                    return (completionItem.kind === 9);
                 });
                 const transformVars = completions.map((completionItem) => {
                     const typeData = getResolvedTypeData(completionItem);
@@ -986,6 +963,7 @@ class TransformExpanded extends React.Component {
     }
 
     removeAssignmentStatements(id, type) {
+        // TODO: check and remove this
         const statementsToRemove = [];
 
         this.props.model.getChildren().forEach((currentObject) => {
@@ -1136,16 +1114,18 @@ class TransformExpanded extends React.Component {
             });
 
             this.props.model.getBody().getStatements().forEach((stmt) => {
-                if (!TreeUtil.isAssignment(stmt)) {
+                let stmtExp;
+                if (TreeUtil.isAssignment(stmt)) {
+                    stmtExp = stmt.getExpression();
+                } else if (TreeUtil.isVariableDef(stmt)) {
+                    stmtExp = stmt.getVariable().getInitialExpression();
+                } else {
                     return;
                 }
-                const { exp: expression, isTemp } = this.transformNodeManager
-                                                    .getResolvedExpression(stmt.getExpression(), stmt);
 
-                if (TreeUtil.isInvocation(expression)
-                    || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)
-                    || TreeUtil.isTernaryExpr(expression)) {
+                const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, stmt);
+
+                if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression) || TreeUtil.isUnaryExpr(expression)) {
                     if (!isTemp) {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
@@ -1294,7 +1274,7 @@ class TransformExpanded extends React.Component {
 }
 
 TransformExpanded.propTypes = {
-    model: PropTypes.instanceOf(ASTNode).isRequired,
+    model: PropTypes.instanceOf(TransformNode).isRequired,
 };
 
 TransformExpanded.contextTypes = {
