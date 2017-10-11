@@ -282,7 +282,7 @@ public class AnnotationTest {
                 .compile("test-src", "lang/annotations/invalid-service-annotation.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
-                "incompatible types: expected 'string', found 'int'", 5, 24);
+                "incompatible types: expected 'string', found 'int'", 4, 24);
     }
 
     @Test(description = "Test an invalid resource annotation")
@@ -291,7 +291,7 @@ public class AnnotationTest {
                 .compile("test-src", "lang/annotations/invalid-resource-annotation.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
-                "incompatible types: expected 'string', found 'int'", 13, 28);
+                "incompatible types: expected 'string', found 'int'", 12, 28);
     }
 
     @Test(description = "Test an invalid connector annotation")
