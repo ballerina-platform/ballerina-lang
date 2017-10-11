@@ -33,7 +33,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -246,6 +248,27 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
+        BSymbol connectorSymbol = connectorNode.symbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
+
+        // TODO: Handle Annotation attachments
+
+        connectorNode.params.forEach(param -> this.acceptNode(param, connectorEnv));
+        connectorNode.varDefs.forEach(varDef -> this.acceptNode(varDef, connectorEnv));
+        connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
+    }
+
+    public void visit(BLangAction actionNode) {
+        BSymbol actionSymbol = actionNode.symbol;
+
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
+
+        // TODO: Handle Annotation attachments
+
+        actionNode.params.forEach(p -> this.acceptNode(p, actionEnv));
+        this.blockOwnerStack.push(actionNode);
+        acceptNode(actionNode.body, actionEnv);
+        this.blockOwnerStack.pop();
     }
 
     public void visit(BLangService serviceNode) {
