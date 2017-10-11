@@ -1,23 +1,23 @@
 package ballerina.test;
 
 import ballerina.doc;
-import ballerina.lang.errors;
 
-const string assertFailureErrorCategory = "assert-failure";
+public const string assertFailureErrorCategory = "assert-failure";
 
-const string arraysNotEqualMessage = "Arrays are not equal";
-const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+public const string arraysNotEqualMessage = "Arrays are not equal";
+public const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
-struct AssertError {
+public struct AssertError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string category;
 }
 
 @doc:Description{value:"Creates a AssertError with custom message and category"}
 @doc:Param{value:"errorMessage: Custom message for the ballerina error"}
 @doc:Param{value:"category: error category"}
-function createBallerinaError (string errorMessage, string category) (AssertError) {
+public function createBallerinaError (string errorMessage, string category) (AssertError) {
     AssertError e = { msg : errorMessage, category : category };
     return e;
 }
@@ -26,7 +26,7 @@ function createBallerinaError (string errorMessage, string category) (AssertErro
                   If it is not, a AssertError is thrown with the given errorMessage"}
 @doc:Param{value:"condition: Boolean condition to evaluate"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertTrue(boolean condition, string errorMessage) {
+public function assertTrue(boolean condition, string errorMessage) {
     if (!condition) {
         if (errorMessage == "") {
             errorMessage = "Assert Failed";
@@ -39,7 +39,7 @@ function assertTrue(boolean condition, string errorMessage) {
                   If it is not, a AssertError is thrown with the given errorMessage"}
 @doc:Param{value:"condition: Boolean condition to evaluate"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertFalse(boolean condition, string errorMessage) {
+public function assertFalse(boolean condition, string errorMessage) {
     if (condition) {
         if (errorMessage == "") {
             errorMessage = "Assert Failed";
@@ -53,7 +53,7 @@ function assertFalse(boolean condition, string errorMessage) {
 @doc:Param{value:"actual: Actual string value"}
 @doc:Param{value:"expected: Expected string value"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertStringEquals(string actual, string expected, string errorMessage) {
+public function assertStringEquals(string actual, string expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
             errorMessage = errorMessage + " ";
@@ -68,7 +68,7 @@ function assertStringEquals(string actual, string expected, string errorMessage)
 @doc:Param{value:"actual: Actual integer value"}
 @doc:Param{value:"expected: Expected integer value"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertIntEquals(int actual, int expected, string errorMessage) {
+public function assertIntEquals(int actual, int expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
             errorMessage = errorMessage + " ";
@@ -83,7 +83,7 @@ function assertIntEquals(int actual, int expected, string errorMessage) {
 @doc:Param{value:"actual: Actual float value"}
 @doc:Param{value:"expected: Expected float value"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertFloatEquals(float actual, float expected, string errorMessage) {
+public function assertFloatEquals(float actual, float expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
             errorMessage = errorMessage + " ";
@@ -98,7 +98,7 @@ function assertFloatEquals(float actual, float expected, string errorMessage) {
 @doc:Param{value:"actual: Actual boolean value"}
 @doc:Param{value:"expected: Expected boolean value"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertBooleanEquals(boolean actual, boolean expected, string errorMessage) {
+public function assertBooleanEquals(boolean actual, boolean expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
             errorMessage = errorMessage + " ";
@@ -114,16 +114,16 @@ function assertBooleanEquals(boolean actual, boolean expected, string errorMessa
 @doc:Param{value:"actual: Actual string array"}
 @doc:Param{value:"expected: Expected string array"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertStringArrayEquals(string[] actual, string[] expected, string errorMessage) {
+public function assertStringArrayEquals(string[] actual, string[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
     }
-    if (actual.length != expected.length) {
+    if (lengthof actual != lengthof expected) {
         throw createBallerinaError(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
-        if (expected.length > 0) {
+        if (lengthof expected > 0) {
             int i = 0;
-            while (i < expected.length) {
+            while (i < lengthof expected) {
                 try {
                     assertStringEquals(actual[i], expected[i], "");
                 } catch (AssertError e) {
@@ -146,16 +146,16 @@ function assertStringArrayEquals(string[] actual, string[] expected, string erro
 @doc:Param{value:"actual: Actual float array"}
 @doc:Param{value:"expected: Expected float array"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertFloatArrayEquals(float[] actual, float[] expected, string errorMessage) {
+public function assertFloatArrayEquals(float[] actual, float[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
     }
-    if (actual.length != expected.length) {
+    if (lengthof actual != lengthof expected) {
         throw createBallerinaError(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
-        if (expected.length > 0) {
+        if (lengthof expected > 0) {
             int i = 0;
-            while (i < expected.length) {
+            while (i < lengthof expected) {
                 try {
                     assertFloatEquals(actual[i], expected[i], "");
                 } catch (AssertError e) {
@@ -178,16 +178,16 @@ function assertFloatArrayEquals(float[] actual, float[] expected, string errorMe
 @doc:Param{value:"actual: Actual integer array"}
 @doc:Param{value:"expected: Expected integer array"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertIntArrayEquals(int[] actual, int[] expected, string errorMessage) {
+public function assertIntArrayEquals(int[] actual, int[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
     }
-    if (actual.length != expected.length) {
+    if (lengthof actual != lengthof expected) {
         throw createBallerinaError(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
-        if (expected.length > 0) {
+        if (lengthof expected > 0) {
             int i = 0;
-            while (i < expected.length) {
+            while (i < lengthof expected) {
                 try {
                     assertIntEquals(actual[i], expected[i], "");
                 } catch (AssertError e) {
@@ -207,7 +207,7 @@ function assertIntArrayEquals(int[] actual, int[] expected, string errorMessage)
 @doc:Description{value:"Assert failure is triggered based on user discretion.
                   AssertError is thrown with the given errorMessage"}
 @doc:Param{value:"errorMessage: Assertion error message"}
-function assertFail(string errorMessage) {
+public function assertFail(string errorMessage) {
     throw createBallerinaError(errorMessage, assertFailureErrorCategory);
 }
 
