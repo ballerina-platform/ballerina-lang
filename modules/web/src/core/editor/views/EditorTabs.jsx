@@ -164,6 +164,10 @@ class EditorTabs extends View {
             );
         } else if (editor instanceof CustomEditor) {
             const { id, title, icon, propsProvider } = editor;
+            const customTabDimensions = {
+                width: this.props.width, // custom tabs doesn't support split view hence full width
+                height: this.props.height - tabTitleHeight,
+            };
             return (
                 <TabPane
                     tab={
@@ -183,14 +187,14 @@ class EditorTabs extends View {
                     key={id}
                 >
                     <Scrollbars
-                        style={dimensions}
+                        style={customTabDimensions}
                         autoHide // Hide delay in ms
                         autoHideTimeout={1000}
                     >
                         <editor.component
                             isActive={activeEditorID === id}
                             {...propsProvider()}
-                            {...dimensions}
+                            {...customTabDimensions}
                             panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
                         />
                     </Scrollbars>
