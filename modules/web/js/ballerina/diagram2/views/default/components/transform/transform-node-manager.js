@@ -127,7 +127,7 @@ class TransformNodeManager {
         // create or modify statements as per the connection.
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             // Connection is from source variable to a target variable.
-            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, compatibility);
+            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, target.type, compatibility);
             return;
         }
 
@@ -223,6 +223,7 @@ class TransformNodeManager {
      * @memberof TransformStatementDecorator
      */
     findExistingAssignmentStatement(id) {
+        // TODO: find usage and remove
         return _.find(this._transformStmt.getChildren(), (child) => {
             return child.getID() === id;
         });
@@ -236,12 +237,14 @@ class TransformNodeManager {
      * @memberof TransformStatementDecorator
      */
     findEnclosingAssignmentStatement(funcInv) {
+        // TODO: find usage and remove
         return _.find(this._transformStmt.getChildren(), (assignmentStmt) => {
             return this.findFunctionInvocationById(assignmentStmt.getRightExpression(), funcInv.id);
         });
     }
 
     findFunctionInvocationById(expression, id) {
+        // TODO: find usage and remove
         if (expression.id === id) {
             return expression;
         }
@@ -253,6 +256,12 @@ class TransformNodeManager {
         });
     }
 
+    /**
+     * Get function vertices from the function invocation expression
+     * @param {any} functionInvocationExpression function invocation expression
+     * @returns {Object} function vertices
+     * @memberof TransformNodeManager
+     */
     getFunctionVertices(functionInvocationExpression) {
         const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
         const funPackage = this._environment.getPackageByName(fullPackageName);
@@ -351,6 +360,13 @@ class TransformNodeManager {
         };
     }
 
+    /**
+     * Get the struct definition
+     * @param {string} packageIdentifier package alias or identifier
+     * @param {string} structName struct name
+     * @returns {Object} struct definition
+     * @memberof TransformNodeManager
+     */
     getStructDefinition(packageIdentifier, structName) {
         let pkg;
         if (packageIdentifier == null) {
@@ -413,7 +429,7 @@ class TransformNodeManager {
     getResolvedExpression(expression, statement) {
         const mapExp = this._mapper.getMappableExpression(expression);
         if (TreeUtil.isSimpleVariableRef(expression)
-            && TransformUtils.isTempVariable(this._transformStmt, mapExp, statement)) {
+            && this._mapper.isTempVariable(mapExp, statement)) {
             return {
                 exp: this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp)),
                 isTemp: true,
@@ -423,6 +439,7 @@ class TransformNodeManager {
     }
 
     findTempVarUsages(tempVarName) {
+        // TODO: find usage and remove
         const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
         const tempUsedAssignmentStmts = assignmentStmts.filter((assStmt) => {
             const rightExp = this.getMappingExpression(assStmt.getRightExpression());
@@ -442,6 +459,7 @@ class TransformNodeManager {
     }
 
     findAssignedVertexForTemp(expression) {
+        // TODO: find usage and remove
         const tempVarName = expression.getVariableName();
         const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
         return assignmentStmts.find((assStmt) => {
