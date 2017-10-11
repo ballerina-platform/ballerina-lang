@@ -43,7 +43,7 @@ class ResourceNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorInitExpr(dragSource)
+        return TreeUtil.isConnectorDeclaration(dragSource)
             || TreeUtil.isWorker(dragSource);
     }
 
