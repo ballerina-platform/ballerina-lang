@@ -312,6 +312,7 @@ class DefaultNodeFactory {
         const fragment = FragmentUtils.createStatementFragment(connectorInit);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const connectorDeclaration = TreeBuilder.build(parsedJson);
+        connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         return connectorDeclaration;
     }
 
