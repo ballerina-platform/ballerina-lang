@@ -1407,11 +1407,12 @@ public class BLangPackageBuilder {
         serviceNodeStack.peek().addResource(resourceNode);
     }
 
-    public void createXMLQName(DiagnosticPos pos, String localname, String prefix) {
+    public void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {
         BLangXMLQName qname = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
         qname.localname = (BLangIdentifier) createIdentifier(localname);
         qname.prefix = (BLangIdentifier) createIdentifier(prefix);
         qname.pos = pos;
+        qname.addWS(ws);
         addExpressionNode(qname);
     }
 
@@ -1424,12 +1425,17 @@ public class BLangPackageBuilder {
         xmlAttributeNodeStack.push(xmlAttribute);
     }
 
+    public void attachXmlLiteralWS(Set<Whitespace> ws) {
+        this.exprNodeStack.peek().addWS(ws);
+    }
+
     public void startXMLElement(DiagnosticPos pos, Set<Whitespace> ws, boolean isRoot) {
         BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
-        xmlElement.startTagName = (BLangExpression) exprNodeStack.pop();
+        BLangExpression startTag = (BLangExpression) exprNodeStack.pop();
+        xmlElement.addWS(ws);
+        xmlElement.startTagName = startTag;
         xmlElement.pos = pos;
         xmlElement.isRoot = isRoot;
-        xmlElement.addWS(ws);
         xmlAttributeNodeStack.forEach(attribute -> xmlElement.addAttribute(attribute));
         xmlAttributeNodeStack.clear();
         addExpressionNode(xmlElement);
@@ -1437,8 +1443,8 @@ public class BLangPackageBuilder {
 
     public void endXMLElement(Set<Whitespace> ws) {
         BLangExpression endTag = (BLangExpression) exprNodeStack.pop();
-        endTag.addWS(ws);
         BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) exprNodeStack.peek();
+        xmlElement.addWS(ws);
         xmlElement.endTagName = endTag;
     }
 
@@ -1492,8 +1498,9 @@ public class BLangPackageBuilder {
 
         BLangXMLCommentLiteral xmlCommentLiteral = (BLangXMLCommentLiteral) TreeBuilder.createXMLCommentLiteralNode();
         xmlCommentLiteral.textFragments =
-                getExpressionsInTemplate(pos, ws, precedingTextFragments, endingText, NodeKind.LITERAL);
+                getExpressionsInTemplate(pos, null, precedingTextFragments, endingText, NodeKind.LITERAL);
         xmlCommentLiteral.pos = pos;
+        xmlCommentLiteral.addWS(ws);
         addExpressionNode(xmlCommentLiteral);
     }
 

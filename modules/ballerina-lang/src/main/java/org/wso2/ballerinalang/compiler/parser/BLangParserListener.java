@@ -2496,6 +2496,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlLiteral(BallerinaParser.XmlLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.attachXmlLiteralWS(getWS(ctx));
     }
 
     /**
@@ -2852,7 +2856,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             localname = qnames.get(0).getText();
         }
 
-        this.pkgBuilder.createXMLQName(getCurrentPos(ctx), localname, prefix);
+        this.pkgBuilder.createXMLQName(getCurrentPos(ctx), getWS(ctx), localname, prefix);
     }
 
     /**
