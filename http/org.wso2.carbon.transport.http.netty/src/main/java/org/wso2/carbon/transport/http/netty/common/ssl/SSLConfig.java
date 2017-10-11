@@ -38,6 +38,7 @@ public class SSLConfig {
     private String certPass;
     private File trustStore;
     private String trustStorePass;
+    private String sslProtocol;
 
     private String[] cipherSuites;
     private String[] enableProtocols;
@@ -137,6 +138,17 @@ public class SSLConfig {
             LOGGER.debug("Set NeedClientAuth" + needClientAuth);
         }
         this.needClientAuth = needClientAuth;
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set SSLProtocol" + sslProtocol);
+        }
+        this.sslProtocol = sslProtocol;
+    }
+
+    public String getSslProtocol() {
+        return sslProtocol;
     }
 
     public boolean isEnableSessionCreation() {

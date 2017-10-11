@@ -46,9 +46,9 @@ import java.util.stream.Collectors;
  */
 public class HTTPCarbonMessage {
 
-    private HttpMessage httpMessage;
-    private Map<String, Object> properties = new HashMap<>();
+    protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
+    private Map<String, Object> properties = new HashMap<>();
 
     private MessagingException messagingException = null;
     private MessageDataSource messageDataSource;
@@ -242,14 +242,15 @@ public class HTTPCarbonMessage {
         return httpCarbonMessage;
     }
 
-    HTTPCarbonMessage getNewHttpCarbonMessage() {
+    private HTTPCarbonMessage getNewHttpCarbonMessage() {
         HttpMessage newHttpMessage;
+        HttpHeaders httpHeaders;
         if (this.httpMessage instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) this.httpMessage;
             newHttpMessage = new DefaultHttpRequest(this.httpMessage.protocolVersion(),
                     ((HttpRequest) this.httpMessage).method(), httpRequest.uri());
 
-            HttpHeaders httpHeaders = new DefaultHttpHeaders();
+            httpHeaders = new DefaultHttpHeaders();
             List<Map.Entry<String, String>> headerList = this.httpMessage.headers().entries();
             for (Map.Entry<String, String> entry : headerList) {
                 httpHeaders.set(entry.getKey(), entry.getValue());
@@ -258,13 +259,15 @@ public class HTTPCarbonMessage {
             HttpResponse httpResponse = (HttpResponse) this.httpMessage;
             newHttpMessage = new DefaultFullHttpResponse(this.httpMessage.protocolVersion(), httpResponse.status());
 
-            HttpHeaders httpHeaders = new DefaultHttpHeaders();
+            httpHeaders = new DefaultHttpHeaders();
             List<Map.Entry<String, String>> headerList = this.httpMessage.headers().entries();
             for (Map.Entry<String, String> entry : headerList) {
                 httpHeaders.set(entry.getKey(), entry.getValue());
             }
         }
-        return new HTTPCarbonMessage(newHttpMessage);
+        HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage(newHttpMessage);
+        httpCarbonMessage.setHeaders(httpHeaders);
+        return httpCarbonMessage;
     }
 
     private List<ByteBuffer> getCopyOfFullMessageBody() {
