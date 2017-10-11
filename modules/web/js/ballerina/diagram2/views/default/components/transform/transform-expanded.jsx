@@ -26,7 +26,7 @@ import log from 'log';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
-import ASTNode from '../../../../../ast/node';
+import TransformNode from '../../../../../model/tree/abstract-tree/transform-node';
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
@@ -170,8 +170,8 @@ class TransformExpanded extends React.Component {
             variables = statement.getVariables();
             stmtExp = statement.getExpression();
         } else if (TreeUtil.isVariableDef(statement)) {
-            variables.push(statement.getVariable());
-            stmtExp = statement.getInitialExpression();
+            variables.push(statement.getVariable().getName());
+            stmtExp = statement.getVariable().getInitialExpression();
         } else {
             log.error('Invalid statement type in transformer');
             return;
@@ -1112,16 +1112,18 @@ class TransformExpanded extends React.Component {
             });
 
             this.props.model.getBody().getStatements().forEach((stmt) => {
-                if (!TreeUtil.isAssignment(stmt)) {
+                let stmtExp;
+                if (TreeUtil.isAssignment(stmt)) {
+                    stmtExp = stmt.getExpression();
+                } else if (TreeUtil.isVariableDef(stmt)) {
+                    stmtExp = stmt.getVariable().getInitialExpression();
+                } else {
                     return;
                 }
-                const { exp: expression, isTemp } = this.transformNodeManager
-                                                    .getResolvedExpression(stmt.getExpression(), stmt);
 
-                if (TreeUtil.isInvocation(expression)
-                    || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)
-                    || TreeUtil.isTernaryExpr(expression)) {
+                const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, stmt);
+
+                if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression) || TreeUtil.isUnaryExpr(expression)) {
                     if (!isTemp) {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
@@ -1270,7 +1272,7 @@ class TransformExpanded extends React.Component {
 }
 
 TransformExpanded.propTypes = {
-    model: PropTypes.instanceOf(ASTNode).isRequired,
+    model: PropTypes.instanceOf(TransformNode).isRequired,
 };
 
 TransformExpanded.contextTypes = {

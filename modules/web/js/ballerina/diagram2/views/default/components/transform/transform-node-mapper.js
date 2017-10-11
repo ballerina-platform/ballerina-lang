@@ -328,9 +328,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     createFunctionToFunctionMapping(source, target) {
-        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+        const stmt = this.getParentStatement(source.funcInv);
         // remove the source assignment statement since it is now included in the target assignment statement.
-        this._transformStmt.body.removeStatements(assignmentStmtSource, true);
+        this._transformStmt.body.removeStatements(stmt, true);
 
         target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
 
@@ -349,9 +349,9 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     createOperatorToOperatorMapping(source, target) {
-        const assignmentStmtSource = this.getParentAssignmentStmt(source.operator);
+        const stmt = this.getParentStatement(source.operator);
         // remove the source assignment statement since it is now included in the target assignment statement.
-        this._transformStmt.body.removeStatements(assignmentStmtSource, true);
+        this._transformStmt.body.removeStatements(stmt, true);
 
         const operator = target.operator;
 
@@ -872,25 +872,27 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeOutputExpressions(stmt, expStr) {
-        stmt.getVariables().forEach((exp, index) => {
+        this.getVariables(stmt).forEach((exp, index) => {
             if (exp.getSource().trim() === expStr) {
-                if (TreeUtil.isSimpleVariableRef(stmt.getExpression())) {
+                if (TreeUtil.isSimpleVariableRef(this.getExpression(stmt))) {
                     this._transformStmt.body.removeStatements(stmt, true);
                     // check for temp expressions
-                    if (this.isTempVariable(stmt.getExpression())) {
-                        const tempExp = stmt.getExpression();
+                    if (this.isTempVariable(this.getExpression(stmt))) {
+                        const tempExp = this.getExpression(stmt);
                         const tempUsedStmts = this.getInputStatements(tempExp);
                         if (tempUsedStmts.length === 1) {
-                            const tempAssignStmt = this.getOutputStatement(tempExp);
-                            const tempLeftExp = tempAssignStmt.getVariables().find((ex) => {
+                            // TODO: fix this for var defs
+                            const tempStmt = this.getOutputStatement(tempExp);
+                            const tempLeftExp = this.getVariables(tempStmt).find((ex) => {
                                 return ex.getSource().trim() === tempExp.getSource().trim();
                             });
-                            tempAssignStmt.replaceVariables(tempLeftExp, tempUsedStmts[0].getVariables()[0], true);
-                            tempAssignStmt.setDeclaredWithVar(false, true);
+                            tempStmt.replaceVariables(tempLeftExp, this.getVariables(tempUsedStmts[0])[0], true);
+                            tempStmt.setDeclaredWithVar(false, true);
                             this._transformStmt.body.removeStatements(tempUsedStmts[0], true);
                         }
                     }
                 } else {
+                    // TODO: fix this for var defs
                     stmt.setDeclaredWithVar(true, true);
                     const outputVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT);
                     const simpleVarRefExpression = TransformFactory.createVariableRefExpression(outputVarName);
@@ -957,28 +959,22 @@ class TransformNodeMapper {
      */
     findEnclosingStatement(expression) {
         return this._transformStmt.body.getStatements().find((stmt) => {
-            if (TreeUtil.isAssignment(stmt)) {
-                return (this.getMappableExpression(stmt.getExpression()).getSource().trim()
-                            === expression.getSource().trim());
-            } else if (TreeUtil.isVariableDef(stmt)) {
-                return (this.getMappableExpression(stmt.getInitialExpression()).getSource().trim()
-                            === expression.getSource().trim());
-            }
-            return false;
+            return (this.getMappableExpression(this.getExpression(stmt).getSource().trim()
+                                === expression.getSource().trim()));
         });
     }
 
     /**
-    * Gets the enclosing assignment statement.
-    * @param {ASTNode} expression
-    * @returns {AssignmentStatement} enclosing assignment statement
-    * @memberof TransformStatementDecorator
+    * Gets the enclosing statement.
+    * @param {Node} node
+    * @returns {StatementNode} enclosing statement
+    * @memberof TransformNodeMapper
     */
-    getParentAssignmentStmt(node) {
+    getParentStatement(node) {
         if (TreeUtil.isAssignment(node) || TreeUtil.isVariableDef(node)) {
             return node;
         } else {
-            return this.getParentAssignmentStmt(node.parent);
+            return this.getParentStatement(node.parent);
         }
     }
 
@@ -993,7 +989,7 @@ class TransformNodeMapper {
      */
     getMappableExpression(expression) {
         if (TreeUtil.isTypeCastExpr(expression) || TreeUtil.isTypeConversionExpr(expression)) {
-            return expression.getExpression();
+            return this.getMappableExpression(expression.getExpression());
         }
         return expression;
     }
@@ -1021,8 +1017,8 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getTempResolvedExpression(expression) {
-        const assignmentStmt = this.getOutputStatement(expression);
-        return assignmentStmt.getExpression();
+        const statement = this.getOutputStatement(expression);
+        return this.getExpression(statement);
     }
 
     /**
@@ -1097,14 +1093,14 @@ class TransformNodeMapper {
     }
 
     /**
-    * Is the assignment statement a complex one or not. A complex statement will have
+    * Is the statement a complex one or not. A complex statement will have
     * function invocation or an operator as the right expression.
-    * @param {AssignmentStatement} assignmentStmt the assignment statement
+    * @param {Statement} statement the statement
     * @return {boolean} is complex or not
     * @memberof TransformNodeMapper
     */
-    isComplexStatement(assignmentStmt) {
-        return (this.isComplexExpression(this.getMappableExpression(assignmentStmt.getExpression())));
+    isComplexStatement(statement) {
+        return (this.isComplexExpression(this.getMappableExpression(this.getExpression(statement))));
     }
 
     /**
@@ -1200,16 +1196,16 @@ class TransformNodeMapper {
 
     /**
      * whether the constant expression is a constant value
-     * @param {any} expression expression
-     * @param {any} assignmentStmt assignment statement
+     * @param {Expression} expression expression
+     * @param {Assignment} statement assignment statement
      * @returns {boolean} whether the expression is a constant
      * @memberof TransformNodeMapper
      */
-    isConstant(expression, assignmentStmt) {
-        if (!assignmentStmt) {
-            assignmentStmt = this.getOutputStatement(expression);
+    isConstant(expression, statement) {
+        if (!statement) {
+            statement = this.getOutputStatement(expression);
         }
-        return TreeUtil.isLiteral(assignmentStmt.getExpression());
+        return TreeUtil.isLiteral(this.getExpression(statement));
     }
 
     /**
@@ -1251,9 +1247,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getOutputStatement(expression) {
-        return this._transformStmt.body.filterStatements(TreeUtil.isAssignment).find((stmt) => {
-            return stmt.getVariables().find((exp) => {
-                return expression.getSource().trim() === exp.getSource().trim();
+        return this._transformStmt.body.getStatements().find((stmt) => {
+            return this.getVariables(stmt).find((varExp) => {
+                return expression.getSource().trim() === varExp.getSource().trim();
             });
         });
     }
@@ -1268,7 +1264,7 @@ class TransformNodeMapper {
     */
     getInputStatements(expression) {
         return this._transformStmt.body.getStatements().filter((stmt) => {
-            const matchingInput = this.getVerticesFromExpression(stmt.getExpression()).filter((exp) => {
+            const matchingInput = this.getVerticesFromExpression(this.getExpression(stmt)).filter((exp) => {
                 return (exp.getSource().trim() === expression.getSource().trim());
             });
             return (matchingInput.length > 0);
@@ -1327,7 +1323,7 @@ class TransformNodeMapper {
             return stmt.getExpression();
         }
         if (TreeUtil.isVariableDef(stmt)) {
-            return stmt.getInitialExpression();
+            return stmt.getVariable().getInitialExpression();
         }
         return undefined;
     }
@@ -1343,7 +1339,7 @@ class TransformNodeMapper {
             return stmt.getVariables();
         }
         if (TreeUtil.isVariableDef(stmt)) {
-            return [...stmt.getVariable()];
+            return [stmt.getVariable().getName()];
         }
         return [];
     }
