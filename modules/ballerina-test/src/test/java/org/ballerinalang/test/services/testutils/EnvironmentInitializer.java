@@ -32,20 +32,29 @@ import org.ballerinalang.util.codegen.ServiceInfo;
  */
 public class EnvironmentInitializer {
 
-    public static CompileResult setupProgramFile(String sourcePath) {
+    public static CompileResult setupProgramFile(String sourcePath, String pkgPath) {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
         try {
-            CompileResult compileResult = BTestUtils.compile(sourcePath);
+            CompileResult compileResult;
+            if (pkgPath == null) {
+                compileResult = BTestUtils.compile(sourcePath);
+            } else {
+                compileResult = BTestUtils.compile(sourcePath, pkgPath);
+            }
             ProgramFile programFile = compileResult.getProgFile();
             BLangProgramRunner.runService(programFile);
             return compileResult;
         } catch (Exception e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
+    }
+
+    public static CompileResult setupProgramFile(String sourcePath) {
+        return setupProgramFile(sourcePath, null);
     }
 
     public static void cleanup(CompileResult compileResult) {

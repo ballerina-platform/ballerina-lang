@@ -18,9 +18,9 @@ package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.test.services.testutils.TestHTTPServiceDispatcher;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.test.utils.TestHTTPServiceDispatcher;
 
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
