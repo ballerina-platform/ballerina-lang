@@ -401,8 +401,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         isCursorBeforeStatement(returnNode.getPosition(), returnNode);
     }
 
-    public void visit(BLangNext continueNode) {
-        isCursorBeforeStatement(continueNode.getPosition(), continueNode);
+    public void visit(BLangNext nextNode) {
+        isCursorBeforeStatement(nextNode.getPosition(), nextNode);
         /* ignore */
     }
 
