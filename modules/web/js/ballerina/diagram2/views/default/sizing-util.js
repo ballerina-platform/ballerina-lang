@@ -611,25 +611,29 @@ class SizingUtil {
         // set the body height and width.
         cmp.body.h = height;
         cmp.body.w = width;
-
-        // If there are connector declarations add them to service width.
-        const statements = node.getVariables();
-        let connectorWidth = 0;
-        const connectorHeight = node.filterVariables((statement) => { return TreeUtil.isConnectorDeclaration(statement); })
-            .length > 0 ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
-        if (statements instanceof Array) {
-            statements.forEach((statement) => {
-                if (TreeUtil.isConnectorDeclaration(statement)) {
-                    statement.viewState.bBox.w = this.config.lifeLine.width;
-                    // add the connector width to body width.
-                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
-                    statement.viewState.bBox.h = cmp.body.h - 60;
-                }
-            });
+        let connectorHeight = 0;
+        if (TreeUtil.isService(node)) {
+            // If there are connector declarations add them to service width.
+            const statements = node.getVariables();
+            let connectorWidth = 0;
+            connectorHeight = node.filterVariables((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            })
+                .length > 0 ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
+            if (statements instanceof Array) {
+                statements.forEach((statement) => {
+                    if (TreeUtil.isConnectorDeclaration(statement)) {
+                        statement.viewState.bBox.w = this.config.lifeLine.width;
+                        // add the connector width to body width.
+                        connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                        statement.viewState.bBox.h = cmp.body.h - 60;
+                    }
+                });
+            }
+            // add the connector to width
+            width += connectorWidth;
+            cmp.connectors.w = connectorWidth;
         }
-        // add the connector to width
-        width += connectorWidth;
-        cmp.connectors.w = connectorWidth;
         // calculate header related components.
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
