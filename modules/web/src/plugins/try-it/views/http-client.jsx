@@ -333,7 +333,12 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderHeaders() {
-        return this.state.requestHeaders.map((header) => {
+        return this.state.requestHeaders.map((header, index) => {
+            let removeButton;
+            // Remove button is not included for new header fields
+            if (index !== this.state.requestHeaders.length - 1) {
+                removeButton = <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />;
+            }
             return (<div key={`${header.id}`} className="form-inline">
                 <input
                     id={header.id}
@@ -362,7 +367,7 @@ class HttpClient extends React.Component {
                     onBlur={() => { this.focusTarget = undefined; }}
                     onKeyDown={this.onHeaderValueKeyDown}
                 />
-                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
+                {removeButton}
             </div>);
         });
     }
