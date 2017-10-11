@@ -65,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -117,7 +118,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -2672,7 +2672,7 @@ public class BLangVM {
     
     private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
             Set<String> joinWorkerNames, int joinCount, long timeout) {
-        ExecutorService exec = Executors.newWorkStealingPool();
+        ExecutorService exec = ThreadPoolFactory.getInstance().getWorkerExecutor();
         Semaphore resultCounter = new Semaphore(-joinCount + 1);
         workers.forEach((k, v) -> {
             if (joinWorkerNames.contains(k)) {

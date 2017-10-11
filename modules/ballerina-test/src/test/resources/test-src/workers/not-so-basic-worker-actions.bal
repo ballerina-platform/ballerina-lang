@@ -310,3 +310,24 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
     return m;
 }
 
+function forkJoinInWorkers() (int) {
+    worker wx {
+	    int x = 20;
+	    map m = {};
+	    fork {
+		   worker w1 {
+		     m["a"] = 10;
+		   }
+		   worker w2 {
+		     m["b"] = 20;
+		   }
+	    } join (all) (map results) { 
+	       int a;
+	       int b;
+	       a, _ = (int) m["a"];
+	       b, _ = (int) m["b"];
+	       x = a + b;
+	    }
+	    return x;
+    }
+}
