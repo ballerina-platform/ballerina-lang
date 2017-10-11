@@ -59,9 +59,7 @@ function breakpointHoc(WrappedComponent) {
                     this.setState({
                         isBreakpoint: true,
                     });
-                    if (typeof this.props.model.addBreakpoint === 'function') {
-                        this.props.model.addBreakpoint();
-                    }
+                    this.props.model.isBreakpoint = true;
                 }
             });
             this.removeListner = DebugManager.on('breakpoint-removed', ({ lineNumber, fileName: bpFileName }) => {
@@ -71,9 +69,7 @@ function breakpointHoc(WrappedComponent) {
                     this.setState({
                         isBreakpoint: false,
                     });
-                    if (typeof this.props.model.removeBreakPoint === 'function') {
-                        this.props.model.removeBreakPoint();
-                    }
+                    this.props.model.isBreakpoint = false;
                 }
             });
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
@@ -85,12 +81,12 @@ function breakpointHoc(WrappedComponent) {
          * hook for componentWillUnmount
          */
         componentWillUnmount() {
-            DebugManager.off('breakpoint-added', this.addListner, this);
-            DebugManager.off('breakpoint-removed', this.removeListner, this);
-            DebugManager.off('debug-hit', this.hitListner, this);
-            DebugManager.off('session-ended', this.endListner, this);
-            DebugManager.off('execution-ended', this.cmpListner, this);
-            DebugManager.off('resume-execution', this.continueListner, this);
+            DebugManager.off('breakpoint-added', this.addListner);
+            DebugManager.off('breakpoint-removed', this.removeListner);
+            DebugManager.off('debug-hit', this.hitListner);
+            DebugManager.off('session-ended', this.endListner);
+            DebugManager.off('execution-ended', this.cmpListner);
+            DebugManager.off('resume-execution', this.continueListner);
         }
         /**
          * indicate a debug hit

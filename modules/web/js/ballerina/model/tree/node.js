@@ -94,6 +94,9 @@ class Node extends EventChannel {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 const child = this[childName];
                 const child2 = newTree[childName];
+                if (!child2) {
+                    continue;
+                }
                 if (child instanceof Node && child.kind) {
                     child.sync(visitor, child2);
                 } else if (child instanceof Array) {

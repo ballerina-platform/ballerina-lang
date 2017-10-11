@@ -34,8 +34,8 @@ import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } fro
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
-import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
+import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
 import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
@@ -174,12 +174,12 @@ class BallerinaFileEditor extends React.Component {
      */
     onASTModified(evt) {
         if (evt.type === 'child-added') {
-            this.addAutoImports(evt.data.node)
+            this.addAutoImports(evt.data.node);
         }
 
         const newContent = this.state.model.getSource();
         // set breakpoints to model
-        // TODOX this.reCalculateBreakpoints(this.state.model);
+        // this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
@@ -249,6 +249,10 @@ class BallerinaFileEditor extends React.Component {
     syncASTs(currentAST, newAST) {
         const syncLineNumbersVisitor = new SyncLineNumbersVisitor(newAST);
         currentAST.sync(syncLineNumbersVisitor, newAST);
+        const syncBreakpoints = new SyncBreakpointsVisitor(newAST);
+        currentAST.sync(syncBreakpoints, newAST);
+        const newBreakpoints = syncBreakpoints.getBreakpoints();
+        this.updateBreakpoints(newBreakpoints, newAST);
     }
 
     /**
@@ -397,7 +401,7 @@ class BallerinaFileEditor extends React.Component {
                             // get ast from json
 
                             const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
-                            // TODOX this.markBreakpointsOnAST(ast);
+                            this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
                                 this.onASTModified(evt);
@@ -434,23 +438,30 @@ class BallerinaFileEditor extends React.Component {
                 .catch(reject);
         });
     }
-    reCalculateBreakpoints(newAst) {
-        const findBreakpointsVisiter = new FindBreakpointLinesVisitor(newAst);
-        newAst.accept(findBreakpointsVisiter);
-        const breakpoints = findBreakpointsVisiter.getBreakpoints();
-        const fileName = this.props.file.name;
-        const packagePath = newAst.packageName || '.';
+    markBreakpointsOnAST(ast) {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
+        const breakpoints = DebugManager.getDebugPoints(fileName);
+        const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
+        findBreakpointsVisitor.setBreakpoints(breakpoints);
+        ast.accept(findBreakpointsVisitor);
+    }
+    updateBreakpoints(breakpoints, ast) {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
+        const packagePath = this.getPackageName(ast);
         DebugManager.removeAllBreakpoints(fileName);
         breakpoints.forEach((lineNumber) => {
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
     }
-    markBreakpointsOnAST(ast) {
-        const fileName = this.props.file.name;
-        const breakpoints = DebugManager.getDebugPoints(fileName);
-        const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
-        findBreakpointsVisitor.setBreakpoints(breakpoints);
-        ast.accept(findBreakpointsVisitor);
+    getPackageName(ast) {
+        const packageDeclaration = ast.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+        packageDeclaration[0] = packageDeclaration[0] || { packageName: [{}] };
+        if (!packageDeclaration[0]
+            || !packageDeclaration[0].packageName
+            || !packageDeclaration[0].packageName.length) {
+            return '.';
+        }
+        return packageDeclaration[0].packageName[0].value;
     }
 
     /**
