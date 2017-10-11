@@ -164,17 +164,19 @@ public class VarDeclaredAssignmentStmtTest {
         BTestUtils.validateError(res, 1, "mismatched input '='. expecting {'[', Identifier}", 1, 15);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         CompileResult res = BTestUtils.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "extraneous input 'var'", 9, 5);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BTestUtils.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
+        Assert.assertEquals(res.getErrorCount(), 2);
+        BTestUtils.validateError(res, 0, "invalid assignment in variable 'human.name'", 9, 8);
+        BTestUtils.validateError(res, 1, "no new variables on left side", 9, 4);
     }
 
     @Test
@@ -205,7 +207,7 @@ public class VarDeclaredAssignmentStmtTest {
         BTestUtils.validateError(res, 0, "no new variables on left side", 3, 5);
     }
 
-    @Test(enabled = false, description = "Test incompatible json to struct with errors.")
+    @Test(description = "Test incompatible json to struct with errors.")
     public void testIncompatibleJsonToStructWithErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testIncompatibleJsonToStructWithErrors",
                 new BValue[]{});
@@ -217,7 +219,7 @@ public class VarDeclaredAssignmentStmtTest {
                 " 'parent': incompatible types: expected 'json-object', found 'string'");
     }
 
-    @Test(enabled = false, description = "Test incompatible json to struct with errors.")
+    @Test(description = "Test incompatible json to struct with errors.")
     public void testJsonToStructWithErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testJsonToStructWithErrors",
                 new BValue[]{});
@@ -229,7 +231,7 @@ public class VarDeclaredAssignmentStmtTest {
                 "incompatible types: expected 'int', found 'string' in json");
     }
 
-    @Test(enabled = false, description = "Test compatible struct with force casting.")
+    @Test(description = "Test compatible struct with force casting.")
     public void testCompatibleStructForceCasting() {
         BValue[] returns = BTestUtils.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -243,7 +245,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertNull(returns[1]);
     }
 
-    @Test(enabled = false, description = "Test incompatible struct with force casting.")
+    @Test(description = "Test incompatible struct with force casting.")
     public void testInCompatibleStructForceCasting() {
         BValue[] returns = BTestUtils.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 

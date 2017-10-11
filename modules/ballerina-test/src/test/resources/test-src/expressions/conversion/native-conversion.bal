@@ -1,3 +1,5 @@
+import ballerina.net.http;
+
 struct Person {
     string name;
     int age;
@@ -24,9 +26,7 @@ function testStructToMap () (map) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    TypeConversionError err;
-    map m;
-    //m, err = <map>p;
+    map m = <map>p;
     return m;
 }
 
@@ -309,13 +309,14 @@ function testJsonArrayToStruct () (Person) {
 }
 
 struct Info {
-    string msg;
+    map foo;
 }
 
-function testStructWithMessageToJson () (json) {
+function testStructWithIncompatibleTypeMapToJson () (json) {
+    blob b;
+    map m = {bar:b};
+    Info info = {foo:m};
 
-    string m = "";
-    Info info = {msg:m};
     json j;
     TypeConversionError err;
     j, err = <json>info;
@@ -329,43 +330,42 @@ function testStructWithMessageToJson () (json) {
 function testJsonIntToString () (string) {
     json j = 5;
     int value;
-    //value, _ = (int)j;
-    //return <string>value;
-    return "";
+    value, _ = (int)j;
+    return <string>value;
 }
 
 function testBooleanInJsonToInt () (int) {
     json j = true;
     int value;
-    //value, _ = (int)j;
+    value, _ = (int)j;
     return value;
 }
 
 function testIncompatibleJsonToInt () (int) {
     json j = "hello";
     int value;
-    //value, _ = (int)j;
+    value, _ = (int)j;
     return value;
 }
 
 function testIntInJsonToFloat () (float) {
     json j = 7;
     float value;
-    //value, _ = (float)j;
+    value, _ = (float)j;
     return value;
 }
 
 function testIncompatibleJsonToFloat () (float) {
     json j = "hello";
     float value;
-    //value, _ = (float)j;
+    value, _ = (float)j;
     return value;
 }
 
 function testIncompatibleJsonToBoolean () (boolean) {
     json j = "hello";
     boolean value;
-    //value, _ = (boolean)j;
+    value, _ = (boolean)j;
     return value;
 }
 
@@ -586,7 +586,7 @@ function testStructToMapWithRefTypeArray () (map, int) {
     map m = <map>theRevenant;
 
     any a = m["writers"];
-    //var writers, _ = (person[])a;
+    var writers, _ = (person[])a;
 
     return m, writers[0].age;
 }

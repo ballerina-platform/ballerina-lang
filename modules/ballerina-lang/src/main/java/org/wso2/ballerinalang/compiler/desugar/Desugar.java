@@ -555,14 +555,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
         iExpr.argExprs = rewriteExprs(iExpr.argExprs);
-        iExpr.expr = rewriteExpr(iExpr.expr);
         if (iExpr.functionPointerInvocation) {
-            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-            varRef.symbol = (BVarSymbol) iExpr.symbol;
-            varRef.type = iExpr.symbol.type;
-            genIExpr = new BFunctionPointerInvocation(iExpr, varRef);
+            visitFunctionPointerInvocation(iExpr);
+            return;
         }
-
+        iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
             return;
@@ -813,6 +810,22 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     // private functions
+
+    private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangVariableReference expr;
+        if (iExpr.expr == null) {
+            expr = new BLangSimpleVarRef();
+        } else {
+            BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
+            fieldBasedAccess.expr = iExpr.expr;
+            fieldBasedAccess.field = iExpr.name;
+            expr = fieldBasedAccess;
+        }
+        expr.symbol = (BVarSymbol) iExpr.symbol;
+        expr.type = iExpr.symbol.type;
+        expr = rewriteExpr(expr);
+        result = new BFunctionPointerInvocation(iExpr, expr);
+    }
 
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node) {

@@ -26,3 +26,30 @@ function testStructToStruct () (Student) {
     Student s = <Student>p;
     return s;
 }
+
+function testComplexMapToJson () (json) {
+    map m = {name:"Supun",
+                age:25,
+                gpa:2.81,
+                status:true
+            };
+    json j2 = <json>m;
+    return j2;
+}
+
+
+struct Info {
+    blob infoBlob;
+}
+
+function testStructWithIncompatibleTypeMapToJson () (json) {
+    Info info = {};
+    json j;
+    TypeConversionError err;
+    j, err = <json>info;
+    if (err != null) {
+        throw err;
+    }
+    return j;
+
+}

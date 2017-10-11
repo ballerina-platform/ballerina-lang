@@ -138,4 +138,20 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 777);
     }
     
+    @Test (enabled = false)
+    public void forkJoinInWorkers() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinInWorkers", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        BInteger ret = (BInteger) vals[0];
+        Assert.assertEquals(ret.intValue(), 30);
+    }
+    
+    @Test
+    public void largeForkJoinCreationTest() {
+        BValue[] vals = BTestUtils.invoke(result, "largeForkJoinCreationTest", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        BInteger ret = (BInteger) vals[0];
+        Assert.assertEquals(ret.intValue(), 65000);
+    }
+    
 }
