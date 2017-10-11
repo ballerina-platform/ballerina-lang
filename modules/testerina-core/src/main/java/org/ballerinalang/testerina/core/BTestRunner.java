@@ -99,8 +99,7 @@ public class BTestRunner {
                 outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
             }
             // if there are no exception thrown, test is passed
-            TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
-                                                                 errorMessage);
+            TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed, errorMessage);
             tReport.addFunctionResult(functionResult);
         }
 

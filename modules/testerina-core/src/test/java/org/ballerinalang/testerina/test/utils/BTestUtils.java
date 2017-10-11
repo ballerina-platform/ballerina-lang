@@ -63,7 +63,6 @@ public class BTestUtils {
 
     private static Path resourceDir = Paths.get(
             BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-//    private static Path resourceDir = Paths.get("src/test/resources");
 
     /**
      * Compile and return the semantic errors.
