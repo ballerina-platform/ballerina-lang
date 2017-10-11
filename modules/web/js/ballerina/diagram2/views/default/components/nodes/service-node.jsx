@@ -64,8 +64,7 @@ class ServiceNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource)
-            || TreeUtil.isWorker(dragSource);
+        return TreeUtil.isConnectorDeclaration(dragSource);
     }
 
     /**
