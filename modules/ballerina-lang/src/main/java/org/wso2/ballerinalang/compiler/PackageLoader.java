@@ -130,8 +130,8 @@ public class PackageLoader {
      *
      * @return a set of PackageIDs
      */
-    public Set<PackageID> listPackages() {
-        return this.packageRepo.listPackages();
+    public Set<PackageID> listPackages(int maxDepth) {
+        return this.packageRepo.listPackages(maxDepth);
     }
 
     private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
