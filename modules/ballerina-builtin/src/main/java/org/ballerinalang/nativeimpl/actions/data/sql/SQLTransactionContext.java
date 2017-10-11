@@ -41,6 +41,10 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
         return this.conn;
     }
 
+    public void updateConnection (Connection conn) {
+        this.conn = conn;
+    }
+
     @Override
     public void commit() {
         try {

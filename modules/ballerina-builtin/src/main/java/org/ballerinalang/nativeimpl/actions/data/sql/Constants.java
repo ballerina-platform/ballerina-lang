@@ -78,6 +78,23 @@ public final class Constants {
     }
 
     /**
+     * XA Datasoruce for DB Types with first class support.
+     */
+    public static final class XADataSources {
+        public static final String MYSQL_5_XA_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlXADataSource";
+        public static final String MYSQL_6_XA_DATASOURCE = "com.mysql.cj.jdbc.MysqlXADataSource";
+        public static final String SQLSERVER_XA_DATASOURCE = "com.microsoft.sqlserver.jdbc.SQLServerXADataSource";
+        public static final String ORACLE_XA_DATASOURCE  = "oracle.jdbc.xa.client.OracleXADataSource";
+        public static final String SYBASE_XA_DATASOURCE  = "com.sybase.jdbc3.jdbc.SybXADataSource";
+        public static final String POSTGRE_XA_DATASOURCE  = "org.postgresql.xa.PGXADataSource";
+        public static final String IBMDB2_XA_DATASOURCE  = "com.ibm.db2.jdbc.DB2XADataSource";
+        public static final String HSQLDB_XA_DATASOURCE  = "org.hsqldb.jdbc.pool.JDBCXADataSource";
+        public static final String H2_XA_DATASOURCE = "org.h2.jdbcx.JdbcDataSource";
+        public static final String DERBY_SERVER_XA_DATASOURCE = "org.apache.derby.jdbc.ClientXADataSource";
+        public static final String DERBY_FILE_XA_DATASOURCE = "org.apache.derby.jdbc.EmbeddedXADataSource";
+    }
+
+    /**
      * Constants default DB ports.
      */
     public static final class DefaultPort {
@@ -105,4 +122,10 @@ public final class Constants {
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String DATASOURCE_KEY = "datasource_key";
     public static final String TIMEZONE_UTC = "UTC";
+    public static final String QUESTION_MARK = "?";
+    public static final String STRUCT_TIME = "Time";
+    public static final String STRUCT_TIME_PACKAGE = "ballerina.lang.time";
+    public static final String URL = "url";
+    public static final String USER = "user";
+    public static final String PASSWORD = "password";
 }
