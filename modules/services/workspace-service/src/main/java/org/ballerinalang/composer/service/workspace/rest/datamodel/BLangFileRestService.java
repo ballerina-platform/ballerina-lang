@@ -263,6 +263,16 @@ public class BLangFileRestService {
                 continue;
             }
 
+            /* Virtual prop */
+            // This is since the invocation symbol abstract method has not currently been exposed from the runtime
+            // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
+            if (node.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) node;
+                if (invocation.symbol != null) {
+                    nodeJson.addProperty("invocationType", invocation.symbol.kind.toString());
+                }
+            }
+
             /* Node classes */
             if (prop instanceof Node) {
                 nodeJson.add(jsonName, generateJSON((Node) prop));
@@ -295,13 +305,6 @@ public class BLangFileRestService {
                 }
             } else if (prop instanceof NodeKind) {
                 String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
-                // This is since the invocation symbol abstract method has not currently been exposed from the runtime
-                // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
-                if (kindName.equals("Invocation")) {
-                    if (((BLangInvocation) node).symbol != null) {
-                        nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
-                    }
-                }
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
                 nodeJson.addProperty(jsonName, prop.toString());
