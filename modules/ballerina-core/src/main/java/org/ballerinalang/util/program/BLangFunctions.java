@@ -230,20 +230,12 @@ public class BLangFunctions {
 
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
+        context.startTrackWorkers();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
-        ControlStackNew stack = context.getControlStackNew();
-        int count = 0;
-        while (stack.fp > 1 && !stack.getStack()[stack.fp - 1].isWorkerReturned()) {
-            if (count++ > timeOut) {
-                throw new BLangRuntimeException("error: workers timed out.!");
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignore.
-            }
+        if (!context.workerCounter.await(timeOut)) {
+            throw new BLangRuntimeException("error: workers timed out.!");
         }
 
         if (context.getError() != null) {

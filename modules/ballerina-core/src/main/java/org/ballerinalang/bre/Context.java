@@ -18,6 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -53,6 +54,9 @@ public class Context {
     private int startIP;
     private BStruct unhandledError;
 
+    public boolean trackWorkers = false;
+    public WorkerCounter workerCounter;
+
     // TODO : Temporary solution to make non-blocking working.
     public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
@@ -69,6 +73,7 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
         this.controlStackNew = new ControlStackNew();
+        this.workerCounter = new WorkerCounter();
     }
 
     public DebugInfoHolder getDebugInfoHolder() {
@@ -193,5 +198,10 @@ public class Context {
 
     public ProgramFile getProgramFile() {
         return programFile;
+    }
+
+    public void startTrackWorkers() {
+        trackWorkers = true;
+        workerCounter.countUp();
     }
 }

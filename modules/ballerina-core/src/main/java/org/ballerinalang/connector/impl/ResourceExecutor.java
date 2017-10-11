@@ -184,6 +184,7 @@ public class ResourceExecutor {
         callerSF.getRefRegs()[0] = refLocalVars[0];
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
+        context.startTrackWorkers();
         if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             context.setAndInitDebugInfoHolder(new DebugInfoHolder());

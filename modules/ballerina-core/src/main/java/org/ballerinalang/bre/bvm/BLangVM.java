@@ -195,6 +195,12 @@ public class BLangVM {
             }
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
+        } finally {
+            if (context.trackWorkers && (context.getError() != null || context.actionInfo == null)) {
+                // end active worker for this context. Filtered out non-blocking action invocation
+                // (context.actionInfo != null) since it is not the end of a worker.
+                ctx.workerCounter.countDown();
+            }
         }
     }
 
@@ -2690,7 +2696,6 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
-        this.controlStack.currentFrame.workerReturnStack = true;
         ip = -1;
     }
 
