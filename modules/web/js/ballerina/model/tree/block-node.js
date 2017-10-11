@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
-import TreeUtil from '../tree-util';
+import TreeUtil from './../tree-util';
 
 class BlockNode extends AbstractBlockNode {
 
@@ -29,7 +29,7 @@ class BlockNode extends AbstractBlockNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return node.isStatement;
+        return node.isStatement && !TreeUtil.isConnectorDeclaration(node);
     }
 
     /**
@@ -46,17 +46,17 @@ class BlockNode extends AbstractBlockNode {
             const variables = node.getVariables();
             TreeUtil.getNewTempVarName(this, '__output', variables.length)
                 .then((varNames) => {
-                    variables.forEach((variable, index) => {
-                        variable.getVariableName().setValue(varNames[index]);
+                    variables.forEach((variable, i) => {
+                        variable.getVariableName().setValue(varNames[i]);
                     });
                     this.addStatements(node, index);
-                })
+                });
         } else if (TreeUtil.isVariableDef(node)) {
             TreeUtil.getNewTempVarName(this, '__temp')
                 .then((varNames) => {
                     node.getVariable().getName().setValue(varNames[0]);
                     this.addStatements(node, index);
-                })
+                });
         } else {
             this.addStatements(node, index);
         }
