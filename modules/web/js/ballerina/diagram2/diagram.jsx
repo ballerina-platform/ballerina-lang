@@ -37,6 +37,7 @@ import {
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
+import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
 /**
  * React component for diagram.
@@ -116,6 +117,8 @@ class Diagram extends React.Component {
         this.props.model.accept(this.dimentionVisitor);
         this.props.model.accept(this.positionCalc);
         others = getComponentForNodeArray(otherNodes, this.props.mode);
+         */
+
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
         this.props.model.accept(annotationRenderer);
@@ -123,8 +126,6 @@ class Diagram extends React.Component {
         if (annotationRenderer.getAnnotations()) {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
         }
-
-        */
 
         // Filter out the overlay components so we can overlay html on top of svg.
         const overlayCompRender = new OverlayComponentsRenderingVisitor();
@@ -142,9 +143,10 @@ class Diagram extends React.Component {
             dropTarget={this.props.model}
             bBox={viewState.bBox}
             overlayComponents={overlayComponents}
-            // TODOX annotations={annotations}
+            annotations={annotations}
         >
             { children }
+            <TopLevelNodes model={this.props.model} />
         </CanvasDecorator>);
     }
 }

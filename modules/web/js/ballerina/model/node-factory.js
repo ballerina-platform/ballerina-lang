@@ -88,6 +88,7 @@ import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
 import ValueTypeNode from './tree/value-type-node';
+import TypeNode from './tree/type-node';
 
 class NodeFactory {
 

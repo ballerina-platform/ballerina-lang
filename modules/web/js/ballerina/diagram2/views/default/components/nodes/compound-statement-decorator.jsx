@@ -26,7 +26,7 @@ import './compound-statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
-// import Breakpoint from './breakpoint';
+import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
 const CLASS_MAP = {
@@ -218,7 +218,7 @@ class CompoundStatementDecorator extends React.Component {
             parameterText = this.props.parameterEditorOptions.value;
         }
 
-        this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
+        this.conditionBox = new SimpleBBox(p1X, statementBBox.y, bBox.w, titleH);
         const { designer } = this.context;
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
@@ -234,8 +234,13 @@ class CompoundStatementDecorator extends React.Component {
         const separatorGapV = titleH / 3;
 
         const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
-        const bodyBBox = this.props.body ? this.props.body.viewState.bBox : {};
+        let bodyBBox = {};
 
+        if (this.props.model.kind === 'ForkJoin') {
+            bodyBBox = this.props.model.viewState.components['statement-box'];
+        } else if (this.props.body && !(this.props.body instanceof Array)) {
+            bodyBBox = this.props.body.viewState.bBox;
+        }
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -323,6 +328,7 @@ class CompoundStatementDecorator extends React.Component {
 
 CompoundStatementDecorator.defaultProps = {
     draggable: null,
+    children: null,
     undeletable: false,
     titleWidth: blockStatement.heading.width,
     editorOptions: null,
@@ -341,7 +347,7 @@ CompoundStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    children: PropTypes.arrayOf(React.PropTypes.node).isRequired,
+    children: PropTypes.arrayOf(React.PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),

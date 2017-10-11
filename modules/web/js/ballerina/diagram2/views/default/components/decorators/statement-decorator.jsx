@@ -207,6 +207,7 @@ class StatementDecorator extends React.Component {
                     baseComponent="rect"
                     dropTarget={this.props.model.parent}
                     dropBefore={this.props.model}
+                    renderUponDragStart
                 />
                 <rect
                     x={statementBox.x}

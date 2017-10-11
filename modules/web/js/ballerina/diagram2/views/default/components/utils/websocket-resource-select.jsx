@@ -18,6 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import './websocket-resource-select.css';
 import TreeUtil from './../../../../../model/tree-util';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
@@ -44,7 +45,7 @@ class WebsocketResourceSelect extends React.Component {
     }
 
     componentDidMount() {
-        if (!_.isEmpty(this.props.model.props.model.viewState.overlayContainer)) {
+        if (this.props.model.props.model.viewState.showOverlayContainer) {
             document.addEventListener('mouseup', this.handleOutsideClick, false);
         } else {
             document.removeEventListener('mouseup', this.handleOutsideClick, false);
@@ -52,7 +53,7 @@ class WebsocketResourceSelect extends React.Component {
     }
 
     componentDidUpdate() {
-        if (!_.isEmpty(this.props.model.props.model.viewState.overlayContainer)) {
+        if (this.props.model.props.model.viewState.showOverlayContainer) {
             document.addEventListener('mouseup', this.handleOutsideClick, false);
         } else {
             document.removeEventListener('mouseup', this.handleOutsideClick, false);
@@ -177,8 +178,9 @@ class WebsocketResourceSelect extends React.Component {
                 serviceDef.addResources(DefaultNodeFactory.createWSResource(resource.fragment), thisNodeIndex);
             }
         });
+        props.model.viewState.showOverlayContainer = false;
         props.model.viewState.overlayContainer = {};
-        props.editor.update();
+        this.context.editor.update();
     }
 
     /**
@@ -188,8 +190,9 @@ class WebsocketResourceSelect extends React.Component {
     handleOutsideClick(e) {
         if (this.node) {
             if (!this.node.contains(e.target)) {
+                this.props.model.props.model.viewState.showOverlayContainer = false;
                 this.props.model.props.model.viewState.overlayContainer = {};
-                this.props.model.props.editor.update();
+                this.context.editor.update();
             }
         }
     }
@@ -213,7 +216,7 @@ class WebsocketResourceSelect extends React.Component {
         }
 
         const style = {
-            display: !_.isEmpty(props.model.viewState.overlayContainer) ? 'block' : 'none',
+            display: props.model.viewState.showOverlayContainer ? 'block' : 'none',
             top: yPosition + yPositionOfDropDown,
             left: props.bBox.x + xPositionOfDropDown,
         };
@@ -236,3 +239,7 @@ class WebsocketResourceSelect extends React.Component {
 }
 
 export default WebsocketResourceSelect;
+
+WebsocketResourceSelect.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
+};

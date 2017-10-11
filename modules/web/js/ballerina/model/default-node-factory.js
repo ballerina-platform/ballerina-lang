@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import FragmentUtils from './../utils/fragment-utils';
+import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
+import TreeUtils from './tree-util';
+import Environment from '../env/environment';
 
 /**
  * Creates the node instance for given source fragment
@@ -25,26 +27,31 @@ import TreeBuilder from './tree-builder';
  */
 function getNodeForFragment(fragment) {
     const parsedJson = FragmentUtils.parseFragment(fragment);
-    return TreeBuilder.build(parsedJson);
+    const node = TreeBuilder.build(parsedJson);
+    node.clearWS();
+    return node;
 }
 
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
-        return getNodeForFragment(
+        const node = getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(
-`    
+`
     service<http> service1 {
         resource echo1 (http:Request req, http:Response res) {
 
-        }           
+        }
     }
-`
+`,
             ));
+        node.viewState.showOverlayContainer = true;
+        node.setFullPackageName('ballerina.net.http');
+        return node;
     }
 
     createWSServiceDef() {
-        return getNodeForFragment(
+        const node = getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(
 `
     service<ws> service1 {
@@ -58,8 +65,11 @@ class DefaultNodeFactory {
 
         }
     }
-`
+`,
             ));
+        node.viewState.showOverlayContainer = true;
+        node.setFullPackageName('ballerina.net.ws');
+        return node;
     }
 
     /**
@@ -73,7 +83,7 @@ class DefaultNodeFactory {
                 function main(string[] args) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -83,7 +93,7 @@ class DefaultNodeFactory {
                 function function1(string arg1) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -93,7 +103,7 @@ class DefaultNodeFactory {
                 connector ClientConnector(string url) {
 
                 }
-            `)
+            `),
         );
     }
 
@@ -103,7 +113,7 @@ class DefaultNodeFactory {
                 action action1(message msg) (message){
 
                 }
-            `)
+            `),
         );
     }
 
@@ -113,13 +123,13 @@ class DefaultNodeFactory {
                 resource echo1 (http:Request req, http:Response res) {
 
                 }
-            `)
+            `),
         );
     }
 
     createWSResource(fragment) {
         return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(fragment)
+            FragmentUtils.createServiceResourceFragment(fragment),
         );
     }
 
@@ -130,7 +140,7 @@ class DefaultNodeFactory {
                     string name;
                     int age;
                 }
-            `)
+            `),
         );
     }
 
@@ -139,7 +149,7 @@ class DefaultNodeFactory {
             FragmentUtils.createWorkerFragment(`
                 worker worker1 {
                 }
-            `)
+            `),
         );
     }
 
@@ -149,36 +159,48 @@ class DefaultNodeFactory {
                 public annotation Annotation1 {
                     string attrib1;
                 }
-            `)
+            `),
         );
     }
 
     createAssignmentStmt() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+        // Check if the node is a ConnectorDeclaration
+        if (TreeUtils.isConnectorDeclaration(node)) {
+            node.viewState.showOverlayContainer = true;
+            return node;
+        }
+        return node;
     }
 
     createVarDefStmt() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1'));
+        // Check if the node is a ConnectorDeclaration
+        if (TreeUtils.isConnectorDeclaration(node)) {
+            node.viewState.showOverlayContainer = true;
+            return node;
+        }
+        return node;
     }
 
     createIf() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             if (true) {
-                
+
             }
         `));
     }
 
     createInvocation() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            callFunction(arg1);
+            callFunction(arg1);cc
         `));
     }
 
     createWhile() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             while(true) {
-                
+
             }
         `));
     }
@@ -186,7 +208,7 @@ class DefaultNodeFactory {
     createTransform() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transform {
-                
+
             }
         `));
     }
@@ -241,7 +263,7 @@ class DefaultNodeFactory {
     createTransaction() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transaction {
-                
+
             }
         `));
     }
@@ -262,8 +284,12 @@ class DefaultNodeFactory {
     createForkJoin() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             fork {
-
-            };
+            
+            } join(all)(map results) {
+            
+            } timeout(100)(map results1) {
+            
+            }
         `));
     }
 
@@ -273,6 +299,92 @@ class DefaultNodeFactory {
         `));
     }
 
+    createConnectorDeclaration(args) {
+        const { connector, packageName, fullPackageName } = args;
+
+        // Iterate through the params and create the parenthesis with the default param values
+        let paramString = '';
+        if (connector.getParams()) {
+            const connectorParams = connector.getParams().map((param) => {
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                return defaultValue;
+            });
+            paramString = connectorParams.join(', ')
+        }
+        const connectorInit = `${packageName}:${connector.getName()} endpoint1
+                = create ${packageName}:${connector.getName()}(${paramString})`;
+        const fragment = FragmentUtils.createStatementFragment(connectorInit);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const connectorDeclaration = TreeBuilder.build(parsedJson);
+        connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+        connectorDeclaration.viewState.showOverlayContainer = true;
+        return connectorDeclaration;
+    }
+
+    createConnectorActionInvocationAssignmentStatement(args) {
+        const { action, packageName, fullPackageName } = args;
+
+        let actionInvokeString = '';
+        if (packageName && packageName !== 'Current Package') {
+            actionInvokeString = `endpoint1.`;
+        }
+        const actionParams = action.getParameters().map((param) => {
+            let defaultValue = Environment.getDefaultValue(param.type);
+            if (defaultValue === undefined) {
+                defaultValue = '{}';
+            }
+            return defaultValue;
+        });
+        const paramString = actionParams.join(', ')
+
+        actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString})`;
+
+        const varRefNames = args.action.getReturnParams().map((param, index) => {
+            return '_output' + index + 1;
+        });
+
+        if (varRefNames.length > 0) {
+            const varRefListString = `var ${varRefNames.join(', ')}`;
+            actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
+        }
+        const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const assignmentNode = TreeBuilder.build(parsedJson);
+        assignmentNode.getExpression().setFullPackageName(fullPackageName);
+        return assignmentNode;
+    }
+
+    createFunctionInvocationStatement(args) {
+        const { functionDef, packageName, fullPackageName } = args;
+
+        let functionInvokeString = '';
+        if (packageName && packageName !== 'Current Package') {
+            functionInvokeString = `${packageName}:`;
+        }
+        const functionParams = functionDef.getParameters().map((param) => {
+            return Environment.getDefaultValue(param.type) || 'null';
+        });
+        const paramString = functionParams.join(', ')
+
+        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
+
+        const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
+            return 'variable' + index + 1;
+        });
+
+        if (varRefNames.length > 0) {
+            const varRefListString = `var ${varRefNames.join(', ')}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+        }
+        const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const assignmentNode = TreeBuilder.build(parsedJson);
+        assignmentNode.getExpression().setFullPackageName(fullPackageName);
+        return assignmentNode;
+    }
 }
 
 export default new DefaultNodeFactory();

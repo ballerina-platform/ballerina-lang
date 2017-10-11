@@ -72,12 +72,19 @@ class TransformFactory {
      * @return {object} statement object
      */
     static createVariableDefFromStatement(statement) {
-        const fragment = FragmentUtils.createStatementFragment(statement + ';');
+        const fragment = FragmentUtils.createStatementFragment(statement);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson);
         return refExpr;
     }
 
+    /**
+     * Create assignment statement with function invocation.
+     * @static
+     * @param {any} args arguments
+     * @returns assignment statement
+     * @memberof TransformFactory
+     */
     static createFunctionInvocationAssignmentStatement(args) {
         const { functionDef, packageName, fullPackageName } = args;
 
@@ -86,9 +93,9 @@ class TransformFactory {
             functionInvokeString = `${packageName}:`;
         }
         const functionParams = functionDef.getParameters().map((param) => {
-            return Environment.getDefaultValue(param.type);;
+            return Environment.getDefaultValue(param.type);
         });
-        const paramString = functionParams.join(', ')
+        const paramString = functionParams.join(', ');
 
         functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
 
@@ -98,14 +105,14 @@ class TransformFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const assignmentNode = TreeBuilder.build(parsedJson);
         assignmentNode.getExpression().setFullPackageName(fullPackageName);
         return assignmentNode;
-    };
+    }
 }
 
 export default TransformFactory;

@@ -24,9 +24,10 @@ import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import {binaryOpTools, unaryOpTools} from './item-provider/operator-tools';
+import { binaryOpTools, unaryOpTools } from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TransformFactory from '../model/transform-factory';
+import DefaultNodeFactory from '../model/default-node-factory';
 
 const searchBoxHeight = 30;
 
@@ -79,7 +80,7 @@ class ToolsPane extends React.Component {
                         role="button"
                         onClick={() => this.changePane('connectors')}
                     >
-                        <i className="fw fw-view icon"/>
+                        <i className="fw fw-view icon" />
                         More connectors
                     </a>
                 </ToolsPanel>
@@ -91,7 +92,7 @@ class ToolsPane extends React.Component {
                         className="tool-palette-add-button"
                         onClick={() => this.changePane('library')}
                     >
-                        <i className="fw fw-view icon"/>
+                        <i className="fw fw-view icon" />
                         More libraries
                     </a>
                     <br />
@@ -328,22 +329,26 @@ class ToolPaletteView extends React.Component {
                 return connectorPackage.getName();
             }]);
             _.each(connectorsOrdered, (connector) => {
-                const packageName = _.last(_.split(pckg.getName(), '.'));
+                const packageName = _.last(_.split(pckg.getName(), '.')); // alias
+                const connectorName = connector.getName();
+                const fullPackageName = pckg.getName(); // Needed for the imports
+
                 const args = {
-                    pkgName: packageName,
-                    connectorName: connector.getName(),
-                    fullPackageName: pckg.getName(),
+                    connector,
+                    packageName,
+                    fullPackageName,
                 };
                 const connTool = {};
-                connTool.nodeFactoryMethod = DefaultASTFactory.createConnectorDeclaration;
+                connTool.nodeFactoryMethod = DefaultNodeFactory.createConnectorDeclaration;
                 connTool.factoryArgs = args;
-                // TODO : use a generic icon
-                connTool.title = connector.getName();
-                connTool.name = connector.getName();
-                connTool.id = connector.getName();
+                connTool.title = connectorName;
+                connTool.name = connectorName;
+                connTool.id = connectorName;
                 connTool.icon = 'connector';
                 definitions.push(connTool);
 
+
+                // // Connector Actions ////
                 const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                     return action.getName();
                 }]);
@@ -355,22 +360,17 @@ class ToolPaletteView extends React.Component {
                         action.classNames = 'tool-connector-action tool-connector-last-action';
                     }
                     actionTool.factoryArgs = {
-                        action: action.getName(),
+                        action,
                         actionConnectorName: connector.getName(),
-                        actionPackageName: packageName,
-                        fullPackageName: pckg.getName(),
-                        actionDefinition: action,
+                        packageName,
+                        fullPackageName,
                     };
 
                     actionTool.title = action.getName();
                     actionTool.name = action.getName();
                     actionTool.icon = 'dgm-action';
-                    actionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedActionInvocationAssignmentStatement;
-                    if (action.getReturnParams().length > 0) {
-                        actionTool.nodeFactoryMethod = DefaultASTFactory
-                                                    .createAggregatedActionInvocationAssignmentStatement;
-                    }
-
+                    actionTool.nodeFactoryMethod = DefaultNodeFactory
+                        .createConnectorActionInvocationAssignmentStatement;
                     actionTool.id = `${connector.getName()}-${action.getName()}`;
                     actionTool.parameters = action.getParameters();
                     actionTool.returnParams = action.getReturnParams();
@@ -412,7 +412,7 @@ class ToolPaletteView extends React.Component {
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
-                    functionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedFunctionInvocationStatement;
+                    functionTool.nodeFactoryMethod = DefaultNodeFactory.createFunctionInvocationStatement;
                     functionTool.factoryArgs = {
                         functionDef,
                         packageName,
@@ -467,7 +467,7 @@ class ToolPaletteView extends React.Component {
         if (state === 'tools') {
             imports.forEach((item) => {
                 // construct package name from splitted package name array.
-                const pkgName = item.packageName.map((elem) => elem.value).join(".");
+                const pkgName = item.packageName.map(elem => elem.value).join('.');
                 const pkg = environment.getPackageByName(pkgName);
                 if (!_.isNil(pkg)) {
                     let group = this.package2ToolGroup(pkg, 'connectors');

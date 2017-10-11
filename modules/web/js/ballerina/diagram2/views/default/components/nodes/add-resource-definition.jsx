@@ -22,6 +22,8 @@ import _ from 'lodash';
 import './service-definition.css';
 import TreeUtil from './../../../../../model/tree-util';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
+import SimpleBBox from './../../../../../model/view/simple-bounding-box';
+import ImageUtil from '../../../../image-util';
 /**
  * Add more resources to a service
  *
@@ -48,7 +50,9 @@ class AddResourceDefinition extends React.Component {
         }
         // Check if service of http
         if (serviceDef.getProtocolPackageIdentifier().value === 'http') {
-            serviceDef.addResources(DefaultNodeFactory.createHTTPResource(), thisNodeIndex);
+            const resource = DefaultNodeFactory.createHTTPResource();
+            serviceDef.addResources(resource, thisNodeIndex);
+            serviceDef.generateDefaultName(serviceDef, resource);
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'ws') {
             let bBox;
             // Check if the node is a service
@@ -67,9 +71,9 @@ class AddResourceDefinition extends React.Component {
                     key: this.props.model.getID(),
                     model: this.props.model,
                     bBox,
-                    editor: this.context.editor,
                 },
             };
+            this.props.model.viewState.showOverlayContainer = true;
             this.props.model.viewState.overlayContainer = overlayComponents;
             this.context.editor.update();
         }
@@ -82,56 +86,57 @@ class AddResourceDefinition extends React.Component {
      * @memberof AddResourceDefinition
      */
     render() {
-        const bBox = this.props.bBox;
-        let yPosition = this.props.model.viewState.bBox.y + this.props.model.viewState.bBox.h - 40;
-        let yPositionOfResourceBtn = 5;
-        let yPositionOfResourceBtnLbl = 17;
-        let xPositionOfResourceBtn = 15;
-        let xPositionOfResourceBtnLbl = 22;
-        let xPositionOfAddResourceRect = 35;
-        let xPositionOfAddResourceLbl = 85;
+        const bBox = this.props.model.viewState.bBox;
+        const button = new SimpleBBox();
+        const label = new SimpleBBox();
         if (TreeUtil.isResource(this.props.model)) {
-            yPosition = bBox.y + bBox.h;
-            yPositionOfResourceBtn = 12;
-            yPositionOfResourceBtnLbl = 24;
-            xPositionOfResourceBtn = 35;
-            xPositionOfResourceBtnLbl = 43;
-            xPositionOfAddResourceRect = 55;
-            xPositionOfAddResourceLbl = 105;
+            button.x = bBox.x - 12.5 - 25;
+            button.y = bBox.y + bBox.h + 12.5;
+            label.x = button.x + 30;
+            label.y = button.y + 12.5;
         }
+
+        if (TreeUtil.isService(this.props.model)) {
+            button.x = bBox.x + 12.5 ;
+            button.y = bBox.y + bBox.h - 12.5 - 25;
+            label.x = button.x + 30;
+            label.y = button.y + 12.5;
+        }
+
+        button.w = 25;
+        button.h = 25;
         return (
             <g onClick={this.onAddResourceClick}>
                 <rect
-                    x={bBox.x + xPositionOfAddResourceRect}
-                    y={yPosition + yPositionOfResourceBtn}
-                    width="100"
-                    height="25"
-                    fill="#a09c9b"
+                    x={button.x}
+                    y={button.y}
+                    width={button.w}
+                    height={button.h}
+                    rx={button.w / 2}
+                    ry={button.h / 2}
+                    className={'add-resource-button'}
+                    fill={!_.isEmpty(this.props.model.viewState.overlayContainer) ? '#63605f' : '#a09c9b'}
+                />
+                <image
+                    x={button.x+ 5.5}
+                    y={button.y+ 5.5}
+                    width={14}
+                    height={14}
+                    fill="#fff"
+                    xlinkHref={ImageUtil.getSVGIconString('add-white')}
+                    className="add-resource-button-label"
+                />
+                <polygon
+                    points={`${label.x},${label.y} ${label.x + 12.5},${label.y - 12.5} ${label.x + 120},${label.y - 12.5} ${label.x + 120},${label.y + 12.5} ${label.x + 12.5},${label.y + 12.5}`} 
+                    fill="#dcdcdc"
                 />
                 <text
-                    x={bBox.x + xPositionOfAddResourceLbl}
-                    y={yPosition + yPositionOfResourceBtnLbl}
+                    x={label.x + 60}
+                    y={label.y}
                     alignmentBaseline="middle"
                     textAnchor="middle"
                     className="add-resource-label"
                 >Add Resource</text>
-                <rect
-                    x={bBox.x + xPositionOfResourceBtn}
-                    y={yPosition + yPositionOfResourceBtn}
-                    width={25}
-                    height={25}
-                    rx={12.5}
-                    ry={12.5}
-                    className={'add-resource-button'}
-                    fill={!_.isEmpty(this.props.model.viewState.overlayContainer) ? '#63605f' : '#a09c9b'}
-                />
-                <text
-                    x={bBox.x + xPositionOfResourceBtnLbl}
-                    y={yPosition + yPositionOfResourceBtnLbl}
-                    width={25}
-                    height={25}
-                    className="add-resource-button-label"
-                >+</text>
             </g>
         );
     }

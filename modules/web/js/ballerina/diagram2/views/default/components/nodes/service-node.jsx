@@ -28,6 +28,8 @@ import PanelDecoratorButton from './../decorators/panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
+import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from "../decorators/connector-declaration-decorator";
 
 /**
  * React component for a service definition.
@@ -45,7 +47,7 @@ class ServiceNode extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            style: 'hideResourceGroup',
+            addResource: false,
         };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
@@ -61,19 +63,9 @@ class ServiceNode extends React.Component {
         this.context.editor.showSwaggerViewForService(this.props.model);
     }
 
-    /**
-     * Checks if a specific type of node can be dropped.
-     *
-     * @param {ASTNode} nodeBeingDragged The node that is being dropped.
-     * @returns {boolean} True if can be dropped, else false.
-     * @memberof ServiceNode
-     */
-    canDropToPanelBody(nodeBeingDragged) {
-        /* const nodeFactory = ASTFactory;
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for resource defs and connector declarations only.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isResourceDefinition(nodeBeingDragged);*/
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorDeclaration(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -99,7 +91,7 @@ class ServiceNode extends React.Component {
      * Handles the mouse enter event on the service definition
      */
     onMouseEnter() {
-        this.setState({ style: 'showResourceGroup' });
+        this.setState({ style: 'showResourceGroup', addResource: true });
     }
 
     /**
@@ -107,7 +99,7 @@ class ServiceNode extends React.Component {
      */
     onMouseLeave() {
         if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
-            this.setState({ style: 'hideResourceGroup' });
+            this.setState({ style: 'hideResourceGroup', addResource: false });
         }
     }
     /**
@@ -125,9 +117,15 @@ class ServiceNode extends React.Component {
         // get the service name
         const title = model.getName().value;
 
-        /* const childrenWithNoVariables = model.filterChildren(
-                                                child => !ASTFactory.isVariableDefinitionStatement(child));*/
-
+        const connectors = variables
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });
         /**
          * Here we skip rendering the variables
          */
@@ -174,20 +172,20 @@ class ServiceNode extends React.Component {
                     bBox={bBox}
                     model={model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
                     protocol={model.getProtocolPackageIdentifier().value}
                 >
                     <ServiceTransportLine
                         model={this.props.model}
                         bBox={this.props.model.viewState.components.transportLine}
-                        style={this.state.style}
                         resources={resources}
+                        addResource={this.state.addResource}
                     />
                     {
                             viewState.variablesExpanded ?
                                 <GlobalExpanded
-                                    bBox={expandedVariablesBBox}
+                                    bBox={viewState.components.initFunction}
                                     globals={variables}
                                     onCollapse={this.handleVarialblesBadgeClick}
                                     title="Variables"
@@ -199,16 +197,17 @@ class ServiceNode extends React.Component {
                                     getValue={g => (g.getStatementString())}
                                 /> :
                                 <GlobalDefinitions
-                                    bBox={expandedVariablesBBox}
+                                    bBox={viewState.components.initFunction}
                                     numberOfItems={variables.length}
                                     title={'Variables'}
                                     onExpand={this.handleVarialblesBadgeClick}
                                 />
                         }
                     {blockNode}
+                    {connectors}
                 </PanelDecorator>
                 <ServerConnectorProperties
-                    bBox={bBox}
+                    bBox={this.props.model.viewState.components.transportLine}
                     model={this.props.model}
                     protocol={model.getProtocolPackageIdentifier().value}
                 />

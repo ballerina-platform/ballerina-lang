@@ -16,10 +16,23 @@
  * under the License.
  */
 
+import _ from 'lodash';
+import TreeUtil from 'ballerina/model/tree-util';
 import AbstractAnnotationAttachmentAttributeValueNode from './abstract-tree/annotation-attachment-attribute-value-node';
 
 class AnnotationAttachmentAttributeValueNode extends AbstractAnnotationAttachmentAttributeValueNode {
 
+    isValueLiteral() {
+        return this.getValue() && TreeUtil.isLiteral(this.getValue());
+    }
+
+    isValueAnnotationAttachment() {
+        return this.getValue() && TreeUtil.isAnnotationAttachment(this.getValue());
+    }
+
+    isValueArray() {
+        return _.isNil(this.getValue());
+    }
 }
 
 export default AnnotationAttachmentAttributeValueNode;

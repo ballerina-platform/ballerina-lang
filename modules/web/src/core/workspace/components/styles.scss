@@ -64,5 +64,8 @@
     }
     .file-tree {
         margin-left: 10px;
+        &.collapsed {
+            display: none;
+        }
     }
 }

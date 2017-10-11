@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './properties-form.css';
 import TagInput from './tag-input';
@@ -62,7 +63,7 @@ class PropertiesWindow extends React.Component {
     }
 
     componentDidMount() {
-        if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
+        if (this.props.model.viewState.showOverlayContainer) {
             document.addEventListener('mouseup', this.handleOutsideClick, false);
         } else {
             document.removeEventListener('mouseup', this.handleOutsideClick, false);
@@ -70,7 +71,7 @@ class PropertiesWindow extends React.Component {
     }
 
     componentDidUpdate() {
-        if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
+        if (this.props.model.viewState.showOverlayContainer) {
             document.addEventListener('mouseup', this.handleOutsideClick, false);
         } else {
             document.removeEventListener('mouseup', this.handleOutsideClick, false);
@@ -127,8 +128,9 @@ class PropertiesWindow extends React.Component {
      */
     handleDismiss() {
         this.props.addedValues(this.state.data);
+        this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.overlayContainer = {};
-        this.props.editor.update();
+        this.context.editor.update();
     }
 
     /**
@@ -416,4 +418,7 @@ class PropertiesWindow extends React.Component {
     }
 }
 
+PropertiesWindow.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
+};
 export default PropertiesWindow;

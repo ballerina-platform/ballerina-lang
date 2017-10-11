@@ -233,7 +233,7 @@ class ServerConnectorPropertiesForm extends React.Component {
         const props = this.props.model.props;
         const supportedKeysArray = [];
         const supportedAttributes = ServiceNodeHelper.getAttributes(
-            props.environment, props.model.getProtocolPackageIdentifier().value, 'configuration');
+            this.context.environment, props.model.getProtocolPackageIdentifier().value, 'configuration');
         const addedValues = this.getAddedValues();
         supportedAttributes.map((attributeDefinition) => {
             let value = '';
@@ -260,7 +260,7 @@ class ServerConnectorPropertiesForm extends React.Component {
     getBTypeOfConfigurationAttribute(value) {
         const props = this.props.model.props;
         const annotationAttributeDef = ServiceNodeHelper.getAttributeDefinition(
-             props.environment, value, props.model.getProtocolPackageIdentifier().value, 'configuration');
+            this.context.environment, value, props.model.getProtocolPackageIdentifier().value, 'configuration');
         return annotationAttributeDef.getBType();
     }
 
@@ -272,8 +272,7 @@ class ServerConnectorPropertiesForm extends React.Component {
     isArrayTypeConfigurationAttribute(value) {
         const props = this.props.model.props;
         const annotationAttributeDef = ServiceNodeHelper.getAttributeDefinition(
-             props.environment, value, props.model.getProtocolPackageIdentifier().value, 'configuration');
-        // annotationAttributeDef.isArrayType(); --> Now this always returns false
+            this.context.environment, value, props.model.getProtocolPackageIdentifier().value, 'configuration');
         return annotationAttributeDef.getBType().endsWith('[]');
     }
     /**
@@ -310,7 +309,6 @@ class ServerConnectorPropertiesForm extends React.Component {
                 key={`servicedefProp/${props.model.id}`}
                 styles={styles}
                 supportedProps={supportedKeys}
-                editor={props.editor}
                 addedValues={this.getDataFromPropertyForm}
             />);
     }
@@ -320,5 +318,4 @@ export default ServerConnectorPropertiesForm;
 
 ServerConnectorPropertiesForm.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
-    editor: PropTypes.instanceOf(Object).isRequired,
 };

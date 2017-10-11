@@ -25,7 +25,7 @@ import { lifeLine } from './../../designer-defaults';
 import ExpressionEditor from 'expression_editor_utils';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
-
+import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
 
 class LifeLine extends React.Component {
 
@@ -64,8 +64,11 @@ class LifeLine extends React.Component {
 
     handleConnectorProps() {
         // Check if the model is a connector declaration
-        if (this.props.connectorProps) {
-            this.props.model.viewState.overlayContainer = this.props.connectorProps;
+        if (TreeUtils.isConnectorDeclaration(this.props.model)) {
+            // this.props.model.viewState.overlayContainer = this.props.connectorProps;
+            const node = this.props.model;
+            node.viewState.showOverlayContainer = true;
+            OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
             this.context.editor.update();
         }
     }
@@ -104,8 +107,8 @@ class LifeLine extends React.Component {
         }
 
         let iconColor = this.props.iconColor;
-        if (this.props.connectorProps) {
-            if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
+        if (TreeUtils.isConnectorDeclaration(this.props.model)) {
+            if (this.props.model.viewState.showOverlayContainer) {
                 iconColor = '#6f7b96';
             }
         }

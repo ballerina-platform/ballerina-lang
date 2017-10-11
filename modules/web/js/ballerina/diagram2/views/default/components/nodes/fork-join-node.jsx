@@ -19,6 +19,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
+import TreeBuilder from './../../../../../model/tree-builder';
+import FragmentUtils from './../../../../../utils/fragment-utils';
 
 class ForkJoinNode extends React.Component {
     constructor(props) {
@@ -31,39 +33,68 @@ class ForkJoinNode extends React.Component {
             active: 'hidden',
         };
 
-        this.joinConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Join condition',
-            model: props.model.getJoinBody(),
-            getterMethod: props.model.getJoinType,
-            setterMethod: props.model.setJoinType,
-        };
+        this.handleSetTimeoutCondition = this.handleSetTimeoutCondition.bind(this);
+        this.handleSetTimeoutParameter = this.handleSetTimeoutParameter.bind(this);
+        this.handleSetJoinParameter = this.handleSetJoinParameter.bind(this);
+        this.handleGetJoinCondition = this.handleGetJoinCondition.bind(this);
+        this.handleSetJoinCondition = this.handleSetJoinCondition.bind(this);
+    }
 
-        this.timeoutConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout condition',
-            model: props.model.getTimeoutBody(),
-            getterMethod: props.model.getTimeOutExpression,
-            setterMethod: props.model.setTimeOutExpression,
-        };
+    handleSetTimeoutCondition(value) {
+        if (_.isNil(value)) {
+            return null;
+        }
 
-        this.joinParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Join parameter',
-            value: props.model.getJoinResultVar().getSource(),
-            model: props.model.getJoinBody(),
-            getterMethod: props.model.getJoinResultVar,
-            setterMethod: props.model.setJoinResultVar,
-        };
+        const forkJoinNode = this.props.model;
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(value));
+        const newTimeoutCondition = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        if (newTimeoutCondition.variable.initialExpression) {
+            forkJoinNode.setTimeOutExpression(newTimeoutCondition.variable.initialExpression);
+        }
+        return null;
+    }
 
-        this.timeoutParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout parameter',
-            value: props.model.getTimeOutVariable().getSource(),
-            model: props.model.getTimeoutBody(),
-            getterMethod: props.model.getTimeOutVariable,
-            setterMethod: props.model.setTimeOutVariable,
-        };
+    handleSetTimeoutParameter(value) {
+        if (_.isNil(value)) {
+            return null;
+        }
+
+        const forkJoinNode = this.props.model;
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
+        const newTimeoutParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        forkJoinNode.setTimeOutVariable(newTimeoutParameter);
+        return null;
+    }
+
+    handleSetJoinParameter(value) {
+        if (_.isNil(value)) {
+            return null;
+        }
+
+        const forkJoinNode = this.props.model;
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
+        const newJoinParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        forkJoinNode.setJoinResultVar(newJoinParameter);
+        return null;
+    }
+
+    handleGetJoinCondition() {
+        return this.props.model.getJoinConditionString();
+    }
+
+    handleSetJoinCondition(value) {
+        if (_.isNil(value)) {
+            return null;
+        }
+
+        const forkJoinNode = this.props.model;
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createJoinCondition(value));
+        const newJoinNode = TreeBuilder.build(parsedJson);
+
+        forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers());
+        forkJoinNode.setJoinType(newJoinNode.getJoinType());
+        forkJoinNode.setJoinCount(newJoinNode.getJoinCount());
+        return null;
     }
 
     render() {
@@ -82,6 +113,37 @@ class ForkJoinNode extends React.Component {
             (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
         const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
             : 0;
+
+        const joinConditionEditorOptions = {
+            propertyType: 'text',
+            key: 'Join condition',
+            model: this.props.model,
+            getterMethod: this.handleGetJoinCondition,
+            setterMethod: this.handleSetJoinCondition,
+        };
+
+        const timeoutConditionEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout condition',
+            model: model.getTimeOutExpression(),
+            setterMethod: this.handleSetTimeoutCondition,
+        };
+
+        const joinParameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Join parameter',
+            value: model.getJoinResultVar().getSource(),
+            model: model.getJoinResultVar(),
+            setterMethod: this.handleSetJoinParameter,
+        };
+
+        const timeoutParameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout parameter',
+            value: model.getTimeOutVariable().getSource(),
+            model: model.getTimeOutVariable(),
+            setterMethod: this.handleSetTimeoutParameter,
+        };
 
         return (
             <g>
@@ -122,13 +184,13 @@ class ForkJoinNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model.getJoinBody()}
                     bBox={model.getJoinBody().viewState.bBox}
-                    expression={{text: model.getJoinType()}}
+                    expression={{ text: model.getJoinBody().viewState.components.expression.text }}
                     title={'Join'}
                     model={model.getJoinBody()}
                     body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
-                    parameterEditorOptions={this.joinParameterEditorOptions}
-                    editorOptions={this.joinConditionEditorOptions}
+                    parameterEditorOptions={joinParameterEditorOptions}
+                    editorOptions={joinConditionEditorOptions}
                 />
                 }
                 {model.getTimeoutBody() &&
@@ -145,12 +207,12 @@ class ForkJoinNode extends React.Component {
                     dropTarget={model.getTimeoutBody()}
                     bBox={model.getTimeoutBody().viewState.bBox}
                     parameterBbox={model.getTimeoutBody().viewState.components.param}
-                    expression={{text: model.getTimeOutExpression().getSource()}}
+                    expression={{ text: model.getTimeOutExpression().getSource() }}
                     title={'Timeout'}
                     model={model.getTimeoutBody()}
                     body={model.getTimeoutBody()}
-                    parameterEditorOptions={this.timeoutParameterEditorOptions}
-                    editorOptions={this.timeoutConditionEditorOptions}
+                    parameterEditorOptions={timeoutParameterEditorOptions}
+                    editorOptions={timeoutConditionEditorOptions}
                 />
                 }
             </g>

@@ -1,12 +1,27 @@
 .add-resource-button {
     cursor: pointer;
 }
-.add-resource-button.ws{
+.protocol-ws .add-resource-button{
     fill: #E65100;
 }
 
-.add-resource-button.http{
+.protocol-http .add-resource-button{
     fill: #3498db;
+}
+
+.protocol-ws .protocol-box{
+    fill: #E65100;
+    cursor: pointer;
+}
+
+.protocol-http .protocol-box{
+    fill: #3498db;
+    cursor: pointer;
+}
+
+.protocol-label{
+    fill: #fff;
+    cursor: pointer;
 }
 
 .add-resource-button-label{
@@ -27,7 +42,16 @@
     stroke-opacity:0;
 }
 
+.hideResourceGroup image{
+    display: none;
+}
+
 .add-resource-label{
-    fill: #fff2ef;
+    fill: #333;
     cursor: pointer;
+}
+
+.hideResourceGroup image{
+    fill-opacity: 0;
+    stroke-opacity: 0;
 }

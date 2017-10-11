@@ -315,31 +315,33 @@ public class SwaggerResourceMapper {
             List<? extends  AnnotationAttachmentAttributeValueNode> headersValueArray =
                                                                             annotationAttributeValue.getValueArray();
             for (AnnotationAttachmentAttributeValueNode headersValue : headersValueArray) {
-                AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode) headersValue;
-                Map<String, Property> headers = new HashMap<>();
-                Map<String, AnnotationAttachmentAttributeValueNode> headersAttributes =
-                        this.listToMap(headerAnnotationAttachment);
-                if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
-                    String headerName = this.getStringLiteralValue(headersAttributes.get("name"));
-                    String type = this.getStringLiteralValue(headersAttributes.get("headerType"));
-                    Property property = null;
-                    if ("string".equals(type)) {
-                        property = new StringProperty();
-                    } else if ("number".equals(type) || "integer".equals(type)) {
-                        property = new IntegerProperty();
-                    } else if ("boolean".equals(type)) {
-                        property = new BooleanProperty();
-                    } else if ("array".equals(type)) {
-                        property = new ArrayProperty();
-                    }
-                    if (null != property) {
-                        if (headersAttributes.containsKey("description")) {
-                            property.setDescription(this.getStringLiteralValue(headersAttributes.get("description")));
+                if (headersValue instanceof AnnotationAttachmentNode) {
+                    AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode) headersValue;
+                    Map<String, Property> headers = new HashMap<>();
+                    Map<String, AnnotationAttachmentAttributeValueNode> headersAttributes =
+                            this.listToMap(headerAnnotationAttachment);
+                    if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
+                        String headerName = this.getStringLiteralValue(headersAttributes.get("name"));
+                        String type = this.getStringLiteralValue(headersAttributes.get("headerType"));
+                        Property property = null;
+                        if ("string".equals(type)) {
+                            property = new StringProperty();
+                        } else if ("number".equals(type) || "integer".equals(type)) {
+                            property = new IntegerProperty();
+                        } else if ("boolean".equals(type)) {
+                            property = new BooleanProperty();
+                        } else if ("array".equals(type)) {
+                            property = new ArrayProperty();
                         }
-                        headers.put(headerName, property);
+                        if (null != property) {
+                            if (headersAttributes.containsKey("description")) {
+                                property.setDescription(this.getStringLiteralValue(headersAttributes.get("description")));
+                            }
+                            headers.put(headerName, property);
+                        }
                     }
+                    response.setHeaders(headers);
                 }
-                response.setHeaders(headers);
             }
         }
     }
@@ -510,20 +512,22 @@ public class SwaggerResourceMapper {
     private void createExternalDocsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
                                          Operation operation) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachmentNode externalDocAnnotationAttachment =
+            if (annotationAttributeValue instanceof AnnotationAttachmentNode) {
+                AnnotationAttachmentNode externalDocAnnotationAttachment =
                                                                     (AnnotationAttachmentNode) annotationAttributeValue;
-            ExternalDocs externalDocs = new ExternalDocs();
-    
-            Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
-                    this.listToMap(externalDocAnnotationAttachment);
-            if (externalDocAttributes.containsKey("description")) {
-                externalDocs.setDescription(this.getStringLiteralValue(externalDocAttributes.get("description")));
+                ExternalDocs externalDocs = new ExternalDocs();
+        
+                Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
+                        this.listToMap(externalDocAnnotationAttachment);
+                if (externalDocAttributes.containsKey("description")) {
+                    externalDocs.setDescription(this.getStringLiteralValue(externalDocAttributes.get("description")));
+                }
+                if (externalDocAttributes.containsKey("url")) {
+                    externalDocs.setUrl(this.getStringLiteralValue(externalDocAttributes.get("url")));
+                }
+        
+                operation.setExternalDocs(externalDocs);
             }
-            if (externalDocAttributes.containsKey("url")) {
-                externalDocs.setUrl(this.getStringLiteralValue(externalDocAttributes.get("url")));
-            }
-    
-            operation.setExternalDocs(externalDocs);
         }
     }
     

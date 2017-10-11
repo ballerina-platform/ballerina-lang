@@ -106,7 +106,9 @@ class ArgumentParameterDefinitionHolder extends React.Component {
             propertyType: 'text',
             key: 'ParameterDefinition',
             model: parent,
-            getterMethod: () => {},
+            getterMethod: () => {
+                return '';
+            },
             setterMethod: this.addArgumentParameter,
             fontSize: 12,
             isCustomHeight: true,

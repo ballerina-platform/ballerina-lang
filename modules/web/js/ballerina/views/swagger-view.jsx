@@ -23,9 +23,9 @@ import PropTypes from 'prop-types';
 import log from 'log';
 import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
+import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
 import ASTFactory from '../ast/ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
-import SwaggerParser from './../../swagger-parser/swagger-parser';
 import { getSwaggerDefinition } from '../../api-client/api-client';
 import ServiceDefinition from '../ast/service-definition';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
@@ -192,10 +192,7 @@ class SwaggerView extends React.Component {
      */
     genSwaggerAndID() {
         if (!_.isNil(this.props.targetService)) {
-            const sourceGenVisitor = new SourceGenVisitor();
-            this.context.astRoot.accept(sourceGenVisitor);
-            const formattedContent = sourceGenVisitor.getGeneratedSource();
-            getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
+            getSwaggerDefinition(this.context.astRoot.getSource(), this.props.targetService.getName().getValue())
                 .then((swaggerDefinition) => {
                     // Update host url if try it url is available.
                     const swaggerJson = JSON.parse(swaggerDefinition);

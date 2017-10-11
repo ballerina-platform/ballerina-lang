@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import TreeUtil from './../../../model/tree-util';
 import SimpleBBox from './../../../ast/simple-bounding-box';
+import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
 
 class PositioningUtil {
 
@@ -67,6 +68,13 @@ class PositioningUtil {
                 arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
+                if (connectorDeclaration.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(connectorDeclaration);
+                }
+            }
+        } else if (TreeUtil.isConnectorDeclaration(node)) {
+            if (node.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
             }
         }
     }
@@ -149,11 +157,13 @@ class PositioningUtil {
      * @param {object} node CompilationUnit object
      */
     positionCompilationUnitNode(node) {
+        this.positionTopLevelNodes(node);
         let width = 0;
-        let height = 0;
+        // Set the height of the toplevel nodes so that the other nodes would be positioned relative to it
+        let height = node.viewState.components.topLevelNodes.h + 50;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isPackageDeclaration(child) || TreeUtil.isFunction(child) || TreeUtil.isService(child)
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
                 || TreeUtil.isStruct(child) || TreeUtil.isConnector(child);
         });
 
@@ -187,6 +197,15 @@ class PositioningUtil {
         node.viewState.bBox.w = width;
     }
 
+    /**
+     * Position the packageDec, imports and globals
+     * @param node CompilationUnitNode
+     */
+    positionTopLevelNodes(node) {
+        const viewState = node.viewState;
+        viewState.components.topLevelNodes.x = this.config.panel.wrapper.gutter.v;
+        viewState.components.topLevelNodes.y = this.config.panel.wrapper.gutter.h;
+    }
 
     /**
      * Calculate position of Connector nodes.
@@ -222,11 +241,11 @@ class PositioningUtil {
 
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top
             + this.config.lifeLine.head.height;
         // position the default worker.
         cmp.defaultWorker.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
@@ -234,8 +253,7 @@ class PositioningUtil {
         // position the children
         const body = node.getBody();
         body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
-                                this.config.lifeLine.head.height;
+        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
 
         // ========== Header Positioning ==========
         // Positioning argument parameters
@@ -307,6 +325,9 @@ class PositioningUtil {
                 statement.viewState.bBox.x = xindex;
                 statement.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
+                if (statement.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
+                }
             }
         });
     }
@@ -409,7 +430,7 @@ class PositioningUtil {
         const transportLine = !_.isNil(viewState.components.transportLine) ?
             viewState.components.transportLine : { x: 0, y: 0 };
         transportLine.x = viewState.bBox.x - 5;
-        transportLine.y = viewState.bBox.y + 30;
+        transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
 
         let children = [];
 
@@ -419,7 +440,13 @@ class PositioningUtil {
             children = node.getActions();
         }
 
-        let y = viewState.bBox.y + viewState.components.heading.h + viewState.components.initFunction.h;
+        let y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
+        // position the initFunction.
+        viewState.components.initFunction.y = y + 25;
+        viewState.components.initFunction.x = viewState.bBox.x + 100;
+        // increase the y with init height;
+        y += viewState.components.initFunction.h;
+        // lets set the resources x, y.
         children.forEach((child) => {
             // set the x of the resource or action.
             child.viewState.bBox.x = viewState.bBox.x + this.config.innerPanel.wrapper.gutter.h;
@@ -431,8 +458,35 @@ class PositioningUtil {
             // check of the resource is collapsed.
             y += child.viewState.bBox.h;
             // expand the resource to match service.
-            child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2);
+            child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2) -
+            viewState.components.connectors.w;
         });
+
+        if (TreeUtil.isService(node)) {
+            // Position Connectors
+            const widthOffsetForConnectors = node.getResources().length > 0 ?
+                (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
+            let xIndex = viewState.bBox.x + widthOffsetForConnectors;
+            const yIndex = viewState.bBox.y + viewState.components.heading.h
+                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v;
+            const statements = node.getVariables();
+            if (statements instanceof Array) {
+                statements.forEach((statement) => {
+                    if (TreeUtil.isConnectorDeclaration(statement)) {
+                        statement.viewState.bBox.x = xIndex;
+                        statement.viewState.bBox.y = yIndex;
+                        xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
+                        if (statement.viewState.showOverlayContainer) {
+                            OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
+                        }
+                    }
+                });
+            }
+        }
+        // Setting the overlay container if its true
+        if (viewState.showOverlayContainer) {
+            OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
+        }
     }
 
 
@@ -805,7 +859,8 @@ class PositioningUtil {
 
         // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0);
+            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
+                joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
 
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
@@ -830,7 +885,7 @@ class PositioningUtil {
 
         // Calculate timeout block x and y.
         const timeoutX = bBox.x;
-        let timeoutY = joinStmt.viewState.bBox.y
+        const timeoutY = joinStmt.viewState.bBox.y
             + joinStmt.viewState.bBox.h;
 
         // Create a bbox for parameter of timeout.

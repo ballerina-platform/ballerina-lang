@@ -222,6 +222,7 @@ class SizingUtil {
      */
     sizeCompilationUnitNode(node) {
         // Compilation unit height will be calculated by the postion util.
+        this.sizePackageDeclarationNode(node);
     }
 
 
@@ -272,6 +273,14 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
+
+        // initialize the annotation status.
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
+        }
+        // calculate the annotation height.
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
@@ -294,7 +303,6 @@ class SizingUtil {
         cmp.panelBody.h = (viewState.collapsed) ? 0 : cmp.panelBody.h;
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
-        // calculate annotations
 
         viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
 
@@ -435,9 +443,10 @@ class SizingUtil {
         const topGutter = 10;
         const topBarHeight = 25;
         const importInputHeight = 40;
+        viewState.components.topLevelNodes = new SimpleBBox();
 
         let height = 0;
-        const astRoot = node.parent;
+        const astRoot = node;
 
         if (viewState.importsExpanded) {
             const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
@@ -453,8 +462,8 @@ class SizingUtil {
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
         }
 
-        viewState.bBox.h = height;
-        viewState.bBox.w = 0;
+        viewState.components.topLevelNodes.h = height;
+        viewState.components.topLevelNodes.w = 0;
 
         viewState.components = viewState.components || {};
         viewState.components.importDeclaration = this._getImportDeclarationBadgeViewState(node);
@@ -480,8 +489,10 @@ class SizingUtil {
         const importLabelWidth = 48.37;
         const noOfImportsTextPadding = 10;
         const importDecDecoratorWidth = 3;
-
-        const imports = node.parent.filterTopLevelNodes({ kind: 'Import' });
+        if (TreeUtil.isPackageDeclaration(node)) {
+            node = node.parent;
+        }
+        const imports = node.filterTopLevelNodes({ kind: 'Import' });
         const noOfImports = imports.length;
 
         const noOfImportsTextWidth = this.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
@@ -556,6 +567,12 @@ class SizingUtil {
         cmp.body = new SimpleBBox();
         cmp.initFunction = new SimpleBBox();
         cmp.transportLine = new SimpleBBox();
+        cmp.connectors = new SimpleBBox();
+        cmp.annotation = new SimpleBBox();
+        // initialize annotation view if not defined.
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
+        }
 
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
@@ -566,6 +583,9 @@ class SizingUtil {
             children = node.getActions();
         }
 
+        // calculate the annotation height.
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+
         let width = 0;
         // we will start the height with top padding.
         let height = this.config.innerPanel.wrapper.gutter.h;
@@ -575,10 +595,10 @@ class SizingUtil {
             // set the x of the resource or action.
             height += child.viewState.bBox.h + this.config.innerPanel.wrapper.gutter.v;
         });
-        // add side padding to the resource.
+        // add side padding to the service.
         width += (this.config.innerPanel.wrapper.gutter.h * 2);
         // calculate the initFunction for service.
-        if (viewState.globalsExpanded) {
+        if (viewState.variablesExpanded) {
             const topGutter = 10;
             const topBarHeight = 25;
             const importInputHeight = 40;
@@ -597,7 +617,29 @@ class SizingUtil {
         // set the body height and width.
         cmp.body.h = height;
         cmp.body.w = width;
-
+        let connectorHeight = 0;
+        if (TreeUtil.isService(node)) {
+            // If there are connector declarations add them to service width.
+            const statements = node.getVariables();
+            let connectorWidth = 0;
+            connectorHeight = node.filterVariables((statement) => {
+                return TreeUtil.isConnectorDeclaration(statement);
+            })
+                .length > 0 ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
+            if (statements instanceof Array) {
+                statements.forEach((statement) => {
+                    if (TreeUtil.isConnectorDeclaration(statement)) {
+                        statement.viewState.bBox.w = this.config.lifeLine.width;
+                        // add the connector width to body width.
+                        connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                        statement.viewState.bBox.h = cmp.body.h - 60;
+                    }
+                });
+            }
+            // add the connector to width
+            width += connectorWidth;
+            cmp.connectors.w = connectorWidth;
+        }
         // calculate header related components.
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
@@ -606,29 +648,10 @@ class SizingUtil {
         cmp.heading.h = this.config.panel.heading.height;
 
         viewState.bBox.w = width;
-        viewState.bBox.h = cmp.body.h + cmp.heading.h;
+
+        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
         // set the components.
         viewState.components = cmp;
-
-
-        cmp.annotation = new SimpleBBox();
-
-        /* if (_.isUndefined(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
-        }
-
-        if (!node.viewState.showAnnotationContainer) {
-            components.annotation.h = 0;
-        }
-        components.annotation.w = bodyWidth;
-        components.transportLine.h = totalResourceHeight;
-        // Set initial height to the body
-
-        // Set the height if globals inside the service node is expanded
-        if (viewState.globalsExpanded) {
-;
-        }*/
-
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
@@ -638,6 +661,7 @@ class SizingUtil {
             }
         });
     }
+
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -662,8 +686,6 @@ class SizingUtil {
         components.heading = new SimpleBBox();
         components.body = new SimpleBBox();
         components.annotation = new SimpleBBox();
-        components.variablesPane = new SimpleBBox();
-        components.transportLine = new SimpleBBox();
         components.heading.h = this.config.panel.heading.height;
         if (node.viewState.collapsed) {
             components.body.h = 0;
@@ -671,14 +693,14 @@ class SizingUtil {
             components.body.h = bodyHeight;
         }
 
-        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+        if (_.isNil(node.viewState.showAnnotationContainer)) {
             node.viewState.showAnnotationContainer = true;
         }
 
         if (!node.viewState.showAnnotationContainer) {
             components.annotation.h = 0;
         } else {
-            // components.annotation.h = this.getAnnotationHeight(node, 20);
+            components.annotation.h = this._getAnnotationHeight(node, 20);
         }
 
         components.variablesPane.h = 0;
@@ -1092,8 +1114,12 @@ class SizingUtil {
         this.sizeCompoundNode(joinStmt);
         this.sizeCompoundNode(timeoutStmt);
 
+        // Calculate join keyword length;
+        joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
+        timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
+
         // Calculate join and timeout expression lengths.
-        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinType());
+        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
         timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
 
         // Calculate join and timeout parameter expression lengths.
@@ -1101,7 +1127,7 @@ class SizingUtil {
         timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
 
         // Set the node height as available in the node if not set the default.
-        let nodeHeight = node.viewState.bBox.h;
+        const nodeHeight = node.viewState.bBox.h;
 
         // Set the node width to default.
         let nodeWidth = node.viewState.bBox.w;
@@ -1142,6 +1168,8 @@ class SizingUtil {
         } else {
             conditionBoxWidth += timeoutStmt.viewState.components.expression.w;
         }
+
+        conditionBoxWidth += timeoutStmt.viewState.components.titleWidth.w;
 
         // Get the forkJoin node width
         nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;
@@ -1469,6 +1497,68 @@ class SizingUtil {
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression, 0, available);
         }
+    }
+
+    /**
+     * Calculates the height of the annotations of a given node.
+     *
+     * @param {ASTNode} node The node with annotations.
+     * @param {number} [defaultHeight=0] The height value to start from.
+     * @param {number} [annotationLineHeight=18.75] The default height of an annotation or annotation entry when
+     * contained to a single line.
+     * @returns {number} The total height needed for the annotations.
+     *
+     * @memberof SizingUtil
+     */
+    _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 17.33) {
+        let height = defaultHeight;
+        if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
+            TreeUtil.isFunction(node) || TreeUtil.isConnector(node) ||
+            TreeUtil.isAction(node) || TreeUtil.isAnnotation(node) ||
+            TreeUtil.isStruct(node)) {
+            for (const annotation of node.getAnnotationAttachments()) {
+                height += this._getAnnotationHeight(annotation) + 10;
+            }
+        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
+            const annotationAttachment = node;
+            // Considering the start line of the annotation.
+            height += annotationLineHeight;
+            if (!annotationAttachment.viewState.collapsed) {
+                if (annotationAttachment.getAttributes().length > 0) {
+                    annotationAttachment.getAttributes().forEach((annotationAttribute) => {
+                        height += this._getAnnotationHeight(annotationAttribute);
+                    });
+                }
+            }
+        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
+            const annotationAttachmentAttribute = node;
+            const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
+            // If the annotation entry a simple native type value
+            if (annotationAttachmentAttributeValue.isValueLiteral()) {
+                height += annotationLineHeight;
+            } else if (annotationAttachmentAttributeValue.isValueAnnotationAttachment()) {
+                if (!annotationAttachmentAttribute.viewState.collapsed) {
+                    // If the annotation entry value an annotation
+                    height += this._getAnnotationHeight(annotationAttachmentAttributeValue.getValue());
+                } else {
+                    // When collapsed we have to consider attribute as a line.
+                    height += annotationLineHeight;
+                }
+            } else if (annotationAttachmentAttributeValue.isValueArray()) {
+                // If the annotation entry value an array
+                height += annotationLineHeight;
+                if (!annotationAttachmentAttribute.viewState.collapsed) {
+                    // Calculating the height for the array children.
+                    annotationAttachmentAttributeValue.getValueArray().forEach((childNode) => {
+                        height += this._getAnnotationHeight(childNode.getValue());
+                    });
+                }
+            }
+        } else if (!_.isNil(node) && TreeUtil.isLiteral(node)) {
+            height += annotationLineHeight;
+        }
+
+        return height;
     }
 }
 

@@ -107,7 +107,7 @@ class HttpClient extends React.Component {
 
         if (emptyHeaderIndex === -1) {
             const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
-            headerClone.splice(0, 0, { id: uuid(), key: '', value: '' });
+            headerClone.push({ id: uuid(), key: '', value: '' });
             this.setState({
                 requestHeaders: headerClone,
             });
@@ -166,13 +166,17 @@ class HttpClient extends React.Component {
     onHeaderKeyChange(headerValue, event) {
         const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
         headerClone.forEach((header, index, headers) => {
-            if (header.value === headerValue) {
+            if (header.id === event.currentTarget.id) {
                 headers[index].key = event.currentTarget.value;
             }
         });
 
         this.setState({
             requestHeaders: headerClone,
+        }, function () {
+            if (headerClone[headerClone.length - 1].value === '' && headerClone[headerClone.length - 1].key !== '') {
+                this.onAddNewHeader(false);
+            }
         });
     }
 
@@ -185,7 +189,7 @@ class HttpClient extends React.Component {
     onHeaderValueChange(headerKey, event) {
         const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
         headerClone.forEach((header, index, headers) => {
-            if (header.key === headerKey) {
+            if (header.id === event.currentTarget.id) {
                 headers[index].value = event.currentTarget.value;
             }
         });
@@ -329,9 +333,15 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderHeaders() {
-        return this.state.requestHeaders.map((header) => {
+        return this.state.requestHeaders.map((header, index) => {
+            let removeButton;
+            // Remove button is not included for new header fields
+            if (index !== this.state.requestHeaders.length - 1) {
+                removeButton = <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />;
+            }
             return (<div key={`${header.id}`} className="form-inline">
                 <input
+                    id={header.id}
                     key={`key-${header.id}`}
                     ref={(ref) => {
                         if (header.key === '' && header.value === '') {
@@ -342,21 +352,22 @@ class HttpClient extends React.Component {
                     type='text'
                     className="header-input form-control"
                     value={header.key}
-                    onChange={e => this.onHeaderKeyChange(header.value, e)}
+                    onChange={e => this.onHeaderKeyChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
                 />
                 :
                 <input
+                    id={header.id}
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
                     className="header-input form-control"
                     value={header.value}
-                    onChange={e => this.onHeaderValueChange(header.key, e)}
+                    onChange={e => this.onHeaderValueChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
                     onKeyDown={this.onHeaderValueKeyDown}
                 />
-                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
+                {removeButton}
             </div>);
         });
     }
@@ -375,6 +386,81 @@ class HttpClient extends React.Component {
                 CANCEL
                 </button>);
         }
+    }
+
+    renderResponseHeaders(responseHeaders) {
+        if (this.state.responseHeaders !== '') {
+            const responseHeaderList = [];
+
+            for (const key in responseHeaders) {
+                if (responseHeaders.hasOwnProperty(key)) {
+                    responseHeaderList.push({ name: key, value: responseHeaders[key] });
+                }
+            }
+
+            return responseHeaderList.map((header) => {
+                return (<div key={`${header.name}`} className="form-inline">
+                    <input
+                        key={`key-${header.name}`}
+                        ref={(ref) => {
+                            if (header.name === '' && header.value === '') {
+                                this.headerKey = ref;
+                            }
+                        }}
+                        placeholder='Key'
+                        type='text'
+                        className="header-input form-control"
+                        value={header.name}
+                        onChange={e => this.onHeaderKeyChange(header.value, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                    />
+                    :
+                    <input
+                        key={`value-${header.id}`}
+                        placeholder='Value'
+                        type='text'
+                        className="header-input form-control"
+                        value={header.value}
+                        onChange={e => this.onHeaderValueChange(header.name, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                        onKeyDown={this.onHeaderValueKeyDown}
+                        readOnly
+                    />
+                </div>);
+            });
+        }
+
+        return this.state.requestHeaders.map((header) => {
+            return (<div key={`${header.id}`} className="form-inline">
+                <input
+                    key={`key-${header.id}`}
+                    ref={(ref) => {
+                        if (header.key === '' && header.value === '') {
+                            this.headerKey = ref;
+                        }
+                    }}
+                    placeholder='Key'
+                    type='text'
+                    className="header-input form-control"
+                    value={header.key}
+                    onChange={e => this.onHeaderKeyChange(header.value, e)}
+                    onBlur={() => { this.focusTarget = undefined; }}
+                    readOnly
+                />
+                :
+                <input
+                    key={`value-${header.id}`}
+                    placeholder='Value'
+                    type='text'
+                    className="header-input form-control"
+                    value={header.value}
+                    onChange={e => this.onHeaderValueChange(header.key, e)}
+                    onBlur={() => { this.focusTarget = undefined; }}
+                    onKeyDown={this.onHeaderValueKeyDown}
+                />
+                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
+            </div>);
+        });
     }
 
     /**
@@ -428,10 +514,6 @@ class HttpClient extends React.Component {
                             </div>
                             <div className='http-client-headers-wrapper'>
                                 <span className="section-header">Headers</span>
-                                <span className='add-header-button' onClick={() => this.onAddNewHeader(true)}>
-                                    <i className='fw fw-add' />
-                                    Add New
-                                </span>
                                 <hr />
                                 <div className='current-headers'>
                                     {headers}
@@ -484,10 +566,10 @@ class HttpClient extends React.Component {
                                             <hr />
                                             {this.state.responseHeaders.length > 0 ? (
                                                 <div>
-                                                {this.state.responseHeaders}
+                                                    {this.renderResponseHeaders(JSON.parse(this.state.responseHeaders))}
                                                 </div>
                                             ) : (
-                                                <div className="message message-warning">
+                                                <div className="try-it-message message message-warning">
                                                     <h4><i className="icon fw fw-warning"></i>
                                                         Hit the send button to see the headers.</h4>
                                                 </div>
@@ -499,10 +581,11 @@ class HttpClient extends React.Component {
                                             <hr />
                                             {this.state.returnedRequestHeaders.length > 0 ? (
                                                 <div>
-                                                    {this.state.returnedRequestHeaders}
+                                                    {this.renderResponseHeaders(
+                                                                        JSON.parse(this.state.returnedRequestHeaders))}
                                                 </div>
                                             ) : (
-                                                <div className="message message-warning">
+                                                <div className="try-it-message message message-warning">
                                                     <h4><i className="icon fw fw-warning"></i>
                                                         Hit the send button to see the headers.</h4>
 

@@ -300,7 +300,9 @@ public class BLangFileRestService {
                 // This is since the invocation symbol abstract method has not currently been exposed from the runtime
                 // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
                 if (kindName.equals("Invocation")) {
-                    nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                    if (((BLangInvocation) node).symbol != null) {
+                        nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                    }
                 }
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
@@ -340,11 +342,18 @@ public class BLangFileRestService {
         List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
                 CompilerPhase.CODE_ANALYZE).getDiagnostics();
 
-        Gson gson = new Gson();
-        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
+        JsonArray errors = new JsonArray();
+        diagnostics.forEach(diagnostic -> {
+            JsonObject error = new JsonObject();
+            error.addProperty("row", diagnostic.getPosition().getStartLine());
+            error.addProperty("column", diagnostic.getPosition().startColumn());
+            error.addProperty("text", diagnostic.getMessage());
+            error.addProperty("type", "error");
+            errors.add(error);
+        });
 
         JsonObject result = new JsonObject();
-        result.add("errors", diagnosticsJson);
+        result.add("errors", errors);
         return result;
     }
 

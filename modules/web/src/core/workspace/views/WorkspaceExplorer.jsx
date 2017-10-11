@@ -76,6 +76,7 @@ class WorkspaceExplorer extends View {
 }
 
 WorkspaceExplorer.propTypes = {
+    height: PropTypes.number.isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
 };

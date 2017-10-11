@@ -18,8 +18,12 @@
 
 import AbstractAnnotationAttachmentNode from './abstract-tree/annotation-attachment-node';
 
+/**
+ * Node class for annotation attachment.
+ * @class AnnotationAttachmentNode
+ * @extends {AbstractAnnotationAttachmentNode}
+ */
 class AnnotationAttachmentNode extends AbstractAnnotationAttachmentNode {
-
 }
 
 export default AnnotationAttachmentNode;

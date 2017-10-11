@@ -15,11 +15,87 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractServiceNode from './abstract-tree/service-node';
+import TreeUtil from './../tree-util';
 
 class ServiceNode extends AbstractServiceNode {
+    /**
+     * Generate default name for service level statements.
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateDefaultName(parent, node) {
+        if (!parent) {
+            return undefined;
+        }
 
+        const resourceDefaultName = 'echo';
+        const resourceNodes = parent.getResources();
+        const names = {};
+        for (let i = 0; i < resourceNodes.length; i++) {
+            const name = resourceNodes[i].getName().value;
+            names[name] = name;
+        }
+
+        if (resourceNodes.length > 0) {
+            for (let i = 1; i <= resourceNodes.length + 1; i++) {
+                if (!names[`${resourceDefaultName}${i}`]) {
+                    node.getName().setValue(`${resourceDefaultName}${i}`, true);
+                    node.setName(node.getName(), true);
+                    break;
+                }
+            }
+        } else {
+            node.getName().setValue(`${resourceDefaultName}1`, true);
+            node.setName(node.getName(), true);
+        }
+        return undefined;
+    }
+
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtil.isConnectorDeclaration(node);
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        if (TreeUtil.isConnectorDeclaration(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfVariables(dropBefore) : -1;
+            this.addVariables(node, index);
+        }
+    }
+
+    /**
+     * Set the full package name of the service
+     * @param fullPackageName
+     */
+    setFullPackageName(fullPackageName) {
+        this._fullPackageName = fullPackageName;
+    }
+
+    /**
+     * Get the full package name of the service
+     * @param fullPackageName
+     * @returns {*}
+     */
+    getFullPackageName(fullPackageName) {
+        return this._fullPackageName;
+    }
 }
 
 export default ServiceNode;

@@ -35,12 +35,15 @@ class ServiceNodeHelper {
     static getAttributes(environment, pkgIdentifier, annotationDefinitionName) {
         const annotationAttributes = [];
         for (const packageDefintion of environment.getPackages()) {
-            const fullPackageName = environment.getPackageByIdentifier(pkgIdentifier).getName();
-            if (packageDefintion.getName() === fullPackageName) {
-                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    if (annotationDefinition.getName() === annotationDefinitionName) {
-                        for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
-                            annotationAttributes.push(annotationAttribute);
+            if (environment.getPackageByIdentifier(pkgIdentifier)) {
+                const fullPackageName = environment.getPackageByIdentifier(pkgIdentifier).getName();
+                if (packageDefintion.getName() === fullPackageName) {
+                    for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                        if (annotationDefinition.getName() === annotationDefinitionName) {
+                            for (const annotationAttribute of
+                                annotationDefinition.getAnnotationAttributeDefinitions()) {
+                                annotationAttributes.push(annotationAttribute);
+                            }
                         }
                     }
                 }

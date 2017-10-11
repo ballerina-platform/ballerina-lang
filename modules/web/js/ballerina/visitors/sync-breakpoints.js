@@ -20,35 +20,28 @@ import _ from 'lodash';
 import ASTVisitor from './ast-visitor';
 
 /**
- * Finds line numbers of breakpoints in the model
- * @class FindBreakpointLinesVisitor
+ * Finds line numbers in new ASTmodel and replaces in oldASTModel
+ * @class SyncBreakpoints
  * @extends {ASTVisitor}
  */
-class FindBreakpointLinesVisitor extends ASTVisitor {
-    /**
-     * Creates an instance of FindBreakpointLinesVisitor.
-     */
+class SyncBreakpoints extends ASTVisitor {
     constructor() {
         super();
         this._breakpoints = [];
     }
     /**
-     * Returns the array of breakpoint line numbers
-     * @returns {int[]}
-     *
-     * @memberof FindBreakpointLinesVisitor
-     */
-    getBreakpoints() {
-        return _.sortedUniq(this._breakpoints);
-    }
-    /**
      * @inheritdoc
      */
-    beginVisit(node) {
-        if (node.isBreakpoint) {
-            const lineNumber = node.getLineNumber();
-            this._breakpoints.push(lineNumber);
+    beginVisit(node, newNode) {
+        if (!node.isBreakpoint) {
+            return;
         }
+        newNode.isBreakpoint = node.isBreakpoint;
+        const lineNumber = newNode.position.startLine;
+        this._breakpoints.push(lineNumber);
+    }
+    getBreakpoints() {
+        return _.sortedUniq(this._breakpoints);
     }
     /**
      * @inheritdoc
@@ -58,4 +51,4 @@ class FindBreakpointLinesVisitor extends ASTVisitor {
     }
 }
 
-export default FindBreakpointLinesVisitor;
+export default SyncBreakpoints;

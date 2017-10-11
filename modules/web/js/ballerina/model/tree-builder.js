@@ -58,7 +58,7 @@ class TreeBuilder {
         // 4. If there is a more specific node defined based on node kind we will use
         //    that object instead of generic object.
 
-        // TODO: Special case node creation with kind.
+        // Special case node creation with kind.
         let node;
         const kind = json.kind;
         if (kind && treeNodes[kind + 'Node']) {
@@ -83,7 +83,6 @@ class TreeBuilder {
                 }
             }
         }
-        // TODO: Special case node creation with kind.
 
         if (kind === 'If' && json.elseStatement && json.elseStatement.kind === 'If') {
             json.ladderParent = true;
@@ -97,12 +96,6 @@ class TreeBuilder {
         Object.assign(node, json);
         node.setChildrenAlias();
         return node;
-    }
-
-    static populateDefaultPackageDeclaration(ast) {
-        if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
-            ast.addTopLevelNodes(NodeFactory.createPackageDeclaration({}), 0);
-        }
     }
 }
 

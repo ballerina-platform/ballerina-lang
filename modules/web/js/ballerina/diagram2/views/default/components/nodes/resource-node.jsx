@@ -29,6 +29,7 @@ import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 
 class ResourceNode extends React.Component {
 
@@ -42,7 +43,7 @@ class ResourceNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorInitExpr(dragSource)
+        return TreeUtil.isConnectorDeclaration(dragSource)
             || TreeUtil.isWorker(dragSource);
     }
 
@@ -68,7 +69,6 @@ class ResourceNode extends React.Component {
         const parentNode = this.props.model.parent;
         const body = this.props.model.body;
         const bodyBBox = this.props.model.body.viewState.bBox;
-        // const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
         resource_worker_bBox.x = bodyBBox.x + (bodyBBox.w - lifeLine.width) / 2;
@@ -82,7 +82,18 @@ class ResourceNode extends React.Component {
         };
         const argumentParameters = this.props.model.getParameters();
 
+        const connectors = this.props.model.body.statements
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+                return (
+                    <ConnectorDeclarationDecorator
+                        model={statement}
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                    />);
+            });        
+
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
+        const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
         // const nodeFactory = ASTFactory;
         // Check for connector declaration children
         // const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
@@ -130,23 +141,9 @@ class ResourceNode extends React.Component {
                             icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                             iconColor='#025482'
                         />
-                        {/* { connectorChildren.length > 0 &&
-                        <g>
-                            <rect
-                                x={workerScopeContainerBBox.x}
-                                y={workerScopeContainerBBox.y}
-                                width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                                height={workerScopeContainerBBox.h}
-                                style={{ fill: 'none',
-                                    stroke: '#67696d',
-                                    strokeWidth: 2,
-                                    strokeLinecap: 'round',
-                                    strokeLinejoin: 'miter',
-                                    strokeMiterlimit: 4,
-                                    strokeOpacity: 1,
-                                    strokeDasharray: 5 }}
-                            /> </g> }*/}
                         {blockNode}
+                        {workers}
+                        {connectors}
                     </g>
                 </PanelDecorator>
                 {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtn &&
@@ -157,25 +154,15 @@ class ResourceNode extends React.Component {
                     onMouseOut={this.onMouseOut}
                 >
                     <rect
-                        x={bBox.x - 20}
+                        x={bBox.x - 50}
                         y={bBox.y + bBox.h}
                         width={bBox.w + 20}
                         height='50'
                         fillOpacity="0"
                         strokeOpacity="0"
                     />
-                    <line
-                        x1={bBox.x - 20}
-                        y1={bBox.y + bBox.h + 25}
-                        x2={bBox.x + 40}
-                        y2={bBox.y + bBox.h + 25}
-                        strokeDasharray="5, 5"
-                        strokeWidth="3"
-                        className="protocol-line"
-                    />
                     <AddResourceDefinition
                         model={this.props.model}
-                        bBox={bBox}
                         style={this.state.style}
                     />
                 </g>

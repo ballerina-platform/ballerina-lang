@@ -30,9 +30,10 @@ const BASE_TYPES = {
 class DropZone extends React.Component {
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
-            isDragging, dropTarget, dropBefore, canDrop, enableDragBg, ...restProps } = this.props;
+            isDragging, dropTarget, dropBefore, canDrop, enableDragBg, renderUponDragStart,
+            ...restProps } = this.props;
         // render nothing when drag-drop isn't happening
-        if (!isDragging) {
+        if (!isDragging && renderUponDragStart) {
             return (<g />);
         }
         const Component = baseComponent;
@@ -83,6 +84,7 @@ DropZone.propTypes = {
     className: PropTypes.string,
     connectDropTarget: PropTypes.func.isRequired,
     enableDragBg: PropTypes.bool,
+    renderUponDragStart: PropTypes.bool,
     isOver: PropTypes.bool,
     isOverCurrent: PropTypes.bool,
     canDrop: PropTypes.bool,
@@ -92,6 +94,7 @@ DropZone.propTypes = {
 DropZone.defaultProps = {
     dropBefore: undefined,
     enableDragBg: false,
+    renderUponDragStart: false,
     className: '',
 };
 
