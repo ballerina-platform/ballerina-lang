@@ -39,7 +39,7 @@ function successfulIntCasting()(int) {
   floatVal, _ = (float)abc;
   //Int to float is a conversion now
   int intVal;
-  intVal, _ = <int>floatVal;
+  intVal = <int>floatVal;
   return intVal;
 }
 

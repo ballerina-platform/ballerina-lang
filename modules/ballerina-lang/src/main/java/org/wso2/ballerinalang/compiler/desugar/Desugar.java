@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -93,10 +94,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -255,7 +256,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        varNode.expr = rewriteExpr(varNode.expr);
+        if ((varNode.symbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            varNode.expr = rewriteExpr(varNode.expr);
+        } else {
+            varNode.expr = null;
+        }
         result = varNode;
     }
 
@@ -287,7 +292,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
         result = continueNode;
     }
 
@@ -425,12 +430,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        if (arrayLiteral.type.tag == TypeTags.JSON) {
+        arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
+
+        if (arrayLiteral.type.tag == TypeTags.JSON || getElementType(arrayLiteral.type).tag == TypeTags.JSON) {
             result = new BLangJSONArrayLiteral(arrayLiteral.exprs, arrayLiteral.type);
-            result = rewriteExpr((BLangExpression) result);
             return;
         }
-        arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         result = arrayLiteral;
     }
 
@@ -528,7 +533,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.JSON) {
+        } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
@@ -545,14 +550,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
         iExpr.argExprs = rewriteExprs(iExpr.argExprs);
-        iExpr.expr = rewriteExpr(iExpr.expr);
         if (iExpr.functionPointerInvocation) {
-            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-            varRef.symbol = (BVarSymbol) iExpr.symbol;
-            varRef.type = iExpr.symbol.type;
-            genIExpr = new BFunctionPointerInvocation(iExpr, varRef);
+            visitFunctionPointerInvocation(iExpr);
+            return;
         }
-
+        iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
             return;
@@ -798,17 +800,27 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
-        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
-        result = jsonArrayLiteral;
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
     }
 
     // private functions
+
+    private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangVariableReference expr;
+        if (iExpr.expr == null) {
+            expr = new BLangSimpleVarRef();
+        } else {
+            BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
+            fieldBasedAccess.expr = iExpr.expr;
+            fieldBasedAccess.field = iExpr.name;
+            expr = fieldBasedAccess;
+        }
+        expr.symbol = (BVarSymbol) iExpr.symbol;
+        expr.type = iExpr.symbol.type;
+        expr = rewriteExpr(expr);
+        result = new BFunctionPointerInvocation(iExpr, expr);
+    }
 
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node) {
@@ -895,5 +907,13 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.types = Lists.of(targetType);
         conversionExpr.conversionSymbol = symbol;
         return conversionExpr;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.tag != TypeTags.ARRAY) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 }

@@ -1,9 +1,12 @@
-function testCompositeConnector()(string, string) {
+import ballerina.net.http;
+
+function testCompositeConnector () (string, string) {
+    TestLBConnector testLB;
     TestConnector t1 = create TestConnector("URI1");
     TestConnector t2 = create TestConnector("URI2");
     TestConnector[] tArray = [t1, t2];
-    TestLBConnector testLB = create TestLBConnector (tArray, "RoundRobin") with FilterConnector("Filter");
-    message request = {};
+    testLB = create TestLBConnector (tArray, "RoundRobin") with FilterConnector("Filter");
+    http:Request request = {};
     string value1;
     string value2;
     value1 = testLB.action1(request);
@@ -14,15 +17,15 @@ function testCompositeConnector()(string, string) {
 
 connector FilterConnector<TestConnector t>(string param1) {
 
-    action action1(message msg) (string){
+    action action1(http:Request request) (string){
           string x;
-          x = t.action1(msg);
+          x = t.action1(request);
           string y;
-          y = t.action2(msg);
+          y = t.action2(request);
           return x;
     }
 
-    action action2( message msg) (string) {
+    action action2( http:Request request) (string) {
           return "value within filter";
     }
 
@@ -30,11 +33,11 @@ connector FilterConnector<TestConnector t>(string param1) {
 
 connector TestConnector(string param1) {
 
-    action action1(message msg) (string){
+    action action1(http:Request request) (string){
         return param1;
     }
 
-    action action2(message msg) (string) {
+    action action2(http:Request request) (string) {
         return "value from action2";
     }
 
@@ -44,15 +47,15 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
 
     int count = 0;
 
-    action action1(message msg) (string){
-        int index = count % testConnectorArray.length;
+    action action1(http:Request request) (string){
+        int index = count % lengthof testConnectorArray;
         TestConnector t1 = testConnectorArray[index];
         count = count + 1;
-        string retValue = t1.action1(msg);
+        string retValue = t1.action1(request);
         return "LB" + <string>count;
     }
 
-    action action2(message msg) (string) {
+    action action2(http:Request request) (string) {
         return "value from action2";
     }
 }

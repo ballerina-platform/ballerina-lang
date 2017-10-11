@@ -3,6 +3,8 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -67,8 +69,19 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
         if (getWSWasCalledOn == parserRuleContext) {
             return;
         }
+        int rangeEndTokenIndex;
+        if (parserRuleContext.stop == null) {
+            ParseTree child = parserRuleContext.getChild(1);
+            if (child instanceof TerminalNode) {
+                // This is needed to handle A + B + C case of BinaryAddSubExpression
+                rangeEndTokenIndex = ((TerminalNode) child).getSymbol().getTokenIndex();
+            } else {
+                return;
+            }
+        } else {
+            rangeEndTokenIndex = parserRuleContext.stop.getTokenIndex() + 1;
+        }
 
-        int rangeEndTokenIndex = parserRuleContext.stop.getTokenIndex() + 1;
         closeLastRange(rangeEndTokenIndex);
 
         Stack<TokenRange> tokenRanges = rangesOfRuleContext.pop();

@@ -142,6 +142,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[0], null);
     }
 
+
     @Test(description = "Test null in worker")
     public void testNullInWorker() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});

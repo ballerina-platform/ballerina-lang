@@ -278,4 +278,56 @@ function forkJoinWithAllSelectedJoin2() (map) {
 	return m;
 }
 
+function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
+    map m = {};
+    fork {
+       worker w1 {
+         int a = 5;
+         a -> w2;
+         int b = 0;
+         b <- w2;
+         b -> fork;
+       }
+       worker w2 {
+         int a = 0;
+         a <- w1;
+         int b = 15;
+         b -> w1;
+         a -> fork;
+       }
+    } join (all) (map results) {
+        any[] anyArray;
+        int b;
+        anyArray, _ = (any[]) results["w1"];
+        b, _ = (int) anyArray[0];
+        int a;
+        anyArray, _ = (any[]) results["w2"];
+        a, _ = (int) anyArray[0];
+        m["x"] = (a + 1) * b;
+    } timeout (5) (map results) { 
+        m["x"] = 15; 
+    }
+    return m;
+}
 
+function forkJoinInWorkers() (int) {
+    worker wx {
+	    int x = 20;
+	    map m = {};
+	    fork {
+		   worker w1 {
+		     m["a"] = 10;
+		   }
+		   worker w2 {
+		     m["b"] = 20;
+		   }
+	    } join (all) (map results) { 
+	       int a;
+	       int b;
+	       a, _ = (int) m["a"];
+	       b, _ = (int) m["b"];
+	       x = a + b;
+	    }
+	    return x;
+    }
+}

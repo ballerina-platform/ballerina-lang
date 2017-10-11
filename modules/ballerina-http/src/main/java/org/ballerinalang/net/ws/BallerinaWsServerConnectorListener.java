@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -46,6 +48,8 @@ import javax.websocket.Session;
  * @since 0.93
  */
 public class BallerinaWsServerConnectorListener implements WebSocketConnectorListener {
+
+    private static final Logger log = LoggerFactory.getLogger(BallerinaWsServerConnectorListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
@@ -117,7 +121,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onError(Throwable throwable) {
-        throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
+        log.error("Unexpected error occurred in WebSocket transport", throwable);
     }
 
     @Override

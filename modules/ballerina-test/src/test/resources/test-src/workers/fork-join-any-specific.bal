@@ -32,6 +32,6 @@ function testForkJoinAnyOfSpecific () (string[]) {
         }
         return results, i;
     } timeout (30) (map airlineResponses) {
-        return results,;
+        return results;
     }
 }

@@ -53,6 +53,13 @@ public class ServiceTest {
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
     }
+    
+    @Test
+    public void testServiceDispatchingWithWorker() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+    }
 
     @Test(description = "Test for service availability check")
     public void testServiceAvailabilityCheck() {

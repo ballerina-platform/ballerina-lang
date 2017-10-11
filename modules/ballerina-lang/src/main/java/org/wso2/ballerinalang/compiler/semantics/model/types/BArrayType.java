@@ -49,6 +49,11 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
     public String toString() {
         return eType.toString() + "[]";
     }

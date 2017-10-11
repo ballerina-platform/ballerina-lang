@@ -8,13 +8,39 @@ function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
     }
 }
 
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
+    int temp_int = 2;
+    int temp_int_1 = 5;
+    type temp_int_type = (typeof temp_int);
+    type temp_int_1_type = (typeof temp_int_1);
+
+    if (temp_int_type == temp_int_1_type) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
+    int temp_int = 2;
+    int temp_int_1 = 5;
+    var temp_int_type = (typeof temp_int);
+    var temp_int_1_type = (typeof temp_int_1);
+
+    if (temp_int_type == temp_int_1_type) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
     int temp_int = 2;
     string temp_str = "dummy";
     if ((typeof temp_int) == (typeof temp_str)) {
         return 1;
     } else {
-        return 2;
+       return 2;
     }
 }
 
@@ -195,6 +221,31 @@ function refTypeAccessTestJSONEqualityCase() (int) {
     }
 }
 
+function refTypeAccessTestTypeAsReturnValue() (int) {
+    json json_object = {"dummy":"dummy"};
+    json json_array = [1,2,3];
+    if ((typeof json_object) == getType(json_array)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function getType(any variable)(type){
+    return (typeof variable);
+}
+
+struct Person {
+    string name;
+    int age;
+}
+
+struct Animal {
+    string name;
+    int size;
+    int age;
+}
+
 function refTypeAccessTestMultiArrayNegativeCase() (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][][] intMulti = [];
@@ -204,7 +255,6 @@ function refTypeAccessTestMultiArrayNegativeCase() (int) {
         return 2;
     }
 }
-
 
 function refTypeAccessTestMultiArrayPositiveCase() (int) {
     json[][][][][][][] jsonMulti = [];
@@ -246,42 +296,6 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
-    int temp_int = 2;
-    int temp_int_1 = 5;
-    type temp_int_type = (typeof temp_int);
-    type temp_int_1_type = (typeof temp_int_1);
-
-    if (temp_int_type == temp_int_1_type) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
-function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
-    int temp_int = 2;
-    int temp_int_1 = 5;
-    var temp_int_type = (typeof temp_int);
-    var temp_int_1_type = (typeof temp_int_1);
-
-    if (temp_int_type == temp_int_1_type) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
-function refTypeAccessTestTypeAsReturnValue() (int) {
-    json json_object = {"dummy":"dummy"};
-    json json_array = [1,2,3];
-    if ((typeof json_object) == getType(json_array)) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
 function typeToAnyImplicitCast() (any, type) {
     int i = 5;
     type t = (typeof i);
@@ -295,8 +309,11 @@ function typeToAnyExplicitCast() (any, type, any) {
     return (any)t, t, t;
 }
 
-function getType(any variable)(type){
-    return (typeof variable);
+function anyToTypeExplicitCast() (type, any) {
+    int i = 5;
+    any typeOfInt = (typeof i);
+    var t, _ = (type)typeOfInt;
+    return t, typeOfInt;
 }
 
 function getTypeStringValue()(type){
@@ -308,15 +325,4 @@ function getStructTypeStringValue()(type){
     Person jack;
     jack = {name:"Jack", age:25};
     return (typeof jack);
-}
-
-struct Person {
-    string name;
-    int age;
-}
-
-struct Animal {
-    string name;
-    int size;
-    int age;
 }

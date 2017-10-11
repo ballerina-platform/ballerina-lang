@@ -31,7 +31,7 @@ public class TypeOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/unaryoperations/typeof-operation.bal");
+        result = BTestUtils.compile("test-src", "expressions/unaryoperations/typeof-operation.bal");
     }
 
     @Test(description = "Test reference type access expression trivial equality positive case")
@@ -389,7 +389,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[1], returns[2]);
     }
 
-    @Test(description = "Test any to type explicit cast.", enabled = false)
+    @Test(description = "Test any to type explicit cast.")
     public void testAnyToTypeExplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "anyToTypeExplicitCast", args);
@@ -399,7 +399,6 @@ public class TypeOfOperatorTest {
         Assert.assertSame(returns[1].getClass(), BTypeValue.class);
 
         Assert.assertEquals(returns[0], returns[1]);
-
     }
 
     @Test(description = "Test access string value of a type")

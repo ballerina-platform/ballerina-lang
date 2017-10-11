@@ -46,7 +46,7 @@ public class BFloatValueTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-        result = BTestUtils.compile("test-src/types/Float/float-value.bal");
+        result = BTestUtils.compile("test-src/types/float/float-value.bal");
     }
 
     @Test(description = "Test double value assignment")

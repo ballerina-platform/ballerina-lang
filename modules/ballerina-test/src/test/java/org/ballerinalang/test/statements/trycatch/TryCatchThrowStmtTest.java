@@ -35,10 +35,12 @@ import org.testng.annotations.Test;
 public class TryCatchThrowStmtTest {
 
     private CompileResult compileResult;
+    private CompileResult compileResultNegative;
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/trycatch/testTryCatchStmt.bal");
+        compileResult = BTestUtils.compile("test-src/statements/trycatch/try-catch-stmt.bal");
+        compileResultNegative = BTestUtils.compile("test-src/statements/trycatch/try-catch-finally-negative.bal");
     }
 
     @Test(description = "Test try block execution.")
@@ -146,26 +148,22 @@ public class TryCatchThrowStmtTest {
 
     @Test()
     public void testDuplicateExceptionVariable() {
-        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-var-try-catch.bal");
-        BTestUtils.validateError(compile, 0, "redeclared symbol 'e'", 5, 9);
+        BTestUtils.validateError(compileResultNegative, 0, "redeclared symbol 'e'", 5, 9);
     }
 
     @Test()
     public void testInvalidThrow() {
-        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-throw.bal");
-        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 3, 11);
+        BTestUtils.validateError(compileResultNegative, 1, "incompatible types: expected 'error', found 'int'", 12, 11);
     }
 
     @Test()
     public void testInvalidFunctionThrow() {
-        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-function-throw.bal");
-        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 2, 11);
+        BTestUtils.validateError(compileResultNegative, 2, "incompatible types: expected 'error', found 'int'", 16, 11);
     }
 
     @Test()
     public void testDuplicateCatchBlock() {
-        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-catch-block.bal");
-        BTestUtils.validateError(compile, 0, "error 'TestError' already caught in catch block", 16, 14);
+        BTestUtils.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 39, 14);
     }
 
 }

@@ -81,9 +81,10 @@ function testXMLArrayCopy(xml[] arg)(xml[]){
     return defined;
 }
 
-function testJSONArrayCopy(json[] arg)(json[]){
+function testJSONArrayCopy()(json[]){
+    json original = [{"json" : "1"}, {"json" : "1"}];
     json[] defined = [];
-    arrays:copyOf(arg, defined);
+    arrays:copyOf(original, defined);
     defined[0] = { "test" : "1"};
     defined[1] = { "test" : "2"};
     defined[2] = { "test" : "3"};

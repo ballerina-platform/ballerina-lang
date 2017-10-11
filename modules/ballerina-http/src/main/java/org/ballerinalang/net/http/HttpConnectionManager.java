@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
@@ -29,6 +30,7 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
@@ -38,17 +40,17 @@ import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
- * {@code BallerinaConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
+ * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
  *
- * @since 0.89
+ * @since 0.94
  */
 public class HttpConnectionManager {
 
@@ -140,24 +142,28 @@ public class HttpConnectionManager {
     /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
-     * @return the list of started server connectors.
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
-    public List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startPendingHTTPConnectors()
-            throws ServerConnectorException {
-        List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedConnectors = new ArrayList<>();
-        for (Map.Entry<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
-                serverConnectorEntry: startupDelayedHTTPServerConnectors.entrySet()) {
-            org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
-                    serverConnectorEntry.getValue();
+    public void startPendingHTTPConnectors() throws ServerConnectorException {
+        ConnectorStartupSynchronizer startupSyncer =
+                new ConnectorStartupSynchronizer(new CountDownLatch(startupDelayedHTTPServerConnectors.size()));
+
+        for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.entrySet()) {
+            ServerConnector serverConnector = serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
-            connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
-            connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
-            startedConnectors.add(serverConnector);
+            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
+
+        try {
+            // Wait for all the connectors to start
+            startupSyncer.getCountDownLatch().await();
+        } catch (InterruptedException e) {
+            throw new BallerinaConnectorException("Error in starting HTTP server connector(s)");
+        }
+
+        validateConnectorStartup(startupSyncer);
         startupDelayedHTTPServerConnectors.clear();
-        return startedConnectors;
     }
 
     public HttpClientConnector getHTTPHttpClientConnector(String scheme, BConnector bConnector) {
@@ -241,4 +247,27 @@ public class HttpConnectionManager {
         return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 
+    private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
+                                       ConnectorStartupSynchronizer startupSyncer) {
+        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
+        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
+        connectorFuture.setPortBindingEventListener(
+                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
+    }
+
+    private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
+        int noOfExceptions = startupSyncer.getExceptions().size();
+        if (noOfExceptions > 0) {
+            PrintStream console = System.err;
+            String errMsg = "following host/port configurations are already in use: " +
+                                                                    startupSyncer.getExceptions().keySet();
+
+            if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
+                // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
+                // connectors have started properly and we can terminate the runtime
+                throw new BallerinaConnectorException(errMsg);
+            }
+            console.println("ballerina: " + errMsg);
+        }
+    }
 }
