@@ -1172,22 +1172,24 @@ class PositioningUtil {
             catchBlocks[itr].body.viewState.bBox.y = y + catchBlocks[itr].viewState.components['block-header'].h;
         }
 
-        const finallyX = node.viewState.bBox.x;
-        let finallyY;
-        // If there are no catch blocks, position the finally block wrt the try node
-        if (catchBlocks.length) {
-            // Position based on the last catch block
-            finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
-                + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
-        } else {
-            finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
-        }
+        if (finallyBody) {
+            const finallyX = node.viewState.bBox.x;
+            let finallyY;
+            // If there are no catch blocks, position the finally block wrt the try node
+            if (catchBlocks.length) {
+                // Position based on the last catch block
+                finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
+                    + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
+            } else {
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+            }
 
-        // Position the finally block
-        finallyBody.viewState.bBox.x = finallyX;
-        finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
-        this.increaseNodeComponentWidth(finallyBody, newWidth);
-        this.positionCompoundStatementComponents(finallyBody);
+            // Position the finally block
+            finallyBody.viewState.bBox.x = finallyX;
+            finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
+            this.increaseNodeComponentWidth(finallyBody, newWidth);
+            this.positionCompoundStatementComponents(finallyBody);
+        }
     }
 
 
