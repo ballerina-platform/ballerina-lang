@@ -20,7 +20,6 @@ package org.ballerinalang.model.util;
 
 
 import org.ballerinalang.core.TestCallback;
-import org.ballerinalang.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -33,7 +32,6 @@ public class Services {
     public static CarbonMessage invoke(CarbonMessage cMsg) {
 
         TestCallback callback = new TestCallback();
-        ServerConnectorMessageHandler.handleInbound(cMsg, callback);
 
         return callback.getResponse();  // This will only work for blocking behaviour
     }

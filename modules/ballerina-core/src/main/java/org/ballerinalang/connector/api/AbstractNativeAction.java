@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.natives.connectors;
+package org.ballerinalang.connector.api;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Identifier;
@@ -120,14 +119,6 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     public abstract ConnectorFuture execute(Context context);
-
-    /**
-     * Validate Native Action invocation. This method will be invoked when callback.done().
-     *
-     * @param connectorCallback Connector Callback instance.
-     */
-    public void validate(BalConnectorCallback connectorCallback) {
-    }
 
     /**
      * Declare implementation of Native action is support non-blocking behaviour.
