@@ -145,12 +145,20 @@ class DefaultNodeFactory {
     }
 
     createWorker() {
-        return getNodeForFragment(
+        let worker =  getNodeForFragment(
             FragmentUtils.createWorkerFragment(`
                 worker worker1 {
                 }
             `),
         );
+        // here we will send the default worker as a meta item.
+        worker.meta =  getNodeForFragment(
+            FragmentUtils.createWorkerFragment(`
+                worker default {
+                }
+            `),
+        );
+        return worker;
     }
 
     createAnnotation() {
