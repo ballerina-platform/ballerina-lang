@@ -130,3 +130,11 @@ function forkJoinWithSomeJoin() (map) {
 	} join (some 1) (map results) {  system:println(results);  }
 	return m;
 }
+
+function workerReturnTest() (int) {
+    worker wx {
+	    int x = 50;
+	    return x;
+    }
+}
+

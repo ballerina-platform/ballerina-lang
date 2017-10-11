@@ -15,10 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.core.nativeimpl.functions;
+package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -26,18 +27,18 @@ import org.testng.annotations.Test;
  */
 public class CustomFunctionTest {
 
-    @Test(description = "Test defining duplicate ballerina function",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-function.bal:5: redeclared symbol 'foo'")
+    @Test(description = "Test defining duplicate ballerina function")
     public void testDuplicateFunction() {
-        BTestUtils.getProgramFile("lang/functions/duplicate-function.bal");
+        CompileResult compile = BTestUtils.compile("test-src/functions/duplicate-function.bal");
+        Assert.assertEquals(compile.getErrorCount(), 1);
+        BTestUtils.validateError(compile, 0, "redeclared symbol 'foo'", 5, 1);
     }
 
-    @Test(description = "Test defining ballerina function with duplicate parameters",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-parameters.bal:1: redeclared symbol 'param'")
+    @Test(description = "Test defining ballerina function with duplicate parameters")
     public void testDuplicateParameters() {
-        BTestUtils.getProgramFile("lang/functions/duplicate-parameters.bal");
+        CompileResult compile = BTestUtils.compile("test-src/functions/duplicate-parameters.bal");
+        Assert.assertEquals(compile.getErrorCount(), 1);
+        BTestUtils.validateError(compile, 0, "redeclared symbol 'param'", 1, 28);
     }
 
 }

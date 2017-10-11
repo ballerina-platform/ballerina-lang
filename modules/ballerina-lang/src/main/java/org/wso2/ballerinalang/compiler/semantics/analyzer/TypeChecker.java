@@ -407,7 +407,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
                 this.env, names.fromIdNode(cIExpr.connectorType.pkgAlias), connectorName);
         if (symbol == symTable.errSymbol || symbol == symTable.notFoundSymbol) {
-            resultTypes = getListWithErrorTypes(expTypes.size());;
+            resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
 
@@ -495,7 +495,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 BSymbol symbol;
                 // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
                 // This is because the JSON arrays are internally handled as a normal JSON.
-                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator) && getElementType(exprType).tag == TypeTags.JSON) {
+                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)
+                        && types.getElementType(exprType).tag == TypeTags.JSON) {
                     symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
                 } else {
                     symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
@@ -572,7 +573,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+            if (castSymbol == symTable.notFoundSymbol) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+            } else {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
+                        targetType);
+            }
         } else {
             BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
             conversionExpr.conversionSymbol = conversionSym;
@@ -584,6 +591,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
+        resultTypes = types.checkTypes(bLangLambdaFunction, Lists.of(bLangLambdaFunction.type), expTypes);
     }
 
     public void visit(BLangXMLQName bLangXMLQName) {
@@ -710,7 +719,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkExpr(indexExpr, env, Lists.of(symTable.stringType)).get(0);
         if (indexExpr.getKind() == NodeKind.XML_QNAME) {
-            ((BLangXMLQName) indexExpr).isUsedInXML = true;;
+            ((BLangXMLQName) indexExpr).isUsedInXML = true;
         }
 
         if (indexExpr.type.tag == TypeTags.STRING) {
@@ -809,19 +818,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
-        BSymbol funcSymbol = symResolver.resolveFunction(iExpr.pos, this.env,
-                names.fromIdNode(iExpr.pkgAlias), funcName);
-        if (funcSymbol == symTable.notFoundSymbol) {
+        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+        BSymbol funcSymbol = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            resultTypes = getListWithErrorTypes(expTypes.size());
+            return;
+        }
+        if (funcSymbol.tag == SymTag.VARIABLE) {
             // Check for function pointer.
-            Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-            BSymbol functionPointer = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
-            if (functionPointer.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-                resultTypes = getListWithErrorTypes(expTypes.size());
-                return;
-            }
             iExpr.functionPointerInvocation = true;
-            funcSymbol = functionPointer;
         }
 
         // Set the resolved function symbol in the invocation expression.
@@ -836,9 +842,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 funcName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
-            resultTypes = getListWithErrorTypes(expTypes.size());
-            return;
+            // Check, any function pointer in struct field with given name.
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
+                    iExpr.expr.symbol.type.tsymbol);
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                return;
+            }
+            iExpr.functionPointerInvocation = true;
         }
 
         iExpr.symbol = funcSymbol;
@@ -851,7 +863,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
             checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
-
+            actualTypes = funcSymbol.type.getReturnTypes();
         } else if (paramTypes.size() > iExpr.argExprs.size()) {
             dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
 
@@ -876,7 +888,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, varName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.value);
-            resultTypes = getListWithErrorTypes(expTypes.size());;
+            resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
         iExpr.expr.symbol = (BVarSymbol) symbol;
@@ -988,6 +1000,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
+            dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
             return symTable.errType;
         }
 
@@ -998,7 +1011,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType, RecordKind recKind) {
         BJSONType type = (BJSONType) recordType;
-        
+
         // If the JSON is constrained with a struct, get the field type from the struct
         if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.ERROR) {
             return checkStructLiteralKeyExpr(key, type.constraint, recKind);
@@ -1052,6 +1065,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
                 fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
             return symTable.errType;
         }
 
@@ -1107,9 +1121,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     /**
      * Concatenate the consecutive text type nodes, and get the reduced set of children.
-     * 
+     *
      * @param exprs Child nodes
-     * @param xmlElementEnv 
+     * @param xmlElementEnv
      * @return Reduced set of children
      */
     private List<BLangExpression> concatSimilarKindXMLNodes(List<BLangExpression> exprs, SymbolEnv xmlElementEnv) {
@@ -1169,13 +1183,5 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
-    }
-
-    private BType getElementType(BType type) {
-        if (type.tag != TypeTags.ARRAY) {
-            return type;
-        }
-
-        return getElementType(((BArrayType) type).getElementType());
     }
 }
