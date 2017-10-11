@@ -90,7 +90,7 @@ class DefaultNodeFactory {
     createFunction() {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
-                function function1(string arg1) {
+                function function1() {
 
                 }
             `),
