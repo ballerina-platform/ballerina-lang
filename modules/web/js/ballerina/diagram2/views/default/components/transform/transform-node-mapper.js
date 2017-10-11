@@ -790,7 +790,7 @@ class TransformNodeMapper {
     removeInputExpressions(stmt, expStr) {
         const rightExpression = stmt.getExpression();
         if ((TreeUtil.isSimpleVariableRef(rightExpression)
-              && rightExpression.variableName === expStr) ||
+              && rightExpression.variableName.getValue() === expStr) ||
             (TreeUtil.isFieldBasedAccessExpr(rightExpression)
               && rightExpression.expression.variableName === expStr)) {
             this._transformStmt.body.removeStatements(stmt, true);
@@ -832,6 +832,12 @@ class TransformNodeMapper {
                 expression.setLeftExpression(TransformFactory.createDefaultExpression());
             } else {
                 this.removeInputNestedExpressions(expression.getLeftExpression(), expStr);
+            }
+        } else if (TreeUtil.isFieldBasedAccessExpr(expression)) {
+            if (TreeUtil.isSimpleVariableRef(expression.getExpression())) {
+                this.removeInputExpressions(expression, expStr);
+            } else {
+                this.removeInputNestedExpressions(expression.getExpression(), expStr);
             }
         }
     }
@@ -889,13 +895,26 @@ class TransformNodeMapper {
                     const simpleVarRefExpression = TransformFactory.createVariableRefExpression(outputVarName);
                     stmt.replaceVariablesByIndex(index, simpleVarRefExpression, true);
                 }
-            } else if (TreeUtil.isFieldBasedAccessExpr(stmt.getVariables()[0])
-                        && stmt.getVariables()[0].getVariableName() === expStr) {
-                this._transformStmt.body.removeStatements(stmt, true);
+            } else if (TreeUtil.isFieldBasedAccessExpr(stmt.getVariables()[0])) {
+                this.removeNestedOutputExpressions(stmt, stmt.getVariables()[0], expStr);
             }
         });
     }
 
+    /**
+     * Remove output nested expressions in statements of the given expression
+     * @param {object} stmt mapping statement to be removed
+     * @param {object} expression expression
+     * @param {any} expStr output expression string
+     * @memberof TransformNodeMapper
+     */
+    removeNestedOutputExpressions(stmt, expression, expStr) {
+        if (TreeUtil.isFieldBasedAccessExpr(expression)) {
+            this.removeNestedOutputExpressions(stmt, expression.getExpression(), expStr);
+        } else if (expression.getVariableName().getValue() === expStr) {
+            this._transformStmt.body.removeStatements(stmt, true);
+        }
+    }
     // **** UTILITY FUNCTIONS ***** //
 
 
