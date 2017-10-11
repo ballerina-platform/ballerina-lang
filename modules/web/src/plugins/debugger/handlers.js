@@ -17,6 +17,7 @@
  */
 
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 import { COMMANDS, DIALOG_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
@@ -33,8 +34,15 @@ export function getHandlerDefinitions(debuggerPlugin) {
             cmdID: COMMANDS.RUN_WITH_DEBUG,
             handler: () => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, true, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                        file: activeEditor.file,
+                        onSaveSuccess: () => {
+                            LaunchManager.run(activeEditor.file, true,
+                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                        },
+                    });
                 }
             },
         },
@@ -53,8 +61,15 @@ export function getHandlerDefinitions(debuggerPlugin) {
             cmdID: COMMANDS.RUN,
             handler: () => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, false, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                        file: activeEditor.file,
+                        onSaveSuccess: () => {
+                            LaunchManager.run(activeEditor.file, false,
+                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                        },
+                    });
                 }
             },
         },
