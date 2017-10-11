@@ -19,7 +19,31 @@
 import AbstractForkJoinNode from './abstract-tree/fork-join-node';
 
 class ForkJoinNode extends AbstractForkJoinNode {
+    /**
+     * Get join condition as a string.
+     * @return {string} join condition.
+     * */
+    getJoinConditionString() {
+        const forkJoinNode = this;
+        const joinWorkers = forkJoinNode.getJoinedWorkerIdentifiers();
+        const joinType = forkJoinNode.getJoinType();
+        const joinCount = forkJoinNode.getJoinCount();
 
+        let workers = '';
+        for (let i = 0; i < joinWorkers.length; i++) {
+            workers += joinWorkers[i].getValue();
+            if (i < joinWorkers.length - 1) {
+                workers += ', ';
+            }
+        }
+        let condition;
+        if (joinType === 'any') {
+            condition = 'some' + (joinCount !== -1 ? joinCount : '') + workers;
+        } else {
+            condition = joinType + ' ' + workers;
+        }
+        return condition;
+    }
 }
 
 export default ForkJoinNode;

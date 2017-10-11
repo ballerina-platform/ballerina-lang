@@ -32,10 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -76,6 +74,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -113,16 +112,16 @@ public class TreeVisitor extends BLangNodeVisitor {
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
 
         // Then visit each top-level element sorted using the compilation unit
-        TopLevelNode topLevelNode = null;
-        try {
-            topLevelNode = pkgNode.topLevelNodes.stream().findFirst().filter(node ->
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
                     node.getPosition().getSource().getCompilationUnitName().equals(this.cUnitName)
-            ).orElseThrow(CompilationUnitNotFoundException::new);
-        } catch (CompilationUnitNotFoundException e) {
-            this.terminateVisitor = true;
-        }
+            ).collect(Collectors.toList());
 
-        this.acceptNode((BLangNode) topLevelNode, pkgEnv);
+        if (topLevelNodes.isEmpty()) {
+            terminateVisitor = true;
+            acceptNode(null, null);
+        } else {
+            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
+        }
     }
 
     public void visit(BLangImportPackage importPkgNode) {

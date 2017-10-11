@@ -97,10 +97,8 @@ public class BLangFragmentParser {
                         .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
-                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
-                fragmentNode.remove(BLangJSONModelConstants.CHILDREN);
-                fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
+                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS)

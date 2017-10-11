@@ -122,11 +122,24 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
     }
 
     private int getPackageDelimeterTokenIndex(SuggestionsFilterDataModel dataModel) {
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
         int currentTokenIndex = dataModel.getTokenIndex();
-        int searchTokenIndex = currentTokenIndex + 1;
+        int searchTokenIndex = currentTokenIndex;
         TokenStream tokenStream = dataModel.getTokenStream();
         int delimiterIndex = -1;
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
+
+        if (terminalTokens.contains(currentTokenStr)) {
+            searchTokenIndex -= 1;
+            while (true) {
+                if (tokenStream.get(searchTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
+                    break;
+                } else {
+                    searchTokenIndex -= 1;
+                }
+            }
+        }
+
         while (true) {
             if (searchTokenIndex >= tokenStream.size()) {
                 break;

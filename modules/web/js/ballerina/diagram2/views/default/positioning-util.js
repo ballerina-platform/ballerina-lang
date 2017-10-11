@@ -241,11 +241,11 @@ class PositioningUtil {
 
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top
             + this.config.lifeLine.head.height;
         // position the default worker.
         cmp.defaultWorker.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
@@ -253,8 +253,7 @@ class PositioningUtil {
         // position the children
         const body = node.getBody();
         body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
-                                this.config.lifeLine.head.height;
+        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
 
         // ========== Header Positioning ==========
         // Positioning argument parameters
@@ -431,7 +430,7 @@ class PositioningUtil {
         const transportLine = !_.isNil(viewState.components.transportLine) ?
             viewState.components.transportLine : { x: 0, y: 0 };
         transportLine.x = viewState.bBox.x - 5;
-        transportLine.y = viewState.bBox.y + 30;
+        transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
 
         let children = [];
 
@@ -441,7 +440,13 @@ class PositioningUtil {
             children = node.getActions();
         }
 
-        let y = viewState.bBox.y + viewState.components.heading.h + viewState.components.initFunction.h;
+        let y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
+        // position the initFunction.
+        viewState.components.initFunction.y = y + 25;
+        viewState.components.initFunction.x = viewState.bBox.x + 100;
+        // increase the y with init height;
+        y += viewState.components.initFunction.h;
+        // lets set the resources x, y.
         children.forEach((child) => {
             // set the x of the resource or action.
             child.viewState.bBox.x = viewState.bBox.x + this.config.innerPanel.wrapper.gutter.h;
@@ -854,7 +859,8 @@ class PositioningUtil {
 
         // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w, 0, 0, 0, 0, 0);
+            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
+                joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
 
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
