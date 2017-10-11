@@ -151,31 +151,30 @@ function testNullInWorker () (any) {
     }
 }
 
-function testNullInForkJoin () (string, string) {
-    //json m = null;
-    //fork {
-    //    worker foo {
-    //        message resp1 = null;
-    //        resp1 -> fork;
-    //    }
-    //
-    //    worker bar {
-    //        message resp2 = {};
-    //        resp2 -> fork;
-    //    }
-    //} join (all) (map allReplies) {
-    //    any[] temp;
-    //    temp, _ = (any[])allReplies["foo"];
-    //    message m1;
-    //    m1, _ = (message)temp[0];
-    //    temp, _ = (any[])allReplies["bar"];
-    //    message m2;
-    //    m2, _ = (message)temp[0];
-    //    return m1, m2;
-    //} timeout (30000) (map msgs) {
-    //    return null, null;
-    //}
-    return "", "";
+function testNullInForkJoin () (json, json) {
+    json m = null;
+    fork {
+        worker foo {
+            json resp1 = null;
+            resp1 -> fork;
+        }
+    
+        worker bar {
+            json resp2 = {};
+            resp2 -> fork;
+        }
+    } join (all) (map allReplies) {
+        any[] temp;
+        temp, _ = (any[])allReplies["foo"];
+        json m1;
+        m1, _ = (json)temp[0];
+        temp, _ = (any[])allReplies["bar"];
+        json m2;
+        m2, _ = (json)temp[0];
+        return m1, m2;
+    } timeout (30000) (map msgs) {
+        return null, null;
+    }
 }
 
 function testArrayOfNulls () (Person[]) {

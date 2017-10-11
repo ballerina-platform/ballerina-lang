@@ -19,8 +19,8 @@ package org.ballerinalang.test.types.nullvalue;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -149,13 +149,12 @@ public class BNullValueTest {
         Assert.assertEquals(vals[0], null);
     }
 
-    // Todo - Fix after casting issue is fixed in fork-join
-    @Test(description = "Test null in fork-join", enabled = false)
+    @Test(description = "Test null in fork-join")
     public void testNullInForkJoin() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
-        Assert.assertTrue(vals[1] instanceof BMessage);
-        Assert.assertEquals(((BMessage) vals[1]).stringValue(), "");
+        Assert.assertTrue(vals[1] instanceof BJSON);
+        Assert.assertEquals(((BJSON) vals[1]).stringValue(), "{}");
     }
 
     @Test(description = "Test array of null values")
@@ -172,6 +171,7 @@ public class BNullValueTest {
     @Test(description = "Test map of null values")
     public void testMapOfNulls() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testMapOfNulls", new BValue[]{});
+        @SuppressWarnings("unchecked")
         BMap<String, BValue> nullMap = (BMap<String, BValue>) vals[0];
         Assert.assertEquals(nullMap.get("x2"), null);
         Assert.assertEquals(nullMap.get("x3"), null);
