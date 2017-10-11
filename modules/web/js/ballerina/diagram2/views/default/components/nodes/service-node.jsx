@@ -130,12 +130,6 @@ class ServiceNode extends React.Component {
          * Here we skip rendering the variables
          */
         const blockNode = getComponentForNodeArray(model.getResources(), this.context.mode);
-
-        const expandedVariablesBBox = {
-            x: bBox.x + DesignerDefaults.panel.body.padding.left + 10,
-            y: bBox.y + DesignerDefaults.panel.body.padding.top + 5,
-        };
-
         const rightComponents = [];
 
         // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.

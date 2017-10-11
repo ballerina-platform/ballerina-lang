@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import AbstractConnectorNode from './abstract-tree/connector-node';
 import TreeUtil from './../tree-util';
 
@@ -75,7 +76,10 @@ class ConnectorNode extends AbstractConnectorNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            this.addVariables(node, 0);
+            this.addVariableDefs(node, 0);
+        } else if (TreeUtil.isAction(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfActions(dropBefore) : -1;
+            this.addActions(node, index);
         }
     }
 

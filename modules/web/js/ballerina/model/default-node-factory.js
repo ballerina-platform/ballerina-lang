@@ -110,7 +110,7 @@ class DefaultNodeFactory {
     createConnectorAction() {
         return getNodeForFragment(
             FragmentUtils.createConnectorActionFragment(`
-                action action1(message msg) (message){
+                action action1(){
 
                 }
             `),
@@ -164,7 +164,7 @@ class DefaultNodeFactory {
     }
 
     createAssignmentStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('a = b'));
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isConnectorDeclaration(node)) {
             node.viewState.showOverlayContainer = true;
