@@ -55,14 +55,11 @@ import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.ballerinalang.plugins.idea.debugger.protocol.Response;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
 
 import javax.swing.event.HyperlinkListener;
 
@@ -330,16 +327,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             VirtualFile file = breakpointPosition.getFile();
             int line = breakpointPosition.getLine() + 1;
-
-            Project project = getSession().getProject();
-            String filePath = file.getName();
-            String packageName = BallerinaUtil.suggestPackageNameForFile(project, file);
-            if (!packageName.isEmpty()) {
-                filePath = packageName.replaceAll("\\.", Matcher.quoteReplacement(File.separator));
-                filePath += (Matcher.quoteReplacement(File.separator) + file.getName());
-            }
-
-            if (filePath.equals(fileName) && line == lineNumber) {
+            if (fileName.equals(file.getPath()) && line == lineNumber) {
                 return breakpoint;
             }
         }
