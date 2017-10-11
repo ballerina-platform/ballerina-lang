@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
 import _ from 'lodash';
-import { Collapse } from 'react-bootstrap';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
 import { COMMANDS } from './../constants';
@@ -160,24 +159,22 @@ class ExplorerItem extends React.Component {
                         </span>
                     </div>
                 </ContextMenuTrigger>
-                <Collapse in={!this.state.node.collapsed}>
-                    <div className="file-tree">
-                        <FileTree
-                            ref={(ref) => {
-                                this.fileTree = ref;
-                            }
-                            }
-                            enableContextMenu
-                            onLoadData={(data) => {
-                                this.state.node.children = data;
-                            }}
-                            root={this.props.folderPath}
-                            onOpen={this.onOpen}
-                            onSelect={this.props.onSelect}
-                            panelResizeInProgress={this.props.panelResizeInProgress}
-                        />
-                    </div>
-                </Collapse>
+                <div className={classnames('file-tree', { collapsed: this.state.node.collapsed })}>
+                    <FileTree
+                        ref={(ref) => {
+                            this.fileTree = ref;
+                        }
+                        }
+                        enableContextMenu
+                        onLoadData={(data) => {
+                            this.state.node.children = data;
+                        }}
+                        root={this.props.folderPath}
+                        onOpen={this.onOpen}
+                        onSelect={this.props.onSelect}
+                        panelResizeInProgress={this.props.panelResizeInProgress}
+                    />
+                </div>
             </div>
         );
     }
