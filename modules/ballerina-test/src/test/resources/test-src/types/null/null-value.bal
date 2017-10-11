@@ -36,10 +36,19 @@ function testConnectorNull () (TestConnector, TestConnector, int) {
     TestConnector c1;
     TestConnector c2 = null;
     int a = 0;
-    //if (c2 == null) {
-    //    a = 8;
-    //}
+    if (c2 == null) {
+        a = 8;
+    }
     return c1, c2, a;
+}
+
+function testConnectorNotNull () (int) {
+    TestConnector c1 = create TestConnector();
+    int a = 1;
+    if (c1 != null) {
+        a = 8;
+    }
+    return a;
 }
 
 connector TestConnector () {
@@ -54,10 +63,19 @@ function testArrayNull () (string[], Person[], int) {
     string[] s;
     Person[] p;
     int a = 0;
-    //if (p == null) {
-    //    a = 9;
-    //}
+    if (p == null) {
+        a = 9;
+    }
     return s, p, a;
+}
+
+function testArrayNotNull () (int) {
+    Person[] p = [];
+    int a = 0;
+    if (p != null) {
+        a = 9;
+    }
+    return a;
 }
 
 function testMapNull () (map, map, int) {
@@ -103,8 +121,11 @@ function testActionInNullConenctor () {
 }
 
 function testNullLiteralComparison () (boolean) {
-    //return (null == null);
-    return false;
+    return (null == null);
+}
+
+function testNullLiteralNotEqualComparison () (boolean) {
+    return (null != null);
 }
 
 function testReturnNullLiteral () (any) {
