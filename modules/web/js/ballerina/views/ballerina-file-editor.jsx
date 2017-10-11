@@ -365,9 +365,11 @@ class BallerinaFileEditor extends React.Component {
             };
             // first validate the file for syntax errors
             validateFile(file)
-                .then((errors) => {
+                .then((data) => {
+                    let errors = data.errors;
+                    let errorCategory = data.errorCategory;
                     // if syntax errors are found
-                    if (!_.isEmpty(errors)) {
+                    if (errorCategory === 'SYNTAX') {
                         newState.parseFailed = true;
                         newState.syntaxErrors = errors;
                         newState.validatePending = false;
