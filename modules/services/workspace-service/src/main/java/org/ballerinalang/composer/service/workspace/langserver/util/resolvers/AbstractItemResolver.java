@@ -27,6 +27,7 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -65,11 +66,13 @@ public abstract class AbstractItemResolver {
                 completionItem = this.populateClientConnectorCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
                 completionItem = this.populateNativeUnitProxyCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && !((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
                 completionItem = this.populateNativePackageProxyCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
+            } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
+                    && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
