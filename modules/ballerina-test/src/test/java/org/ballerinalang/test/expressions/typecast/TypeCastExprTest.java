@@ -323,7 +323,7 @@ public class TypeCastExprTest {
         BTestUtils.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
     }
 
-    @Test(enabled = false, description = "Test casting a JSON integer to a string")
+    @Test(description = "Test casting a JSON integer to a string")
     public void testJsonIntToString() {
         BValue[] returns = BTestUtils.invoke(result, "testJsonIntToString", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
