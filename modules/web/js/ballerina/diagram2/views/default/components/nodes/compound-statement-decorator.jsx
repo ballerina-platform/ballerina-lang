@@ -234,8 +234,13 @@ class CompoundStatementDecorator extends React.Component {
         const separatorGapV = titleH / 3;
 
         const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
-        const bodyBBox = this.props.body ? this.props.body.viewState.bBox : {};
+        let bodyBBox = {};
 
+        if (this.props.model.kind === 'ForkJoin') {
+            bodyBBox = this.props.model.viewState.components['statement-box'];
+        } else if (this.props.body && !(this.props.body instanceof Array)) {
+            bodyBBox = this.props.body.viewState.bBox;
+        }
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}

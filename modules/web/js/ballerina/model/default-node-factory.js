@@ -284,8 +284,12 @@ class DefaultNodeFactory {
     createForkJoin() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             fork {
-
-            };
+            
+            } join(all)(map results) {
+            
+            } timeout(100)(map results1) {
+            
+            }
         `));
     }
 
