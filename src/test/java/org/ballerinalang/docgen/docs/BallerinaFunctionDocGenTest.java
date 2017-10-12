@@ -66,7 +66,8 @@ public class BallerinaFunctionDocGenTest {
     public void testABalWithMultipleFunctions() {
         try {
             Map<String, BLangPackage> docsMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWith2Functions.bal");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot,
+                                                                           "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);

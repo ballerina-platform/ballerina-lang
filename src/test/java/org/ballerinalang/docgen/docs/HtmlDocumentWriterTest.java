@@ -48,7 +48,6 @@ public class HtmlDocumentWriterTest {
 
     @Test(description = "HTML generation test")
     public void testHtmlGeneration() throws Exception {
-
         String outputPath = testResourceRoot + "api-docs1";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
@@ -92,7 +91,7 @@ public class HtmlDocumentWriterTest {
             // asserting function @return description
             Assert.assertTrue(content1.contains("<td></td><td><a href=\"#string\">string</a></td>"
                             + "<td>HTTP header value</td>"));
-            
+
             // asserting connector @description
             Assert.assertTrue(content1.contains("<p>Test connector</p>"));
             // asserting connector @param description
@@ -110,7 +109,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1.contains("struct Argument"));
             Assert.assertTrue(content1
                     .contains("<td>text</td><td><a href=\"#string\">string</a></td><td>a string</td>"));
-            
+
             // Assert function and connector exclusion logic
             String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
             Assert.assertTrue(content2.contains("Functions"));

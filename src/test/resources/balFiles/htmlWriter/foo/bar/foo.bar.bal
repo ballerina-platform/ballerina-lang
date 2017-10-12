@@ -7,7 +7,7 @@ import ballerina.lang.system;
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 @doc:Param{value:"value: HTTP header value"}
-function addHeader (message m, string key, string value) {
+function addHeader (string m, string key, string value) {
     system:println("invoked");
 }
 
@@ -15,7 +15,7 @@ function addHeader (message m, string key, string value) {
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 @doc:Return{value:"HTTP header value"}
-function getHeader (message m, string key) (string) {
+function getHeader (string m, string key) (string) {
     system:println("invoked");
     return "value";
 }
@@ -40,8 +40,8 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Description{value:"test connector action"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response: response object"}
-    action testAction1(string msg) (message response) {
-        message request;
+    action testAction1(string msg) (string response) {
+        string request;
         response = request;
         return response;
     }
@@ -49,8 +49,8 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Description{value:"test connector action2"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response2: response object"}
-    action testAction2(string msg) (message response) {
-        message request;
+    action testAction2(string msg) (string response) {
+        string request;
         return response;
     }
 }

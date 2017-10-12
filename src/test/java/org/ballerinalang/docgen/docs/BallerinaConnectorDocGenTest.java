@@ -31,7 +31,6 @@ import java.util.Map;
 
 public class BallerinaConnectorDocGenTest {
 
-    private String resources = "src/test/resources/balFiles/connectors/";
     private String sourceRoot;
 
     @BeforeClass
