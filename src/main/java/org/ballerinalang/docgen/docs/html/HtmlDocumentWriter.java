@@ -331,9 +331,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         return type instanceof BLangUserDefinedType ? new Handlebars.SafeString(
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
-                    .registerHelper("typeText", (Helper<BLangType>) (type, options) -> {
-                        return getTypeName(type);
-                    }).registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
+                    .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
+                    .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
                         }
@@ -379,7 +378,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         if (bLangPackage == null) {
             return "";
         }
-        //TODO: Verify if this is ok
+
         if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
             return bLangPackage.getPosition().getSource().getCompilationUnitName();
         }

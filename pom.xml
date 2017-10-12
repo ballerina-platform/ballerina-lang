@@ -289,6 +289,5 @@
     <properties>
         <cobertura.version>2.7</cobertura.version>
         <ballerina.version>${project.version}</ballerina.version>
-        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
     </properties>
 </project>

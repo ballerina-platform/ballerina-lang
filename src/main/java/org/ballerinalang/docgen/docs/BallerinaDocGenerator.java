@@ -21,7 +21,6 @@ package org.ballerinalang.docgen.docs;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -105,20 +104,20 @@ public class BallerinaDocGenerator {
                 if (source.endsWith(".bal")) {
                     Path sourceFilePath = Paths.get(source);
                     Path parentDir = sourceFilePath.getParent();
+                    Path fileName = sourceFilePath.getFileName();
 
-                    if (parentDir == null) {
-                        throw new BallerinaException(
-                                "error in retrieving the parent directory of the file: " + sourceFilePath);
+                    if (parentDir == null || fileName == null) {
+                        log.warn("Skipping the source generation for invalid path: " + sourceFilePath);
+                        continue;
                     }
-                    docsMap = generatePackageDocsFromBallerina(parentDir.toString(),
-                                                               sourceFilePath.getFileName(),
-                                                               packageFilter, isNative);
+
+                    docsMap = generatePackageDocsFromBallerina(parentDir.toString(), fileName, packageFilter, isNative);
                 } else {
                     Path dirPath = Paths.get(source);
                     docsMap = generatePackageDocsFromBallerina(dirPath.toString(), dirPath, packageFilter, isNative);
                 }
                 htmlDocumentWriter.write(docsMap.values());
-            } catch (Exception e) {
+            } catch (IOException e) {
                 out.println(String.format("docerina: API documentation generation failed for %s: %s", source,
                         e.getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);
