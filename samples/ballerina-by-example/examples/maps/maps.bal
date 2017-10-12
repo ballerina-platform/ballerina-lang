@@ -2,10 +2,10 @@ import ballerina.lang.system;
 import ballerina.lang.maps;
 
 function main (string[] args) {
-    //Here's how you create an empty map;
+    //Here's how you create an empty map.
     map m = {};
 
-    //Here's how you create a map with initial values;
+    //Here's how you create a map with initial values.
     map addrMap = {line1:"No. 20", line2:"Palm Grove",
                       city:"Colombo 03", country:"Sri Lanka"};
     system:println(addrMap);

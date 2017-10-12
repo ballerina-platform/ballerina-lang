@@ -15,11 +15,12 @@ struct Employee {
 }
 
 function main (string[] args) {
+    sql:ClientConnector empDB;
     //Create a SQL connector by providing the required database connection
     //pool properties.
     sql:ConnectionProperties properties = {maximumPoolSize:5};
-    sql:ClientConnector empDB = create sql:ClientConnector(
-      sql:MYSQL, "localhost", 3306, "testdb", "test", "test", properties);
+    empDB = create sql:ClientConnector(
+            sql:MYSQL, "localhost", 3306, "testdb", "root", "root", properties);
     sql:Parameter[] params = [];
 
     //Create table named EMPLOYEE and populate sample data.
