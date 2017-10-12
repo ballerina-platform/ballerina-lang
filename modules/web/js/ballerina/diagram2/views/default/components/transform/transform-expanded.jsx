@@ -1216,7 +1216,7 @@ class TransformExpanded extends React.Component {
                             <DropZone
                                 baseComponent='div'
                                 className='middle-content'
-                                dropTarget={this.props.model}
+                                dropTarget={this.props.model.getBody()}
                                 canDrop={this.canDrop}
                             >
                                 {

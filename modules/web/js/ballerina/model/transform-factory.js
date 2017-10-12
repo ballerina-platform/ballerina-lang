@@ -114,42 +114,6 @@ class TransformFactory {
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const tree = TreeBuilder.build(parsedJson);
         return tree;
-    };
-
-    /**
-     * Create assignment statement with function invocation.
-     * @static
-     * @param {any} args arguments
-     * @returns assignment statement
-     * @memberof TransformFactory
-     */
-    static createFunctionInvocationAssignmentStatement(args) {
-        const { functionDef, packageName, fullPackageName } = args;
-
-        let functionInvokeString = '';
-        if (packageName && packageName !== 'Current Package') {
-            functionInvokeString = `${packageName}:`;
-        }
-        const functionParams = functionDef.getParameters().map((param) => {
-            return Environment.getDefaultValue(param.type);
-        });
-        const paramString = functionParams.join(', ');
-
-        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
-
-        const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
-            return VarPrefix.OUTPUT + index + 1;
-        });
-
-        if (varRefNames.length > 0) {
-            const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
-        }
-        const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const assignmentNode = TreeBuilder.build(parsedJson);
-        assignmentNode.getExpression().setFullPackageName(fullPackageName);
-        return assignmentNode;
     }
 }
 
