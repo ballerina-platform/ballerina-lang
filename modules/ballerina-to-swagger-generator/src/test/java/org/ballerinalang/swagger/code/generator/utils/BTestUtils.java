@@ -17,15 +17,25 @@
 */
 package org.ballerinalang.swagger.code.generator.utils;
 
-import org.ballerinalang.BLangCompiler;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.ProgramFileWriter;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Utility methods for Ballerina model unit tests.
@@ -38,7 +48,7 @@ public class BTestUtils {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            ProgramFile programFile = BLangCompiler.compile(programPath, Paths.get(sourceFilePath));
+            ProgramFile programFile = getCompiledProgram(programPath, Paths.get(sourceFilePath));
             Path targetPath;
             Path sourcePath = programPath.resolve(sourceFilePath);
             if (sourcePath.endsWith(".bal")) {
@@ -57,5 +67,63 @@ public class BTestUtils {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static ProgramFile getCompiledProgram(Path sourceRoot, Path sourcePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRoot.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(sourcePath.toString());
+
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+
+        if (programFile == null) {
+            throw new BallerinaException("compilation contains errors");
+        }
+
+        ProgramFile progFile = getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourcePath);
+
+        return progFile;
+    }
+
+    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+        ByteArrayInputStream byteIS = null;
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        try {
+            org.wso2.ballerinalang.programfile.ProgramFileWriter.writeProgram(programFile, byteOutStream);
+
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
+            return reader.readProgram(byteIS);
+        } catch (Throwable e) {
+            throw new BallerinaException("error: fail to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+
+            try {
+                byteOutStream.close();
+            } catch (IOException ignore) {
+            }
+        }
+    }
+
+    private static String makeFirstLetterLowerCase(String s) {
+        if (s == null) {
+            return null;
+        }
+        char c[] = s.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c);
     }
 }
