@@ -58,9 +58,8 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
         setContextException(parser);
-        TokenStream tokens = parser.getInputStream();
-        String offendingToken = tokens.getText(e.getStartToken(), e.getOffendingToken());
-        DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+        String offendingToken = e.getOffendingToken().getText();
+        DiagnosticPos pos = getPosition(e.getOffendingToken());
         dlog.error(pos, DiagnosticCode.INVALID_TOKEN, escapeWSAndQuote(offendingToken));
     }
 
@@ -120,7 +119,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     /**
      * Set an exception in the parser context. This is later used at {@link BLangAntlr4Listener} level
-     * to determine whether the parse exception has occured and is in error state.
+     * to determine whether the parse exception has occurred and is in error state.
      * 
      * @param parser Current parser
      */
