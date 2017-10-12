@@ -487,7 +487,7 @@ class ToolPaletteView extends React.Component {
                         library.push(
                             <ToolGroupView
                                 group={group}
-                                key={`library${item.getPackageName()}`}
+                                key={`library${pkgName}`}
                                 showGridStyles={false}
                             />);
                     }
