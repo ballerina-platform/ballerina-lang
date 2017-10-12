@@ -21,13 +21,6 @@ import AbstractTransformNode from './abstract-tree/transform-node';
 import TransformUtils, { VarPrefix } from '../../utils/transform-utils';
 
 class TransformNode extends AbstractTransformNode {
-    acceptDrop(node) {
-        node.getVariables().forEach((variable) => {
-            const tempVarName = TransformUtils.getNewTempVarName(this, VarPrefix.OUTPUT);
-            variable.getVariableName().setValue(tempVarName);
-        });
-        this.getBody().addStatements(node);
-    }
 
     addInput(input, silent, title) {
         const oldValue = this.inputs;
