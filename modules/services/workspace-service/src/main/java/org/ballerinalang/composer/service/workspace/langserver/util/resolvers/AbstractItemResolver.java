@@ -67,6 +67,7 @@ public abstract class AbstractItemResolver {
             } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
                 completionItem = this.populateNativeUnitProxyCompletionItem(symbolInfo);
             } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind != null
                     && !((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
