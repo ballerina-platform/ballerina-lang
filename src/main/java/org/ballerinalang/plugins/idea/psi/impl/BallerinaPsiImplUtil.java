@@ -58,6 +58,7 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
@@ -732,6 +733,19 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static StructDefinitionNode resolveStructFromDefinitionNode(@NotNull PsiElement definitionNode) {
+        if (definitionNode instanceof ConnectorDeclarationStatementNode) {
+            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(definitionNode, NameReferenceNode.class);
+            if (nameReferenceNode != null) {
+                PsiReference reference = nameReferenceNode.findReferenceAt(nameReferenceNode.getTextLength());
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null && resolvedElement.getParent() instanceof StructDefinitionNode) {
+                        return ((StructDefinitionNode) resolvedElement.getParent());
+                    }
+                }
+            }
+        }
+
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;

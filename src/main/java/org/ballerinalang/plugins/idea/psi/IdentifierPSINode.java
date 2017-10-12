@@ -339,8 +339,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
     @NotNull
     private PsiReference checkDefinitionAndSuggestReference(@NotNull VariableDefinitionNode variableDefinitionNode) {
-        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                (variableDefinitionNode);
+        StructDefinitionNode structDefinitionNode =
+                BallerinaPsiImplUtil.resolveStructFromDefinitionNode(variableDefinitionNode);
         if (structDefinitionNode != null) {
             return new FieldReference(this);
         }
