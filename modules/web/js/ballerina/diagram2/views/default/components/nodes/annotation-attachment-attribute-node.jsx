@@ -22,6 +22,7 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
 import EnvAnnotationDefinition from 'ballerina/env/annotation-definition';
 import AnnotationAttributeTreeNode from 'ballerina/model/tree/annotation-attachment-attribute-node';
+import AnnotationAttachmentTreeNode from 'ballerina/model/tree/annotation-attachment-node';
 import { addAttribute, deleteNode, getArrayValue } from '../decorators/annotation-button-events';
 import AnnotationAttachmentNode from './annotation-attachment-node';
 import AnnotationAttributeLiteralNode from './annotation-attachment-attribute-literal-node';
@@ -60,6 +61,7 @@ class AnnotationAttribute extends React.Component {
                 isBValueEdit: this.props.model.viewState.isInEdit || false,
                 focusBValueInput: false,
                 bValueText: bValue,
+                addingEmptyAttribute: false,
             };
         } else {
             this.state = {
@@ -67,6 +69,7 @@ class AnnotationAttribute extends React.Component {
                 isBValueEdit: this.props.model.viewState.isInEdit || false,
                 focusBValueInput: false,
                 bValueText: bValue,
+                addingEmptyAttribute: false,
             };
         }
 
@@ -114,6 +117,10 @@ class AnnotationAttribute extends React.Component {
         const attributeValue = this.props.model.getValue();
         const literal = attributeValue.getValue();
         literal.setValue(event.target.value);
+
+        if (this.props.model.parent === undefined && this.props.parent) {
+            this.props.parent.addAttributes(this.props.model);
+        }
     }
 
     /**
@@ -193,6 +200,31 @@ class AnnotationAttribute extends React.Component {
     }
 
     /**
+     * Renders an empty attribute.
+     * @returns {ReactElement} The attribute view.
+     * @memberof AnnotationAttachmentNode
+     */
+    renderEmptyAttribute(annotationAttachment) {
+        if (this.props.annotationDefinitionModel) {
+            const fullPackagePath = AnnotationHelper.resolveFullPackageName(
+                this.context.astRoot, annotationAttachment.getPackageAlias().getValue());
+            const annotationDefOfAttribute = AnnotationHelper.getAnnotationDefinition(
+                this.context.environment,
+                fullPackagePath,
+                annotationAttachment.getAnnotationName().getValue());
+            annotationDefOfAttribute.setPackagePath(fullPackagePath);
+            return (<AnnotationAttribute
+                key='new-annotation-attachment-inner-attribute'
+                model={addAttribute()}
+                annotationDefinitionModel={annotationDefOfAttribute}
+                parent={annotationAttachment}
+            />);
+        }
+
+        return (null);
+    }
+
+    /**
      * Rendering the values inside an annotation-attribute-value. This is used for rendering elements inside an arrayed
      * annotation-attribute-value.
      *
@@ -241,10 +273,12 @@ class AnnotationAttribute extends React.Component {
             return (<AnnotationAttributeKey
                 attributeModel={this.props.model}
                 annotationDefinitionModel={this.props.annotationDefinitionModel}
+                parent={this.props.parent}
             />);
         } else {
             return (<AnnotationAttributeKey
                 attributeModel={this.props.model}
+                parent={this.props.parent}
             />);
         }
     }
@@ -336,18 +370,7 @@ class AnnotationAttribute extends React.Component {
                                                                     annotationAttachment.getPackageAlias().getValue());
             const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
                 this.context.environment, fullPackageName, annotationAttachment.getAnnotationName().getValue());
-            if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
-                // Add attribute button
-                const addAttributeButton = {
-                    key: this.props.model.getID(),
-                    icon: 'fw-add',
-                    text: 'Add Attribute',
-                    onClick: () => {
-                        addAttribute(annotationAttachment);
-                    },
-                };
-                actionMenuItems.push(addAttributeButton);
-            }
+
             // Delete button.
             const deleteButton = {
                 key: this.props.model.getID(),
@@ -358,8 +381,26 @@ class AnnotationAttribute extends React.Component {
                 },
             };
             actionMenuItems.push(deleteButton);
+            if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
+                // Add attribute button
+                const addAttributeButton = {
+                    key: this.props.model.getID(),
+                    icon: 'fw-add',
+                    text: 'Add Attribute',
+                    onClick: () => {
+                        this.setState({
+                            addingEmptyAttribute: true,
+                        });
+                    },
+                };
+                actionMenuItems.push(addAttributeButton);
+            }
             const attributes = this.props.model.viewState.collapsed ? [] :
                 this.renderAnnotationAttributes(annotationAttachment);
+            let emptyAttribute = (null);
+            if (this.state.addingEmptyAttribute) {
+                emptyAttribute = <li>{this.renderEmptyAttribute(annotationAttachment)}</li>;
+            }
             return (
                 <ul
                     className="attribute-value-annotation"
@@ -388,6 +429,7 @@ class AnnotationAttribute extends React.Component {
                             <i className="fw fw-annotation-badge" />
                         </span>
                     </li>
+                    {emptyAttribute}
                     {attributes}
                 </ul>
             );
@@ -453,10 +495,12 @@ class AnnotationAttribute extends React.Component {
 AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttributeTreeNode).isRequired,
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
+    parent: PropTypes.instanceOf(AnnotationAttachmentTreeNode),
 };
 
 AnnotationAttribute.defaultProps = {
     annotationDefinitionModel: undefined,
+    parent: undefined,
 };
 
 AnnotationAttribute.contextTypes = {

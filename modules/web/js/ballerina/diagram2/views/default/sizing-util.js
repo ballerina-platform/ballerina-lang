@@ -279,7 +279,7 @@ class SizingUtil {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -600,7 +600,7 @@ class SizingUtil {
             });
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
         let width = 0;
         // we will start the height with top padding.
@@ -710,11 +710,7 @@ class SizingUtil {
             node.viewState.showAnnotationContainer = true;
         }
 
-        if (!node.viewState.showAnnotationContainer) {
-            components.annotation.h = 0;
-        } else {
-            components.annotation.h = this._getAnnotationHeight(node, 20);
-        }
+        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
         components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;

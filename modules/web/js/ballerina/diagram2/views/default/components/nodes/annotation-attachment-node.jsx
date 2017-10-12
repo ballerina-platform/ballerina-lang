@@ -46,6 +46,7 @@ class AnnotationAttachmentNode extends React.Component {
         this.state = {
             isInEdit: false,
             hasError: false,
+            addingEmptyAttribute: false,
         };
 
         this.onNameEdit = this.onNameEdit.bind(this);
@@ -236,7 +237,10 @@ class AnnotationAttachmentNode extends React.Component {
                 icon: 'fw-add',
                 text: 'Add Attribute',
                 onClick: () => {
-                    addAttribute(this.props.model);
+                    this.props.model.viewState.collapsed = false;
+                    this.setState({
+                        addingEmptyAttribute: true,
+                    });
                 },
             };
             actionMenuItems.push(addAttributeButton);
@@ -278,6 +282,29 @@ class AnnotationAttachmentNode extends React.Component {
     }
 
     /**
+     * Renders an empty attribute.
+     * @returns {ReactElement} The attribute view.
+     * @memberof AnnotationAttachmentNode
+     */
+    renderEmptyAttribute() {
+        const annotationDefModel = AnnotationHelper.getAnnotationDefinition(
+            this.context.environment, AnnotationHelper.resolveFullPackageName(
+                this.context.astRoot, this.props.model.getPackageAlias().getValue()),
+            this.props.model.getAnnotationName().getValue());
+        if (annotationDefModel) {
+            annotationDefModel.setPackagePath(AnnotationHelper.resolveFullPackageName(
+                this.context.astRoot, this.props.model.getPackageAlias().getValue()));
+            return (<AnnotationAttachmentAttribute
+                key='new-annotation-attribute'
+                model={addAttribute()}
+                annotationDefinitionModel={annotationDefModel}
+                parent={this.props.model}
+            />);
+        }
+        return (null);
+    }
+
+    /**
      * Renders the view for an annotation attachment.
      *
      * @returns {ReactElement} JSX of the annotation component.
@@ -287,7 +314,10 @@ class AnnotationAttachmentNode extends React.Component {
         const packageName = this.renderPackageName();
         const name = this.renderName();
         const actionMenu = this.renderActionMenu();
-
+        let emptyAttribute = (null);
+        if (this.state.addingEmptyAttribute) {
+            emptyAttribute = <li>{this.renderEmptyAttribute()}</li>;
+        }
         const attributes = this.props.model.viewState.collapsed ? (null) : <li>{this.renderAttributes()}</li>;
         return (<ul className="annotation-attachment-ul">
             <li className={cn('annotation-attachment-text-li', 'action-menu-wrapper',
@@ -314,6 +344,7 @@ class AnnotationAttachmentNode extends React.Component {
                 </span>
 
             </li>
+            {emptyAttribute}
             {attributes}
         </ul>);
     }

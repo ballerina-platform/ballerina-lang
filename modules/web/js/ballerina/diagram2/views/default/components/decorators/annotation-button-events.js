@@ -131,14 +131,18 @@ function addChildNodeBelow(node) {
  * @returns The newly added attribute.
  */
 function addAttribute(annotationAttachment) {
-    const literal = NodeFactory.createLiteral();
+    const literal = NodeFactory.createLiteral({
+        value: '""',
+    });
     const annotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
     const annotationAttribute = NodeFactory.createAnnotationAttachmentAttribute();
 
     annotationAttributeValue.setValue(literal);
     annotationAttribute.setName('');
     annotationAttribute.setValue(annotationAttributeValue);
-    annotationAttachment.addAttributes(annotationAttribute);
+    if (annotationAttachment) {
+        annotationAttachment.addAttributes(annotationAttribute);
+    }
     return annotationAttribute;
 }
 
