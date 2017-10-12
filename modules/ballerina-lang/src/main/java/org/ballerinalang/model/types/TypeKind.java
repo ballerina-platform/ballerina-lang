@@ -63,6 +63,7 @@ public enum TypeKind {
     ARRAY("[]"),
     VOID(""),
     NONE(""),
+    NULL("null"),
     OTHER("other"),
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes");

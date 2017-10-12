@@ -38,12 +38,12 @@ import org.testng.annotations.Test;
 public class BNullValueTest {
 
     private CompileResult positiveCompileResult;
-    private CompileResult negativeCompileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         positiveCompileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
+        negativeResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
     }
 
     @Test(description = "Test null value of a xml")
@@ -197,9 +197,15 @@ public class BNullValueTest {
         BTestUtils.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
 
-    @Test(description = "Test negative test cases", enabled = false)
+    @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        // Todo - Update errors
-        BTestUtils.validateError(negativeCompileResult, 0, "", 0, 0);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        BTestUtils.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
+        BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
+        BTestUtils.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
+        BTestUtils.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
+        BTestUtils.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
+        BTestUtils.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
+        BTestUtils.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
     }
 }
