@@ -536,5 +536,3 @@ function testAnyNullToStringWithErrors()(string, TypeCastError) {
 
     return s, err;
 }
-
-
