@@ -31,7 +31,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -466,28 +465,18 @@ public class TypeCastExprTest {
         BTestUtils.invoke(result, "testAnyArrayToJson", new BValue[]{});
     }
 
-    @Test(enabled = false, description = "Test casting a xml as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'message' " +
-                    "cannot be cast to 'json'.*")
-    public void testAnyMessageToJson() {
-        BTestUtils.invoke(result, "testAnyMessageToJson", new BValue[]{});
-    }
-
-    @Test(enabled = false, description = "Test casting a struct to map",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
-                    "to 'map', try conversion")
+    @Test(description = "Test casting a struct to map")
     public void testStructToMap() {
-        BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
+        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'Person' cannot be cast to 'map'");
     }
 
-    @Test(enabled = false, description = "Test casting a map to struct",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
-                    "'Person', try conversion")
+    @Test(description = "Test casting a map to struct")
     public void testMapToStruct() {
-        BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
+        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'map' cannot be cast to 'Person'");
     }
 
     @Test
@@ -497,12 +486,11 @@ public class TypeCastExprTest {
         BTestUtils.validateError(res, 0, "incompatible types: 'json' cannot be cast to 'map'", 9, 13);
     }
 
-    @Test(enabled = false, description = "Test casting a json to struct",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
-                    " 'Person', try conversion")
+    @Test(description = "Test casting a json to struct")
     public void testJsonToStruct() {
-        BTestUtils.compile("test-src/expressions/typecast/json-to-struct-negative.bal");
+        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/json-to-struct--negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'json' cannot be cast to 'struct'");
     }
 
     @Test

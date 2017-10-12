@@ -1389,10 +1389,11 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void endServiceDef(Set<Whitespace> ws, String protocolPkg, String serviceName) {
-        ServiceNode serviceNode = serviceNodeStack.pop();
+    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String protocolPkg, String serviceName) {
+        BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));
         serviceNode.setProtocolPackageIdentifier(createIdentifier(protocolPkg));
+        serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
     }

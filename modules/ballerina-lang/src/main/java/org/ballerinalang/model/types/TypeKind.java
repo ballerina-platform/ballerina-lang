@@ -62,8 +62,8 @@ public enum TypeKind {
     ANNOTATION("annotation"),
     ARRAY("[]"),
     VOID(""),
-    NONE(""),
     NULL("null"),
+    NONE(""),
     OTHER("other"),
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes");
