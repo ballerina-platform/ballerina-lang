@@ -34,7 +34,7 @@ import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.swagger.code.generator.util.SwaggerConstants;
 import org.ballerinalang.swagger.code.generator.util.SwaggerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;

@@ -28,7 +28,7 @@ import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.auth.In;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.swagger.code.generator.model.Developer;
 import org.ballerinalang.swagger.code.generator.model.Organization;
 import org.ballerinalang.swagger.code.generator.util.SwaggerConstants;
