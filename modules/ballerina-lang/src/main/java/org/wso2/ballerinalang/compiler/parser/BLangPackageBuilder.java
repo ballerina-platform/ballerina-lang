@@ -522,9 +522,10 @@ public class BLangPackageBuilder {
 
     public void addFinallyBlock(DiagnosticPos poc, Set<Whitespace> ws) {
         BLangBlockStmt blockNode = (BLangBlockStmt) this.blockNodeStack.pop();
-        tryCatchFinallyNodesStack.peek().finallyBody = blockNode;
+        BLangTryCatchFinally rootTry = tryCatchFinallyNodesStack.peek();
+        rootTry.finallyBody = blockNode;
+        rootTry.addWS(ws);
         blockNode.pos = poc;
-        blockNode.addWS(ws);
     }
 
     public void addTryCatchFinallyStmt(DiagnosticPos poc, Set<Whitespace> ws) {
