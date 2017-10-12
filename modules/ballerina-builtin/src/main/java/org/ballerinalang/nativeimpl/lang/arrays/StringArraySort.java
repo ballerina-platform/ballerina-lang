@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -45,12 +43,6 @@ import java.util.List;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sorts the specified string array ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
-        value = "The string array to be sorted") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string[])",
-        value = "The sorted array") })
 public class StringArraySort extends AbstractNativeFunction {
 
     @Override

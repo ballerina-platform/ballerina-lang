@@ -23,8 +23,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,12 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the value of the specified environment variable.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
-        value = "The environment variable") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string)",
-        value = "The value of the specified environment variable") })
 public class GetEnv extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
