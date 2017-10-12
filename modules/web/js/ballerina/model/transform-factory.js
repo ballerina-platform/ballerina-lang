@@ -108,6 +108,14 @@ class TransformFactory {
         return castExpr;
     }
 
+    static createOperatorAssignmentStatement(args = {}) {
+        const statement = `var __output = ${args.defaultExpression};`;
+        const fragment = FragmentUtils.createStatementFragment(statement);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const tree = TreeBuilder.build(parsedJson);
+        return tree;
+    };
+
     /**
      * Create assignment statement with function invocation.
      * @static

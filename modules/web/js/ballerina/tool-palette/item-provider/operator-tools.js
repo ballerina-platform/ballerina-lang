@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import DefaultASTFactory from './../../ast/default-ast-factory';
+import TransformFactory from '../../model/transform-factory';
 
-const operatorStatementCreator = DefaultASTFactory.createTransformAssignmentOperatorStatement
+const operatorStatementCreator = TransformFactory.createOperatorAssignmentStatement
 
 const getSeperator = id => ({
     id,
