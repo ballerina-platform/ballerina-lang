@@ -129,7 +129,6 @@ class DesignView extends React.Component {
 
     render() {
         const { isTransformActive, activeTransformModel } = this.state;
-
         return (
             <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
@@ -138,12 +137,14 @@ class DesignView extends React.Component {
                         <div className="canvas-top-controls-container" />
                         <div className="html-overlay" ref={this.setOverlayContainer} />
                         <div className="diagram root" ref={this.setDiagramContainer} >
-                            <BallerinaDiagram
-                                model={this.props.model}
-                                mode={this.state.mode}
-                                width={this.props.width - TOOL_PALETTE_WIDTH}
-                                height={this.props.height}
-                            />
+                            {this.props.model &&
+                                <BallerinaDiagram
+                                    model={this.props.model}
+                                    mode={this.state.mode}
+                                    width={this.props.width - TOOL_PALETTE_WIDTH}
+                                    height={this.props.height}
+                                />
+                            }
                         </div>
                     </div>
                     {isTransformActive &&
@@ -196,7 +197,7 @@ class DesignView extends React.Component {
 }
 
 DesignView.propTypes = {
-    model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
+    model: PropTypes.instanceOf(CompilationUnitNode),
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,

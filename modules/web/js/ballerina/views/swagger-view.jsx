@@ -371,7 +371,7 @@ SwaggerView.defaultProps = {
 
 SwaggerView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
-    astRoot: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object),
     isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
