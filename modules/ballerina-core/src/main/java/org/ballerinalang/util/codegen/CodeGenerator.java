@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -133,7 +134,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;

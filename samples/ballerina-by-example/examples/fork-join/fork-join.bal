@@ -1,7 +1,7 @@
 import ballerina.lang.system;
 
 function main (string[] args) {
-    //fork-join allows developers to spawn(fork) multiple workers within a ballerina program and join
+    //The fork-join allows developers to spawn(fork) multiple workers within a ballerina program and join
     //the results from those workers and execute code on joined results.
     fork {
         worker w1 {
@@ -23,7 +23,7 @@ function main (string[] args) {
         //Here we use "all" as the join condition which means wait for all the workers.
         //When the join condition has been satisfied, results 'map' will be filled with
         //the returned messages from the workers.
-        
+
         // Get values received from worker 'w1'.
         var resW1, _ = (any[])results["w1"];
         var iW1, _ = (int)resW1[0];

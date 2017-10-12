@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -43,13 +42,13 @@ public class Context {
     private ControlStackNew controlStackNew;
     //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
-    private BalCallback balCallback;
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
+    private boolean nonBlockingActionCall = false;
 
     private int startIP;
     private BStruct unhandledError;
@@ -109,6 +108,14 @@ public class Context {
         this.debugEnabled = debugEnabled;
     }
 
+    public boolean isNonBlockingActionCall() {
+        return nonBlockingActionCall;
+    }
+
+    public void setNonBlockingActionCall(boolean nonBlockingActionCall) {
+        this.nonBlockingActionCall = nonBlockingActionCall;
+    }
+
     public ControlStackNew getControlStackNew() {
         return controlStackNew;
     }
@@ -131,14 +138,6 @@ public class Context {
 
     public void setProperty(String key, Object value) {
         this.properties.put(key, value);
-    }
-
-    public BalCallback getBalCallback() {
-        return this.balCallback;
-    }
-
-    public void setBalCallback(BalCallback balCallback) {
-        this.balCallback = balCallback;
     }
 
     public BServerConnectorFuture getConnectorFuture() {

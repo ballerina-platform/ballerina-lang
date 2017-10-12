@@ -10,7 +10,7 @@ service<http> passthrough {
     }
     resource passthrough (http:Request req, http:Response res) {
         http:ClientConnector endPoint = create http:ClientConnector
-                                            ("http://localhost:9090/echo");
+                                            ("http://localhost:9090/echo", {});
         //Extract request method from message.
         string method = request:getMethod(req);
         //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
