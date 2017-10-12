@@ -18,13 +18,14 @@ package org.ballerinalang.net.jms;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.kernel.utils.StringUtils;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
@@ -149,14 +150,11 @@ public class JMSUtils {
     }
 
     public static Message getJMSMessage(BStruct messageStruct) {
-        Message jmsMessage;
-        if (messageStruct.getNativeData(Constants.TRANSPORT_MESSAGE) != null) {
-            CarbonMessage carbonMessage = (CarbonMessage) messageStruct.getNativeData(Constants.TRANSPORT_MESSAGE);
-            jmsMessage = (Message) carbonMessage.getProperty(Constants.JMS_API_MESSAGE);
+        Message jmsMessage = null;
+        if (messageStruct.getNativeData(Constants.JMS_API_MESSAGE) != null) {
+            jmsMessage = (Message) messageStruct.getNativeData(Constants.JMS_API_MESSAGE);
         } else {
-            //TODO: remove CarbonMessage
-            CarbonMessage carbonMessage = new TextCarbonMessage("");
-
+            //TODO: Test for scenarios where JMS Message is not already created, but tries to modify
             BMap<String, BString> properties = (BMap<String, BString>) messageStruct.getRefField(0);
             Map<String, String> propertyMap = JMSUtils.preProcessJmsConfig(properties);
             String messageType = messageStruct.getStringField(0);
@@ -168,10 +166,21 @@ public class JMSUtils {
                 throw new BallerinaException("Failed to send message. " + e.getMessage(), e);
             }
 
-            carbonMessage.setProperty("JMS_API_MESSAGE", jmsMessage);
-            messageStruct.addNativeData(Constants.TRANSPORT_MESSAGE, carbonMessage);
+            messageStruct.addNativeData(Constants.JMS_API_MESSAGE, jmsMessage);
         }
 
         return jmsMessage;
+    }
+
+    public static Resource extractJMSResource (Service service) throws BallerinaConnectorException {
+        Resource[] resources = service.getResources();
+        if (resources.length == 0) {
+            throw new BallerinaException("No resources found to handle the JMS message in " + service.getName());
+        }
+        if (resources.length > 1) {
+            throw new BallerinaException("More than one resources found in JMS service " + service.getName()
+                    + ".JMS Service should only have one resource");
+        }
+        return resources[0];
     }
 }

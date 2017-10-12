@@ -41,7 +41,6 @@ import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
@@ -96,9 +95,7 @@ public class Send extends AbstractJMSAction {
         BStruct messageStruct = ((BStruct) getRefArgument(context, 1));
         String destination = getStringArgument(context, 0);
 
-        CarbonMessage carbonMessage = (CarbonMessage) messageStruct
-                .getNativeData(org.ballerinalang.net.jms.Constants.TRANSPORT_MESSAGE);
-        Message jmsMessage = (Message) carbonMessage.getProperty(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE);
+        Message jmsMessage = (Message) messageStruct.getNativeData(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE);
 
         validateParams(bConnector);
 

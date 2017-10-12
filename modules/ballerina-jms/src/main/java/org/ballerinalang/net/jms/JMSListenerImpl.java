@@ -22,52 +22,27 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.net.jms.actions.utils.Constants;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.jms.callback.JMSCallback;
 import org.wso2.carbon.transport.jms.contract.JMSListener;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import javax.jms.Message;
 
 /**
  * JMS Connector listener for Ballerina
  */
 public class JMSListenerImpl implements JMSListener {
 
-    private static final Logger breLog = LoggerFactory.getLogger(JMSListenerImpl.class);
+    private Resource resource;
 
-    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
-        String errorMsg = throwable.getMessage();
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg, throwable);
-        Object protocol = cMsg.getProperty("PROTOCOL");
-        //TODO remove ballerina connector manager
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
-                .getServerConnectorErrorHandler((String) protocol);
-
-        try {
-            optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
-        } catch (Exception e) {
-            breLog.error("Cannot handle error using the error handler for: " + protocol, e);
-        }
-
+    public JMSListenerImpl (Resource resource) {
+        this.resource = resource;
     }
 
     @Override
-    public void onMessage(CarbonMessage carbonMessage, JMSCallback jmsCallback) {
-        Resource resource = JMSDispatcher.findResource(carbonMessage);
-
+    public void onMessage(Message carbonMessage, JMSCallback jmsCallback) {
         if (jmsCallback != null) {
             Map<String, Object> properties = new HashMap<>();
             properties.put(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, jmsCallback.getAcknowledgementMode());

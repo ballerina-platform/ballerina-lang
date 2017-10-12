@@ -37,10 +37,9 @@ import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.Map;
 import javax.jms.Message;
@@ -66,20 +65,19 @@ public class CreateTextMessage extends AbstractNativeFunction {
         BMap<String, BString> properties = (BMap<String, BString>) connectorStruct.getRefField(0);
         Map<String, String> propertyMap = JMSUtils.preProcessJmsConfig(properties);
 
-        Message jmsMessage;
-        CarbonMessage carbonMessage = new TextCarbonMessage("");
+        Message jmsMessage = null;
 
         try {
             jmsMessage = new JMSConnectorFactoryImpl().createClientConnector(propertyMap)
-                    .createMessage("TextMessage");
+                    .createMessage(JMSConstants.TEXT_MESSAGE_TYPE);
         } catch (JMSConnectorException e) {
             throw new BallerinaException("Failed to create message. " + e.getMessage(), e, context);
         }
 
-        BStruct bStruct = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_JMS, "JMSMessage");
+        BStruct bStruct = ConnectorUtils
+                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_JMS, Constants.JMS_MESSAGE_STRUCT_NAME);
 
-        carbonMessage.setProperty(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE, jmsMessage);
-        bStruct.addNativeData(org.ballerinalang.net.jms.Constants.TRANSPORT_MESSAGE, carbonMessage);
+        bStruct.addNativeData(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE, jmsMessage);
 
         return this.getBValues(bStruct);
     }

@@ -108,6 +108,8 @@ public class Constants {
 
     public static final String JMS_API_MESSAGE = "JMS_API_MESSAGE";
 
+    public static final String JMS_MESSAGE_STRUCT_NAME = "JMSMessage";
+
     /** JMS Headers **/
 
     public static final String HEADER_MESSAGE_ID = "JMS_MESSAGE_ID";

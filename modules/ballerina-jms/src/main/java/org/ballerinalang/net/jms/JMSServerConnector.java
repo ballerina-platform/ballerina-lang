@@ -23,7 +23,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.jms.contract.JMSListener;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
@@ -39,15 +38,11 @@ import java.util.Map;
  */
 public class JMSServerConnector implements BallerinaServerConnector {
 
-    // Map <ServiceId, Service>
-    private Map<String, Service> serviceMap = new HashMap<>();
-    // Map <ServiceId, JMSServerConnector>
     private Map<String, org.wso2.carbon.transport.jms.contract.JMSServerConnector> connectorMap = new HashMap<>();
 
     @Override
     public String getProtocolPackage() {
         return Constants.PROTOCOL_PACKAGE_JMS;
-
     }
 
     @Override
@@ -61,15 +56,20 @@ public class JMSServerConnector implements BallerinaServerConnector {
         Map<String, String> configParams = JMSUtils.preProcessJmsConfig(jmsConfig);
 
         String serviceId = service.getName();
-        serviceMap.put(serviceId, service);
         configParams.putIfAbsent(JMSConstants.PARAM_DESTINATION_NAME, serviceId);
 
-        JMSListener jmsListener = new JMSListenerImpl();
         try {
+            // Create a new JMS Listener for this this JMS Service and include it in a new JMS Server Connector
+            JMSListener jmsListener = new JMSListenerImpl(JMSUtils.extractJMSResource(service));
             org.wso2.carbon.transport.jms.contract.JMSServerConnector serverConnector = new JMSConnectorFactoryImpl()
                     .createServerConnector(serviceId, configParams, jmsListener);
-            //TODO check already exist
-            connectorMap.put(serviceId, serverConnector);
+
+            if (!connectorMap.containsKey(serviceId)) {
+                connectorMap.put(serviceId, serverConnector);
+            } else {
+                throw new BallerinaConnectorException(
+                        "JMS Service is already created under the service id " + serviceId);
+            }
             serverConnector.start();
         } catch (JMSConnectorException e) {
             throw new BallerinaException(
@@ -81,11 +81,9 @@ public class JMSServerConnector implements BallerinaServerConnector {
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
         String serviceId = service.getName();
         try {
-            if (serviceMap.get(serviceId) != null) {
-                org.wso2.carbon.transport.jms.contract.JMSServerConnector serverConnector = connectorMap.get(serviceId);
-                if (null != serverConnector) {
-                    serverConnector.stop();
-                }
+            org.wso2.carbon.transport.jms.contract.JMSServerConnector serverConnector = connectorMap.get(serviceId);
+            if (null != serverConnector) {
+                serverConnector.stop();
             }
         } catch (JMSConnectorException e) {
             throw new BallerinaException(
@@ -96,18 +94,5 @@ public class JMSServerConnector implements BallerinaServerConnector {
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
 
-    }
-
-    public Service findService(CarbonMessage cMsg) {
-        Object serviceIdProperty = cMsg.getProperty(Constants.JMS_SERVICE_ID);
-        String serviceId = (serviceIdProperty != null) ? serviceIdProperty.toString() : null;
-        if (serviceId == null) {
-            throw new BallerinaException("Service Id is not found in JMS Message");
-        }
-        Service service = serviceMap.get(serviceId);
-        if (service == null) {
-            throw new BallerinaException("No jms service is registered with the service id " + serviceId);
-        }
-        return service;
     }
 }
