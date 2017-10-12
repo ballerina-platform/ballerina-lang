@@ -541,7 +541,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+            BSymbol conversionSymbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            if (conversionSymbol == symTable.notFoundSymbol) {
+                dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+            } else {
+                dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION,
+                           sourceType, targetType);
+            }
         } else {
             BCastOperatorSymbol castSym = (BCastOperatorSymbol) symbol;
             castExpr.castSymbol = castSym;
