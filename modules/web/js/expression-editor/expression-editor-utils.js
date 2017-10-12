@@ -49,7 +49,7 @@ class ExpressionEditor {
 
         // Get the expression for the statement or expression.
         const expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
-            (_.isNil(props.model.getSource()) ? '' : props.model.getSource().replace(/(?:\r\n|\r|\n)/g, ' '));
+            (_.isNil(props.model.getSource()) ? '' : props.model.getSource(true).replace(/(?:\r\n|\r|\n)/g, ' '));
 
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;
