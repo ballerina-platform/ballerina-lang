@@ -468,8 +468,9 @@ class PositioningUtil {
         const widthOffsetForConnectors = children.length > 0 ?
                 (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
         let xIndex = viewState.bBox.x + widthOffsetForConnectors;
-        const yIndex = viewState.bBox.y + viewState.components.heading.h
-                + viewState.components.initFunction.h + this.config.innerPanel.wrapper.gutter.v + 40;
+        const yIndex = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h +
+            viewState.components.initFunction.h + 40;
+
         if (connectors instanceof Array) {
             connectors.forEach((statement) => {
                 statement.viewState.bBox.x = xIndex;
