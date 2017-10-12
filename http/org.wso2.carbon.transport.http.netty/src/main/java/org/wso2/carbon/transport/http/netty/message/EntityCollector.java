@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 
 import java.nio.ByteBuffer;
@@ -44,7 +45,7 @@ public interface EntityCollector {
      * Get the first ByteBuffer version of the HttpContent from the queue.
      * @return ByteBuffer
      */
-    ByteBuffer getMessageBody();
+    ByteBuf getMessageBody();
 
     /**
      * Add the ByteBuffer version the httpContent to the queue.
@@ -103,4 +104,9 @@ public interface EntityCollector {
      * @param alreadyRead indicated using true or false
      */
     void setAlreadyRead(boolean alreadyRead);
+
+    /**
+     * This is need to release content before GC
+     */
+    void waitAndReleaseAllEntities();
 }
