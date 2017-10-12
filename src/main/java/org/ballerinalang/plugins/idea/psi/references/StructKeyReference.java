@@ -26,6 +26,7 @@ import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -197,9 +198,19 @@ public class StructKeyReference extends BallerinaElementReference {
         IdentifierPSINode identifier = getElement();
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
-        if (variableDefinitionNode == null) {
+        InvocationNode invocationNode = PsiTreeUtil.getParentOfType(identifier, InvocationNode.class);
+        if (variableDefinitionNode == null || invocationNode != null) {
             StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
             if (structDefinitionNode == null) {
+                // Todo - Check for enclosing {} since the parse errors might cause issues when identifying
+                // MapStructLiteralNode element
+
+                //                MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(identifier,
+                //                        MapStructLiteralNode.class);
+                //                if (mapStructLiteralNode == null) {
+                //                    return results;
+                //                }
+
                 // Try to get fields from an anonymous struct.
                 structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
                 if (structDefinitionNode == null) {
