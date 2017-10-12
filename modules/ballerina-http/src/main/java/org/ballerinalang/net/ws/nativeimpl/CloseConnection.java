@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -42,9 +43,9 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "closeConnection",
-        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "statusCode", type = TypeKind.INT),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+                             structPackage = "ballerina.net.ws"),
+        args = {@Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )

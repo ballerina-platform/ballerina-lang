@@ -214,18 +214,19 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetBinaryPayloadMethod() {
-        //TODO
+        //TODO Test this with multipart support, not needed for now
     }
 
     @Test
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         //testResponseSetStatusCodeWithString
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 5, 33);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
         //testResponseGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 36);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
         //testResponseGetMethod
-        BTestUtils.validateError(resultNegative, 2, "undefined function 'getMethod'", 15, 21);
+        BTestUtils.validateError(resultNegative, 2,
+                                 "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 14, 21);
 
     }
 

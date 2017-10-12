@@ -122,11 +122,7 @@ public class Parser {
 
     private DefaultErrorStrategy getErrorStrategy(BDiagnosticSource diagnosticSrc) {
         DefaultErrorStrategy customErrorStrategy = context.get(DefaultErrorStrategy.class);
-        if (customErrorStrategy != null) {
-            if (customErrorStrategy instanceof BallerinaParserErrorStrategy) {
-                ((BallerinaParserErrorStrategy) customErrorStrategy).setDiagnosticSrc(diagnosticSrc);
-            }
-        } else {
+        if (customErrorStrategy == null) {
             customErrorStrategy = new BallerinaParserErrorStrategy(context, diagnosticSrc);
         }
         return customErrorStrategy;

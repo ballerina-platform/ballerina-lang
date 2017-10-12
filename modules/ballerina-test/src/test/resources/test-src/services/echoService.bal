@@ -1,6 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 const string constPath = getConstPath();
 
@@ -16,7 +14,7 @@ service<http> echo {
         path:"/message"
     }
     resource echo (http:Request req, http:Response res) {
-        response:send(res);
+        res.send();
     }
     
     @http:resourceConfig {
@@ -25,7 +23,7 @@ service<http> echo {
     }
     resource echo_worker (http:Request req, http:Response res) {
         worker w1 {
-            response:send(res);
+            res.send();
         }
         worker w2 {
             int x = 0;
@@ -38,9 +36,9 @@ service<http> echo {
         path:"/setString"
     }
     resource setString (http:Request req, http:Response res) {
-        serviceLevelStr = request:getStringPayload(req);
-        //response:setStringPayload(res, serviceLevelStr);
-        response:send(res);
+        serviceLevelStr = req.getStringPayload();
+        //res.setStringPayload(res, serviceLevelStr);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -48,16 +46,16 @@ service<http> echo {
         path:"/getString"
     }
     resource getString (http:Request req, http:Response res) {
-        response:setStringPayload(res, serviceLevelStr);
-        response:send(res);
+        res.setStringPayload(serviceLevelStr);
+        res.send();
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
     resource removeHeaders (http:Request req, http:Response res) {
-        request:removeAllHeaders(req);
-        response:send(res);
+        req.removeAllHeaders();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -65,8 +63,8 @@ service<http> echo {
         path:"/getServiceLevelString"
     }
     resource getServiceLevelString (http:Request req, http:Response res) {
-        response:setStringPayload(res, serviceLevelStringVar);
-        response:send(res);
+        res.setStringPayload(serviceLevelStringVar);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -74,8 +72,8 @@ service<http> echo {
         path:constPath
     }
     resource constValueAsAttributeValue (http:Request req, http:Response res) {
-        response:setStringPayload(res, "constant path test");
-        response:send(res);
+        res.setStringPayload("constant path test");
+        res.send();
     }
 
     @http:resourceConfig {
@@ -89,14 +87,14 @@ service<http> echo {
         methods:["POST"]
     }
     resource getFormParams (http:Request req, http:Response res) {
-        map params = request:getFormParams(req);
+        map params = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
         string team;
         team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 

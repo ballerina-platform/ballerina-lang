@@ -23,8 +23,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -37,8 +37,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "invalidate",
-        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+                             structPackage = "ballerina.net.http"),
         isPublic = true
 )
 public class Invalidate extends AbstractNativeFunction {

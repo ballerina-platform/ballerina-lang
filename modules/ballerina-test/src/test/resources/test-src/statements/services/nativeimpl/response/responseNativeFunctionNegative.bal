@@ -1,88 +1,87 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
-    response:addHeader(res, key, value);
+    res.addHeader(key, value);
     return res;
 }
 
 function testClone (http:Response res) (http:Response) {
-    http:Response newres = response:clone(res);
+    http:Response newres = res.clone();
     return newres;
 }
 
 function testGetContentLength (http:Response res) (int) {
-    int length = response:getContentLength(res);
+    int length = res.getContentLength();
     return length;
 }
 
 function testGetHeader (http:Response res, string key) (string) {
-    string contentType = response:getHeader(res, key);
+    string contentType = res.getHeader(key);
     return contentType;
 }
 
 function testGetJsonPayload (http:Response res) (json) {
-    json payload = response:getJsonPayload(res);
+    json payload = res.getJsonPayload();
     return payload;
 }
 
 function testGetProperty (http:Response res, string propertyName) (string) {
-    string payload = response:getProperty(res, propertyName);
+    string payload = res.getProperty(propertyName);
     return payload;
 }
 
 function testGetStringPayload (http:Response res) (string) {
-    string payload = response:getStringPayload(res);
+    string payload = res.getStringPayload();
     return payload;
 }
 
 function testGetBinaryPayload (http:Response res) (blob) {
-    blob payload = response:getBinaryPayload(res);
+    blob payload = res.getBinaryPayload();
     return payload;
 }
 
 function testGetXmlPayload (http:Response res) (xml) {
-    xml payload = response:getXmlPayload(res);
+    xml payload = res.getXmlPayload();
     return payload;
 }
 
 function testRemoveHeader (http:Response res, string key) (http:Response) {
-    response:removeHeader(res, key);
+    res.removeHeader(key);
     return res;
 }
 
 function testRemoveAllHeaders (http:Response res) (http:Response) {
-    response:removeAllHeaders(res);
+    res.removeAllHeaders();
     return res;
 }
 
 function testSetContentLength (http:Response res, int contentLength) (http:Response) {
-    response:setContentLength(res, contentLength);
+    res.setContentLength(contentLength);
     return res;
 }
 
 function testSetHeader (http:Response res, string key, string value) (http:Response) {
-    response:setHeader(res, key, value);
+    res.setHeader(key, value);
     return res;
 }
 
 function testSetJsonPayload (http:Response res, json value) (http:Response) {
-    response:setJsonPayload(res, value);
+    res.setJsonPayload(value);
     return res;
 }
 
 function testSetProperty (http:Response res, string name, string value) (http:Response) {
-    response:setProperty(res, name, value);
+    res.setProperty(name, value);
     return res;
 }
 
 function testSetStringPayload (http:Response res, string value) (http:Response) {
-    response:setStringPayload(res, value);
+    res.setStringPayload(value);
     return res;
 }
 
 function testSetXmlPayload (http:Response res, xml value) (http:Response) {
-    response:setXmlPayload(res, value);
+    res.setXmlPayload(value);
     return res;
 }
 
@@ -93,22 +92,22 @@ service<http> helloServer {
         path:"/11"
     }
     resource echo1 (http:Request req, http:Response res) {
-        response:send(res);
+        res.send();
     }
 
     @http:resourceConfig {
         path:"/12/{phase}"
     }
     resource echo2 (http:Request req, http:Response res, string phase) {
-        response:setReasonPhrase(res, phase);
-        response:send(res);
+        res.setReasonPhrase(phase);
+        res.send();
     }
 
     @http:resourceConfig {
         path:"/13"
     }
     resource echo3 (http:Request req, http:Response res) {
-        response:setStatusCode(res, 203);
-        response:send(res);
+        res.setStatusCode(203);
+        res.send();
     }
 }

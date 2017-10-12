@@ -220,7 +220,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     @Override
     public String getName() {
-        return identifier.getName();
+        return identifier != null ? identifier.getName() : null;
     }
 
     @Override

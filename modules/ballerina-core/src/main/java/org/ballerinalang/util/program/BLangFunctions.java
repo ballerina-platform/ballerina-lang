@@ -219,20 +219,12 @@ public class BLangFunctions {
 
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
+        context.startTrackWorker();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
-        ControlStackNew stack = context.getControlStackNew();
-        int count = 0;
-        while (stack.fp > 1 && !stack.getStack()[stack.fp - 1].isWorkerReturned()) {
-            if (count++ > timeOut) {
-                throw new BLangRuntimeException("error: workers timed out.!");
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignore.
-            }
+        if (!context.await(timeOut)) {
+            throw new BLangRuntimeException("error: workers timed out.!");
         }
 
         if (context.getError() != null) {
@@ -281,8 +273,11 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
+        context.startTrackWorker();
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
+        context.await();
+        context.resetWorkerContextFlow();
     }
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {

@@ -11,25 +11,20 @@ service<http> contentBasedRouting {
         path:"/route"
     }
     resource cbrResource (http:Request req, http:Response res) {
-
+        http:ClientConnector locationEP;
         //Create service endpoint using HTTP client-connector.
-        http:ClientConnector locationEP = create http:ClientConnector(
-                                          "http://www.mocky.io");
+        locationEP = create http:ClientConnector("http://www.mocky.io", {});
         //Get JSON payload from the request message.
         json jsonMsg = request:getJsonPayload(req);
         //Get the string value relevant to the key "name".
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
-
         if (nameString == "sanFrancisco") {
-        //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
+            //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
             res = locationEP.post("/v2/594e018c1100002811d6d39a", req);
-
         } else {
             res = locationEP.post("/v2/594e026c1100004011d6d39c", req);
         }
-
         response:send(res);
     }
 }
-
