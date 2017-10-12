@@ -53,6 +53,7 @@ class ActionNode extends React.Component {
             polygonClass: 'default-worker-life-line-polygon',
         };
         const argumentParameters = this.props.model.getParameters();
+        const returnParameters = this.props.model.getReturnParameters();
 
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
         const connectors = this.props.model.body.statements
@@ -82,6 +83,7 @@ class ActionNode extends React.Component {
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
+                    returnParams={returnParameters}
                 >
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
