@@ -1122,8 +1122,6 @@ class SizingUtil {
 
         // Set the compound node default sizing values.
         this.sizeCompoundNode(node);
-        this.sizeCompoundNode(joinStmt);
-        this.sizeCompoundNode(timeoutStmt);
 
         // Calculate join keyword length;
         joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
@@ -1182,6 +1180,7 @@ class SizingUtil {
 
         conditionBoxWidth += timeoutStmt.viewState.components.titleWidth.w;
 
+
         // Get the forkJoin node width
         nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;
 
@@ -1199,6 +1198,9 @@ class SizingUtil {
 
         // Set the statement box height.
         node.viewState.components['statement-box'].h = maxHeightOfWorkers === 0 ? nodeHeight : maxHeightOfWorkers;
+
+        node.viewState.components['statement-body'] =
+            new SimpleBBox(0, 0, 0, node.viewState.components['statement-box'].h, 0, 0);
 
         // Set the whole fork join compound box dimensions.
         node.viewState.bBox.h = nodeHeight + maxHeightOfWorkers + joinTimeoutBlockHeight

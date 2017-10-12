@@ -237,7 +237,7 @@ class CompoundStatementDecorator extends React.Component {
         let bodyBBox = {};
 
         if (this.props.model.kind === 'ForkJoin') {
-            bodyBBox = this.props.model.viewState.components['statement-box'];
+            bodyBBox = this.props.model.viewState.components['statement-body'];
         } else if (this.props.body && !(this.props.body instanceof Array)) {
             bodyBBox = this.props.body.viewState.bBox;
         }

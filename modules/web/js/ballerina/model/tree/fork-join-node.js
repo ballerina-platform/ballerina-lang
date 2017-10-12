@@ -44,6 +44,19 @@ class ForkJoinNode extends AbstractForkJoinNode {
         }
         return condition;
     }
+
+    /**
+     * set children alias.
+     * */
+    setChildrenAlias() {
+        if (this.joinBody) {
+            this.joinBody.viewState.alias = 'Join';
+        }
+
+        if (this.timeoutBody) {
+            this.timeoutBody.viewState.alias = 'Timeout';
+        }
+    }
 }
 
 export default ForkJoinNode;
