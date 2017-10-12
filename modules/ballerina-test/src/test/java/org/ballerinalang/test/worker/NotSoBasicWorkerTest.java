@@ -138,7 +138,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 777);
     }
     
-    @Test (enabled = false)
+    @Test
     public void forkJoinInWorkers() {
         BValue[] vals = BTestUtils.invoke(result, "forkJoinInWorkers", new BValue[0]);
         Assert.assertEquals(vals.length, 1);

@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
 
@@ -41,9 +42,9 @@ import java.util.Map;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "getUpgradeHeader",
-        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "text", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+                             structPackage = "ballerina.net.ws"),
+        args = {@Argument(name = "text", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )

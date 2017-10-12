@@ -1263,7 +1263,6 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWMESSAGE:
                 case InstructionCodes.NEWDATATABLE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1416,7 +1415,6 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2MSG:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:

@@ -1,6 +1,5 @@
 import ballerina.lang.strings;
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 const string myConst = "MyParam1";
 
@@ -64,8 +63,8 @@ service<http> actionInvokeService {
 
         string actionResponse;
         actionResponse = testConnector.action3();
-        response:setStringPayload(res, actionResponse);
-        response:send(res);
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 
     
@@ -77,8 +76,8 @@ service<http> actionInvokeService {
 
         boolean actionResponse;
         actionResponse = testConnector.action1();
-        response:setStringPayload(res, strings:valueOf(actionResponse));
-        response:send(res);
+        res.setStringPayload(strings:valueOf(actionResponse));
+        res.send();
     }
     
     @http:resourceConfig {
@@ -88,7 +87,7 @@ service<http> actionInvokeService {
     resource action2Resource (http:Request req, http:Response res) {
 
         testConnector.action2();
-        response:send(res);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -99,8 +98,8 @@ service<http> actionInvokeService {
 
         string actionResponse;
         actionResponse = testConnector.action5(myConst);
-        response:setStringPayload(res, actionResponse);
-        response:send(res);
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -111,7 +110,7 @@ service<http> actionInvokeService {
 
         string actionResponse;
         actionResponse = testConnector.action6("Hello", "World");
-        response:setStringPayload(res, actionResponse);
-        response:send(res);
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 }

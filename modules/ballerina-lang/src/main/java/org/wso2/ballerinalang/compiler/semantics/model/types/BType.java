@@ -29,6 +29,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.BLOB;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NULL;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPE;
 
@@ -87,6 +88,8 @@ public class BType implements ValueType {
                 return TypeKind.BLOB;
             case TYPE:
                 return TypeKind.TYPE;
+            case NULL:
+                return TypeKind.NULL;
             default:
                 return TypeKind.OTHER;
         }

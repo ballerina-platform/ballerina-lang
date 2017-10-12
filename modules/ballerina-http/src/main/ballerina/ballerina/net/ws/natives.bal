@@ -39,7 +39,7 @@ public struct HandshakeConnection {
 @doc:Description {value:"Cancel the handshake"}
 @doc:Param {value:"statusCode: Status code for closing the connection"}
 @doc:Param {value:"reason: Reason for closing the connection"}
-public native function cancelHandshake(HandshakeConnection handshakeConn, int statusCode, string reason);
+public native function <HandshakeConnection conn> cancelHandshake(int statusCode, string reason);
 
 @doc:Description {value:"Represent WebSocket connection in ballerina. This include all connection oriented operations"}
 public struct Connection {
@@ -47,45 +47,45 @@ public struct Connection {
 }
 @doc:Description {value:"Get the ID of the WebSocket connection"}
 @doc:Return {value:"string: ID of the connection"}
-public native function getID(Connection conn) (string);
+public native function <Connection conn> getID() (string);
 
 @doc:Description {value:"Get the Negotiated sub protocol for given connection"}
 @doc:Return {value:"string: Negotiated sub protocol"}
-public native function getNegotiatedSubProtocol(Connection conn) (string);
+public native function <Connection conn> getNegotiatedSubProtocol() (string);
 
 @doc:Description {value:"Check whether the connection is secured or not"}
 @doc:Return {value:"boolean: true if the connection is secured"}
-public native function isSecure(Connection conn) (boolean);
+public native function <Connection conn> isSecure() (boolean);
 
 @doc:Description {value:"Check whether the connection is still open or not."}
-public native function isOpen(Connection conn) (boolean);
+public native function <Connection conn> isOpen() (boolean);
 
 @doc:Description {value:"Get a map of all the upgrade headers of the connection"}
 @doc:Return {value:"map<string>: Map of all the headers received in the connection upgrade"}
-public native function getUpgradeHeaders(Connection conn) (map);
+public native function <Connection conn> getUpgradeHeaders() (map);
 
 @doc:Description {value:"Get a value of a header"}
 @doc:Param {value:"key: Key of the header which the value should be retrieved"}
 @doc:Return {value:"string: Value of the key if exists else null"}
-public native function getUpgradeHeader(Connection conn, string key) (string);
+public native function <Connection conn> getUpgradeHeader(string key) (string);
 
 @doc:Description {value:"Get parent connection if exisits"}
 @doc:Param {value:"conn: connection which the parent connection should be retrieved"}
 @doc:Return {value:"Connection: The parent connection if exisits else null"}
-public native function getParentConnection(Connection conn) (Connection);
+public native function <Connection conn> getParentConnection() (Connection);
 
 @doc:Description {value:"Push text to the connection"}
 @doc:Param {value:"text: Text which should be sent"}
-public native function pushText(Connection conn, string text);
+public native function <Connection conn> pushText(string text);
 
 @doc:Description {value:"Push binary data to the connection"}
 @doc:Param {value:"data: Binary data which should be sent"}
-public native function pushBinary(Connection conn, blob data);
+public native function <Connection conn> pushBinary(blob data);
 
 @doc:Description {value:"Close the connection"}
 @doc:Param {value:"statusCode: Status code for closing the connection"}
 @doc:Param {value:"reason: Reason for closing the connection"}
-public native function closeConnection(Connection conn, int statusCode, string reason);
+public native function <Connection conn> closeConnection(int statusCode, string reason);
 
 
 @doc:Description {value:"Configuration struct for WebSocket client connection"}
