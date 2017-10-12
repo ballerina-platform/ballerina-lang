@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,8 +32,8 @@ public class BStringType extends BType {
      *
      * @param typeName string name of the type
      */
-    BStringType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BString.class);
+    BStringType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BString.class);
     }
 
     @SuppressWarnings("unchecked")

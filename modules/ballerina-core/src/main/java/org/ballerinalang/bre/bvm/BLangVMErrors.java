@@ -42,13 +42,13 @@ public class BLangVMErrors {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangVMErrors.class);
 
-    public static final String ERROR_PACKAGE = "ballerina.lang.errors";
-    public static final String STRUCT_GENERIC_ERROR = "Error";
-    public static final String STRUCT_NULL_REF_ERROR = "NullReferenceError";
+    public static final String BUILTIN_PACKAGE = "ballerina.builtin";
+    public static final String STRUCT_GENERIC_ERROR = "error";
+    public static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
     public static final String STRUCT_TYPE_CONVERSION_ERROR = "TypeConversionError";
-    public static final String STRUCT_STACKTRACE = "StackTrace";
-    public static final String STRUCT_STACKTRACE_ITEM = "StackTraceItem";
+    public static final String STRUCT_FRAME = "stackFrame";
 
 
     /**
@@ -90,21 +90,18 @@ public class BLangVMErrors {
     }
 
     /**
-     * Create NullReferenceError.
+     * Create NullReferenceException.
      *
      * @param context current Context
      * @param ip      current instruction pointer
-     * @return created NullReferenceError
+     * @return created NullReferenceException
      */
     public static BStruct createNullRefError(Context context, int ip) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_ERROR);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         BStruct error = createBStruct(errorStructInfo);
-
         // Set StackTrace.
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
@@ -118,17 +115,15 @@ public class BLangVMErrors {
      * @return created NullReferenceError
      */
     public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
 
         String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
-        BStruct error = createBStruct(errorStructInfo, errorMsg, null,
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null, null,
                 sourceType.toString(), targetType.toString());
 
         // Set StackTrace.
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
@@ -143,7 +138,7 @@ public class BLangVMErrors {
      */
     public static BStruct createTypeConversionError(Context context, int ip,
                                                     String sourceTypeName, String targetTypeName) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
@@ -151,9 +146,7 @@ public class BLangVMErrors {
                 sourceTypeName, targetTypeName);
 
         // Set StackTrace.
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
@@ -169,19 +162,33 @@ public class BLangVMErrors {
      */
     public static BStruct createTypeConversionError(Context context, int ip, String errorMessage,
                                                     String sourceTypeName, String targetTypeName) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
         BStruct error = createBStruct(errorStructInfo, errorMessage, null,
                 sourceTypeName, targetTypeName);
 
         // Set StackTrace.
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
+    /**
+     * Create IllegalStateException.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @param msg     message of the exception
+     * @return created IllegalStateException
+     */
+    public static BStruct createIllegalStateException(Context context, int ip, String msg) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
+        BStruct error = createBStruct(errorStructInfo, msg);
+        // Set StackTrace.
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        return error;
+    }
 
     /**
      * Create Error struct from given Struct type.
@@ -193,19 +200,17 @@ public class BLangVMErrors {
      * miss matched error.
      */
     public static BStruct createError(Context context, int ip, BStruct error) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        if (!BLangVM.checkStructEquivalency((BStructType) error.getType(),
-                (BStructType) errorStructInfo.getType())) {
+        if (!BLangVM.checkStructEquivalency(error.getType(), errorStructInfo.getType())) {
             logger.error("bvm internal error! incompatible error strut type " + error.getType().getSig().getPkgPath()
                     + ":" + error.getType().getSig().getName());
             error = createError(context, ip,
                     "bvm internal error! incompatible error strut type " + error.getType().getSig().getPkgPath() + ":" +
                             error.getType().getSig().getName());
         }
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        // Set StackTrace.
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
@@ -219,18 +224,15 @@ public class BLangVMErrors {
      * @return generated error {@link BStruct}
      */
     private static BStruct generateError(Context context, int ip, StructInfo structInfo, Object... values) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        if (structInfo == null || BLangVM.checkStructEquivalency((BStructType) structInfo.getType(),
-                (BStructType) errorStructInfo.getType())) {
+        if (structInfo == null || BLangVM.checkStructEquivalency(structInfo.getType(), errorStructInfo.getType())) {
             structInfo = errorStructInfo;
         }
         BStruct error = createBStruct(structInfo, values);
 
         // Set StackTrace.
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
 
@@ -243,16 +245,15 @@ public class BLangVMErrors {
      * @param error   error Struct to be set the stackTrace.
      */
     public static void setStackTrace(Context context, int ip, BStruct error) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         if (error == null) {
             // This shouldn't execute.
             logger.warn("Error struct is null. Default Error is created.");
             StructInfo structInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
             error = createBStruct(structInfo);
         }
-        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
-        error.setStackTrace(bStackTrace);
+        // Set StackTrace.
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
     }
 
     /**
@@ -264,8 +265,8 @@ public class BLangVMErrors {
      */
     public static BRefValueArray generateStackTraceItems(Context context, int ip) {
         BRefValueArray stackTraceItems = new BRefValueArray();
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
-        StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE_ITEM);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_FRAME);
         ControlStackNew controlStack = context.getControlStackNew();
 
         int currentIP = ip;
@@ -289,13 +290,15 @@ public class BLangVMErrors {
 
             values[0] = parentScope + callableUnitInfo.getName();
             values[1] = callableUnitInfo.getPkgPath();
-            LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
-            if (lineNumberInfo != null) {
-                values[2] = lineNumberInfo.getFileName();
-                values[3] = lineNumberInfo.getLineNumber();
-            } else {
+            if (callableUnitInfo.isNative()) {
                 values[2] = "<native>";
                 values[3] = 0;
+            } else {
+                LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
+                if (lineNumberInfo != null) {
+                    values[2] = lineNumberInfo.getFileName();
+                    values[3] = lineNumberInfo.getLineNumber();
+                }
             }
 
             stackTraceItems.add(stackTraceLocation, createBStruct(stackTraceItem, values));
@@ -378,14 +381,13 @@ public class BLangVMErrors {
         String errorMsg = getErrorMessage(error);
         sb.append(errorMsg).append("\n");
 
-        BStruct stackTrace = error.getStackTrace();
-        BRefValueArray stackTraceItems = (BRefValueArray) stackTrace.getRefField(0);
-        for (long i = 0; i < stackTraceItems.size(); i++) {
+        BRefValueArray stackFrame = (BRefValueArray) error.getRefField(1);
+        for (long i = 0; i < stackFrame.size(); i++) {
             sb.append("\tat ");
-            BStruct item = (BStruct) stackTraceItems.get(i);
+            BStruct item = (BStruct) stackFrame.get(i);
 
             // Append function/action/resource name with package path (if any)
-            if (item.getStringField(1).isEmpty()) {
+            if (item.getStringField(1).isEmpty() || item.getStringField(1).equals(BUILTIN_PACKAGE)) {
                 sb.append(item.getStringField(0));
             } else {
                 sb.append(item.getStringField(1)).append(":").append(item.getStringField(0));
@@ -398,7 +400,7 @@ public class BLangVMErrors {
             sb.append(":").append(item.getIntField(0)).append(")");
 
             // Do not append new line char if this is the last item
-            if (i != stackTraceItems.size() - 1) {
+            if (i != stackFrame.size() - 1) {
                 sb.append("\n");
             }
         }
@@ -412,7 +414,8 @@ public class BLangVMErrors {
 
     public static String getErrorMessage(BStruct error) {
         String errorMsg = error.getType().getName();
-        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".")) {
+        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".")
+                && !error.getType().getPackagePath().equals(BUILTIN_PACKAGE)) {
             errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
         }
 

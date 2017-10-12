@@ -20,26 +20,23 @@ package org.ballerinalang;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -62,7 +59,6 @@ public class BLangProgramRunner {
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
-        bContext.disableNonBlocking = true;
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
@@ -70,6 +66,7 @@ public class BLangProgramRunner {
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
+            //TODO check this to pass a Service
             bContext.setServiceInfo(serviceInfo);
             BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
@@ -77,13 +74,8 @@ public class BLangProgramRunner {
                 throw new BLangRuntimeException("error: " + stackTraceStr);
             }
 
-            if (!DispatcherRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                        serviceInfo.getProtocolPkgPath());
-            }
             // Deploy service
-            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
-                    .serviceRegistered(serviceInfo);
+            ServerConnectorRegistry.getInstance().registerService(serviceInfo);
             serviceCount++;
         }
 
@@ -112,7 +104,6 @@ public class BLangProgramRunner {
 
         // Non blocking is not supported in the main program flow..
         Context bContext = new Context(programFile);
-        bContext.disableNonBlocking = true;
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
@@ -130,15 +121,12 @@ public class BLangProgramRunner {
         StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = arrayArgs;
-        int[] argRegs = {0};
-        BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         controlStackNew.pushFrame(stackFrame);
-
-        BLangVM bLangVM = new BLangVM(programFile);
+        bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         if (ModeResolver.getInstance().isDebugEnabled()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
@@ -146,9 +134,10 @@ public class BLangProgramRunner {
             debugManager.mainInit(programFile, bContext);
             debugManager.holdON();
         } else {
+            BLangVM bLangVM = new BLangVM(programFile);
             bLangVM.run(bContext);
         }
-
+        bContext.await();
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

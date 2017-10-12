@@ -9,11 +9,9 @@ service<http> passthrough {
         methods:["GET"],
         path:"/"
     }
-    resource passthrough (message m) {
-        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
-        message response = nyseEP.get("/nyseStock/stocks", m);
-        reply response;
-
+    resource passthrough (http:Request req, http:Response res) {
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090", {});
+        res = nyseEP.get("/nyseStock/stocks", req);
+        res.send();
     }
-
 }

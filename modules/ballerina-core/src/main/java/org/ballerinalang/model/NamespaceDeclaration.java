@@ -18,8 +18,6 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 
-import javax.xml.XMLConstants;
-
 /**
  * {@code NamespaceDeclaration} represents a namespace declaration in ballerina.
  * <p>
@@ -46,27 +44,6 @@ public class NamespaceDeclaration implements BLangSymbol, Node, CompilationUnit 
     private SymbolName symbolName;
     private Identifier identifier;
     private boolean isDefault;
-    private SymbolScope symbolScope;
-    
-    public NamespaceDeclaration(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String namespaceUri, 
-            String prefix, String pkgPath, Identifier identifier, SymbolScope symbolScope) {
-        this.location = location;
-        this.whiteSpaceDescriptor = wsDescriptor;
-        this.namespaceUri = namespaceUri;
-        
-        if (prefix == null) {
-            this.prefix = XMLConstants.DEFAULT_NS_PREFIX;
-            this.isDefault = true;
-        } else {
-            this.prefix = prefix;
-            this.isDefault = false;
-        }
-        
-        this.pkgPath = pkgPath;
-        this.identifier = identifier;
-        this.symbolScope = symbolScope;
-        this.symbolName = new SymbolName(this.prefix);
-    }
 
     /**
      * Get the name of the import  package.
@@ -100,11 +77,6 @@ public class NamespaceDeclaration implements BLangSymbol, Node, CompilationUnit 
         
         // prefix is the unique identifier for a namespace delcr.
         return this.prefix.equals(other.prefix);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override
@@ -144,10 +116,5 @@ public class NamespaceDeclaration implements BLangSymbol, Node, CompilationUnit 
     @Override
     public boolean isNative() {
         return false;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
     }
 }

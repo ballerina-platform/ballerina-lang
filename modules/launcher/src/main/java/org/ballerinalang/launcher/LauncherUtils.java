@@ -17,20 +17,23 @@
 */
 package org.ballerinalang.launcher;
 
-import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,6 +46,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -58,7 +65,7 @@ public class LauncherUtils {
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else {
-            programFile = BLangCompiler.compile(sourceRootPath, sourcePath);
+            programFile = compile(sourceRootPath, sourcePath);
         }
 
         // If there is no main or service entry point, throw an error
@@ -76,10 +83,7 @@ public class LauncherUtils {
         }
     }
 
-    private static void runMain(ProgramFile programFile, String[] args) {
-        // Load Client Connectors
-        BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
-
+    public static void runMain(ProgramFile programFile, String[] args) {
         BLangProgramRunner.runMain(programFile, args);
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
@@ -90,30 +94,15 @@ public class LauncherUtils {
         Runtime.getRuntime().exit(0);
     }
 
-    private static void runServices(ProgramFile programFile) {
+    public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
 
-        // TODO : Fix this properly.
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BLangRuntimeRegistry.getInstance().initialize();
+        ServerConnectorRegistry.getInstance().initServerConnectors();
 
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
-        try {
-            List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
-                    .startPendingConnectors();
-            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                    serverConnector));
-
-            // Starting up HTTP Server connectors
-            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
-                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                                                                                       serverConnector));
-        } catch (ServerConnectorException e) {
-            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
-        }
+        ServerConnectorRegistry.getInstance().deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {
@@ -202,6 +191,67 @@ public class LauncherUtils {
             } catch (IOException e) {
                 throw createLauncherException("error: fail to write ballerina.pid file: " +
                         makeFirstLetterLowerCase(e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Compile and get the executable program file.
+     * 
+     * @param sourceRootPath Path to the source root
+     * @param sourcePath Path to the source from the source root
+     * @return Executable program
+     */
+    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(sourcePath.toString());
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+
+        if (programFile == null) {
+            throw createLauncherException("compilation contains errors");
+        }
+
+        ProgramFile progFile = getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourcePath);
+        return progFile;
+    }
+
+    /**
+     * Get the executable program ({@link ProgramFile}) given the compiled program 
+     * ({@link org.wso2.ballerinalang.programfile.ProgramFile})
+     * 
+     * @param programFile Compiled program
+     * @return Executable program
+     */
+    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+        ByteArrayInputStream byteIS = null;
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        try {
+            ProgramFileWriter.writeProgram(programFile, byteOutStream);
+
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
+            return reader.readProgram(byteIS);
+        } catch (Throwable e) {
+            throw createLauncherException("error: fail to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+
+            try {
+                byteOutStream.close();
+            } catch (IOException ignore) {
             }
         }
     }

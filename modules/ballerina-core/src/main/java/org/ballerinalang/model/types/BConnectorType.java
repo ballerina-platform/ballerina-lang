@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,20 +34,9 @@ public class BConnectorType extends BType {
      *
      * @param typeName    string name of the type
      * @param pkgPath     package of the connector
-     * @param symbolScope symbol scope of the connector
-     */
-    public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BConnector.class);
-    }
-
-    /**
-     * Create a {@code BConnectorType} which represents the Ballerina Connector type.
-     *
-     * @param typeName string name of the type
-     * @param pkgPath  package of the connector
      */
     public BConnectorType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null, BConnector.class);
+        super(typeName, pkgPath, BConnector.class);
     }
 
     public int[] getFieldTypeCount() {

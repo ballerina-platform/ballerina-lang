@@ -68,7 +68,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public static final String PI_END = "?>";
     
-    public static final String ZERO_STRING_VALUE = BTypes.typeString.getZeroValue().stringValue();
+    public static final String ZERO_STRING_VALUE = "";
     
     /**
      * Check whether the XML sequence is empty.
@@ -141,7 +141,6 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @return Attributes as a {@link BMap}
      */
     public abstract BMap<?, ?> getAttributesMap();
-    
 
     /**
      * Set the attributes of the XML{@link BMap}.
@@ -156,7 +155,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @return All the elements-type items, in the given sequence
      */
     public abstract BXML<?> elements();
-    
+
     /**
      * Get all the elements-type items in the given sequence, that matches a given qualified name.
      * 
@@ -164,14 +163,14 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @return All the elements-type items, that matches a given qualified name, from the this sequence.
      */
     public abstract BXML<?> elements(BString qname);
-    
+
     /**
      * Selects and concatenate all the children sequences of the elements in this sequence.
      * 
      * @return All the children sequences of the elements in this sequence
      */
     public abstract BXML<?> children();
-    
+
     /**
      * Selects and concatenate all the children sequences that matches the given qualified name, 
      * in all the element-type items in this sequence. Only the children will be selected, but not
@@ -181,14 +180,21 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @return All the children that matches the given qualified name, as a sequence
      */
     public abstract BXML<?> children(BString qname);
-    
+
     /**
      * Set the children of this XML. Any existing children will be removed.
      * 
      * @param seq XML Sequence to be set as the children 
      */
     public abstract void setChildren(BXML<?> seq);
-    
+
+    /**
+     * Add a XMl sequence to this XML as children.
+     * 
+     * @param seq XML Sequence to be added as the children 
+     */
+    public abstract void addChildren(BXML<?> seq);
+
     /**
      * Strips any text items from the XML that are all whitespace.
      *

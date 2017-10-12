@@ -10,7 +10,7 @@ function main (string[] args) {
     json j2 = j1[4];
     system:println(j2.first);
 
-    // Add or change elements in a JSON array
+    // Add or change elements in a JSON array.
     j1[4] = 8.00;
     system:println(j1);
 

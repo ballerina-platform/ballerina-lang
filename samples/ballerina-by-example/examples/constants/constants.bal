@@ -9,4 +9,3 @@ function main (string[] args) {
     float diameter = circumference / PI;
     system:println("Diameter of the circle: " + diameter);
 }
-

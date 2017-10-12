@@ -1,21 +1,21 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
-package org.ballerinalang.nativeimpl.functions;
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.test.types.file;
 
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
@@ -23,10 +23,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -51,11 +50,11 @@ import java.io.OutputStream;
 public class FileTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileTest.class);
-    private ProgramFile programFile;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/fileTest.bal");
+        result = BTestUtils.compile("test-src/types/file/file-test.bal");
     }
 
     @BeforeMethod
@@ -88,8 +87,8 @@ public class FileTest {
         File sourceFile = new File(sourcePath);
         File destFile = new File(destPath);
         if (sourceFile.createNewFile()) {
-            BValue[] args = { new BString(sourcePath), new BString(destPath) };
-            BLangFunctions.invokeNew(programFile, "testCopy", args);
+            BValue[] args = {new BString(sourcePath), new BString(destPath)};
+            BTestUtils.invoke(result, "testCopy", args);
             Assert.assertTrue(sourceFile.exists(), "Source file does not exist");
             Assert.assertTrue(destFile.exists(), "File wasn't copied");
         } else {
@@ -97,14 +96,14 @@ public class FileTest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to copy file: file " +
-          "not found: temp[\\\\/]copy-non-existing-file.txt.*")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to copy file: " +
+                    "file not found: temp[\\\\/]copy-non-existing-file.txt.*")
     public void testCopyNonExistentFile() {
         String sourcePath = "temp/copy-non-existing-file.txt";
         String destPath = "temp/duplicate-non-existing-file.txt";
-        BValue[] args = { new BString(sourcePath), new BString(destPath) };
-        BLangFunctions.invokeNew(programFile, "testCopy", args);
+        BValue[] args = {new BString(sourcePath), new BString(destPath)};
+        BTestUtils.invoke(result, "testCopy", args);
     }
 
     @Test
@@ -116,9 +115,9 @@ public class FileTest {
         String sourcePath = "temp";
         String destPath = "tempDir";
         if (one.createNewFile() && two.createNewFile()) {
-            BValue[] args = { new BString(sourcePath), new BString(destPath) };
+            BValue[] args = {new BString(sourcePath), new BString(destPath)};
 
-            BLangFunctions.invokeNew(programFile, "testCopy", args);
+            BTestUtils.invoke(result, "testCopy", args);
             Assert.assertTrue(new File("temp/copy-file-one.txt").exists(), "Source file does not exist");
             Assert.assertTrue(new File("temp/copy-file-two.txt").exists(), "Source file does not exist");
             Assert.assertTrue(new File("tempDir/copy-file-one.txt").exists(), "File wasn't copied");
@@ -136,8 +135,8 @@ public class FileTest {
         File sourceFile = new File(sourcePath);
         File destFile = new File(destPath);
         if (sourceFile.createNewFile()) {
-            BValue[] args = { new BString(sourcePath), new BString(destPath) };
-            BLangFunctions.invokeNew(programFile, "testMove", args);
+            BValue[] args = {new BString(sourcePath), new BString(destPath)};
+            BTestUtils.invoke(result, "testMove", args);
             Assert.assertFalse(sourceFile.exists(), "Source file exists");
             Assert.assertTrue(destFile.exists(), "File wasn't moved");
         } else {
@@ -145,14 +144,14 @@ public class FileTest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: file " +
-          "not found: temp.*")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: " +
+                    "file not found: temp.*")
     public void testMoveNonExistentFile() throws IOException {
         String sourcePath = "temp/move-non-existing-file.txt";
         String destPath = "temp/test/move-non-existing-file.txt";
-        BValue[] args = { new BString(sourcePath), new BString(destPath) };
-        BLangFunctions.invokeNew(programFile, "testMove", args);
+        BValue[] args = {new BString(sourcePath), new BString(destPath)};
+        BTestUtils.invoke(result, "testMove", args);
     }
 
     @Test
@@ -164,8 +163,8 @@ public class FileTest {
         String sourcePath = "temp";
         String destPath = "tempDir";
         if (one.createNewFile() && two.createNewFile()) {
-            BValue[] args = { new BString(sourcePath), new BString(destPath) };
-            BLangFunctions.invokeNew(programFile, "testMove", args);
+            BValue[] args = {new BString(sourcePath), new BString(destPath)};
+            BTestUtils.invoke(result, "testMove", args);
             Assert.assertFalse(new File("temp/move-file-one.txt").exists(), "Source file exists");
             Assert.assertFalse(new File("temp/move-file-two.txt").exists(), "Source file exists");
             Assert.assertTrue(new File("tempDir/move-file-one.txt").exists(), "File wasn't moved");
@@ -180,8 +179,8 @@ public class FileTest {
         String targetPath = "temp/exist-file.txt";
         File targetFile = new File(targetPath);
         if (targetFile.createNewFile()) {
-            BValue[] args = { new BString(targetPath) };
-            BValue[] returnVal = BLangFunctions.invokeNew(programFile, "testExists", args);
+            BValue[] args = {new BString(targetPath)};
+            BValue[] returnVal = BTestUtils.invoke(result, "testExists", args);
             Assert.assertTrue(((BBoolean) returnVal[0]).booleanValue(), "Exists return false when file exists");
         } else {
             Assert.fail("Error in file creation.");
@@ -191,8 +190,8 @@ public class FileTest {
     @Test
     public void testExistsNonExistentFile() throws IOException {
         String targetPath = "temp/exist-file.txt";
-        BValue[] args = { new BString(targetPath) };
-        BValue[] returnVal = BLangFunctions.invokeNew(programFile, "testExists", args);
+        BValue[] args = {new BString(targetPath)};
+        BValue[] returnVal = BTestUtils.invoke(result, "testExists", args);
         Assert.assertFalse(((BBoolean) returnVal[0]).booleanValue(), "Exists return true when file doesn't exist");
     }
 
@@ -201,8 +200,8 @@ public class FileTest {
         String targetPath = "temp/delete-file.txt";
         File targetFile = new File(targetPath);
         if (targetFile.createNewFile()) {
-            BValue[] args = { new BString(targetPath)};
-            BLangFunctions.invokeNew(programFile, "testDelete", args);
+            BValue[] args = {new BString(targetPath)};
+            BTestUtils.invoke(result, "testDelete", args);
             Assert.assertFalse(targetFile.exists(), "Target file exists");
         } else {
             Assert.fail("Error in file creation.");
@@ -211,11 +210,11 @@ public class FileTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to delete file: " +
-            "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
+                    "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
     public void testDeleteNonExistentFile() {
         String targetPath = "temp/delete-non-existing-file.txt";
-        BValue[] args = { new BString(targetPath) };
-        BLangFunctions.invokeNew(programFile, "testDelete", args);
+        BValue[] args = {new BString(targetPath)};
+        BTestUtils.invoke(result, "testDelete", args);
     }
 
     @Test
@@ -227,9 +226,9 @@ public class FileTest {
         String targetPath = "temp";
         File targetFile = new File(targetPath);
         if (one.createNewFile() && two.createNewFile()) {
-            BValue[] args = { new BString(targetPath) };
+            BValue[] args = {new BString(targetPath)};
 
-            BLangFunctions.invokeNew(programFile, "testDelete", args);
+            BTestUtils.invoke(result, "testDelete", args);
             Assert.assertFalse(targetFile.exists(), "Target Directory exists");
         } else {
             Assert.fail("Error in file creation.");
@@ -242,28 +241,28 @@ public class FileTest {
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
 
-            BValue[] args = { new BString(sourcePath) , new BString("rw")};
-            BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
+            BValue[] args = {new BString(sourcePath), new BString("rw")};
+            BStruct sourceStruct = (BStruct) BTestUtils.invoke(result, "testOpen", args)[0];
             Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
             Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
 
             args[1] = new BString("ra");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
+            sourceStruct = (BStruct) BTestUtils.invoke(result, "testOpen", args)[0];
             Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
             Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
 
             args[1] = new BString("r");
-            sourceStruct =  (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
+            sourceStruct = (BStruct) BTestUtils.invoke(result, "testOpen", args)[0];
             Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
             Assert.assertNull(sourceStruct.getNativeData("outStream"), "Output Stream found in read mode");
 
             args[1] = new BString("w");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
+            sourceStruct = (BStruct) BTestUtils.invoke(result, "testOpen", args)[0];
             Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in write mode");
             Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
 
             args[1] = new BString("a");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
+            sourceStruct = (BStruct) BTestUtils.invoke(result, "testOpen", args)[0];
             Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in append mode");
             Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
 
@@ -274,11 +273,11 @@ public class FileTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to open file: " +
-            "file not found: temp[\\\\/]open-non-existing-file.txt.*")
+                    "file not found: temp[\\\\/]open-non-existing-file.txt.*")
     public void testOpenNonExistentFile() {
         String sourcePath = "temp/open-non-existing-file.txt";
-        BValue[] args = { new BString(sourcePath), new BString("rw") };
-        BLangFunctions.invokeNew(programFile, "testOpen", args);
+        BValue[] args = {new BString(sourcePath), new BString("rw")};
+        BTestUtils.invoke(result, "testOpen", args);
     }
 
     @Test(expectedExceptions = IOException.class)
@@ -286,8 +285,8 @@ public class FileTest {
         String sourcePath = "temp/close-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
-            BValue[] args = { new BString(sourcePath) };
-            BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testClose", args)[0];
+            BValue[] args = {new BString(sourcePath)};
+            BStruct sourceStruct = (BStruct) BTestUtils.invoke(result, "testClose", args)[0];
             InputStream inputStream = (BufferedInputStream) sourceStruct.getNativeData("inStream");
             OutputStream outputStream = (BufferedOutputStream) sourceStruct.getNativeData("outStream");
             inputStream.read();
@@ -303,8 +302,8 @@ public class FileTest {
         File targetFile = new File(targetPath);
         byte[] content = "Sample Text".getBytes();
         BBlob byteContent = new BBlob(content);
-        BValue[] args = { byteContent, new BString(targetPath) };
-        BLangFunctions.invokeNew(programFile, "testWrite", args);
+        BValue[] args = {byteContent, new BString(targetPath)};
+        BTestUtils.invoke(result, "testWrite", args);
         Assert.assertTrue(targetFile.exists(), "File not created");
         Assert.assertEquals(byteContent.blobValue(), getBytesFromFile(targetFile), "Written wrong content");
     }
@@ -317,21 +316,21 @@ public class FileTest {
         byte[] newline = ("Sample Text" + System.lineSeparator()).getBytes();
         BBlob byteContent = new BBlob(content);
         BBlob byteNewLine = new BBlob(newline);
-        BValue[] args = { byteContent, new BString(targetPath) };
-        BLangFunctions.invokeNew(programFile, "testWriteNewLine", args);
+        BValue[] args = {byteContent, new BString(targetPath)};
+        BTestUtils.invoke(result, "testWriteNewLine", args);
         Assert.assertTrue(targetFile.exists(), "File not created");
         Assert.assertEquals(getBytesFromFile(targetFile), byteNewLine.blobValue(), "Written wrong content");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to write to " +
-            "file: file is not opened in write or append mode.*")
+                    "file: file is not opened in write or append mode.*")
     public void testWriteWithoutOpeningFile() {
         String targetPath = "temp/write-non-opened.txt";
         byte[] content = "Sample Text".getBytes();
         BBlob byteContent = new BBlob(content);
-        BValue[] args = { byteContent, new BString(targetPath)  };
-        BLangFunctions.invokeNew(programFile, "testWriteWithoutOpening", args);
+        BValue[] args = {byteContent, new BString(targetPath)};
+        BTestUtils.invoke(result, "testWriteWithoutOpening", args);
     }
 
     @Test
@@ -342,23 +341,36 @@ public class FileTest {
         byte[] content = "Sample Text".getBytes();
         outputStream.write(content);
 
-        BValue[] args = { new BString(targetPath), new BInteger(11) };
-        BValue[] results = BLangFunctions.invokeNew(programFile, "testRead", args);
+        BValue[] args = {new BString(targetPath), new BInteger(11)};
+        BValue[] results = BTestUtils.invoke(result, "testRead", args);
         Assert.assertEquals(content, ((BBlob) results[0]).blobValue(), "Not read properly");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to read from " +
-            "file: file is not opened in read mode.*")
+                    "file: file is not opened in read mode.*")
     public void testReadWithoutOpeningFile() throws IOException {
         String targetPath = "temp/read-non-opened-file.txt";
         File targetFile = new File(targetPath);
         OutputStream outputStream = new FileOutputStream(targetFile);
         byte[] content = "Sample Text".getBytes();
         outputStream.write(content);
-        
-        BValue[] args = { new BString(targetPath) , new BInteger(11) };
-        BLangFunctions.invokeNew(programFile, "testReadWithoutOpening", args);
+
+        BValue[] args = {new BString(targetPath), new BInteger(11)};
+        BTestUtils.invoke(result, "testReadWithoutOpening", args);
+    }
+
+    @Test(description = "Test file functions with errors")
+    public void testVFileNegativeCases() {
+        Assert.assertEquals(result.getErrorCount(), 4);
+        //testVariableIfScope
+        BTestUtils.validateError(result, 0, "undefined symbol 'k'", 15, 11);
+        //testVariableElseScope
+        BTestUtils.validateError(result, 1, "undefined symbol 'b'", 26, 11);
+        //testVariableWhileScope
+        BTestUtils.validateError(result, 2, "undefined symbol 'b'", 35, 14);
+        //testVariableResourceScope
+        BTestUtils.validateError(result, 3, "undefined symbol 'b'", 47, 16);
     }
 
     private void deleteDir(File dir) {

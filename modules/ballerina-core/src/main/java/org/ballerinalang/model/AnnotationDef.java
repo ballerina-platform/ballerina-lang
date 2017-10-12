@@ -18,10 +18,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +26,7 @@ import java.util.Map;
  *
  * @since 0.85
  */
-public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
+public class AnnotationDef implements CompilationUnit, BLangSymbol {
     private Identifier identifier;
     private NodeLocation location;
     private WhiteSpaceDescriptor whiteSpaceDescriptor;
@@ -38,7 +35,6 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     private AnnotationAttributeDef[] attributes;
     
     // Scope related variables
-    private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
     private String pkgName;
     private String pkgPath;
@@ -46,12 +42,9 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
 
     /**
      * Create an annotation definition.
-     * 
-     * @param enclosingScope Enclosing scope
      */
-    public AnnotationDef(SymbolScope enclosingScope) {
+    public AnnotationDef() {
         this.symbolMap = new HashMap<>();
-        this.enclosingScope = enclosingScope;
     }
 
     @Override
@@ -121,53 +114,13 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
-    
-    @Override
-    public BLangSymbol resolveMembers(SymbolName name) {
-        return symbolMap.get(name);
-    }
-    
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
 
     @Override
     public SymbolName getSymbolName() {
         return symbolName;
     }
 
-    @Override
-    public SymbolScope getSymbolScope() {
-        return this;
-    }
-
     // Methods in the SymbolScope interface
-
-    @Override
-    public ScopeName getScopeName() {
-        return ScopeName.LOCAL;
-    }
-
-    @Override
-    public SymbolScope getEnclosingScope() {
-        return enclosingScope;
-    }
-
-    @Override
-    public void define(SymbolName name, BLangSymbol symbol) {
-        symbolMap.put(name, symbol);
-    }
-
-    @Override
-    public BLangSymbol resolve(SymbolName name) {
-        return resolve(symbolMap, name);
-    }
-
-    @Override
-    public Map<SymbolName, BLangSymbol> getSymbolMap() {
-        return Collections.unmodifiableMap(this.symbolMap);
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -204,123 +157,5 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     @Override
     public boolean isNative() {
         return false;
-    }
-    
-    
-    /**
-     * Builder class to build an {@code AnnotationDef} node.
-     *
-     * @since 0.8.0
-     */
-    public static class AnnotationDefBuilder {
-        private NodeLocation location;
-        private WhiteSpaceDescriptor whiteSpaceDescriptor;
-        private Identifier identifier;
-        private String pkgPath;
-        private String pkgName;
-        private List<AnnotationAttachmentPoint> attachmentPoints = new ArrayList<>();
-        private AnnotationDef annotationDef;
-        private List<AnnotationAttributeDef> attributes = new ArrayList<>();
-        private List<AnnotationAttachment> annotationList = new ArrayList<>();
-
-        /**
-         * Create an annotation builder.
-         * 
-         * @param location Location of the annotation definition in the source.
-         * @param enclosingScope Enclosing scope of the annotation
-         */
-        public AnnotationDefBuilder(NodeLocation location, SymbolScope enclosingScope) {
-            annotationDef = new AnnotationDef(enclosingScope);
-            this.location = location;
-        }
-
-        /**
-         * Get current scope.
-         * 
-         * @return Annotation definition
-         */
-        public SymbolScope getCurrentScope() {
-            return annotationDef;
-        }
-
-        public void setIdentifier(Identifier identifier) {
-            this.identifier = identifier;
-        }
-
-        /**
-         * Set the package path of this annotation.
-         * 
-         * @param pkgPath Package path of this annotation
-         */
-        public void setPackagePath(String pkgPath) {
-            this.pkgPath = pkgPath;
-        }
-        
-        /**
-         * Set the package name of this annotation.
-         * 
-         * @param pkgName Package name of this annotation
-         */
-        public void setPackageName(String pkgName) {
-            this.pkgName = pkgName;
-        }
-        
-        /**
-         * Add a field to the annotation.
-         *
-         * @param attachmentPoint Field in the annotation
-         */
-        public void addAttachmentPoint(AnnotationAttachmentPoint attachmentPoint) {
-            attachmentPoints.add(attachmentPoint);
-        }
-        
-        /**
-         * Add an attribute definition to the annotation.
-         * 
-         * @param attributeDef Attribute definition
-         */
-        public void addAttributeDef(AnnotationAttributeDef attributeDef) {
-            this.attributes.add(attributeDef);
-        }
-
-        /**
-         * Add an annotation attachment to the annotation.
-         * 
-         * @param annotation annotation attachment
-         */
-        public void addAnnotation(AnnotationAttachment annotation) {
-            this.annotationList.add(annotation);
-        }
-
-        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
-            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        }
-
-        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-            return whiteSpaceDescriptor;
-        }
-
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
-        }
-
-        /**
-         * Build the annotation definition.
-         *
-         * @return annotation definition 
-         */
-        public AnnotationDef build() {
-            annotationDef.location = location;
-            annotationDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
-            annotationDef.identifier = identifier;
-            annotationDef.attachmentPoints = attachmentPoints
-                    .toArray(new AnnotationAttachmentPoint[attachmentPoints.size()]);
-            annotationDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
-            annotationDef.pkgName = pkgName;
-            annotationDef.pkgPath = pkgPath;
-            annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]);
-            annotationDef.annotations = annotationList.toArray(new AnnotationAttachment[annotationList.size()]);
-            return annotationDef;
-        }
     }
 }

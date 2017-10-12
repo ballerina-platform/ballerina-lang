@@ -19,7 +19,6 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.values.BValue;
 
@@ -37,18 +36,12 @@ public abstract class BType implements BLangSymbol {
     protected String typeName;
     protected String pkgPath;
     protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
     protected Class<? extends BValue> valueClass;
 
-    protected BType(SymbolScope symbolScope) {
-        this.symbolScope = symbolScope;
-    }
-
-    protected BType(String typeName, String pkgPath, SymbolScope symbolScope, Class<? extends BValue> valueClass) {
+    protected BType(String typeName, String pkgPath, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
         this.pkgPath = pkgPath;
         this.symbolName = new SymbolName(typeName, pkgPath);
-        this.symbolScope = symbolScope;
         this.valueClass = valueClass;
     }
 
@@ -135,10 +128,4 @@ public abstract class BType implements BLangSymbol {
     public SymbolName getSymbolName() {
         return symbolName;
     }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
 }
