@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.net.http;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
-import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -68,7 +68,9 @@ public class HttpConnectionManager {
     private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
     private static final String CIPHERS = "ciphers";
     private static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
-    private static final int OPTIONS_INDEX = 0;
+    private static final int OPTIONS_STRUCT_INDEX = 0;
+    private static final int SSL_STRUCT_INDEX = 1;
+    private static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     private static final int FOLLOW_REDIRECT_INDEX = 0;
     private static final int MAX_REDIRECT_COUNT = 0;
     private static final int TRUST_STORE_FILE_INDEX = 0;
@@ -183,16 +185,18 @@ public class HttpConnectionManager {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
 
-        BStruct options = (BStruct) bConnector.getRefField(OPTIONS_INDEX);
-        int followRedirect = options.getBooleanField(FOLLOW_REDIRECT_INDEX);
-        Long maxRedirectCount = options.getIntField(MAX_REDIRECT_COUNT);
-        String trustStoreFile = options.getStringField(TRUST_STORE_FILE_INDEX);
-        String trustStorePassword = options.getStringField(TRUST_STORE_PASSWORD_INDEX);
-        String keyStoreFile = options.getStringField(KEY_STORE_FILE_INDEX);
-        String keyStorePassword = options.getStringField(KEY_STORE_PASSWORD_INDEX);
-        String sslEnabledProtocols = options.getStringField(SSL_ENABLED_PROTOCOLS_INDEX);
-        String ciphers = options.getStringField(CIPHERS_INDEX);
-        String sslProtocol = options.getStringField(SSL_PROTOCOL_INDEX);
+        BStruct options = (BStruct) bConnector.getRefField(OPTIONS_STRUCT_INDEX);
+        BStruct ssl = (BStruct) options.getRefField(SSL_STRUCT_INDEX);
+        BStruct followRedirects = (BStruct) options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX);
+        int followRedirect = followRedirects.getBooleanField(FOLLOW_REDIRECT_INDEX);
+        Long maxRedirectCount = followRedirects.getIntField(MAX_REDIRECT_COUNT);
+        String trustStoreFile = ssl.getStringField(TRUST_STORE_FILE_INDEX);
+        String trustStorePassword = ssl.getStringField(TRUST_STORE_PASSWORD_INDEX);
+        String keyStoreFile = ssl.getStringField(KEY_STORE_FILE_INDEX);
+        String keyStorePassword = ssl.getStringField(KEY_STORE_PASSWORD_INDEX);
+        String sslEnabledProtocols = ssl.getStringField(SSL_ENABLED_PROTOCOLS_INDEX);
+        String ciphers = ssl.getStringField(CIPHERS_INDEX);
+        String sslProtocol = ssl.getStringField(SSL_PROTOCOL_INDEX);
 
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
