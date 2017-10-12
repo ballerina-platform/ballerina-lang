@@ -12,7 +12,7 @@ struct Argument {
 @doc:Description{value:"Remove HTTP header from the message"}
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
-function removeHeader (message m, string key) {
+function removeHeader (string m, string key) {
     system:println("invoked");
     Argument arg1 = {text:"arg1", argumentId:1, sentiment:1};
     testStruct(arg1);

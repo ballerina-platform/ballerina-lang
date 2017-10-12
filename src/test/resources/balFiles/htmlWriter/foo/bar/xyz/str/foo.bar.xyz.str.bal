@@ -12,27 +12,27 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Description{value:"test connector action"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response1: response object"}
-    action testAction1(string msg) (message response1) {
-        message request;
-        message response;
+    action testAction1(string msg) (string response1) {
+        string request;
+        string response;
         return response;
     }
 
     @doc:Description{value:"test connector action2"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response2: response object"}
-    action testAction2(string msg) (message response2) {
-        message request;
-        message response;
+    action testAction2(string msg) (string response2) {
+        string request;
+        string response;
         return response;
     }
 
     @doc:Description{value:"test connector action3"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response3: response object"}
-    action testAction3(string msg) (message response3) {
-        message request;
-        message response;
+    action testAction3(string msg) (string response3) {
+        string request;
+        string response;
         return response;
     }
 }
