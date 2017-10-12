@@ -224,8 +224,6 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BXML result = null;
         try {
-            // Accessing First Parameter Value.
-//            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
             BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(struct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -240,9 +238,6 @@ public class HttpUtil {
                     result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                if (httpCarbonMessage.isEmpty()) {
-                    throw new BallerinaException("empty content");
-                }
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
                 result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());

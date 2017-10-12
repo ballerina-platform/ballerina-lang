@@ -61,3 +61,27 @@ function getStudent() (json<Student>){
     json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
     return j;
 }
+
+struct Employee {
+    string first_name;
+    string last_name;
+    int age;
+    Address address;
+}
+
+struct Address {
+    string number;
+    string street;
+    string city;
+    PhoneNumber phoneNumber;
+}
+
+struct PhoneNumber {
+    string areaCode;
+    string number;
+}
+
+function testContrainingWithNestedStructs() (json, json, json) {
+    json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
+    return e, e.address.phoneNumber.number, e["address"]["phoneNumber"]["number"];
+}
