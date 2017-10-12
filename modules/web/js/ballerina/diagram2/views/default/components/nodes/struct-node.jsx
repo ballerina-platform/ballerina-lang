@@ -94,6 +94,7 @@ class StructNode extends React.Component {
         if (defaultValue) {
             statement += ' = ' + defaultValue;
         }
+        statement += ';';
         parseContent(statement)
             .then((jsonTree) => {
                 if (jsonTree.model.topLevelNodes[0]) {
