@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.semantics;
 
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -146,7 +147,6 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;

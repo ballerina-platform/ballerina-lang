@@ -25,12 +25,12 @@ function testForkJoinAnyOfSpecific () (string[]) {
             xyz, _ = (any[])airlineResponses["XYZ_Airline"];
             results[0], _ = (string)xyz[0];
         }
-        if (airlineResponses["PQR_Airline"] == null) {
+        if (airlineResponses["PQR_Airline"] != null) {
             any[] pqr;
             pqr, _ = (any[])airlineResponses["PQR_Airline"];
             results[0], _ = (string)pqr[0];
         }
-        return results, i;
+        return results;
     } timeout (30) (map airlineResponses) {
         return results;
     }

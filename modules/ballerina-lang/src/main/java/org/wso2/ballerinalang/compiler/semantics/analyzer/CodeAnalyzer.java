@@ -371,9 +371,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransform transformNode) {
-        if (transformNode.body.getStatements().size() == 0) {
-            this.dlog.error(transformNode.pos, DiagnosticCode.TRANSFORM_STATEMENT_EMPTY_BODY);
-        }
         this.checkStatementExecutionValidity(transformNode);
         Set<String> inputs = new HashSet<>();
         Set<String> outputs = new HashSet<>();
@@ -637,14 +634,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                if (variable.expr.getKind() != NodeKind.LITERAL) {
-                    // if the variable does not hold a constant value, it is a temporary variable and hence not an input
-                    innerVars.add(varName);
-                }
+                // a variable defined in transform scope is a inner variable
+                innerVars.add(varName);
 
                 //if variable has not been used as an output before
                 inputs.add(varName);
 
+                BLangExpression expr = variableDefStmt.var.expr;
+                BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(expr);
+                for (BLangExpression exp : varRefExpressions) {
+                    String expVarName = ((BLangSimpleVarRef) exp).variableName.getValue();
+                    if (outputs.contains(expVarName)) {
+                        this.dlog.error(((BLangSimpleVarRef) exp).pos,
+                                        DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                        continue;
+                    }
+                    //if variable has not been used as an output before
+                    inputs.add(expVarName);
+                }
                 continue;
             }
             if (statement.getKind() == NodeKind.ASSIGNMENT) {

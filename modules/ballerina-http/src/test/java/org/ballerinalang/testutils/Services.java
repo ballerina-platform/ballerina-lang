@@ -25,8 +25,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpDispatcher;
-import org.ballerinalang.runtime.ServerConnectorMessageHandler;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -38,14 +36,6 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class Services {
-
-    public static CarbonMessage invoke(CarbonMessage cMsg) {
-
-        TestCallback callback = new TestCallback();
-        ServerConnectorMessageHandler.handleInbound(cMsg, callback);
-
-        return callback.getResponse();  // This will only work for blocking behaviour
-    }
 
     public static HTTPCarbonMessage invokeNew(HTTPCarbonMessage carbonMessage) {
         Resource resource = HttpDispatcher.findResource(carbonMessage);
