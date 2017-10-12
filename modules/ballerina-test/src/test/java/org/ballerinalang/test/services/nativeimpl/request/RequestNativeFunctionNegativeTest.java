@@ -236,9 +236,10 @@ public class RequestNativeFunctionNegativeTest {
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
-        BTestUtils.validateError(resultNegative, 0, "undefined function 'setStatusCode'", 5, 5);
+        BTestUtils.validateError(resultNegative, 0,
+                                 "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
         //testRequestGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 35);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
     }
 
 }

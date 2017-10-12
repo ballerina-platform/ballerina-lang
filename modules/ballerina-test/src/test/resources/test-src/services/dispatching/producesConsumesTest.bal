@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/echo66"}
 service<http> echo66 {
@@ -10,8 +9,8 @@ service<http> echo66 {
     }
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso2"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -21,8 +20,8 @@ service<http> echo66 {
     }
     resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso22"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -33,8 +32,8 @@ service<http> echo66 {
     }
     resource echo3 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso222"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -42,7 +41,7 @@ service<http> echo66 {
 service<http> echo67 {
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo33": "echo1"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }

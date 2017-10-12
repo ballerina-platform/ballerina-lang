@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -32,10 +32,10 @@ import org.ballerinalang.net.http.HttpUtil;
  * ballerina.model.messages:clone
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "clone",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         isPublic = true

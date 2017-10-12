@@ -1,7 +1,5 @@
 import ballerina.net.http;
 import ballerina.lang.strings;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 struct Data {
     string name;
@@ -16,12 +14,12 @@ service<http> sample {
     resource echo (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:createSessionIfAbsent(req);
+        http:Session session = req.createSessionIfAbsent();
         if (session != null) {
             result = "session created";
         }
-        response:setStringPayload(res, result);
-        response:send(res);
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -31,14 +29,14 @@ service<http> sample {
     resource echo2 (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:getSession(req);
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session is returned";
         } else {
             result = "no session id available";
         }
-        response:setStringPayload(res, result);
-        response:send(res);
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -48,14 +46,14 @@ service<http> sample {
     resource echo3 (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:getSession(req);
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session created";
         } else {
             result = "session is not created";
         }
-        response:setStringPayload(res, result);
-        response:send(res);
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -65,15 +63,15 @@ service<http> sample {
     resource testGetAt (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:createSessionIfAbsent(req);
-        any attribute = http:getAttribute(session, "name");
+        http:Session session = req.createSessionIfAbsent();
+        any attribute = session.getAttribute("name");
         if (attribute != null) {
             result = "attribute available";
         } else {
             result = "attribute not available";
         }
-        response:setStringPayload(res, result);
-        response:send(res);
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -83,10 +81,10 @@ service<http> sample {
     resource echo5 (http:Request req, http:Response res) {
 
         string result = "chamil";
-        http:Session session = http:getSession(req);
-        any attribute = http:getAttribute(session, "name");
-        response:setStringPayload(res, result);
-        response:send(res);
+        http:Session session = req.getSession();
+        any attribute = session.getAttribute("name");
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -97,15 +95,15 @@ service<http> sample {
 
         string myName = "chamil";
         TypeCastError err;
-        http:Session session1 = http:createSessionIfAbsent(req);
-        http:Session session2 = http:createSessionIfAbsent(req);
-        http:setAttribute(session1, "name", "wso2");
-        any attribute = http:getAttribute(session2, "name");
+        http:Session session1 = req.createSessionIfAbsent();
+        http:Session session2 = req.createSessionIfAbsent();
+        session1.setAttribute("name", "wso2");
+        any attribute = session2.getAttribute("name");
         if (attribute != null) {
             myName, err = (string)attribute;
         }
-        response:setStringPayload(res, myName);
-        response:send(res);
+        res.setStringPayload(myName);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -115,17 +113,17 @@ service<http> sample {
     resource hello (http:Request req, http:Response res) {
 
         TypeCastError err;
-        string result = request:getStringPayload(req);
-        http:Session session = http:createSessionIfAbsent(req);
-        any attribute = http:getAttribute(session, "name");
+        string result = req.getStringPayload();
+        http:Session session = req.createSessionIfAbsent();
+        any attribute = session.getAttribute("name");
         if (attribute != null) {
             result, err = (string)attribute;
 
         } else {
-            http:setAttribute(session, "name", result);
+            session.setAttribute("name", result);
         }
-        response:setStringPayload(res, result);
-        response:send(res);
+        res.setStringPayload(result);
+        res.send();
     }
 }
 
@@ -139,16 +137,16 @@ service<http> counter {
 
         int sessionCounter;
         TypeCastError err;
-        http:Session ses = http:createSessionIfAbsent(req);
-        if (http:getAttribute(ses, "Counter") == null) {
+        http:Session session = req.createSessionIfAbsent();
+        if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int)http:getAttribute(ses, "Counter");
+            sessionCounter, err = (int)session.getAttribute("Counter");
         }
         sessionCounter = sessionCounter + 1;
-        http:setAttribute(ses, "Counter", sessionCounter);
-        response:setStringPayload(res, strings:valueOf(sessionCounter));
-        response:send(res);
+        session.setAttribute("Counter", sessionCounter);
+        res.setStringPayload(strings:valueOf(sessionCounter));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -159,16 +157,16 @@ service<http> counter {
 
         int sessionCounter;
         TypeCastError err;
-        http:Session ses = http:getSession(req);
-        if (http:getAttribute(ses, "Counter") == null) {
+        http:Session session = req.getSession();
+        if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int)http:getAttribute(ses, "Counter");
+            sessionCounter, err = (int)session.getAttribute("Counter");
         }
         sessionCounter = sessionCounter + 1;
-        http:setAttribute(ses, "Counter", sessionCounter);
-        response:setStringPayload(res, strings:valueOf(sessionCounter));
-        response:send(res);
+        session.setAttribute("Counter", sessionCounter);
+        res.setStringPayload(strings:valueOf(sessionCounter));
+        res.send();
     }
 }
 
@@ -180,14 +178,14 @@ service<http> sample2 {
     resource echoName (http:Request req, http:Response res) {
         string myName = "wso2";
         TypeCastError err;
-        http:Session Session = http:createSessionIfAbsent(req);
-        any attribute = http:getAttribute(Session, "name");
+        http:Session Session = req.createSessionIfAbsent();
+        any attribute = Session.getAttribute("name");
         if (attribute != null) {
             myName, err = (string)attribute;
         }
-        http:setAttribute(Session, "name", "chamil");
-        response:setStringPayload(res, myName);
-        response:send(res);
+        Session.setAttribute("name", "chamil");
+        res.setStringPayload(myName);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -195,18 +193,18 @@ service<http> sample2 {
     }
     resource myStruct (http:Request req, http:Response res) {
 
-        string result = request:getStringPayload(req);
+        string result = req.getStringPayload();
         TypeCastError err;
         Data d = {name:result};
-        http:Session Session = http:createSessionIfAbsent(req);
-        any attribute = http:getAttribute(Session, "nameStruct");
+        http:Session Session = req.createSessionIfAbsent();
+        any attribute = Session.getAttribute("nameStruct");
         if (attribute != null) {
             d, err = (Data)attribute;
         } else {
-            http:setAttribute(Session, "nameStruct", d);
+            Session.setAttribute("nameStruct", d);
         }
-        response:setStringPayload(res, d.name);
-        response:send(res);
+        res.setStringPayload(d.name);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -215,13 +213,13 @@ service<http> sample2 {
     }
     resource keyNames (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:setAttribute(ses, "Counter", "1");
-        http:setAttribute(ses, "Name", "chamil");
-        string[] arr = http:getAttributeNames(ses);
+        http:Session session = req.createSessionIfAbsent();
+        session.setAttribute("Counter", "1");
+        session.setAttribute("Name", "chamil");
+        string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        response:setStringPayload(res, "arraysize:" + arrsize);
-        response:send(res);
+        res.setStringPayload("arraysize:" + arrsize);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -230,12 +228,12 @@ service<http> sample2 {
     }
     resource keyNames2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:setAttribute(ses, "Counter", "1");
-        http:setAttribute(ses, "location", "colombo");
-        string[] arr = http:getAttributeNames(ses);
-        response:setStringPayload(res, arr[0]);
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        session.setAttribute("Counter", "1");
+        session.setAttribute("location", "colombo");
+        string[] arr = session.getAttributeNames();
+        res.setStringPayload(arr[0]);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -244,16 +242,16 @@ service<http> sample2 {
     }
     resource keyNames3 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:setAttribute(ses, "location", "colombo");
-        http:setAttribute(ses, "channel", "yue");
-        http:setAttribute(ses, "month", "june");
-        http:setAttribute(ses, "Name", "chamil");
-        http:removeAttribute(ses, "Name");
-        string[] arr = http:getAttributeNames(ses);
+        http:Session session = req.createSessionIfAbsent();
+        session.setAttribute("location", "colombo");
+        session.setAttribute("channel", "yue");
+        session.setAttribute("month", "june");
+        session.setAttribute("Name", "chamil");
+        session.removeAttribute("Name");
+        string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        response:setStringPayload(res, strings:valueOf(arrsize));
-        response:send(res);
+        res.setStringPayload(strings:valueOf(arrsize));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -262,15 +260,15 @@ service<http> sample2 {
     }
     resource keyNames4 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:setAttribute(ses, "Counter", "1");
-        http:setAttribute(ses, "Name", "chamil");
-        http:removeAttribute(ses, "Name");
-        http:invalidate(ses);
-        string[] arr = http:getAttributeNames(ses);
+        http:Session session = req.createSessionIfAbsent();
+        session.setAttribute("Counter", "1");
+        session.setAttribute("Name", "chamil");
+        session.removeAttribute("Name");
+        session.invalidate();
+        string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        response:setStringPayload(res, strings:valueOf(arrsize));
-        response:send(res);
+        res.setStringPayload(strings:valueOf(arrsize));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -279,11 +277,11 @@ service<http> sample2 {
     }
     resource keyNames5 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        string[] arr = http:getAttributeNames(ses);
+        http:Session session = req.createSessionIfAbsent();
+        string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        response:setStringPayload(res, strings:valueOf(arrsize));
-        response:send(res);
+        res.setStringPayload(strings:valueOf(arrsize));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -292,13 +290,13 @@ service<http> sample2 {
     }
     resource keyNames6 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:setAttribute(ses, "location", "colombo");
-        http:removeAttribute(ses, "Name");
-        string[] arr = http:getAttributeNames(ses);
+        http:Session session = req.createSessionIfAbsent();
+        session.setAttribute("location", "colombo");
+        session.removeAttribute("Name");
+        string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        response:setStringPayload(res, strings:valueOf(arrsize));
-        response:send(res);
+        res.setStringPayload(strings:valueOf(arrsize));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -307,10 +305,10 @@ service<http> sample2 {
     }
     resource id1 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        string id = http:getId(ses);
-        response:setStringPayload(res, id);
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        string id = session.getId();
+        res.setStringPayload(id);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -319,10 +317,10 @@ service<http> sample2 {
     }
     resource id2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:getSession(req);
-        string id = http:getId(ses);
-        response:setStringPayload(res, id);
-        response:send(res);
+        http:Session session = req.getSession();
+        string id = session.getId();
+        res.setStringPayload(id);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -331,10 +329,10 @@ service<http> sample2 {
     }
     resource new1 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        boolean stat = http:isNew(ses);
-        response:setStringPayload(res, strings:valueOf(stat));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        boolean stat = session.isNew();
+        res.setStringPayload(strings:valueOf(stat));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -343,10 +341,10 @@ service<http> sample2 {
     }
     resource new2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        int time = http:getCreationTime(ses);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        int time = session.getCreationTime();
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -355,11 +353,11 @@ service<http> sample2 {
     }
     resource new3 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:invalidate(ses);
-        int time = http:getCreationTime(ses);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        session.invalidate();
+        int time = session.getCreationTime();
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -368,10 +366,10 @@ service<http> sample2 {
     }
     resource new4 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        int time = http:getLastAccessedTime(ses);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        int time = session.getLastAccessedTime();
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -380,11 +378,11 @@ service<http> sample2 {
     }
     resource new5 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:invalidate(ses);
-        int time = http:getLastAccessedTime(ses);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        session.invalidate();
+        int time = session.getLastAccessedTime();
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -393,11 +391,11 @@ service<http> sample2 {
     }
     resource new6 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        int time = http:getMaxInactiveInterval(ses);
-        http:setMaxInactiveInterval(ses, 60);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        int time = session.getMaxInactiveInterval();
+        session.setMaxInactiveInterval(60);
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 
     @http:resourceConfig {
@@ -406,11 +404,11 @@ service<http> sample2 {
     }
     resource new7 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        http:invalidate(ses);
-        http:setMaxInactiveInterval(ses, 89);
-        response:setStringPayload(res, "done");
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        session.invalidate();
+        session.setMaxInactiveInterval(89);
+        res.setStringPayload("done");
+        res.send();
     }
 
     @http:resourceConfig {
@@ -419,10 +417,10 @@ service<http> sample2 {
     }
     resource new8 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(req);
-        int time = http:getMaxInactiveInterval(ses);
-        http:setMaxInactiveInterval(ses, -1);
-        response:setStringPayload(res, strings:valueOf(time));
-        response:send(res);
+        http:Session session = req.createSessionIfAbsent();
+        int time = session.getMaxInactiveInterval();
+        session.setMaxInactiveInterval(-1);
+        res.setStringPayload(strings:valueOf(time));
+        res.send();
     }
 }

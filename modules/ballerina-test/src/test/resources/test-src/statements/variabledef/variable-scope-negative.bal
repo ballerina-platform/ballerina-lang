@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 function testVariableIfScope () (int) {
     int a = 90;
@@ -40,12 +39,12 @@ service<http> myService {
 
     resource myResource1(http:Request req, http:Response res) {
         int b = a + 50;
-        response:send(res);
+        res.send();
     }
 
     resource myResource2(http:Request req, http:Response res) {
         int c = b + 50;
-        response:send(res);
+        res.send();
     }
 }
 
