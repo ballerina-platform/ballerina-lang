@@ -29,10 +29,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -42,19 +40,15 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,7 +71,6 @@ import java.util.stream.Collectors;
 public class StartService extends AbstractNativeFunction {
 
     private static final String MSG_PREFIX = "test:startService: ";
-    private static PrintStream outStream = System.err;
     private static final String DEFAULT_HOSTNAME = "0.0.0.0";
     private static final String LOCALHOST = "localhost";
     
@@ -125,7 +118,6 @@ public class StartService extends AbstractNativeFunction {
     }
 
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
         if (!programFile.isServiceEPAvailable()) {
@@ -163,16 +155,7 @@ public class StartService extends AbstractNativeFunction {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        try {
-            List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
-                    .startPendingConnectors();
-            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                                                                                   serverConnector));
-
-            ServerConnectorRegistry.getInstance().deploymentComplete();
-        } catch (ServerConnectorException e) {
-            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
-        }
+        ServerConnectorRegistry.getInstance().deploymentComplete();
     }
 
     private String getServiceURL(ServiceInfo service) {
