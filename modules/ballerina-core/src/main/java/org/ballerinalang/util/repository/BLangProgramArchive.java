@@ -17,25 +17,17 @@
 */
 package org.ballerinalang.util.repository;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.BLangConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +47,6 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     private Map<String, List<Path>> packageFilesMap;
     private FileSystem zipFS;
     private String[] entryPoints;
-    private BLangProgram.Category programCategory;
 
     public BLangProgramArchive(Path archivePath, BuiltinPackageRepository[] builtinPackageRepositories) {
         this.archivePath = archivePath;
@@ -64,28 +55,6 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
 
     public String[] getEntryPoints() {
         return entryPoints;
-    }
-
-    public void loadArchive() throws IOException {
-        try {
-            Map<String, String> zipFSEnv = new HashMap<>();
-            zipFSEnv.put("create", "false");
-            URI zipFileURI = URI.create("jar:file:" + archivePath.toUri().getPath());
-            zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv);
-
-            if (archivePath.toString().endsWith(BLangProgram.Category.MAIN_PROGRAM.getExtension())) {
-                programCategory = BLangProgram.Category.MAIN_PROGRAM;
-            } else {
-                programCategory = BLangProgram.Category.SERVICE_PROGRAM;
-            }
-
-            // Read ballerina.conf file and get all the entry points
-            // Also load all packages and the files in them.
-            processArchive();
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + archivePath +
-                    " reason: " + e.getMessage(), e);
-        }
     }
 
     @Override
@@ -132,69 +101,6 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         } catch (IOException e) {
             throw new RuntimeException("error reading from file: " + archivePath +
                     " reason: " + e.getMessage(), e);
-        }
-    }
-
-    private void processArchive() throws IOException {
-        final Path rootPathInArchive = zipFS.getPath("/");
-        List<Path> filePathList = new ArrayList<>();
-
-        Files.walkFileTree(rootPathInArchive, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attributes) throws IOException {
-                if (filePath.toString().equals(BALLERINA_CONF_FILE_PATH)) {
-                    readBallerinaConfEntry(filePath);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                if (filePath.getFileName().toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-                    filePathList.add(filePath);
-                }
-
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
-        if (filePathList.isEmpty()) {
-            throw new IllegalArgumentException("invalid program archive file: " + archivePath);
-        }
-
-        packageFilesMap = filePathList.stream()
-                .collect(Collectors.groupingBy(path -> path.getParent().toString()));
-    }
-
-    private void readBallerinaConfEntry(Path filePath) {
-        String errorMsg = "invalid program archive file: " + archivePath;
-
-        Properties bConfProps = new Properties();
-        try {
-            bConfProps.load(Files.newInputStream(filePath));
-        } catch (IOException e) {
-            throw new IllegalArgumentException(errorMsg, e);
-        }
-
-        // Check whether there exist entry point line..
-        Object entryPointLineObj;
-        if (programCategory == BLangProgram.Category.MAIN_PROGRAM) {
-            entryPointLineObj = bConfProps.get(MAIN_PACKAGE_LINE_PREFIX);
-        } else {
-            entryPointLineObj = bConfProps.get(SERVICE_PACKAGE_PREFIX);
-        }
-
-        if (entryPointLineObj == null) {
-            throw new IllegalArgumentException(errorMsg);
-        }
-
-        String entryPointLine = (String) entryPointLineObj;
-        if (entryPointLine.isEmpty()) {
-            throw new IllegalArgumentException(errorMsg);
-        }
-
-        entryPoints = entryPointLine.trim().split("\\s*,\\s*");
-        for (String entryPoint : entryPoints) {
-            if (entryPoint.isEmpty()) {
-                throw new IllegalArgumentException(errorMsg);
-            }
         }
     }
 }
