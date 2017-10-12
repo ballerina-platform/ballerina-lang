@@ -29,7 +29,8 @@ public class GlobalVarErrorTest {
 
     @Test
     public void testStructFieldWithChildPackagePaths() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/statements/variabledef/global-var-function-negative.bal");
+        CompileResult resultNegative = BTestUtils.compile(
+                "test-src/statements/variabledef/global-var-function-negative.bal");
         BTestUtils.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
     }
 }
