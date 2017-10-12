@@ -49,10 +49,6 @@ public class ExceptionDef implements CompilationUnit {
     }
 
     @Override
-    public void accept(NodeVisitor visitor) {
-    }
-
-    @Override
     public NodeLocation getNodeLocation() {
         return null;
     }

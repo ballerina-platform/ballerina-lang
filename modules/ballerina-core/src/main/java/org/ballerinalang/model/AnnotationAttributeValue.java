@@ -134,8 +134,4 @@ public class AnnotationAttributeValue  implements Node {
         
         return null;
     }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-    }
 }

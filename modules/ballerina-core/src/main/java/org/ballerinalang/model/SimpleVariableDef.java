@@ -43,20 +43,17 @@ public class SimpleVariableDef implements VariableDef {
     protected boolean isPublic = false;
     protected boolean isNative = false;
     protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
 
     public SimpleVariableDef(NodeLocation location,
                              WhiteSpaceDescriptor whiteSpaceDescriptor,
                              Identifier identifier,
                              SimpleTypeName typeName,
-                             SymbolName symbolName,
-                             SymbolScope symbolScope) {
+                             SymbolName symbolName) {
         this.location = location;
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.identifier = identifier;
         this.symbolName = symbolName;
         this.typeName = typeName;
-        this.symbolScope = symbolScope;
     }
 
     public SimpleTypeName getTypeName() {
@@ -128,17 +125,7 @@ public class SimpleVariableDef implements VariableDef {
         return symbolName;
     }
 
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
     // Methods in Node interface
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
 
     @Override
     public NodeLocation getNodeLocation() {

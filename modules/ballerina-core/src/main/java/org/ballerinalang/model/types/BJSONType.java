@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,8 +32,8 @@ public class BJSONType extends BType {
      *
      * @param typeName string name of the type
      */
-    BJSONType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BJSON.class);
+    BJSONType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BJSON.class);
     }
 
     @Override
