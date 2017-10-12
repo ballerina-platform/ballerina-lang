@@ -43,7 +43,7 @@ const tools = [
         icon: 'main-function',
         title: 'Main Function',
         nodeFactoryMethod: DefaultNodeFactory.createMainFunction,
-        definition: 'Potential entry point for command line execution',
+        description: 'Potential entry point for command line execution',
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
