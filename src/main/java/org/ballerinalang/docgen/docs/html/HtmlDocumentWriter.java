@@ -25,7 +25,6 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.model.SymbolScope;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -440,19 +439,5 @@ public class HtmlDocumentWriter implements DocumentWriter {
         public void setCurrentObject(Object currentObject) {
             this.currentObject = currentObject;
         }
-    }
-    
-    /**
-     * Get the package to which the current scope belongs to.
-     * 
-     * @param scope Current scope
-     * @return Package path to which current scope belongs to.
-     */
-    private String getPackagePath(SymbolScope scope) {
-        if (scope instanceof BLangPackage) {
-            return ((BLangPackage) scope).symbol.pkgID.name.value;
-        }
-        
-        return getPackagePath(scope.getEnclosingScope());
     }
 }
