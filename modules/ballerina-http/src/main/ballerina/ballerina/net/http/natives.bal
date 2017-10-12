@@ -8,9 +8,25 @@ public struct Request {
 public struct Response {
 }
 
-public struct Options{
-    boolean followRedirect = false;
-    int maximumRedirectCount = 5;
+struct Ssl {
+    string trustStoreFile;
+    string trustStorePassword;
+    string keyStoreFile;
+    string keyStorePassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
+}
+
+struct FollowRedirects {
+    boolean enabled = false;
+    int maxCount = 5;
+}
+
+public struct Options {
+    int port;
+    FollowRedirects followRedirects;
+    Ssl ssl;
 }
 
 public connector ClientConnector (string serviceUri, Options connectorOptions) {
