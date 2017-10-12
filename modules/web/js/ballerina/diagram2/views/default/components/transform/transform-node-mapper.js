@@ -393,7 +393,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     createOperatorToFunctionMapping(source, target) {
-        const assignmentStmtSource = this.getParentAssignmentStmt(source.operator);
+        const assignmentStmtSource = this.getParentStatement(source.operator);
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(assignmentStmtSource, true);
 
@@ -419,7 +419,7 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     createFunctionToOperatorMapping(source, target) {
-        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+        const assignmentStmtSource = this.getParentStatement(source.funcInv);
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(assignmentStmtSource, true);
 
@@ -676,7 +676,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeFunctionToFunctionMapping(source, target) {
-        const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
+        const assignmentStmt = this.getParentStatement(target.funcInv);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         target.funcInv.replaceArgumentExpressions(source.funcInv,
@@ -700,7 +700,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeOperatorToOperatorMapping(source, target) {
-        const assignmentStmt = this.getParentAssignmentStmt(target.operator);
+        const assignmentStmt = this.getParentStatement(target.operator);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         if (TreeUtil.isUnaryExpr(target.operator)) {
@@ -733,7 +733,7 @@ class TransformNodeMapper {
     removeFunctionToOperatorMapping(source, target) {
         // Connection source and target are not structs
         // Source and target could be function nodes.
-        const assignmentStmt = this.getParentAssignmentStmt(target.operator);
+        const assignmentStmt = this.getParentStatement(target.operator);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         if (TreeUtil.isUnaryExpr(target.operator)) {
@@ -762,7 +762,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeOperatorToFunctionMapping(source, target) {
-        const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
+        const assignmentStmt = this.getParentStatement(target.funcInv);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         target.funcInv.replaceArgumentExpressions(source.operator,
