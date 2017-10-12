@@ -866,6 +866,7 @@ class PositioningUtil {
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
         node.viewState.components['block-header'].w = node.viewState.bBox.w;
+        node.viewState.components['statement-body'].w = node.viewState.bBox.w;
 
         if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
             joinStmt.viewState.bBox.w = node.viewState.bBox.w;
@@ -902,6 +903,9 @@ class PositioningUtil {
             }
         }
 
+        // Add the block header value to the statement box of the timeout statement.
+        timeoutStmt.viewState.components['statement-box'].h += timeoutStmt.viewState.components['block-header'].h;
+
         timeoutStmt.viewState.bBox.y = timeoutY;
         timeoutStmt.viewState.bBox.x = timeoutX;
         this.positionCompoundStatementComponents(timeoutStmt);
@@ -916,6 +920,13 @@ class PositioningUtil {
                 xIndex += this.config.fork.lifeLineGutterH + worker.viewState.bBox.w;
             });
         }
+
+        // Add the values of the statement body of the fork node.
+        node.viewState.components['statement-body'].h = node.viewState.components['statement-box'].h
+            - node.viewState.components['block-header'].h;
+        node.viewState.components['statement-body'].y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
+        node.viewState.components['statement-body'].x = node.viewState.components['statement-box'].x;
     }
 
 

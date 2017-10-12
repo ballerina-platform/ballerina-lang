@@ -19,7 +19,15 @@
 import AbstractIfNode from './abstract-tree/if-node';
 
 class IfNode extends AbstractIfNode {
-
+    /**
+     * Set children alias.
+     * */
+    setChildrenAlias() {
+        const elseStatement = this.elseStatement;
+        if (elseStatement && elseStatement.kind === 'Block') {
+            elseStatement.viewState.alias = 'Else';
+        }
+    }
 }
 
 export default IfNode;

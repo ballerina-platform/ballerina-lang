@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import TreeBuilder from './../../../../../model/tree-builder';
+import DropZone from './../../../../../drag-drop/DropZone';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 
 class ForkJoinNode extends React.Component {
@@ -40,6 +41,11 @@ class ForkJoinNode extends React.Component {
         this.handleSetJoinCondition = this.handleSetJoinCondition.bind(this);
     }
 
+    /**
+     * Handle the set timeout condition.
+     * @param {string} value - value for the timeout condition.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetTimeoutCondition(value) {
         if (_.isNil(value)) {
             return null;
@@ -54,6 +60,11 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the set timeout parameters.
+     * @param {string} value - value for the timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetTimeoutParameter(value) {
         if (_.isNil(value)) {
             return null;
@@ -66,6 +77,11 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the set join parameter.
+     * @param {string} value - value for the join timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetJoinParameter(value) {
         if (_.isNil(value)) {
             return null;
@@ -78,10 +94,19 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the get join condition.
+     * @return {string} get the condition string.
+     * */
     handleGetJoinCondition() {
         return this.props.model.getJoinConditionString();
     }
 
+    /**
+     * Handle the set join condition.
+     * @param {string} value - value for the join timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetJoinCondition(value) {
         if (_.isNil(value)) {
             return null;
@@ -147,15 +172,15 @@ class ForkJoinNode extends React.Component {
 
         return (
             <g>
-                <rect
+                <DropZone
                     x={dropZone.x}
-                    y={dropZone.y}
+                    y={dropZone.y + model.viewState.components['block-header'].h}
                     width={dropZone.w}
-                    height={dropZone.h}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
+                    height={dropZone.h - model.viewState.components['block-header'].h}
+                    baseComponent="rect"
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                    renderUponDragStart
                 />
                 <line
                     x1={bBox.getCenterX()}
