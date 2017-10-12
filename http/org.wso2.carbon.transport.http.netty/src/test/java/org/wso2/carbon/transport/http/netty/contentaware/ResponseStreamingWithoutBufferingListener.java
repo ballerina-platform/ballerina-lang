@@ -58,7 +58,7 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
                 }
             });
             while (!(httpRequestMessage.isEmpty() && httpRequestMessage.isEndOfMsgAdded())) {
-                cMsg.addMessageBody(httpRequestMessage.getMessageBody());
+                cMsg.addMessageBody(httpRequestMessage.getMessageBody().nioBuffer());
             }
             cMsg.setEndOfMsgAdded(true);
             httpRequestMessage.release();
