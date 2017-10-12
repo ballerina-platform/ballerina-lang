@@ -53,11 +53,9 @@ public class Context {
     private int startIP;
     private BStruct unhandledError;
 
-    public boolean trackWorkers = false;
-    public WorkerCounter workerCounter;
+    protected WorkerCounter workerCounter;
 
     // TODO : Temporary solution to make non-blocking working.
-    public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
@@ -191,8 +189,49 @@ public class Context {
         return programFile;
     }
 
-    public void startTrackWorkers() {
-        trackWorkers = true;
+    /**
+     * start tracking current worker.
+     */
+    public void startTrackWorker() {
         workerCounter.countUp();
+    }
+
+    /**
+     * end tracking current worker.
+     */
+    public void endTrackWorker() {
+        workerCounter.countDown();
+    }
+
+    /**
+     * Wait until all spawned workers are completed.
+     */
+    public void await() {
+        workerCounter.await();
+    }
+
+    /**
+     * Wait until all spawned worker are completed within the given waiting time.
+     *
+     * @param timeout time out duration in seconds.
+     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
+     */
+    public boolean await(int timeout) {
+        return workerCounter.await(timeout);
+    }
+
+    /**
+     * Mark this context is associated with a resource.
+     */
+    public void setAsResourceContext() {
+        this.workerCounter.setResourceContext(this);
+    }
+
+    public void resetWorkerCounter() {
+        this.workerCounter = new WorkerCounter();
+    }
+
+    public WorkerCounter getWorkerCounter() {
+        return workerCounter;
     }
 }

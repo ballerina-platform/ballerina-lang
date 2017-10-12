@@ -24,15 +24,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Atomic counter for count spawned workers for given context.
+ * Atomic counter for counting spawned workers for given context.
  *
  * @since 0.94
  */
 public class WorkerCounter {
 
-    final Semaphore lock = new Semaphore(0);
-    final AtomicInteger count = new AtomicInteger(0);
-    Context resourceContext;
+    private final Semaphore lock = new Semaphore(0);
+    private final AtomicInteger count = new AtomicInteger(0);
+    private Context resourceContext;
 
     /**
      * Count up worker count.

@@ -34,8 +34,7 @@ public class WorkerContext extends Context {
         super(programFile);
         this.parent = parent;
         parentSF = parent.getControlStackNew().currentFrame;
-        this.trackWorkers = parent.trackWorkers;
-        this.workerCounter = parent.workerCounter;
+        this.workerCounter = parent.getWorkerCounter();
         this.populateContextPropsFromParent();
     }
     

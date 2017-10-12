@@ -230,11 +230,11 @@ public class BLangFunctions {
 
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        context.startTrackWorkers();
+        context.startTrackWorker();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
-        if (!context.workerCounter.await(timeOut)) {
+        if (!context.await(timeOut)) {
             throw new BLangRuntimeException("error: workers timed out.!");
         }
 
@@ -284,8 +284,11 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
+        context.startTrackWorker();
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
+        context.await();
+        context.resetWorkerCounter();
     }
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {

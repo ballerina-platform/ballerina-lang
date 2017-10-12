@@ -59,7 +59,6 @@ public class BLangProgramRunner {
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
-        bContext.disableNonBlocking = true;
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
@@ -129,8 +128,7 @@ public class BLangProgramRunner {
         stackFrame.getRefLocalVars()[0] = arrayArgs;
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         controlStackNew.pushFrame(stackFrame);
-
-        bContext.startTrackWorkers();
+        bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         if (ModeResolver.getInstance().isDebugEnabled()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
@@ -141,7 +139,7 @@ public class BLangProgramRunner {
             BLangVM bLangVM = new BLangVM(programFile);
             bLangVM.run(bContext);
         }
-        bContext.workerCounter.await();
+        bContext.await();
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

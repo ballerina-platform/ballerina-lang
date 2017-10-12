@@ -66,7 +66,6 @@ public class ServerConnector {
         // Init Interceptors.
         for (ProgramFile programFile : interceptorProgramFileMap.values()) {
             Context bContext = new Context(programFile);
-            bContext.disableNonBlocking = true;
             // TODO : Fix main init, when Packerina comes. For now let's init main package.
             PackageInfo mainPkgInfo = programFile.getEntryPackage();
             BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);

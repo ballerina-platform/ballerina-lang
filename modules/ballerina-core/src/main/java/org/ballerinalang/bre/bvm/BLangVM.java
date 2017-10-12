@@ -164,7 +164,7 @@ public class BLangVM {
 
         if (context.getError() != null) {
             handleError();
-        } else if (context.actionInfo != null) {
+        } else if (isWaitOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -196,10 +196,10 @@ public class BLangVM {
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
         } finally {
-            if (context.trackWorkers && (context.getError() != null || context.actionInfo == null)) {
-                // end active worker for this context. Filtered out non-blocking action invocation
-                // (context.actionInfo != null) since it is not the end of a worker.
-                ctx.workerCounter.countDown();
+            if (!isWaitOnNonBlockingAction() || context.getError() != null) {
+                // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
+                // Doesn't count non-blocking action invocation.
+                ctx.endTrackWorker();
             }
         }
     }
@@ -2989,8 +2989,7 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.disableNonBlocking
-                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
@@ -3606,5 +3605,9 @@ public class BLangVM {
             }
         }
         return null;
+    }
+
+    private boolean isWaitOnNonBlockingAction() {
+        return context.actionInfo != null;
     }
 }
