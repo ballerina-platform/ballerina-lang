@@ -132,12 +132,41 @@ service<http> echo11 {
 
     @http:resourceConfig {
         methods:["GET"],
+        path:"/echo125"
+    }
+    resource echo125 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        string bar;
+        bar, _ = (string)params.foo;
+        json responseJson = {"echo125":bar};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/paramNeg"
+    }
+    resource paramNeg (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        TypeCastError err;
+        string bar;
+        bar, err = (string)params.foo;
+        json responseJson = {"echo125":bar, "error":err.msg};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
         path:"/echo13"
     }
     resource echo13 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        string bar;
-        bar, _ = (string)params.foo;
+        string barStr;
+        int bar;
+        barStr, _ = (string)params.foo;
+        bar, _ = <int>barStr;
         json responseJson = {"echo13":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -149,8 +178,10 @@ service<http> echo11 {
     }
     resource echo14 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        string bar;
-        bar, _ = (string)params.foo;
+        string barStr;
+        float bar;
+        barStr, _ = (string)params.foo;
+        bar, _ = <float>barStr;
         json responseJson = {"echo14":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -176,9 +207,6 @@ service<http> echo11 {
         path:"/so2"
     }
     resource echo (http:Request req, http:Response res) {
-        //http:convertToResponse(req);
-        //reply m;
-
     }
 }
 
