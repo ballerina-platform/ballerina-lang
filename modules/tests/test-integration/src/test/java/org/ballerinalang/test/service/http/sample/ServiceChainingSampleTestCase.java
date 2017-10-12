@@ -53,7 +53,7 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(balFile);
     }
 
-    @Test(description = "Test service chaining sample")
+    @Test(description = "Test service chaining sample", enabled = false)
     public void testEchoServiceByBasePath() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);

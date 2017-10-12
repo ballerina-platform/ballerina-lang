@@ -52,7 +52,13 @@
 
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-native-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -134,9 +140,11 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.ballerinalang:ballerina-core:jar</include>
+                <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
-                <include>org.ballerinalang:ballerina-native:jar</include>
+                <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
+                <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.file</include>
