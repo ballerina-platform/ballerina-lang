@@ -172,7 +172,7 @@ class DefaultNodeFactory {
     }
 
     createAssignmentStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('a = b'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('var a = 1;'));
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isConnectorDeclaration(node)) {
             node.viewState.showOverlayContainer = true;
@@ -182,7 +182,7 @@ class DefaultNodeFactory {
     }
 
     createVarDefStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isConnectorDeclaration(node)) {
             node.viewState.showOverlayContainer = true;

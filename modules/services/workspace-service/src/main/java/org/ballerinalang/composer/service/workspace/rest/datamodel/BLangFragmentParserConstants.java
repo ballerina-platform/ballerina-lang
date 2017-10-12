@@ -38,7 +38,7 @@ public class BLangFragmentParserConstants {
     protected static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http> service1{\n$FRAGMENT\n}";
     protected static final String CONNECTOR_BODY_ACTION_WRAPPER = "connector ClientConnector(string ag){\n$FRAGMENT\n}";
     protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
-    protected static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT;\n}";
+    protected static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT\n}";
     protected static final String FORK_JOIN_CONDITION_WRAPPER =
             "function testFunction(){fork{}join($FRAGMENT)(map param){}}";
     protected static final String FRAGMENT_PLACE_HOLDER = "$FRAGMENT";

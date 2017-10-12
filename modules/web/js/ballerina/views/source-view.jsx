@@ -46,6 +46,10 @@ class SourceView extends React.Component {
         this.toggleErrorListPopover = this.toggleErrorListPopover.bind(this);
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return !nextProps.panelResizeInProgress;
+    }
+
     /**
      * Update state with new props
      * @param {*} newProps The new props object.
@@ -216,6 +220,7 @@ SourceView.propTypes = {
     }).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     displayErrorList: PropTypes.bool.isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
 };
 
 SourceView.contextTypes = {

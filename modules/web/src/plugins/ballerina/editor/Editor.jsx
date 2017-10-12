@@ -31,7 +31,7 @@ class Editor extends React.Component {
      * @inheritdoc
      */
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.isActive && !nextProps.panelResizeInProgress;
+        return nextProps.isActive;
     }
 
     /**

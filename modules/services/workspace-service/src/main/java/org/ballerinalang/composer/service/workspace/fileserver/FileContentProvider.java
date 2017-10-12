@@ -71,7 +71,7 @@ public class FileContentProvider {
     public Response getConnectorIcon(ConnectorIconRequest connectorIconRequest, @Context Request request) {
         JsonObject responseJson;
 
-        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web")) {
+        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web/public")) {
             logger.debug(connectorIconRequest.getIconPath());
             logger.debug(connectorIconRequest.getConnectorName());
 

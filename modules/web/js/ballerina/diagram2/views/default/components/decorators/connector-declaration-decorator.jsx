@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LifeLine from '../decorators/lifeline';
 import ImageUtil from '../../../../image-util';
+import TreeUtils from './../../../../../model/tree-util';
 
 /**
  * Connector Declaration Decorator.
@@ -37,6 +38,7 @@ class ConnectorDeclarationDecorator extends React.Component {
      * */
     render() {
         // create lifelines for connector declarations.
+        const connectorInitExpression = TreeUtils.getConnectorInitFromStatement(this.props.model);
         const connectorClasses = {
             lineClass: 'connector-life-line',
             polygonClass: 'connector-life-line-polygon',
@@ -48,7 +50,7 @@ class ConnectorDeclarationDecorator extends React.Component {
                     title={this.props.title}
                     bBox={this.props.bBox}
                     classes={connectorClasses}
-                    icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
+                    icon={ImageUtil.getConnectorIcon(connectorInitExpression.connectorType.packageAlias.value)}
                     editorOptions={this.editorOptions}
                     iconColor='#1a8278'
                 />

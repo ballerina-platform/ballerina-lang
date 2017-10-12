@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import TreeBuilder from './../../../../../model/tree-builder';
+import DropZone from './../../../../../drag-drop/DropZone';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 
 class ForkJoinNode extends React.Component {
@@ -40,6 +41,11 @@ class ForkJoinNode extends React.Component {
         this.handleSetJoinCondition = this.handleSetJoinCondition.bind(this);
     }
 
+    /**
+     * Handle the set timeout condition.
+     * @param {string} value - value for the timeout condition.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetTimeoutCondition(value) {
         if (_.isNil(value)) {
             return null;
@@ -54,6 +60,11 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the set timeout parameters.
+     * @param {string} value - value for the timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetTimeoutParameter(value) {
         if (_.isNil(value)) {
             return null;
@@ -66,6 +77,11 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the set join parameter.
+     * @param {string} value - value for the join timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetJoinParameter(value) {
         if (_.isNil(value)) {
             return null;
@@ -78,10 +94,19 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Handle the get join condition.
+     * @return {string} get the condition string.
+     * */
     handleGetJoinCondition() {
         return this.props.model.getJoinConditionString();
     }
 
+    /**
+     * Handle the set join condition.
+     * @param {string} value - value for the join timeout parameter.
+     * @return {null} null if unsuccessful.
+     * */
     handleSetJoinCondition(value) {
         if (_.isNil(value)) {
             return null;
@@ -101,11 +126,6 @@ class ForkJoinNode extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const dropZone = model.viewState.components['drop-zone'];
-        const innerDropZoneActivated = this.state.innerDropZoneActivated;
-        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
 
         const forkLineHiderBottom = model.getJoinBody() ? model.getJoinBody().viewState.bBox.y :
             (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : bBox.getBottom());
@@ -145,17 +165,39 @@ class ForkJoinNode extends React.Component {
             setterMethod: this.handleSetTimeoutParameter,
         };
 
+        // Get join block life line y1 and y2.
+        let joinLifeLineY1 = 0;
+        let joinLifeLineY2 = 0;
+        if (model.getJoinBody().getStatements().length > 0) {
+            const joinChildren = model.getJoinBody().getStatements();
+            const firstJoinChild = joinChildren[0].viewState;
+            joinLifeLineY1 = firstJoinChild.bBox.y + firstJoinChild.bBox.h;
+            const lastJoinChild = joinChildren[joinChildren.length - 1].viewState;
+            joinLifeLineY2 = lastJoinChild.bBox.y + lastJoinChild.components['drop-zone'].h;
+        }
+
+        // Get timeout block life line y1 and y2.
+        let timeoutLifeLineY1 = 0;
+        let timeoutLifeLineY2 = 0;
+        if (model.getTimeoutBody().getStatements().length > 0) {
+            const children = model.getTimeoutBody().getStatements();
+            const firstChild = children[0].viewState;
+            timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
+            const lastChild = children[children.length - 1].viewState;
+            timeoutLifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
+        }
+
         return (
             <g>
-                <rect
+                <DropZone
                     x={dropZone.x}
-                    y={dropZone.y}
+                    y={dropZone.y + model.viewState.components['block-header'].h}
                     width={dropZone.w}
-                    height={dropZone.h}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
+                    height={dropZone.h - model.viewState.components['block-header'].h}
+                    baseComponent="rect"
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                    renderUponDragStart
                 />
                 <line
                     x1={bBox.getCenterX()}
@@ -171,6 +213,7 @@ class ForkJoinNode extends React.Component {
                     model={model}
                     body={model.workers}
                 />
+
                 {model.joinBody &&
                 <line
                     x1={model.getJoinBody().viewState.bBox.getCenterX()}
@@ -180,6 +223,18 @@ class ForkJoinNode extends React.Component {
                     className='life-line-hider'
                 />
                 }
+
+                {model.getJoinBody() &&
+                <line
+                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y1={joinLifeLineY1}
+                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y2={joinLifeLineY2}
+                    className="join-lifeline"
+                    key="join-life-line"
+                />
+                }
+
                 {model.joinBody &&
                 <CompoundStatementDecorator
                     dropTarget={model.getJoinBody()}
@@ -193,6 +248,7 @@ class ForkJoinNode extends React.Component {
                     editorOptions={joinConditionEditorOptions}
                 />
                 }
+
                 {model.getTimeoutBody() &&
                 <line
                     x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
@@ -202,6 +258,18 @@ class ForkJoinNode extends React.Component {
                     className='life-line-hider'
                 />
                 }
+
+                {model.getTimeoutBody() &&
+                <line
+                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y1={timeoutLifeLineY1}
+                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y2={timeoutLifeLineY2}
+                    className="join-lifeline"
+                    key="timeout-life-line"
+                />
+                }
+
                 {model.timeoutBody &&
                 <CompoundStatementDecorator
                     dropTarget={model.getTimeoutBody()}
@@ -226,7 +294,10 @@ ForkJoinNode.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
+    model: PropTypes.shape({
+        getJoinConditionString: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 ForkJoinNode.contextTypes = {

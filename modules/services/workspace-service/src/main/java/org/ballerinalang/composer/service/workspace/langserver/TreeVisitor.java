@@ -149,6 +149,9 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.blockOwnerStack.pop();
 
         // Process   workers
+        if (terminateVisitor && !funcNode.workers.isEmpty()) {
+            terminateVisitor = false;
+        }
         funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
     }
@@ -406,7 +409,9 @@ public class TreeVisitor extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.symbolEnv);
+        this.blockOwnerStack.push(workerNode);
         this.acceptNode(workerNode.body, workerEnv);
+        this.blockOwnerStack.pop();
     }
 
     @Override

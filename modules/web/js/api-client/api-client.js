@@ -79,7 +79,7 @@ export function validateFile(file) {
     return new Promise((resolve, reject) => {
         axios.post(endpoint, payload, { headers })
             .then((response) => {
-                resolve(response.data.errors);
+                resolve(response.data);
             }).catch(error => reject(error));
     });
 }

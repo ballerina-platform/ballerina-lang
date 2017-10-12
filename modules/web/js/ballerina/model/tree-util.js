@@ -178,6 +178,19 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     /**
+     * Get the connector init expression from the statement
+     * @param {object} node - statement node
+     * @return {boolean} - true | false
+     */
+    getConnectorInitFromStatement(node) {
+        if (this.isAssignment(node)) {
+            return _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            return _.get(node, 'variable.initialExpression');
+        }
+    }
+
+    /**
      * Get the variable definition by traversing the parent nodes
      * @param {object} parent - parent block node
      * @param {string} name - variable name
