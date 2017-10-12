@@ -121,7 +121,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src
+                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
