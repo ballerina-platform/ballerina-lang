@@ -28,6 +28,7 @@ import File from './../../../src/core/workspace/model/file';
 import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
+import PackageScopeEnvFactory from './../env/package-scoped-environment';
 import BallerinaEnvironment from './../env/environment';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
@@ -40,7 +41,6 @@ import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import './../utils/react-try-catch-batching-strategy';
 import FragmentUtils from '../utils/fragment-utils';
-
 /**
  * React component for BallerinaFileEditor.
  *
@@ -174,6 +174,7 @@ class BallerinaFileEditor extends React.Component {
     onASTModified(evt) {
         if (evt.type === 'child-added') {
             this.addAutoImports(evt.data.node);
+            this.getConnectorDeclarations(evt.data.node);
         }
 
         const newContent = this.state.model.getSource();
@@ -213,6 +214,97 @@ class BallerinaFileEditor extends React.Component {
         this.state.model.addImport(TreeBuilder.build(parsedJson));
     }
 
+    getConnectorDeclarations(node) {
+        // Check if the node is an action invocation
+        if (TreeUtils.statementIsInvocation(node)) {
+            let immediateParent = node.parent;
+            let connectorExists = false;
+            while (!TreeUtils.isCompilationUnit(immediateParent)) {
+                if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
+                || TreeUtils.isAction(immediateParent)) {
+                    const connectors = immediateParent.getBody().filterStatements((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                    .setValue(connector.getVariableName().value);
+                        }
+                    });
+                } else if (TreeUtils.isService(immediateParent)) {
+                    const connectors = immediateParent.filterVariables((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connector.getVariableName().value);
+                        }
+                    });
+                } else if (TreeUtils.isConnector(immediateParent)) {
+                    const connectors = immediateParent.filterVariableDefs((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connector.getVariableName().value);
+                        }
+                    });
+                }
+                if (connectorExists) {
+                    break;
+                }
+                immediateParent = immediateParent.parent;
+            }
+            if (!connectorExists) {
+                // const { connector, packageName, fullPackageName } = args;
+                const packageName = node.getExpression().getPackageAlias().value;
+                // Iterate through the params and create the parenthesis with the default param values
+                let paramString = '';
+                let connector = null;
+                let fullPackageName;
+                for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+                    fullPackageName = TreeUtils.getFullPackageName(node.getExpression());
+                    if (packageDefintion.getName() === fullPackageName) {
+                        connector = packageDefintion.getConnectors()[0];
+                    }
+                }
+
+                if (connector.getParams()) {
+                    const connectorParams = connector.getParams().map((param) => {
+                        let defaultValue = BallerinaEnvironment.getDefaultValue(param.type);
+                        if (defaultValue === undefined) {
+                            defaultValue = '{}';
+                        }
+                        return defaultValue;
+                    });
+                    paramString = connectorParams.join(', ');
+                }
+                const connectorInit = `${packageName}:${connector.getName()} endpoint1
+                = create ${packageName}:${connector.getName()}(${paramString});`;
+                const fragment = FragmentUtils.createStatementFragment(connectorInit);
+                const parsedJson = FragmentUtils.parseFragment(fragment);
+                const connectorDeclaration = TreeBuilder.build(parsedJson);
+                connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+                connectorDeclaration.viewState.showOverlayContainer = true;
+
+                if (TreeUtils.isBlock(node.parent)) {
+                    node.parent.addStatements(connectorDeclaration, 0);
+                } else if (TreeUtils.isService(node.parent)) {
+                    node.parent.addVariables(connectorDeclaration, 0);
+                } else if (TreeUtils.isConnector(node.parent)) {
+                    node.parent.addVariableDefs(connectorDeclaration, 0);
+                }
+            }
+        }
+    }
     /**
      * set active view
      * @param {string} newView ID of the new View
@@ -366,8 +458,8 @@ class BallerinaFileEditor extends React.Component {
             // first validate the file for syntax errors
             validateFile(file)
                 .then((data) => {
-                    let errors = data.errors;
-                    let errorCategory = data.errorCategory;
+                    const errors = data.errors;
+                    const errorCategory = data.errorCategory;
                     // if syntax errors are found
                     if (errorCategory === 'SYNTAX') {
                         newState.parseFailed = true;

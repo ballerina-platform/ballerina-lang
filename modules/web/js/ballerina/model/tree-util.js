@@ -167,12 +167,11 @@ class TreeUtil extends AbstractTreeUtil {
      */
     statementIsInvocation(node) {
         let invocationExpression;
-        if (this.isAssignment(node)) {
+        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
             invocationExpression = _.get(node, 'expression');
         } else if (this.isVariableDef(node)) {
             invocationExpression = _.get(node, 'variable.initialExpression');
         }
-
         return (invocationExpression && this.isInvocation(invocationExpression)
         && invocationExpression.invocationType === 'ACTION');
     }

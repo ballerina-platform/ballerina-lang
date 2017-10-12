@@ -45,12 +45,7 @@ class PositioningUtil {
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
             const dropDown = new SimpleBBox();
-            let variableRefName;
-            if (TreeUtil.isAssignment(node)) {
-                variableRefName = node.expression.expression.variableName.value;
-            } else {
-                variableRefName = node.variable.initialExpression.expression.variableName.value;
-            }
+            const variableRefName = node.expression.expression.variableName.value;
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
             arrowStartBBox.y = viewState.components['statement-box'].y + 5;
