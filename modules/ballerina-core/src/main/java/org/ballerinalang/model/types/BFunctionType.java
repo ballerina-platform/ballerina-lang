@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 
@@ -37,20 +36,8 @@ public class BFunctionType extends BType {
     private String[] parametersFieldsNames = new String[0];
     private String[] returnsParametersFieldsNames = new String[0];
 
-    public BFunctionType(SymbolScope symbolScope, BType[] parameterType, BType[] returnParameterType) {
-        super(getTypeName(parameterType, returnParameterType), null, symbolScope, BFunctionPointer.class);
-        this.parameterType = parameterType != null ? parameterType : new BType[0];
-        this.returnParameterType = returnParameterType != null ? returnParameterType : new BType[0];
-    }
-
-    public BFunctionType(BType[] parameterType, BType[] returnParameterType) {
-        super(getTypeName(parameterType, returnParameterType), null, null, BFunctionPointer.class);
-        this.parameterType = parameterType != null ? parameterType : new BType[0];
-        this.returnParameterType = returnParameterType != null ? returnParameterType : new BType[0];
-    }
-
     public BFunctionType() {
-        super("function ()", null, null, BFunctionPointer.class);
+        super("function ()", null, BFunctionPointer.class);
         this.parameterType = new BType[0];
         this.returnParameterType = new BType[0];
     }

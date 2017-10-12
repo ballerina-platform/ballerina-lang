@@ -22,15 +22,10 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.statements.BlockStmt;
-import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
@@ -41,7 +36,6 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  * Represents Native Ballerina Action.
@@ -164,11 +158,6 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     @Override
-    public BlockStmt getCallableUnitBody() {
-        return null;
-    }
-
-    @Override
     public ParameterDef[] getReturnParameters() {
         return returnParams.toArray(new ParameterDef[returnParams.size()]);
     }
@@ -215,10 +204,6 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     @Override
     public void setParameterTypes(BType[] parameterTypes) {
         this.parameterTypes = parameterTypes;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
     }
 
     // Methods in Node interface
@@ -280,31 +265,6 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     @Override
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return null;
-    }
-
-    /**
-     * Get worker interaction statements related to a callable unit.
-     *
-     * @return Queue of worker interactions
-     */
-    @Override
-    public Queue<Statement> getWorkerInteractionStatements() {
-        return null;
-    }
-
-    /**
-     * Get the workers defined within a callable unit.
-     *
-     * @return Array of workers
-     */
-    @Override
-    public Worker[] getWorkers() {
-        return new Worker[0];
     }
 
     @Override

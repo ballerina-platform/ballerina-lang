@@ -77,8 +77,6 @@ public class BLangProgramRunner {
 
             // Deploy service
             ServerConnectorRegistry.getInstance().registerService(serviceInfo);
-//            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
-//                    .serviceRegistered(serviceInfo);
             serviceCount++;
         }
 

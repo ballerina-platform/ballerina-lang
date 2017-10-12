@@ -21,12 +21,10 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -98,8 +96,6 @@ public class LauncherUtils {
 
     public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
-
-        BLangRuntimeRegistry.getInstance().initialize();
 
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
@@ -239,12 +235,6 @@ public class LauncherUtils {
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {
             ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
 
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());

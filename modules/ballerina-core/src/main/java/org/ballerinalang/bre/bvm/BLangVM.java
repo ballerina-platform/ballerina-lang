@@ -51,7 +51,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -606,7 +605,6 @@ public class BLangVM {
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2MSG:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
@@ -715,10 +713,6 @@ public class BLangVM {
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
                     sf.refRegs[i] = new BJSON("{}");
-                    break;
-                case InstructionCodes.NEWMESSAGE:
-                    i = operands[0];
-                    sf.refRegs[i] = new BMessage();
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
@@ -1940,9 +1934,6 @@ public class BLangVM {
             case InstructionCodes.ANY2MAP:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMap);
                 break;
-            case InstructionCodes.ANY2MSG:
-                handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
-                break;
             case InstructionCodes.ANY2TYPE:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
@@ -2814,11 +2805,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            if (callerSF.getRefLocalVars()[i] instanceof BMessage) {
-                calleeSF.getRefLocalVars()[i] = ((BMessage) callerSF.getRefLocalVars()[i]).clone();
-            } else {
-                calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
-            }
+            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
