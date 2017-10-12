@@ -18,7 +18,7 @@
 
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
-import { COMMANDS, DIALOG_IDS } from './constants';
+import { COMMANDS, DIALOG_IDS, VIEWS as VIEW_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
 
@@ -39,6 +39,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                     dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
+                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
                             LaunchManager.run(activeEditor.file, true,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
@@ -69,6 +70,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                     dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
+                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
                             LaunchManager.run(activeEditor.file, false,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },

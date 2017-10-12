@@ -61,6 +61,9 @@ class App extends React.Component {
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
             this.setBottomPanelState(!this.state.showBottomPanel);
         });
+        this.props.layoutPlugin.on(EVENTS.SHOW_BOTTOM_PANEL, () => {
+            this.setBottomPanelState(true);
+        });
     }
 
     /**

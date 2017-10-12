@@ -18,7 +18,7 @@
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 
-import { REGIONS } from 'core/layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 
 import { COMMANDS as TOOL_BAR_COMMANDS } from 'core/toolbar/constants';
 
@@ -122,6 +122,13 @@ class DebuggerPlugin extends Plugin {
                                     dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
                             },
+                            {
+                                icon: 'console',
+                                handleAction: () => {
+                                    const { command: { dispatch } } = this.appContext;
+                                    dispatch(LAYOUT_COMMANDS.TOGGLE_BOTTOM_PANEL);
+                                },
+                            },   
                         ],
                     },
                     displayOnLoad: true,

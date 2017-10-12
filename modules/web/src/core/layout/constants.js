@@ -4,11 +4,13 @@ export const COMMANDS = {
     SHOW_VIEW: 'show-view',
     HIDE_VIEW: 'hide-view',
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+    SHOW_BOTTOM_PANEL: 'show-bottom-panel',
     RE_RENDER_PLUGIN: 're-render-plugin',
 };
 
 export const EVENTS = {
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+    SHOW_BOTTOM_PANEL: 'show-bottom-panel',
 };
 
 export const LABELS = {
