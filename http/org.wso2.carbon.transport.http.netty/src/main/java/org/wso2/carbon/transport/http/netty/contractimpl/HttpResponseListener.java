@@ -48,44 +48,40 @@ public class HttpResponseListener implements HttpConnectorListener {
     @Override
     public void onMessage(HTTPCarbonMessage httpResponseMessage) {
         sourceContext.channel().eventLoop().execute(() -> {
-            try {
-                boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
+            boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
 
-                Util.prepareBuiltMessageForTransfer(httpResponseMessage);
-                Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
-                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                            .executeAtSourceResponseReceiving(httpResponseMessage);
-                }
+            Util.prepareBuiltMessageForTransfer(httpResponseMessage);
+            Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                        .executeAtSourceResponseReceiving(httpResponseMessage);
+            }
 
-                final HttpResponse response = Util
-                        .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
-                sourceContext.write(response);
+            final HttpResponse response = Util
+                    .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
+            sourceContext.write(response);
 
-                while (true) {
-                    if (httpResponseMessage.isEndOfMsgAdded() && httpResponseMessage.isEmpty()) {
-                        ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                        if (connectionCloseAfterResponse) {
-                            future.addListener(ChannelFutureListener.CLOSE);
-                        }
-                        break;
+            while (true) {
+                if (httpResponseMessage.isEndOfMsgAdded() && httpResponseMessage.isEmpty()) {
+                    ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    if (connectionCloseAfterResponse) {
+                        future.addListener(ChannelFutureListener.CLOSE);
                     }
-                    HttpContent httpContent = httpResponseMessage.getHttpContent();
-                    if (httpContent instanceof LastHttpContent) {
-                        ChannelFuture future = sourceContext.writeAndFlush(httpContent);
-                        if (connectionCloseAfterResponse) {
-                            future.addListener(ChannelFutureListener.CLOSE);
-                        }
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtSourceResponseSending(httpResponseMessage);
-                        }
-                        break;
-                    }
-                    sourceContext.write(httpContent);
+                    break;
                 }
-            } finally {
-                httpResponseMessage.release();
+                HttpContent httpContent = httpResponseMessage.getHttpContent();
+                if (httpContent instanceof LastHttpContent) {
+                    ChannelFuture future = sourceContext.writeAndFlush(httpContent);
+                    if (connectionCloseAfterResponse) {
+                        future.addListener(ChannelFutureListener.CLOSE);
+                    }
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                executeAtSourceResponseSending(httpResponseMessage);
+                    }
+                    break;
+                }
+                sourceContext.write(httpContent);
             }
         });
     }

@@ -184,8 +184,6 @@ public class TargetChannel {
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             httpCarbonRequest.setMessagingException(messagingException);
             this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpCarbonRequest);
-        } finally {
-            httpCarbonRequest.release();
         }
     }
 }
