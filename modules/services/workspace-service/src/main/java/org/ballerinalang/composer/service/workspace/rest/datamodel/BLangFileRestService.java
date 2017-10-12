@@ -35,7 +35,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +74,7 @@ import javax.ws.rs.core.Response;
 public class BLangFileRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+    public static final String UNESCAPED_VALUE = "unescapedValue";
 
     @GET
     @Path("/model")
@@ -258,6 +258,7 @@ public class BLangFileRestService {
             if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
                 if (prop instanceof String) {
                     nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
+                    nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));
                 } else {
                     nodeJson.addProperty(jsonName, String.valueOf(prop));
                 }

@@ -142,7 +142,7 @@ stream.once('open', () => {
                 js.unshift('dent()');
             }
             const conditionStr = join(condition.map(s => 'node.' + s), ' && ', tab(4));
-            const retrunSt = 'return ' + join(js, ' + ', tab(2)) + ';';
+            const retrunSt = 'return ' + (join(js, ' + ', tab(2)) || '\'\'') + ';';
             if (rules.length > 1) {
                 if (j === 0) {
                     write(tab1 + 'if (' + conditionStr + ') {');
