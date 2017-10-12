@@ -1534,10 +1534,11 @@ public class BLangPackageBuilder {
         prefixIdentifer.pos = pos;
         prefixIdentifer.value = prefix;
 
-        addLiteralValue(pos, ws, TypeTags.STRING, namespaceUri);
+        addLiteralValue(pos, removeNthFromStart(ws, 1), TypeTags.STRING, namespaceUri);
         xmlns.namespaceURI = (BLangLiteral) exprNodeStack.pop();
         xmlns.prefix = prefixIdentifer;
         xmlns.pos = pos;
+        xmlns.addWS(ws);
 
         if (isTopLevel) {
             this.compUnit.addTopLevelNode(xmlns);
@@ -1659,7 +1660,20 @@ public class BLangPackageBuilder {
     }
 
     private Set<Whitespace> removeNthFromLast(Set<Whitespace> ws, int n) {
-        Iterator<Whitespace> iterator = ((TreeSet<Whitespace>) ws).descendingIterator();
+        if (ws == null) {
+            return null;
+        }
+        return removeNth(((TreeSet<Whitespace>) ws).descendingIterator(), n);
+    }
+
+    private Set<Whitespace> removeNthFromStart(Set<Whitespace> ws, int n) {
+        if (ws == null) {
+            return null;
+        }
+        return removeNth(ws.iterator(), n);
+    }
+
+    private Set<Whitespace> removeNth(Iterator<Whitespace> iterator, int n) {
         int i = 0;
         while (iterator.hasNext()) {
             Whitespace next = iterator.next();
