@@ -288,7 +288,7 @@ public class BLangFunctions {
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
         context.await();
-        context.resetWorkerCounter();
+        context.resetWorkerContextFlow();
     }
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {

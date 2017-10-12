@@ -227,7 +227,7 @@ public class Context {
         this.workerCounter.setResourceContext(this);
     }
 
-    public void resetWorkerCounter() {
+    public void resetWorkerContextFlow() {
         this.workerCounter = new WorkerCounter();
     }
 
