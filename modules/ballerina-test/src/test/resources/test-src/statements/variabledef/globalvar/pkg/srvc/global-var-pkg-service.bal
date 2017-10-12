@@ -1,7 +1,6 @@
 
 import ballerina.net.http;
 import globalvar.pkg.varpkg;
-import ballerina.net.http.response;
 
 
 
@@ -34,8 +33,8 @@ service<http> GlobalVar {
         string pkgString = varpkg:glbVarString;
         float pkgFloat = varpkg:glbVarFloat;
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -45,8 +44,8 @@ service<http> GlobalVar {
     resource assignGlobalVarFromOtherPkg (http:Request req, http:Response res) {
 
         json responseJson = {"glbVarFloat1":glbVarFloat1};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -55,8 +54,8 @@ service<http> GlobalVar {
     }
     resource assignFuncInvocationToGlobalVarFromSamePkg (http:Request req, http:Response res) {
         json responseJson = {"glbVarFunc":glbVarFunc};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -65,8 +64,8 @@ service<http> GlobalVar {
     }
     resource assignFuncInvocationToGlobalVarFromDiffPkg (http:Request req, http:Response res) {
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -75,8 +74,8 @@ service<http> GlobalVar {
     }
     resource assignGlobalVarToServiceVarFromDiffPkg (http:Request req, http:Response res) {
         json responseJson = {"serviceVarString":serviceVarString};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -87,7 +86,7 @@ service<http> GlobalVar {
 
         varpkg:glbVarFloatChange = 345432.454;
 
-        response:send(res);
+        res.send();
     }
 
 
@@ -105,8 +104,8 @@ service<http> GlobalVarSecond {
     resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
 }

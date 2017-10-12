@@ -103,7 +103,7 @@ public class InvalidSyntaxParserTest {
 
     @Test
     public void testResourceWithEmptyReply() {
-        CompileResult result = BTestUtils.compile("test-src/parser/resource-with-empty-reply.bal");
+        CompileResult result = BTestUtils.compile("test-src/parser/resource-with-empty-reply-negative.bal");
         BTestUtils.validateError(result, 0, "invalid token 'reply'", 9, 5);
     }
 

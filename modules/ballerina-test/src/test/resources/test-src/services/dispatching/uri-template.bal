@@ -1,8 +1,6 @@
 import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
@@ -11,14 +9,14 @@ service<http> Ecommerce {
         path:"/products/{productId}/{regId}"
     }
     resource productsInfo1 (http:Request req, http:Response res, string productId, string regId) {
-        string orderId = request:getHeader(req, "X-ORDER-ID");
+        string orderId = req.getHeader("X-ORDER-ID");
         system:println("Order ID " + orderId);
         system:println("Product ID " + productId);
         system:println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -31,8 +29,8 @@ service<http> Ecommerce {
         system:println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -45,8 +43,8 @@ service<http> Ecommerce {
         system:println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -55,15 +53,15 @@ service<http> Ecommerce {
     }
     resource productsInfo4 (http:Request req, http:Response res, string productId) {
         json responseJson;
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
         system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         system:println(jsons:toString(responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -72,7 +70,7 @@ service<http> Ecommerce {
     }
     resource productsInfo6 (http:Request req, http:Response res) {
         json responseJson;
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string prdID;
         string rID;
         prdID, _ = (string)params.prodID;
@@ -81,8 +79,8 @@ service<http> Ecommerce {
         system:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         system:println (jsons:toString (responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -91,15 +89,15 @@ service<http> Ecommerce {
     }
     resource productsInfo5 (http:Request req, http:Response res, string productId) {
         json responseJson;
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
         system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         system:println(jsons:toString(responseJson));
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -107,8 +105,8 @@ service<http> Ecommerce {
     }
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo11":"echo11"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -122,7 +120,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo99 (http:Request req, http:Response res) {
-        response:send(res);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -131,8 +129,8 @@ service<http> echo111 {
     }
     resource productsOptions (http:Request req, http:Response res) {
         json responseJson = {"echo":"wso2"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -140,7 +138,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo98 (http:Request req, http:Response res) {
-        response:send(res);
+        res.send();
 
     }
 
@@ -150,8 +148,8 @@ service<http> echo111 {
     }
     resource productsGet (http:Request req, http:Response res) {
         json responseJson = {"echo":"get"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -160,8 +158,8 @@ service<http> echo111 {
     }
     resource productsPOST (http:Request req, http:Response res) {
         json responseJson = {"echo":"post"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -170,8 +168,8 @@ service<http> echo111 {
     }
     resource productsPUT (http:Request req, http:Response res) {
         json responseJson = {"echo":"put"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 

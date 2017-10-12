@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 int glbVarInt = 800;
 string glbVarString = "value";
@@ -22,8 +21,8 @@ service<http> GlobalVar {
     }
     resource defineGlobalVar (http:Request req, http:Response res) {
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -32,8 +31,8 @@ service<http> GlobalVar {
     }
     resource accessGlobalVarAtServiceLevel (http:Request req, http:Response res) {
         json responseJson = {"serviceVarFloat":serviceVarFloat};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -43,8 +42,8 @@ service<http> GlobalVar {
     resource changeGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -53,8 +52,8 @@ service<http> GlobalVar {
     }
     resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
 }
@@ -69,8 +68,8 @@ service<http> GlobalVarSecond {
     }
     resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
 }
