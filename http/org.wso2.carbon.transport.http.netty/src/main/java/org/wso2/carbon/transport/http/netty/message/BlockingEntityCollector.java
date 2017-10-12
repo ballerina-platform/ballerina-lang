@@ -46,7 +46,6 @@ public class BlockingEntityCollector implements EntityCollector {
     private AtomicBoolean endOfMsgAdded;
     private AtomicBoolean isConsumed;
     private BlockingQueue<HttpContent> httpContentQueue;
-//    private BlockingQueue<HttpContent> garbageCollected;
 
     public BlockingEntityCollector(int soTimeOut) {
         this.soTimeOut = soTimeOut;
@@ -54,7 +53,6 @@ public class BlockingEntityCollector implements EntityCollector {
         this.endOfMsgAdded = new AtomicBoolean(false);
         this.isConsumed = new AtomicBoolean(false);
         this.httpContentQueue = new LinkedBlockingQueue<>();
-//        this.garbageCollected = new LinkedBlockingQueue<>();
     }
 
     public void addHttpContent(HttpContent httpContent) {
@@ -73,9 +71,6 @@ public class BlockingEntityCollector implements EntityCollector {
             } else {
                 if (!isConsumed.get()) {
                     HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-//                    if (httpContent != null) {
-//                        garbageCollected.add(httpContent);
-//                    }
 
                     if (httpContent instanceof LastHttpContent) {
                         isConsumed.set(true);
@@ -104,8 +99,6 @@ public class BlockingEntityCollector implements EntityCollector {
                     HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
                     if (httpContent != null) {
                         ByteBuf buf = httpContent.content();
-//                        garbageCollected.add(httpContent);
-
                         if (httpContent instanceof LastHttpContent) {
                             this.endOfMsgAdded.set(true);
                             isConsumed.set(true);
@@ -145,7 +138,6 @@ public class BlockingEntityCollector implements EntityCollector {
                             isConsumed.set(true);
                         }
                         ByteBuf buf = httpContent.content();
-//                        garbageCollected.add(httpContent);
                         byteBufferList.add(buf.nioBuffer());
                     } catch (InterruptedException e) {
                         LOG.error("Error while getting full message body", e);
@@ -230,10 +222,8 @@ public class BlockingEntityCollector implements EntityCollector {
         this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
     }
 
+    @Deprecated
     public synchronized void release() {
-//        while (!garbageCollected.isEmpty()) {
-//            ReferenceCountUtil.release(garbageCollected.poll());
-//        }
     }
 
     // TODO: Need to move below two to ballarina code
