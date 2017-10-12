@@ -3865,6 +3865,31 @@
         padding-left: 5px;
     }
     
+    .syntax-error-overlay {
+        z-index: 1000;
+        text-align: center;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(60, 60, 60, 0.5);
+        .error-list {
+            border-left: 5px solid #910a0a;
+            position: relative;
+            text-align: left;
+            padding: 10px;
+            left: 20%;
+            top: 20%;
+            width: 60%;
+            background-color: rgba(60, 60, 60, 1);
+            color: white;
+            .list-heading {
+                text-align: center;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+        }
+    }
+    
     .bal-file-editor-loading-container {
         z-index: 1000;
         text-align: center;
