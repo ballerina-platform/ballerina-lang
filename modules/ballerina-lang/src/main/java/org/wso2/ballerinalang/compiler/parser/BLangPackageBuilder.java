@@ -1572,11 +1572,12 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(transformNode);
     }
 
-    public void createXmlAttributesRefExpr(DiagnosticPos pos, boolean singleAttribute) {
+    public void createXmlAttributesRefExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean singleAttribute) {
         BLangExpression indexExpr = null;
         BLangXMLAttributeAccess xmlAttributeAccess =
                 (BLangXMLAttributeAccess) TreeBuilder.createXMLAttributeAccessNode();
         xmlAttributeAccess.pos = pos;
+        xmlAttributeAccess.addWS(ws);
         if (singleAttribute) {
             xmlAttributeAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
         }
