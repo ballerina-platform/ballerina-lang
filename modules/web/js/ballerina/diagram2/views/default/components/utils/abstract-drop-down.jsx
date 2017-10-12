@@ -62,6 +62,7 @@ class AbstractDropdown extends React.Component {
         if (this.node) {
             if (!this.node.contains(e.target)) {
                 this.props.model.props.model.viewState.overlayContainer = {};
+                this.props.model.props.model.viewState.showOverlayContainer = false;
                 this.props.model.props.editor.update();
             }
         }
@@ -75,6 +76,7 @@ class AbstractDropdown extends React.Component {
         const props = this.props.model.props;
         callback();
         props.model.viewState.overlayContainer = {};
+        props.model.viewState.showOverlayContainer = false;
         props.editor.update();
     }
 

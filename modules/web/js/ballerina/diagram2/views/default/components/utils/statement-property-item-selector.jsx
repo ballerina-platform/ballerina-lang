@@ -36,12 +36,6 @@ class StatementPropertyItemSelector extends React.Component {
         dropDownBBox.x = node.viewState.components['statement-box'].x
             + node.viewState.components['statement-box'].w + 2;
         dropDownBBox.y = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
-        // const bBox = Object.assign({}, node.viewState.bBox);
-        // const titleHeight = 30;
-        // const iconSize = 14;
-        // const annotationBodyHeight = node.viewState.components.annotation.h;
-        // bBox.x = bBox.x + titleHeight + iconSize;
-        // bBox.y = bBox.y + annotationBodyHeight + titleHeight;
         node.viewState.overlayContainer = {
             kind: 'AbstractDropdown',
             props: {
@@ -53,6 +47,7 @@ class StatementPropertyItemSelector extends React.Component {
                 environment: this.context.environment,
             },
         };
+        node.viewState.showOverlayContainer = true;
         this.context.editor.update();
     }
 
@@ -64,7 +59,11 @@ class StatementPropertyItemSelector extends React.Component {
     render() {
         const bBox = this.props.bBox;
         return (
-            <g id='serviceDefProps' onClick={this.handleShowDropDown} className={'statement-item-selector statement-item-selector-' + this.props.show}>
+            <g
+                id='serviceDefProps'
+                onClick={this.handleShowDropDown}
+                className={'statement-item-selector statement-item-selector-' + this.props.show}
+            >
                 <circle cx={bBox.x} cy={bBox.y} r="10" strokeWidth="0" fill="#3498db" />
                 <image
                     x={bBox.x - 6}
