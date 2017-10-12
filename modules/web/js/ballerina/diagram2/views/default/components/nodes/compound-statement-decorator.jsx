@@ -233,7 +233,13 @@ class CompoundStatementDecorator extends React.Component {
         }
         const separatorGapV = titleH / 3;
 
-        const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
+        let body = undefined;
+        if (this.props.body.kind === 'ForkJoin') {
+            body = getComponentForNodeArray(this.props.body.workers);
+        } else {
+            body = getComponentForNodeArray(this.props.body);
+        }
+
         let bodyBBox = {};
 
         if (this.props.model.kind === 'ForkJoin') {
