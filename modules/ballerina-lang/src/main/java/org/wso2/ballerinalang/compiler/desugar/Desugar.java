@@ -31,12 +31,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -187,6 +190,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        addReturnIfNotPresent(funcNode);
         funcNode.body = rewrite(funcNode.body);
         funcNode.workers = rewrite(funcNode.workers);
 
@@ -213,6 +217,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
+        addReturnIfNotPresent(resourceNode);
         resourceNode.body = rewrite(resourceNode.body);
         resourceNode.workers = rewrite(resourceNode.workers);
         result = resourceNode;
@@ -230,6 +235,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAction actionNode) {
+        addReturnIfNotPresent(actionNode);
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
 
@@ -255,7 +261,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        varNode.expr = rewriteExpr(varNode.expr);
+        if ((varNode.symbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            varNode.expr = rewriteExpr(varNode.expr);
+        } else {
+            varNode.expr = null;
+        }
         result = varNode;
     }
 
@@ -425,12 +435,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        if (arrayLiteral.type.tag == TypeTags.JSON) {
+        arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
+
+        if (arrayLiteral.type.tag == TypeTags.JSON || getElementType(arrayLiteral.type).tag == TypeTags.JSON) {
             result = new BLangJSONArrayLiteral(arrayLiteral.exprs, arrayLiteral.type);
-            result = rewriteExpr((BLangExpression) result);
             return;
         }
-        arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         result = arrayLiteral;
     }
 
@@ -528,7 +538,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.JSON) {
+        } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
@@ -545,14 +555,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
         iExpr.argExprs = rewriteExprs(iExpr.argExprs);
-        iExpr.expr = rewriteExpr(iExpr.expr);
         if (iExpr.functionPointerInvocation) {
-            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-            varRef.symbol = (BVarSymbol) iExpr.symbol;
-            varRef.type = iExpr.symbol.type;
-            genIExpr = new BFunctionPointerInvocation(iExpr, varRef);
+            visitFunctionPointerInvocation(iExpr);
+            return;
         }
-
+        iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
             return;
@@ -798,17 +805,27 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
-        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
-        result = jsonArrayLiteral;
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
     }
 
     // private functions
+
+    private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangVariableReference expr;
+        if (iExpr.expr == null) {
+            expr = new BLangSimpleVarRef();
+        } else {
+            BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
+            fieldBasedAccess.expr = iExpr.expr;
+            fieldBasedAccess.field = iExpr.name;
+            expr = fieldBasedAccess;
+        }
+        expr.symbol = (BVarSymbol) iExpr.symbol;
+        expr.type = iExpr.symbol.type;
+        expr = rewriteExpr(expr);
+        result = new BFunctionPointerInvocation(iExpr, expr);
+    }
 
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node) {
@@ -895,5 +912,30 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.types = Lists.of(targetType);
         conversionExpr.conversionSymbol = symbol;
         return conversionExpr;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.tag != TypeTags.ARRAY) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
+    }
+
+    private void addReturnIfNotPresent(BLangInvokableNode invokableNode) {
+        if (Symbols.isNative(invokableNode.symbol)) {
+            return;
+        }
+        //This will only check whether last statement is a return and just add a return statement.
+        //This won't analyse if else blocks etc to see whether return statements are present
+        BLangBlockStmt blockStmt = invokableNode.body;
+        if (invokableNode.workers.size() == 0 && invokableNode.retParams.isEmpty() && (blockStmt.stmts.size() < 1
+                || blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
+            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+            DiagnosticPos invPos = invokableNode.pos;
+            DiagnosticPos pos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
+            returnStmt.pos = pos;
+            blockStmt.addStatement(returnStmt);
+        }
     }
 }

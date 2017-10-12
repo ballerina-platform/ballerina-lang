@@ -50,6 +50,7 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
+    private boolean nonBlockingActionCall = false;
 
     private int startIP;
     private BStruct unhandledError;
@@ -84,9 +85,13 @@ public class Context {
             if (this.debugInfoHolder != null) {
                 return;
             }
-            this.debugInfoHolder = debugInfoHolder;
+            this.setDebugInfoHolder(debugInfoHolder);
             this.debugInfoHolder.init(programFile);
         }
+    }
+    
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
     }
 
     public String getThreadId() {
@@ -103,6 +108,14 @@ public class Context {
 
     public void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
+    }
+
+    public boolean isNonBlockingActionCall() {
+        return nonBlockingActionCall;
+    }
+
+    public void setNonBlockingActionCall(boolean nonBlockingActionCall) {
+        this.nonBlockingActionCall = nonBlockingActionCall;
     }
 
     public ControlStackNew getControlStackNew() {

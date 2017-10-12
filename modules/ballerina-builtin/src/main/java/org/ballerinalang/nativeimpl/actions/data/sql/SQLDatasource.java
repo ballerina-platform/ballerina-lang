@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -31,6 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Set;
@@ -104,99 +106,128 @@ public class SQLDatasource implements BValue {
             String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
-            if (!username.isEmpty()) {
-                config.setUsername(username);
-            }
-            if (!password.isEmpty()) {
-                config.setPassword(password);
-            }
-            String jdbcurl = options.getStringField(0);
-            String dataSourceClassName = options.getStringField(1);
-            if (!dataSourceClassName.isEmpty()) {
-                config.setDataSourceClassName(dataSourceClassName);
-            } else {
-                if (jdbcurl.isEmpty()) {
-                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-                }
-                if (!jdbcurl.isEmpty()) {
-                    config.setJdbcUrl(jdbcurl);
+            config.setUsername(username);
+            config.setPassword(password);
+            if (options != null) {
+                boolean isXA = options.getBooleanField(4) != 0;
+                BMap<String, BRefType> dataSourceConfigMap = (BMap) options.getRefField(0);
+                String jdbcurl = options.getStringField(0);
+                String dataSourceClassName = options.getStringField(1);
+                if (!dataSourceClassName.isEmpty()) {
+                    config.setDataSourceClassName(dataSourceClassName);
+                    dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
+                            dbType, hostOrPath, port, dbName);
                 } else {
-                    throw new BallerinaException("invalid database connection properties for db " + dbType);
+                    if (jdbcurl.isEmpty()) {
+                        jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                    }
+                    config.setJdbcUrl(jdbcurl);
+                    if (isXA) {
+                        String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                        config.setDataSourceClassName(datasourceClassName);
+                        dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
+                                dbType, hostOrPath, port, dbName);
+                    }
                 }
-            }
-            String connectionTestQuery = options.getStringField(2);
-            if (!connectionTestQuery.isEmpty()) {
-                config.setConnectionTestQuery(connectionTestQuery);
-            }
-            String poolName = options.getStringField(3);
-            if (!poolName.isEmpty()) {
-                config.setPoolName(poolName);
-            }
-            String catalog = options.getStringField(4);
-            if (!catalog.isEmpty()) {
-                config.setCatalog(catalog);
-            }
-            String connectionInitSQL = options.getStringField(5);
-            if (!connectionInitSQL.isEmpty()) {
-                config.setConnectionInitSql(connectionInitSQL);
-            }
-            String driverClassName = options.getStringField(6);
-            if (!driverClassName.isEmpty()) {
-                config.setDriverClassName(driverClassName);
-            }
-            String transactionIsolation = options.getStringField(7);
-            if (!transactionIsolation.isEmpty()) {
-                config.setTransactionIsolation(transactionIsolation);
-            }
-            int maximumPoolSize = (int) options.getIntField(0);
-            if (maximumPoolSize != -1) {
-                config.setMaximumPoolSize(maximumPoolSize);
-            }
-            long connectionTimeout = options.getIntField(1);
-            if (connectionTimeout != -1) {
-                config.setConnectionTimeout(connectionTimeout);
-            }
-            long idleTimeout = options.getIntField(2);
-            if (idleTimeout != -1) {
-                config.setIdleTimeout(idleTimeout);
-            }
-            int minimumIdle = (int) options.getIntField(3);
-            if (minimumIdle != -1) {
-                config.setMinimumIdle(minimumIdle);
-            }
-            long maxLifetime = options.getIntField(4);
-            if (maxLifetime != -1) {
-                config.setMaxLifetime(maxLifetime);
-            }
-            long validationTimeout = options.getIntField(5);
-            if (validationTimeout != -1) {
-                config.setValidationTimeout(validationTimeout);
-            }
-            long leakDetectionThreshold = options.getIntField(6);
-            if (leakDetectionThreshold != -1) {
-                config.setLeakDetectionThreshold(leakDetectionThreshold);
-            }
-            boolean autoCommit = options.getBooleanField(0) != 0;
-            config.setAutoCommit(autoCommit);
-            boolean isolateInternalQueries = options.getBooleanField(1) != 0;
-            config.setIsolateInternalQueries(isolateInternalQueries);
-            boolean allowPoolSuspension = options.getBooleanField(2) != 0;
-            config.setAllowPoolSuspension(allowPoolSuspension);
-            boolean readOnly = options.getBooleanField(3) != 0;
-            config.setReadOnly(readOnly);
-            BMap mapSourceConfigs = (BMap) options.getRefField(0);
-            if (mapSourceConfigs != null) {
-                setDataSourceProperties(mapSourceConfigs, config);
+                String connectionTestQuery = options.getStringField(2);
+                if (!connectionTestQuery.isEmpty()) {
+                    config.setConnectionTestQuery(connectionTestQuery);
+                }
+                String poolName = options.getStringField(3);
+                if (!poolName.isEmpty()) {
+                    config.setPoolName(poolName);
+                }
+                String catalog = options.getStringField(4);
+                if (!catalog.isEmpty()) {
+                    config.setCatalog(catalog);
+                }
+                String connectionInitSQL = options.getStringField(5);
+                if (!connectionInitSQL.isEmpty()) {
+                    config.setConnectionInitSql(connectionInitSQL);
+                }
+                String driverClassName = options.getStringField(6);
+                if (!driverClassName.isEmpty()) {
+                    config.setDriverClassName(driverClassName);
+                }
+                String transactionIsolation = options.getStringField(7);
+                if (!transactionIsolation.isEmpty()) {
+                    config.setTransactionIsolation(transactionIsolation);
+                }
+                int maximumPoolSize = (int) options.getIntField(0);
+                if (maximumPoolSize != -1) {
+                    config.setMaximumPoolSize(maximumPoolSize);
+                }
+                long connectionTimeout = options.getIntField(1);
+                if (connectionTimeout != -1) {
+                    config.setConnectionTimeout(connectionTimeout);
+                }
+                long idleTimeout = options.getIntField(2);
+                if (idleTimeout != -1) {
+                    config.setIdleTimeout(idleTimeout);
+                }
+                int minimumIdle = (int) options.getIntField(3);
+                if (minimumIdle != -1) {
+                    config.setMinimumIdle(minimumIdle);
+                }
+                long maxLifetime = options.getIntField(4);
+                if (maxLifetime != -1) {
+                    config.setMaxLifetime(maxLifetime);
+                }
+                long validationTimeout = options.getIntField(5);
+                if (validationTimeout != -1) {
+                    config.setValidationTimeout(validationTimeout);
+                }
+                long leakDetectionThreshold = options.getIntField(6);
+                if (leakDetectionThreshold != -1) {
+                    config.setLeakDetectionThreshold(leakDetectionThreshold);
+                }
+                boolean autoCommit = options.getBooleanField(0) != 0;
+                config.setAutoCommit(autoCommit);
+                boolean isolateInternalQueries = options.getBooleanField(1) != 0;
+                config.setIsolateInternalQueries(isolateInternalQueries);
+                boolean allowPoolSuspension = options.getBooleanField(2) != 0;
+                config.setAllowPoolSuspension(allowPoolSuspension);
+                boolean readOnly = options.getBooleanField(3) != 0;
+                config.setReadOnly(readOnly);
+                if (dataSourceConfigMap != null) {
+                    setDataSourceProperties(dataSourceConfigMap, config);
+                }
+            } else {
+                String jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                config.setJdbcUrl(jdbcurl);
             }
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
             String errorMessage = "error in sql connector configuration";
-            if (t.getCause() != null) {
-                throw new BallerinaException(errorMessage + ": " + t.getCause().getMessage());
-            } else {
-                throw new BallerinaException(errorMessage);
-            }
+            throw new BallerinaException(errorMessage + ": " + t.getMessage());
         }
+    }
+
+    private BMap<String, BRefType> setDataSourceProperties(BMap<String, BRefType> dataSourceConfigMap, String jdbcurl,
+            String username, String password, String dbType, String hostOrPath, int port, String dbName) {
+        if (dataSourceConfigMap != null) {
+            if (dataSourceConfigMap.get(Constants.URL) == null) {
+                if (jdbcurl.isEmpty()) {
+                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                }
+                dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
+            }
+            if (dataSourceConfigMap.get(Constants.USER) == null) {
+                dataSourceConfigMap.put(Constants.USER, new BString(username));
+            }
+            if (dataSourceConfigMap.get(Constants.PASSWORD) == null) {
+                dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
+            }
+        } else {
+            dataSourceConfigMap = new BMap<>();
+            if (jdbcurl.isEmpty()) {
+                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+            }
+            dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
+            dataSourceConfigMap.put(Constants.USER, new BString(username));
+            dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
+        }
+        return dataSourceConfigMap;
     }
 
     private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
@@ -272,10 +303,63 @@ public class SQLDatasource implements BValue {
             jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         default:
-            jdbcUrl.append("");
+            throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
         }
         return jdbcUrl.toString();
     }
+
+    private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
+        String xaDataSource = null;
+        switch (dbType) {
+        case Constants.DBTypes.MYSQL:
+            int driverMajorVersion;
+            try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+                driverMajorVersion = conn.getMetaData().getDriverMajorVersion();
+                if (driverMajorVersion == 5) {
+                    xaDataSource = Constants.XADataSources.MYSQL_5_XA_DATASOURCE;
+                } else if (driverMajorVersion > 5) {
+                    xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
+                }
+            } catch (SQLException e) {
+                throw new BallerinaException(
+                        "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            }
+            break;
+        case Constants.DBTypes.SQLSERVER:
+            xaDataSource = Constants.XADataSources.SQLSERVER_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.ORACLE:
+            xaDataSource = Constants.XADataSources.ORACLE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.SYBASE:
+            xaDataSource = Constants.XADataSources.SYBASE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.POSTGRE:
+            xaDataSource = Constants.XADataSources.POSTGRE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.IBMDB2:
+            xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.HSQLDB_SERVER:
+        case Constants.DBTypes.HSQLDB_FILE:
+            xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.H2_SERVER:
+        case Constants.DBTypes.H2_FILE:
+            xaDataSource = Constants.XADataSources.H2_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.DERBY_SERVER:
+            xaDataSource = Constants.XADataSources.DERBY_SERVER_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.DERBY_FILE:
+            xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
+            break;
+        default:
+            throw new BallerinaException("unknown database type used for xa connection : " + dbType);
+        }
+        return xaDataSource;
+    }
+
 
     private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<String> keySet = options.keySet();

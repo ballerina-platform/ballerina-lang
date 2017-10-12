@@ -24,7 +24,7 @@ function intToAny (int value) (any) {
 
 function floatToInt (float value) (int) {
     int result;
-    result, _ = <int>value;
+    result = <int>value;
     return result;
 }
 

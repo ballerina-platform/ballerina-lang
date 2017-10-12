@@ -1,7 +1,7 @@
 function floattoint(float value)(int) {
     int result;
     //float to int should be a conversion
-    result, _ = <int>value;
+    result = <int>value;
     return result;
 }
  
@@ -17,6 +17,13 @@ function stringtoint(string value)(int) {
     //string to int should be a unsafe conversion
     result, _ = <int>value;
     return result;
+}
+
+function testJsonIntToString() (string) {
+    json j = 5;
+    int value;
+    value, _ = (int)j;
+    return <string> value;
 }
 
 function stringtofloat(string value)(float) {

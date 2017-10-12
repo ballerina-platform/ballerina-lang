@@ -174,7 +174,7 @@ public class BMapValueTest {
                             "operator '+' not defined for 'any' and 'int'");
     }
     
-    @Test(enabled = false)
+    @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
         BMap<String, BRefType> map = new BMap<>();
         map.put(new String("key1"), new BInteger(1));
