@@ -37,7 +37,7 @@ service<ws> ChatApp {
 function broadcast(map consMap, string text) {
     int i = 0;
     string[] conKeys = maps:keys(consMap);
-    int len = conKeys.length;
+    int len = lengthof conKeys;
     while (i < len) {
         var con, e = (ws:Connection)consMap[conKeys[i]];
         if (e == null) {

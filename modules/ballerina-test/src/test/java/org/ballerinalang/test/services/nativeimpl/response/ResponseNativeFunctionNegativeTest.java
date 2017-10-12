@@ -214,7 +214,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetBinaryPayloadMethod() {
-        //TODO
+        //TODO Test this with multipart support, not needed for now
     }
 
     @Test

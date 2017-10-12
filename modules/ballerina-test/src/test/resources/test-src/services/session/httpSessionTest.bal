@@ -199,7 +199,7 @@ service<http> sample2 {
         http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("nameStruct");
         if (attribute != null) {
-            //d, err = (Data)attribute;
+            d, err = (Data)attribute;
         } else {
             Session.setAttribute("nameStruct", d);
         }

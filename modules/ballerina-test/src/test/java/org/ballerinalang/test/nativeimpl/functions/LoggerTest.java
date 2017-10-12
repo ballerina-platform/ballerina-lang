@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.natives.utils.logger;
+package org.ballerinalang.test.nativeimpl.functions;
 
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;

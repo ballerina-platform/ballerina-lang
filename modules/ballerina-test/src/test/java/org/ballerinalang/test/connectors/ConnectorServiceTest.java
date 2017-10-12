@@ -54,7 +54,7 @@ public class ConnectorServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "MyParam1");
     }
 
-    @Test(description = "Test action1Resource")
+    @Test(description = "Test action1Resource", priority = 1)
     public void testAction1Resource() {
 
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
@@ -66,7 +66,7 @@ public class ConnectorServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "false");
     }
 
-    @Test(description = "Test action1Resource after calling action2Resource")
+    @Test(description = "Test action1Resource after calling action2Resource", priority = 2)
     public void testAction2Resource() {
         HTTPCarbonMessage action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
         Services.invokeNew(action2Req);
