@@ -351,7 +351,7 @@ public class BLangPackageBuilder {
                                boolean exprAvailable,
                                int annotCount) {
 
-        Set<Whitespace> wsForSemiColon = removeLast(ws);
+        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
         addVar(pos, ws, identifier, exprAvailable, annotCount);
@@ -363,7 +363,7 @@ public class BLangPackageBuilder {
                                    boolean exprAvailable,
                                    int annotCount) {
 
-        Set<Whitespace> wsForSemiColon = removeLast(ws);
+        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         AnnotationNode annotNode = this.annotationStack.peek();
         annotNode.addWS(wsForSemiColon);
         addVar(pos, ws, identifier, exprAvailable, annotCount);
@@ -436,7 +436,7 @@ public class BLangPackageBuilder {
                                         String identifier,
                                         boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
-        Set<Whitespace> wsOfSemiColon = removeLast(ws);
+        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
@@ -1317,7 +1317,7 @@ public class BLangPackageBuilder {
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
         elseIfNode.setBody(blockNodeStack.pop());
-        Set<Whitespace> elseWS = removeFirst(ws);
+        Set<Whitespace> elseWS = removeNthFromStart(ws, 0);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();
@@ -1626,37 +1626,6 @@ public class BLangPackageBuilder {
 
     public void endConnectorParamList(Set<Whitespace> ws) {
         this.connectorNodeStack.peek().addWS(ws);
-    }
-
-    private Set<Whitespace> removeFirst(Set<Whitespace> ws) {
-        if (ws == null) {
-            return null;
-        }
-        Iterator<Whitespace> iterator = ws.iterator();
-        TreeSet<Whitespace> singletonSet = new TreeSet<>();
-        if (iterator.hasNext()) {
-            Whitespace token = iterator.next();
-            iterator.remove();
-            singletonSet.add(token);
-        }
-        return singletonSet;
-    }
-
-    private Set<Whitespace> removeLast(Set<Whitespace> ws) {
-        if (ws == null) {
-            return null;
-        }
-        Iterator<Whitespace> iterator = ws.iterator();
-        Whitespace last = null;
-        while (iterator.hasNext()) {
-            last = iterator.next();
-        }
-        TreeSet<Whitespace> singletonSet = new TreeSet<>();
-        if (last != null) {
-            iterator.remove();
-            singletonSet.add(last);
-        }
-        return singletonSet;
     }
 
     private Set<Whitespace> removeNthFromLast(Set<Whitespace> ws, int n) {
