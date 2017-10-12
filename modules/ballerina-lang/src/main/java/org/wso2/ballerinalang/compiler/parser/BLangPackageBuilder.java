@@ -1617,12 +1617,16 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(xmlnsStmt);
     }
 
+    public void attachStringTemplateLiteralWS(Set<Whitespace> ws) {
+    }
+
     public void createStringTemplateLiteral(DiagnosticPos pos, Set<Whitespace> ws, Stack<String> precedingTextFragments,
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
         stringTemplateLiteral.exprs =
-                getExpressionsInTemplate(pos, ws, precedingTextFragments, endingText, NodeKind.LITERAL);
+                getExpressionsInTemplate(pos, null, precedingTextFragments, endingText, NodeKind.LITERAL);
+        stringTemplateLiteral.addWS(ws);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);
     }
