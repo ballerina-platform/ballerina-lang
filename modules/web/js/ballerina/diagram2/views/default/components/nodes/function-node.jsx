@@ -119,23 +119,39 @@ class FunctionNode extends React.Component {
                 argumentParams={argumentParameters}
                 returnParams={returnParameters}
             >
-                <StatementDropZone
-                    x={bodyBBox.x}
-                    y={bodyBBox.y}
-                    width={bodyBBox.w}
-                    height={bodyBBox.h}
-                    baseComponent="rect"
-                    dropTarget={body}
-                    enableDragBg
-                />
-                <LifeLine
-                    title="default"
-                    bBox={this.props.model.viewState.components.defaultWorkerLine}
-                    classes={classes}
-                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                    iconColor='#025482'
-                />
-                {blockNode}
+                { this.props.model.getWorkers().length === 0 &&
+                <g>
+                    <StatementDropZone
+                        x={bodyBBox.x}
+                        y={bodyBBox.y}
+                        width={bodyBBox.w}
+                        height={bodyBBox.h}
+                        baseComponent="rect"
+                        dropTarget={body}
+                        enableDragBg
+                    />
+                    <LifeLine
+                        title="default"
+                        bBox={this.props.model.viewState.components.defaultWorkerLine}
+                        classes={classes}
+                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                        iconColor='#025482'
+                    />
+                    {blockNode}
+                </g>
+                }{
+                    this.props.model.workers.map((item) => {
+                        return (<StatementDropZone
+                            x={item.getBody().viewState.bBox.x}
+                            y={item.getBody().viewState.bBox.y}
+                            width={item.getBody().viewState.bBox.w}
+                            height={item.getBody().viewState.bBox.h}
+                            baseComponent="rect"
+                            dropTarget={item.getBody()}
+                            enableDragBg
+                        />);
+                    })
+                }
                 {workers}
                 {connectors}
             </PanelDecorator>);
