@@ -22,11 +22,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>annotation-processor</artifactId>
+            <artifactId>ballerina-lang</artifactId>
         </dependency>
 
         <!-- Dependencies for ballerina command: test -->
@@ -48,6 +48,11 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -101,14 +106,11 @@
                 <version>${mvn.processor.plugin.version}</version>
                 <configuration>
                     <processors>
-                        <processor>org.ballerinalang.natives.annotation.processor.BallerinaAnnotationProcessor</processor>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <packageName>${native.constructs.provider.package}</packageName>
-                        <className>${native.constructs.provider.class}</className>
-                        <srcDir>${testerina.source.directory}</srcDir>
-                        <targetDir>${generated.testerina.source.directory}</targetDir>
-                        <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
+                        <nativeEntityProviderPackage>org.ballerinalang.testerina.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>
@@ -123,25 +125,25 @@
             </plugin>
 
             <!-- For ballerina natives processing/validation -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${mvn.exec.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
-                            <arguments>
-                                <argument>${generated.testerina.source.directory}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>exec-maven-plugin</artifactId>-->
+                <!--<version>${mvn.exec.plugin.version}</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>process-classes</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>java</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>-->
+                            <!--<arguments>-->
+                                <!--<argument>${generated.testerina.source.directory}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
 
             <!-- Generate API Doc -->
             <plugin>
@@ -177,10 +179,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
-        <native.constructs.provider.class>TesterinaNativeConstructsProvider</native.constructs.provider.class>
-        <package.repository.provider.class>org.ballerinalang.testerina.core.TesterinaPackageRepository</package.repository.provider.class>
-    </properties>
 </project>

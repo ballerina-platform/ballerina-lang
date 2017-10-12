@@ -68,7 +68,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>annotation-processor</artifactId>
+                <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -78,7 +78,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-native</artifactId>
+                <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -126,8 +126,7 @@
                             <failsOnError>true</failsOnError>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <!--Exclude generated sources-->
-                            <excludes>**/util/parser/*,**/${native.constructs.provider.class}.java,
-                                **/${ballerina.package.repository.provider.class}.java</excludes>
+                            <excludes>**/util/parser/*</excludes>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -149,9 +148,6 @@
 
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.testerina.source.directory>${project.build.directory}/natives/</generated.testerina.source.directory>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-        <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
-        </ballerina.package.repository.provider.class>
     </properties>
 
     <modules>

@@ -18,7 +18,7 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.8.0
  */
 @BallerinaFunction(packageName = "ballerina.mock", functionName = "setValue", args = {
-        @Argument(name = "mockableConnectorPathExpr", type = TypeEnum.STRING),
-        @Argument(name = "value", type = TypeEnum.STRING) }, isPublic = true)
+        @Argument(name = "mockableConnectorPathExpr", type = TypeKind.STRING),
+        @Argument(name = "value", type = TypeKind.STRING)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = { @Attribute(name = "value",
                                                value = "Modifies global connector instance's arguments for mocking "

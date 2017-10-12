@@ -34,6 +34,8 @@ public class TesterinaFunction {
     private FunctionInfo bFunction;
     private ProgramFile programFile;
 
+    private static final int WORKER_TIMEOUT = 10;
+
     public static final String PREFIX_TEST = "TEST";
     public static final String PREFIX_BEFORETEST = "BEFORETEST";
     public static final String PREFIX_AFTERTEST = "AFTERTEST";
@@ -76,9 +78,8 @@ public class TesterinaFunction {
      */
     public BValue[] invoke(BValue[] args) {
         Context ctx = new Context(programFile);
-        ctx.disableNonBlocking = true;
         return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), 
-                args, ctx);
+                args, ctx, WORKER_TIMEOUT);
     }
 
 
