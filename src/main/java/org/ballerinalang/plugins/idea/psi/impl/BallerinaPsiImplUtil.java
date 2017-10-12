@@ -772,9 +772,8 @@ public class BallerinaPsiImplUtil {
         return ((StructDefinitionNode) resolvedDefElement.getParent());
     }
 
-    public static StructDefinitionNode resolveField(@NotNull FieldDefinitionNode fieldDefinitionNode) {
-
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
+    public static StructDefinitionNode resolveTypeNodeStruct(@NotNull PsiElement element) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(element, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
         }
@@ -1840,9 +1839,19 @@ public class BallerinaPsiImplUtil {
             return getStructDefinition((VariableReferenceNode) expressionNodeFirstChild, assignmentStatementNode,
                     structReferenceNode);
         } else if (expressionNodeFirstChild instanceof TypeCastNode) {
-            return getErrorStruct(assignmentStatementNode, structReferenceNode, true, false);
+            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+            if (index == 0) {
+                return resolveTypeNodeStruct((expressionNodeFirstChild));
+            } else if (index == 1) {
+                return getErrorStruct(assignmentStatementNode, structReferenceNode, true, false);
+            }
         } else if (expressionNodeFirstChild instanceof TypeConversionNode) {
-            return getErrorStruct(assignmentStatementNode, structReferenceNode, false, true);
+            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+            if (index == 0) {
+                return resolveTypeNodeStruct((expressionNodeFirstChild));
+            } else if (index == 1) {
+                return getErrorStruct(assignmentStatementNode, structReferenceNode, false, true);
+            }
         }
         return null;
     }

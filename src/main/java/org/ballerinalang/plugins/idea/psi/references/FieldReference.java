@@ -122,7 +122,7 @@ public class FieldReference extends BallerinaElementReference {
             // field. So we need to resolve the type of the field which is 'Name'. Then we will get the Name struct.
             // Then we need to get the 'firstName' field from that.
             structDefinitionNode =
-                    BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+                    BallerinaPsiImplUtil.resolveTypeNodeStruct((resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
             structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
         } else if (resolvedElementParent instanceof EnumDefinitionNode) {
@@ -168,7 +168,7 @@ public class FieldReference extends BallerinaElementReference {
             structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode(resolvedElementParent);
         } else if (resolvedElementParent instanceof FieldDefinitionNode) {
             structDefinitionNode =
-                    BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+                    BallerinaPsiImplUtil.resolveTypeNodeStruct((resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
             structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
             if (structDefinitionNode != null) {

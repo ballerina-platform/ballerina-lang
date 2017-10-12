@@ -111,7 +111,7 @@ public class StatementReference extends BallerinaElementReference {
                         (((VariableDefinitionNode) resolvedElementParent));
             } else if (resolvedElementParent instanceof FieldDefinitionNode) {
                 structDefinitionNode =
-                        BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+                        BallerinaPsiImplUtil.resolveTypeNodeStruct((resolvedElementParent));
             }
             if (structDefinitionNode == null) {
                 return results.toArray(new LookupElement[results.size()]);
