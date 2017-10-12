@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -136,7 +137,6 @@ public class Types {
             return actualType;
         }
 
-        // TODO: Add invokable actualType compatibility check.
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, actualType);
@@ -172,6 +172,8 @@ public class Types {
         // If the both type tags are equal, then perform following checks.
         if (actualType.tag == expType.tag && isValueType(actualType)) {
             return true;
+        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.INVOKABLE) {
+            return checkFunctionTypeEquivalent(actualType, expType);
         } else if (actualType.tag == expType.tag &&
                 !isUserDefinedType(actualType) && !isConstrainedType(actualType) &&
                 actualType.tag != TypeTags.ANNOTATION) {
@@ -252,6 +254,18 @@ public class Types {
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
         return expType.tag == TypeTags.ANY && !isValueType(actualType);
+    }
+
+    public boolean checkFunctionTypeEquivalent(BType actualType, BType expType) {
+        BInvokableType aType = (BInvokableType) actualType;
+        BInvokableType eType = (BInvokableType) expType;
+        if (aType.paramTypes.size() != eType.paramTypes.size() || aType.retTypes.size() != eType.retTypes.size()) {
+            return false;
+        }
+        if (!aType.paramTypes.equals(eType.paramTypes)) {
+            return false;
+        }
+        return aType.retTypes.equals(eType.retTypes);
     }
 
     public boolean checkArrayEquivalent(BType actualType, BType expType) {
@@ -561,7 +575,7 @@ public class Types {
 
             if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT) {
+            } else if (s.tag == TypeTags.STRUCT || s.tag == TypeTags.ANY) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
 

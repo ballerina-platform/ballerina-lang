@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.connector.api.AbstractNativeAction;
 
 import java.util.Objects;
 

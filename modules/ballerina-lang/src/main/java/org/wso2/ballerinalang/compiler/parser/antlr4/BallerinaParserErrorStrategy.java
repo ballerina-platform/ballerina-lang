@@ -124,7 +124,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
      * 
      * @param parser Current parser
      */
-    private void setContextException(Parser parser) {
+    protected void setContextException(Parser parser) {
         // Here the type of the exception is not important.
         InputMismatchException e = new InputMismatchException(parser);
         for (ParserRuleContext context = parser.getContext(); context != null; context = context.getParent()) {
@@ -138,13 +138,5 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int endLine = -1;
         int endCol = -1;
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
-    }
-
-    /**
-     * Set diagnosticSource
-     * @param diagnosticSrc diagnosticSource
-     */
-    public void setDiagnosticSrc(BDiagnosticSource diagnosticSrc){
-        this.diagnosticSrc = diagnosticSrc;
     }
 }

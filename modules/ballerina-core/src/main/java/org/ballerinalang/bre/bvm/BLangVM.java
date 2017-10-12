@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
@@ -64,7 +65,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -117,7 +118,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -578,8 +578,7 @@ public class BLangVM {
                     }
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
                         invokeNativeFunction(functionInfo, funcCallCPEntry);
@@ -590,7 +589,8 @@ public class BLangVM {
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
                     j = operands[1];
-                    sf.refRegs[j] = new BFunctionPointer(i);
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
+                    sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -2541,7 +2541,7 @@ public class BLangVM {
             } else if (status == -1) { //Transaction failed
                 ballerinaTransactionManager.setTransactionError(true);
                 ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction aborted
+            } else { //status = 1 Transaction end
                 ballerinaTransactionManager.endTransactionBlock();
                 if (ballerinaTransactionManager.isOuterTransaction()) {
                     context.setBallerinaTransactionManager(null);
@@ -2672,7 +2672,7 @@ public class BLangVM {
     
     private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
             Set<String> joinWorkerNames, int joinCount, long timeout) {
-        ExecutorService exec = Executors.newWorkStealingPool();
+        ExecutorService exec = ThreadPoolFactory.getInstance().getWorkerExecutor();
         Semaphore resultCounter = new Semaphore(-joinCount + 1);
         workers.forEach((k, v) -> {
             if (joinWorkerNames.contains(k)) {
@@ -2990,6 +2990,7 @@ public class BLangVM {
             if (nonBlocking) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
+                context.setNonBlockingActionCall(true);
                 // TODO : Temporary solution to make non-blocking working.
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();

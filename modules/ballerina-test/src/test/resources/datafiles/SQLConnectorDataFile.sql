@@ -169,4 +169,24 @@ CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INO
   SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
   END
 /
+CREATE TYPE customtype AS INTEGER;
+/
+CREATE TABLE structdatatable(id INTEGER, structdata customtype);
+/
+INSERT INTO structdatatable(id,structdata) VALUES (1,10);
+/
+CREATE PROCEDURE TestStructOut (OUT var customtype)
+  READS SQL DATA
+  BEGIN ATOMIC
+  SELECT structdata INTO var from structdatatable where id = 1;
+  END
+/
+CREATE PROCEDURE TestStructInOut (OUT countVal INTEGER, INOUT var customtype)
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
+  INSERT INTO structdatatable(id,structdata) VALUES (2,var);
+  select count(*) into countVal from structdatatable where id = 2;
+ SELECT structdata INTO var from structdatatable where id = 1;
+  END
+/
 
