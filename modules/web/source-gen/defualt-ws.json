@@ -552,7 +552,7 @@
   "Worker": {
     "before worker": "",
     "after worker": "",
-    "before name": "",
+    "before name": " ",
     "after name": "",
     "before {": " ",
     "after {": "",

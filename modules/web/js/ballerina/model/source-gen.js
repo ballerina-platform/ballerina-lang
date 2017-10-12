@@ -434,7 +434,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + getSourceOf(node.condition, pretty, l) + w() + ')' + w(' ') + '{' + indent()
                  + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
         case 'Worker':
-            return dent() + w() + 'worker' + w() + node.name.value + w(' ') + '{'
+            return dent() + w() + 'worker' + w(' ') + node.name.value + w(' ') + '{'
                  + indent() + getSourceOf(node.body, pretty, l) + outdent() + w()
                  + '}';
         case 'WorkerReceive':
