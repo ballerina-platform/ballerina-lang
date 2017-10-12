@@ -52,7 +52,7 @@
 
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
