@@ -308,7 +308,8 @@ class PositioningUtil {
 
         // ========== End of Header ==========
 
-        let xindex = cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+        let xindex = (workers.length > 0) ? cmp.defaultWorker.x :
+                        cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
         // Position Workers
         if (workers instanceof Array) {
             workers.forEach((worker) => {

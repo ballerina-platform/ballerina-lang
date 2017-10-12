@@ -282,10 +282,10 @@ class SizingUtil {
         cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
 
         // calculate default worker
-        cmp.defaultWorker.w = node.body.viewState.bBox.w;
+        cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
         // We add the default worker line as a seperate component.
-        cmp.defaultWorkerLine.w = this.config.lifeLine.width;
+        cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
         // set the max worker height to other workers.
         workers.forEach((worker) => {
@@ -296,6 +296,10 @@ class SizingUtil {
             // now add the worker width to panelBody width.
             cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
+        // reduce the gutter if default worker not exist.
+        if (workers.length > 0) {
+            cmp.panelBody.w -= this.config.lifeLine.gutter.h;
+        }
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
