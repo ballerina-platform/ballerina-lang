@@ -18,9 +18,13 @@
 
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
+import TreeUtil from './tree-util';
 import Environment from '../env/environment';
-import { VarPrefix } from '../utils/transform-utils';
 
+/**
+ * Transform factory class.
+ * @class TransformFactory
+ */
 class TransformFactory {
     /**
      * Create for expression for fields
@@ -31,6 +35,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createExpressionFragment(name);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        refExpr.ws = null;
         return refExpr;
     }
 
@@ -44,8 +49,9 @@ class TransformFactory {
     static createVariableDef(name, type, value) {
         const fragment = FragmentUtils.createStatementFragment(type + ' ' + name + ' = ' + value + '"";');
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const refExpr = TreeBuilder.build(parsedJson);
-        return refExpr;
+        const varDef = TreeBuilder.build(parsedJson);
+        varDef.ws = null;
+        return varDef;
     }
 
     /**
@@ -63,6 +69,37 @@ class TransformFactory {
         }
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        exp.ws = null;
+        return exp;
+    }
+
+    /**
+     * Create default expression based on operator type
+     * @static
+     * @param {Expression} operator operator expression
+     * @param {int} index index of the operator
+     * @memberof TransformFactory
+     * @return {object} expression object
+     */
+    static createDefaultOperatorExpression(operator, index) {
+        const operatorLattice = Environment.getOperatorLattice();
+        const operatorKind = operator.getOperatorKind();
+        let compatibility;
+        if (TreeUtil.isBinaryExpr(operator)) {
+            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
+        } else if (TreeUtil.isUnaryExpr(operator)) {
+            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
+        } else {
+            return;
+        }
+        const defaultValue = Environment.getDefaultValue('string');
+        let fragment = FragmentUtils.createExpressionFragment('null');
+        if (defaultValue !== undefined) {
+            fragment = FragmentUtils.createExpressionFragment(defaultValue);
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        exp.ws = null;
         return exp;
     }
 
@@ -75,6 +112,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createStatementFragment(`${statement};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson);
+        refExpr.ws = null;
         return refExpr;
     }
 
@@ -90,6 +128,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createExpressionFragment(`(${targetType})${expression.getSource()}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        castExpr.ws = null;
         return castExpr;
     }
 
@@ -104,8 +143,9 @@ class TransformFactory {
     static createTypeConversionExpr(expression, targetType) {
         const fragment = FragmentUtils.createExpressionFragment(`<${targetType}>${expression.getSource()}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
-        return castExpr;
+        const conExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        conExpr.ws = null;
+        return conExpr;
     }
 
     static createOperatorAssignmentStatement(args = {}) {
@@ -113,6 +153,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createStatementFragment(statement);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const tree = TreeBuilder.build(parsedJson);
+        tree.ws = null;
         return tree;
     }
 }
