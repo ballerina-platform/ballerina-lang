@@ -1,38 +1,55 @@
-import ballerina.lang.messages;
+import ballerina.net.jms.jmsmessage;
 import ballerina.lang.system;
 import ballerina.net.jms;
 
 @jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
-           "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+    "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
     connectionFactoryType:"queue",
     connectionFactoryName:"QueueConnectionFactory",
-    destination:"MyQueue",
-    acknowledgmentMode:"AUTO_ACKNOWLEDGE"
+    destination:"MyQueue"
 }
 service<jms> jmsService {
-    resource onMessage (message m) {
-        // Read a message property.
-        string myProperty = messages:getProperty(m, "MyProperty");
-        // Print the property values
-        system:println("myProperty value " + myProperty);
+    resource onMessage (jms:JMSMessage m) {
+        jms:ClientConnector jmsEP;
 
-        message responseMessage = {};
-        // Set a custom message property. This value will be treated as a JMS 
-        // message string property when sending to a JMS provider
-        messages:setProperty(responseMessage, "MySecondProperty", 
-                                              "Hello from Ballerina!");
+        // Read all the supported headers from the message.
+        string correlationId = jmsmessage:getCorrelationID(m);
+        int timestamp = jmsmessage:getTimestamp(m);
+        string messageType = jmsmessage:getType(m);
+        string messageId = jmsmessage:getMessageID(m);
+        boolean redelivered = jmsmessage:getRedelivered(m);
+        int expirationTime = jmsmessage:getExpiration(m);
+        int priority = jmsmessage:getPriority(m);
+        int deliveryMode = jmsmessage:getDeliveryMode(m);
+
+        // Print the header values.
+        system:println("correlationId : " + correlationId);
+        system:println("timestamp : " + timestamp);
+        system:println("message type : " + messageType);
+        system:println("message id : " + messageId);
+        system:println("is redelivered : " + redelivered);
+        system:println("expiration time : " + expirationTime);
+        system:println("priority : " + priority);
+        system:println("delivery mode : " + deliveryMode);
+        system:println("----------------------------------");
 
         map properties = {
-                         "initialContextFactory":"wso2mbInitialContextFactory",
-                         "configFilePath":"../jndi.properties",
-                         "connectionFactoryName": "QueueConnectionFactory",
-                         "connectionFactoryType" :"queue"};
+                             "initialContextFactory":"wso2mbInitialContextFactory",
+                             "configFilePath":"../jndi.properties",
+                             "connectionFactoryName": "QueueConnectionFactory",
+                             "connectionFactoryType" : "queue"};
 
-        jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
+        jmsEP = create jms:ClientConnector(properties);
+        jms:JMSMessage responseMessage = jms:createTextMessage(jmsEP);
+
+        jmsmessage:setCorrelationID(responseMessage, "response-001");
+        jmsmessage:setPriority(responseMessage, 8);
+        jmsmessage:setDeliveryMode(responseMessage, 1);
+        jmsmessage:setTextMessageContent(responseMessage, "{\"WSO2\":\"Ballerina\"}");
+        jmsmessage:setType(responseMessage, "application/json");
+
         jmsEP.send("MySecondQueue", responseMessage);
-
     }
 }
-
