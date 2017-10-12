@@ -1,4 +1,3 @@
-import ballerina.lang.errors;
 import ballerina.lang.files;
 import ballerina.lang.system;
 import ballerina.lang.strings;
@@ -23,15 +22,9 @@ function main (string[] args) {
         //block and the thrown error type and catch clause's error type are matched, or
         //if there is no match, then the catch is the first in the order, where thrown
         //error type and catch clause's error type are structurally equivalent.
-    } catch (errors:Error err) {
+    } catch (error err) {
         system:println("error: " + err.msg);
-        //Catching specific error type 'errors:NullReferenceError'.
-    } catch (errors:NullReferenceError err) {
-        system:println("NullReferenceError error occurred");
-        //Finally block always executes when the execution exits from the try block or
-        //catch block when an error occurred. It is also useful, not only in an anomalous
-        //situation, where the execution exit the try block using a return, break, abort.
-        //Use finally block to do cleanup tasks i.e File Close, SQL Connection Close etc.
+    //Catching specific error type 'errors:NullReferenceError'.
     } finally {
         //Closing the file.
         files:close(target);

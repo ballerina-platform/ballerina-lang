@@ -201,7 +201,7 @@ service<http> sample2 {
         http:Session Session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(Session, "nameStruct");
         if (attribute != null) {
-            //d, err = (Data)attribute;
+            d, err = (Data)attribute;
         } else {
             http:setAttribute(Session, "nameStruct", d);
         }

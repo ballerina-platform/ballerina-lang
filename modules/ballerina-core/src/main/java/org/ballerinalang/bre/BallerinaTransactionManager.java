@@ -98,6 +98,8 @@ public class BallerinaTransactionManager {
         if (transactionLevel == 1) {
             rollbackNonXAConnections();
             rollbackXATransaction();
+            closeAllConnections();
+            transactionContextStore.clear();
         }
     }
 

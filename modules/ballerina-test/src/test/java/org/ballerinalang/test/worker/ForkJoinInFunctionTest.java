@@ -64,14 +64,14 @@ public class ForkJoinInFunctionTest {
         Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
     }
 
-    @Test(description = "Test Fork Join Any of specific", enabled = false)
+    @Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
         CompileResult result = BTestUtils.compile("test-src/workers/fork-join-any-specific.bal");
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 1);
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
     }
 
     @Test(description = "Test Fork Join Without Timeout Expression")
