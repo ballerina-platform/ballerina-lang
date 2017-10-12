@@ -18,8 +18,6 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.BLangCompiler;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
@@ -43,9 +41,6 @@ public class BTestRunner {
     private static TesterinaReport tReport = new TesterinaReport();
 
     public static void runTest(Path[] sourceFilePaths) {
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
-
         ProgramFile[] programFiles = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
                 .toArray(ProgramFile[]::new);
         Arrays.stream(programFiles).forEachOrdered(programFile -> {
