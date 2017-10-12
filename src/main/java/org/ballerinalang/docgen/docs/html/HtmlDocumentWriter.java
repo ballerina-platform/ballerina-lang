@@ -22,27 +22,21 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
-
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.AnnotationAttributeDef;
-import org.ballerinalang.model.AnnotationDef;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BTypeMapper;
-import org.ballerinalang.model.BallerinaAction;
-import org.ballerinalang.model.BallerinaConnectorDef;
-import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.Function;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.TypeMapper;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +45,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -112,22 +105,22 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
         // Sort packages by package path
         List<BLangPackage> packageList = new ArrayList<>(packages);
-        Collections.sort(packageList, Comparator.comparing(BLangPackage::getPackagePath));
+        Collections.sort(packageList, Comparator.comparing(pkg -> pkg.getPackageDeclaration().toString()));
 
         // Write <package>.html files
         for (BLangPackage balPackage : packageList) {
             // Sort functions, connectors, structs, type mappers and annotationDefs
-            Arrays.sort(balPackage.getFunctions(), Comparator.comparing(Function::getName));
-            Arrays.sort(balPackage.getConnectors(), Comparator.comparing(BallerinaConnectorDef::getName));
-            Arrays.sort(balPackage.getStructDefs(), Comparator.comparing(StructDef::getName));
-            Arrays.sort(balPackage.getTypeMappers(), Comparator.comparing(TypeMapper::getName));
-            Arrays.sort(balPackage.getAnnotationDefs(), Comparator.comparing(AnnotationDef::getName));
+            Collections.sort(balPackage.getFunctions(), Comparator.comparing(f -> f.getName().getValue()));
+            Collections.sort(balPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
+            Collections.sort(balPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
+            Collections.sort(balPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
             
             // Sort connector actions
-            if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().length > 0)) {
-                for (BallerinaConnectorDef connector : balPackage.getConnectors()) {
-                    Arrays.sort(connector.getActions(), Comparator.comparing(BallerinaAction::getName));
-                }
+            if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().size() > 0)) {
+                balPackage.getConnectors().forEach(connector ->
+                                                           Collections.sort(connector.getActions(),
+                                                                            Comparator.comparing(
+                                                                                    a -> a.getName().getValue())));
             }
 
             String filePath = outputFilePath + File.separator + refinePackagePath(balPackage) + HTML;
@@ -160,31 +153,25 @@ public class HtmlDocumentWriter implements DocumentWriter {
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
                     .registerHelper("hasFunctions", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getFunctions().length > 0) {
+                        if (balPackage.getFunctions().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasConnectors", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getConnectors().length > 0) {
+                        if (balPackage.getConnectors().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasStructs", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getStructDefs().length > 0) {
-                            return options.fn(balPackage);
-                        }
-                        return options.inverse(null);
-                    })
-                    .registerHelper("hasTypeMappers", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getTypeMappers().length > 0) {
+                        if (balPackage.getStructs().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasAnnotations", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getAnnotationDefs().length > 0) {
+                        if (balPackage.getAnnotations().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
@@ -196,81 +183,98 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     })
                     // usage: {{paramAnnotation this "<annotationName>"}}
                     // eg: {{paramAnnotation this "param"}}
-                    .registerHelper(
-                            "paramAnnotation",
-                            (Helper<VariableDef>) (param, options) -> {
-                                String annotationName = options.param(0);
-                                if (annotationName == null) {
-                                    return "";
-                                }
-                                String subName = param.getName() == null ? param.getTypeName().getName() :
-                                        param.getName();
-                                for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                    if (isNameEqual(annotationName, annotation) && 
-                                            annotation.getValue().startsWith(subName + ":")) {
-                                        return annotation.getValue().split(subName + ":")[1].trim();
-                                    }
-                                }
-                                // if the annotation values cannot be found still, return the first matching
-                                // annotation's value
-                                for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                    if (isNameEqual(annotationName, annotation)) {
-                                        return annotation.getValue();
-                                    }
-                                }
-                                return "";
-                            })
+                    .registerHelper("paramAnnotation", (Helper<BLangVariable>) (param, options) -> {
+                        String annotationName = options.param(0);
+                        if (annotationName == null) {
+                            return "";
+                        }
+                        String subName =
+                                param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            String attribVal = annotation.getAttributes().get(0).getValue().getValue()
+                                    .toString();
+                            if (isNameEqual(annotationName, annotation) &&
+                                    attribVal.startsWith(subName + ":")) {
+                                return attribVal.split(subName + ":")[1].trim();
+                            }
+                        }
+                        // if the annotation values cannot be found still, return the first matching
+                        // annotation's value
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            if (isNameEqual(annotationName, annotation)) {
+                                return annotation.getAttributes().get(0).getValue().getValue().toString();
+                            }
+                        }
+                        return "";
+                    })
                     // for struct field annotations
-                    .registerHelper(
-                        "fieldAnnotation",
-                        (Helper<VariableDefStmt>) (param, options) -> {
-                            VariableDef varDef = param.getVariableDef();
-                            String annotationName = options.param(0);
-                            if (annotationName == null) {
-                                return "";
-                            }
-                            String subName = varDef.getName() == null ? varDef.getTypeName().getName() :
-                                varDef.getName();
-                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                if (isNameEqual(annotationName, annotation) && 
-                                        annotation.getValue().startsWith(subName + ":")) {
-                                    return annotation.getValue().split(subName + ":")[1].trim();
-                                }
-                            }
-                            // if the annotation values cannot be found still, return the first matching
-                            // annotation's value
-                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                if (isNameEqual(annotationName, annotation)) {
-                                    return annotation.getValue();
-                                }
-                            }
+                    .registerHelper("fieldAnnotation", (Helper<BLangVariable>) (param, options) -> {
+                        String annotationName = options.param(0);
+                        if (annotationName == null) {
                             return "";
-                        })
+                        }
+
+                        String subName =
+                                (param.getName() == null) ? param.type.tsymbol.name.value : param.getName().getValue();
+
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            String attribVal = annotation.getAttributes().get(0).getValue().getValue().toString();
+                            if (isNameEqual(annotationName, annotation) && attribVal.startsWith(subName + ":")) {
+                                return attribVal.split(subName + ":")[1].trim();
+                            }
+                        }
+                        // if the annotation values cannot be found still, return the first matching
+                        // annotation's value
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            if (isNameEqual(annotationName, annotation)) {
+                                return annotation.getAttributes().get(0).getValue().getValue().toString();
+                            }
+                        }
+                        return "";
+                    })
                     // for annotation attribute annotations
-                    .registerHelper(
-                        "attributeAnnotation",
-                        (Helper<AnnotationAttributeDef>) (param, options) -> {
-                            String annotationName = options.param(0);
-                            if (annotationName == null) {
-                                return "";
-                            }
-                            String subName = param.getName() == null ? param.getTypeName().getName() :
-                                param.getName();
-                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                if (isNameEqual(annotationName, annotation) && 
-                                        annotation.getValue().startsWith(subName + ":")) {
-                                    return annotation.getValue().split(subName + ":")[1].trim();
-                                }
-                            }
-                            // if the annotation values cannot be found still, return the first matching
-                            // annotation's value
-                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
-                                if (isNameEqual(annotationName, annotation)) {
-                                    return annotation.getValue();
-                                }
-                            }
+                    .registerHelper("attributeAnnotation", (Helper<BLangAnnotAttribute>) (param, options) -> {
+                        String annotationName = options.param(0);
+                        if (annotationName == null) {
                             return "";
-                        })
+                        }
+
+                        String subName =
+                                (param.getName() == null) ? param.type.tsymbol.name.value : param.getName().getValue();
+
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            String attribVal = annotation.getAttributes().get(0).getValue().getValue().toString();
+                            if (isNameEqual(annotationName, annotation) && attribVal.startsWith(subName + ":")) {
+                                return attribVal.split(subName + ":")[1].trim();
+                            }
+                        }
+                        // if the annotation values cannot be found still, return the first matching
+                        // annotation's value
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
+                            if (isNameEqual(annotationName, annotation)) {
+                                return annotation.getAttributes().get(0).getValue().getValue().toString();
+                            }
+                        }
+                        return "";
+                    })
                     // usage: {{oneValueAnnotation "<annotationName>"}}
                     // eg: {{oneValueAnnotation "description"}} - this would retrieve the description annotation of the
                     // currentObject
@@ -278,47 +282,56 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         if (annotationName == null) {
                             return null;
                         }
-                        
-                        for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+
+                        for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (annotation.getAttributes().size() > 1) {
+                                continue;
+                            }
                             if (isNameEqual(annotationName, annotation)) {
-                                return annotation.getValue().trim();
+                                return annotation.getAttributes().get(0).getValue().getValue().toString();
                             }
                         }
                         return "";
                     })
                     //this would bind a link to the custom types defined
-                    .registerHelper("bindLink", (Helper<SymbolName>) (type, options) -> {
+                    .registerHelper("bindLink", (Helper<BLangType>) (type, options) -> {
+                        BLangType bLangType = type;
                         if (type == null) {
                             // for native functions check the type name
-                            if (options.context.model() instanceof ParameterDef) {
-                                return "#" + ((ParameterDef) options.context.model()).getTypeName().toString();
+                            if (options.context.model() instanceof BLangVariable) {
+                                bLangType = ((BLangVariable) options.context.model()).typeNode;
+                            } else {
+                                return "";
                             }
-                            return "";
                         }
-                        if ((type.getPkgPath() != null) && (!type.getPkgPath().isEmpty())) {
-                            return type.getPkgPath() + ".html#" + type.getName();
+
+                        if (bLangType instanceof BLangUserDefinedType) {
+                            String[] fqTypeNameParts = getFullyQualifiedTypeName(bLangType).split(":");
+                            if (fqTypeNameParts.length == 2) {
+                                return  fqTypeNameParts[0] + ".html#" + fqTypeNameParts[1];
+                            } else {
+                                return "";
+                            }
                         }
-                        return "#" + type.getName();
+                        return "#" + getTypeName(bLangType);
                     })
                     // usage: {{typeTitle <BType>}}
                     // eg: {{typeTitle type}}
-                    .registerHelper("typeTitle", (Helper<BType>) (type, options) -> {
+                    .registerHelper("typeTitle", (Helper<BLangType>) (type, options) -> {
                         if (type == null) {
                             // for native functions check the type name
-                            if (options.context.model() instanceof ParameterDef) {
-                                String pkgPath = ((ParameterDef) options.context.model()).getTypeName()
-                                        .getPackagePath();
-                                if (pkgPath != null && !pkgPath.isEmpty()) {
-                                    return new Handlebars.SafeString(" title=\"" + type + "\"");
-                                }
+                            if (options.context.model() instanceof BLangVariable) {
+                                BLangType bLangType = ((BLangVariable) options.context.model()).getTypeNode();
+                                return bLangType instanceof BLangUserDefinedType ? new Handlebars.SafeString(
+                                        " title=\"" + getFullyQualifiedTypeName(bLangType) + "\"") : "";
                             }
-                            return null;
+                            return "";
                         }
-                        if ((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
-                            return new Handlebars.SafeString(" title=\"" + type + "\"");
-                        }
-                        return "";
+
+                        return type instanceof BLangUserDefinedType ? new Handlebars.SafeString(
+                                " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
+                    .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
@@ -347,10 +360,11 @@ public class HtmlDocumentWriter implements DocumentWriter {
      * @param annotation Annotation to compare with
      * @return Flag indicating whether the annotation has the provided fully qualified name
      */
-    private boolean isNameEqual(String annotationName, AnnotationAttachment annotation) {
-        String pkgPath = annotation.getPkgPath() == null ? currentPkgPath : annotation.getPkgPath();
-        return DOC_PACKAGE_NAME.equalsIgnoreCase(pkgPath) && 
-                annotationName.equalsIgnoreCase(annotation.getName());
+    private boolean isNameEqual(String annotationName, BLangAnnotationAttachment annotation) {
+        String pkgPath = annotation.annotationSymbol.pkgID.name.value == null ? currentPkgPath :
+                annotation.annotationSymbol.pkgID.name.value;
+        return DOC_PACKAGE_NAME.equalsIgnoreCase(pkgPath) &&
+                annotationName.equalsIgnoreCase(annotation.getAnnotationName().getValue());
     }
 
     /**
@@ -364,41 +378,47 @@ public class HtmlDocumentWriter implements DocumentWriter {
         if (bLangPackage == null) {
             return "";
         }
-        if (bLangPackage.getName().equals(".") && (bLangPackage.getBallerinaFiles() != null) &&
-                (bLangPackage.getBallerinaFiles().length > 0)) {
-            return bLangPackage.getBallerinaFiles()[0].getFileName();
+
+        if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
+            return bLangPackage.getPosition().getSource().getCompilationUnitName();
         }
-        return bLangPackage.getPackagePath();
+        return bLangPackage.symbol.pkgID.name.value;
     }
 
-    private AnnotationAttachment[] getAnnotations(DataHolder dataHolder) {
-        if (dataHolder.getCurrentObject() instanceof BallerinaFunction) {
-            BallerinaFunction function = (BallerinaFunction) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(function);
-            return function.getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof BallerinaConnectorDef) {
-            BallerinaConnectorDef connector = (BallerinaConnectorDef) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(connector);
-            return connector.getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
-            BallerinaAction action = (BallerinaAction) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(action);
-            return action.getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof BTypeMapper) {
-            BTypeMapper typemapper = (BTypeMapper) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(typemapper);
-            return typemapper.getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof StructDef) {
-            StructDef struct = (StructDef) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(struct);
-            return struct.getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof AnnotationDef) {
-            AnnotationDef annotation = (AnnotationDef) dataHolder.getCurrentObject();
-            currentPkgPath = getPackagePath(annotation);
-            return annotation.getAnnotations();
+    private List<BLangAnnotationAttachment> getAnnotations(DataHolder dataHolder) {
+        if (dataHolder.getCurrentObject() instanceof BLangFunction) {
+            BLangFunction function = (BLangFunction) dataHolder.getCurrentObject();
+            currentPkgPath = function.symbol.pkgID.name.value; //getPackagePath(function);
+            return function.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangConnector) {
+            BLangConnector connector = (BLangConnector) dataHolder.getCurrentObject();
+            currentPkgPath = connector.symbol.pkgID.name.value; //getPackagePath(connector);
+            return connector.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangAction) {
+            BLangAction action = (BLangAction) dataHolder.getCurrentObject();
+            currentPkgPath = action.symbol.pkgID.name.value; //getPackagePath(action);
+            return action.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangStruct) {
+            BLangStruct struct = (BLangStruct) dataHolder.getCurrentObject();
+            currentPkgPath = struct.symbol.pkgID.name.value; //getPackagePath(struct);
+            return struct.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangAnnotation) {
+            BLangAnnotation annotation = (BLangAnnotation) dataHolder.getCurrentObject();
+            currentPkgPath = annotation.symbol.pkgID.name.value; //getPackagePath(annotation);
+            return annotation.getAnnotationAttachments();
         } else {
-            return new AnnotationAttachment[0];
+            return new ArrayList<>();
         }
+    }
+
+    private String getTypeName(BLangType bLangType) {
+        return (bLangType instanceof BLangUserDefinedType ?
+                ((BLangUserDefinedType) bLangType).typeName.value : bLangType.toString());
+    }
+
+    private String getFullyQualifiedTypeName(BLangType bLangType) {
+        return (bLangType instanceof BLangUserDefinedType ?
+                ((BLangUserDefinedType) bLangType).type.tsymbol.toString() : bLangType.toString());
     }
 
     /**
@@ -430,7 +450,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
      */
     private String getPackagePath(SymbolScope scope) {
         if (scope instanceof BLangPackage) {
-            return ((BLangPackage) scope).getPackagePath();
+            return ((BLangPackage) scope).symbol.pkgID.name.value;
         }
         
         return getPackagePath(scope.getEnclosingScope());

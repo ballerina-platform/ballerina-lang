@@ -18,37 +18,41 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.StructDef;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class BallerinaStructDocGenTest {
 
-    private String resources = "src/test/resources/balFiles/structs/";
+    private String sourceRoot;
+
+    @BeforeClass()
+    public void setup() {
+        sourceRoot = BallerinaFunctionDocGenTest.class.getProtectionDomain().getCodeSource().getLocation().getPath() +
+                "balFiles/structs";
+    }
 
     @Test(description = "Test a Bal file with structs")
     public void testStruct() {
         try {
             Map<String, BLangPackage> docsMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(resources + "balWithStruct.bal");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWithStruct.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
             BLangPackage balPackage = docsMap.get(".");
-            List<StructDef> structs = new ArrayList<>();
-            structs.addAll(Arrays.asList(balPackage.getStructDefs()));
+            List<BLangStruct> structs = balPackage.getStructs();
 
             Assert.assertEquals(structs.size(), 1);
-            StructDef struct = (StructDef) structs.iterator().next();
-            Assert.assertEquals(struct.getFieldDefStmts().length, 3);
-            Assert.assertEquals(struct.getAnnotations().length, 4);
+            BLangStruct struct = (BLangStruct) structs.iterator().next();
+            Assert.assertEquals(struct.getFields().size(), 3);
+            Assert.assertEquals(struct.getAnnotationAttachments().size(), 4);
         } catch (IOException e) {
             Assert.fail();
         } finally {

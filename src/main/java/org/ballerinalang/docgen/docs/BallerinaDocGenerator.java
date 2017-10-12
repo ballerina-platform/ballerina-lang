@@ -18,13 +18,15 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.ballerinalang.BLangASTBuilder;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,6 +41,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+
 /**
  * Main class to generate a ballerina documentation
  */
@@ -48,6 +54,8 @@ public class BallerinaDocGenerator {
     private static final PrintStream out = System.out;
 
     private static final String BSOURCE_FILE_EXT = ".bal";
+    private static final Path BAL_BUILTIN = Paths.get("ballerina/builtin");
+    private static final Path BAL_BUILTIN_CORE = Paths.get("ballerina/builtin/core");
 
     /**
      * API to generate Ballerina API documentation.
@@ -91,9 +99,25 @@ public class BallerinaDocGenerator {
         }
         for (String source : sources) {
             try {
-                Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter, isNative);
+                Map<String, BLangPackage> docsMap;
+
+                if (source.endsWith(".bal")) {
+                    Path sourceFilePath = Paths.get(source);
+                    Path parentDir = sourceFilePath.getParent();
+                    Path fileName = sourceFilePath.getFileName();
+
+                    if (parentDir == null || fileName == null) {
+                        log.warn("Skipping the source generation for invalid path: " + sourceFilePath);
+                        continue;
+                    }
+
+                    docsMap = generatePackageDocsFromBallerina(parentDir.toString(), fileName, packageFilter, isNative);
+                } else {
+                    Path dirPath = Paths.get(source);
+                    docsMap = generatePackageDocsFromBallerina(dirPath.toString(), dirPath, packageFilter, isNative);
+                }
                 htmlDocumentWriter.write(docsMap.values());
-            } catch (Exception e) {
+            } catch (IOException e) {
                 out.println(String.format("docerina: API documentation generation failed for %s: %s", source,
                         e.getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);
@@ -102,44 +126,61 @@ public class BallerinaDocGenerator {
     }
 
     /**
-     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
      *
+     * @param sourceRoot points to the folder relative to which package path is given
      * @param packagePath should point either to a ballerina file or a folder with ballerina files.
-     * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
+     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath) throws IOException {
-        return generatePackageDocsFromBallerina(packagePath, null);
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String sourceRoot, String packagePath)
+            throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, null);
     }
 
     /**
-     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
      *
-     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
+     * @param sourceRoot    points to the folder relative to which package path is given
+     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
+     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
-            String packageFilter) throws IOException {
-        return generatePackageDocsFromBallerina(packagePath, packageFilter, false);
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
+                                                                                String packageFilter)
+            throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, packageFilter, false);
     }
-    
+
     /**
-     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
      *
-     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
+     * @param sourceRoot    points to the folder relative to which package path is given
+     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @param isNative whether the given packages are native or not.
-     * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
+     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
-            String packageFilter, boolean isNative) throws IOException {
-        Path pkgPath = Paths.get(packagePath);
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(
+            String sourceRoot, String packagePath, String packageFilter, boolean isNative) throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, Paths.get(packagePath), packageFilter, isNative);
+    }
+
+    /**
+     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
+     *
+     * @param sourceRoot points to the folder relative to which package path is given
+     * @param packagePath   a {@link Path} object pointing either to a ballerina file or a folder with ballerina files.
+     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
+     * @param isNative      whether the given packages are native or not.
+     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
+     */
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(
+            String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
         final List<Path> packagePaths = new ArrayList<>();
-        if (Files.isDirectory(pkgPath)) {
-            BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(pkgPath, packagePaths);
-            Files.walkFileTree(pkgPath, subPackageVisitor);
+        if (Files.isDirectory(packagePath)) {
+            BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(packagePath, packagePaths);
+            Files.walkFileTree(packagePath, subPackageVisitor);
         } else {
-            packagePaths.add(Paths.get(""));
+            packagePaths.add(packagePath);
         }
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
@@ -149,17 +190,27 @@ public class BallerinaDocGenerator {
         }
 
         for (Path path : packagePaths) {
-            BLangProgram bLangProgram;
-            if (isNative) {
-                bLangProgram = new BLangASTBuilder().disableSemanticAnalyzer().build(pkgPath, path);
-            } else {
-                bLangProgram = new BLangASTBuilder().build(pkgPath, path);
+            // TODO: Remove this and the related constants once these are properly handled in the core
+            if (BAL_BUILTIN.equals(path) || BAL_BUILTIN_CORE.equals(path)) {
+                continue;
             }
-            if (bLangProgram == null) {
+
+            CompilerContext context = new CompilerContext();
+            CompilerOptions options = CompilerOptions.getInstance(context);
+            options.put(SOURCE_ROOT, sourceRoot);
+            options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+            options.put(PRESERVE_WHITESPACE, "false");
+
+            // compile
+            Compiler compiler = Compiler.getInstance(context);
+            compiler.compile(path.toString());
+
+            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+
+            if (bLangPackage == null) {
                 out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
             } else {
-                BLangPackage bLangPackage = bLangProgram.getEntryPackage();
-                String packageName = bLangPackage.getPackagePath();
+                String packageName = bLangPackage.symbol.pkgID.name.value;
                 if (isFilteredPackage(packageName, packageFilter)) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
                         out.println("Package " + packageName + " excluded");
