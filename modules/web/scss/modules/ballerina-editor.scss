@@ -2756,6 +2756,8 @@
     #syntax-errors-list-popover .popover-title {
         min-height: 20px;
         vertical-align: middle;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
     }
     
     #syntax-errors-list-popover .popover-title i {
