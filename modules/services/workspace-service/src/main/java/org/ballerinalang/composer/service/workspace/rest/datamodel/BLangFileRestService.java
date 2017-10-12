@@ -346,16 +346,6 @@ public class BLangFileRestService {
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
                 CompilerPhase.CODE_ANALYZE);
         List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
-        JsonArray errors = new JsonArray();
-        diagnostics.forEach(diagnostic -> {
-            JsonObject error = new JsonObject();
-            error.addProperty("row", diagnostic.getPosition().getStartLine());
-            error.addProperty("column", diagnostic.getPosition().startColumn());
-            error.addProperty("text", diagnostic.getMessage());
-            error.addProperty("type", "error");
-            errors.add(error);
-        });
-
         ErrorCategory errorCategory = ErrorCategory.NONE;
         BLangPackage model = ballerinaFile.getBLangPackage();
         if(!diagnostics.isEmpty()){
@@ -365,9 +355,19 @@ public class BLangFileRestService {
                 errorCategory = ErrorCategory.SEMANTIC;
             }
         }
+        JsonArray errors = new JsonArray();
+        final String errorCategoryName = errorCategory.name();
+        diagnostics.forEach(diagnostic -> {
+            JsonObject error = new JsonObject();
+            error.addProperty("row", diagnostic.getPosition().getStartLine());
+            error.addProperty("column", diagnostic.getPosition().startColumn());
+            error.addProperty("text", diagnostic.getMessage());
+            error.addProperty("type", "error");
+            error.addProperty("category", errorCategoryName);
+            errors.add(error);
+        });
         JsonObject result = new JsonObject();
         result.add("errors", errors);
-        result.addProperty("errorCategory", errorCategory.name());
         return result;
     }
 

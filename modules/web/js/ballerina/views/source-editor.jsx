@@ -164,7 +164,8 @@ class SourceEditor extends React.Component {
             editor.getSession().on('changeAnnotation', () => {
                 const annotations = editor.getSession().getAnnotations();
                 const errors = annotations.filter((annotation) => {
-                    return annotation.type === 'error';
+                    // ignore semantic errors & other annotations
+                    return annotation.type === 'error' && annotation.category === 'SYNTAX';
                 });
                 this.props.onLintErrors(errors);
             });
