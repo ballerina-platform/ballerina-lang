@@ -177,8 +177,7 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        const { exp: expression, isTemp } = this.transformNodeManager
-                        .getResolvedExpression(stmtExp, statement);
+        const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, statement);
         if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
             variables.forEach((variable) => {
                 // TODO : remove replace whitespace once its handled from backend
@@ -256,9 +255,13 @@ class TransformExpanded extends React.Component {
                 if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
                     || TreeUtil.isUnaryExpr(expression)) {
                     this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
-                } else if (!isTemp) {
-                    let target;
-                    let source;
+                } else if ((!isTemp)
+                    || (!TreeUtil.isInvocation(exp) || !TreeUtil.isBinaryExpr(exp) || !TreeUtil.isUnaryExpr(exp))) {
+                    // a temp variable can still be drawable, if it is not a complex type. Unsafe conversions
+                    // assigned to temp variables is one such case. The second check is to handle such scenarios.
+                    // E.g. : var temp1, _ = <int> s1;
+                    //        b = fuc(temp1);
+
                     if (TreeUtil.isLiteral(expression)) {
                         // TODO: implement default value logic
                     // } else if (TreeUtil.isKeyValueExpression(expression.children[0])) {
@@ -294,6 +297,8 @@ class TransformExpanded extends React.Component {
 
                         this.drawConnection(sourceId, targetId, folded);
                     }
+                } else {
+                    log.error('Unhandled rendering scenario');
                 }
             });
         }
