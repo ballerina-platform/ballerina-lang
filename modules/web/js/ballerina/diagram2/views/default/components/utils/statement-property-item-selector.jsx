@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import SimpleBBox from './../../../../../ast/simple-bounding-box';
+import ImageUtil from '../../../../image-util';
 
 class StatementPropertyItemSelector extends React.Component {
 
@@ -63,8 +64,15 @@ class StatementPropertyItemSelector extends React.Component {
     render() {
         const bBox = this.props.bBox;
         return (
-            <g id='serviceDefProps' onClick={this.handleShowDropDown}>
-                <circle cx={bBox.x} cy={bBox.y} r="7" stroke="black" strokeWidth="1" fill="black" />
+            <g id='serviceDefProps' onClick={this.handleShowDropDown} className={'statement-item-selector statement-item-selector-' + this.props.show}>
+                <circle cx={bBox.x} cy={bBox.y} r="10" strokeWidth="0" fill="#3498db" />
+                <image
+                    x={bBox.x - 6}
+                    y={bBox.y - 6}
+                    width={12}
+                    height={12}
+                    xlinkHref={ImageUtil.getSVGIconString('rightarrow-white')}
+                />
             </g>
         );
     }

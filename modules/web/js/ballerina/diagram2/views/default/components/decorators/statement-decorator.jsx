@@ -185,7 +185,7 @@ class StatementDecorator extends React.Component {
             this.props.model.getSource();
             backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
             backwardArrowStart.y = viewState.components['statement-box'].y
-                + viewState.components['statement-box'].h - 5;
+                + viewState.components['statement-box'].h - 10;
             backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
             backwardArrowEnd.y = backwardArrowStart.y;
         }
@@ -250,6 +250,7 @@ class StatementDecorator extends React.Component {
                             model={this.props.model}
                             bBox={this.props.model.viewState.components.dropDown}
                             itemsMeta={dropDownItemMeta}
+                            show={this.state.active}
                         />
                     </g>
                 )

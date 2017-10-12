@@ -53,7 +53,7 @@ class PositioningUtil {
             }
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
-            arrowStartBBox.y = viewState.components['statement-box'].y + 5;
+            arrowStartBBox.y = viewState.components['statement-box'].y + 10;
             viewState.components.invocation = {
                 start: undefined,
                 end: undefined,
