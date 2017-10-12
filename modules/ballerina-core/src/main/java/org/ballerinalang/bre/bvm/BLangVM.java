@@ -164,7 +164,7 @@ public class BLangVM {
 
         if (context.getError() != null) {
             handleError();
-        } else if (isWaitOnNonBlockingAction()) {
+        } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -196,7 +196,7 @@ public class BLangVM {
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
         } finally {
-            if (!isWaitOnNonBlockingAction() || context.getError() != null) {
+            if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
                 // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
                 // Doesn't count non-blocking action invocation.
                 ctx.endTrackWorker();
@@ -3607,7 +3607,7 @@ public class BLangVM {
         return null;
     }
 
-    private boolean isWaitOnNonBlockingAction() {
+    private boolean isWaitingOnNonBlockingAction() {
         return context.actionInfo != null;
     }
 }
