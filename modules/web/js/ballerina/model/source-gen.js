@@ -370,14 +370,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return getSourceOf(node.expression, pretty, l) + w() + '['
                  + getSourceOf(node.index, pretty, l) + w() + ']';
         case 'Invocation':
-            if (node.packageAlias.value && node.name.value
+            if (node.expression && node.name.value && node.argumentExpressions) {
+                return getSourceOf(node.expression, pretty, l) + w() + '.' + w()
+                    + node.name.value + w() + '('
+                    + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
+            } else if (node.packageAlias.value && node.name.value
                          && node.argumentExpressions) {
                 return w() + node.packageAlias.value + w() + ':' + w() + node.name.value
                  + w() + '('
-                 + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
-            } else if (node.expression && node.name.value && node.argumentExpressions) {
-                return getSourceOf(node.expression, pretty, l) + w() + '.' + w()
-                 + node.name.value + w() + '('
                  + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
             } else {
                 return w() + node.name.value + w() + '('

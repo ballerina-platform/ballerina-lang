@@ -362,6 +362,8 @@ class DefaultNodeFactory {
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const invocationNode = TreeBuilder.build(parsedJson);
         invocationNode.getExpression().setFullPackageName(fullPackageName);
+        invocationNode.getExpression().invocationType = 'ACTION';
+        invocationNode.getExpression().getPackageAlias().setValue(packageName);
         return invocationNode;
     }
 

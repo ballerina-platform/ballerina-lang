@@ -306,8 +306,9 @@ class PropertiesWindow extends React.Component {
                         placeholder='Specify a defined option object or a method'
                         value={this.state.data[key.identifier]}
                         onChange={event => this.onChange(event, key.identifier)}
-                        disabled={((this.state.expandProperties ||
-                        (!this.state.data[key.identifier] && atleastOneFieldValuExists)))}
+                        // TODO disabling removed because of the inconsistency of the struct type
+                        /* disabled={((this.state.expandProperties ||
+                        (!this.state.data[key.identifier] && atleastOneFieldValuExists)))}*/
                     />
                 </div>
                 {(key.fields !== null && (!this.state.data[key.identifier])) &&
