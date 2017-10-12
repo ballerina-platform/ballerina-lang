@@ -366,12 +366,13 @@ class BallerinaFileEditor extends React.Component {
             // first validate the file for syntax errors
             validateFile(file)
                 .then((data) => {
-                    let errors = data.errors;
-                    let errorCategory = data.errorCategory;
+                    const syntaxErrors = data.errors.filter(({ category }) => {
+                        return category === 'SYNTAX';
+                    });
                     // if syntax errors are found
-                    if (errorCategory === 'SYNTAX') {
+                    if (!_.isEmpty(syntaxErrors)) {
                         newState.parseFailed = true;
-                        newState.syntaxErrors = errors;
+                        newState.syntaxErrors = syntaxErrors;
                         newState.validatePending = false;
                         const astRoot = new CompilationUnitNode();
                         // TODOX astRoot.setFile(this.props.file);
@@ -525,14 +526,7 @@ class BallerinaFileEditor extends React.Component {
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW);
 
-        let showLoadingOverlay;
-        if (this.props.isPreviewViewEnabled) {
-            if (showDesignView === true) {
-                showLoadingOverlay = false;
-            } else {
-                showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
-            }
-        }
+        const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         return (
             <div
