@@ -558,6 +558,7 @@ class BallerinaFileEditor extends React.Component {
                     commandProxy={this.props.commandProxy}
                     width={this.props.width}
                     height={this.props.height}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 />
                 <SourceView
                     displayErrorList={popupErrorListInSourceView}
@@ -565,6 +566,7 @@ class BallerinaFileEditor extends React.Component {
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
                     show={showSourceView}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView

@@ -275,16 +275,6 @@ DefaultASTFactory.createAggregatedAssignmentStatement = function (args) {
     return ASTFactory.createAssignmentStatement(args);
 };
 
-let outPutVarCounter = 0;
-DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args = {}) {
-    outPutVarCounter++;
-    const statement = `var __output${outPutVarCounter} = ${args.defaultExpression}`;
-    const fragment = FragmentUtils.createStatementFragment(statement);
-    const parsedJson = FragmentUtils.parseFragment(fragment);
-    const tree = TreeBuilder.build(parsedJson);
-    return tree;
-};
-
 DefaultASTFactory.createTransformAssignmentRightExpStatement = function (args) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
     if (_.has(args, 'rightExp')) {

@@ -630,6 +630,16 @@ class TransformExpanded extends React.Component {
         });
     }
 
+    shouldComponentUpdate() {
+        return !this.props.panelResizeInProgress;
+    }
+
+    componentWillReceiveProps() {
+        if (this.props.panelResizeInProgress) {
+            this.mapper.repaintEverything();
+        }
+    }
+
     componentWillUnmount() {
         if (this.scrollTimer) {
             clearInterval(this.scrollTimer);
@@ -1275,6 +1285,7 @@ class TransformExpanded extends React.Component {
 
 TransformExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformNode).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
 };
 
 TransformExpanded.contextTypes = {
