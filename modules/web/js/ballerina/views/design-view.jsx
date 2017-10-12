@@ -52,6 +52,12 @@ class DesignView extends React.Component {
         });
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        // Always re render when transform is active
+        // Otherwise don't rerender for panel resizings
+        return !nextProps.panelResizeInProgress || nextState.isTransformActive;
+    }
+
     setDiagramContainer(ref) {
         this.diagramContainer = ref;
     }
@@ -143,6 +149,7 @@ class DesignView extends React.Component {
                     {isTransformActive &&
                         <TransformExpanded
                             model={activeTransformModel}
+                            panelResizeInProgress={this.props.panelResizeInProgress}
                         />
                     }
                 </div>
@@ -197,6 +204,7 @@ DesignView.propTypes = {
     }).isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
 };
 
 DesignView.contextTypes = {
