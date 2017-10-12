@@ -20,6 +20,40 @@ import AbstractForkJoinNode from './abstract-tree/fork-join-node';
 
 class ForkJoinNode extends AbstractForkJoinNode {
     /**
+     * Generate default name for fork block level workers.
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateDefaultName(parent, node) {
+        if (!parent) {
+            return undefined;
+        }
+
+        const workerDefaultName = 'worker';
+        const workerNodes = parent.getWorkers();
+        const names = {};
+        for (let i = 0; i < workerNodes.length; i++) {
+            const name = workerNodes[i].getName().value;
+            names[name] = name;
+        }
+
+        if (workerNodes.length > 0) {
+            for (let i = 1; i <= workerNodes.length + 1; i++) {
+                if (!names[`${workerDefaultName}${i}`]) {
+                    node.getName().setValue(`${workerDefaultName}${i}`, true);
+                    node.setName(node.getName(), false);
+                    break;
+                }
+            }
+        } else {
+            node.getName().setValue(`${workerDefaultName}1`, true);
+            node.setName(node.getName(), false);
+        }
+        return undefined;
+    }
+
+    /**
      * Get join condition as a string.
      * @return {string} join condition.
      * */
@@ -56,6 +90,28 @@ class ForkJoinNode extends AbstractForkJoinNode {
         if (this.timeoutBody) {
             this.timeoutBody.viewState.alias = 'Timeout';
         }
+    }
+
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     * @param {Node} node Node instance to be dropped.
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return node.kind === 'Worker';
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     */
+    acceptDrop(node, dropBefore) {
+        this.addWorkers(node);
+        this.generateDefaultName(this, node);
     }
 }
 

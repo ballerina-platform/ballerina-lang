@@ -279,7 +279,7 @@ class SizingUtil {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -600,7 +600,7 @@ class SizingUtil {
             });
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 40);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
         let width = 0;
         // we will start the height with top padding.
@@ -685,9 +685,10 @@ class SizingUtil {
     sizeStructNode(node) {
         const viewState = node.viewState;
         const components = {};
-        const totalResourceHeight = 0;
         // Initial statement height include panel heading and panel padding.
-        let bodyHeight = this.config.panel.body.padding.top + this.config.panel.body.padding.bottom;
+        const bodyHeight = this.config.panel.body.padding.top
+            + this.config.panel.body.padding.bottom
+            + this.config.innerPanel.body.height;
         // Set the width initial value to the padding left and right
         const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
 
@@ -695,8 +696,6 @@ class SizingUtil {
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
-        // There are no connectors as well as resources, since we set the default height
-        bodyHeight = this.config.innerPanel.body.height;
         components.heading = new SimpleBBox();
         components.body = new SimpleBBox();
         components.annotation = new SimpleBBox();
@@ -711,16 +710,10 @@ class SizingUtil {
             node.viewState.showAnnotationContainer = true;
         }
 
-        if (!node.viewState.showAnnotationContainer) {
-            components.annotation.h = 0;
-        } else {
-            components.annotation.h = this._getAnnotationHeight(node, 20);
-        }
+        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
 
-        components.variablesPane.h = 0;
         components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;
-        components.transportLine.h = totalResourceHeight;
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
@@ -744,7 +737,6 @@ class SizingUtil {
      */
     sizeVariableNode(node) {
         // For argument parameters and return types in the panel decorator
-        /* if (TreeUtil.isFunction(node.parent) || TreeUtil.isResource(node.parent)) {*/
         const paramViewState = node.viewState;
         paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;

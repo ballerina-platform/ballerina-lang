@@ -6,3 +6,11 @@
 .inner-drop-zone.active.block {
     fill: red;
 }
+
+.statement-item-selector-hidden {
+    display: none;
+}
+
+.statement-item-selector {
+    cursor: pointer;
+}

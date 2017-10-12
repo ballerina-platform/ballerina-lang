@@ -201,7 +201,7 @@ class DefaultNodeFactory {
 
     createInvocation() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            callFunction(arg1);cc
+            callFunction(arg1);
         `));
     }
 

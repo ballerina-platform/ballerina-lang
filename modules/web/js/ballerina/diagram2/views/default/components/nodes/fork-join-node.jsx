@@ -211,7 +211,7 @@ class ForkJoinNode extends React.Component {
                     bBox={bBox}
                     title={'Fork'}
                     model={model}
-                    body={model.workers}
+                    body={model}
                 />
 
                 {model.joinBody &&

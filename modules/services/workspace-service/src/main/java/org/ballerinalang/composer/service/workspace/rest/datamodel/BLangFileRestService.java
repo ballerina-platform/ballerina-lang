@@ -35,7 +35,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +74,7 @@ import javax.ws.rs.core.Response;
 public class BLangFileRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+    public static final String UNESCAPED_VALUE = "unescapedValue";
 
     @GET
     @Path("/model")
@@ -258,6 +258,7 @@ public class BLangFileRestService {
             if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
                 if (prop instanceof String) {
                     nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
+                    nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));
                 } else {
                     nodeJson.addProperty(jsonName, String.valueOf(prop));
                 }
@@ -346,16 +347,6 @@ public class BLangFileRestService {
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
                 CompilerPhase.CODE_ANALYZE);
         List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
-        JsonArray errors = new JsonArray();
-        diagnostics.forEach(diagnostic -> {
-            JsonObject error = new JsonObject();
-            error.addProperty("row", diagnostic.getPosition().getStartLine());
-            error.addProperty("column", diagnostic.getPosition().startColumn());
-            error.addProperty("text", diagnostic.getMessage());
-            error.addProperty("type", "error");
-            errors.add(error);
-        });
-
         ErrorCategory errorCategory = ErrorCategory.NONE;
         BLangPackage model = ballerinaFile.getBLangPackage();
         if(!diagnostics.isEmpty()){
@@ -365,9 +356,19 @@ public class BLangFileRestService {
                 errorCategory = ErrorCategory.SEMANTIC;
             }
         }
+        JsonArray errors = new JsonArray();
+        final String errorCategoryName = errorCategory.name();
+        diagnostics.forEach(diagnostic -> {
+            JsonObject error = new JsonObject();
+            error.addProperty("row", diagnostic.getPosition().getStartLine());
+            error.addProperty("column", diagnostic.getPosition().startColumn());
+            error.addProperty("text", diagnostic.getMessage());
+            error.addProperty("type", "error");
+            error.addProperty("category", errorCategoryName);
+            errors.add(error);
+        });
         JsonObject result = new JsonObject();
         result.add("errors", errors);
-        result.addProperty("errorCategory", errorCategory.name());
         return result;
     }
 

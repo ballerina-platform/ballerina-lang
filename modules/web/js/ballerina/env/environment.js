@@ -132,6 +132,15 @@ class BallerinaEnvironment extends EventChannel {
     }
 
     /**
+     * Get operator lattice
+     * @returns {OperatorLattice} operator lattice
+     * @memberof BallerinaEnvironment
+     */
+    getOperatorLattice() {
+        return this._operatorLattice;
+    }
+
+    /**
      * Get annotation attachment types.
      * @return {[string]} annotationAttachmentTypes
      * */

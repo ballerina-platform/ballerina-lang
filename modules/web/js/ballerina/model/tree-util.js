@@ -307,7 +307,8 @@ class TreeUtil extends AbstractTreeUtil {
             // invoke the fragment util for the coresponding kind.
             const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
-
+            // clear white space data so it will be formated properly.
+            newStatementNode.clearWS();
             // replace the old node with new node.
             if (this.isService(statementParentNode)) {
                 statementParentNode.replaceVariables(node, newStatementNode, false);
@@ -323,7 +324,8 @@ class TreeUtil extends AbstractTreeUtil {
             // invoke the fragment util and get the new node.
             const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
             const newExpressionNode = TreeBuilder.build(parseJson, expressionParentNode, expressionParentNode.kind);
-
+            // clear white space data so it will be formated properly.
+            newExpressionNode.clearWS();
             // Get the initial expression from returning node.
             if (newExpressionNode && newExpressionNode.variable.initialExpression) {
                 newExpressionNode.variable.initialExpression.parent = expressionParentNode;
@@ -337,7 +339,8 @@ class TreeUtil extends AbstractTreeUtil {
                 // Invoke the fragment parser util for parsing argument parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
                 const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-
+                // clear white space data so it will be formated properly.
+                newParameterNode.clearWS();
                 // Replace the old parameter with the newly created parameter node.
                 parent.replaceParameters(node, newParameterNode, false);
             } else if (parent.filterReturnParameters instanceof Function
@@ -345,7 +348,8 @@ class TreeUtil extends AbstractTreeUtil {
                 // Invoke the fragment parser util for parsing return parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
                 const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-
+                // clear white space data so it will be formated properly.
+                newReturnParameterNode.clearWS();
                 // Replace the old parameter with the newly created parameter node.
                 parent.replaceReturnParameters(node, newReturnParameterNode, false);
             }

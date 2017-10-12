@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
 import NodeFactory from 'ballerina/model/node-factory';
 import AnnotationAttachmentAttributeTreeNode from 'ballerina/model/tree/annotation-attachment-attribute-node';
+import AnnotationAttachmentTreeNode from 'ballerina/model/tree/annotation-attachment-node';
 import EnvAnnotationDefinition from 'ballerina/env/annotation-definition';
 import BallerinaEnvironment from 'ballerina/env/environment';
 import AutoSuggestHtml from '../decorators/autosuggest-html';
@@ -109,10 +110,16 @@ class AnnotationAttributeKey extends React.Component {
                     });
                     const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
                     arrayAnnotationAttributeValue.setValue(annotationAttachmentInArray);
+
+                    if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                        this.props.parent.addAttributes(this.props.attributeModel, -1, true);
+                    }
                     annotationAttributeValue.addValueArray(arrayAnnotationAttributeValue);
                 }
             } else if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
-                const bValue = NodeFactory.createLiteral();
+                const bValue = NodeFactory.createLiteral({
+                    value: '""',
+                });
                 // bValue.setBType(annotationAttributeDef.getBType());
                 annotationAttributeValue.setValue(bValue);
             } else {
@@ -123,6 +130,11 @@ class AnnotationAttributeKey extends React.Component {
                 annotationAttachment.setAnnotationName(NodeFactory.createLiteral({
                     value: annotationAttributeDef.getBType().split(':').pop(),
                 }));
+
+                if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                    this.props.parent.addAttributes(this.props.attributeModel, -1, true);
+                }
+
                 annotationAttributeValue.setValue(annotationAttachment);
             }
             this.props.attributeModel.setValue(annotationAttributeValue);
@@ -201,11 +213,13 @@ AnnotationAttributeKey.propTypes = {
     attributeModel: PropTypes.instanceOf(AnnotationAttachmentAttributeTreeNode).isRequired,
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
     editState: PropTypes.number,
+    parent: PropTypes.instanceOf(AnnotationAttachmentTreeNode),
 };
 
 AnnotationAttributeKey.defaultProps = {
     annotationDefinitionModel: undefined,
     editState: 0,
+    parent: undefined,
 };
 
 AnnotationAttributeKey.contextTypes = {

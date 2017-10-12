@@ -88,7 +88,25 @@ class TreeBuilder {
             json.ladderParent = true;
         }
 
-        if (kind === 'Variable' && parentKind === 'CompilationUnit') {
+        if (kind === 'Transaction') {
+            const isRetry = n => n.kind === 'Retry';
+            if (json || json.condition || json.condition.value) {
+                const retry = json.failedBody.statements.filter(isRetry)[0] ||
+                    json.committedBody.statements.filter(isRetry)[0] ||
+                    json.transactionBody.statements.filter(isRetry)[0];
+                retry.count = json.condition.value;
+            }
+        }
+        if (kind === 'XmlElementLiteral' && parentKind !== 'XmlElementLiteral') {
+            json.root = true;
+        }
+
+        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
+            parentKind === 'StringTemplateLiteral') {
+            json.inTemplateLiteral = true;
+        }
+
+        if (parentKind === 'CompilationUnit' && kind === 'Variable') {
             json.global = true;
         }
 

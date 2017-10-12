@@ -8,9 +8,15 @@ Identifier
    : <value>
    ;
 
+Abort
+   : abort ;
+   ;
+
 Action
-   : action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
-   | action <name.value> ( <parameters-joined-by,>* ) { <body.source> }
+   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+                }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>+                }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) {             <body.source> }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    {             <body.source> }
    ;
 
 Annotation
@@ -47,7 +53,8 @@ Assignment
    ;
 
 BinaryExpr
-   : <leftExpression.source> <operatorKind> <rightExpression.source>
+   : <inTemplateLiteral?> {{ <leftExpression.source> <operatorKind> <rightExpression.source> }}
+   |             <leftExpression.source> <operatorKind> <rightExpression.source>
    ;
 
 Block
@@ -72,8 +79,8 @@ Comment
    ;
 
 Connector
-   : connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
-   | connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
+   : <annotationAttachments>* connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
+   | <annotationAttachments>* connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
    ;
 
 ConnectorInitExpr
@@ -83,10 +90,6 @@ ConnectorInitExpr
 
 ConstrainedType
    : <type.source> < <constraint.source> >
-   ;
-
-Continue
-   : continue ;
    ;
 
 ExpressionStatement
@@ -107,7 +110,11 @@ ForkJoin
    ;
 
 Function
-   : <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
+   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
+   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <workers>+ }
+   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
+   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
    | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
    | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
    | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> }
@@ -138,7 +145,13 @@ Lambda
    ;
 
 Literal
-   : <value>
+   : <inTemplateLiteral?> <unescapedValue>
+   : <inTemplateLiteral?>
+   | <value>
+   ;
+
+Next
+   : next ;
    ;
 
 RecordLiteralExpr
@@ -155,6 +168,10 @@ Resource
    : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
+Retry
+   : retry <count> ;
+   ;
+
 Return
    : return <expressions-joined-by-,>* ;
    ;
@@ -164,16 +181,29 @@ Service
    ;
 
 SimpleVariableRef
-   : <packageAlias.value> : <variableName.value>
-   | <variableName.value>
+   : <inTemplateLiteral?> {{ <packageAlias.value> : <variableName.value> }}
+   | <inTemplateLiteral?> {{                        <variableName.value> }}
+   :                         <packageAlias.value> : <variableName.value>
+   |                                                <variableName.value>
    ;
 
+StringTemplateLiteral
+   : string\u0020` <expressions>* `
+
 Struct
-   : <annotationAttachments>* struct <name.value> { <fields-suffixed-by-;>* }
+   : <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
+   | <annotationAttachments>* struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 Throw
    : throw <expressions.source> ;
+   ;
+
+Transaction
+   : transaction { <transactionBody.source> } failed { <failedBody.source> } committed { <committedBody.source> }
+   | transaction { <transactionBody.source> } committed { <committedBody.source> }
+   | transaction { <transactionBody.source> } committed { <committedBody.source> }
+   | transaction { <transactionBody.source> } aborted { <abortedBody.source> }
    ;
 
 Transform
@@ -181,7 +211,8 @@ Transform
    ;
 
 Try
-   : try { <body.source> } <catchBlocks>*
+   : try { <body.source> } <catchBlocks>*  finally { <finallyBody.source> }
+   | try { <body.source> } <catchBlocks>*
    ;
 
 TypeCastExpr
@@ -207,8 +238,11 @@ ValueType
    ;
 
 Variable
-   : <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
+   : <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <annotationAttachments>* <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <annotationAttachments>* <public?public> <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
+   | <annotationAttachments>* <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
+   | <annotationAttachments>* <typeNode.source> <name.value> ; <global?>
    | <typeNode.source> <name.value> = <initialExpression.source>
    | <annotationAttachments>* <typeNode.source> <name.value>
    | <typeNode.source>
@@ -239,12 +273,19 @@ XmlAttribute
    : <name.source> = <value.source>
    ;
 
+XmlAttributeAccessExpr
+   : <expression.source> @ [ <index.source> ]
+   | <expression.source> @
+   ;
+
 XmlCommentLiteral
-   : xml` <-- <textFragments>* --> `
+   : <root?> xml` <!-- <textFragments>* --> `
+   |              <!-- <textFragments>* -->
    ;
 
 XmlElementLiteral
-   : xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
+   : <root?> xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> > `
+   :              < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
    ;
 
 XmlPiLiteral
@@ -254,8 +295,8 @@ XmlPiLiteral
    ;
 
 XmlQname
-   : <localname.value>
-   | 
+   : <prefix.value> : <localname.value>
+   | <localname.value>
    ;
 
 XmlQuotedString
@@ -264,4 +305,10 @@ XmlQuotedString
 
 XmlTextLiteral
    : <textFragments>*
+   ;
+
+Xmlns
+   : xmlns <namespaceURI.source> as <prefix.value> ;
+   | xmlns <namespaceURI.source> ;
+   | <namespaceDeclaration.source>
    ;

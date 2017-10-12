@@ -177,7 +177,7 @@ class TransformNodeManager {
                 return;
             }
             if (target.operator) {
-                this._mapper.removeInputToOperatorMapping(source.name, target);
+                this._mapper.removeInputToOperatorMapping(source, target);
             }
         }
 
@@ -214,46 +214,6 @@ class TransformNodeManager {
 
     removeTargetType(type) {
         this._mapper.removeTargetType(type);
-    }
-
-    /**
-     * @param {any} UUID of an assignment statement
-     * @returns {AssignmentStatement} assignment statement for maching ID
-     *
-     * @memberof TransformStatementDecorator
-     */
-    findExistingAssignmentStatement(id) {
-        // TODO: find usage and remove
-        return _.find(this._transformStmt.getChildren(), (child) => {
-            return child.getID() === id;
-        });
-    }
-
-    /**
-     * @param {any} UUID of a function invocation statement
-     * @returns {AssignmentStatement} enclosing assignment statement containing the matching function
-     * invocation statement ID
-     *
-     * @memberof TransformStatementDecorator
-     */
-    findEnclosingAssignmentStatement(funcInv) {
-        // TODO: find usage and remove
-        return _.find(this._transformStmt.getChildren(), (assignmentStmt) => {
-            return this.findFunctionInvocationById(assignmentStmt.getRightExpression(), funcInv.id);
-        });
-    }
-
-    findFunctionInvocationById(expression, id) {
-        // TODO: find usage and remove
-        if (expression.id === id) {
-            return expression;
-        }
-        if (expression.getChildById(id)) {
-            return expression.getChildById(id);
-        }
-        return expression.getChildren().find((child) => {
-            return (this.findFunctionInvocationById(child, id));
-        });
     }
 
     /**
@@ -436,37 +396,6 @@ class TransformNodeManager {
             };
         }
         return { exp: mapExp, isTemp: false };
-    }
-
-    findTempVarUsages(tempVarName) {
-        // TODO: find usage and remove
-        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
-        const tempUsedAssignmentStmts = assignmentStmts.filter((assStmt) => {
-            const rightExp = this.getMappingExpression(assStmt.getRightExpression());
-            if (BallerinaASTFactory.isFunctionInvocationExpression(rightExp)) {
-                const matchingExpressions = rightExp.getChildren().find((exp) => {
-                    return (this.getMappingExpression(exp, false).getExpressionString() === tempVarName);
-                });
-                if (matchingExpressions) {
-                    return true;
-                }
-                return false;
-            } else {
-                return (rightExp.getExpressionString() === tempVarName);
-            }
-        });
-        return tempUsedAssignmentStmts;
-    }
-
-    findAssignedVertexForTemp(expression) {
-        // TODO: find usage and remove
-        const tempVarName = expression.getVariableName();
-        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
-        return assignmentStmts.find((assStmt) => {
-            return assStmt.getLeftExpression().getChildren().find((leftExpr) => {
-                return (tempVarName === leftExpr.getExpressionString());
-            });
-        });
     }
 
     /**
