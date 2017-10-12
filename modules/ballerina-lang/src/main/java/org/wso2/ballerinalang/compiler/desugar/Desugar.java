@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @since 0.94
@@ -138,7 +139,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
-    private boolean insideAWorker = false;
+    private Stack<BLangWorker> workerStack = new Stack<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -253,9 +254,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.insideAWorker = true;
+        this.workerStack.push(workerNode);
         workerNode.body = rewrite(workerNode.body);
-        this.insideAWorker = false;
+        this.workerStack.pop();
         result = workerNode;
     }
 
@@ -320,7 +321,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
-        if (insideAWorker) {
+        if (!workerStack.empty()) {
             result = new BLangWorkerReturn(returnNode.exprs);
             result.pos = returnNode.pos;
             return;

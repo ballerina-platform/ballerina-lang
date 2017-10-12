@@ -164,7 +164,7 @@ public class BLangVM {
 
         if (context.getError() != null) {
             handleError();
-        } else if (context.actionInfo != null) {
+        } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -195,6 +195,12 @@ public class BLangVM {
             }
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
+        } finally {
+            if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
+                // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
+                // Doesn't count non-blocking action invocation.
+                ctx.endTrackWorker();
+            }
         }
     }
 
@@ -2690,7 +2696,6 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
-        this.controlStack.currentFrame.workerReturnStack = true;
         ip = -1;
     }
 
@@ -2984,13 +2989,11 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.disableNonBlocking
-                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
-                context.setNonBlockingActionCall(true);
                 // TODO : Temporary solution to make non-blocking working.
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
@@ -3602,5 +3605,9 @@ public class BLangVM {
             }
         }
         return null;
+    }
+
+    private boolean isWaitingOnNonBlockingAction() {
+        return context.actionInfo != null;
     }
 }

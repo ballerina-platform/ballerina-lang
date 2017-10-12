@@ -55,7 +55,6 @@ public interface BLangVMInterceptors {
     static ServiceInterceptor.Result invokeResourceInterceptor(ServiceInterceptor serviceInterceptor, FunctionInfo
             functionInfo, BMessage bMessage) {
         Context context = new Context(serviceInterceptor.getProgramFile());
-        context.disableNonBlocking = true;
         PackageInfo packageInfo = serviceInterceptor.getPackageInfo();
 
         ControlStackNew controlStackNew = context.getControlStackNew();
