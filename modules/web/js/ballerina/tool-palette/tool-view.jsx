@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import ImageUtils from './../diagram/views/default/components/image-util';
+import ImageUtils from './../diagram2/image-util';
 import { withDragEnabled } from './../drag-drop/drag-source';
 import { TOOL, TOOL_GROUP } from './spec';
 
@@ -117,7 +117,7 @@ class ToolView extends React.Component {
         }
         let imageIcon;
         if (tool.id === 'ClientConnector') {
-            const iconBytes = ImageUtils.getConnectorIcon(tool.factoryArgs.pkgName);
+            const iconBytes = ImageUtils.getConnectorIcon(tool.factoryArgs.packageName);
             imageIcon = <img alt="client connector icon" src={iconBytes} />;
         } else {
             imageIcon = <i className={`icon fw fw-${tool.icon}`} />;
