@@ -32,8 +32,6 @@ class WorkerReceiveNode extends React.Component {
             propertyType: 'text',
             key: 'WorkerReceive',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 

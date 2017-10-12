@@ -33,8 +33,6 @@ class WorkerSendNode extends React.Component {
             propertyType: 'text',
             key: 'WorkerSend',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 

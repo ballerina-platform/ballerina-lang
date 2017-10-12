@@ -33,8 +33,6 @@ class VariableDefNode extends React.Component {
             propertyType: 'text',
             key: 'VariableDefinition',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 

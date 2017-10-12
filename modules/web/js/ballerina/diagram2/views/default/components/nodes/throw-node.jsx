@@ -31,8 +31,6 @@ class ThrowNode extends React.Component {
             propertyType: 'text',
             key: 'Throw',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 
