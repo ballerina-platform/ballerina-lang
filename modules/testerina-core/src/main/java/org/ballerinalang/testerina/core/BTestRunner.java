@@ -17,19 +17,27 @@
  */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.BLangCompiler;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * BTestRunner entity class
@@ -55,7 +63,25 @@ public class BTestRunner {
     }
 
     private static ProgramFile buildTestModel(Path sourceFilePath) {
-        return BLangCompiler.compile(programDirPath, sourceFilePath);
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, programDirPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(sourceFilePath.toString());
+
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+
+        if (programFile == null) {
+            throw new BallerinaException("compilation contains errors");
+        }
+
+        ProgramFile progFile = LauncherUtils.getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourceFilePath);
+        return progFile;
     }
 
     private static void executeTestFunctions(ProgramFile[] programFiles) {
