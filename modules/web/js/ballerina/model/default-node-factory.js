@@ -356,13 +356,13 @@ class DefaultNodeFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            actionInvokeString = `${varRefListString} = ${actionInvokeString};`;
+            actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
         }
         const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const assignmentNode = TreeBuilder.build(parsedJson);
-        assignmentNode.getExpression().setFullPackageName(fullPackageName);
-        return assignmentNode;
+        const invocationNode = TreeBuilder.build(parsedJson);
+        invocationNode.getExpression().setFullPackageName(fullPackageName);
+        return invocationNode;
     }
 
     createFunctionInvocationStatement(args) {
@@ -385,13 +385,13 @@ class DefaultNodeFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const assignmentNode = TreeBuilder.build(parsedJson);
-        assignmentNode.getExpression().setFullPackageName(fullPackageName);
-        return assignmentNode;
+        const invocationNode = TreeBuilder.build(parsedJson);
+        invocationNode.getExpression().setFullPackageName(fullPackageName);
+        return invocationNode;
     }
 }
 
