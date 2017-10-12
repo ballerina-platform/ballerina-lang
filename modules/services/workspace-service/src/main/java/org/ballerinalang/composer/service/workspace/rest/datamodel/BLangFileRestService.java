@@ -40,6 +40,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
@@ -342,9 +343,9 @@ public class BLangFileRestService {
     private JsonObject validate(BFile bFile) {
         String fileName = "untitled";
         String content = bFile.getContent();
-        List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
-                CompilerPhase.CODE_ANALYZE).getDiagnostics();
-
+        BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                CompilerPhase.CODE_ANALYZE);
+        List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
         JsonArray errors = new JsonArray();
         diagnostics.forEach(diagnostic -> {
             JsonObject error = new JsonObject();
@@ -355,9 +356,25 @@ public class BLangFileRestService {
             errors.add(error);
         });
 
+        ErrorCategory errorCategory = ErrorCategory.NONE;
+        BLangPackage model = ballerinaFile.getBLangPackage();
+        if(!diagnostics.isEmpty()){
+            if(model == null){
+                errorCategory = ErrorCategory.SYNTAX;
+            }else {
+                errorCategory = ErrorCategory.SEMANTIC;
+            }
+        }
         JsonObject result = new JsonObject();
         result.add("errors", errors);
+        result.addProperty("errorCategory", errorCategory.name());
         return result;
+    }
+
+    public enum ErrorCategory{
+        SYNTAX,
+        SEMANTIC,
+        NONE;
     }
 
 }
