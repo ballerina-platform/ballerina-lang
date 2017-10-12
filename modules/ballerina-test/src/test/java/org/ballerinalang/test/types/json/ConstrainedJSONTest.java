@@ -66,7 +66,7 @@ public class ConstrainedJSONTest {
         BTestUtils.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
         
         // tesInitializationWithInvalidNestedStruct
-        BTestUtils.validateError(negativeResult, 6, "undefined field 'bar' in struct 'PhoneNumber'", 67, 107);
+        BTestUtils.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
     }
 
     @Test(description = "Test basic json struct constraint")
