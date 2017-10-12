@@ -19,13 +19,13 @@
 package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.codegen.PackageInfo;
