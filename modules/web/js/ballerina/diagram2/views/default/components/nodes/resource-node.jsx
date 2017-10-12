@@ -67,7 +67,7 @@ class ResourceNode extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
         const parentNode = this.props.model.parent;
-        const body = this.props.model.body;
+        const body = this.props.model.getBody();
         const bodyBBox = this.props.model.body.viewState.bBox;
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
@@ -125,23 +125,39 @@ class ResourceNode extends React.Component {
                     packageIdentifier={parentNode.getProtocolPackageIdentifier().value}
                 >
                     <g>
-                        <StatementDropZone
-                            x={bodyBBox.x}
-                            y={bodyBBox.y}
-                            width={bodyBBox.w}
-                            height={bodyBBox.h}
-                            baseComponent="rect"
-                            dropTarget={body}
-                            enableDragBg
-                        />
-                        <LifeLineDecorator
-                            title="default"
-                            bBox={resource_worker_bBox}
-                            classes={classes}
-                            icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                            iconColor='#025482'
-                        />
-                        {blockNode}
+                        { this.props.model.getWorkers().length === 0 &&
+                            <g>
+                                <StatementDropZone
+                                    x={bodyBBox.x}
+                                    y={bodyBBox.y}
+                                    width={bodyBBox.w}
+                                    height={bodyBBox.h}
+                                    baseComponent="rect"
+                                    dropTarget={body}
+                                    enableDragBg
+                                />
+                                <LifeLineDecorator
+                                    title="default"
+                                    bBox={resource_worker_bBox}
+                                    classes={classes}
+                                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                                    iconColor='#025482'
+                                />
+                                {blockNode}
+                            </g>
+                        }{
+                            this.props.model.workers.map((item) => {
+                                return (<StatementDropZone
+                                    x={item.getBody().viewState.bBox.x}
+                                    y={item.getBody().viewState.bBox.y}
+                                    width={item.getBody().viewState.bBox.w}
+                                    height={item.getBody().viewState.bBox.h}
+                                    baseComponent="rect"
+                                    dropTarget={item.getBody()}
+                                    enableDragBg
+                                />);
+                            })
+                        }
                         {workers}
                         {connectors}
                     </g>
