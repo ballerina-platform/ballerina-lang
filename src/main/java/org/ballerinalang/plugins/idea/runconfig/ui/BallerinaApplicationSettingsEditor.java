@@ -54,6 +54,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myProject = project;
         installRunKindComboBox();
         BallerinaRunUtil.installBallerinaWithMainFileChooser(project, myFileField.getComponent());
+        BallerinaRunUtil.installBallerinaWithMainFileChooser(project, myWorkingDirectoryField.getComponent());
     }
 
     @Override
