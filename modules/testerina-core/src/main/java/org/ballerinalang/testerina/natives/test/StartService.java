@@ -90,7 +90,6 @@ public class StartService extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context ctx) {
-        ctx.disableNonBlocking = true;
         String serviceName = getStringArgument(ctx, 0);
 
         ServiceInfo matchingService = null;
@@ -132,7 +131,6 @@ public class StartService extends AbstractNativeFunction {
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
-        bContext.disableNonBlocking = true;
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
