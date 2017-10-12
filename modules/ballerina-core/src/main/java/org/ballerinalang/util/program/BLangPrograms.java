@@ -17,15 +17,8 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.NativeScope;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.ballerinalang.util.repository.ProgramDirRepository;
 import org.ballerinalang.util.repository.UserRepository;
 
 import java.io.IOException;
@@ -34,8 +27,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ballerinalang.util.BLangConstants.USER_HOME;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
@@ -50,90 +41,6 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
  * @since 0.8.0
  */
 public class BLangPrograms {
-
-    public static void loadBuiltinTypes() {
-        BTypes.createBuiltInTypes(null);
-    }
-
-    public static GlobalScope populateGlobalScope() {
-        // Get the global scope
-        GlobalScope globalScope = GlobalScope.getInstance();
-        BTypes.loadBuiltInTypes(globalScope);
-        return globalScope;
-    }
-
-    public static NativeScope populateNativeScope() {
-        // Get the global scope
-        NativeScope nativeScope = NativeScope.getInstance();
-        BuiltInNativeConstructLoader.loadConstructs(nativeScope);
-        return nativeScope;
-    }
-
-    public static ProgramDirRepository initProgramDirRepository(Path sourceRootPath) {
-        PackageRepository systemRepo = null;
-        PackageRepository[] extRepos;
-        List<PackageRepository> extRepoList = new ArrayList<>();
-        BuiltinPackageRepository[] builtinPackageRepos = BuiltInNativeConstructLoader.loadPackageRepositories();
-        for (BuiltinPackageRepository builtinPackageRepo : builtinPackageRepos) {
-            if (builtinPackageRepo.isSystemRepo()) {
-                systemRepo = builtinPackageRepo;
-            } else {
-                extRepoList.add(builtinPackageRepo);
-            }
-        }
-
-        extRepos = extRepoList.toArray(new PackageRepository[0]);
-        UserRepository userRepository = initUserRepository(systemRepo, extRepos);
-        return new ProgramDirRepository(sourceRootPath, systemRepo, extRepos, userRepository);
-    }
-
-    @Deprecated
-    public static Path validateAndResolveArchivePath(Path programArchivePath,
-                                                     BLangProgram.Category programCategory) {
-        if (programArchivePath == null) {
-            throw new IllegalArgumentException("program archive path cannot be null");
-        }
-
-        if (!programArchivePath.getFileName().toString().endsWith(programCategory.getExtension())) {
-            throw new IllegalArgumentException("invalid file or directory: expected a " +
-                    programCategory.getExtension() + " file");
-        }
-
-        try {
-            Path realProgArchivePath = programArchivePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
-
-            if (!Files.isReadable(realProgArchivePath)) {
-                throw new IllegalArgumentException("read access required: " + programArchivePath.toString());
-            }
-
-            if (Files.isDirectory(realProgArchivePath, LinkOption.NOFOLLOW_LINKS)) {
-                throw new IllegalStateException("invalid file: expected a " +
-                        programCategory.getExtension() + " file");
-            }
-
-            return realProgArchivePath;
-        } catch (NoSuchFileException x) {
-            throw new IllegalArgumentException("no such file or directory: " + programArchivePath.toString());
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + programArchivePath +
-                    " reason: " + e.getMessage(), e);
-        }
-    }
-
-    public static Path validateAndResolveProgramDirPath(Path programDirPath) {
-        if (programDirPath == null) {
-            throw new IllegalArgumentException("program directory cannot be null");
-        }
-
-        try {
-            return programDirPath.toRealPath(LinkOption.NOFOLLOW_LINKS);
-        } catch (NoSuchFileException x) {
-            throw new IllegalArgumentException("no such file or directory: " + programDirPath);
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + programDirPath +
-                    " reason: " + e.getMessage(), e);
-        }
-    }
 
     public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
         if (sourcePath == null) {

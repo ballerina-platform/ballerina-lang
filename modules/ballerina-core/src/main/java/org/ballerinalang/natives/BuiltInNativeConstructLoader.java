@@ -18,15 +18,8 @@
 
 package org.ballerinalang.natives;
 
-import org.ballerinalang.model.NativeScope;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ServiceLoader;
 
 /**
  * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina.
@@ -39,46 +32,6 @@ import java.util.ServiceLoader;
 public class BuiltInNativeConstructLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BuiltInNativeConstructLoader.class);
-
-    /**
-     * Load the native constructs to the provided symbol scope.
-     *
-     * @param nativeScope Symbol scope to load native constructs
-     */
-    public static void loadConstructs(NativeScope nativeScope) {
-        Iterator<NativeConstructLoader> nativeConstructLoaders =
-                ServiceLoader.load(NativeConstructLoader.class).iterator();
-        while (nativeConstructLoaders.hasNext()) {
-            NativeConstructLoader constructLoader = nativeConstructLoaders.next();
-            constructLoader.load(nativeScope);
-        }
-    }
-
-    public static BuiltinPackageRepository[] loadPackageRepositories() {
-        Iterator<BuiltinPackageRepository> ballerinaBuiltinPackageRepositories =
-                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
-        List<BuiltinPackageRepository> pkgRepositories = new ArrayList<>();
-        while (ballerinaBuiltinPackageRepositories.hasNext()) {
-            BuiltinPackageRepository constructLoader = ballerinaBuiltinPackageRepositories.next();
-            pkgRepositories.add(constructLoader);
-        }
-        if (!pkgRepositories.isEmpty()) {
-            BuiltinPackageRepository internalRepo = null;
-            for (BuiltinPackageRepository balRepo : pkgRepositories) {
-                if (balRepo instanceof SystemPackageRepository) {
-                    internalRepo = balRepo;
-                    internalRepo.setSystemRepo(true);
-                    break;
-                }
-            }
-            for (BuiltinPackageRepository balRepo : pkgRepositories) {
-                if (!(balRepo instanceof SystemPackageRepository)) {
-                    balRepo.setSystemRepository(internalRepo);
-                }
-            }
-        }
-        return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
-    }
 
     public static void loadConstructs() {
     }
