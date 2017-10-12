@@ -27,10 +27,10 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarErrorTest {
 
-    @Test(enabled = false)
+    @Test
     public void testStructFieldWithChildPackagePaths() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/globalvar/global-var-function-negative.bal");
-        BTestUtils.validateError(resultNegative, 0, "struct child fields cannot have package identifiers: 'xyz:name'",
-                                 6, 1);
+        CompileResult resultNegative = BTestUtils.compile(
+                "test-src/statements/variabledef/global-var-function-negative.bal");
+        BTestUtils.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
     }
 }

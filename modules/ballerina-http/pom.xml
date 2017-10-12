@@ -57,11 +57,6 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-native</artifactId>-->
-            <!--<version>0.93.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
     </dependencies>
     
     <build>

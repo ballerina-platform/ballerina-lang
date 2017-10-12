@@ -2,7 +2,7 @@
 
 // Invoke the get employee resource
 $ curl http://localhost:9090/people/employee?index=2
-{"first_name":"John","last_name":"Bernes","age":62,"address"
+{"first_name":"John","last_name":"Grisham","age":25,"address":"Brisbane"}
 
 // Invoke the update person resource
 $ curl -H "Content-Type: application/json" -X POST -d '{"name": "John Bernes Grisham","age": 62,"city": "Melbourne"}' http://localhost:9090/people/update?index=2

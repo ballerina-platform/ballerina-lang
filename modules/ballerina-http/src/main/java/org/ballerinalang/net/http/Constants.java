@@ -80,6 +80,9 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_TRUST_STORE_PASS = "trustStorePassword";
     public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPassword";
     public static final String ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT = "sslVerifyClient";
+    public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
+    public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;

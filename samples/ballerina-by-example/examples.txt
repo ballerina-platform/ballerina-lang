@@ -57,10 +57,6 @@ Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
 HTTP Redirects
-File System Server Connector
-FTP Client Connector
-FTP Server Connector
-Filter Connector
 Log API
 Function Pointers
 Lambda
@@ -70,3 +66,4 @@ WebSocket Chat Application
 WebSocket Client Connector
 WebSocket Proxy Server
 Passthrough
+Mutual SSL

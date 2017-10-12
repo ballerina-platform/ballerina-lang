@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
-import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.test.services.testutils.TestHTTPServiceDispatcher;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 
@@ -39,8 +36,6 @@ public class AnnotationTest {
 
     @BeforeClass
     public void setup() {
-        ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
-        DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
         compileResult = BTestUtils.compile("test-src", "lang/annotations/foo");
     }
 

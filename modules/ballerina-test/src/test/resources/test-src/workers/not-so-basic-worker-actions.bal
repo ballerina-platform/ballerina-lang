@@ -331,3 +331,81 @@ function forkJoinInWorkers() (int) {
 	    return x;
     }
 }
+
+function largeForkJoinCreationTest() (int) {
+    int result = 0;
+    map m = {};
+    int c = 1000;
+    while (c > 0) {
+	    m["x"] = 10;
+	    fork {
+		   worker w1 {
+		     int a = 2;
+		     int b = 0;
+		     a -> w2;
+		     b <- w10;
+		     m["x"] = result + b;
+		   }
+		   worker w2 {
+		     int a = 0;
+		     int b = 3;
+		     a <- w1;
+		     (a + b) -> w3;
+		   }
+		   worker w3 {
+		     int a = 0;
+		     int b = 4;
+		     a <- w2;
+		     (a + b) -> w4;
+		   }
+		   worker w4 {
+		     int a = 0;
+		     int b = 5;
+		     a <- w3;
+		     (a + b) -> w5;
+		   }
+		   worker w5 {
+		     int a = 0;
+		     int b = 6;
+		     a <- w4;
+		     (a + b) -> w6;
+		   }
+		   worker w6 {
+		     int a = 0;
+		     int b = 7;
+		     a <- w5;
+		     (a + b) -> w7;
+		   }
+		   worker w7 {
+		     int a = 0;
+		     int b = 8;
+		     a <- w6;
+		     (a + b) -> w8;
+		   }
+		   worker w8 {
+		     int a = 0;
+		     int b = 9;
+		     a <- w7;
+		     (a + b) -> w9;
+		   }
+		   worker w9 {
+		     int a = 0;
+		     int b = 10;
+		     a <- w8;
+		     (a + b) -> w10;
+		   }
+		   worker w10 {
+		     int a = 0;
+		     int b = 11;
+		     a <- w9;
+		     (a + b) -> w1;
+		   }
+	    } join (all) (map results) {
+	       var x, _ = (int) m["x"]; 
+	       result = x;
+	    }
+	    c = c - 1;
+    }
+    return result;
+}
+

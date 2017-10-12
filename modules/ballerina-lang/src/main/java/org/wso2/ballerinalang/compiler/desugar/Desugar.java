@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -120,6 +122,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @since 0.94
@@ -136,7 +139,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
-    private boolean insideAWorker = false;
+    private Stack<BLangWorker> workerStack = new Stack<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -188,6 +191,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        addReturnIfNotPresent(funcNode);
         funcNode.body = rewrite(funcNode.body);
         funcNode.workers = rewrite(funcNode.workers);
 
@@ -214,6 +218,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
+        addReturnIfNotPresent(resourceNode);
         resourceNode.body = rewrite(resourceNode.body);
         resourceNode.workers = rewrite(resourceNode.workers);
         result = resourceNode;
@@ -231,6 +236,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAction actionNode) {
+        addReturnIfNotPresent(actionNode);
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
 
@@ -248,9 +254,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.insideAWorker = true;
+        this.workerStack.push(workerNode);
         workerNode.body = rewrite(workerNode.body);
-        this.insideAWorker = false;
+        this.workerStack.pop();
         result = workerNode;
     }
 
@@ -315,7 +321,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
-        if (insideAWorker) {
+        if (!workerStack.empty()) {
             result = new BLangWorkerReturn(returnNode.exprs);
             result.pos = returnNode.pos;
             return;
@@ -915,5 +921,22 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return getElementType(((BArrayType) type).getElementType());
+    }
+
+    private void addReturnIfNotPresent(BLangInvokableNode invokableNode) {
+        if (Symbols.isNative(invokableNode.symbol)) {
+            return;
+        }
+        //This will only check whether last statement is a return and just add a return statement.
+        //This won't analyse if else blocks etc to see whether return statements are present
+        BLangBlockStmt blockStmt = invokableNode.body;
+        if (invokableNode.workers.size() == 0 && invokableNode.retParams.isEmpty() && (blockStmt.stmts.size() < 1
+                || blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
+            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+            DiagnosticPos invPos = invokableNode.pos;
+            DiagnosticPos pos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
+            returnStmt.pos = pos;
+            blockStmt.addStatement(returnStmt);
+        }
     }
 }

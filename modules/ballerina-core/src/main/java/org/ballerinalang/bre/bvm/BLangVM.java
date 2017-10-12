@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
@@ -64,7 +65,6 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -164,7 +164,7 @@ public class BLangVM {
 
         if (context.getError() != null) {
             handleError();
-        } else if (context.actionInfo != null) {
+        } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -195,6 +195,12 @@ public class BLangVM {
             }
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
+        } finally {
+            if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
+                // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
+                // Doesn't count non-blocking action invocation.
+                ctx.endTrackWorker();
+            }
         }
     }
 
@@ -2541,7 +2547,7 @@ public class BLangVM {
             } else if (status == -1) { //Transaction failed
                 ballerinaTransactionManager.setTransactionError(true);
                 ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction aborted
+            } else { //status = 1 Transaction end
                 ballerinaTransactionManager.endTransactionBlock();
                 if (ballerinaTransactionManager.isOuterTransaction()) {
                     context.setBallerinaTransactionManager(null);
@@ -2690,7 +2696,6 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
-        this.controlStack.currentFrame.workerReturnStack = true;
         ip = -1;
     }
 
@@ -2984,8 +2989,7 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.disableNonBlocking
-                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
@@ -3601,5 +3605,9 @@ public class BLangVM {
             }
         }
         return null;
+    }
+
+    private boolean isWaitingOnNonBlockingAction() {
+        return context.actionInfo != null;
     }
 }

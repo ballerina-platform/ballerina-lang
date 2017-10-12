@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -56,7 +57,7 @@ public class GetQueryParams extends AbstractNativeFunction {
                 String queryString = (String) httpCarbonMessage.getProperty(Constants.QUERY_STR);
                 return getBValues(HttpUtil.getParamMap(queryString));
             } else {
-                throw new BallerinaException("query params unavailable");
+                return getBValues(new BMap<>());
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
