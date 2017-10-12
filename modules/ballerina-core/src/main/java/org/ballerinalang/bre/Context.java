@@ -50,6 +50,7 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
+    private boolean nonBlockingActionCall = false;
 
     private int startIP;
     private BStruct unhandledError;
@@ -107,6 +108,14 @@ public class Context {
 
     public void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
+    }
+
+    public boolean isNonBlockingActionCall() {
+        return nonBlockingActionCall;
+    }
+
+    public void setNonBlockingActionCall(boolean nonBlockingActionCall) {
+        this.nonBlockingActionCall = nonBlockingActionCall;
     }
 
     public ControlStackNew getControlStackNew() {

@@ -442,7 +442,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
         for (BLangStatement stmt : blockNode.stmts) {
-            addLineNumberInfo(stmt);
+            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
+                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                addLineNumberInfo(stmt.pos);
+            }
 
             genNode(stmt, blockEnv);
 
@@ -1440,11 +1443,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
             if (defaultWorker) {
-                if (invokableNode.workers.size() == 0 && invokableNode.retParams.isEmpty()) {
-                /* for functions that has no return values, we must provide a default
-                 * return statement to stop the execution and jump to the caller */
-                    this.emit(InstructionCodes.RET);
-                } else if (invokableNode.workers.size() > 0) {
+                if (invokableNode.workers.size() > 0) {
                     this.emit(InstructionCodes.WRKSTART);
                 }
             }
@@ -1856,11 +1855,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         return errorTable;
     }
 
-    private void addLineNumberInfo(BLangStatement statement) {
-        DiagnosticPos pos = statement.pos;
-        if (NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
-            return;
-        }
+    private void addLineNumberInfo(DiagnosticPos pos) {
         LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
         lineNoAttrInfo.addLineNumberInfo(lineNumInfo);
     }
@@ -2316,6 +2311,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
+        addLineNumberInfo(ifNode.pos);
         this.genNode(ifNode.expr, this.env);
         Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
         this.emit(ifCondJumpInstr);
@@ -2650,6 +2646,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Handle catch blocks.
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
             genNode(bLangCatch, env);
             unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});

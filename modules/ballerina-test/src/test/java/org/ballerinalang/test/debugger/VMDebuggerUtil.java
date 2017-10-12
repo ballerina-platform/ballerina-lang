@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.debug;
+package org.ballerinalang.test.debugger;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
@@ -25,14 +25,13 @@ import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 
 import java.util.ArrayList;
@@ -46,13 +45,8 @@ import java.util.concurrent.Semaphore;
  */
 public class VMDebuggerUtil {
 
-    private static final String STEP_IN = "1";
-    private static final String STEP_OVER = "2";
-    private static final String STEP_OUT = "3";
-    private static final String RESUME = "5";
-
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
-                                  String[] debugCommand) {
+                                  Step[] debugCommand) {
         DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
         DebugRunner debugRunner = new DebugRunner();
         Context bContext = debugRunner.setup(sourceFilePath, debugSessionObserver, breakPoints);
@@ -105,7 +99,7 @@ public class VMDebuggerUtil {
         return breakPointDTOS;
     }
 
-    public static void executeDebuggerCmd(Context bContext, String cmd) {
+    public static void executeDebuggerCmd(Context bContext, Step cmd) {
         switch (cmd) {
             case STEP_IN:
                 bContext.getDebugInfoHolder().stepIn();
@@ -126,33 +120,35 @@ public class VMDebuggerUtil {
 
     static class DebugRunner {
 
-        ProgramFile programFile;
+        CompileResult result;
         Context bContext;
 
         Context setup(String sourceFilePath, DebugSessionObserverImpl debugSessionObserver,
                       BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
 
-            programFile = BTestUtils.getProgramFile(sourceFilePath);
+            result = BTestUtils.compile(sourceFilePath);
 
-            bContext = new Context(programFile);
+            bContext = new Context(result.getProgFile());
             bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
-            String mainPkgName = programFile.getEntryPkgName();
+            String mainPkgName = result.getProgFile().getEntryPkgName();
 
-            PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
+            PackageInfo mainPkgInfo = result.getProgFile().getPackageInfo(mainPkgName);
             if (mainPkgInfo == null) {
-                throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
+                throw new RuntimeException("cannot find main function '"
+                        + result.getProgFile().getProgramFilePath() + "'");
             }
 
             FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
             if (mainFuncInfo == null) {
-                throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
+                throw new RuntimeException("cannot find main function '"
+                        + result.getProgFile().getProgramFilePath() + "'");
             }
 
             // Invoke package init function
-            BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+            BTestUtils.invoke(result, mainPkgInfo.getInitFunctionInfo(), bContext);
 
             // Prepare main function arguments
             BStringArray arrayArgs = new BStringArray();
@@ -169,7 +165,7 @@ public class VMDebuggerUtil {
             bContext.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
             bContext.getDebugInfoHolder().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
             bContext.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            DebuggerExecutor executor = new DebuggerExecutor(programFile, bContext);
+            DebuggerExecutor executor = new DebuggerExecutor(result.getProgFile(), bContext);
             (new Thread(executor)).start();
             return bContext;
         }
