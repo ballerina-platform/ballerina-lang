@@ -526,14 +526,7 @@ class BallerinaFileEditor extends React.Component {
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW);
 
-        let showLoadingOverlay;
-        if (this.props.isPreviewViewEnabled) {
-            if (showDesignView === true) {
-                showLoadingOverlay = false;
-            } else {
-                showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
-            }
-        }
+        const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         return (
             <div
