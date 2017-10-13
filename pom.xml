@@ -959,7 +959,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <carbon.transport.version>6.0.24</carbon.transport.version>
+        <carbon.transport.version>6.0.25</carbon.transport.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.0.0</carbon.config.version>
@@ -981,7 +981,7 @@
         <staxon.version>1.2.0.wso2v2</staxon.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <mockito.version>1.9.0</mockito.version>
-        <netty.version>4.1.7.Final</netty.version>
+        <netty.version>4.1.15.Final</netty.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
