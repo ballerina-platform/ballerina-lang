@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi.impl;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
@@ -2200,33 +2201,34 @@ public class BallerinaPsiImplUtil {
         PsiFile containingFile = structDefinitionNode.getContainingFile();
         PsiDirectory containingPackage = containingFile.getParent();
         if (containingPackage != null) {
-            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
-                    false);
-
-            for (IdentifierPSINode function : functions) {
-                ProgressManager.checkCanceled();
-                CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
-                        CodeBlockParameterNode.class);
-                if (codeBlockParameterNode == null) {
-                    continue;
+            ApplicationManager.getApplication().runReadAction(()->{
+                List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                        false);
+                for (IdentifierPSINode function : functions) {
+                    ProgressManager.checkCanceled();
+                    CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
+                            CodeBlockParameterNode.class);
+                    if (codeBlockParameterNode == null) {
+                        continue;
+                    }
+                    TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
+                    if (typeNameNode == null) {
+                        continue;
+                    }
+                    PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+                    if (reference == null) {
+                        continue;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    if (!resolvedElement.getParent().equals(structDefinitionNode)) {
+                        continue;
+                    }
+                    attachedFunctions.add(function);
                 }
-                TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
-                if (typeNameNode == null) {
-                    continue;
-                }
-                PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
-                if (reference == null) {
-                    continue;
-                }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                if (!resolvedElement.getParent().equals(structDefinitionNode)) {
-                    continue;
-                }
-                attachedFunctions.add(function);
-            }
+            });
         }
         return attachedFunctions;
     }

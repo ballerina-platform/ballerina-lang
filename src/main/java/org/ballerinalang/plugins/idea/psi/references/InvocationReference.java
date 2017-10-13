@@ -21,35 +21,68 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class LambdaFunctionReference extends BallerinaElementReference {
+public class InvocationReference extends BallerinaElementReference {
 
-    public LambdaFunctionReference(@NotNull IdentifierPSINode element) {
+    public InvocationReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Nullable
     @Override
     public PsiElement resolve() {
-        StructDefinitionNode structDefinition = getStructDefinitionNode();
-        if (structDefinition == null) {
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
+        PsiElement prevSibling = parent.getPrevSibling();
+        if (prevSibling == null) {
             return null;
         }
-        List<IdentifierPSINode> attachedFunctions = BallerinaPsiImplUtil.getAttachedFunctions(structDefinition);
-        IdentifierPSINode identifier = getElement();
-        for (IdentifierPSINode attachedFunction : attachedFunctions) {
-            if (identifier.getText().equals(attachedFunction.getText())) {
-                return attachedFunction;
+        PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement definitionNode = resolvedElement.getParent();
+        if ((definitionNode instanceof ConnectorDeclarationStatementNode)) {
+            //            return new ActionInvocationReference(this);
+        } else if (definitionNode instanceof VariableDefinitionNode || definitionNode instanceof ParameterNode
+                || definitionNode instanceof GlobalVariableDefinitionNode) {
+            ConnectorDefinitionNode connectorDefinitionNode =
+                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(definitionNode);
+            if (connectorDefinitionNode != null) {
+                //                return new ActionInvocationReference(this);
+            }
+            StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
+                    (definitionNode);
+            if (structDefinitionNode != null) {
+                //                return new LambdaFunctionReference(this);
+
+                List<IdentifierPSINode> attachedFunctions =
+                        BallerinaPsiImplUtil.getAttachedFunctions(structDefinitionNode);
+                for (IdentifierPSINode attachedFunction : attachedFunctions) {
+                    if (identifier.getText().equals(attachedFunction.getText())) {
+                        return attachedFunction;
+                    }
+                }
             }
         }
-        return null;
+
+        return super.resolve();
     }
 
     @NotNull

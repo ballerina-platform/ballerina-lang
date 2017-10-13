@@ -41,7 +41,6 @@ import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
-import org.ballerinalang.plugins.idea.psi.references.LambdaFunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
@@ -49,7 +48,7 @@ import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
 import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
-import org.ballerinalang.plugins.idea.psi.references.VariableReference;
+import org.ballerinalang.plugins.idea.psi.references.InvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -259,21 +258,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return null;
         }
         PsiElement definitionNode = resolvedElement.getParent();
-        if ((definitionNode instanceof ConnectorDeclarationStatementNode)) {
+        if (definitionNode instanceof ConnectorDeclarationStatementNode) {
             return new ActionInvocationReference(this);
-        } else if ((definitionNode instanceof VariableDefinitionNode)) {
-            ConnectorDefinitionNode connectorDefinitionNode =
-                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(definitionNode);
-            if (connectorDefinitionNode != null) {
-                return new ActionInvocationReference(this);
-            }
-            StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                    (definitionNode);
-            if (structDefinitionNode != null) {
-                return new LambdaFunctionReference(this);
-            }
         }
-        return null;
+        return new InvocationReference(this);
     }
 
     @Nullable
@@ -308,7 +296,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     }
                 } else {
                     // Todo - might need to do this for assignment statements as well
-                    return new VariableReference(this);
                 }
             }
         }
@@ -351,7 +338,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return new ActionInvocationReference(this);
         }
 
-        return new VariableReference(this);
+        return null;
     }
 
     @Override
