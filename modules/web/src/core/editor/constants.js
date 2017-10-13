@@ -4,7 +4,6 @@ export const COMMANDS = {
     UNDO: 'undo',
     REDO: 'redo',
     ACTIVATE_EDITOR_FOR_FILE: 'activate-editor-for-file',
-    SHOW_LEFT_PANEL: 'show-left-panel',
 };
 
 export const EVENTS = {
