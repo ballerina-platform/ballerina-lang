@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -77,7 +78,7 @@ public class HTTPCarbonMessage {
         return blockingEntityCollector.getHttpContent();
     }
 
-    public ByteBuffer getMessageBody() {
+    public ByteBuf getMessageBody() {
         return blockingEntityCollector.getMessageBody();
     }
 
@@ -277,5 +278,14 @@ public class HTTPCarbonMessage {
         fullMessageBody.forEach(this::addMessageBody);
         markMessageEnd();
         return newCopy;
+    }
+
+    public void waitAndReleaseAllEntities() {
+        blockingEntityCollector.waitAndReleaseAllEntities();
+    }
+
+    @Override
+    protected void finalize() {
+        release();
     }
 }
