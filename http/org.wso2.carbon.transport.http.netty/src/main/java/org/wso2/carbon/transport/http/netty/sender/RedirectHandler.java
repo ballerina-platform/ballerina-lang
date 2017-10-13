@@ -588,17 +588,62 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequest       HttpRequest that send through the newly created channel
      */
     private void writeContentToNewChannel(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
-            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
+            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) throws InterruptedException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Send redirect request using a new channel");
         }
         if (Constants.HTTP_SCHEME.equals(redirectUrl.getProtocol())) {
             sslEngine = null;
         }
-        long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).get();
-        int timeoutOfOriginalRequest = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
 
-        ChannelFuture channelFuture = bootstrapClient(channelHandlerContext, redirectUrl);
+        try {
+            bootstrapClient(channelHandlerContext, redirectUrl, httpCarbonRequest, httpRequest);
+        } catch (InterruptedException e) {
+            LOG.error("InterruptedException occurred while bootstrapping a new client in writeContentToNewChannel", e);
+            throw new InterruptedException();
+        }
+
+    }
+
+    /**
+     * Bootstrap a netty client to send the redirect request.
+     *
+     * @param channelHandlerContext Channel handler context
+     * @param redirectUrl           Redirect URL
+     * @return ChannelFuture
+     */
+    private void bootstrapClient(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
+            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) throws InterruptedException {
+        EventLoopGroup group = channelHandlerContext.channel().eventLoop();
+        try {
+            Bootstrap clientBootstrap = new Bootstrap();
+            clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
+                    new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
+                            redirectUrl.getPort() :
+                            getDefaultPort(redirectUrl.getProtocol()))).handler(
+                    new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
+                            maxRedirectCount));
+            clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
+            ChannelFuture channelFuture = clientBootstrap.connect();
+            registerListener(channelHandlerContext, channelFuture, httpCarbonRequest, httpRequest);
+            channelFuture.channel().closeFuture().sync();
+        } finally {
+            group.shutdownGracefully().sync();
+        }
+
+    }
+
+    /**
+     * Register channel future listener on channel future.
+     *
+     * @param channelHandlerContext Channel handler context
+     * @param channelFuture         Chanel future
+     * @param httpCarbonRequest     Carbon request
+     * @param httpRequest           http request
+     */
+    private void registerListener(ChannelHandlerContext channelHandlerContext, ChannelFuture channelFuture,
+            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
         channelFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -607,6 +652,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         LOG.debug("Connected to the new channel " + future.channel().id() + " and getting ready to "
                                 + "write request.");
                     }
+                    long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME)
+                            .get();
+                    int timeoutOfOriginalRequest = channelHandlerContext.channel()
+                            .attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
                     setChannelAttributes(channelHandlerContext, future, httpCarbonRequest, channelStartTime,
                             timeoutOfOriginalRequest);
                     long remainingTimeForRedirection = getRemainingTimeForRedirection(channelStartTime,
@@ -625,26 +674,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         });
-    }
-
-    /**
-     * Bootstrap a netty client to send the redirect request.
-     *
-     * @param channelHandlerContext Channel handler context
-     * @param redirectUrl           Redirect URL
-     * @return ChannelFuture
-     */
-    private ChannelFuture bootstrapClient(ChannelHandlerContext channelHandlerContext, URL redirectUrl) {
-        EventLoopGroup group = channelHandlerContext.channel().eventLoop();
-        Bootstrap clientBootstrap = new Bootstrap();
-        clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
-                new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
-                        redirectUrl.getPort() :
-                        getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
-                        maxRedirectCount));
-        clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
-        return clientBootstrap.connect();
     }
 
     /**
