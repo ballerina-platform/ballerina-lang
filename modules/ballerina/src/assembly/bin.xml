@@ -85,6 +85,12 @@
 
     <files>
         <file>
+            <source>${project.build.directory}/extracted-distributions/ballerina-logging-jar/logging.properties</source>
+            <outputDirectory>bre/conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
             <source>bin/version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
