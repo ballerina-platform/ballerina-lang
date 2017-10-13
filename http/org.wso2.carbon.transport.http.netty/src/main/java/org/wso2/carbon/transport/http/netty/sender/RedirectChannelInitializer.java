@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
@@ -39,14 +38,11 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
 
     private SSLEngine sslEngine; //Add SSL support to channel
     private boolean httpTraceLogEnabled; //Will be used, if enabled, to log events
-    private ChannelHandlerContext originalChannelContext; //Original channel context
     private int maxRedirectCount;
 
-    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine,
-            boolean httpTraceLogEnabled, int maxRedirectCount) {
+    public RedirectChannelInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
-        this.originalChannelContext = originalChannelContext;
         this.maxRedirectCount = maxRedirectCount;
     }
 
@@ -67,8 +63,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
-        RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext, sslEngine, httpTraceLogEnabled,
-                maxRedirectCount);
+        RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
     }
 

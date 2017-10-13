@@ -90,7 +90,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtTargetResponseSending(targetRespMsg);
                         }
-                        Util.resetChannelAttributes(ctx);
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
                     }

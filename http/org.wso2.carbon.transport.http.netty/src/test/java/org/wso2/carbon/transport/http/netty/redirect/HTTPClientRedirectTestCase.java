@@ -35,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseFutureImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.https.HTTPSConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -72,11 +73,9 @@ public class HTTPClientRedirectTestCase {
     private HttpClientConnector httpClientConnector;
     HttpWsConnectorFactory connectorFactory;
     TransportsConfiguration transportsConfiguration;
-    public static final String FINAL_DESTINATION = "http://localhost:9000/destination";
-    public static final String RELATIVE_REDIRECT_URL1 = "/redirect2";
-    public static final int REDIRECT_DESTINATION_PORT1 = 9091;
-    public static final int REDIRECT_DESTINATION_PORT2 = 9092;
-    public static final String ABSOLUTE_REDIRECT_URL = "http://localhost:9092/redirect2";
+    public static final String FINAL_DESTINATION = "http://localhost:9092/destination";
+    public static final int DESTINATION_PORT1 = 9091;
+    public static final int DESTINATION_PORT2 = 9092;
     public static final String URL1 = "http://www.mocky.io/v2/59d590762700000a049cd694";
     public static final String URL2 = "http://www.mocky.io/v3/59d590762700000a049cd694";
 
@@ -101,6 +100,12 @@ public class HTTPClientRedirectTestCase {
 
     }
 
+    /**
+     * Check whether, redirect request is written to the backend when a redirect response is received.
+     *
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     @Test
     public void unitTestForRedirectHandler() throws URISyntaxException, IOException {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
@@ -117,6 +122,12 @@ public class HTTPClientRedirectTestCase {
         assertNotNull(embeddedChannel.readOutbound());
     }
 
+    /**
+     * When the maximum redirect count reached, channel should not do any more redirects.
+     *
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     @Test
     public void unitTestForRedirectLoop() throws URISyntaxException, IOException {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
@@ -125,9 +136,10 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
-        response.headers().set(HttpHeaders.Names.LOCATION, ABSOLUTE_REDIRECT_URL);
+        response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
-                .set(createHttpRequest(Constants.HTTP_POST_METHOD, ABSOLUTE_REDIRECT_URL));
+                .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
+        embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new HttpResponseFutureImpl());
         embeddedChannel.attr(Constants.REDIRECT_COUNT).set(5);
         embeddedChannel.writeInbound(response);
         embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -213,8 +225,8 @@ public class HTTPClientRedirectTestCase {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
-            boolean isCrossDomainURL = (boolean) method.invoke(redirectHandler, ABSOLUTE_REDIRECT_URL,
-                    createHttpRequest(Constants.HTTP_HEAD_METHOD, URL1));
+            boolean isCrossDomainURL = (boolean) method
+                    .invoke(redirectHandler, FINAL_DESTINATION, createHttpRequest(Constants.HTTP_HEAD_METHOD, URL1));
             assertEquals(true, isCrossDomainURL);
         } catch (NoSuchMethodException e) {
             TestUtil.handleException("NoSuchMethodException occurred while running unitTestToDetermineCrossDomainURLs",
@@ -256,15 +268,17 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void integrationTestForSingleRedirect() {
         try {
-            httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
-            redirectServer = TestUtil
-                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0);
+            //This server starts on port 9092 and give testValue as an output
+            httpServer = TestUtil.startHTTPServer(DESTINATION_PORT2, testValue, Constants.TEXT_PLAIN);
+            //This server starts on port 9091 and give a redirect response to 9092
+            redirectServer = TestUtil.startHTTPServerForRedirect(DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
+                    HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -274,7 +288,7 @@ public class HTTPClientRedirectTestCase {
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
                     .collect(Collectors.joining("\n"));
-
+            //Output should match with the response given by 9000 server
             assertEquals(testValue, result);
             redirectServer.shutdown();
             httpServer.shutdown();
@@ -284,7 +298,7 @@ public class HTTPClientRedirectTestCase {
     }
 
     /**
-     * Test for redirection loop.
+     * Integration test for redirection loop.
      */
     @Test
     public void integrationTestForRedirectLoop() {
@@ -292,25 +306,26 @@ public class HTTPClientRedirectTestCase {
             SenderConfiguration senderConfiguration = HTTPConnectorUtil
                     .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
             senderConfiguration.setFollowRedirect(true);
-            senderConfiguration.setMaxRedirectCount(2);
+            senderConfiguration.setMaxRedirectCount(1); //Max redirect count is 1
 
             HttpClientConnector httpClientConnector = connectorFactory
                     .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                             senderConfiguration);
 
+            //Server1 starts on port 9091 and give a redirect response that should goto port 9092 server
             HttpServer redirectServer1 = TestUtil
-                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), ABSOLUTE_REDIRECT_URL, 0);
+                    .startHTTPServerForRedirect(DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0);
 
+            //Server2 starts on port 9092 and give a redirect response to some other domain
             HttpServer redirectServer2 = TestUtil
-                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT2, testValueForLoopRedirect,
-                            Constants.TEXT_PLAIN, HttpResponseStatus.TEMPORARY_REDIRECT.code(),
-                            RELATIVE_REDIRECT_URL1, 0);
+                    .startHTTPServerForRedirect(DESTINATION_PORT2, testValueForLoopRedirect, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), URL1, 0);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -320,7 +335,7 @@ public class HTTPClientRedirectTestCase {
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
                     .collect(Collectors.joining("\n"));
-
+            //Response should be equal to the response receive from Server 2 as there cannot be any more redirects.
             assertEquals(testValueForLoopRedirect, result);
             redirectServer1.shutdown();
             redirectServer2.shutdown();
@@ -347,17 +362,18 @@ public class HTTPClientRedirectTestCase {
                     .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                             senderConfiguration);
 
-            HttpServer httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants
-                    .TEXT_PLAIN);
+            //Server starts on port 9092 and give 200 response
+            HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT2, testValue, Constants.TEXT_PLAIN);
 
+            //Server starts on port 9091 and give a redirect response to server on port 9092
             HttpServer redirectServer = TestUtil
-                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
+                    .startHTTPServerForRedirect(DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 3000);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -369,6 +385,36 @@ public class HTTPClientRedirectTestCase {
             httpServer.shutdown();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running integrationTestForTimeout", e);
+        }
+    }
+
+    /**
+     * Redirect is on, but the first response received is not a redirect
+     */
+    @Test
+    public void redirectOnButNotARedirect() {
+        try {
+            //This server starts on port 9092 and give testValue as an output
+            httpServer = TestUtil.startHTTPServer(DESTINATION_PORT2, testValue, Constants.TEXT_PLAIN);
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            //Send a request to server that runs on port 9092
+            HttpResponseFuture responseFuture = httpClientConnector
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT2));
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(60, TimeUnit.SECONDS);
+
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(
+                    new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
+                    .collect(Collectors.joining("\n"));
+            //Output should match with the response given by 9092 server
+            assertEquals(testValue, result);
+            httpServer.shutdown();
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running singleRedirectionTest", e);
         }
     }
 
@@ -408,5 +454,4 @@ public class HTTPClientRedirectTestCase {
         httpCarbonRequest.setEndOfMsgAdded(true);
         return httpCarbonRequest;
     }
-
 }

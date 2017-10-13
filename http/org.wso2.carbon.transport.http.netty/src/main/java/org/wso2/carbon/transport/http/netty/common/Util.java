@@ -536,11 +536,10 @@ public class Util {
      * @param ctx Channel handler context
      */
     public static void resetChannelAttributes(ChannelHandlerContext ctx) {
-        Integer redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
-        if (redirectCount != null) {
-            redirectCount = 0;
-            ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
-        }
+        ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
         ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
+        ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
+        ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
+        ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
     }
 }
