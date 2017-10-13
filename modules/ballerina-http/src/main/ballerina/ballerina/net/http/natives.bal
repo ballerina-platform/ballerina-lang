@@ -125,8 +125,6 @@ public native function <Request req> setHeader (string key, string value);
 public struct Response {
 }
 
-struct SSL {
-
 @doc:Description { value:"Gets the HTTP status code from the message"}
 @doc:Param { value:"res: The response message" }
 @doc:Return { value:"int: http status code" }
