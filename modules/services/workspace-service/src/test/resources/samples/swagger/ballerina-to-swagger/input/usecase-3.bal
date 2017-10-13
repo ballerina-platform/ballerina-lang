@@ -1,6 +1,5 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
@@ -39,6 +38,5 @@ service<http> Service3 {
         description: "Returns all pets from the system that the user has access to"
     }
     resource Resource1 (http:Request req, http:Response res) {
-        response:send(res);
     }
 }

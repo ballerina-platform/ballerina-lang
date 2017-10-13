@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 import ballerina.net.http.swagger;
 
 @http:configuration {
@@ -19,7 +18,6 @@ service<http> Service5 {
         produces: ["application/json"]
     }
     resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id) {
-        response:send(res);
     }
 
     @http:resourceConfig{
@@ -28,7 +26,6 @@ service<http> Service5 {
         produces: ["application/json"]
     }
     resource Resource2 (http:Request req, http:Response res) {
-        response:send(res);
     }
 
     @http:resourceConfig{
@@ -37,6 +34,5 @@ service<http> Service5 {
         produces: ["application/json"]
     }
     resource Resource3 (http:Request req, http:Response res) {
-        response:send(res);
     }
 }
