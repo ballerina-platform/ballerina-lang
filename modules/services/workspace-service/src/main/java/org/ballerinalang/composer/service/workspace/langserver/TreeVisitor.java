@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -638,12 +637,6 @@ public class TreeVisitor extends BLangNodeVisitor {
             } else {
                 return ifNode.elseStmt.getPosition().getEndLine();
             }
-        }
-    }
-
-    public class CompilationUnitNotFoundException extends Exception {
-        public CompilationUnitNotFoundException() {
-            super("Cannot Find Compilation Unit");
         }
     }
 }

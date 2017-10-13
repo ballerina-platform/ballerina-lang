@@ -100,7 +100,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
         }
     }
 
-    public Set<PackageID> listPackages(int maxDepth){
+    public Set<PackageID> listPackages(int maxDepth) {
         return  new LinkedHashSet<>();
     }
 }

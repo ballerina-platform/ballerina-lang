@@ -20,14 +20,12 @@ package org.ballerinalang.composer.service.workspace.rest.typelattice;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.ballerinalang.model.types.TypeLattice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -76,30 +74,9 @@ public class TypeLatticeService {
     }
 
     private String getTypeLatticeResponse() {
-        List<SimpleTypeEdge> explicitCastEdges = getSimpleTypeEdges(TypeLattice.getExplicitCastLattice());
-        List<SimpleTypeEdge> implicitCastEdges = getSimpleTypeEdges(TypeLattice.getImplicitCastLattice());
-        List<SimpleTypeEdge> transformEdges = getSimpleTypeEdges(TypeLattice.getTransformLattice());
-
         Map<String, List<SimpleTypeEdge>> typeLattices = new HashMap<>();
-        typeLattices.put("explicit_cast", explicitCastEdges);
-        typeLattices.put("implicit_cast", implicitCastEdges);
-        typeLattices.put("conversion", transformEdges);
-
         Gson gson = new Gson();
         return gson.toJson(typeLattices);
-    }
-
-    private List<SimpleTypeEdge> getSimpleTypeEdges(TypeLattice typeLattice) {
-        return typeLattice.getEdges()
-                           .stream()
-                           .map(edge -> {
-                               SimpleTypeEdge simpleTypeEdge = new SimpleTypeEdge();
-                               simpleTypeEdge.setSafe(edge.isSafe());
-                               simpleTypeEdge.setSource(edge.getSource().getType().getName());
-                               simpleTypeEdge.setTarget(edge.getTarget().getType().getName());
-                               return simpleTypeEdge;
-                           }).collect(Collectors.toList());
-
     }
 
     /**

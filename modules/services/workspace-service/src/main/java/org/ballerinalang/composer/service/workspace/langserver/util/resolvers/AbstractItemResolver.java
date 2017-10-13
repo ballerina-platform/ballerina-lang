@@ -25,11 +25,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.NamespaceDeclaration;
-import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.natives.NativePackageProxy;
-import org.ballerinalang.natives.NativeUnitProxy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -61,17 +57,10 @@ public abstract class AbstractItemResolver {
 
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
-            if (symbolInfo.getSymbol() instanceof NativeUnitProxy
-                    && symbolInfo.getSymbolName().contains("ClientConnector")) {
-                completionItem = this.populateClientConnectorCompletionItem(symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
-                completionItem = this.populateNativeUnitProxyCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind != null
-                    && !((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
+            if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind != null
+                    && !((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
-                completionItem = this.populateNativePackageProxyCompletionItem(symbolInfo);
             } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                     && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
@@ -100,23 +89,6 @@ public abstract class AbstractItemResolver {
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
         completionItem.setKind(ItemResolverConstants.ACTION_KIND);
-
-        return completionItem;
-    }
-
-    /**
-     * Populate the Native Proxy Completion Item
-     * @param symbolInfo - symbol information
-     * @return completion item
-     */
-    CompletionItem populateNativeUnitProxyCompletionItem(SymbolInfo symbolInfo) {
-        CompletionItem completionItem = new CompletionItem();
-        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
-        completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
-        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
 
         return completionItem;
     }
@@ -180,7 +152,8 @@ public abstract class AbstractItemResolver {
 
         type.setPkgName(symbolInfo.getScopeEntry().symbol.pkgID.toString());
         if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
-            BJSONType bJsonType = (BJSONType)symbolInfo.getScopeEntry().symbol.getType();
+            assert symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType : "Invalid symbol type found";
+            BJSONType bJsonType = (BJSONType) symbolInfo.getScopeEntry().symbol.getType();
             type.setConstraint(true);
             type.setConstraintName(bJsonType.getConstraint().toString());
             type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
@@ -194,24 +167,6 @@ public abstract class AbstractItemResolver {
 
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
         completionItem.setKind(ItemResolverConstants.VAR_DEF_KIND);
-
-        return completionItem;
-    }
-
-    /**
-     * Populate the Struct Definition Completion Item
-     * @param symbolInfo - symbol information
-     * @return completion item
-     */
-    CompletionItem populateStructDefCompletionItem(SymbolInfo symbolInfo) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(symbolInfo.getSymbolName());
-        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
-        completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
-        completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
-        completionItem.setKind(ItemResolverConstants.STRUCT_KIND);
 
         return completionItem;
     }
@@ -245,24 +200,6 @@ public abstract class AbstractItemResolver {
         completionItem.setDetail(ItemResolverConstants.XMLNS);
 
         return completionItem;
-    }
-
-    /**
-     * Get the function signature for the native unit
-     * @param symbolInfo - symbol info instance
-     * @param nativeUnit - native unit instance
-     * @return {@link String}
-     */
-    private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
-        StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
-        int i = 0;
-        // TODO: Finalize
-        String initString = "";
-        signature.append(")");
-        initString = "(";
-        String endString = "";
-        signature.append(endString);
-        return signature.toString();
     }
 
     /**
@@ -481,7 +418,10 @@ public abstract class AbstractItemResolver {
         });
     }
 
-    public class Type {
+    /**
+     * Type class for the variable def data
+     */
+    public static class Type {
         private boolean isArrayType;
         private boolean constraint;
         private String arrayType = null;

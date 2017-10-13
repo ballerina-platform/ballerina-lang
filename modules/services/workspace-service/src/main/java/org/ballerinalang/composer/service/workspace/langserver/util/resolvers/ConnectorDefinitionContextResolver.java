@@ -21,7 +21,6 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,8 +43,6 @@ public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
             connectorActionItem.setSortText(ItemResolverConstants.PRIORITY_4);
             completionItems.add(connectorActionItem);
         }
-
-        completionItems.addAll(resolvers.get(VariableDefStmt.class).resolveItems(dataModel, symbols , resolvers));
 
         return completionItems;
     }

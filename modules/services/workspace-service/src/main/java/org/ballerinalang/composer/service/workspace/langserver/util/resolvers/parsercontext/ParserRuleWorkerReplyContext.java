@@ -21,14 +21,10 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.p
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
-import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.Worker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parser rule based Item resolver for the Worker reply statement
@@ -37,21 +33,6 @@ public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
-
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> workers = symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof Worker)
-                .collect(Collectors.toList());
-
-        workers.forEach(symbolInfo -> {
-            CompletionItem workerCompletionItem = new CompletionItem();
-            workerCompletionItem.setInsertText(symbolInfo.getSymbolName());
-            workerCompletionItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-            workerCompletionItem.setSortText(ItemResolverConstants.PRIORITY_7);
-            workerCompletionItem.setLabel(symbolInfo.getSymbolName());
-            completionItems.add(workerCompletionItem);
-        });
-
-        return completionItems;
+        return new ArrayList<>();
     }
 }
