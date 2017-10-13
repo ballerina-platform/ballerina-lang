@@ -18,11 +18,6 @@ package org.ballerinalang.composer.service.workspace.utils;
 
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.program.BLangPrograms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +27,7 @@ import java.util.Map;
  * BLang program content provider
  */
 public class BallerinaProgramContentProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaProgramContentProvider.class);
-    private SymbolScope globalScope;
     private static BallerinaProgramContentProvider instance = null;
-    private static final Object lock = new Object();
-
-    private BallerinaProgramContentProvider() {
-        this.globalScope = BLangPrograms.populateGlobalScope();
-    }
 
     public static synchronized BallerinaProgramContentProvider getInstance() {
         if (instance == null) {
@@ -55,16 +42,6 @@ public class BallerinaProgramContentProvider {
      */
     public List<SymbolInformation> builtinTypes() {
         List<SymbolInformation> symbolInfoList = new ArrayList<>();
-        globalScope.getSymbolMap().values().stream().forEach(symbol -> {
-            if (symbol instanceof BType) {
-                SymbolInformation symbolInfo = new SymbolInformation();
-                symbolInfo.setName(symbol.getName());
-                if (((BType) symbol).getZeroValue() != null) {
-                    symbolInfo.setDefaultValue(((BType) symbol).getZeroValue().stringValue());
-                }
-                symbolInfoList.add(symbolInfo);
-            }
-        });
         return symbolInfoList;
     }
 

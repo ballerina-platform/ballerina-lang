@@ -42,7 +42,8 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
     private SuggestionsFilterDataModel suggestionsFilterDataModel;
 
-    public CapturePossibleTokenStrategy(CompilerContext compilerContext, Position cursorPosition, SuggestionsFilterDataModel filterDataModel) {
+    public CapturePossibleTokenStrategy(CompilerContext compilerContext, Position cursorPosition,
+                                        SuggestionsFilterDataModel filterDataModel) {
         super(compilerContext, null);
         this.cursorPosition = cursorPosition;
         possibleTokens = new LinkedList<>();

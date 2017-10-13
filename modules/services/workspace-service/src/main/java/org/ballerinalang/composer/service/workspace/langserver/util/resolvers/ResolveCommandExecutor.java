@@ -34,13 +34,6 @@ import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.pa
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaAction;
-import org.ballerinalang.model.BallerinaConnectorDef;
-import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
-import org.ballerinalang.model.statements.VariableDefStmt;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 
@@ -59,18 +52,11 @@ public class ResolveCommandExecutor {
      */
     public ResolveCommandExecutor() {
         StatementContextResolver statementContextResolver = new StatementContextResolver();
-        VariableDefinitionStatementContextResolver variableDefinitionStatementContextResolver =
-                new VariableDefinitionStatementContextResolver();
         PackageNameContextResolver packageNameContextResolver = new PackageNameContextResolver();
         AnnotationAttachmentContextResolver annotationAttachmentContextResolver =
                 new AnnotationAttachmentContextResolver();
         ParameterContextResolver parameterContextResolver = new ParameterContextResolver();
-        ServiceContextResolver serviceContextResolver = new ServiceContextResolver();
         AnnotationAttachmentResolver annotationAttachmentResolver = new AnnotationAttachmentResolver();
-        ConnectorDefinitionContextResolver connectorDefinitionContextResolver =
-                new ConnectorDefinitionContextResolver();
-        ConnectorActionContextResolver connectorActionContextResolver = new ConnectorActionContextResolver();
-        ResourceContextResolver resourceContextResolver = new ResourceContextResolver();
         TopLevelResolver topLevelResolver = new TopLevelResolver();
         CallableUnitBodyContextResolver callableUnitBodyContextResolver = new CallableUnitBodyContextResolver();
         BLangStructContextResolver bLangStructContextResolver = new BLangStructContextResolver();
@@ -97,7 +83,6 @@ public class ResolveCommandExecutor {
                 new ParserRuleExpressionVariableDefStatementContextResolver();
         ParserRuleAssignmentStatementContextResolver parserRuleAssignmentStatementContextResolver =
                 new ParserRuleAssignmentStatementContextResolver();
-        GlobalScopeResolver globalScopeResolver = new GlobalScopeResolver();
 
         // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
         // since there are many statements in Ballerina model which can be handled similarly
@@ -108,16 +93,9 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.GlobalVariableDefinitionContext.class, topLevelResolver);
         resolvers.put(BallerinaParser.ParameterContext.class, parameterContextResolver);
         resolvers.put(null, topLevelResolver);
-        resolvers.put(Service.class, serviceContextResolver);
-        resolvers.put(BallerinaConnectorDef.class, connectorDefinitionContextResolver);
-        resolvers.put(BallerinaAction.class, connectorActionContextResolver);
-        resolvers.put(VariableDefStmt.class, variableDefinitionStatementContextResolver);
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
-        resolvers.put(Resource.class, resourceContextResolver);
         resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
         resolvers.put(BLangStruct.class, bLangStructContextResolver);
-        resolvers.put(GlobalScope.class, globalScopeResolver);
-        resolvers.put(BLangPackage.class, globalScopeResolver);
 
         // Parser Rule Context Resolvers
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
