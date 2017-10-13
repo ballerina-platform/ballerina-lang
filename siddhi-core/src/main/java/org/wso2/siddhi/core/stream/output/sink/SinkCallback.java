@@ -48,12 +48,10 @@ public class SinkCallback extends StreamCallback {
     public void receive(Event event) {
         if (event != null) {
             for (Sink sink : sinks) {
-                Event handledEvent = event;
                 if (sink.getHandler() != null) {
-                    handledEvent = sink.getHandler().handle(event);
-                }
-                if (handledEvent != null) {
-                    sink.getMapper().mapAndSend(handledEvent);
+                    sink.getHandler().handle(event);
+                } else {
+                    sink.getMapper().mapAndSend(event);
                 }
             }
         }
@@ -62,13 +60,11 @@ public class SinkCallback extends StreamCallback {
     @Override
     public void receive(Event[] events) {
         if (events != null) {
-            Event[] handledEvents = events;
             for (Sink sink : sinks) {
                 if (sink.getHandler() != null) {
-                    handledEvents = sink.getHandler().handle(events);
-                }
-                if (handledEvents != null) {
-                    sink.getMapper().mapAndSend(handledEvents);
+                    sink.getHandler().handle(events);
+                } else {
+                    sink.getMapper().mapAndSend(events);
                 }
             }
         }

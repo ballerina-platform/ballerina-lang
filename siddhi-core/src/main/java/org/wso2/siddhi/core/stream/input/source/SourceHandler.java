@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -28,63 +27,35 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
  */
 public abstract class SourceHandler implements InputEventHandler {
 
-    private Source source;
-    private String sourceElementId;
-    private StreamDefinition streamDefinition;
-    private SiddhiAppContext siddhiAppContext;
-    private SourceMapper sourceMapper;
     private InputEventHandlerImpl inputEventHandlerImpl;
+    private String sourceElementId;
 
-    public void init(Source source, String sourceElementId, StreamDefinition streamDefinition,
-                     SiddhiAppContext siddhiAppContext, SourceMapper sourceMapper) {
-        this.source = source;
+    final void initSourceHandler(String sourceElementId, StreamDefinition streamDefinition) {
         this.sourceElementId = sourceElementId;
-        this.streamDefinition = streamDefinition;
-        this.siddhiAppContext = siddhiAppContext;
-        this.sourceMapper = sourceMapper;
+        init(sourceElementId, streamDefinition);
     }
 
-    public final void setInputEventHandlerImpl(InputEventHandlerImpl inputEventHandlerImpl) {
+    public abstract void init(String sourceElementId, StreamDefinition streamDefinition);
+
+    final void setInputEventHandlerImpl(InputEventHandlerImpl inputEventHandlerImpl) {
         this.inputEventHandlerImpl = inputEventHandlerImpl;
     }
 
     @Override
     public void sendEvents(Event[] events) throws InterruptedException {
-        Event[] handledEvent = handle(events);
-        if (handledEvent != null) {
-            inputEventHandlerImpl.sendEvents(handledEvent);
-        }
+        handle(events, inputEventHandlerImpl);
     }
 
     @Override
     public void sendEvent(Event event) throws InterruptedException {
-        Event handledEvent = handle(event);
-        if (handledEvent != null) {
-            inputEventHandlerImpl.sendEvent(handledEvent);
-        }
+        handle(event, inputEventHandlerImpl);
     }
 
-    public abstract Event handle(Event event);
+    public abstract void handle(Event event, InputEventHandler inputEventHandler) throws InterruptedException;
 
-    public abstract Event[] handle(Event[] events);
+    public abstract void handle(Event[] events, InputEventHandler inputEventHandler) throws InterruptedException;
 
-    public String getSourceElementId() {
+    String getSourceElementId() {
         return sourceElementId;
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    public StreamDefinition getStreamDefinition() {
-        return streamDefinition;
-    }
-
-    public SiddhiAppContext getSiddhiAppContext() {
-        return siddhiAppContext;
-    }
-
-    public SourceMapper getSourceMapper() {
-        return sourceMapper;
     }
 }

@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -28,42 +27,30 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
  */
 public abstract class SinkHandler {
 
-    private Sink sink;
+    private SinkHandlerCallback sinkHandlerCallback;
     private String sinkElementId;
-    private StreamDefinition streamDefinition;
-    private SiddhiAppContext siddhiAppContext;
-    private SinkMapper sinkMapper;
 
-    public final void init(Sink sink, String sinkElementId, StreamDefinition streamDefinition,
-                           SiddhiAppContext siddhiAppContext, SinkMapper sinkMapper) {
-        this.sink = sink;
+    final void init(String sinkElementId, StreamDefinition streamDefinition, SinkHandlerCallback sinkHandlerCallback) {
+        this.sinkHandlerCallback = sinkHandlerCallback;
         this.sinkElementId = sinkElementId;
-        this.streamDefinition = streamDefinition;
-        this.siddhiAppContext = siddhiAppContext;
-        this.sinkMapper = sinkMapper;
+        init(sinkElementId, streamDefinition);
     }
 
-    public abstract Event handle(Event event);
+    public abstract void init(String sinkElementId, StreamDefinition streamDefinition);
 
-    public abstract Event[] handle(Event[] events);
-
-    public Sink getSink() {
-        return sink;
+    public void handle(Event event) {
+        handle(event, sinkHandlerCallback);
     }
 
-    public String getSinkElementId() {
+    public void handle(Event[] events) {
+        handle(events, sinkHandlerCallback);
+    }
+
+    public abstract void handle(Event event, SinkHandlerCallback sinkHandlerCallback);
+
+    public abstract void handle(Event[] events, SinkHandlerCallback sinkHandlerCallback);
+
+    String getSinkElementId() {
         return sinkElementId;
-    }
-
-    public StreamDefinition getStreamDefinition() {
-        return streamDefinition;
-    }
-
-    public SiddhiAppContext getSiddhiAppContext() {
-        return siddhiAppContext;
-    }
-
-    public SinkMapper getSinkMapper() {
-        return sinkMapper;
     }
 }

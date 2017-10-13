@@ -108,7 +108,7 @@ public abstract class SinkMapper {
      *
      * @param events {@link Event}s that need to be mapped
      */
-    public final void mapAndSend(Event[] events) {
+    final void mapAndSend(Event[] events) {
         try {
             if (groupDeterminer != null) {
                 LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
@@ -138,7 +138,7 @@ public abstract class SinkMapper {
      *
      * @param event The {@link Event} that need to be mapped
      */
-    public final void mapAndSend(Event event) {
+    final void mapAndSend(Event event) {
         try {
             trpDynamicOptions.set(new DynamicOptions(event));
             mapAndSend(event, optionHolder, templateBuilderMap, sinkListener);
