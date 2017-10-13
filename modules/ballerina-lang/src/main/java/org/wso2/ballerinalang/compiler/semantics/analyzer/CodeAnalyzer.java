@@ -381,7 +381,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
-        if (checkNextContinueValidityInTransaction()) {
+        if (checkNextBreakValidityInTransaction()) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
@@ -482,7 +482,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
-        if (checkNextContinueValidityInTransaction()) {
+        if (checkNextBreakValidityInTransaction()) {
             this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
@@ -844,10 +844,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkNextContinueValidityInTransaction() {
+    private boolean checkNextBreakValidityInTransaction() {
         boolean invalid = false;
-        List<BLangStatement> list = new ArrayList(transactionValidityStack);
-        ListIterator<BLangStatement> iterator = list.listIterator(list.size());
+        ListIterator<BLangStatement> iterator = transactionValidityStack.listIterator(transactionValidityStack.size());
         while (iterator.hasPrevious()) {
             BLangStatement stmt = iterator.previous();
             if (stmt.getKind() == NodeKind.WHILE) {
