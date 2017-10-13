@@ -15,9 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.test.debugger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
