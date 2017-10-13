@@ -61,6 +61,11 @@ class BallerinaEnvironment extends EventChannel {
                 getLangServerClientInstance()
                     .then((langServerClient) => {
                         langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
+                            if(!data){
+                                reject();
+                                return;
+                            }
+
                             this.initializeBuiltinTypes(data.result);
                             Promise.all([
                                 this.initializePackages(),

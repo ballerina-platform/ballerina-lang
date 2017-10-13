@@ -373,6 +373,10 @@ class TreeUtil extends AbstractTreeUtil {
                 return client.getCompletions(options);
             })
             .then((response) => {
+                if (!response) {
+                    return Array(numberOfVars).fill().map((el, index) => (`${varPrefix}${index + 1}`));
+                }
+
                 const varNameRegex = new RegExp(varPrefix + '[\\d]*');
                 const completions = response.result.filter((completionItem) => {
                     // all variables have type as 9 as per the declaration in lang server

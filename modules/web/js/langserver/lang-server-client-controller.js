@@ -63,6 +63,12 @@ class LangServerClientController extends EventChannel {
                 instance = undefined;
                 reject(error);
             });
+            this.langserverChannel.on('close', () => {
+                // call all pending requests
+                this.requestSessions.forEach(session => {
+                    session.executeCallback();
+                })
+            });
         });
     }
 
