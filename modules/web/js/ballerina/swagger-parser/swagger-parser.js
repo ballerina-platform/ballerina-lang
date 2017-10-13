@@ -181,9 +181,10 @@ class SwaggerParser {
                             annotationAttachment.getAnnotationName().getValue() === 'configuration';
             });
         if (existingConfigurationAnnotation.length > 0) {
-            serviceDefinition.replaceAnnotationAttachments(existingConfigurationAnnotation[0], configAnnotation);
+            serviceDefinition.replaceAnnotationAttachments(existingConfigurationAnnotation[0], configAnnotation,
+                                                                                                                silent);
         } else {
-            serviceDefinition.addAnnotationAttachments(configAnnotation, silent);
+            serviceDefinition.addAnnotationAttachments(configAnnotation, -1, silent);
         }
     }
 
@@ -211,9 +212,9 @@ class SwaggerParser {
                             annotationAttachment.getAnnotationName().getValue() === 'Consumes';
             });
             if (existingConsumesAnnotation.length > 0) {
-                astNode.replaceAnnotationAttachments(existingConsumesAnnotation[0], consumesAnnotation);
+                astNode.replaceAnnotationAttachments(existingConsumesAnnotation[0], consumesAnnotation, silent);
             } else {
-                astNode.addAnnotationAttachments(consumesAnnotation, silent);
+                astNode.addAnnotationAttachments(consumesAnnotation, -1, silent);
             }
         }
     }
@@ -244,7 +245,7 @@ class SwaggerParser {
             if (existingProducesAnnotation.length > 0) {
                 astNode.replaceAnnotationAttachments(existingProducesAnnotation[0], producesAnnotation);
             } else {
-                astNode.addAnnotationAttachments(producesAnnotation, silent);
+                astNode.addAnnotationAttachments(producesAnnotation, -1, silent);
             }
         }
     }
@@ -409,7 +410,7 @@ class SwaggerParser {
         if (existingServiceInfoAnnotation.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingServiceInfoAnnotation[0], serviceInfoAnnotation);
         } else {
-            serviceDefinition.addAnnotationAttachments(serviceInfoAnnotation, silent);
+            serviceDefinition.addAnnotationAttachments(serviceInfoAnnotation, -1, silent);
         }
     }
 
@@ -434,7 +435,7 @@ class SwaggerParser {
         if (existingSwaggerAnnotation.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingSwaggerAnnotation[0], swaggerAnnotation);
         } else {
-            serviceDefinition.addAnnotationAttachments(swaggerAnnotation, silent);
+            serviceDefinition.addAnnotationAttachments(swaggerAnnotation, -1, silent);
         }
     }
 
@@ -474,7 +475,7 @@ class SwaggerParser {
         if (existingServiceConfig.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingServiceConfig[0], serviceConfigAnnotation);
         } else {
-            serviceDefinition.addAnnotationAttachments(serviceConfigAnnotation, silent);
+            serviceDefinition.addAnnotationAttachments(serviceConfigAnnotation, -1, silent);
         }
     }
 
@@ -495,7 +496,7 @@ class SwaggerParser {
         this.createParameterDefs(resourceDefinition, httpMethodJsonObject.parameters);
         // Creating @ParametersInfo annotation.
         this.createParametersInfoAnnotation(resourceDefinition, httpMethodJsonObject);
-        // Creating @ResourceConfig annotation.
+        // Creating @ResourceInfo annotation.
         this.createResourceInfoAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating @Responses annotation.
         this.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
@@ -562,7 +563,7 @@ class SwaggerParser {
         if (existingResourceConfig.length > 0) {
             resourceDefinition.replaceAnnotationAttachments(existingResourceConfig[0], resourceConfigAnnotation);
         } else {
-            resourceDefinition.addAnnotationAttachments(resourceConfigAnnotation, silent);
+            resourceDefinition.addAnnotationAttachments(resourceConfigAnnotation, -1, silent);
         }
     }
 
@@ -598,7 +599,7 @@ class SwaggerParser {
         if (existingResourceConfig.length > 0) {
             resourceDefinition.replaceAnnotationAttachments(existingResourceConfig[0], resourceConfigAnnotation);
         } else {
-            resourceDefinition.addAnnotationAttachments(resourceConfigAnnotation, silent);
+            resourceDefinition.addAnnotationAttachments(resourceConfigAnnotation, -1, silent);
         }
     }
 
@@ -729,9 +730,10 @@ class SwaggerParser {
             });
 
             if (existingParametersInfo.length > 0) {
-                resourceDefinition.replaceAnnotationAttachments(existingParametersInfo[0], parametersInfoAnnotation);
+                resourceDefinition.replaceAnnotationAttachments(existingParametersInfo[0], parametersInfoAnnotation,
+                                                                                                                silent);
             } else {
-                resourceDefinition.addAnnotationAttachments(parametersInfoAnnotation, silent);
+                resourceDefinition.addAnnotationAttachments(parametersInfoAnnotation, -1, silent);
             }
         }
     }
@@ -794,9 +796,9 @@ class SwaggerParser {
         });
 
         if (existingResourceInfo.length > 0) {
-            resourceDefinition.replaceAnnotationAttachments(existingResourceInfo[0], resourceInfoAnnotation);
+            resourceDefinition.replaceAnnotationAttachments(existingResourceInfo[0], resourceInfoAnnotation, silent);
         } else {
-            resourceDefinition.addAnnotationAttachments(resourceInfoAnnotation, silent);
+            resourceDefinition.addAnnotationAttachments(resourceInfoAnnotation, -1, silent);
         }
     }
 
@@ -833,15 +835,15 @@ class SwaggerParser {
 
             SwaggerParser.addNodesAsArrayedAttribute(responsesAnnotation, 'value', responseAnnotations);
 
-            const existingResponses = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
+            const existingResponsesInfo = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
                 return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
-                        annotationAttachment.getAnnotationName().getValue() === 'ResourceInfo';
+                    annotationAttachment.getAnnotationName().getValue() === 'Responses';
             });
 
-            if (existingResponses.length > 0) {
-                resourceDefinition.replaceAnnotationAttachments(existingResponses[0], responsesAnnotation);
+            if (existingResponsesInfo.length > 0) {
+                resourceDefinition.replaceAnnotationAttachments(existingResponsesInfo[0], responsesAnnotation, silent);
             } else {
-                resourceDefinition.addAnnotationAttachments(responsesAnnotation, silent);
+                resourceDefinition.addAnnotationAttachments(responsesAnnotation, -1, silent);
             }
         }
     }
@@ -947,16 +949,16 @@ class SwaggerParser {
         if (matchingAttributes.length > 0) {
             const existingAttributeValue = matchingAttributes[0].getValue();
             const arrayValuesForExisting = nodes.map((node) => {
-                return NodeFactory.createAnnotationAttachmentAttributeValue({
-                    value: node,
-                });
+                const innerValue = NodeFactory.createAnnotationAttachmentAttributeValue();
+                innerValue.setValue(node);
+                return innerValue;
             });
             existingAttributeValue.setValueArray(arrayValuesForExisting, silent);
         } else {
             const arrayValues = nodes.map((node) => {
-                return NodeFactory.createAnnotationAttachmentAttributeValue({
-                    value: node,
-                });
+                const innerValue = NodeFactory.createAnnotationAttachmentAttributeValue();
+                innerValue.setValue(node);
+                return innerValue;
             });
 
             const attribute = NodeFactory.createAnnotationAttachmentAttribute({ name: key });

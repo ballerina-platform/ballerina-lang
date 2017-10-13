@@ -24,7 +24,7 @@ import log from 'log';
 import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
-import ASTFactory from '../ast/ast-factory';
+import NodeFactory from 'ballerina/model/node-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import { getSwaggerDefinition } from '../../api-client/api-client';
 import ServiceDefinition from '../ast/service-definition';
@@ -175,11 +175,26 @@ class SwaggerView extends React.Component {
         // we do not update the dom if swagger is not edited.
         if (this.swaggerAce && !this.swaggerAce.getSession().getUndoManager().isClean()) {
             // Add swagger import
-            const importToBeAdded = ASTFactory.createImportDeclaration({
-                packageName: 'ballerina.net.http.swagger',
+            const swaggerImport = NodeFactory.createImport({
+                alias: NodeFactory.createLiteral({
+                    value: 'swagger',
+                }),
+                packageName: [
+                    NodeFactory.createLiteral({
+                        value: 'ballerina',
+                    }),
+                    NodeFactory.createLiteral({
+                        value: 'net',
+                    }),
+                    NodeFactory.createLiteral({
+                        value: 'http',
+                    }),
+                    NodeFactory.createLiteral({
+                        value: 'swagger',
+                    }),
+                ],
             });
-            importToBeAdded.setParent(this.context.astRoot);
-            this.context.astRoot.addImport(importToBeAdded);
+            this.context.astRoot.addImport(swaggerImport);
 
             // Merge to service.
             const swaggerParser = new SwaggerParser(this.swagger, false);
@@ -194,15 +209,13 @@ class SwaggerView extends React.Component {
         if (!_.isNil(this.props.targetService)) {
             getSwaggerDefinition(this.context.astRoot.getSource(), this.props.targetService.getName().getValue())
                 .then((swaggerDefinition) => {
-                    // Update host url if try it url is available.
-                    const swaggerJson = JSON.parse(swaggerDefinition);
-                    if (_.isNil(swaggerJson.host) && this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
-                        swaggerJson.host = _.split(this.tryItUrl, '//', 2)[1];
-                        swaggerDefinition = JSON.stringify(swaggerJson);
+                    if (swaggerDefinition) {
+                        this.swagger = swaggerDefinition;
+                        this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
+                        this.renderSwaggerEditor();
+                    } else {
+                        log.error('Error building swagger definition.');
                     }
-                    this.swagger = swaggerDefinition;
-                    this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
-                    this.renderSwaggerEditor();
                 })
                 .catch(error => log.error(error));
         } else {
