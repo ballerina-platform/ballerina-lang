@@ -40,6 +40,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
                             dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, VIEW_IDS.DEBUGGER_PANEL);
                             LaunchManager.run(activeEditor.file, true,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
@@ -71,6 +72,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
                             dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, VIEW_IDS.DEBUGGER_PANEL);
                             LaunchManager.run(activeEditor.file, false,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },

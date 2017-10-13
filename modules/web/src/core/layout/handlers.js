@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import log from 'log';
-import { COMMANDS, EVENTS, REGIONS } from './constants';
+import { COMMANDS, EVENTS, REGIONS, HISTORY } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
 import { withViewFeatures } from './components/utils';
 
@@ -21,7 +21,6 @@ export function getHandlerDefinitions(layoutManager) {
                 if (!_.isNil(view)) {
                     const { region, component, propsProvider, pluginID,
                             regionOptions: { tabTitle, tabIcon, customTitleClass } } = view;
-                            
                     switch (region) {
                         case REGIONS.EDITOR_TABS: {
                             const { command: { dispatch } } = layoutManager.appContext;
@@ -34,8 +33,13 @@ export function getHandlerDefinitions(layoutManager) {
                                 propsProvider,
                                 activate: true,
                             });
-                        }
                             break;
+                        }
+                        case REGIONS.LEFT_PANEL: {
+                            layoutManager.trigger(EVENTS.SHOW_LEFT_PANEL, id);
+                            break;
+                        }
+
                         // TODO: Implement show view for other regions
                         default: log.warn('Cannot find region to render');
                     }

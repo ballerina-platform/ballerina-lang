@@ -11,6 +11,7 @@ export const COMMANDS = {
 export const EVENTS = {
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
     SHOW_BOTTOM_PANEL: 'show-bottom-panel',
+    SHOW_LEFT_PANEL: 'show-left-panel',
 };
 
 export const LABELS = {
