@@ -170,6 +170,7 @@ class BallerinaFileEditor extends React.Component {
             this.addAutoImports(evt.data.node);
             this.getConnectorDeclarations(evt.data.node);
         }
+        TreeBuilder.modify(evt.origin);
 
         const newContent = this.state.model.getSource();
         // set breakpoints to model

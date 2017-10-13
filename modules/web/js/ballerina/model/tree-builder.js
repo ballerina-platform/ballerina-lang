@@ -20,6 +20,8 @@ import _ from 'lodash';
 import Node from './tree/node';
 import NodeFactory from './../model/node-factory';
 
+const isRetry = n => n.kind === 'Retry';
+
 // TODO: Move this to a generic place.
 function requireAll(requireContext) {
     const comp = {};
@@ -84,36 +86,49 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'If' && json.elseStatement && json.elseStatement.kind === 'If') {
-            json.ladderParent = true;
-        }
-
-        if (kind === 'Transaction') {
-            const isRetry = n => n.kind === 'Retry';
-            if (json && json.condition && json.condition.value) {
-                const retry = (json.failedBody ? json.failedBody.statements.filter(isRetry)[0] : false) ||
-                    (json.committedBody ? json.committedBody.statements.filter(isRetry)[0] : false) ||
-                    json.transactionBody.statements.filter(isRetry)[0];
-                retry.count = json.condition.value;
-            }
-        }
-        if (kind === 'XmlElementLiteral' && parentKind !== 'XmlElementLiteral') {
-            json.root = true;
-        }
-
-        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
-            parentKind === 'StringTemplateLiteral') {
-            json.inTemplateLiteral = true;
-        }
-
-        if (parentKind === 'CompilationUnit' && kind === 'Variable') {
-            json.global = true;
-        }
+        TreeBuilder.modifyNode(json, parentKind);
 
         json.parent = parent;
         Object.assign(node, json);
         node.setChildrenAlias();
         return node;
+    }
+
+    static modifyNode(node, parentKind) {
+        const kind = node.kind;
+        if (kind === 'If' && node.elseStatement && node.elseStatement.kind === 'If') {
+            node.ladderParent = true;
+        }
+
+        if (kind === 'Transaction') {
+            if (node && node.condition && node.condition.value) {
+                const retry = (node.failedBody ? node.failedBody.statements.filter(isRetry)[0] : null) ||
+                    (node.committedBody ? node.committedBody.statements.filter(isRetry)[0] : null) ||
+                    node.transactionBody.statements.filter(isRetry)[0];
+                if (retry) {
+                    retry.count = node.condition.value;
+                }
+            }
+        }
+        if (kind === 'XmlElementLiteral' && parentKind !== 'XmlElementLiteral') {
+            node.root = true;
+        }
+
+        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
+            parentKind === 'StringTemplateLiteral') {
+            node.inTemplateLiteral = true;
+        }
+
+        if (parentKind === 'CompilationUnit' && kind === 'Variable') {
+            node.global = true;
+        }
+    }
+
+    static modify(tree, parentKind = null) {
+        TreeBuilder.modifyNode(tree, parentKind);
+        for (const childKeyVal of tree) {
+            TreeBuilder.modify(childKeyVal[1], tree.kind);
+        }
     }
 }
 
