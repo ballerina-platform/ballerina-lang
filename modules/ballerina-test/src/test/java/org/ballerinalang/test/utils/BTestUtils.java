@@ -287,9 +287,28 @@ public class BTestUtils {
     public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
                                      int expectedErrCol) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
+    }
+    
+    /**
+     * Assert a warning.
+     *
+     * @param result           Result from compilation
+     * @param warningIndex     Index of the warning in the result
+     * @param expectedWarnMsg  Expected warning message
+     * @param expectedWarnLine Expected line number of the warning
+     * @param expectedWarnCol  Expected column number of the warning
+     */
+    public static void validateWarning(CompileResult result, int warningIndex, String expectedWarnMsg, 
+            int expectedWarnLine, int expectedWarnCol) {
+        Diagnostic diag = result.getDiagnostics()[warningIndex];
+        Assert.assertEquals(diag.getKind(), Diagnostic.Kind.WARNING, "incorrect diagnostic type");
+        Assert.assertEquals(diag.getMessage(), expectedWarnMsg, "incorrect warning message:");
+        Assert.assertEquals(diag.getPosition().getStartLine(), expectedWarnLine, "incorrect line number:");
+        Assert.assertEquals(diag.getPosition().startColumn(), expectedWarnCol, "incorrect column position:");
     }
 
     public static String readFileAsString(String path) {
