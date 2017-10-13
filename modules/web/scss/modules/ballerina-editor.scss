@@ -27,7 +27,7 @@
 }
 
 .ballerina-editor {
-    height: 100%;
+    position: relative;
     color: #333333;
     .grid-background {
         background-color: $tab-content-wrapper-bgcolor !important;
@@ -2985,55 +2985,6 @@
         fill-opacity: 0.2;
     }
     
-    /**  syntax highlight **/
-    .ace_ballerina-keyword-control {
-        color: #CC7832;
-    }
-    
-    .ace_ballerina-numeric {
-        color: #6897BB;
-    }
-    
-    .ace_ballerina-keyword-other {
-        color: #9876AA;
-    }
-    
-    .ace_ballerina-package-reference {
-        color: #9876AA;
-    }
-    
-    .ace_ballerina-keyword-primitive-type {
-        color: #FFC66D;
-    }
-    
-    .ace_ballerina-keyword-non-primitive-type {
-        color: #FFC66D;
-    }
-    
-    .ace_ballerina-keyword-definition {
-        color: #CC7832;
-    }
-    
-    .ace_ballerina-annotation {
-        color: #BBB529;
-    }
-    
-    .ace_ballerina-strings {
-        color: #629755;
-    }
-    
-    .ace_ballerina-comments {
-        color: #808080;
-    }
-    
-    .ace_ballerina-keyword-language {
-        color: #CC7832;
-    }
-    
-    .ace_ballerina-keyword-identifier {
-        color: #fff;
-    }
-    
     .import-packages-pane {
         overflow: visible;
     }
@@ -4247,5 +4198,56 @@
           }
         }
       }
+    }
+  }
+
+  .bal-source-editor {
+      /**  syntax highlight **/
+    .ace_ballerina-keyword-control {
+        color: #CC7832;
+    }
+    
+    .ace_ballerina-numeric {
+        color: #6897BB;
+    }
+    
+    .ace_ballerina-keyword-other {
+        color: #9876AA;
+    }
+    
+    .ace_ballerina-package-reference {
+        color: #9876AA;
+    }
+    
+    .ace_ballerina-keyword-primitive-type {
+        color: #FFC66D;
+    }
+    
+    .ace_ballerina-keyword-non-primitive-type {
+        color: #FFC66D;
+    }
+    
+    .ace_ballerina-keyword-definition {
+        color: #CC7832;
+    }
+    
+    .ace_ballerina-annotation {
+        color: #BBB529;
+    }
+    
+    .ace_ballerina-strings {
+        color: #629755;
+    }
+    
+    .ace_ballerina-comments {
+        color: #808080;
+    }
+    
+    .ace_ballerina-keyword-language {
+        color: #CC7832;
+    }
+    
+    .ace_ballerina-keyword-identifier {
+        color: #fff;
     }
   }
