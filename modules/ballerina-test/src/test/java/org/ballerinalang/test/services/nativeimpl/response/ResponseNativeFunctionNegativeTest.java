@@ -175,8 +175,8 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 85)
-                , "error while retrieving XML payload from message: empty content");
+        Assert.assertTrue(error.contains("error: error, message: error while retrieving XML payload from message: " +
+                "Unexpected EOF in prolog"));
     }
 
     @Test

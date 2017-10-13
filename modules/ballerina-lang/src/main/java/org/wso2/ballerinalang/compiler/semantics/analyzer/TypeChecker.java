@@ -290,7 +290,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType constraintType = ((BJSONType) varRefType).constraint;
                 if (constraintType.tag == TypeTags.STRUCT) {
                     fieldName = names.fromIdNode(fieldAccessExpr.field);
-                    checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
+                    BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
+
+                    // If the type of the field is struct, treat it as constraint JSON type.
+                    if (fieldType.tag == TypeTags.STRUCT) {
+                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                        break;
+                    }
                 }
                 actualType = symTable.jsonType;
                 break;
@@ -336,7 +342,14 @@ public class TypeChecker extends BLangNodeVisitor {
                         break;
                     }
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+                    BType fieldType =
+                            checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+
+                    // If the type of the field is struct, treat it as constraint JSON type.
+                    if (fieldType.tag == TypeTags.STRUCT) {
+                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                        break;
+                    }
                 } else {
                     indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.noType)).get(0);
                     if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
@@ -541,7 +554,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+            BSymbol conversionSymbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            if (conversionSymbol == symTable.notFoundSymbol) {
+                dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+            } else {
+                dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION,
+                           sourceType, targetType);
+            }
         } else {
             BCastOperatorSymbol castSym = (BCastOperatorSymbol) symbol;
             castExpr.castSymbol = castSym;
@@ -956,6 +975,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.JSON:
                 fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
+
+                // If the field is again a struct, treat that literal expression as another constraint JSON.
+                if (fieldType.tag == TypeTags.STRUCT) {
+                    fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                }
 
                 // First visit the expression having field type, as the expected type.
                 checkExpr(valueExpr, this.env, Lists.of(fieldType)).get(0);
