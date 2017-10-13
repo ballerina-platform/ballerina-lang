@@ -186,6 +186,22 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     /**
+     * Sync the new node's invocation type
+     * @param {object} originalNode
+     * @param newNode
+     */
+    syncInvocationType(originalNode, newNode) {
+        let invocationExpression;
+        if (this.isAssignment(originalNode) || this.isExpressionStatement(originalNode)) {
+            invocationExpression = _.get(originalNode, 'expression');
+            newNode.expression.invocationType = invocationExpression.invocationType;
+        } else if (this.isVariableDef(originalNode)) {
+            invocationExpression = _.get(originalNode, 'variable.initialExpression');
+            newNode.variable.initialExpression.invocationType = invocationExpression.invocationType;
+        }
+    }
+
+    /**
      * Get the connector init expression from the statement
      * @param {object} node - statement node
      * @return {boolean} - true | false
@@ -326,6 +342,10 @@ class TreeUtil extends AbstractTreeUtil {
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
             // clear white space data so it will be formated properly.
             newStatementNode.clearWS();
+
+            if (this.statementIsInvocation(node)) {
+                this.syncInvocationType(node, newStatementNode);
+            }
 
             // replace the old node with new node.
             if (this.isService(statementParentNode)) {

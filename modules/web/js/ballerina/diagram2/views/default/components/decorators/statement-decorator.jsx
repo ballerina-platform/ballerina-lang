@@ -183,11 +183,14 @@ class StatementDecorator extends React.Component {
                 dropDownItemMeta.push(meta);
             });
             this.props.model.getSource();
-            backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
-            backwardArrowStart.y = viewState.components['statement-box'].y
-                + viewState.components['statement-box'].h - 10;
-            backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
-            backwardArrowEnd.y = backwardArrowStart.y;
+
+            if (viewState.components.invocation) {
+                backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
+                backwardArrowStart.y = viewState.components['statement-box'].y
+                    + viewState.components['statement-box'].h - 10;
+                backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
+                backwardArrowEnd.y = backwardArrowStart.y;
+            }
         }
 
         return (
@@ -233,7 +236,7 @@ class StatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
-                {viewState.isActionInvocation &&
+                {viewState.isActionInvocation && viewState.components.invocation &&
                 (
                     <g>
                         <ArrowDecorator
@@ -246,15 +249,17 @@ class StatementDecorator extends React.Component {
                             dashed
                             backward
                         />
-                        <StatementPropertyItemSelector
-                            model={this.props.model}
-                            bBox={this.props.model.viewState.components.dropDown}
-                            itemsMeta={dropDownItemMeta}
-                            show={this.state.active}
-                        />
                     </g>
                 )
 
+                }
+                {viewState.isActionInvocation &&
+                    <StatementPropertyItemSelector
+                        model={this.props.model}
+                        bBox={this.props.model.viewState.components.dropDown}
+                        itemsMeta={dropDownItemMeta}
+                        show={this.state.active}
+                    />
                 }
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
