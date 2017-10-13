@@ -189,7 +189,7 @@ public class WorkspaceUtils {
      * Function to convert org.wso2.ballerinalang.compiler.tree.BLangIdentifier instance to
      * java.lang.String instance.
      */
-    public static java.util.function.Function<BLangIdentifier, String> bLangIdentifierToString =
+    public static final java.util.function.Function<BLangIdentifier, String> B_LANG_IDENTIFIER_TO_STRING =
             name -> name.getValue();
 
     /**

@@ -36,11 +36,8 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID) {
-        PackageEntity result = null;
         //TODO check compiled packages first
-        if (result == null) {
-            result = this.lookupPackageSource(pkgID, code);
-        }
+        PackageEntity result = this.lookupPackageSource(pkgID, code);
         return result;
     }
 
@@ -60,7 +57,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
         public InMemoryPackageSource(PackageID pkgID, String name, byte[] code) {
             super(pkgID, null);
-            this.code = code;
+            this.code = code.clone();
             this.name = name;
         }
 
@@ -95,7 +92,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
             @Override
             public byte[] getCode() {
-                return code;
+                return code.clone();
             }
         }
     }
