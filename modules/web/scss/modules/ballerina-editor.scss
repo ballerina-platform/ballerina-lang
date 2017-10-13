@@ -2582,6 +2582,10 @@
         background-color: transparent;
         border-radius: 0;
     }
+
+    .swagger-ui .try-out {
+        display: none,
+    }
     
     .expand-operation {
         display: none;
