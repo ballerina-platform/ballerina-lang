@@ -149,7 +149,7 @@ class TopLevelNodes extends React.Component {
         if (!value) {
             return;
         }
-        value += ';\n';
+        value = `${value};\n`;
         const fragment = FragmentUtils.createTopLevelNodeFragment(value);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         this.props.model.addGlobal(TreeBuilder.build(parsedJson));
