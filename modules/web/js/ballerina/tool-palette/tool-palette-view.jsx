@@ -445,7 +445,7 @@ class ToolPaletteView extends React.Component {
         const searching = this.state.search.length > 0;
         // get the model
         const model = this.context.astRoot;
-        const topLevelNodes = model.getTopLevelNodes() || [];
+        const topLevelNodes = model ? model.getTopLevelNodes() : [];
         // get the environment
         const environment = this.context.environment;
         // get the current package
@@ -464,7 +464,7 @@ class ToolPaletteView extends React.Component {
         const library = [];
 
         if (state === 'tools') {
-            imports.forEach((item) => {
+            imports.forEach((item, i) => {
                 // construct package name from splitted package name array.
                 const pkgName = item.packageName.map(elem => elem.value).join('.');
                 const pkg = environment.getPackageByName(pkgName);
@@ -475,7 +475,7 @@ class ToolPaletteView extends React.Component {
                         group.collapsed = searching;
                         connectors.push(<ToolGroupView
                             group={group}
-                            key={`connector${item.getPackageName()}`}
+                            key={`connector${i}`}
                             showGridStyles={false}
                         />);
                     }
@@ -580,7 +580,7 @@ ToolPaletteView.propTypes = {
 };
 
 ToolPaletteView.contextTypes = {
-    astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
+    astRoot: PropTypes.instanceOf(CompilationUnitNode),
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
 
