@@ -45,21 +45,26 @@ class PositioningUtil {
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
             const dropDown = new SimpleBBox();
-            const variableRefName = node.expression.expression.variableName.value;
+            let variableRefName;
+            if (TreeUtil.isVariableDef(node)) {
+                variableRefName = node.variable.initialExpression.expression.variableName.value;
+            } else if (TreeUtil.isAssignment(node)) {
+                variableRefName = node.expression.expression.variableName.value;
+            }
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
             arrowStartBBox.y = viewState.components['statement-box'].y + 10;
-            viewState.components.invocation = {
-                start: undefined,
-                end: undefined,
-            };
 
             dropDown.x = arrowStartBBox.x;
             dropDown.y = viewState.components['statement-box'].y
                 + (viewState.components['statement-box'].h / 2);
             viewState.components.dropDown = dropDown;
-            viewState.components.invocation.start = arrowStartBBox;
             if (connectorDeclaration) {
+                viewState.components.invocation = {
+                    start: undefined,
+                    end: undefined,
+                };
+                viewState.components.invocation.start = arrowStartBBox;
                 arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
