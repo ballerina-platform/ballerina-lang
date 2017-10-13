@@ -60,6 +60,9 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK("retry.cannot.be.outside.transaction.failed.block"),
+    RETRY_SHOULD_BE_A_ROOT_LEVEL_STATEMENT("retry.should.be.a.root.level.statement"),
+    BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
+    NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
 

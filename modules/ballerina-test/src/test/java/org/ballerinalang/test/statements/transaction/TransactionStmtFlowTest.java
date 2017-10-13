@@ -305,27 +305,6 @@ public class TransactionStmtFlowTest {
                 + "inFirstTrxBlockBegin inFirstTrxBlockEnd inFirstTFld inFirstTAbt err end");
     }
 
-
-
-    /*@Test(expectedExceptions = SemanticException.class,expectedExceptionsMessageRegExp = ".*invalid-retry5.bal:8: " +
-            "retry statement should be a root level statement within failed block*")
-    public void testTransactionInvalidRetry5() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry5.bal");
-    }
-
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*break statement cannot " +
-            "be used to exit from a transaction.*")
-    public void testTransactionWithBreakInvalid() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-break-invalid.bal");
-    }
-
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*continue statement " +
-            "cannot be used to exit from a transaction.*")
-    public void testTransactionWithNextInvalid() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-continue-invalid.bal");
-    }
-    */
-
     @Test()
     public void testValidAbortAndReturn() {
         BValue[] returns = BTestUtils.invoke(programFile, "test", new BValue[0]);
@@ -390,9 +369,19 @@ public class TransactionStmtFlowTest {
     @Test(description = "Test transaction statement with errors")
     public void testRetryNegativeCases() {
         CompileResult res = BTestUtils.compile("test-src/statements/transaction/transaction-retry-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
+        Assert.assertEquals(res.getErrorCount(), 7);
         BTestUtils.validateError(res, 0, "invalid transaction retry count", 7, 15);
         BTestUtils.validateError(res, 1, "invalid transaction retry count", 23, 15);
+        BTestUtils
+                .validateError(res, 2, "retry statement should be a root level statement within failed block", 42, 13);
+        BTestUtils
+                .validateError(res, 3, "retry statement should be a root level statement within failed block", 44, 13);
+        BTestUtils
+                .validateError(res, 4, "retry statement should be a root level statement within failed block", 62, 13);
+        BTestUtils
+                .validateError(res, 5, "break statement cannot be used to exit from a transaction", 78, 17);
+        BTestUtils
+                .validateError(res, 6, "next statement cannot be used to exit from a transaction", 91, 17);
     }
 
 }
