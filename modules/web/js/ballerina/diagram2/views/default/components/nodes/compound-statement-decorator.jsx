@@ -78,7 +78,7 @@ class CompoundStatementDecorator extends React.Component {
      */
     onDelete() {
         const model = this.props.model || this.props.dropTarget;
-        model.remove();
+        model.parent.remove();
     }
     /**
      * Navigates to codeline in the source view from the design view node
