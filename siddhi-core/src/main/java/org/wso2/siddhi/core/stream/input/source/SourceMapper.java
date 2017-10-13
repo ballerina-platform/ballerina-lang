@@ -39,17 +39,18 @@ public abstract class SourceMapper implements SourceEventListener {
     private String mapType;
     private String sourceType;
     private List<AttributeMapping> transportMappings;
+    private SourceHandler sourceHandler;
     private SiddhiAppContext siddhiAppContext;
 
     public final void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                            List<AttributeMapping> attributeMappings, String sourceType,
-                           List<AttributeMapping> transportMappings,
-                           ConfigReader configReader,
-                           SiddhiAppContext siddhiAppContext) {
+                           List<AttributeMapping> transportMappings, SourceHandler sourceHandler,
+                           ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.mapType = mapType;
         this.sourceType = sourceType;
         this.transportMappings = transportMappings;
+        this.sourceHandler = sourceHandler;
         this.siddhiAppContext = siddhiAppContext;
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
     }
@@ -73,9 +74,15 @@ public abstract class SourceMapper implements SourceEventListener {
      */
     public abstract Class[] getSupportedInputEventClasses();
 
-    public final void setInputHandler(InputHandler inputEventHandler) {
-        this.inputEventHandler = new InputEventHandler(inputEventHandler, transportMappings, trpProperties, sourceType,
-                siddhiAppContext);
+    public final void setInputHandler(InputHandler inputHandler) {
+        InputEventHandlerImpl inputEventHandlerImpl = new InputEventHandlerImpl(inputHandler, transportMappings,
+                trpProperties, sourceType, siddhiAppContext);
+        if (sourceHandler != null) {
+            sourceHandler.setInputEventHandlerImpl(inputEventHandlerImpl);
+            this.inputEventHandler = sourceHandler;
+        } else {
+            this.inputEventHandler = inputEventHandlerImpl;
+        }
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {

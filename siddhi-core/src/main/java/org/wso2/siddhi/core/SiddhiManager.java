@@ -20,6 +20,7 @@ package org.wso2.siddhi.core;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
+import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.config.ConfigManager;
@@ -29,6 +30,7 @@ import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,6 +118,15 @@ public class SiddhiManager {
     }
 
     /**
+     * Method to set source handler manager that would create source handlers for each source
+     *
+     * @param sourceHandlerManager Source Handler Manager Implementation to be used.
+     */
+    public void setSourceHandlerManager(SourceHandlerManager sourceHandlerManager) {
+        this.siddhiContext.setSourceHandlerManager(sourceHandlerManager);
+    }
+
+    /**
      * Method to set configManager for the Siddhi Manager instance.
      *
      * @param configManager Config Manager implementation to be used.
@@ -198,6 +209,41 @@ public class SiddhiManager {
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
             siddhiAppRuntime.persist();
         }
+    }
+
+    /**
+     * Method to get the current snapshot of all siddhi applications.
+     *
+     * @return map with siddhi app runtime name as key and snapshot in byte array as value.
+     */
+    public Map<String, byte[]> getSnapshot() {
+        Map<String, byte[]> snapshotMap = new HashMap<>();
+        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
+            byte[] snapshot = siddhiAppRuntime.snapshot();
+            snapshotMap.put(siddhiAppRuntime.getName(), snapshot);
+        }
+        return snapshotMap;
+    }
+
+    /**
+     * Method to restore a given snapshot for all siddhi applications.
+     *
+     * @param snapshotMap map with siddhi app runtime name as key and snapshot in byte array as value.
+     */
+    public void restoreState(Map<String, byte[]> snapshotMap) {
+        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
+            siddhiAppRuntime.restore(snapshotMap.get(siddhiAppRuntime.getName()));
+        }
+    }
+
+    /**
+     * Method to restore a given snapshot of a given siddhi application.
+     *
+     * @param siddhiAppRuntimeName the name of the siddhi app whose snapshot is to be restored.
+     * @param snapshot the snapshot of the siddhi app that should be restored.
+     */
+    public void restoreState(String siddhiAppRuntimeName, byte[] snapshot) {
+        siddhiAppRuntimeMap.get(siddhiAppRuntimeName).restore(snapshot);
     }
 
     /**

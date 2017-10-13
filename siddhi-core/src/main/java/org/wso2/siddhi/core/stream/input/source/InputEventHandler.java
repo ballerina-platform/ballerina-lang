@@ -15,73 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-
-import java.util.List;
 
 /**
- * This class wraps {@link InputHandler} class in order to guarantee exactly once processing
+ * This interface wraps {@link org.wso2.siddhi.core.stream.input.InputHandler} class in order to guarantee exactly
+ * once processing
  */
-public class InputEventHandler {
+public interface InputEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(InputEventHandler.class);
-    private final ThreadLocal<String[]> trpProperties;
-    private String sourceType;
-    private SiddhiAppContext siddhiAppContext;
-    private InputHandler inputHandler;
-    private List<AttributeMapping> transportMapping;
+    void sendEvents(Event[] events) throws InterruptedException;
 
-    InputEventHandler(InputHandler inputHandler, List<AttributeMapping> transportMapping,
-                      ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext) {
-        this.inputHandler = inputHandler;
-        this.transportMapping = transportMapping;
-        this.trpProperties = trpProperties;
-        this.sourceType = sourceType;
-        this.siddhiAppContext = siddhiAppContext;
-    }
-
-    public void sendEvent(Event event) throws InterruptedException {
-        try {
-            String[] transportProperties = trpProperties.get();
-            trpProperties.remove();
-            for (int i = 0; i < transportMapping.size(); i++) {
-                AttributeMapping attributeMapping = transportMapping.get(i);
-                event.getData()[attributeMapping.getPosition()] = transportProperties[i];
-            }
-            inputHandler.send(event);
-        } catch (RuntimeException e) {
-            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                    " Error in applying transport property mapping for '" + sourceType
-                    + "' source at '" + inputHandler.getStreamId() + "' stream.", e);
-        } finally {
-            trpProperties.remove();
-        }
-
-    }
-
-    public void sendEvents(Event[] events) throws InterruptedException {
-        try {
-            String[] transportProperties = trpProperties.get();
-            for (int i = 0; i < transportMapping.size(); i++) {
-                AttributeMapping attributeMapping = transportMapping.get(i);
-                for (Event event : events) {
-                    event.getData()[attributeMapping.getPosition()] = transportProperties[i];
-                }
-            }
-            inputHandler.send(events);
-        } catch (RuntimeException e) {
-            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                    " Error in applying transport property mapping for '" + sourceType
-                    + "' source at '" + inputHandler.getStreamId() + "' stream.", e);
-        } finally {
-            trpProperties.remove();
-        }
-    }
+    void sendEvent(Event event) throws InterruptedException;
 
 }

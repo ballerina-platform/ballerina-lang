@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,13 +53,21 @@ public abstract class Source implements Snapshotable {
     private ConnectionCallback connectionCallback = new ConnectionCallback();
 
     public final void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                           String[] transportPropertyNames, ConfigReader configReader,
-                           StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
+                           String[] transportPropertyNames, ConfigReader configReader, String mapType,
+                           OptionHolder mapOptionHolder, List<AttributeMapping> attributeMappings,
+                           List<AttributeMapping> transportMappings, ConfigReader mapperConfigReader,
+                           SourceHandler sourceHandler, StreamDefinition streamDefinition,
+                           SiddhiAppContext siddhiAppContext) {
         this.type = sourceType;
+        sourceMapper.init(streamDefinition, mapType, mapOptionHolder, attributeMappings, sourceType, transportMappings,
+                sourceHandler, mapperConfigReader, siddhiAppContext);
         this.mapper = sourceMapper;
         this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.siddhiAppContext = siddhiAppContext;
+        if (sourceHandler != null) {
+            sourceHandler.init(this, elementId, streamDefinition, siddhiAppContext, sourceMapper);
+        }
         init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }

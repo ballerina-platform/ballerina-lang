@@ -27,6 +27,8 @@ import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.input.source.SourceHandler;
+import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
 import org.wso2.siddhi.core.stream.output.sink.OutputGroupDeterminer;
@@ -295,18 +297,27 @@ public class DefinitionParserHelper {
                 final String sourceType = sourceAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                 final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                 if (sourceType != null && mapType != null) {
+                    SourceHandlerManager sourceHandlerManager = siddhiAppContext.getSiddhiContext().
+                            getSourceHandlerManager();
+                    SourceHandler sourceHandler = null;
+                    if (sourceHandlerManager != null) {
+                        sourceHandler = sourceHandlerManager.generateSourceHandler();
+                    }
                     // load input transport extension
                     Extension sourceExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SOURCE,
                             sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE);
                     Source source = (Source) SiddhiClassLoader.loadExtensionImplementation(sourceExtension,
                             SourceExecutorExtensionHolder.getInstance(siddhiAppContext));
+                    ConfigReader configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                            .generateConfigReader(sourceExtension.getNamespace(), sourceExtension.getName());
 
                     // load input mapper extension
                     Extension mapperExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
                             mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE_MAPPER);
                     SourceMapper sourceMapper = (SourceMapper) SiddhiClassLoader.loadExtensionImplementation(
                             mapperExtension, SourceMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
-
+                    ConfigReader mapperConfigReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                            .generateConfigReader(mapperExtension.getNamespace(), mapperExtension.getName());
                     validateSourceMapperCompatibility(streamDefinition, sourceType, mapType, source, sourceMapper,
                             sourceAnnotation);
 
@@ -317,19 +328,15 @@ public class DefinitionParserHelper {
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
                     String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
-                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder, attributesHolder.payloadMappings,
-                            sourceType, attributesHolder.transportMappings,
-                            siddhiAppContext.getSiddhiContext().getConfigManager()
-                                    .generateConfigReader(mapperExtension.getNamespace(), mapperExtension.getName()),
-                            siddhiAppContext);
                     source.init(sourceType, sourceOptionHolder, sourceMapper, transportPropertyNames,
-                            siddhiAppContext.getSiddhiContext()
-                                    .getConfigManager()
-                                    .generateConfigReader(sourceExtension.getNamespace(), sourceExtension.getName()),
-                            streamDefinition, siddhiAppContext);
+                            configReader, mapType, mapOptionHolder, attributesHolder.payloadMappings,
+                            attributesHolder.transportMappings, mapperConfigReader, sourceHandler, streamDefinition,
+                            siddhiAppContext);
 
                     siddhiAppContext.getSnapshotService().addSnapshotable(source.getStreamDefinition().getId(), source);
-
+                    if (sourceHandlerManager != null) {
+                        sourceHandlerManager.registerSourceHandler(sourceHandler);
+                    }
                     List<Source> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
                         eventSources = new ArrayList<>();
