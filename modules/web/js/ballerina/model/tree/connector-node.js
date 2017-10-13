@@ -76,7 +76,11 @@ class ConnectorNode extends AbstractConnectorNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            this.addVariableDefs(node, 0);
+            TreeUtil.getNewTempVarName(this, '__endpoint')
+                .then((varNames) => {
+                    node.getVariable().getName().setValue(varNames[0]);
+                    this.addVariableDefs(node, 0);
+                });
         } else if (TreeUtil.isAction(node)) {
             const index = !_.isNil(dropBefore) ? this.getIndexOfActions(dropBefore) : -1;
             this.addActions(node, index);

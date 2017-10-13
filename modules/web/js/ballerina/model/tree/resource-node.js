@@ -239,7 +239,11 @@ class ResourceNode extends AbstractResourceNode {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
         } else if (TreeUtil.isConnectorDeclaration(node)) {
-            this.getBody().addStatements(node, 0);
+            TreeUtil.getNewTempVarName(this.getBody(), '__endpoint')
+                .then((varNames) => {
+                    node.getVariable().getName().setValue(varNames[0]);
+                    this.getBody().addStatements(node, 0);
+                });
         }
     }
 }

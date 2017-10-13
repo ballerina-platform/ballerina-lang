@@ -401,8 +401,7 @@ class TreeUtil extends AbstractTreeUtil {
         const fileData = node.getRoot().getFile();
         return getLangServerClientInstance()
             .then((client) => {
-                const position = node.parent.getPosition();
-
+                const position = node.parent.getPosition() || node.getPosition();
                 const options = {
                     textDocument: fileData.content,
                     position: {

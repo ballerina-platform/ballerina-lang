@@ -102,7 +102,11 @@ class ServiceNode extends AbstractServiceNode {
      */
     acceptDrop(node, dropBefore) {
         if (TreeUtil.isConnectorDeclaration(node)) {
-            this.addVariables(node, 0);
+            TreeUtil.getNewTempVarName(this, '__endpoint')
+                .then((varNames) => {
+                    node.getVariable().getName().setValue(varNames[0]);
+                    this.addVariables(node, 0);
+                });
         }
     }
 

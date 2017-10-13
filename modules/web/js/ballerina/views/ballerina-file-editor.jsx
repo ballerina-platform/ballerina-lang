@@ -290,11 +290,29 @@ class BallerinaFileEditor extends React.Component {
                 connectorDeclaration.viewState.showOverlayContainer = true;
 
                 if (TreeUtils.isBlock(node.parent)) {
-                    node.parent.addStatements(connectorDeclaration, 0);
+                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
+                        .then((varNames) => {
+                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connectorDeclaration.getVariableName().value);
+                            node.parent.addStatements(connectorDeclaration, 0);
+                        });
                 } else if (TreeUtils.isService(node.parent)) {
-                    node.parent.addVariables(connectorDeclaration, 0);
+                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
+                        .then((varNames) => {
+                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connectorDeclaration.getVariableName().value);
+                            node.parent.addVariables(connectorDeclaration, 0);
+                        });
                 } else if (TreeUtils.isConnector(node.parent)) {
-                    node.parent.addVariableDefs(connectorDeclaration, 0);
+                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
+                        .then((varNames) => {
+                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connectorDeclaration.getVariableName().value);
+                            node.parent.addVariableDefs(connectorDeclaration, 0);
+                        });
                 }
             }
         }
