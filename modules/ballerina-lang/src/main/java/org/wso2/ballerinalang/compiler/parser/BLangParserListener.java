@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -53,8 +54,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
 
-    public BLangParserListener(CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
-        this.pkgBuilder = new BLangPackageBuilder(compUnit);
+    public BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, 
+            BDiagnosticSource diagnosticSource) {
+        this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
     }
 
@@ -2878,10 +2880,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
         if (ctx.exception != null) {
             return;
         }

@@ -60,10 +60,8 @@ HTTP Redirects
 Log API
 Function Pointers
 Lambda
-WebSocket Basic Endpoint
-WebSocket Basic Functions
+WebSocket Basic Sample
 WebSocket Chat Application
-WebSocket Client Connector
 WebSocket Proxy Server
 Passthrough
 Mutual SSL

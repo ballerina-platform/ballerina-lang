@@ -51,6 +51,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -126,12 +127,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -201,10 +205,15 @@ public class BLangPackageBuilder {
     private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+    
+    private Set<BLangImportPackage> imports = new HashSet<>();
 
     protected int lambdaFunctionCount = 0;
+    
+    private DiagnosticLog dlog;
 
-    public BLangPackageBuilder(CompilationUnitNode compUnit) {
+    public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
+        this.dlog = DiagnosticLog.getInstance(context);
         this.compUnit = compUnit;
     }
 
@@ -463,7 +472,6 @@ public class BLangPackageBuilder {
             exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
             connectorInitNode.addWS(commaWsStack.pop());
         }
-        ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
             connectorInitNode.filterConnectors.add(0, connectorInitNodeStack.pop());
         }
@@ -869,6 +877,11 @@ public class BLangPackageBuilder {
         importDcl.version = versionNode;
         importDcl.alias = aliasNode;
         this.compUnit.addTopLevelNode(importDcl);
+        if (this.imports.contains(importDcl)) {
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_PACKAGE, importDcl.getQualifiedPackageName());
+        } else {
+            this.imports.add(importDcl);
+        }
     }
 
     private VariableNode generateBasicVarNode(DiagnosticPos pos,
@@ -1578,7 +1591,6 @@ public class BLangPackageBuilder {
     }
 
     public void createXmlAttributesRefExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean singleAttribute) {
-        BLangExpression indexExpr = null;
         BLangXMLAttributeAccess xmlAttributeAccess =
                 (BLangXMLAttributeAccess) TreeBuilder.createXMLAttributeAccessNode();
         xmlAttributeAccess.pos = pos;
