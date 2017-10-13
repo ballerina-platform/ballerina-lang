@@ -30,8 +30,11 @@ import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTransportTestCase {
@@ -656,4 +659,78 @@ public class InMemoryTransportTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
     }
+
+    @Test
+    public void inMemorySourceSinkAndEventMappingWithSiddhiQLAndRef() throws InterruptedException {
+        log.info("Test inMemory Source Sink And EventMapping With SiddhiQL and Ref");
+
+        InMemoryBroker.Subscriber subscriptionWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriptionIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriptionWSO2);
+        InMemoryBroker.subscribe(subscriptionIBM);
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(ref='test1', @map(type='passThrough')) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(ref='test2', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.topic", "Foo");
+        systemConfigs.put("test1.type", "inMemory");
+        systemConfigs.put("test2.type", "inMemory");
+        systemConfigs.put("test2.topic", "{{symbol}}");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        siddhiAppRuntime.start();
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
+        InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        Thread.sleep(100);
+
+        //assert event count
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 1, ibmCount.get());
+        siddhiAppRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriptionWSO2);
+        InMemoryBroker.unsubscribe(subscriptionIBM);
+    }
+
+
 }

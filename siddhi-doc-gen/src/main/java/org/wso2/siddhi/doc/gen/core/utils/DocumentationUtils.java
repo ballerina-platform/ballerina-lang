@@ -22,6 +22,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -62,6 +63,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,15 +130,17 @@ public class DocumentationUtils {
      * @param namespaceMetaDataList      Metadata in this repository
      * @param documentationBaseDirectory The path of the directory in which the documentation will be generated
      * @param documentationVersion       The version of the documentation being generated
+     * @param logger                     The logger to log errors
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String documentationBaseDirectory, String documentationVersion)
+                                             String documentationBaseDirectory, String documentationVersion, Log logger)
             throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
         rootDataModel.put("metaData", namespaceMetaDataList);
         rootDataModel.put("formatDescription", new FormatDescriptionMethod());
+        rootDataModel.put("latestDocumentationVersion", documentationVersion);
 
         String outputFileRelativePath = Constants.API_SUB_DIRECTORY + File.separator + documentationVersion
                 + Constants.MARKDOWN_FILE_EXTENSION;
@@ -146,6 +150,15 @@ public class DocumentationUtils {
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory, outputFileRelativePath
         );
+        File newVersionFile = new File(documentationBaseDirectory + File.separator + outputFileRelativePath);
+        File latestLabelFile = new File(documentationBaseDirectory + File.separator +
+                Constants.API_SUB_DIRECTORY + File.separator + Constants.LATEST_FILE_NAME +
+                Constants.MARKDOWN_FILE_EXTENSION);
+        try {
+            Files.copy(newVersionFile, latestLabelFile);
+        } catch (IOException e) {
+            logger.warn("Failed to generate latest.md file", e);
+        }
     }
 
     /**
@@ -192,7 +205,7 @@ public class DocumentationUtils {
      * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
      * @param logger                     The maven plugin logger
      */
-    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String  documentationBaseDirectory, Log logger) {
+    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String documentationBaseDirectory, Log logger) {
         // Retrieving the documentation file names
         File apiDocsDirectory = new File(documentationBaseDirectory
                 + File.separator + Constants.API_SUB_DIRECTORY);
@@ -215,13 +228,6 @@ public class DocumentationUtils {
                 }
             }
 
-            // Updating the links in the home page to the mkdocs config
-            try {
-                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationBaseDirectory);
-            } catch (FileNotFoundException e) {
-                logger.warn("Unable to find mkdocs configuration file: "
-                        + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
-            }
         }
     }
 
@@ -247,6 +253,16 @@ public class DocumentationUtils {
         } else {
             apiDirectoryContent = Arrays.asList(documentationFiles);
             apiDirectoryContent.sort(String::compareTo);
+            Collections.reverse(apiDirectoryContent);
+        }
+
+        String latestVersionFile = null;
+        if (apiDirectoryContent.size() > 1) {
+            String first = apiDirectoryContent.get(0);
+            String secound = apiDirectoryContent.get(1);
+            if (first.equals(Constants.LATEST_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION)) {
+                latestVersionFile = secound;
+            }
         }
 
         // Creating yaml parser
@@ -269,6 +285,10 @@ public class DocumentationUtils {
             String pageName = apiFile.substring(0, apiFile.length() - Constants.MARKDOWN_FILE_EXTENSION.length());
 
             Map<String, Object> newPage = new HashMap<>();
+            if (latestVersionFile != null && pageName.equals(Constants.LATEST_FILE_NAME)) {
+                pageName = "Latest (" + latestVersionFile.substring(0, latestVersionFile.length() -
+                        Constants.MARKDOWN_FILE_EXTENSION.length()) + ")";
+            }
             newPage.put(pageName, Constants.API_SUB_DIRECTORY + Constants.MKDOCS_FILE_SEPARATOR + apiFile);
             apiPagesList.add(newPage);
         }
@@ -331,22 +351,125 @@ public class DocumentationUtils {
     }
 
     /**
-     * Deploy the mkdocs website on GitHub pages
+     * Build the mkdocs site using the mkdocs config file
      *
      * @param mkdocsConfigFile The mkdocs configuration file
-     * @param version          The version of the documentation
      * @param logger           The maven logger
+     * @return true if the documentation generation is successful
      */
-    public static void deployMkdocsOnGitHubPages(File mkdocsConfigFile, String version, Log logger) {
+    public static boolean generateMkdocsSite(File mkdocsConfigFile, Log logger) {
+        boolean isDocumentationGenerationSuccessful = false;
         try {
-            executeCommand(new String[] {Constants.MKDOCS_COMMAND,
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND,
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT,
+            // Building the mkdocs site
+            executeCommand(new String[]{Constants.MKDOCS_COMMAND,
+                    Constants.MKDOCS_BUILD_COMMAND,
+                    Constants.MKDOCS_BUILD_COMMAND_CLEAN_ARGUEMENT,
+                    Constants.MKDOCS_BUILD_COMMAND_CONFIG_FILE_ARGUMENT,
                     mkdocsConfigFile.getAbsolutePath(),
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT,
-                    String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version)}, logger);
+                    Constants.MKDOCS_BUILD_COMMAND_SITE_DIRECTORY_ARGUMENT,
+                    Constants.MKDOCS_SITE_DIRECTORY}, logger);
+            isDocumentationGenerationSuccessful = true;
         } catch (Throwable t) {
-            logger.warn("Failed to execute mkdocs gh-deploy. Skipping deployment of documentation.", t);
+            logger.warn("Failed to generate the mkdocs site.", t);
+        }
+        return isDocumentationGenerationSuccessful;
+    }
+
+    /**
+     * Deploy the mkdocs website on GitHub pages
+     *
+     * @param version       The version of the documentation
+     * @param baseDirectory The base directory of the project
+     * @param scmUsername   The SCM username
+     * @param scmPassword   The SCM password
+     * @param logger        The maven logger
+     */
+    public static void deployMkdocsOnGitHubPages(String version, File baseDirectory, String scmUsername,
+                                                 String scmPassword, Log logger) {
+        try {
+            // Find initial branch name
+            List<String> gitStatusOutput = getCommandOutput(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_BRANCH_COMMAND}, logger);
+            String initialBranch = null;
+            for (String gitStatusOutputLine : gitStatusOutput) {
+                if (gitStatusOutputLine.startsWith(Constants.GIT_BRANCH_COMMAND_OUTPUT_CURRENT_BRANCH_PREFIX)) {
+                    initialBranch = gitStatusOutputLine.substring(
+                            Constants.GIT_BRANCH_COMMAND_OUTPUT_CURRENT_BRANCH_PREFIX.length());
+                }
+            }
+
+            if (initialBranch != null) {
+                // Stash changes
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_STASH_COMMAND}, logger);
+
+                // Change to gh-pages branch. This will not do anything if a new branch was created in the last command.
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_CHECKOUT_COMMAND,
+                        Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+                // Create branch if it does not exist. This will fail if the branch exists and will not do anything.
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_CHECKOUT_COMMAND,
+                        Constants.GIT_CHECKOUT_COMMAND_ORPHAN_ARGUMENT,
+                        Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_PULL_COMMAND,
+                        Constants.GIT_REMOTE,
+                        Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+                // Getting the site that was built by mkdocs
+                File siteDirectory = new File(Constants.MKDOCS_SITE_DIRECTORY);
+                FileUtils.copyDirectory(siteDirectory, baseDirectory);
+                String[] siteDirectoryContent = siteDirectory.list();
+
+                // Pushing the site to GitHub (Assumes that site/ directory is ignored by git)
+                if (siteDirectoryContent != null && siteDirectoryContent.length > 0) {
+                    List<String> gitAddCommand = new ArrayList<>();
+                    Collections.addAll(gitAddCommand, Constants.GIT_COMMAND,
+                            Constants.GIT_ADD_COMMAND);
+                    Collections.addAll(gitAddCommand, siteDirectoryContent);
+                    executeCommand(gitAddCommand.toArray(new String[gitAddCommand.size()]), logger);
+
+                    List<String> gitCommitCommand = new ArrayList<>();
+                    Collections.addAll(gitCommitCommand, Constants.GIT_COMMAND,
+                            Constants.GIT_COMMIT_COMMAND,
+                            Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
+                            String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
+                            Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT);
+                    Collections.addAll(gitCommitCommand, siteDirectoryContent);
+                    executeCommand(gitCommitCommand.toArray(new String[gitCommitCommand.size()]), logger);
+
+                    if (scmUsername != null && scmPassword != null) {
+                        // Using scm username and password env var values
+                        executeCommand(new String[]{Constants.GIT_COMMAND,
+                                Constants.GIT_PUSH_COMMAND,
+                                String.format(Constants.GIT_REMOTE_WITH_USERNAME_PASSWORD, scmUsername, scmPassword),
+                                Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+                    } else {
+                        // Using git credential store
+                        executeCommand(new String[]{Constants.GIT_COMMAND,
+                                Constants.GIT_PUSH_COMMAND,
+                                Constants.GIT_REMOTE,
+                                Constants.GIT_GH_PAGES_BRANCH}, logger);
+                    }
+                }
+
+                // Changing back to initial branch
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_CHECKOUT_COMMAND,
+                        initialBranch}, logger);
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_STASH_COMMAND,
+                        Constants.GIT_STASH_POP_COMMAND}, logger);
+            } else {
+                logger.warn("Unable to parse git-status command and retrieve current git branch. " +
+                        "Skipping deployment.");
+            }
+        } catch (Throwable t) {
+            logger.warn("Failed to deploy the documentation on github pages.", t);
         }
     }
 
@@ -362,19 +485,15 @@ public class DocumentationUtils {
     public static void updateDocumentationOnGitHub(String docsDirectory, File mkdocsConfigFile, File readmeFile,
                                                    String version, Log logger) {
         try {
-            executeCommand(new String[] {Constants.GIT_COMMAND,
+            executeCommand(new String[]{Constants.GIT_COMMAND,
                     Constants.GIT_ADD_COMMAND,
-                    docsDirectory}, logger);
-            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
+            executeCommand(new String[]{Constants.GIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
                     String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
                     Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT,
                     docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
-            executeCommand(new String[] {Constants.GIT_COMMAND,
-                    Constants.GIT_PUSH_COMMAND,
-                    Constants.GIT_PUSH_COMMAND_REMOTE,
-                    Constants.GIT_PUSH_COMMAND_REMOTE_BRANCH}, logger);
         } catch (Throwable t) {
             logger.warn("Failed to update the documentation on GitHub repository", t);
         }
@@ -638,14 +757,16 @@ public class DocumentationUtils {
      *
      * @param command The command to be executed
      * @param logger  The maven plugin logger
+     * @return The output lines from executing the command
      * @throws Throwable if any error occurs during the execution of the command
      */
-    private static void executeCommand(String[] command, Log logger) throws Throwable {
+    private static List<String> getCommandOutput(String[] command, Log logger) throws Throwable {
         logger.info("Executing: " + String.join(" ", command));
         Process process = Runtime.getRuntime().exec(command);
+        List<String> executionOutputLines = new ArrayList<>();
 
         // Logging the output of the command execution
-        InputStream[] inputStreams = new InputStream[] {process.getInputStream(), process.getErrorStream()};
+        InputStream[] inputStreams = new InputStream[]{process.getInputStream(), process.getErrorStream()};
         BufferedReader bufferedReader = null;
         try {
             for (InputStream inputStream : inputStreams) {
@@ -657,12 +778,28 @@ public class DocumentationUtils {
                         break;
                     }
 
-                    logger.info(commandOutput);
+                    executionOutputLines.add(commandOutput);
                 }
             }
             process.waitFor();
         } finally {
             IOUtils.closeQuietly(bufferedReader);
+        }
+
+        return executionOutputLines;
+    }
+
+    /**
+     * Executing a command.
+     *
+     * @param command The command to be executed
+     * @param logger  The maven plugin logger
+     * @throws Throwable if any error occurs during the execution of the command
+     */
+    private static void executeCommand(String[] command, Log logger) throws Throwable {
+        List<String> executionOutputLines = getCommandOutput(command, logger);
+        for (String executionOutputLine : executionOutputLines) {
+            logger.debug(executionOutputLine);
         }
     }
 }

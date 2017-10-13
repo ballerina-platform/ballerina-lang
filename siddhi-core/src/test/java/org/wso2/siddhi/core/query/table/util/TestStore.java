@@ -53,12 +53,12 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
         }
 )
 public class TestStore extends AbstractRecordTable {
-    public static Map<String, String> storeConfigs;
+    public static Map<String, String> systemConfigs;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
-        storeConfigs = new HashMap<>();
-        storeConfigs = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations())
+        systemConfigs = new HashMap<>();
+        systemConfigs = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations())
                 .getElements().stream().collect(Collectors.toMap(
                         Element::getKey, Element::getValue
                 ));

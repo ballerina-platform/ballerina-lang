@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.partition;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -82,6 +83,9 @@ public class PartitionRuntime implements Snapshotable {
     public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String,
             StreamJunction> streamJunctionMap, Partition partition, SiddhiAppContext siddhiAppContext) {
         this.siddhiAppContext = siddhiAppContext;
+        if (partition.getPartitionTypeMap().isEmpty()) {
+            throw new SiddhiAppCreationException("Partition must have at least one executor. But found none.");
+        }
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name",
                     partition.getAnnotations());

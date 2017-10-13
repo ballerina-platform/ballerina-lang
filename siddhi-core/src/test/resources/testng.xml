@@ -122,11 +122,13 @@
             <class name="org.wso2.siddhi.core.query.window.external.TimeLengthWindowTestCase"/>
             <class name="org.wso2.siddhi.core.query.window.external.WindowDefinitionTestCase"/>
 
+            <class name="org.wso2.siddhi.core.query.BooleanCompareTestCase"/>
             <class name="org.wso2.siddhi.core.query.FilterTestCase1"/>
             <class name="org.wso2.siddhi.core.query.FilterTestCase2"/>
             <class name="org.wso2.siddhi.core.query.IsNullTestCase"/>
             <class name="org.wso2.siddhi.core.query.PassThroughTestCase"/>
             <class name="org.wso2.siddhi.core.query.SimpleQueryValidatorTestCase"/>
+            <class name="org.wso2.siddhi.core.query.StringCompareTestCase"/>
 
             <class name="org.wso2.siddhi.core.store.StoreQueryTableTestCase"/>
             <class name="org.wso2.siddhi.core.store.StoreQueryWindowTestCase"/>

@@ -16,14 +16,14 @@
   ~ under the License.
   -->
 <#import "utils.ftl" as utils>
-# API Docs
+# API Docs - v${latestDocumentationVersion}
 
 <#list metaData as namespace>
 ## ${namespace.name?capitalize}
 
 <#list namespace.extensionMap as extensionType, extensionsList>
 <#list extensionsList as extension>
-### ${extension.name} *(<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>)*
+### ${extension.name} *<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>*
 
 <p style="word-wrap: break-word">${formatDescription(extension.description)}</p>
 
