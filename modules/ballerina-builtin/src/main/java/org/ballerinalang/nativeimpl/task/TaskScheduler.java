@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.task;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
@@ -45,42 +44,46 @@ import java.util.concurrent.TimeUnit;
  */
 public class TaskScheduler {
 
-    private static long period = 0;
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
 
     protected static void triggerTimer(Context ctx, int taskId, long delay, long interval,
                                        FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         HashMap<Integer, ScheduledExecutorService> executorServiceMap = ctx.getProperty(Constant.SERVICEMAP) != null ?
-                (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) : new HashMap<>();
+                (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) :
+                new HashMap<>();
         try {
             final Runnable schedulerFunc = new Runnable() {
                 public void run() {
-                    if (log.isDebugEnabled()) {
-                        log.info("Timer starts the execution");
-                    }
+                    log.info(Constant.PREFIX_TIMER + taskId + " starts the execution");
                     triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
-                    callFunction(ctx, onTriggerFunction, onErrorFunction);
+                    callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
                 }
             };
-            if (interval > 0) {
-                executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
-                if (log.isDebugEnabled()) {
-                    log.info("Timer is scheduled with the interval " + interval + " MILLISECONDS");
-                }
+            if (executorServiceMap.get(taskId) == null && delay != 0) {
+                executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
+                log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
                 executorServiceMap.put(taskId, executorService);
                 ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
             } else {
-                log.error("The vale of interval is invalid");
-                String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
-                        ctx.getProperty(Constant.ERROR + "_" + taskId)
-                                + ",The vale of interval has to be greater than 0" :
-                        "The vale of interval has to be greater than 0";
-                ctx.setProperty(Constant.ERROR + "_" + taskId, error);
+                if (interval > 0) {
+                    executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
+                    log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
+                    executorServiceMap.put(taskId, executorService);
+                    ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
+                } else {
+                    log.error("The vale of interval is invalid");
+                    String error = !((String) ctx.getProperty(Constant.ERROR + "_" + taskId)).isEmpty() ?
+                            ctx.getProperty(Constant.ERROR + "_" + taskId)
+                                    + ",The vale of interval has to be greater than 0" :
+                            "The vale of interval has to be greater than 0";
+                    ctx.setProperty(Constant.ERROR + "_" + taskId, error);
+                }
             }
-        } catch (RejectedExecutionException | NullPointerException | IllegalArgumentException e) {
+        } catch (RejectedExecutionException | IllegalArgumentException e) {
             log.error("Error occurred while scheduling the task: " + e.getMessage());
-            String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
+            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+            String error = errorFromContext != null && !errorFromContext.isEmpty() ?
                     ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
                     e.getMessage();
             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
@@ -92,39 +95,39 @@ public class TaskScheduler {
                                              FunctionRefCPEntry onErrorFunction) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         HashMap<Integer, ScheduledExecutorService> executorServiceMap = ctx.getProperty(Constant.SERVICEMAP) != null ?
-                (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) : new HashMap<>();
+                (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) :
+                new HashMap<>();
         try {
             final Runnable schedulerFunc = new Runnable() {
-                @Override
-                public void run() {
-                    if (log.isDebugEnabled()) {
-                        log.info("Appointment starts the execution");
-                    }
-                    if (period > 0) {
-                        period = 0;
+                @Override public void run() {
+                    log.info(Constant.PREFIX_APPOINTMENT + taskId + " starts the execution");
+                    if (Long.parseLong(ctx.getProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId).toString()) > 0) {
+                        ctx.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId, 0);
                         triggerAppointment(ctx, taskId, -1, -1, dayOfWeek, dayOfMonth, month, onTriggerFunction,
                                 onErrorFunction);
                     } else {
                         triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
                                 onErrorFunction);
                     }
-                    callFunction(ctx, onTriggerFunction, onErrorFunction);
+                    callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
                 }
             };
-            long delay = computeNextDelay(taskId, ctx, minute, hour, dayOfWeek, dayOfMonth, month);
+            long delay = calculateDelay(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month);
             executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
-            if (log.isDebugEnabled()) {
-                log.info("Appointment is scheduled with the delay " + delay + " MILLISECONDS");
-            }
+            long period = Long.parseLong(ctx.getProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId).toString());
             executorServiceMap.put(taskId, executorService);
             ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
             if (period > 0) {
                 period = delay + period;
+                ctx.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId, period);
                 stopExecution(ctx, taskId, period);
             }
-        } catch (RejectedExecutionException | NullPointerException | IllegalArgumentException e) {
+            log.info(Constant.PREFIX_APPOINTMENT + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS "
+                    + Constant.SCHEDULER_RUNTIME_HINT + period + "]");
+        } catch (RejectedExecutionException | IllegalArgumentException e) {
             log.error("Error occurred while scheduling the appointment: " + e.getMessage());
-            String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
+            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+            String error = errorFromContext != null && !errorFromContext.isEmpty() ?
                     ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
                     e.getMessage();
             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
@@ -133,8 +136,8 @@ public class TaskScheduler {
 
     private static void stopExecution(Context ctx, int taskId, long sPeriod) {
         ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
-        HashMap<Integer, ScheduledExecutorService> executorServiceMap =
-                (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP);
+        HashMap<Integer, ScheduledExecutorService> executorServiceMap = (HashMap<Integer, ScheduledExecutorService>) ctx
+                .getProperty(Constant.SERVICEMAP);
         if (executorServiceMap != null) {
             if (log.isDebugEnabled()) {
                 log.info("Attempting to stop the task: " + taskId);
@@ -151,18 +154,19 @@ public class TaskScheduler {
                                 ctx.setProperty(Constant.ERROR + "_" + taskId, "");
                             } else {
                                 log.error("Unable to stop the task");
-                                String error =
-                                        StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))
-                                                ? ctx.getProperty(Constant.ERROR + "_" + taskId)
+                                String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+                                String error = errorFromContext != null && !errorFromContext.isEmpty() ?
+                                        ctx.getProperty(Constant.ERROR + "_" + taskId)
                                                 + ",Unable to stop the task which is associated to the ID " + taskId :
-                                                "Unable to stop the task which is associated to the ID " + taskId;
+                                        "Unable to stop the task which is associated to the ID " + taskId;
                                 ctx.setProperty(Constant.ERROR + "_" + taskId, error);
                             }
                         } catch (SecurityException e) {
                             log.error("Unable to stop the task: " + e.getMessage());
-                            String error = StringUtils.isNotEmpty(ctx.getProperty(Constant.ERROR + "_"
-                                    + taskId).toString()) ? ctx.getProperty(Constant.ERROR + "_" + taskId) + ","
-                                    + e.getMessage() : e.getMessage();
+                            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+                            String error = errorFromContext != null && !errorFromContext.isEmpty() ?
+                                    ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
+                                    e.getMessage();
                             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
                         }
                     }
@@ -173,31 +177,30 @@ public class TaskScheduler {
         }
     }
 
-    private static BValue[] callFunction(Context ctx, FunctionRefCPEntry onTriggerFunction,
-                                         FunctionRefCPEntry onErrorFunction) {
+    private static void callFunction(Context ctx, int taskId, FunctionRefCPEntry onTriggerFunction,
+                                     FunctionRefCPEntry onErrorFunction) {
         AbstractNativeFunction abstractNativeFunction = new AbstractNativeFunction() {
-            @Override
-            public BValue[] execute(Context context) {
+            @Override public BValue[] execute(Context context) {
                 return new BValue[0];
             }
         };
         ProgramFile programFile = ctx.getProgramFile();
         Context newContext = new Context(programFile);
         newContext.setProperty(Constant.SERVICEMAP, ctx.getProperty(Constant.SERVICEMAP));
-        newContext.setProperty(Constant.ERROR, ctx.getProperty(Constant.ERROR));
-        BValue[] response = abstractNativeFunction.getBValues(new BString(""));
+        newContext.setProperty(Constant.ERROR + "_" + taskId, ctx.getProperty(Constant.ERROR + "_" + taskId));
+        newContext.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId,
+                ctx.getProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId));
         try {
-            response = BLangFunctions
+            BValue[] response = BLangFunctions
                     .invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
-            if (response.length == 1 && StringUtils.isEmpty(response[0].stringValue())) {
+            if (response.length == 1 && (response[0].stringValue() == null || response[0].stringValue().isEmpty())) {
                 if (log.isDebugEnabled()) {
                     log.info("Invoking the onError function due to no response from the triggered function");
                 }
-                BValue[] error = abstractNativeFunction.getBValues(
-                        new BString("Unable to get the response from the triggered function"));
+                BValue[] error = abstractNativeFunction
+                        .getBValues(new BString("Unable to get the response from the triggered function"));
                 if (onErrorFunction != null) {
-                    BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error,
-                            newContext);
+                    BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
                 } else {
                     log.error("The onError function is not provided");
                 }
@@ -208,179 +211,216 @@ public class TaskScheduler {
             }
             BValue[] error = abstractNativeFunction.getBValues(new BString(e.getMessage()));
             if (onErrorFunction != null) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error,
-                        newContext);
+                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
             } else {
                 log.error("The onError function is not provided");
             }
         }
-        return response;
     }
 
-    private static long computeNextDelay(int taskId, Context ctx, long minute, long hour, long dayOfWeek,
-                                         long dayOfMonth, long month) {
-        if (minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
-                || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1) {
+    private static long calculateDelay(Context ctx, int taskId, long minute, long hour, long dayOfWeek, long dayOfMonth,
+                                       long month) {
+        if (isValidInput(minute, hour, dayOfWeek, dayOfMonth, month)) {
             log.error("Invalid input");
-            String error = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ?
-                    ctx.getProperty(Constant.ERROR + "_" + taskId) + ",Wrong input" : "Wrong input";
+            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+            String error = errorFromContext != null && !errorFromContext.isEmpty() ?
+                    ctx.getProperty(Constant.ERROR + "_" + taskId) + ",Wrong input" :
+                    "Wrong input";
             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
         } else {
-            Calendar startTime = Calendar.getInstance();
-            Calendar now = Calendar.getInstance();
-            if (minute == -1) {
-                startTime.add(Calendar.MINUTE, 1);
-            } else {
-                if (hour == -1 && minute > 0 || hour == -1 && minute == 0) {
-                    startTime.add(Calendar.MINUTE, (int) minute);
-                } else {
-                    startTime.set(Calendar.MINUTE, (int) minute);
-                }
-            }
-            if (hour == -1 && minute == 0) {
-                startTime.add(Calendar.HOUR, 1);
-            } else if (hour != -1) {
-                startTime.set(Calendar.HOUR, (int) hour >= 12 ? (int) hour - 12 : (int) hour);
-                if (hour <= 11) {
-                    startTime.set(Calendar.AM_PM, 0);
-                } else {
-                    startTime.set(Calendar.AM_PM, 1);
-                }
-                if (startTime.before(now)) {
-                    startTime.add(Calendar.DATE, 1);
-                }
-            }
-
-            Calendar newTimeAccordingToDOW = (Calendar) startTime.clone();
-            Calendar newTimeAccordingToDOM = (Calendar) startTime.clone();
+            Calendar currentTime = Calendar.getInstance();
+            Calendar executionStartTime = (Calendar) currentTime.clone();
+            executionStartTime = tuneTheTimestampByMinute(executionStartTime, minute, hour);
+            executionStartTime = tuneTheTimestampByHour(currentTime, executionStartTime, minute, hour);
+            Calendar newTimeAccordingToDOW = cloneCalendarAndSetTime(executionStartTime, dayOfWeek, dayOfMonth);
+            Calendar newTimeAccordingToDOM = cloneCalendarAndSetTime(executionStartTime, dayOfWeek, dayOfMonth);
             if (dayOfWeek != -1 && dayOfMonth != -1) {
-                newTimeAccordingToDOW.set(Calendar.HOUR, 0);
-                newTimeAccordingToDOW.set(Calendar.MINUTE, 0);
-                newTimeAccordingToDOW.set(Calendar.SECOND, 0);
-                newTimeAccordingToDOM.set(Calendar.HOUR, 0);
-                newTimeAccordingToDOM.set(Calendar.MINUTE, 0);
-                newTimeAccordingToDOM.set(Calendar.SECOND, 0);
-            }
-            if (dayOfWeek != -1 && dayOfMonth != -1) {
-                newTimeAccordingToDOW = fixTheDateByDOW(now, newTimeAccordingToDOW, dayOfWeek, month);
-                newTimeAccordingToDOM = fixTheDateByDOM(now, newTimeAccordingToDOM, dayOfMonth);
-                newTimeAccordingToDOW = fixTheDateByMonth(now, newTimeAccordingToDOW, minute, hour, dayOfWeek,
-                        dayOfMonth, month);
-                newTimeAccordingToDOM = fixTheDateByMonth(now, newTimeAccordingToDOM, minute, hour, dayOfWeek,
-                        dayOfMonth, month);
-                startTime = newTimeAccordingToDOW.before(newTimeAccordingToDOM) ?
+                newTimeAccordingToDOW = tuneTheTimestampByDOW(currentTime, newTimeAccordingToDOW, dayOfWeek, month);
+                newTimeAccordingToDOM = tuneTheTimestampByDOM(currentTime, newTimeAccordingToDOM, dayOfMonth);
+                newTimeAccordingToDOW = tuneTheTimestampByMonth(ctx, taskId, currentTime, newTimeAccordingToDOW, minute,
+                        hour, dayOfWeek, dayOfMonth, month);
+                newTimeAccordingToDOM = tuneTheTimestampByMonth(ctx, taskId, currentTime, newTimeAccordingToDOM, minute,
+                        hour, dayOfWeek, dayOfMonth, month);
+                executionStartTime = newTimeAccordingToDOW.before(newTimeAccordingToDOM) ?
                         newTimeAccordingToDOW :
                         newTimeAccordingToDOM;
             } else {
-                startTime = fixTheDateByDOW(now, startTime, dayOfWeek, month);
-                startTime = fixTheDateByDOM(now, startTime, dayOfMonth);
-                startTime = fixTheDateByMonth(now, startTime, minute, hour, dayOfWeek, dayOfMonth, month);
+                executionStartTime = tuneTheTimestampByDOW(currentTime, executionStartTime, dayOfWeek, month);
+                executionStartTime = tuneTheTimestampByDOM(currentTime, executionStartTime, dayOfMonth);
+                executionStartTime = tuneTheTimestampByMonth(ctx, taskId, currentTime, executionStartTime, minute, hour,
+                        dayOfWeek, dayOfMonth, month);
             }
-            return calculateDuration(startTime);
+            return calculateDifference(taskId, executionStartTime);
         }
         return 0;
     }
 
-    private static Calendar fixTheDateByDOW(Calendar now, Calendar startTime, long dayOfWeek, long month) {
+    private static boolean isValidInput(long minute, long hour, long dayOfWeek, long dayOfMonth, long month) {
+        return minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
+                || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1;
+    }
+
+    private static Calendar tuneTheTimestampByMinute(Calendar executionStartTime, long minute, long hour) {
+        if (minute == -1) {
+            executionStartTime.add(Calendar.MINUTE, 1);
+        } else {
+            if (hour == -1 && minute > 0 || hour == -1 && minute == 0) {
+                executionStartTime.add(Calendar.MINUTE, (int) minute);
+            } else {
+                executionStartTime.set(Calendar.MINUTE, (int) minute);
+            }
+        }
+        return executionStartTime;
+    }
+
+    private static Calendar tuneTheTimestampByHour(Calendar currentTime, Calendar executionStartTime, long minute,
+                                                   long hour) {
+        if (hour == -1 && minute == 0) {
+            executionStartTime.add(Calendar.HOUR, 1);
+        } else if (hour != -1) {
+            executionStartTime.set(Calendar.HOUR, (int) hour >= 12 ? (int) hour - 12 : (int) hour);
+            if (hour <= 11) {
+                executionStartTime.set(Calendar.AM_PM, 0);
+            } else {
+                executionStartTime.set(Calendar.AM_PM, 1);
+            }
+            if (executionStartTime.before(currentTime)) {
+                executionStartTime.add(Calendar.DATE, 1);
+            }
+        }
+        return executionStartTime;
+    }
+
+    private static Calendar tuneTheTimestampByDOW(Calendar currentTime, Calendar executionStartTime, long dayOfWeek,
+                                                  long month) {
         int numberOfDaysToBeAdded = 0;
         if (dayOfWeek >= 1) {
-            if (now.get(Calendar.MONTH) == (int) month || (int) month == -1) {
-                if ((int) dayOfWeek < startTime.get(Calendar.DAY_OF_WEEK)) {
-                    numberOfDaysToBeAdded = 7 - (startTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek);
-                } else if ((int) dayOfWeek > startTime.get(Calendar.DAY_OF_WEEK)) {
-                    numberOfDaysToBeAdded = (int) dayOfWeek - startTime.get(Calendar.DAY_OF_WEEK);
-                } else if (startTime.get(Calendar.DAY_OF_WEEK) == (int) dayOfWeek && startTime.before(now)) {
+            if (currentTime.get(Calendar.MONTH) == (int) month || (int) month == -1) {
+                if ((int) dayOfWeek < executionStartTime.get(Calendar.DAY_OF_WEEK)) {
+                    numberOfDaysToBeAdded = 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek);
+                } else if ((int) dayOfWeek > executionStartTime.get(Calendar.DAY_OF_WEEK)) {
+                    numberOfDaysToBeAdded = (int) dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK);
+                } else if (executionStartTime.get(Calendar.DAY_OF_WEEK) == (int) dayOfWeek && executionStartTime
+                        .before(currentTime)) {
                     numberOfDaysToBeAdded = 7;
                 }
-            } else if (now.get(Calendar.MONTH) < (int) month) {
-                while (startTime.get(Calendar.MONTH) < (int) month) {
-                    if (startTime.get(Calendar.DAY_OF_WEEK) == (int) dayOfWeek) {
-                        startTime.add(Calendar.DATE, 7);
-                    } else if (startTime.get(Calendar.DAY_OF_WEEK) > (int) dayOfWeek) {
-                        startTime.add(Calendar.DATE, 7 - (startTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek));
+            } else if (currentTime.get(Calendar.MONTH) < (int) month) {
+                while (executionStartTime.get(Calendar.MONTH) < (int) month) {
+                    if (executionStartTime.get(Calendar.DAY_OF_WEEK) == (int) dayOfWeek) {
+                        executionStartTime.add(Calendar.DATE, 7);
+                    } else if (executionStartTime.get(Calendar.DAY_OF_WEEK) > (int) dayOfWeek) {
+                        executionStartTime.add(Calendar.DATE,
+                                7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek));
                     } else {
-                        startTime.add(Calendar.DATE, (int) dayOfWeek - startTime.get(Calendar.DAY_OF_WEEK));
+                        executionStartTime
+                                .add(Calendar.DATE, (int) dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
                     }
                 }
             }
-            startTime.add(Calendar.DATE, numberOfDaysToBeAdded);
+            executionStartTime.add(Calendar.DATE, numberOfDaysToBeAdded);
         }
-        return startTime;
+        return executionStartTime;
     }
 
-    private static Calendar fixTheDateByDOM(Calendar now, Calendar startTime, long dayOfMonth) {
+    private static Calendar tuneTheTimestampByDOM(Calendar currentTime, Calendar executionStartTime, long dayOfMonth) {
         if (dayOfMonth >= 1) {
-            startTime.set(Calendar.DATE, (int) dayOfMonth);
-            if (startTime.before(now)) {
-                startTime.add(Calendar.MONTH, 1);
+            executionStartTime.set(Calendar.DATE, (int) dayOfMonth);
+            if (executionStartTime.before(currentTime) || dayOfMonth > executionStartTime
+                    .getActualMaximum(Calendar.DAY_OF_MONTH)) {
+                executionStartTime.add(Calendar.MONTH, 1);
             }
         }
-        return startTime;
+        return executionStartTime;
     }
 
-    private static Calendar fixTheDateByMonth(Calendar now, Calendar startTime, long minute, long hour,
-                                              long dayOfWeek, long dayOfMonth, long month) {
+    private static Calendar tuneTheTimestampByMonth(Context ctx, int taskId, Calendar currentTime,
+                                                    Calendar executionStartTime, long minute, long hour, long dayOfWeek,
+                                                    long dayOfMonth, long month) {
         if ((minute == 0 && hour > -1) || (minute == -1 && hour > -1)) {
-            startTime.set(Calendar.MINUTE, 0);
-            startTime.set(Calendar.SECOND, 0);
+            executionStartTime.set(Calendar.MINUTE, 0);
+            executionStartTime.set(Calendar.SECOND, 0);
             if (minute == -1) {
-                period = 59 * 60000;
+                ctx.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId, 59 * 60000);
             }
         } else if (minute > 0 && hour != -1) {
-            startTime.set(Calendar.SECOND, 0);
+            executionStartTime.set(Calendar.SECOND, 0);
         }
         if (month > -1) {
-            if (startTime.get(Calendar.MONTH) < (int) month) {
-                startTime.add(Calendar.MONTH, (int) month - startTime.get(Calendar.MONTH));
+            if (executionStartTime.get(Calendar.MONTH) < (int) month) {
+                executionStartTime.add(Calendar.MONTH, (int) month - executionStartTime.get(Calendar.MONTH));
                 if (dayOfWeek == -1 && dayOfMonth == -1) {
-                    startTime.set(Calendar.DATE, 1);
+                    executionStartTime.set(Calendar.DATE, 1);
                 }
-            } else if (startTime.get(Calendar.MONTH) > (int) month) {
-                int months = (int) month - startTime.get(Calendar.MONTH);
-                startTime.add(Calendar.YEAR, 1);
-                startTime.add(Calendar.MONTH, months);
+            } else if (executionStartTime.get(Calendar.MONTH) > (int) month) {
+                int months = (int) month - executionStartTime.get(Calendar.MONTH);
+                executionStartTime.add(Calendar.YEAR, 1);
+                executionStartTime.add(Calendar.MONTH, months);
                 if (dayOfWeek == -1 && dayOfMonth == -1) {
-                    startTime.set(Calendar.DATE, 1);
+                    executionStartTime.set(Calendar.DATE, 1);
                 }
-            } else if (startTime.get(Calendar.MONTH) == (int) month && startTime.before(now)) {
-                startTime.add(Calendar.YEAR, 1);
+            } else if (executionStartTime.get(Calendar.MONTH) == (int) month && executionStartTime
+                    .before(currentTime)) {
+                executionStartTime.add(Calendar.YEAR, 1);
             }
         }
+        tuneTheTimestampByCheckingTheYear(currentTime, executionStartTime, minute, hour, dayOfWeek, dayOfMonth, month);
+        return executionStartTime;
+    }
 
-        if (((now.get(Calendar.YEAR) < startTime.get(Calendar.YEAR)) || (
-                now.get(Calendar.MONTH) < startTime.get(Calendar.MONTH) && (month != -1 || dayOfMonth != -1)) || (
-                now.get(Calendar.DAY_OF_WEEK) != startTime.get(Calendar.DAY_OF_WEEK) && dayOfWeek != -1) || (
-                now.get(Calendar.DAY_OF_MONTH) != startTime.get(Calendar.DAY_OF_MONTH) && dayOfMonth != -1)) && (
-                hour == -1 && minute >= -1)) {
-            startTime.set(Calendar.AM_PM, 0);
-            startTime.set(Calendar.HOUR, 0);
-            startTime.set(Calendar.MINUTE, 0);
-            startTime.set(Calendar.SECOND, 0);
+    private static Calendar tuneTheTimestampByCheckingTheYear(Calendar currentTime, Calendar executionStartTime,
+                                                              long minute, long hour, long dayOfWeek, long dayOfMonth,
+                                                              long month) {
+        if (((currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR)) || (
+                currentTime.get(Calendar.MONTH) < executionStartTime.get(Calendar.MONTH) && (month != -1
+                        || dayOfMonth != -1)) || (
+                currentTime.get(Calendar.DAY_OF_WEEK) != executionStartTime.get(Calendar.DAY_OF_WEEK)
+                        && dayOfWeek != -1) || (
+                currentTime.get(Calendar.DAY_OF_MONTH) != executionStartTime.get(Calendar.DAY_OF_MONTH)
+                        && dayOfMonth != -1)) && (hour == -1 && minute >= -1)) {
+            executionStartTime.set(Calendar.AM_PM, 0);
+            executionStartTime.set(Calendar.HOUR, 0);
+            executionStartTime.set(Calendar.MINUTE, 0);
+            executionStartTime.set(Calendar.SECOND, 0);
         }
-        if (now.get(Calendar.YEAR) < startTime.get(Calendar.YEAR) && (
+        if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
                 ((dayOfWeek <= 7 && dayOfWeek >= 1) || dayOfWeek == -1)
-                        && startTime.get(Calendar.DAY_OF_WEEK) != (int) dayOfWeek)) {
-            startTime.set(Calendar.DATE, 1);
+                        && executionStartTime.get(Calendar.DAY_OF_WEEK) != (int) dayOfWeek)) {
+            executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != -1) {
-                while (startTime.get(Calendar.DAY_OF_WEEK) != (int) dayOfWeek) {
-                    if (startTime.get(Calendar.DAY_OF_WEEK) > (int) dayOfWeek) {
-                        startTime.add(Calendar.DATE, 7 - (startTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek));
+                while (executionStartTime.get(Calendar.DAY_OF_WEEK) != (int) dayOfWeek) {
+                    if (executionStartTime.get(Calendar.DAY_OF_WEEK) > (int) dayOfWeek) {
+                        executionStartTime.add(Calendar.DATE,
+                                7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - (int) dayOfWeek));
                     } else {
-                        startTime.add(Calendar.DATE, (int) dayOfWeek - startTime.get(Calendar.DAY_OF_WEEK));
+                        executionStartTime
+                                .add(Calendar.DATE, (int) dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
                     }
                 }
             }
         }
-        return startTime;
+        return executionStartTime;
     }
 
-    private static long calculateDuration(Calendar startTime) {
-        LocalDateTime localNow = LocalDateTime.now();
+    private static Calendar cloneCalendarAndSetTime(Calendar executionStartTime, long dayOfWeek, long dayOfMonth) {
+        Calendar clonnedCalendar = (Calendar) executionStartTime.clone();
+        if (dayOfWeek != -1 && dayOfMonth != -1) {
+            clonnedCalendar.set(Calendar.HOUR, 0);
+            clonnedCalendar.set(Calendar.MINUTE, 0);
+            clonnedCalendar.set(Calendar.SECOND, 0);
+        }
+        return clonnedCalendar;
+    }
+
+    private static long calculateDifference(int taskId, Calendar executionStartTime) {
+        LocalDateTime localCurrentTime = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
-        ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        LocalDateTime localNext = LocalDateTime.ofInstant(startTime.toInstant(), currentZone);
-        ZonedDateTime zonedNextTarget = ZonedDateTime.of(localNext, currentZone);
-        Duration duration = Duration.between(zonedNow, zonedNextTarget);
+        ZonedDateTime zonedCurrentTime = ZonedDateTime.of(localCurrentTime, currentZone);
+        LocalDateTime localExecutionStartTime = LocalDateTime.ofInstant(executionStartTime.toInstant(), currentZone);
+        ZonedDateTime zonedExecutionStartTime = ZonedDateTime.of(localExecutionStartTime, currentZone);
+        Duration duration = Duration.between(zonedCurrentTime, zonedExecutionStartTime);
+        if (log.isDebugEnabled()) {
+            log.info(taskId + " is SCHEDULED to: [" + executionStartTime.getTime() + "]");
+        }
         return duration.toMillis();
     }
 

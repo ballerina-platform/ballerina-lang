@@ -1,6 +1,7 @@
 import ballerina.lang.files;
 import ballerina.lang.system;
 import ballerina.task;
+import ballerina.utils.logger;
 
 function main (string[] args) {
     int minute;
@@ -50,16 +51,10 @@ function main (string[] args) {
     appointmentSchedulerTaskId, appointmentSchedulerError = task:scheduleAppointment(scheduleAppointmentOnTriggerFunction, scheduleAppointmentOnErrorFunction, aScheduler);
     var appointmentSchedulerErrorMessage, castErrorAS = (string)appointmentSchedulerError;
     if(appointmentSchedulerErrorMessage != "") {
-        system:println("Appointment scheduling failed: " + appointmentSchedulerErrorMessage);
+        logger:error("Appointment scheduling failed: " + appointmentSchedulerErrorMessage);
     }
 
     system:sleep(600000);
-
-    any stopTaskError = task:stopTask(appointmentSchedulerTaskId);
-    var stopTaskErrorMessage, castErrorST = (string)stopTaskError;
-    if (stopTaskErrorMessage != "") {
-        system:println("Error while stopping the task: " + stopTaskErrorMessage);
-    }
 }
 
 function cleanup () returns (any) {
@@ -67,7 +62,7 @@ function cleanup () returns (any) {
     files:delete(targetDir);
     boolean b = files:exists(targetDir);
     if (!b) {
-        system:println("Temporary directory /tmp/tmpDir is cleaned up");
+        logger:info("Temporary directory /tmp/tmpDir is cleaned up");
         return "SUCCESS";
     }
     return "";
@@ -76,6 +71,6 @@ function cleanup () returns (any) {
 function cleanupError (any error) {
     var errorMessage, castErr = (string)error;
     if (errorMessage != "") {
-        system:println("Error while cleaning up the tmp directory: " + errorMessage);
+        logger:error("Error while cleaning up the tmp directory: " + errorMessage);
     }
 }

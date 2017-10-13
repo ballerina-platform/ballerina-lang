@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Utility methods for ballerina task.
@@ -33,14 +34,16 @@ public class TaskUtil {
         if (log.isDebugEnabled()) {
             log.info("Generating the task id");
         }
-        int taskId = -1;
         String process = ManagementFactory.getRuntimeMXBean().getName();
         int pid = Integer.parseInt(process.substring(0, process.indexOf('@')));
-        int id = ctx.getProperty(Constant.ID) != null
-                ? Integer.parseInt(ctx.getProperty(Constant.ID).toString()) : 0;
-        id++;
+        AtomicInteger id = ctx.getProperty(Constant.ID) != null ?
+                new AtomicInteger(Integer.parseInt(ctx.getProperty(Constant.ID).toString())) :
+                new AtomicInteger();
         ctx.setProperty(Constant.ID, id);
-        taskId = pid + id;
+        int taskId = Integer.parseInt(pid + "" + id);
+        if (log.isDebugEnabled()) {
+            log.info("ID " + taskId + " is generated for this appointment");
+        }
         return taskId;
     }
 }

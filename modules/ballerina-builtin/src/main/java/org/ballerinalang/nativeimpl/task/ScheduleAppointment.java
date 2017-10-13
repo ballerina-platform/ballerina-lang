@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.nativeimpl.task;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
@@ -29,8 +28,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -47,18 +44,6 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
     returnType = {@ReturnType(type = TypeKind.INT), @ReturnType(type = TypeKind.ANY)},
     isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Schedules the task service with cron expression") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "onTrigger",
-        value = "The schedule function as any type") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "onError",
-        value = "The error function as any type") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "appointmentScheduler",
-        value = "The struct with required attributes") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int)",
-        value = "The identifier of the task") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
-        value = "The error which is occurred while scheduling the task") })
 public class ScheduleAppointment extends AbstractNativeFunction {
     private static final Log log = LogFactory.getLog(ScheduleAppointment.class.getName());
 
@@ -73,23 +58,25 @@ public class ScheduleAppointment extends AbstractNativeFunction {
                 .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
             onErrorFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 1)).value();
         }
-        BValue scheduler = getRefArgument(ctx, 2);
-        long minute = ((BStruct) scheduler).getIntField(0);
-        long hour = ((BStruct) scheduler).getIntField(1);
-        long dayOfWeek = ((BStruct) scheduler).getIntField(2);
-        long dayOfMonth = ((BStruct) scheduler).getIntField(3);
-        long month = ((BStruct) scheduler).getIntField(4);
+        BStruct scheduler = (BStruct) getRefArgument(ctx, 2);
+        long minute = scheduler.getIntField(0);
+        long hour = scheduler.getIntField(1);
+        long dayOfWeek = scheduler.getIntField(2);
+        long dayOfMonth = scheduler.getIntField(3);
+        long month = scheduler.getIntField(4);
         log.info("Request has come to schedule the appointment with the expression: " + minute + " " + hour + " "
                 + dayOfWeek + " " + dayOfMonth + " " + month);
-        int taskId = -1;
         BString error = new BString("Unable to schedule the appointment");
-        taskId = TaskUtil.generateTaskId(ctx);
+        int taskId = TaskUtil.generateTaskId(ctx);
         if (taskId != -1) {
+            ctx.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId, 0);
             TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
                     onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            String schedulerError = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))
-                    ? ctx.getProperty(Constant.ERROR + "_" + taskId).toString() : "";
-            taskId = StringUtils.isEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ? taskId : -1;
+            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+            String schedulerError = errorFromContext != null && !errorFromContext.isEmpty() ?
+                    ctx.getProperty(Constant.ERROR + "_" + taskId).toString() :
+                    "";
+            taskId = errorFromContext == null || errorFromContext.isEmpty() ? taskId : -1;
             error = new BString(schedulerError);
         }
         return getBValues(new BInteger(taskId), error);

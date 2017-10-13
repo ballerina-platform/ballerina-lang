@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,12 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
     returnType = {@ReturnType(type = TypeKind.ANY)},
     isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Stops the scheduled task service") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "taskID",
-        value = "The identifier of the task") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
-        value = "The error which is occurred while stopping the task") })
 public class StopTask extends AbstractNativeFunction {
     private static final Log log = LogFactory.getLog(StopTask.class.getName());
 

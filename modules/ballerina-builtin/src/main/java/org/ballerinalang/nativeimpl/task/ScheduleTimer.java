@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.nativeimpl.task;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
@@ -29,8 +28,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -47,18 +44,6 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
         returnType = {@ReturnType(type = TypeKind.INT), @ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Schedules the task service with delay and interval") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "onTrigger",
-        value = "The schedule function as any type") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "onError",
-        value = "The error function as any type") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "timerScheduler",
-        value = "The struct with required attributes") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int)",
-        value = "The identifier of the task") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any)",
-        value = "The error which is occurred while scheduling the task") })
 public class ScheduleTimer extends AbstractNativeFunction {
     private static final Log log = LogFactory.getLog(ScheduleTimer.class.getName());
 
@@ -73,20 +58,21 @@ public class ScheduleTimer extends AbstractNativeFunction {
                 .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
             onErrorFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 1)).value();
         }
-        BValue scheduler = getRefArgument(ctx, 2);
-        long delay = ((BStruct) scheduler).getIntField(0);
-        long interval = ((BStruct) scheduler).getIntField(1);
+        BStruct scheduler = (BStruct) getRefArgument(ctx, 2);
+        long delay = scheduler.getIntField(0);
+        long interval = scheduler.getIntField(1);
         log.info("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: "
                 + interval);
-        int taskId = -1;
         BString error = new BString("Unable to schedule the timer");
-        taskId = TaskUtil.generateTaskId(ctx);
+        int taskId = TaskUtil.generateTaskId(ctx);
         if (taskId != -1) {
             TaskScheduler
                     .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            String schedulerError = StringUtils.isNotEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId))
-                    ? ctx.getProperty(Constant.ERROR + "_" + taskId).toString() : "";
-            taskId = StringUtils.isEmpty((String) ctx.getProperty(Constant.ERROR + "_" + taskId)) ? taskId : -1;
+            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+            String schedulerError = errorFromContext != null && !errorFromContext.isEmpty() ?
+                    ctx.getProperty(Constant.ERROR + "_" + taskId).toString() :
+                    "";
+            taskId = errorFromContext == null || errorFromContext.isEmpty() ? taskId : -1;
             error = new BString(schedulerError);
         }
         return getBValues(new BInteger(taskId), error);

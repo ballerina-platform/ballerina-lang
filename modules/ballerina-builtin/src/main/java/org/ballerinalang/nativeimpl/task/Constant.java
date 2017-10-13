@@ -27,4 +27,14 @@ public class Constant {
     protected static final String ERROR = "ERROR";
     //The name of the context property which is used to generate the task id.
     protected static final String ID = "id";
+    //The runnable duration.
+    protected static final String SCHEDULER_RUNTIME = "period";
+    // The string which is used to find the calculated delay
+    public static final String DELAY_HINT = " is scheduled with the DELAY [";
+    // The string which is used to find the calculated delay
+    public static final String SCHEDULER_RUNTIME_HINT = "with the PERIOD: [";
+    // The prefix of timer log
+    public static final String PREFIX_TIMER = "";
+    // The prefix of appointment log
+    public static final String PREFIX_APPOINTMENT = "Appointment ";
 }
