@@ -206,13 +206,28 @@ class ForkJoinNode extends React.Component {
                     y2={forkLineHiderBottom}
                     className="life-line-hider"
                 />
+
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={'Fork'}
                     model={model}
                     body={model}
-                />
+                >
+                    {
+                        this.props.model.workers.map((item) => {
+                            return (<DropZone
+                                x={item.getBody().viewState.bBox.x}
+                                y={item.getBody().viewState.bBox.y}
+                                width={item.getBody().viewState.bBox.w}
+                                height={item.getBody().viewState.bBox.h}
+                                baseComponent="rect"
+                                dropTarget={item.getBody()}
+                                enableDragBg
+                            />);
+                        })
+                    }
+                </CompoundStatementDecorator>
 
                 {model.joinBody &&
                 <line

@@ -327,6 +327,7 @@ class CompoundStatementDecorator extends React.Component {
                     dropTarget={this.props.body}
                     enableDragBg
                 />
+                {this.props.children}
                 {body}
             </g>);
     }
