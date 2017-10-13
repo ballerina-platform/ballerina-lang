@@ -322,6 +322,9 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
@@ -349,6 +352,8 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         String payload = abstractNativeFunction.getStringArgument(context, 0);
         StringDataSource stringDataSource = new StringDataSource(payload
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
@@ -368,6 +373,9 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
