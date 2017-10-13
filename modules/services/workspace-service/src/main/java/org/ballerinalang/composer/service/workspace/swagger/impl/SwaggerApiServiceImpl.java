@@ -86,7 +86,7 @@ public class SwaggerApiServiceImpl {
             //Take ballerina source and generate swagger and add it to service definition.
             if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
                 if (swaggerDefinition != null && !swaggerDefinition.isEmpty()) {
-                    SwaggerConverterUtils.getServiceFromSwaggerDefinition(ballerinaDefinition);
+//                    SwaggerConverterUtils.getServiceFromSwaggerDefinition(ballerinaDefinition);
                 } else {
                     return Response.noContent().entity("Please provide valid swagger source.").build();
                 }

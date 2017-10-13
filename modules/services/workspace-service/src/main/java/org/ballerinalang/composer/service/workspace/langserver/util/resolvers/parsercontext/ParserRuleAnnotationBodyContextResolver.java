@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,8 +56,6 @@ public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolve
             int channel = tokenStream.get(searchIndex).getChannel();
             String tokenStr = tokenStream.get(searchIndex).getText();
             if (channel == 0 && (tokenStr.equals(",") || tokenStr.equals(ItemResolverConstants.ATTACH))) {
-                completionItems.addAll(resolvers.get(BallerinaParser.AttachmentPointContext.class)
-                        .resolveItems(dataModel, symbols, resolvers));
                 return completionItems;
             } else if (channel == 0) {
                 break;

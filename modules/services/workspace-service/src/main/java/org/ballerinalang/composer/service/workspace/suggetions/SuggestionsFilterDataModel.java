@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.model.BallerinaFile;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -41,7 +40,6 @@ public class SuggestionsFilterDataModel {
     private TokenStream tokenStream;
     private Vocabulary vocabulary;
     private int tokenIndex;
-    private BallerinaFile ballerinaFile;
     private BLangNode symbolEnvNode;
     private Set<Map.Entry<String, ModelPackage>> packages;
     private SymbolTable symbolTable;
@@ -109,14 +107,6 @@ public class SuggestionsFilterDataModel {
      */
     public int getTokenIndex() {
         return tokenIndex;
-    }
-
-    public BallerinaFile getBallerinaFile() {
-        return ballerinaFile;
-    }
-
-    public void setBallerinaFile(BallerinaFile ballerinaFile) {
-        this.ballerinaFile = ballerinaFile;
     }
 
     public Set<Map.Entry<String, ModelPackage>> getPackages() {

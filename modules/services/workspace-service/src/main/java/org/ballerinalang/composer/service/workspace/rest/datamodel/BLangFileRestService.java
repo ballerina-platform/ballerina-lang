@@ -269,6 +269,7 @@ public class BLangFileRestService {
             // This is since the invocation symbol abstract method has not currently been exposed from the runtime
             // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
             if (node.getKind() == NodeKind.INVOCATION) {
+                assert node instanceof BLangInvocation : node.getClass();
                 BLangInvocation invocation = (BLangInvocation) node;
                 if (invocation.symbol != null) {
                     nodeJson.addProperty("invocationType", invocation.symbol.kind.toString());
@@ -349,10 +350,10 @@ public class BLangFileRestService {
         List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
         ErrorCategory errorCategory = ErrorCategory.NONE;
         BLangPackage model = ballerinaFile.getBLangPackage();
-        if(!diagnostics.isEmpty()){
-            if(model == null){
+        if (!diagnostics.isEmpty()) {
+            if (model == null) {
                 errorCategory = ErrorCategory.SYNTAX;
-            }else {
+            } else {
                 errorCategory = ErrorCategory.SEMANTIC;
             }
         }
@@ -372,7 +373,10 @@ public class BLangFileRestService {
         return result;
     }
 
-    public enum ErrorCategory{
+    /**
+     * Enum for Error Category
+     */
+    public enum ErrorCategory {
         SYNTAX,
         SEMANTIC,
         NONE;

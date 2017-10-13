@@ -52,6 +52,7 @@ class App extends React.Component {
             documentHeight: window.innerHeight,
             documentWidth: window.innerWidth,
             panelResizeInProgress: false,
+            leftPanelActiveView: undefined,
         };
         this.leftRightSplitPane = undefined;
         this.topBottomSplitPane = undefined;
@@ -63,6 +64,12 @@ class App extends React.Component {
         });
         this.props.layoutPlugin.on(EVENTS.SHOW_BOTTOM_PANEL, () => {
             this.setBottomPanelState(true);
+        });
+        this.props.layoutPlugin.on(EVENTS.SHOW_LEFT_PANEL, (view) => {
+            this.setState({
+                leftPanelActiveView: view,
+            });
+            this.setLeftPanelState(true);
         });
     }
 
@@ -193,8 +200,12 @@ class App extends React.Component {
                         panelResizeInProgress={this.state.panelResizeInProgress}
                         width={this.state.leftPanelSize}
                         height={this.state.documentHeight - (headerHeight + toolAreaHeight)}
+                        activeView={this.state.leftPanelActiveView}
                         onActiveViewChange={
                             (newView) => {
+                                this.setState({
+                                    leftPanelActiveView: newView,
+                                });
                                 if (!_.isNil(this.leftRightSplitPane)) {
                                     this.leftRightSplitPane.setState({
                                         resized: false,

@@ -49,7 +49,6 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.slf4j.Logger;
@@ -61,7 +60,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,10 +96,6 @@ public class LangServerManager {
 
     private Set<Map.Entry<String, ModelPackage>> packages;
 
-    private Map<Path, Map<String, ModelPackage>> programPackagesMap;
-
-    private Map<Path, BLangProgram> programMap;
-
     private static final String BAL_EXTENTION = ".bal";
 
     /**
@@ -115,8 +109,6 @@ public class LangServerManager {
     private LangServerManager() {
         this.initialized = false;
         this.gson = new GsonBuilder().serializeNulls().create();
-        programPackagesMap = new HashMap<>();
-        programMap = new HashMap<>();
     }
 
     /**
@@ -551,7 +543,7 @@ public class LangServerManager {
     }
 
     private static String getRandomComilationUnitId() {
-        return UUID.randomUUID().toString().replace("-","") + BAL_EXTENTION;
+        return UUID.randomUUID().toString().replace("-", "") + BAL_EXTENTION;
     }
 
     // End Notification Handlers

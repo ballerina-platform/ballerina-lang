@@ -335,7 +335,9 @@ public class SwaggerResourceMapper {
                         }
                         if (null != property) {
                             if (headersAttributes.containsKey("description")) {
-                                property.setDescription(this.getStringLiteralValue(headersAttributes.get("description")));
+                                property.setDescription(
+                                        this.getStringLiteralValue(headersAttributes.get("description"))
+                                );
                             }
                             headers.put(headerName, property);
                         }
