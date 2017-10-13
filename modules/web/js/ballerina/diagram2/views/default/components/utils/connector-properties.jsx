@@ -68,7 +68,8 @@ class ConnectorPropertiesForm extends React.Component {
         connectorProps.map((property, index) => {
             if (addedValues.length > 0 && (index <= addedValues.length - 1)) {
                 // Check for the connection properties
-                if (property.identifier === 'connectorOptions') {
+                // TODO make the logic generic. The options/structs of a connector now doesn't come with a generic type
+                if (property.identifier === 'connectorOptions' || property.identifier === 'options') {
                     if (TreeUtils.isSimpleVariableRef(addedValues[index])) {
                         property.value = this.getAddedValueOfProp(addedValues[index]);
                     } else {
@@ -126,8 +127,14 @@ class ConnectorPropertiesForm extends React.Component {
         const optionProps = {};
         // Filter all values in the connection option struct
         Object.keys(data).forEach((key) => {
+            // TODO make the logic generic. The options/structs of a connector now doesn't come with a generic type
             if (key.startsWith('connectorOptions:')) {
                 const propName = key.replace('connectorOptions:', '');
+                optionProps[propName] = data[key];
+            }
+
+            if (key.startsWith('options:')) {
+                const propName = key.replace('options:', '');
                 optionProps[propName] = data[key];
             }
         });
@@ -139,7 +146,8 @@ class ConnectorPropertiesForm extends React.Component {
                 let indexOfThisNode = 0;
                 if (key === property.identifier) {
                     // Check for options
-                    if (key === 'connectorOptions') {
+                    // TODO make the logic generic. The options properties of a connector now doesn't come with a generic type
+                    if (key === 'connectorOptions' || key === 'options') {
                         if (data[key]) {
                             // Create an identifier node
                             const variableNameNode = NodeFactory.createIdentifier({ value: data[key] });
