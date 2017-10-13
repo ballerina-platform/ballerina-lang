@@ -18,6 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -48,13 +49,13 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
-    private boolean nonBlockingActionCall = false;
 
     private int startIP;
     private BStruct unhandledError;
 
+    protected WorkerCounter workerCounter;
+
     // TODO : Temporary solution to make non-blocking working.
-    public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
@@ -69,6 +70,7 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
         this.controlStackNew = new ControlStackNew();
+        this.workerCounter = new WorkerCounter();
     }
 
     public DebugInfoHolder getDebugInfoHolder() {
@@ -106,14 +108,6 @@ public class Context {
 
     public void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
-    }
-
-    public boolean isNonBlockingActionCall() {
-        return nonBlockingActionCall;
-    }
-
-    public void setNonBlockingActionCall(boolean nonBlockingActionCall) {
-        this.nonBlockingActionCall = nonBlockingActionCall;
     }
 
     public ControlStackNew getControlStackNew() {
@@ -193,5 +187,51 @@ public class Context {
 
     public ProgramFile getProgramFile() {
         return programFile;
+    }
+
+    /**
+     * start tracking current worker.
+     */
+    public void startTrackWorker() {
+        workerCounter.countUp();
+    }
+
+    /**
+     * end tracking current worker.
+     */
+    public void endTrackWorker() {
+        workerCounter.countDown();
+    }
+
+    /**
+     * Wait until all spawned workers are completed.
+     */
+    public void await() {
+        workerCounter.await();
+    }
+
+    /**
+     * Wait until all spawned worker are completed within the given waiting time.
+     *
+     * @param timeout time out duration in seconds.
+     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
+     */
+    public boolean await(int timeout) {
+        return workerCounter.await(timeout);
+    }
+
+    /**
+     * Mark this context is associated with a resource.
+     */
+    public void setAsResourceContext() {
+        this.workerCounter.setResourceContext(this);
+    }
+
+    public void resetWorkerContextFlow() {
+        this.workerCounter = new WorkerCounter();
+    }
+
+    public WorkerCounter getWorkerCounter() {
+        return workerCounter;
     }
 }

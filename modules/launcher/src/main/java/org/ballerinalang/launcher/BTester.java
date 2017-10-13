@@ -5,7 +5,6 @@ import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -91,12 +90,6 @@ public class BTester {
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {
             ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
 
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());

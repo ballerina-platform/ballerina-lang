@@ -18,7 +18,6 @@
 package org.ballerinalang.model.expressions.variablerefs;
 
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -107,10 +106,5 @@ public class SimpleVarRefExpr extends AbstractExpression implements VariableRefe
     @Override
     public void setParentVarRefExpr(VariableReferenceExpr varRefExpr) {
         this.parentVarRefExpr = varRefExpr;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 }

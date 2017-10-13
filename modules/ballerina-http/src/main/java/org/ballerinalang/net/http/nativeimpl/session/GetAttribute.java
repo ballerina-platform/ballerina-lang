@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.session.Session;
@@ -38,9 +39,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getAttribute",
-        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "attributeKey", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "attributeKey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )

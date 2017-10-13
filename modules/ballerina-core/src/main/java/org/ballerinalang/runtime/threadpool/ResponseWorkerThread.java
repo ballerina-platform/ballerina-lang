@@ -38,11 +38,7 @@ public class ResponseWorkerThread implements Runnable {
     public void run() {
         BLangVM bLangVM = new BLangVM(context.getProgramFile());
         try {
-            context.setNonBlockingActionCall(false);
             bLangVM.run(context);
-            if (context.getConnectorFuture() != null && !context.isNonBlockingActionCall()) {
-                context.getConnectorFuture().notifySuccess();
-            }
         } catch (Exception e) {
             logger.error("unhandled exception ", e);
         }

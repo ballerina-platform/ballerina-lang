@@ -24,17 +24,18 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Set Content-Length header to the message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "setContentLength",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "contentLength", type = TypeKind.INT)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "contentLength", type = TypeKind.INT)},
         isPublic = true
 )
 public class SetContentLength extends AbstractNativeFunction {

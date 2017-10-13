@@ -99,11 +99,6 @@ public class AnnotationAttachment implements Node {
     }
 
     @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public NodeLocation getNodeLocation() {
         return location;
     }

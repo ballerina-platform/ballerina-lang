@@ -1,18 +1,17 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 function testResponseSetStatusCode (http:Response res, string statusCode) (http:Response) {
-    response:setStatusCode(res, statusCode);
+    res.setStatusCode(statusCode);
     return res;
 }
 
 function testResponseGetContentLengthWithString (http:Response res) (http:Response) {
-    response:setContentLength(res, "hello");
+    res.setContentLength("hello");
     return res;
 }
 
 function testResponseGetMethod (http:Response res) (string) {
-    string method = response:getMethod(res);
+    string method = res.getMethod();
     return method;
 }
 

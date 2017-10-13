@@ -1,8 +1,6 @@
 package servicechaining.samples;
 
 import ballerina.net.http;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/bankinfo"}
 service<http> Bankinfo {
@@ -11,7 +9,7 @@ service<http> Bankinfo {
         methods:["POST"]
     }
     resource product (http:Request req, http:Response res) {
-        json jsonRequest = request:getJsonPayload(req);
+        json jsonRequest = req.getJsonPayload();
         string branchCode;
         branchCode, _ = (string) jsonRequest.BranchInfo.BranchCode;
         json payload = {};
@@ -23,7 +21,7 @@ service<http> Bankinfo {
             payload = {"ABC Bank": {"error": "No branches found."}};
             
         }
-        response:setJsonPayload(res, payload);
-        response:send(res);   
+        res.setJsonPayload(payload);
+        res.send();
     }
 }

@@ -99,7 +99,7 @@ public class XMLLiteralTest {
     public void testCombinedExpressionsAsElementName() {
         CompileResult negativeResult = BTestUtils.compile("test-src/expressions/literals/xml/xml-invalid-syntax-1.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        BTestUtils.validateError(negativeResult, 0, "invalid token '<ns0:{{'", 3, 19);
+        BTestUtils.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
     }
      
     @Test

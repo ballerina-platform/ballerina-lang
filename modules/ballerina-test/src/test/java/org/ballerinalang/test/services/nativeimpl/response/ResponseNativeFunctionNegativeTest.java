@@ -175,8 +175,8 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 85)
-                , "error while retrieving XML payload from message: empty content");
+        Assert.assertTrue(error.contains("error: error, message: error while retrieving XML payload from message: " +
+                "Unexpected EOF in prolog"));
     }
 
     @Test
@@ -221,11 +221,12 @@ public class ResponseNativeFunctionNegativeTest {
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         //testResponseSetStatusCodeWithString
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 5, 33);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
         //testResponseGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 36);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
         //testResponseGetMethod
-        BTestUtils.validateError(resultNegative, 2, "undefined function 'getMethod'", 15, 21);
+        BTestUtils.validateError(resultNegative, 2,
+                                 "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 14, 21);
 
     }
 

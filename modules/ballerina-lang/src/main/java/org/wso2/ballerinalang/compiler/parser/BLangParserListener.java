@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
@@ -2881,7 +2882,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        getWS(ctx);
+        if (ctx.exception != null) {
+            return;
+        }
+
+        Stack<String> stringFragments = null;
+        String endingText = null;
+        StringTemplateContentContext contentContext = ctx.stringTemplateContent();
+        if (contentContext != null) {
+            stringFragments = getTemplateTextFragments(contentContext.StringTemplateExpressionStart());
+            endingText = getTemplateEndingStr(contentContext.StringTemplateText());
+        } else {
+            stringFragments = new Stack<>();
+        }
+
+        this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
     }
 
     /**
@@ -2900,13 +2915,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        Stack<String> stringFragments = getTemplateTextFragments(ctx.StringTemplateExpressionStart());
-        String endingText = getTemplateEndingStr(ctx.StringTemplateText());
-        this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
     }
 
     /**

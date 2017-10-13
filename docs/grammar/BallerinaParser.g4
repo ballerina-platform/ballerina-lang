@@ -147,8 +147,7 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 workerDefinition
