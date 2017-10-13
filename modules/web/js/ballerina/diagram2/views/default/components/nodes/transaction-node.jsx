@@ -18,11 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './../../../../diagram-util';
-import ASTFactory from '../../../../../ast/ast-factory';
-import TreeUtil from './../../../../../model/tree-util';
+import DropZone from './../../../../../drag-drop/DropZone';
 import './if-node.css';
 
 class TransactionNode extends React.Component {
@@ -54,16 +51,17 @@ class TransactionNode extends React.Component {
 
         return (
             <g>
-                <rect
+                <DropZone
                     x={dropZone.x}
                     y={dropZone.y}
                     width={dropZone.w}
                     height={dropZone.h}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
+                    baseComponent="rect"
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                    renderUponDragStart
                 />
+
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={transactionBody.viewState.bBox}
