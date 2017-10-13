@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
@@ -296,7 +297,7 @@ public class BLangFileRestService {
             } else if (prop instanceof Set && jsonName.equals("flags")) {
                 Set flags = (Set) prop;
                 for (Flag flag : Flag.values()) {
-                    nodeJson.addProperty(flag.toString().toLowerCase(), flags.contains(flag));
+                    nodeJson.addProperty(StringUtils.lowerCase(flag.toString()), flags.contains(flag));
                 }
             } else if (prop instanceof Set) {
                 // TODO : limit this else if the getTypes
@@ -321,7 +322,7 @@ public class BLangFileRestService {
             } else if (prop instanceof Boolean) {
                 nodeJson.addProperty(jsonName, (Boolean) prop);
             } else if (prop instanceof Enum) {
-                nodeJson.addProperty(jsonName, ((Enum) prop).name().toLowerCase());
+                nodeJson.addProperty(jsonName, StringUtils.lowerCase(((Enum) prop).name()));
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
                 String message = "Node " + node.getClass().getSimpleName() +

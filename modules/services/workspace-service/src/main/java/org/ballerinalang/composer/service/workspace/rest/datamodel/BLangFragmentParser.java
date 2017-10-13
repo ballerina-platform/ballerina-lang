@@ -88,6 +88,7 @@ public class BLangFragmentParser {
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
                 // For Expression - 0th child is the var ref expression of var def stmt
@@ -109,10 +110,6 @@ public class BLangFragmentParser {
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS)
                         .get(0)
                         .getAsJsonObject();
-                break;
-            case BLangFragmentParserConstants.TRANSACTION_FAILED:
-                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
-                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             default:
                 fragmentNode = new JsonObject();

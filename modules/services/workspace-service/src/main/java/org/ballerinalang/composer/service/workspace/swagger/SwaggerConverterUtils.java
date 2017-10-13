@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -128,29 +127,7 @@ public class SwaggerConverterUtils {
 //        service.setResources(resources1);
 //        return service;
 //    }
-    
-    /**
-     * Atomically creates a new directory somewhere beneath the system's temporary directory (as defined by the {@code
-     * java.io.tmpdir} system property), and returns its name.
-     *
-     * @return the newly-created directory
-     * @throws IllegalStateException if the directory could not be created
-     */
-    private static File createTempDir() {
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
-        String baseName = System.currentTimeMillis() + "-";
-        
-        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-            File tempDir = new File(baseDir, baseName + counter);
-            if (tempDir.mkdir()) {
-                return tempDir;
-            }
-        }
-        throw new IllegalStateException("Failed to create directory within " + TEMP_DIR_ATTEMPTS + " attempts (tried " +
-                                        "" + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
-    }
-    
-    
+
     /**
      * This method will convert swagger path List into ballerina @Resource array
      *

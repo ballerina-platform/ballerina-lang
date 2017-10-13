@@ -153,10 +153,13 @@ public abstract class AbstractItemResolver {
         type.setPkgName(symbolInfo.getScopeEntry().symbol.pkgID.toString());
         if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
             assert symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType : "Invalid symbol type found";
-            BJSONType bJsonType = (BJSONType) symbolInfo.getScopeEntry().symbol.getType();
-            type.setConstraint(true);
-            type.setConstraintName(bJsonType.getConstraint().toString());
-            type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
+            BType bType = symbolInfo.getScopeEntry().symbol.getType();
+            if (bType instanceof BJSONType) {
+                BJSONType bJsonType = (BJSONType) bType;
+                type.setConstraint(true);
+                type.setConstraintName(bJsonType.getConstraint().toString());
+                type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
+            }
         } else if (symbolInfo.getScopeEntry().symbol.getType() instanceof BArrayType) {
             type.setIsArrayType(true);
             type.setArrayType(symbolInfo.getScopeEntry().symbol.getType().toString());
