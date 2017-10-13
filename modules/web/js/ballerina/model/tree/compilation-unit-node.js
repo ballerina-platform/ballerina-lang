@@ -94,38 +94,23 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      * Add a global declaration as a top level node
      * @param globalNode
      */
-    addGlobal(globalNode, position) {
-        let index;
-
+    addGlobal(globalNode, silent) {
         if (!TreeUtils.isVariable(globalNode)) {
             // only constants and global variables can be added at global level
             return;
         }
+        // Get index of the last global variable
+        let index = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isVariable));
+        // Filter the package declarations from the top level nodes
+        const pkgDecl = this.filterTopLevelNodes(TreeUtils.isPackageDeclaration);
+        // Get the last index of the imports from the top level nodes
+        const lastImportIndex = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isImport));
+        // If there are no variables index is -1. Then we need to add the first variable after the first import
+        // which is the first child of the ast root
 
-        if (!_.isNil(position) && position >= 0) {
-            index = position;
-        } else {
-            // Get the index of the last constant declaration.
-            index = _.findLastIndex(this.getTopLevelNodes(), (child) => {
-                return TreeUtils.isVariable(child);
-            });
-
-            // If index is still -1, then get the index of the last import.
-            if (index === -1) {
-                index = _.findLastIndex(this.getTopLevelNodes(), (child) => {
-                    return TreeUtils.isImport(child);
-                });
-            }
-
-            // If index is still -1, then consider the package definition.
-            if (_.isEqual(index, -1)) {
-                index = 0;
-            }
-
-            index += 1;
-        }
-
-        this.addTopLevelNodes(globalNode, index);
+        index = ((index !== -1) ? (index + 1) : ((lastImportIndex !== -1) ? (lastImportIndex + 1) :
+            ((pkgDecl.length === 0) ? 0 : 1)));
+        this.addTopLevelNodes(globalNode, index, silent);
     }
 
     /**
