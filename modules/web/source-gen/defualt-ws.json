@@ -19,7 +19,15 @@
     "before value": "",
     "after value": ""
   },
+  "Abort": {
+    "before abort": "",
+    "after abort": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "Action": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
     "before action": "",
     "after action": "",
     "before name": " ",
@@ -34,10 +42,12 @@
     "after returnParameters": "",
     "before {": " ",
     "after {": "",
-    "before body": "",
-    "after body": "",
+    "before workers": "",
+    "after workers": "",
     "before }": "",
-    "after }": ""
+    "after }": "",
+    "before body": "",
+    "after body": ""
   },
   "Annotation": {
     "before annotation": "",
@@ -121,12 +131,16 @@
     "after ;": ""
   },
   "BinaryExpr": {
+    "before {{": "",
+    "after {{": "",
     "before leftExpression": "",
     "after leftExpression": "",
     "before operatorKind": " ",
     "after operatorKind": " ",
     "before rightExpression": "",
-    "after rightExpression": ""
+    "after rightExpression": "",
+    "before }}": "",
+    "after }}": ""
   },
   "Block": {
     "before statements": "",
@@ -164,6 +178,8 @@
     "dent": true
   },
   "Connector": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
     "before connector": "",
     "after connector": "",
     "before name": " ",
@@ -204,12 +220,6 @@
     "after constraint": "",
     "before >": "",
     "after >": ""
-  },
-  "Continue": {
-    "before continue": "",
-    "after continue": "",
-    "before ;": "",
-    "after ;": ""
   },
   "ExpressionStatement": {
     "before expression": "",
@@ -264,8 +274,6 @@
     "after annotationAttachments": "",
     "before function": "",
     "after function": "",
-    "before name": " ",
-    "after name": "",
     "before (": " ",
     "after (": "",
     "before parameters": "",
@@ -281,7 +289,9 @@
     "before }": "",
     "after }": "",
     "before body": "",
-    "after body": ""
+    "after body": "",
+    "before name": " ",
+    "after name": ""
   },
   "FunctionType": {
     "before function": "",
@@ -328,10 +338,10 @@
     "after ]": ""
   },
   "Invocation": {
-    "before packageAlias": "",
-    "after packageAlias": "",
-    "before :": "",
-    "after :": "",
+    "before expression": "",
+    "after expression": "",
+    "before .": "",
+    "after .": "",
     "before name": "",
     "after name": "",
     "before (": "",
@@ -340,18 +350,26 @@
     "after argumentExpressions": "",
     "before )": "",
     "after )": "",
-    "before expression": "",
-    "after expression": "",
-    "before .": "",
-    "after .": ""
+    "before packageAlias": "",
+    "after packageAlias": "",
+    "before :": "",
+    "after :": ""
   },
   "Lambda": {
     "before functionNode": "",
     "after functionNode": ""
   },
   "Literal": {
+    "before unescapedValue": "",
+    "after unescapedValue": "",
     "before value": "",
     "after value": ""
+  },
+  "Next": {
+    "before next": "",
+    "after next": "",
+    "before ;": "",
+    "after ;": ""
   },
   "RecordLiteralExpr": {
     "before {": "",
@@ -391,6 +409,14 @@
     "before body": "",
     "after body": ""
   },
+  "Retry": {
+    "before retry": "",
+    "after retry": "",
+    "before count": " ",
+    "after count": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "Return": {
     "before return": "",
     "after return": " ",
@@ -422,16 +448,30 @@
     "after }": ""
   },
   "SimpleVariableRef": {
+    "before {{": "",
+    "after {{": "",
     "before packageAlias": "",
     "after packageAlias": "",
     "before :": "",
     "after :": "",
     "before variableName": "",
-    "after variableName": ""
+    "after variableName": "",
+    "before }}": "",
+    "after }}": ""
+  },
+  "StringTemplateLiteral": {
+    "before string\\u0020`": "",
+    "after string\\u0020`": "",
+    "before expressions": "",
+    "after expressions": "",
+    "before `": "",
+    "after `": ""
   },
   "Struct": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
+    "before public": "",
+    "after public": "",
     "before struct": "",
     "after struct": "",
     "before name": " ",
@@ -450,6 +490,28 @@
     "after expressions": "",
     "before ;": "",
     "after ;": ""
+  },
+  "Transaction": {
+    "before transaction": "",
+    "after transaction": "",
+    "before {": "",
+    "after {": "",
+    "before transactionBody": "",
+    "after transactionBody": "",
+    "before }": "",
+    "after }": "",
+    "before failed": "",
+    "after failed": "",
+    "before failedBody": "",
+    "after failedBody": "",
+    "before committed": "",
+    "after committed": "",
+    "before committedBody": "",
+    "after committedBody": "",
+    "before aborted": "",
+    "after aborted": "",
+    "before abortedBody": "",
+    "after abortedBody": ""
   },
   "Transform": {
     "before transform": "",
@@ -471,7 +533,11 @@
     "before }": "",
     "after }": "",
     "before catchBlocks": "",
-    "after catchBlocks": ""
+    "after catchBlocks": "",
+    "before finally": "",
+    "after finally": "",
+    "before finallyBody": "",
+    "after finallyBody": ""
   },
   "TypeCastExpr": {
     "before (": "",
@@ -512,6 +578,10 @@
     "after typeKind": ""
   },
   "Variable": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before public": "",
+    "after public": "",
     "before const": "",
     "after const": " ",
     "before typeNode": "",
@@ -523,9 +593,7 @@
     "before initialExpression": "",
     "after initialExpression": "",
     "before ;": "",
-    "after ;": "",
-    "before annotationAttachments": "",
-    "after annotationAttachments": ""
+    "after ;": ""
   },
   "VariableDef": {
     "before variable": "",
@@ -591,11 +659,23 @@
     "before value": "",
     "after value": ""
   },
+  "XmlAttributeAccessExpr": {
+    "before expression": "",
+    "after expression": "",
+    "before @": "",
+    "after @": "",
+    "before [": "",
+    "after [": "",
+    "before index": "",
+    "after index": "",
+    "before ]": "",
+    "after ]": ""
+  },
   "XmlCommentLiteral": {
     "before xml`": "",
     "after xml`": "",
-    "before <--": "",
-    "after <--": "",
+    "before <!--": "",
+    "after <!--": "",
     "before textFragments": "",
     "after textFragments": "",
     "before -->": "",
@@ -619,7 +699,9 @@
     "before </": "",
     "after </": "",
     "before endTagName": "",
-    "after endTagName": ""
+    "after endTagName": "",
+    "before `": "",
+    "after `": ""
   },
   "XmlPiLiteral": {
     "before target": "",
@@ -628,6 +710,10 @@
     "after dataTextFragments": ""
   },
   "XmlQname": {
+    "before prefix": "",
+    "after prefix": "",
+    "before :": "",
+    "after :": "",
     "before localname": "",
     "after localname": ""
   },
@@ -638,6 +724,20 @@
   "XmlTextLiteral": {
     "before textFragments": "",
     "after textFragments": ""
+  },
+  "Xmlns": {
+    "before xmlns": "",
+    "after xmlns": "",
+    "before namespaceURI": "",
+    "after namespaceURI": "",
+    "before as": "",
+    "after as": "",
+    "before prefix": "",
+    "after prefix": "",
+    "before ;": "",
+    "after ;": "",
+    "before namespaceDeclaration": "",
+    "after namespaceDeclaration": ""
   }
 }
 

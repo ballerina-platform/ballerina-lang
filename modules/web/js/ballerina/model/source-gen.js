@@ -372,8 +372,8 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'Invocation':
             if (node.expression && node.name.value && node.argumentExpressions) {
                 return getSourceOf(node.expression, pretty, l) + w() + '.' + w()
-                    + node.name.value + w() + '('
-                    + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
+                 + node.name.value + w() + '('
+                 + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
             } else if (node.packageAlias.value && node.name.value
                          && node.argumentExpressions) {
                 return w() + node.packageAlias.value + w() + ':' + w() + node.name.value
@@ -421,7 +421,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + '}';
             }
         case 'Retry':
-            return dent() + w() + 'retry' + w() + node.count + w() + ';';
+            return dent() + w() + 'retry' + w(' ') + node.count + w() + ';';
         case 'Return':
             return dent() + w() + 'return' + a(' ')
                  + join(node.expressions, pretty, l, w, ' ', ',') + w() + ';';
