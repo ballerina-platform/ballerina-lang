@@ -111,10 +111,7 @@ public class BLangFragmentParser {
                         .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
-                JsonObject failedBody = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
-                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0)
-                        .getAsJsonObject();
-                fragmentNode = failedBody.getAsJsonObject(BLangJSONModelConstants.FAILED_BODY)
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
                         .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             default:

@@ -326,11 +326,15 @@ class TreeUtil extends AbstractTreeUtil {
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
             // clear white space data so it will be formated properly.
             newStatementNode.clearWS();
+
             // replace the old node with new node.
             if (this.isService(statementParentNode)) {
                 statementParentNode.replaceVariables(node, newStatementNode, false);
             } else if (this.isConnector(statementParentNode)) {
                 statementParentNode.replaceVariableDefs(node, newStatementNode, false);
+            } else if (this.isTransaction(newStatementNode)) {
+                statementParentNode.parent.setCondition(newStatementNode.getCondition());
+                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements[0], false);
             } else {
                 statementParentNode.replaceStatements(node, newStatementNode, false);
             }
