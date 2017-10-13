@@ -2882,10 +2882,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.exception != null) {
-            return;
-        }
-
         Stack<String> stringFragments = null;
         String endingText = null;
         StringTemplateContentContext contentContext = ctx.stringTemplateContent();
