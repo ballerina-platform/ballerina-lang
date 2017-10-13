@@ -55,7 +55,12 @@ public class BLogManager extends LogManager {
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
         Properties properties = getDefaultLogConfiguration();
-        properties.load(ins); // override the default configs using the provided config file
+
+        // override the default configs if the user has provided a config file
+        if (System.getProperty("java.util.logging.config.file") != null) {
+            properties.load(ins);
+        }
+
         properties.forEach((k, v) -> {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
