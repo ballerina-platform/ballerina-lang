@@ -187,7 +187,9 @@ class DebuggerPlugin extends Plugin {
                     icon: 'start',
                     commandID: COMMAND_IDS.RUN,
                     isActive: () => {
-                        return !LaunchManager.active;
+                        const activeEditor = this.appContext.editor.getActiveEditor();
+                        return activeEditor && activeEditor.definition &&
+                            activeEditor.definition.id === 'composer.editor.ballerina' && !LaunchManager.active;
                     },
                     isVisible: () => {
                         return !LaunchManager.active;
@@ -214,7 +216,9 @@ class DebuggerPlugin extends Plugin {
                         return !DebugManager.active;
                     },
                     isActive: () => {
-                        return !LaunchManager.active;
+                        const activeEditor = this.appContext.editor.getActiveEditor();
+                        return activeEditor && activeEditor.definition &&
+                            activeEditor.definition.id === 'composer.editor.ballerina' && !DebugManager.active;
                     },
                 },
                 {
