@@ -42,5 +42,7 @@ public class DebuggerExecutor implements Runnable {
         bContext.getDebugInfoHolder().getDebugSessionObserver().addContext(bContext);
         bContext.getDebugInfoHolder().waitTillDebuggeeResponds();
         bLangVM.run(bContext);
+        bContext.await();
+        bContext.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
     }
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.test.debugger;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
@@ -155,7 +156,7 @@ public class VMDebuggerUtil {
             arrayArgs.add(1, "World");
 
             WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-            org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
+            StackFrame stackFrame = new StackFrame(mainFuncInfo,
                     defaultWorkerInfo, -1, new int[0]);
             stackFrame.getRefLocalVars()[0] = arrayArgs;
             controlStackNew.pushFrame(stackFrame);
