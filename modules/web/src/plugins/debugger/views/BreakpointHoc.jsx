@@ -55,7 +55,7 @@ function breakpointHoc(WrappedComponent) {
             this.addListner = DebugManager.on('breakpoint-added', ({ lineNumber, fileName: bpFileName }) => {
                 const { editor } = this.context;
                 const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
-                if (fileName === bpFileName && position.startLine === lineNumber) {
+                if (fileName === bpFileName && position && position.startLine === lineNumber) {
                     this.setState({
                         isBreakpoint: true,
                     });
@@ -65,7 +65,7 @@ function breakpointHoc(WrappedComponent) {
             this.removeListner = DebugManager.on('breakpoint-removed', ({ lineNumber, fileName: bpFileName }) => {
                 const { editor } = this.context;
                 const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
-                if (fileName === bpFileName && position.startLine === lineNumber) {
+                if (fileName === bpFileName && position && position.startLine === lineNumber) {
                     this.setState({
                         isBreakpoint: false,
                     });
@@ -146,6 +146,9 @@ function breakpointHoc(WrappedComponent) {
          * add breakpoint
          */
         addBreakpoint() {
+            if (!this.props.model.position) {
+                return;
+            }
             const lineNumber = this.props.model.position.startLine;
             const { editor } = this.context;
             const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
@@ -156,6 +159,9 @@ function breakpointHoc(WrappedComponent) {
          * remove breakpoint
          */
         removeBreakpoint() {
+            if (!this.props.model.position) {
+                return;
+            }
             const lineNumber = this.props.model.position.startLine;
             const { editor } = this.context;
             const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
