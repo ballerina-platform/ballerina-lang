@@ -2830,13 +2830,12 @@
     
     .canvas-container {
         float: left;
-        height: auto;
-        min-height: 1000px;
+        height: 100%;
         position: relative;
     }
     
     .outerCanvasDiv{
-        overflow: auto;
+        overflow: hidden;
         height: 100%;
     }
     
@@ -4250,4 +4249,14 @@
     .ace_ballerina-keyword-identifier {
         color: #fff;
     }
+  }
+
+  .diagram {
+     &.root {
+        height: 100%;
+     }
+  }
+  
+  .grid-background {
+    height: 100%;
   }

@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import HTML5Backend from 'react-dnd-html5-backend';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-dnd';
 import DragLayer from './../drag-drop/drag-layer';
 import BallerinaDiagram from './../diagram2/diagram';
@@ -132,27 +133,36 @@ class DesignView extends React.Component {
         return (
             <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
-                    <DragLayer />
-                    <div className="canvas-container">
-                        <div className="canvas-top-controls-container" />
-                        <div className="html-overlay" ref={this.setOverlayContainer} />
-                        <div className="diagram root" ref={this.setDiagramContainer} >
-                            {this.props.model &&
-                                <BallerinaDiagram
-                                    model={this.props.model}
-                                    mode={this.state.mode}
-                                    width={this.props.width - TOOL_PALETTE_WIDTH}
-                                    height={this.props.height}
-                                />
-                            }
+                    <Scrollbars
+                        style={{
+                            width: this.props.width - TOOL_PALETTE_WIDTH,
+                            height: this.props.height,
+                        }}
+                        autoHide // Hide delay in ms
+                        autoHideTimeout={1000}
+                    >
+                        <DragLayer />
+                        <div className="canvas-container">
+                            <div className="canvas-top-controls-container" />
+                            <div className="html-overlay" ref={this.setOverlayContainer} />
+                            <div className="diagram root" ref={this.setDiagramContainer} >
+                                {this.props.model &&
+                                    <BallerinaDiagram
+                                        model={this.props.model}
+                                        mode={this.state.mode}
+                                        width={this.props.width - TOOL_PALETTE_WIDTH}
+                                        height={this.props.height}
+                                    />
+                                }
+                            </div>
                         </div>
-                    </div>
-                    {isTransformActive &&
-                        <TransformExpanded
-                            model={activeTransformModel}
-                            panelResizeInProgress={this.props.panelResizeInProgress}
-                        />
-                    }
+                        {isTransformActive &&
+                            <TransformExpanded
+                                model={activeTransformModel}
+                                panelResizeInProgress={this.props.panelResizeInProgress}
+                            />
+                        }
+                    </Scrollbars>
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
                     <ToolPaletteView
