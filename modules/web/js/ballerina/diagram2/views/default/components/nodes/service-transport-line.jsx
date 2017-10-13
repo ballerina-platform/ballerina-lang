@@ -41,6 +41,8 @@ class ServiceTransportLine extends React.Component {
         if (this.props.model.getProtocolPackageIdentifier().value === 'ws' && this.props.resources.length >= 6) {
             showAddResourceBtn = false;
         }
+        const bodyH = this.props.model.getVariables().length > 0 ? this.props.model.viewState.components.body.h + 40 :
+            this.props.model.viewState.components.body.h - 40;
         return (
             <g>
                 {(this.props.addResource && showAddResourceBtn && this.props.resources.length && !this.props.model.viewState.collapsed) &&
@@ -76,7 +78,7 @@ class ServiceTransportLine extends React.Component {
                         x1={bBox.x + 30}
                         y1={bBox.y + 50}
                         x2={bBox.x + 30}
-                        y2={bBox.y + 165}
+                        y2={bBox.y + bodyH}
                         stroke="black"
                         strokeWidth="3"
                         className="protocol-line"

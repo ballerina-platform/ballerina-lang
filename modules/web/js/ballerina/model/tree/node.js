@@ -104,7 +104,9 @@ class Node extends EventChannel {
                         const childItem = child[i];
                         const childItem2 = child2[i];
                         if (childItem instanceof Node && childItem.kind) {
-                            childItem.sync(visitor, childItem2);
+                            if (!childItem2) {
+                                childItem.sync(visitor, childItem2);
+                            }
                         }
                     }
                 }
@@ -286,7 +288,7 @@ class Node extends EventChannel {
                     type: 'child-removed',
                     title: `Removed ${this.kind}`,
                     data: {
-                        'node': this,
+                        node: this,
                     },
                 });
                 return;
@@ -305,7 +307,7 @@ class Node extends EventChannel {
                 delete node.ws;
             },
             endVisit: (node) => {
-                //do nothing.
+                // do nothing.
             },
         });
     }
