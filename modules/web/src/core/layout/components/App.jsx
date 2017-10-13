@@ -17,6 +17,7 @@ const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
 const headerHeight = 24;
 const toolAreaHeight = 30;
+const resizerSize = 1;
 /**
  * React component for App.
  *
@@ -249,9 +250,9 @@ class App extends React.Component {
                     >
                         <EditorArea
                             panelResizeInProgress={this.state.panelResizeInProgress}
-                            width={this.state.documentWidth -
+                            width={this.state.documentWidth - resizerSize -
                                 (this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize)}
-                            height={this.state.documentHeight - (headerHeight + toolAreaHeight
+                            height={this.state.documentHeight - resizerSize - (headerHeight + toolAreaHeight
                                     + renderedBottomPanelSize)}
                             views={this.getViewsForRegion(REGIONS.EDITOR_AREA)}
                         />

@@ -39,6 +39,8 @@ import ActiveArbiter from './views/default/components/decorators/active-arbiter'
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
+const padding = 10;
+
 /**
  * React component for diagram.
  *
@@ -97,8 +99,8 @@ class Diagram extends React.Component {
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.viewState;
         viewState.container = {
-            width: this.props.width,
-            height: this.props.height,
+            width: this.props.width - padding,
+            height: this.props.height - padding,
         };
         // 5. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.

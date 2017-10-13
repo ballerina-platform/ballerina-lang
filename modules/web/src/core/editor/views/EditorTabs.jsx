@@ -233,6 +233,10 @@ class EditorTabs extends View {
                             commandProxy={this.props.editorPlugin.appContext.command}
                             {...previewDefinition.customPropsProvider()}
                             {...dimensions}
+                            togglePreviewPanel={(isEnabled = !this.state.previewPanelEnabled) => {
+                                this.setPreviewPanelState(isEnabled);
+                            }
+                            }
                         />
                         <div
                             className='bottom-right-controls-container split-view-controls-container'
