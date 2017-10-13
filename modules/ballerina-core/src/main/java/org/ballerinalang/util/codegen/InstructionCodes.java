@@ -262,12 +262,13 @@ public interface InstructionCodes {
     int NEWXMLTEXT = 246;
     int NEWXMLPI = 247;
     int XMLSTORE = 248;
+    int XMLLOAD = 249;
+    
+    int TYPEOF = 250;
+    int TYPELOAD = 251;
 
-    int TYPEOF = 249;
-    int TYPELOAD = 250;
+    int TEQ = 252;
+    int TNE = 253;
 
-    int TEQ = 251;
-    int TNE = 252;
-
-    int INSTRUCTION_CODE_COUNT = 253;
+    int INSTRUCTION_CODE_COUNT = 254;
 }

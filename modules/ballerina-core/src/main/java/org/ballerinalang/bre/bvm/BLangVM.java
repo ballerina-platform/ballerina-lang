@@ -785,6 +785,7 @@ public class BLangVM {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLLOAD:
                     execXMLOpcodes(sf, opcode, operands);
                     break;
                 default:
@@ -1798,6 +1799,20 @@ public class BLangVM {
                 prefix = StringEscapeUtils.escapeXml11(prefix);
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                long index = sf.longRegs[j];
+                sf.refRegs[k] = xmlVal.getItem(index);
                 break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:

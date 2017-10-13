@@ -1450,6 +1450,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
+                case InstructionCodes.XMLLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

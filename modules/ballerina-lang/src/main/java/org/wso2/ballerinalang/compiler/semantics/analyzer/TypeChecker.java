@@ -367,6 +367,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;
+            case TypeTags.XML:
+                if (indexBasedAccessExpr.lhsVar) {
+                    // FIXME
+                    break;
+                }
+                indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.intType)).get(0);
+                if (indexExprType.tag == TypeTags.INT) {
+                    actualType = symTable.xmlType;
+                }
+                break;
             case TypeTags.ERROR:
                 // Do nothing
                 break;
