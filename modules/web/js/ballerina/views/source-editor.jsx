@@ -282,7 +282,7 @@ class SourceEditor extends React.Component {
 
     render() {
         return (
-            <div className='text-editor' ref={(ref) => { this.container = ref; }} />
+            <div className='text-editor bal-source-editor' ref={(ref) => { this.container = ref; }} />
         );
     }
 

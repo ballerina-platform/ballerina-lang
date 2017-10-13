@@ -227,7 +227,7 @@ class EditorTabs extends View {
                     data-extra="tabpane"
                     key='preview-view'
                 >
-                    <div className='ballerina-editor'>
+                    <div className='editor-split-view' style={{ ...dimensions }}>
                         <previewDefinition.component
                             file={file}
                             commandProxy={this.props.editorPlugin.appContext.command}
@@ -299,7 +299,7 @@ class EditorTabs extends View {
                 }
                 primary="second"
                 pane1Style={{
-                    width: this.props.width -
+                    maxWidth: this.props.width -
                         (this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
                            ? this.state.previewPanelSize : 0),
                 }}

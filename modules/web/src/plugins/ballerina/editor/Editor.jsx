@@ -59,8 +59,9 @@ class Editor extends React.Component {
      * @inheritdoc
      */
     render() {
+        const { width, height } = this.props;
         return (
-            <div className="ballerina-editor">
+            <div className="ballerina-editor" style={{ width, height }}>
                 <BallerinaFileEditor {...this.props} />
             </div>
         );
