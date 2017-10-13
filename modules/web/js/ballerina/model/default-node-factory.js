@@ -32,6 +32,11 @@ function getNodeForFragment(fragment) {
     return node;
 }
 
+/**
+ * Default node factory class.
+ * This creates all the default node for each model.
+ * This is mostly used on drag and drop.
+ * */
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
@@ -239,6 +244,8 @@ class DefaultNodeFactory {
 
             } catch (errors:Error e) {
 
+            } finally {
+            
             }
         `));
     }
@@ -272,7 +279,13 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             transaction {
 
-            } 
+            } failed {
+               retry 3;
+            } aborted {
+            
+            } committed {
+            
+            }
         `));
     }
 
@@ -284,8 +297,8 @@ class DefaultNodeFactory {
 
     // FIXME
     createRetry() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            retry m;
+        return getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
+            retry 3;
         `));
     }
 

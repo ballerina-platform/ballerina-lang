@@ -191,9 +191,9 @@ class ForkJoinNode extends React.Component {
             <g>
                 <DropZone
                     x={dropZone.x}
-                    y={dropZone.y + model.viewState.components['block-header'].h}
+                    y={dropZone.y}
                     width={dropZone.w}
-                    height={dropZone.h - model.viewState.components['block-header'].h}
+                    height={dropZone.h}
                     baseComponent="rect"
                     dropTarget={model.parent}
                     dropBefore={model}

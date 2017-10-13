@@ -90,9 +90,9 @@ class TreeBuilder {
 
         if (kind === 'Transaction') {
             const isRetry = n => n.kind === 'Retry';
-            if (json || json.condition || json.condition.value) {
-                const retry = json.failedBody.statements.filter(isRetry)[0] ||
-                    json.committedBody.statements.filter(isRetry)[0] ||
+            if (json && json.condition && json.condition.value) {
+                const retry = (json.failedBody ? json.failedBody.statements.filter(isRetry)[0] : false) ||
+                    (json.committedBody ? json.committedBody.statements.filter(isRetry)[0] : false) ||
                     json.transactionBody.statements.filter(isRetry)[0];
                 retry.count = json.condition.value;
             }

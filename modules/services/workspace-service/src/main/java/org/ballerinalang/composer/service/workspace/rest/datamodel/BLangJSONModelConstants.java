@@ -422,4 +422,5 @@ public class BLangJSONModelConstants {
     public static final String RESOURCES = "resources";
 
     public static final String WORKERS = "workers";
+    public static final String FAILED_BODY = "failedBody";
 }

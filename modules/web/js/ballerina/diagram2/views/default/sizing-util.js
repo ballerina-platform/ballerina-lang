@@ -1103,7 +1103,7 @@ class SizingUtil {
 
 
     /**
-     * Calculate dimention of ForkJoin nodes.
+     * Calculate dimension of ForkJoin nodes.
      *
      * @param {object} node
      *
@@ -1295,23 +1295,31 @@ class SizingUtil {
 
         // We ignore the previously calculated node height and re calculate it based on the component heights
         if (node.transactionBody) {
+            node.transactionBody.viewState.components.titleWidth = this.getTextWidth('Transaction');
             node.viewState.components['statement-box'].h
                 += node.transactionBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.transactionBody.viewState.bBox.w);
         }
         if (node.failedBody) {
+            node.failedBody.viewState.components.titleWidth = this.getTextWidth('Failed');
             node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
         }
         if (node.abortedBody) {
+            node.abortedBody.viewState.components.titleWidth = this.getTextWidth('Aborted');
             node.viewState.components['statement-box'].h += node.abortedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.abortedBody.viewState.bBox.w);
         }
         if (node.committedBody) {
+            node.committedBody.viewState.components.titleWidth = this.getTextWidth('Committed');
             node.viewState.components['statement-box'].h += node.committedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.committedBody.viewState.bBox.w);
         }
         node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h;
+        node.viewState.bBox.w += Math.max(node.transactionBody.viewState.components.titleWidth.w,
+            (node.failedBody ? node.failedBody.viewState.components.titleWidth.w : 0),
+            (node.abortedBody ? node.abortedBody.viewState.components.titleWidth.w : 0),
+            (node.committedBody ? node.committedBody.viewState.components.titleWidth.w : 0));
     }
 
     /**
