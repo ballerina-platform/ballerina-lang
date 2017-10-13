@@ -2,8 +2,6 @@ package restfulservice.samples;
 
 import ballerina.lang.system;
 import ballerina.net.http;
-import ballerina.net.http.response;
-import ballerina.net.http.request;
 
 @http:configuration {basePath:"/productsservice"}
 service<http> productmgt {
@@ -16,8 +14,8 @@ service<http> productmgt {
     resource product(http:Request req, http:Response res, string prodId) {
         json payload;
         payload, _ = (json) productsMap[prodId];
-        response:setJsonPayload(res, payload);
-        response:send(res);
+        res.setJsonPayload(payload);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -25,12 +23,12 @@ service<http> productmgt {
         path:"/"
     }
     resource addProduct (http:Request req, http:Response res) {
-        json jsonReq = request:getJsonPayload(req);
+        json jsonReq = req.getJsonPayload();
         var productId,_ = (string) jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
-        response:setJsonPayload(res, payload);
-        response:send(res);
+        res.setJsonPayload(payload);
+        res.send();
     }
 }
 

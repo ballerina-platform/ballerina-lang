@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
@@ -31,11 +32,11 @@ import org.ballerinalang.net.http.HttpUtil;
  * ballerina.model.messages:removeHeader
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "removeHeader",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "key", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
 )
 public class RemoveHeader extends AbstractNativeFunction {

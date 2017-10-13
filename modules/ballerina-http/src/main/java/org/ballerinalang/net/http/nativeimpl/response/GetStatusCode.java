@@ -24,8 +24,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -36,10 +36,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Get HTTP StatusCode from the message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "getStatusCode",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

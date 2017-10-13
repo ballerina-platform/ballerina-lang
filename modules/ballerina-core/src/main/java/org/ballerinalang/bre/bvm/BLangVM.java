@@ -51,7 +51,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -164,7 +163,7 @@ public class BLangVM {
 
         if (context.getError() != null) {
             handleError();
-        } else if (context.actionInfo != null) {
+        } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -195,6 +194,12 @@ public class BLangVM {
             }
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
+        } finally {
+            if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
+                // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
+                // Doesn't count non-blocking action invocation.
+                ctx.endTrackWorker();
+            }
         }
     }
 
@@ -606,7 +611,6 @@ public class BLangVM {
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2MSG:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
@@ -715,10 +719,6 @@ public class BLangVM {
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
                     sf.refRegs[i] = new BJSON("{}");
-                    break;
-                case InstructionCodes.NEWMESSAGE:
-                    i = operands[0];
-                    sf.refRegs[i] = new BMessage();
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
@@ -1940,9 +1940,6 @@ public class BLangVM {
             case InstructionCodes.ANY2MAP:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMap);
                 break;
-            case InstructionCodes.ANY2MSG:
-                handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
-                break;
             case InstructionCodes.ANY2TYPE:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
@@ -2690,7 +2687,6 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
-        this.controlStack.currentFrame.workerReturnStack = true;
         ip = -1;
     }
 
@@ -2814,11 +2810,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            if (callerSF.getRefLocalVars()[i] instanceof BMessage) {
-                calleeSF.getRefLocalVars()[i] = ((BMessage) callerSF.getRefLocalVars()[i]).clone();
-            } else {
-                calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
-            }
+            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
@@ -2984,13 +2976,11 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.disableNonBlocking
-                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
-                context.setNonBlockingActionCall(true);
                 // TODO : Temporary solution to make non-blocking working.
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
@@ -3602,5 +3592,9 @@ public class BLangVM {
             }
         }
         return null;
+    }
+
+    private boolean isWaitingOnNonBlockingAction() {
+        return context.actionInfo != null;
     }
 }

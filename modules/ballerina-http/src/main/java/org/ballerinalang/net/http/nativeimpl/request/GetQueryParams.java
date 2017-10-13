@@ -24,8 +24,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -38,10 +38,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "getQueryParams",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )

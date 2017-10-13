@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,8 +34,8 @@ public class BDataTableType extends BType {
      *
      * @param typeName string name of the type
      */
-    BDataTableType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BDataTable.class);
+    BDataTableType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BDataTable.class);
     }
 
     @Override

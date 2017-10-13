@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -32,11 +33,11 @@ import org.ballerinalang.net.http.HttpUtil;
  * ballerina.model.messages:getProperty
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "getProperty",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "propertyName", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "propertyName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
 )

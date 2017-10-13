@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -197,9 +198,14 @@ public class BNullValueTest {
         BTestUtils.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
 
-    @Test(description = "Test negative test cases", enabled = false)
+    @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        // Todo - Update errors
-        BTestUtils.validateError(negativeCompileResult, 0, "", 0, 0);
+        Diagnostic[] diags = this.negativeCompileResult.getDiagnostics();
+        Assert.assertEquals(diags.length, 5);
+        diags[0].getMessage().equals("operator '==' not defined for 'xml' and 'json'");
+        diags[1].getMessage().equals("incompatible types: expected 'string', found 'null'");
+        diags[2].getMessage().equals("operator '>' not defined for 'null' and 'xml'");
+        diags[3].getMessage().equals("incompatible types: expected 'int', found 'null'");
+        diags[4].getMessage().equals("operator '+' not defined for 'null' and 'null'");
     }
 }

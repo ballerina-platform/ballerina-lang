@@ -467,17 +467,18 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to map")
     public void testStructToMap() {
-        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'Person' cannot be cast to 'map'");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/struct-to-map-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "incompatible types:" +
+                " 'Person' cannot be cast to 'map', use conversion expression", 22, 13);
     }
 
     @Test(description = "Test casting a map to struct")
     public void testMapToStruct() {
-        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'map' cannot be cast to 'Person'");
-    }
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "incompatible types: 'map' cannot be" +
+                " cast to 'Person', use conversion expression", 36, 16);    }
 
     @Test
     public void testJsonToMap() {
@@ -488,9 +489,10 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a json to struct")
     public void testJsonToStruct() {
-        CompileResult result = BTestUtils.compile("test-src/expressions/typecast/json-to-struct--negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        result.getDiagnostics()[0].getMessage().equals("incompatible types: 'json' cannot be cast to 'struct'");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/json-to-struct-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "incompatible types: 'json' cannot be cast to 'Person'," +
+                " use conversion expression", 34, 16);
     }
 
     @Test
@@ -607,7 +609,7 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[1]);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInCompatibleStructForceCasting() {
         BValue[] returns = BTestUtils.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 

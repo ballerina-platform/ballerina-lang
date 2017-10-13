@@ -58,6 +58,15 @@ public class ConstrainedJSONTest {
         
         // testConstraintJSONIndexing
         BTestUtils.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
+        
+        // tesInvalidNestedStructFieldAccess
+        BTestUtils.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
+        
+        // tesInvalidNestedStructFieldIndexAccess
+        BTestUtils.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
+        
+        // tesInitializationWithInvalidNestedStruct
+        BTestUtils.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
     }
 
     @Test(description = "Test basic json struct constraint")
@@ -153,7 +162,22 @@ public class ConstrainedJSONTest {
         BValue[] returns = BTestUtils.invoke(compileResult, "testConstraintJSONToConstraintJsonAssignment");
         Assert.assertNotNull(returns[0]);
     }
-    
+
+    @Test
+    public void testContrainingWithNestedStructs() {
+        BValue[] returns = BTestUtils.invoke(compileResult, "testContrainingWithNestedStructs");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\",\"last_name\":\"Doe\",\"age\":30," +
+                "\"address\":{\"phoneNumber\":{\"number\":\"1234\"},\"street\":\"York St\"}}");
+
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(returns[1].stringValue(), "1234");
+
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "1234");
+    }
+
     /*
         TODO: Add the below test cases once the constrained-json to un-constrained-json cast is implemented
 

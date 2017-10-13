@@ -19,7 +19,6 @@ package org.ballerinalang.model.symbols;
 
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
 
 /**
  * {@code BLangSymbol} is the base class for all the symbols in Ballerina.
@@ -39,6 +38,4 @@ public interface BLangSymbol {
     boolean isNative();
 
     SymbolName getSymbolName();
-
-    SymbolScope getSymbolScope();
 }

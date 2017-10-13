@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -31,10 +31,10 @@ import org.ballerinalang.net.http.HttpUtil;
  * Get Content-Length header from the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "getContentLength",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

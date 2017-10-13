@@ -33,3 +33,36 @@ function testConstraintJSONIndexing() (json){
     json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
     return j["bus"];
 }
+
+struct Employee {
+    string first_name;
+    string last_name;
+    int age;
+    Address address;
+}
+
+struct Address {
+    string number;
+    string street;
+    string city;
+    PhoneNumber phoneNumber;
+}
+
+struct PhoneNumber {
+    string areaCode;
+    string number;
+}
+
+function tesInvalidNestedStructFieldAccess() {
+    json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456"}, street:"York St"}};
+    json j = e.address.phoneNumber.foo;
+}
+
+function tesInvalidNestedStructFieldIndexAccess() {
+    json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456"}, street:"York St"}};
+    json j = e["address"]["phoneNumber"]["bar"];
+}
+
+function tesInitializationWithInvalidNestedStruct() {
+    json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456", foo:5}, street:"York St"}};
+}

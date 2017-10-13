@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -32,10 +31,9 @@ public class BNullType extends BType {
      *
      * @param typeName string name of the type
      * @param pkgPath package path
-     * @param symbolScope symbol scope of the type
      */
-    BNullType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, null);
+    BNullType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, null);
     }
 
     public <V extends BValue> V getZeroValue() {

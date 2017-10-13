@@ -39,23 +39,6 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
     protected boolean isPublic = true;
     protected boolean isNative = false;
     protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
-
-    public AnnotationAttributeDef(NodeLocation location,
-                                  Identifier identifier,
-                                  SimpleTypeName typeName,
-                                  BasicLiteral annotationAttributeVal,
-                                  SymbolName symbolName,
-                                  SymbolScope symbolScope,
-                                  String pkgPath) {
-        this.location = location;
-        this.typeName = typeName;
-        this.identifier = identifier;
-        this.annotationAttributeVal = annotationAttributeVal;
-        this.symbolName = symbolName;
-        this.symbolScope = symbolScope;
-        this.pkgPath = pkgPath;
-    }
 
     public SimpleTypeName getTypeName() {
         return typeName;
@@ -97,18 +80,7 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
         return symbolName;
     }
 
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
-
     // Methods in Node interface
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
 
     @Override
     public NodeLocation getNodeLocation() {
