@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.CallableUnitBodyContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -45,8 +46,9 @@ public class SuggestionsFilter {
         if (symbolEnvNode == null) {
             return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
         } else {
-            if (!(symbolEnvNode instanceof BLangBlockStmt)) {
-                return resolveCommandExecutor.resolveCompletionItems(symbolEnvNode.getClass(), dataModel, symbols);
+            if (symbolEnvNode instanceof BLangBlockStmt) {
+                return resolveCommandExecutor.resolveCompletionItems(CallableUnitBodyContextResolver.class,
+                        dataModel, symbols);
             }
             return null;
         }
