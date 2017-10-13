@@ -165,6 +165,9 @@ public class WorkspaceUtils {
                     && !"[ballerina, builtin]".equals(pkgNameComps.toString())
                     && !"[ballerina, builtin, core]".equals(pkgNameComps.toString())
                     && !"[ballerina, net, jms]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, http, swagger]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, ws]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, uri]".equals(pkgNameComps.toString())
                     && !pkgNameComps.toString().contains("[org, wso2, ballerina, connectors")) {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
