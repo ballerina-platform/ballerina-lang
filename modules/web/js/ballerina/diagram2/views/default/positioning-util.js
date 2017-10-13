@@ -48,7 +48,7 @@ class PositioningUtil {
             let variableRefName;
             if (TreeUtil.isVariableDef(node)) {
                 variableRefName = node.variable.initialExpression.expression.variableName.value;
-            } else if (TreeUtil.isAssignment(node)) {
+            } else if (TreeUtil.isAssignment(node) || TreeUtil.isExpressionStatement(node)) {
                 variableRefName = node.expression.expression.variableName.value;
             }
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
