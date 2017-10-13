@@ -8,7 +8,7 @@ public struct Request {
 public struct Response {
 }
 
-struct Ssl {
+struct SSL {
     string trustStoreFile;
     string trustStorePassword;
     string keyStoreFile;
@@ -26,7 +26,7 @@ struct FollowRedirects {
 public struct Options {
     int port;
     FollowRedirects followRedirects;
-    Ssl ssl;
+    SSL ssl;
 }
 
 public connector ClientConnector (string serviceUri, Options connectorOptions) {
