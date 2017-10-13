@@ -139,6 +139,7 @@ stream.once('open', () => {
                 }
             }
             if (nodeWS.dent) {
+                emptyDefaultWS[kind].dent = true;
                 js.unshift('dent()');
             }
             const conditionStr = join(condition.map(s => 'node.' + s), ' && ', tab(4));
