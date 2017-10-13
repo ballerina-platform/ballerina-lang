@@ -94,14 +94,6 @@ const tools = [
         description: 'Programmable actor which is represented on a sequence diagram'
         + 'as a vertical lifeline of logic to be executed.',
     },
-    {
-        id: 'annotation',
-        name: 'Annotation',
-        icon: 'annotation',
-        title: 'Annotation Definition',
-        nodeFactoryMethod: DefaultNodeFactory.createAnnotation,
-        description: 'Hold factoryArgs data related to the attached code',
-    },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'main_tool_seperator',
