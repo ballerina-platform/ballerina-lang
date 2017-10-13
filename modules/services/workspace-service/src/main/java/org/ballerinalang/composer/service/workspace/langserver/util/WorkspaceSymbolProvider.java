@@ -16,7 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util;
 
-import com.google.gson.JsonArray;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
@@ -26,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,16 +64,8 @@ public class WorkspaceSymbolProvider {
      * @return SymbolInformation array
      */
     private SymbolInformation[] getBuiltinTypes() {
-        JsonArray builtinTypes = contentProvider.builtinTypes();
-        ArrayList<SymbolInformation> symbolInformationArr = new ArrayList<>();
-        for (int itr = 0; itr < builtinTypes.size(); itr++) {
-            SymbolInformation symbolInfo = new SymbolInformation();
-            symbolInfo.setName(builtinTypes.get(itr).getAsString());
-            symbolInfo.setKind(SymbolKind.BUILTIN_TYPE);
-            symbolInformationArr.add(symbolInfo);
-        }
-
-        return symbolInformationArr.toArray(new SymbolInformation[0]);
+        List<SymbolInformation> builtinTypes = contentProvider.builtinTypes();
+        return builtinTypes.toArray(new SymbolInformation[0]);
     }
 
     /**

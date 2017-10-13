@@ -164,7 +164,8 @@ class SourceEditor extends React.Component {
             editor.getSession().on('changeAnnotation', () => {
                 const annotations = editor.getSession().getAnnotations();
                 const errors = annotations.filter((annotation) => {
-                    return annotation.type === 'error';
+                    // ignore semantic errors & other annotations
+                    return annotation.type === 'error' && annotation.category === 'SYNTAX';
                 });
                 this.props.onLintErrors(errors);
             });
@@ -265,17 +266,15 @@ class SourceEditor extends React.Component {
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
     bindCommand(command) {
-        const id = command.id;
-        const hasShortcut = _.has(command, 'shortcuts');
-        const self = this;
-        if (hasShortcut) {
-            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
-            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+        const { id, argTypes, shortcut } = command;
+        const { dispatch } = this.props.commandProxy;
+        if (shortcut) {
+            const shortcutKey = _.replace(shortcut.derived.key, '+', '-');
             this.editor.commands.addCommand({
                 name: id,
-                bindKey: { win: winShortcut, mac: macShortcut },
+                bindKey: { win: shortcutKey, mac: shortcutKey },
                 exec() {
-                    self.props.commandManager.dispatch(id);
+                    dispatch(id, argTypes);
                 },
             });
         }

@@ -23,7 +23,7 @@ service<http> contentBasedRouting {
         else {
             response = nasdaqEP.post("/stocks", m);
         }
-        reply response;
+        response:send(response);
         
     }
     

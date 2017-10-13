@@ -41,14 +41,17 @@ class FindBreakpointNodesVisitor extends ASTVisitor {
      * @inheritdoc
      */
     beginVisit(node) {
-        const lineNumber = node.getLineNumber();
+        if (!node.position) {
+            return;
+        }
+        const lineNumber = node.position.startLine;
         const breakpointIndex = this._breakpoints.indexOf(lineNumber);
         if (breakpointIndex !== -1) {
-            node.addBreakpoint();
+            node.isBreakpoint = true;
         }
         if (node.isBreakpoint && breakpointIndex === -1) {
             // breakpoint has removed but model is not updated
-            node.removeBreakpoint();
+            node.isBreakpoint = false;
         }
     }
     /**

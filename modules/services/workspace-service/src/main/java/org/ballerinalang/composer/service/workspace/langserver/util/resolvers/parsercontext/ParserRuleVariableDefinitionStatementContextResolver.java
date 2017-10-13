@@ -24,9 +24,13 @@ import org.ballerinalang.composer.service.workspace.langserver.util.filters.Pack
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Parser rule based variable definition statement context resolver
@@ -40,8 +44,11 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(dataModel)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
-            return actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null), dataModel);
+            ArrayList<SymbolInfo> actionAndFunctions = actionAndFunctionFilter.getCompletionItems(
+                    actionAndFunctionFilter.filterItems(dataModel, symbols, null).get(0), dataModel);
+            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+            this.populateCompletionItemList(actionAndFunctions, completionItems);
+            return completionItems;
         } else {
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();
@@ -51,7 +58,13 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             createKeyword.setSortText(ItemResolverConstants.PRIORITY_7);
 
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
-            populateCompletionItemList(symbols, completionItems);
+            List<SymbolInfo> filteredList = symbols.stream()
+                    .filter(
+                            symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                                    && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol))
+                    )
+                    .collect(Collectors.toList());
+            populateCompletionItemList(filteredList, completionItems);
             completionItems.add(createKeyword);
             return completionItems;
         }

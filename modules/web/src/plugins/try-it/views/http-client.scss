@@ -44,7 +44,7 @@
 
     input[type=text]{
         color: #fff;
-        height: 32px;
+        height: 33px;
         padding: 6px;
         background-color: #575757;
         border: none;
@@ -77,6 +77,8 @@
     }
     .http-client-content-type-wrapper{
         margin-top: 10px;
+        margin-left: 0px;
+        margin-right: 0px;
         .http-client-content-type {
             margin-left: 5px;
             border: .5px solid rgb(51, 51, 51);
@@ -84,19 +86,35 @@
             background-color: #333333;
         }
     }
-
-
 }
 
-.http-client-path {
-    width: 450px;
+.http-client-action-wrapper .input-group-btn .btn, .http-client-action-wrapper .input-group-btn .btn:hover,
+.http-client-action-wrapper .input-group-btn .btn:focus{
+    border-color: rgb(92, 184, 93);
+    border-left: none;
 }
-
 
 .http-client-response {
     padding-left: 20px;
-    float: left;
-    width: 700px;
+
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
+
+    input[type=text]{
+        color: #fff;
+        height: 33px;
+        padding: 6px;
+        background-color: #575757;
+        border: none;
+    }
+
 
     h3{
         font-size: 18px;
@@ -114,12 +132,14 @@
 
 .http-client-headers-wrapper, .http-client-body-wrapper {
     padding-top: 10px;
+    margin-bottom: 30px;
 }
 
 .http-client-headers-wrapper .fw {
     margin-top: 3px;
     padding: 2px;
     margin-right: 5px;
+    cursor: pointer;
     .fw:hover {
         cursor: pointer;
         opacity: 0.5;
@@ -158,4 +178,52 @@ hr{
     display: block;
     padding: 0px 5px;
     border: 1px solid rgba(241, 123, 49, 0.41);
+}
+
+.try-it-message {
+  background: #333333;
+}
+
+.http-client-select-service-wrapper {
+    .selectors {
+        float: left;
+        > span {
+            float: left;
+            padding: 7px 10px 0 10px;
+        }
+    }
+    .react-autosuggest__container {
+        float: left;
+        color: black;
+        position: relative;
+    }
+    .react-autosuggest__input {
+        padding: 1px 10px;
+        border-right: 1px solid #333;
+    }
+    .react-autosuggest__suggestions-container {
+        z-index: 10000;
+        overflow: visible;
+        background: #E2E2E5;
+        width: 187px;
+        position: absolute
+    }
+
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
+
+    input[type=text]{
+        color: #fff;
+        height: 33px;
+        padding: 6px;
+        background-color: #575757;
+        border: none;
+    }
 }

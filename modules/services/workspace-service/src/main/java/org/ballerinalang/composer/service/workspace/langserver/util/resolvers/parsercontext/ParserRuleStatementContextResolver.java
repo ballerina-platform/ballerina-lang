@@ -38,26 +38,33 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
 
         HashMap<String, Integer> prioritiesMap = new HashMap<>();
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(dataModel)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
-            ArrayList<CompletionItem> completionItems = actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null), dataModel);
+            // Get the action and function list
+            ArrayList<SymbolInfo> actionFunctionList = actionAndFunctionFilter
+                    .getCompletionItems(actionAndFunctionFilter
+                            .filterItems(dataModel, symbols, null).get(0), dataModel);
 
+            // Populate the completion items
+            this.populateCompletionItemList(actionFunctionList, completionItems);
+
+            // Set the sorting priorities
             prioritiesMap.put(ItemResolverConstants.FUNCTION_TYPE, ItemResolverConstants.PRIORITY_7);
             prioritiesMap.put(ItemResolverConstants.ACTION_TYPE, ItemResolverConstants.PRIORITY_6);
             this.assignItemPriorities(prioritiesMap, completionItems);
 
             return completionItems;
         } else {
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
             populateCompletionItemList(symbols, completionItems);
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+            this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
@@ -96,3 +103,4 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         }
     }
 }
+

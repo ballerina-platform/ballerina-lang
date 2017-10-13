@@ -17,18 +17,18 @@
  */
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import $ from 'jquery';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import InitialTools from '../item-provider/initial-definitions';
+import DefaultTools from './item-provider/default-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
-import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
-import BallerinaASTRoot from '../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import {binaryOpTools, unaryOpTools} from './operator-tools'
+import { binaryOpTools, unaryOpTools } from './item-provider/operator-tools';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
+import DefaultNodeFactory from '../model/default-node-factory';
+
+const searchBoxHeight = 30;
 
 class ToolsPanel extends React.Component {
 
@@ -79,7 +79,7 @@ class ToolsPane extends React.Component {
                         role="button"
                         onClick={() => this.changePane('connectors')}
                     >
-                        <i className="fw fw-view icon"/>
+                        <i className="fw fw-view icon" />
                         More connectors
                     </a>
                 </ToolsPanel>
@@ -91,7 +91,7 @@ class ToolsPane extends React.Component {
                         className="tool-palette-add-button"
                         onClick={() => this.changePane('library')}
                     >
-                        <i className="fw fw-view icon"/>
+                        <i className="fw fw-view icon" />
                         More libraries
                     </a>
                     <br />
@@ -114,19 +114,19 @@ class TransformPane extends React.Component {
     }
 
     render() {
-        const binaryOpToolGroup = new ToolGroup({
-            toolGroupName: 'binary operators',
-            toolGroupID: 'binary-operators-tool-group',
-            toolOrder: 'horizontal',
-            toolDefinitions: binaryOpTools,
-        });
+        const binaryOpToolGroup = {
+            name: 'Binary Operators',
+            id: 'binary-operators-tool-group',
+            order: 'horizontal',
+            tools: binaryOpTools,
+        };
 
-        const unaryOpToolGroup = new ToolGroup({
-            toolGroupName: 'unary operators',
-            toolGroupID: 'unary-operators-tool-group',
-            toolOrder: 'horizontal',
-            toolDefinitions: unaryOpTools,
-        });
+        const unaryOpToolGroup = {
+            name: 'Unary Operators',
+            id: 'unary-operators-tool-group',
+            order: 'horizontal',
+            tools: unaryOpTools,
+        };
 
         return (
             <div>
@@ -293,7 +293,7 @@ class ToolPaletteView extends React.Component {
             return data;
         } else if (data.tools instanceof Array) {
             data.tools = data.tools.filter(function (item) {
-                if (item.get('name').toLowerCase().includes(this.searchText)) {
+                if (item.name.toLowerCase().includes(this.searchText)) {
                     return true;
                 }
                 return false;
@@ -328,22 +328,26 @@ class ToolPaletteView extends React.Component {
                 return connectorPackage.getName();
             }]);
             _.each(connectorsOrdered, (connector) => {
-                const packageName = _.last(_.split(pckg.getName(), '.'));
+                const packageName = _.last(_.split(pckg.getName(), '.')); // alias
+                const connectorName = connector.getName();
+                const fullPackageName = pckg.getName(); // Needed for the imports
+
                 const args = {
-                    pkgName: packageName,
-                    connectorName: connector.getName(),
-                    fullPackageName: pckg.getName(),
+                    connector,
+                    packageName,
+                    fullPackageName,
                 };
                 const connTool = {};
-                connTool.nodeFactoryMethod = DefaultASTFactory.createConnectorDeclaration;
-                connTool.meta = args;
-                // TODO : use a generic icon
-                connTool.title = connector.getName();
-                connTool.name = connector.getName();
-                connTool.id = connector.getName();
-                connTool.cssClass = 'icon fw fw-connector';
+                connTool.nodeFactoryMethod = DefaultNodeFactory.createConnectorDeclaration;
+                connTool.factoryArgs = args;
+                connTool.title = connectorName;
+                connTool.name = connectorName;
+                connTool.id = connectorName;
+                connTool.icon = 'connector';
                 definitions.push(connTool);
 
+
+                // // Connector Actions ////
                 const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                     return action.getName();
                 }]);
@@ -354,26 +358,21 @@ class ToolPaletteView extends React.Component {
                     if ((index + 1) === collection.length) {
                         action.classNames = 'tool-connector-action tool-connector-last-action';
                     }
-                    actionTool.meta = {
-                        action: action.getName(),
+                    actionTool.factoryArgs = {
+                        action,
                         actionConnectorName: connector.getName(),
-                        actionPackageName: packageName,
-                        fullPackageName: pckg.getName(),
-                        actionDefinition: action,
+                        packageName,
+                        fullPackageName,
                     };
 
                     actionTool.title = action.getName();
                     actionTool.name = action.getName();
-                    actionTool.cssClass = 'icon fw fw-dgm-action';
-                    actionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedActionInvocationAssignmentStatement;
-                    if (action.getReturnParams().length > 0) {
-                        actionTool.nodeFactoryMethod = DefaultASTFactory
-                                                    .createAggregatedActionInvocationAssignmentStatement;
-                    }
-
+                    actionTool.icon = 'dgm-action';
+                    actionTool.nodeFactoryMethod = DefaultNodeFactory
+                        .createConnectorActionInvocationAssignmentStatement;
                     actionTool.id = `${connector.getName()}-${action.getName()}`;
-                    actionTool._parameters = action.getParameters();
-                    actionTool._returnParams = action.getReturnParams();
+                    actionTool.parameters = action.getParameters();
+                    actionTool.returnParams = action.getReturnParams();
                     definitions.push(actionTool);
                 });
             });
@@ -395,8 +394,8 @@ class ToolPaletteView extends React.Component {
                     if (functionDef.getReturnParams().length > 0) {
                         const functionTool = {};
                         functionTool.nodeFactoryMethod =
-                                               DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement;
-                        functionTool.meta = {
+                                               DefaultNodeFactory.createFunctionInvocationStatement;
+                        functionTool.factoryArgs = {
                             functionDef,
                             packageName,
                             fullPackageName: pckg.getName(),
@@ -404,16 +403,16 @@ class ToolPaletteView extends React.Component {
                         functionTool.title = functionDef.getName();
                         functionTool.name = functionDef.getName();
                         functionTool.id = functionDef.getName();
-                        functionTool.cssClass = 'icon fw fw-function';
-                        functionTool._parameters = functionDef.getParameters();
-                        functionTool._returnParams = functionDef.getReturnParams();
+                        functionTool.icon = 'function';
+                        functionTool.parameters = functionDef.getParameters();
+                        functionTool.returnParams = functionDef.getReturnParams();
                         definitions.push(functionTool);
                     }
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
-                    functionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedFunctionInvocationStatement;
-                    functionTool.meta = {
+                    functionTool.nodeFactoryMethod = DefaultNodeFactory.createFunctionInvocationStatement;
+                    functionTool.factoryArgs = {
                         functionDef,
                         packageName,
                         fullPackageName: pckg.getName(),
@@ -421,20 +420,20 @@ class ToolPaletteView extends React.Component {
                     functionTool.title = functionDef.getName();
                     functionTool.name = functionDef.getName();
                     functionTool.id = functionDef.getName();
-                    functionTool.cssClass = 'icon fw fw-function';
-                    functionTool._parameters = functionDef.getParameters();
-                    functionTool._returnParams = functionDef.getReturnParams();
+                    functionTool.icon = 'function';
+                    functionTool.parameters = functionDef.getParameters();
+                    functionTool.returnParams = functionDef.getReturnParams();
                     definitions.push(functionTool);
                 }
             });
         }
 
-        const group = new ToolGroup({
-            toolGroupName: pckg.getName(),
-            toolGroupID: `${pckg.getName()}-tool-group`,
-            toolOrder: 'vertical',
-            toolDefinitions: definitions,
-        });
+        const group = {
+            name: pckg.getName(),
+            id: `${pckg.getName()}-tool-group`,
+            order: 'vertical',
+            tools: definitions,
+        };
 
         return group;
     }
@@ -446,26 +445,29 @@ class ToolPaletteView extends React.Component {
         const searching = this.state.search.length > 0;
         // get the model
         const model = this.context.astRoot;
+        const topLevelNodes = model ? model.getTopLevelNodes() : [];
         // get the environment
         const environment = this.context.environment;
         // get the current package
-        const currentPackage = environment.createCurrentPackageFromAST(model);
+        const currentPackage = environment.getCurrentPackage();
         let currentTools = this.package2ToolGroup(currentPackage, 'both', this.props.isTransformActive);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
         }
         // get the constructs
-        let constructs = _.cloneDeep(InitialTools[0]);
+        let constructs = _.cloneDeep(DefaultTools);
         // get imported packages
-        const imports = model.getImportDeclarations();
+        const imports = topLevelNodes.filter(topLevelNode => topLevelNode.kind === 'Import');
         // convert imports to tool groups
         const connectors = [];
         const library = [];
 
         if (state === 'tools') {
-            imports.forEach((item) => {
-                const pkg = environment.getPackageByName(item.getPackageName());
+            imports.forEach((item, i) => {
+                // construct package name from splitted package name array.
+                const pkgName = item.packageName.map(elem => elem.value).join('.');
+                const pkg = environment.getPackageByName(pkgName);
                 if (!_.isNil(pkg)) {
                     let group = this.package2ToolGroup(pkg, 'connectors');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
@@ -473,7 +475,7 @@ class ToolPaletteView extends React.Component {
                         group.collapsed = searching;
                         connectors.push(<ToolGroupView
                             group={group}
-                            key={`connector${item.getPackageName()}`}
+                            key={`connector${i}`}
                             showGridStyles={false}
                         />);
                     }
@@ -485,7 +487,7 @@ class ToolPaletteView extends React.Component {
                         library.push(
                             <ToolGroupView
                                 group={group}
-                                key={`library${item.getPackageName()}`}
+                                key={`library${pkgName}`}
                                 showGridStyles={false}
                             />);
                     }
@@ -531,10 +533,7 @@ class ToolPaletteView extends React.Component {
             });
         }
 
-        // calculate the height of the tool.
-        // this is a hack need to find a better approch.
-        // let scrollHeight = window.innerHeight - 176;
-        const scrollHeight = $(this.props.getContainer()).height() - 30;
+        const scrollHeight = this.props.height - searchBoxHeight;
 
         constructs.collapsed = true;
         constructs = this.searchTools(this.state.search, constructs);
@@ -544,7 +543,7 @@ class ToolPaletteView extends React.Component {
                 <ToolSearch onTextChange={this.onSearchTextChange} />
                 <Scrollbars
                     style={{
-                        width: 243,
+                        width: this.props.width,
                         height: scrollHeight,
                     }}
                     autoHide // Hide delay in ms
@@ -576,10 +575,12 @@ class ToolPaletteView extends React.Component {
 
 ToolPaletteView.propTypes = {
     isTransformActive: PropTypes.bool.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
 };
 
 ToolPaletteView.contextTypes = {
-    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    astRoot: PropTypes.instanceOf(CompilationUnitNode),
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
 

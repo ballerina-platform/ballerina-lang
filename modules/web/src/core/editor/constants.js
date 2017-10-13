@@ -41,8 +41,8 @@ export const LABELS = {
 
 export const HISTORY = {
     ACTIVE_EDITOR: 'composer.plugin.editor.active-editor',
-    ACTIVE_PREVIEW_VIEW: 'active-preview-view',
-    PREVIEW_VIEW_ENABLED_SIZE: 'preview-view-pane-size',
+    PREVIEW_VIEW_IS_ACTIVE: 'preview-panel-is-active',
+    PREVIEW_VIEW_PANEL_SIZE: 'preview-view-pane-size',
 };
 
 export const PLUGIN_ID = 'composer.plugin.editor';

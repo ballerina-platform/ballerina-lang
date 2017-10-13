@@ -16,33 +16,31 @@
  * under the License.
  */
 import log from 'log';
-import alerts from 'alerts';
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import ASTVisitor from 'ballerina/visitors/ast-visitor';
-import DebugManager from './../../debugger/debug-manager';
+import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import File from './../../../src/core/workspace/model/file';
 import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
-import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
-import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
-import FindLineNumbersVisiter from './../visitors/find-line-numbers';
-import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
-
-
+import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
+import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
+import TreeUtils from './../model/tree-util';
+import TreeBuilder from './../model/tree-builder';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
+import './../utils/react-try-catch-batching-strategy';
+import FragmentUtils from '../utils/fragment-utils';
 /**
  * React component for BallerinaFileEditor.
  *
@@ -58,8 +56,6 @@ class BallerinaFileEditor extends React.Component {
      */
     constructor(props) {
         super(props);
-        const astRoot = new BallerinaASTRoot();
-        astRoot.setFile(this.props.file);
         this.state = {
             initialParsePending: true,
             isASTInvalid: false,
@@ -68,7 +64,7 @@ class BallerinaFileEditor extends React.Component {
             swaggerViewTargetService: undefined,
             parseFailed: true,
             syntaxErrors: [],
-            model: astRoot,
+            model: undefined,
             activeView: DESIGN_VIEW,
             lastRenderedTimestamp: undefined,
         };
@@ -91,9 +87,7 @@ class BallerinaFileEditor extends React.Component {
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
-                        if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
-                            this.setState(state);
-                        }
+                        this.setState(state);
                     })
                     .catch(error => log.error(error));
             } else {
@@ -138,9 +132,7 @@ class BallerinaFileEditor extends React.Component {
         this.validateAndParseFile()
             .then((state) => {
                 state.initialParsePending = false;
-                if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
-                    this.setState(state);
-                }
+                this.setState(state);
             })
             .catch((error) => {
                 log.error(error);
@@ -174,17 +166,139 @@ class BallerinaFileEditor extends React.Component {
      * On ast modifications
      */
     onASTModified(evt) {
-        const sourceGenVisitor = new SourceGenVisitor();
-        this.state.model.accept(sourceGenVisitor);
-        const newContent = sourceGenVisitor.getGeneratedSource();
+        if (evt.type === 'child-added') {
+            this.addAutoImports(evt.data.node);
+            this.getConnectorDeclarations(evt.data.node);
+        }
+
+        const newContent = this.state.model.getSource();
         // set breakpoints to model
-        this.reCalculateBreakpoints(this.state.model);
+        // this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
     }
 
+    /**
+     * Adds relevent imports needed to be automatically imported When a node (eg: a function invocation) is dragged in
+     * @param {Node} node the node added
+     */
+    addAutoImports(node) {
+        let fullPackageName;
+        if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
+            fullPackageName = node.getExpression().getFullPackageName();
+        } else if (TreeUtils.isVariableDef(node) && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
+            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+        } else if (TreeUtils.isConnectorDeclaration(node)) {
+            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+        } else if (TreeUtils.isService(node)) {
+            fullPackageName = node.getFullPackageName();
+        } else {
+            return;
+        }
+
+        if (fullPackageName === 'Current Package') {
+            return;
+        }
+
+        const importString = 'import ' + fullPackageName + ';\n';
+        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.state.model.addImport(TreeBuilder.build(parsedJson));
+    }
+
+    getConnectorDeclarations(node) {
+        // Check if the node is an action invocation
+        if (TreeUtils.statementIsInvocation(node)) {
+            let immediateParent = node.parent;
+            let connectorExists = false;
+            while (!TreeUtils.isCompilationUnit(immediateParent)) {
+                if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
+                || TreeUtils.isAction(immediateParent)) {
+                    const connectors = immediateParent.getBody().filterStatements((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                    .setValue(connector.getVariableName().value);
+                        }
+                    });
+                } else if (TreeUtils.isService(immediateParent)) {
+                    const connectors = immediateParent.filterVariables((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connector.getVariableName().value);
+                        }
+                    });
+                } else if (TreeUtils.isConnector(immediateParent)) {
+                    const connectors = immediateParent.filterVariableDefs((statement) => {
+                        return TreeUtils.isConnectorDeclaration(statement);
+                    });
+                    connectors.forEach((connector) => {
+                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+                            === node.getExpression().getPackageAlias().value) {
+                            connectorExists = true;
+                            node.getExpression().getExpression().getVariableName()
+                                .setValue(connector.getVariableName().value);
+                        }
+                    });
+                }
+                if (connectorExists) {
+                    break;
+                }
+                immediateParent = immediateParent.parent;
+            }
+            if (!connectorExists) {
+                // const { connector, packageName, fullPackageName } = args;
+                const packageName = node.getExpression().getPackageAlias().value;
+                // Iterate through the params and create the parenthesis with the default param values
+                let paramString = '';
+                let connector = null;
+                let fullPackageName;
+                for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+                    fullPackageName = TreeUtils.getFullPackageName(node.getExpression());
+                    if (packageDefintion.getName() === fullPackageName) {
+                        connector = packageDefintion.getConnectors()[0];
+                    }
+                }
+
+                if (connector.getParams()) {
+                    const connectorParams = connector.getParams().map((param) => {
+                        let defaultValue = BallerinaEnvironment.getDefaultValue(param.type);
+                        if (defaultValue === undefined) {
+                            defaultValue = '{}';
+                        }
+                        return defaultValue;
+                    });
+                    paramString = connectorParams.join(', ');
+                }
+                const connectorInit = `${packageName}:${connector.getName()} endpoint1
+                = create ${packageName}:${connector.getName()}(${paramString});`;
+                const fragment = FragmentUtils.createStatementFragment(connectorInit);
+                const parsedJson = FragmentUtils.parseFragment(fragment);
+                const connectorDeclaration = TreeBuilder.build(parsedJson);
+                connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+                connectorDeclaration.viewState.showOverlayContainer = true;
+
+                if (TreeUtils.isBlock(node.parent)) {
+                    node.parent.addStatements(connectorDeclaration, 0);
+                } else if (TreeUtils.isService(node.parent)) {
+                    node.parent.addVariables(connectorDeclaration, 0);
+                } else if (TreeUtils.isConnector(node.parent)) {
+                    node.parent.addVariableDefs(connectorDeclaration, 0);
+                }
+            }
+        }
+    }
     /**
      * set active view
      * @param {string} newView ID of the new View
@@ -222,13 +336,12 @@ class BallerinaFileEditor extends React.Component {
      * @param {ASTNode} newAST A new AST with up-to-date position
      */
     syncASTs(currentAST, newAST) {
-        const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
-        newAST.accept(findLineNumbersVisiter);
-        const lineNumbers = findLineNumbersVisiter.getLineNumbers();
-
-        const updateLineNumbersVisiter = new UpdateLineNumbersVisiter(currentAST);
-        updateLineNumbersVisiter.setLineNumbers(lineNumbers);
-        currentAST.accept(updateLineNumbersVisiter);
+        const syncLineNumbersVisitor = new SyncLineNumbersVisitor(newAST);
+        currentAST.sync(syncLineNumbersVisitor, newAST);
+        const syncBreakpoints = new SyncBreakpointsVisitor(newAST);
+        currentAST.sync(syncBreakpoints, newAST);
+        const newBreakpoints = syncBreakpoints.getBreakpoints();
+        this.updateBreakpoints(newBreakpoints, newAST);
     }
 
     /**
@@ -270,6 +383,19 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Display the swagger view for given service def node
+     *
+     * @param {ServiceDefinition} serviceDef Service def node to display
+     */
+    showSwaggerViewForService(serviceDef) {
+        // not using setState to avoid multiple re-renders
+        // this.update() will finally trigger re-render
+        this.state.swaggerViewTargetService = serviceDef;
+        this.state.activeView = SWAGGER_VIEW;
+        this.update();
+    }
+
+    /**
      * Open documentation for the given symbol
      *
      * @param {string} pkgName
@@ -292,10 +418,8 @@ class BallerinaFileEditor extends React.Component {
             this.validateAndParseFile()
                 .then((state) => {
                     this.skipLoadingOverlay = false;
-                    if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
-                        this.setState(state);
-                        this.forceUpdate();
-                    }
+                    this.setState(state);
+                    this.forceUpdate();
                 })
                 .catch(error => log.error(error));
         } else {
@@ -325,15 +449,19 @@ class BallerinaFileEditor extends React.Component {
             };
             // first validate the file for syntax errors
             validateFile(file)
-                .then((errors) => {
+                .then((data) => {
+                    const syntaxErrors = data.errors.filter(({ category }) => {
+                        return category === 'SYNTAX';
+                    });
                     // if syntax errors are found
-                    if (!_.isEmpty(errors)) {
+                    if (!_.isEmpty(syntaxErrors)) {
                         newState.parseFailed = true;
-                        newState.syntaxErrors = errors;
+                        newState.syntaxErrors = syntaxErrors;
                         newState.validatePending = false;
-                        const astRoot = new BallerinaASTRoot();
-                        astRoot.setFile(this.props.file);
-                        newState.model = astRoot;
+                        // keep current AST when in preview view - even though its not valid
+                        if (!this.props.isPreviewViewEnabled) {
+                            newState.model = undefined;
+                        }
                         // Cannot proceed due to syntax errors.
                         // Hence resolve now.
                         resolve(newState);
@@ -358,24 +486,27 @@ class BallerinaFileEditor extends React.Component {
                     parseFile(file)
                         .then((jsonTree) => {
                             // something went wrong with the parser
-                            if (_.isNil(jsonTree.root)) {
-                                log.error('Error while parsing the file: ' + file.name
-                                    + ' Error:' + jsonTree.errorMessage || jsonTree);
+                            if (_.isNil(jsonTree.model) || _.isNil(jsonTree.model.kind)) {
+                                log.error('Error while parsing the file ' + file.name + '.' + file.extension
+                                    + '. ' + (jsonTree.diagnostics || jsonTree.errorMessage || jsonTree));
                                 // cannot be in a view which depends on AST
                                 // hence forward to source view
                                 newState.activeView = SOURCE_VIEW;
                                 newState.parseFailed = true;
                                 newState.isASTInvalid = true;
-                                const astRoot = new BallerinaASTRoot();
-                                astRoot.setFile(this.props.file);
-                                newState.model = astRoot;
+                                // keep current AST when in preview view - even though its not valid
+                                if (!this.props.isPreviewViewEnabled) {
+                                    newState.model = undefined;
+                                }
                                 resolve(newState);
-                                alerts.error('Seems to be there is a bug in back-end parser.'
-                                        + 'Please report an issue attaching current source.');
+                                this.context.alert.showError('Seems to be there is a bug in back-end parser.'
+                                    + 'Please report an issue attaching current source.');
                                 return;
                             }
                             // get ast from json
-                            const ast = BallerinaASTDeserializer.getASTModel(jsonTree, this.props.file);
+
+                            const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
+                            ast.setFile(this.props.file);
                             this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
@@ -386,10 +517,10 @@ class BallerinaFileEditor extends React.Component {
                             newState.parseFailed = false;
                             newState.isASTInvalid = false;
                             newState.model = ast;
-
-                            const pkgName = ast.getPackageDefinition().getPackageName();
+                            resolve(newState);// TODOX need to remove this.
+                            // TODOX const pkgName = ast.getPackageDefinition().getPackageName();
                             // update package name of the file
-                            file.packageName = pkgName || '.';
+                            // TODOX file.packageName = pkgName || '.';
                             // init bal env in background
                             BallerinaEnvironment.initialize()
                                 .then(() => {
@@ -398,23 +529,13 @@ class BallerinaFileEditor extends React.Component {
                                     // Resolve now and let rest happen in background
                                     resolve(newState);
 
-                                    // fetch program packages
-                                    getProgramPackages(file)
-                                        .then((data) => {
-                                            // if any packages were found
-                                            const packages = data.result.packages;
-                                            if (!_.isNil(packages)) {
-                                                const pkges = [];
-                                                packages.forEach((pkgNode) => {
-                                                    const pkg = BallerinaEnvFactory.createPackage();
-                                                    pkg.initFromJson(pkgNode);
-                                                    pkges.push(pkg);
-                                                });
-                                                this.environment.addPackages(pkges);
-                                            }
-                                            this.update();
-                                        })
-                                        .catch(error => log.error(error));
+                                    const pkgNode = jsonTree.packageInfo;
+                                    if (!_.isNil(pkgNode)) {
+                                        const pkg = BallerinaEnvFactory.createPackage();
+                                        pkg.initFromJson(pkgNode);
+                                        this.environment.setCurrentPackage(pkg);
+                                    }
+                                    this.update();
                                 })
                                 .catch(reject);
                         })
@@ -423,23 +544,30 @@ class BallerinaFileEditor extends React.Component {
                 .catch(reject);
         });
     }
-    reCalculateBreakpoints(newAst) {
-        const findBreakpointsVisiter = new FindBreakpointLinesVisitor(newAst);
-        newAst.accept(findBreakpointsVisiter);
-        const breakpoints = findBreakpointsVisiter.getBreakpoints();
-        const fileName = this.props.file.name;
-        const packagePath = newAst.getPackageDefinition().getPackageName() || '.';
+    markBreakpointsOnAST(ast) {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
+        const breakpoints = DebugManager.getDebugPoints(fileName);
+        const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
+        findBreakpointsVisitor.setBreakpoints(breakpoints);
+        ast.accept(findBreakpointsVisitor);
+    }
+    updateBreakpoints(breakpoints, ast) {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
+        const packagePath = this.getPackageName(ast);
         DebugManager.removeAllBreakpoints(fileName);
         breakpoints.forEach((lineNumber) => {
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
     }
-    markBreakpointsOnAST(ast) {
-        const fileName = this.props.file.name;
-        const breakpoints = DebugManager.getDebugPoints(fileName);
-        const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
-        findBreakpointsVisitor.setBreakpoints(breakpoints);
-        ast.accept(findBreakpointsVisitor);
+    getPackageName(ast) {
+        const packageDeclaration = ast.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+        packageDeclaration[0] = packageDeclaration[0] || { packageName: [{}] };
+        if (!packageDeclaration[0]
+            || !packageDeclaration[0].packageName
+            || !packageDeclaration[0].packageName.length) {
+            return '.';
+        }
+        return packageDeclaration[0].packageName[0].value;
     }
 
     /**
@@ -465,45 +593,65 @@ class BallerinaFileEditor extends React.Component {
             && (!_.isEmpty(this.state.syntaxErrors)
                 || (this.state.parseFailed && !this.state.parsePending));
 
-        // If there are syntax errors, forward editor to source view & update state
-        // to make that decision reflect in state. This is to prevent automatic
-        // redirection to design view once the syntax errors are fixed in source view.
-        if (!this.props.isPreviewViewEnabled && !this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
-                && this.state.activeView !== SOURCE_VIEW) {
-            this.state.activeView = SOURCE_VIEW;
+        // If there are syntax errors, forward editor to source view - if split view is not active.
+        // If split view is active - we will render an overly on top of design view with error list
+        if (!this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)) {
+            if (this.props.isPreviewViewEnabled) {
+                this.state.activeView = DESIGN_VIEW;
+            } else {
+                this.state.activeView = SOURCE_VIEW;
+            }
         }
 
         const showDesignView = this.state.initialParsePending
+            || (this.props.isPreviewViewEnabled && this.state.activeView === DESIGN_VIEW)
             || ((!this.state.parseFailed)
-                                            && _.isEmpty(this.state.syntaxErrors)
-                                                && this.state.activeView === DESIGN_VIEW);
+                && _.isEmpty(this.state.syntaxErrors)
+                && this.state.activeView === DESIGN_VIEW);
         const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
             || this.state.activeView === SOURCE_VIEW);
         const showSwaggerView = (!this.state.parseFailed
-                                    && !_.isNil(this.state.swaggerViewTargetService)
-                                        && this.state.activeView === SWAGGER_VIEW);
+            && !_.isNil(this.state.swaggerViewTargetService)
+            && this.state.activeView === SWAGGER_VIEW);
 
-        let showLoadingOverlay;
-        if (this.props.isPreviewViewEnabled) {
-            if (showDesignView === true) {
-                showLoadingOverlay = false;
-            } else {
-                showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
-            }
-        }
+        const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         return (
             <div
                 id={`bal-file-editor-${this.props.file.id}`}
-                className='bal-file-editor'
+                className='bal-file-editor grid-background '
             >
                 <CSSTransitionGroup
                     transitionName="loading-overlay"
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}
                 >
-
+                    {this.props.isPreviewViewEnabled && !_.isEmpty(this.state.syntaxErrors) &&
+                        <div className='syntax-error-overlay'>
+                            <div className="error-list">
+                                <div className="list-heading">
+                                    Cannot update design view due to below syntax errors.
+                                </div>
+                                <Scrollbars
+                                    autoHeight
+                                    autoHeightMax={400}
+                                    autoHide
+                                    autoHideTimeout={1000}
+                                >
+                                    <ul className="errors">
+                                        {this.state.syntaxErrors.map(({ row, column, text }) => {
+                                            return (
+                                                <li>
+                                                    {`${text} at Line:${row}:${column}`}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </Scrollbars>
+                            </div>
+                        </div>
+                    }
                     {showLoadingOverlay &&
                         <div className='bal-file-editor-loading-container'>
                             <div id="parse-pending-loader">
@@ -517,6 +665,9 @@ class BallerinaFileEditor extends React.Component {
                     show={showDesignView}
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
+                    width={this.props.width}
+                    height={this.props.height}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 />
                 <SourceView
                     displayErrorList={popupErrorListInSourceView}
@@ -524,6 +675,7 @@ class BallerinaFileEditor extends React.Component {
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
                     show={showSourceView}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView
@@ -547,15 +699,26 @@ BallerinaFileEditor.propTypes = {
         dispatch: PropTypes.func.isRequired,
     }).isRequired,
     isPreviewViewEnabled: PropTypes.bool,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 BallerinaFileEditor.defaultProps = {
     isPreviewViewEnabled: false,
 };
 
+BallerinaFileEditor.contextTypes = {
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+    }).isRequired,
+};
+
 BallerinaFileEditor.childContextTypes = {
     isTabActive: PropTypes.bool.isRequired,
-    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    astRoot: PropTypes.instanceOf(CompilationUnitNode),
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
     isPreviewViewEnabled: PropTypes.bool.isRequired,

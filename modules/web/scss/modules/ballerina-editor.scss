@@ -4,6 +4,12 @@
             &.ballerina-design-view {
                 background-color: white;
                 color: #7D7D7D;
+                .close-tab {
+                    color: #7D7D7D;
+                    &:hover{
+                        color: #474747;
+                    }
+                }
             }
         }
     }
@@ -694,21 +700,6 @@
                 stroke-width: 0;
             }
         }
-    
-        & .panel-body {
-            & .panel-body-rect {
-                fill: $panel-body-bgcolor;
-                fill-opacity: 0.4;
-                stroke-width: 2px;
-                //shape-rendering: crispEdges;
-                stroke: $panel-body-border-color;
-    
-                &.rect.drop-zone {
-                   fill: $panel-body-dropzone-bgcolor;
-                   fill-opacity: 0;
-                }
-            }
-        }
     }
 
     .statement-container .inner-drop-zone{
@@ -829,7 +820,6 @@
         margin: 0;
         padding: 0;
         list-style-type: none;
-        max-height: 350px;
     }
     
     .react-autosuggest__suggestion {
@@ -2656,9 +2646,9 @@
         stroke: #3498db;
     }
     
-    .protocol-http .protocol-rect{
+    /*.protocol-http .protocol-rect{
         fill: #3498db;
-    }
+    }*/
     
     .protocol-http .panel-heading-decorator{
         fill: #3498db;
@@ -2766,6 +2756,8 @@
     #syntax-errors-list-popover .popover-title {
         min-height: 20px;
         vertical-align: middle;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
     }
     
     #syntax-errors-list-popover .popover-title i {
@@ -3871,6 +3863,31 @@
     
     .popout-button-wrapper i.fw-cancel {
         padding-left: 5px;
+    }
+    
+    .syntax-error-overlay {
+        z-index: 1000;
+        text-align: center;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(60, 60, 60, 0.5);
+        .error-list {
+            border-left: 5px solid #910a0a;
+            position: relative;
+            text-align: left;
+            padding: 10px;
+            left: 20%;
+            top: 20%;
+            width: 60%;
+            background-color: rgba(60, 60, 60, 1);
+            color: white;
+            .list-heading {
+                text-align: center;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+        }
     }
     
     .bal-file-editor-loading-container {

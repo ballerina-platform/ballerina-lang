@@ -13,8 +13,16 @@ class Header extends React.Component {
     /**
      * @inheritdoc
      */
+    shouldComponentUpdate(nextProps, nextState) {
+        return !nextProps.panelResizeInProgress;
+    }
+
+    /**
+     * @inheritdoc
+     */
     render() {
-        const { width, height } = this.props;
+        const { width, height, panelResizeInProgress } = this.props;
+        const viewProps = { width, height, panelResizeInProgress };
         return (
             <header className="header header-default">
                 <div id="header-container">
@@ -23,7 +31,7 @@ class Header extends React.Component {
                     </div>
                     <div className="pull-left">
                         {this.props.views.map((viewDef) => {
-                            return createViewFromViewDef(viewDef, { width, height });
+                            return createViewFromViewDef(viewDef, viewProps);
                         })}
                     </div>
                 </div>
@@ -34,6 +42,7 @@ class Header extends React.Component {
 
 Header.propTypes = {
     views: PropTypes.arrayOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

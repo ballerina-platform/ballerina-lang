@@ -23,7 +23,7 @@ service<http> infoService {
         //Create XML payload and respond back.
         xml name = xmls:parse("<name>"+nameString+"</name>");
         messages:setXmlPayload(response,name);
-        reply response;
+        response:send(response);
     }
 }
 

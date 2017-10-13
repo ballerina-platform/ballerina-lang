@@ -12,6 +12,7 @@ import { withReRenderEnabled } from './utils';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
+const leftPanelClosedSize = 42;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
 const headerHeight = 24;
@@ -50,6 +51,7 @@ class App extends React.Component {
             bottomPanelSize,
             documentHeight: window.innerHeight,
             documentWidth: window.innerWidth,
+            panelResizeInProgress: false,
         };
         this.leftRightSplitPane = undefined;
         this.topBottomSplitPane = undefined;
@@ -58,6 +60,9 @@ class App extends React.Component {
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
             this.setBottomPanelState(!this.state.showBottomPanel);
+        });
+        this.props.layoutPlugin.on(EVENTS.SHOW_BOTTOM_PANEL, () => {
+            this.setBottomPanelState(true);
         });
     }
 
@@ -68,6 +73,7 @@ class App extends React.Component {
         return {
             history: this.props.appContext.pref.history,
             command: this.props.appContext.command,
+            alert: this.props.appContext.alert,
         };
     }
 
@@ -144,11 +150,13 @@ class App extends React.Component {
             <div className="" onContextMenu={() => false}>
                 <Header
                     views={this.getViewsForRegion(REGIONS.HEADER)}
+                    panelResizeInProgress={this.state.panelResizeInProgress}
                     width={this.state.documentWidth}
                     height={headerHeight}
                 />
                 <ToolArea
                     views={this.getViewsForRegion(REGIONS.TOOL_AREA)}
+                    panelResizeInProgress={this.state.panelResizeInProgress}
                     width={this.state.documentWidth}
                     height={toolAreaHeight}
                 />
@@ -156,27 +164,33 @@ class App extends React.Component {
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
                     className="left-right-split-pane"
-                    minSize={this.state.showLeftPanel ? leftPanelDefaultSize : 0}
+                    allowResize={this.state.showLeftPanel}
+                    minSize={this.state.showLeftPanel ? leftPanelDefaultSize : leftPanelClosedSize}
                     maxSize={leftPanelMaxSize}
-                    defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : 0}
-                    onDragFinished={(size) => {
+                    defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize}
+                    onChange={(size) => {
+                        this.state.panelResizeInProgress = true;
                         this.setLeftPanelState(true, size);
+                    }
+                    }
+                    onDragFinished={() => {
                         if (!_.isNil(this.leftRightSplitPane)) {
                             this.leftRightSplitPane.setState({
                                 resized: false,
                                 draggedSize: undefined,
                             });
                         }
+                        this.setState({
+                            panelResizeInProgress: false,
+                        });
                     }
-                    }
-                    pane2Style={
-                        this.state.showLeftPanel ? {} : { position: 'relative', left: '42px' }
                     }
                     style={{
                         height: this.state.documentHeight - (headerHeight + toolAreaHeight),
                     }}
                 >
                     <LeftPanel
+                        panelResizeInProgress={this.state.panelResizeInProgress}
                         width={this.state.leftPanelSize}
                         height={this.state.documentHeight - (headerHeight + toolAreaHeight)}
                         onActiveViewChange={
@@ -200,14 +214,21 @@ class App extends React.Component {
                         minSize={this.state.showBottomPanel ? bottomPanelDefaultSize : 0}
                         maxSize={bottomPanelMaxSize}
                         defaultSize={renderedBottomPanelSize}
-                        onDragFinished={(size) => {
+                        onChange={(size) => {
+                            this.state.panelResizeInProgress = true;
+                            this.setBottomPanelState(true, size);
+                        }
+                        }
+                        onDragFinished={() => {
                             if (!_.isNil(this.topBottomSplitPane)) {
                                 this.topBottomSplitPane.setState({
                                     resized: false,
                                     draggedSize: undefined,
                                 });
                             }
-                            this.setBottomPanelState(true, size);
+                            this.setState({
+                                panelResizeInProgress: false,
+                            });
                         }
                         }
                         pane1Style={{
@@ -216,7 +237,9 @@ class App extends React.Component {
                         }}
                     >
                         <EditorArea
-                            width={this.state.documentWidth - this.state.leftPanelSize}
+                            panelResizeInProgress={this.state.panelResizeInProgress}
+                            width={this.state.documentWidth -
+                                (this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize)}
                             height={this.state.documentHeight - (headerHeight + toolAreaHeight
                                     + renderedBottomPanelSize)}
                             views={this.getViewsForRegion(REGIONS.EDITOR_AREA)}
@@ -246,7 +269,9 @@ class App extends React.Component {
                                 }
                             }
                             views={this.getViewsForRegion(REGIONS.BOTTOM_PANEL)}
-                            width={this.state.documentWidth - this.state.leftPanelSize}
+                            panelResizeInProgress={this.state.panelResizeInProgress}
+                            width={this.state.documentWidth -
+                                (this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize)}
                             height={this.state.bottomPanelSize}
                         />
                     </SplitPane>
@@ -270,6 +295,12 @@ App.childContextTypes = {
     command: PropTypes.shape({
         on: PropTypes.func,
         dispatch: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
     }).isRequired,
 };
 

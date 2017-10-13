@@ -17,7 +17,8 @@
  */
 
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { COMMANDS, DIALOG_IDS } from './constants';
+import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
+import { COMMANDS, DIALOG_IDS, VIEWS as VIEW_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
 
@@ -33,8 +34,17 @@ export function getHandlerDefinitions(debuggerPlugin) {
             cmdID: COMMANDS.RUN_WITH_DEBUG,
             handler: () => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, true, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                        file: activeEditor.file,
+                        onSaveSuccess: () => {
+                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                            LaunchManager.run(activeEditor.file, true,
+                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                        },
+                    });
+                    dispatch('debugger-run-with-debug-executed', activeEditor.file);
                 }
             },
         },
@@ -47,14 +57,25 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 if (LaunchManager.active) {
                     LaunchManager.stop();
                 }
+                const { command } = debuggerPlugin.appContext;
+                command.dispatch('debugger-stop-executed');
             },
         },
         {
             cmdID: COMMANDS.RUN,
             handler: () => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, false, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                        file: activeEditor.file,
+                        onSaveSuccess: () => {
+                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                            LaunchManager.run(activeEditor.file, false,
+                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                        },
+                    });
+                    dispatch('debugger-run-executed', activeEditor.file);
                 }
             },
         },

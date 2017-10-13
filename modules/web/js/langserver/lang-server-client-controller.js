@@ -202,12 +202,14 @@ class LangServerClientController extends EventChannel {
             },
         };
 
-        session.setMessage(message);
-        session.setCallback((responseMsg) => {
-            callback(responseMsg);
-        });
-        this.requestSessions.push(session);
-        this.langserverChannel.sendMessage(message);
+        return new Promise((resolve) => {
+            session.setMessage(message);
+            session.setCallback((responseMsg) => {
+                callback ? callback(responseMsg): resolve(responseMsg)
+            });
+            this.requestSessions.push(session);
+            this.langserverChannel.sendMessage(message);
+        })
     }
 
     /**

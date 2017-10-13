@@ -32,27 +32,18 @@ class TypeLattice {
 
     /**
      * Initialize type lattice from json
-     * @param {any} typeLattice type lattice
+     * @param {any} typeLatticeJson type lattice
      * @memberof TypeLattice
      */
     initFromJson(typeLatticeJson) {
         let typeEdges = [];
 
-        typeEdges.push(typeLatticeJson.implicit_cast.map((edge) => {
+        typeEdges.push(typeLatticeJson.cast.map((edge) => {
             return {
                 source: edge.source,
                 target: edge.target,
                 safe: edge.safe,
-                type: 'implicit',
-            };
-        }));
-
-        typeEdges.push(typeLatticeJson.explicit_cast.map((edge) => {
-            return {
-                source: edge.source,
-                target: edge.target,
-                safe: edge.safe,
-                type: 'explicit',
+                type: edge.implicit ? 'implicit' : 'explicit',
             };
         }));
 
@@ -65,10 +56,7 @@ class TypeLattice {
             };
         }));
 
-        // edges are spread in order of precedence. implicit > explicit > conversion
-        // if there are repeatitive edges they get overwritten with this order during the
-        // creation of lattice.
-        typeEdges = [...typeEdges[2], ...typeEdges[1], ...typeEdges[0]];
+        typeEdges = [...typeEdges[0], ...typeEdges[1]];
 
         const typeLattice = {};
 
@@ -76,17 +64,15 @@ class TypeLattice {
             if (!edge.visited) {
                 const source = edge.source;
                 typeLattice[source] = {};
-                if (!edge.visited) {
-                    typeEdges.forEach((targetEdge) => {
-                        if ((targetEdge.source === source) && (!targetEdge.visited)) {
-                            typeLattice[source][targetEdge.target] = {
-                                safe: targetEdge.safe,
-                                type: targetEdge.type,
-                            };
-                            targetEdge.visited = true;
-                        }
-                    });
-                }
+                typeEdges.forEach((targetEdge) => {
+                    if ((targetEdge.source === source) && (!targetEdge.visited)) {
+                        typeLattice[source][targetEdge.target] = {
+                            safe: targetEdge.safe,
+                            type: targetEdge.type,
+                        };
+                        targetEdge.visited = true;
+                    }
+                });
             }
         });
         this._typeLattice = typeLattice;

@@ -17,7 +17,7 @@ service<http> productmgt {
         payload, _ = (json) productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
-        reply response;
+        response:send(response);
 
     }
 
@@ -32,7 +32,7 @@ service<http> productmgt {
         json payload = {"Status":"Product is successfully added."};
         message response = {};
         messages:setJsonPayload(response, payload);
-        reply response;
+        response:send(response);
 
     }
 

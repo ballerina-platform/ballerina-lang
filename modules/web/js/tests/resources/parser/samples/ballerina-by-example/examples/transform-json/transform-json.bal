@@ -62,6 +62,6 @@ service<http> PersonService {
         messages:setJsonPayload(m, response);
         
         // Reply from the resource with message m
-        reply m;
+        response:send(m);
     }
 }

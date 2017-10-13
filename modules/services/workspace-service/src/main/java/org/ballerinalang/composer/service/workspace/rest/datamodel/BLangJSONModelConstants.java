@@ -27,6 +27,12 @@ public class BLangJSONModelConstants {
 
     public static final String CHILDREN = "children";
 
+    public static final String BODY = "body";
+
+    public static final String STATEMENTS = "statements";
+
+    public static final String TOP_LEVEL_NODES = "topLevelNodes";
+
     public static final String DEFINITION_TYPE = "type";
 
     public static final String CONNECTOR_DEFINITION = "connector_definition";
@@ -408,4 +414,12 @@ public class BLangJSONModelConstants {
     public static final String XML_PI_LITERAL = "xml_pi_literal";
 
     public static final String STRING_TEMPLATE_LITERAL = "string_template_literal";
+
+    public static final String PARAMETERS = "parameters";
+
+    public static final String RETURN_PARAMETERS = "returnParameters";
+    public static final String ACTIONS = "actions";
+    public static final String RESOURCES = "resources";
+
+    public static final String WORKERS = "workers";
 }

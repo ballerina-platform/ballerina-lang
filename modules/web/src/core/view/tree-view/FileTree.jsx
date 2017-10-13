@@ -56,7 +56,7 @@ class FileTree extends React.Component {
      * Load tree data
      */
     loadData() {
-        const extensions = ['bal'];
+        const extensions = this.props.extensions;
         const isFSRoot = this.props.root === FS_ROOT;
         const loadData = isFSRoot ? getFSRoots(extensions) : listFiles(this.props.root, extensions);
         loadData
@@ -78,7 +78,7 @@ class FileTree extends React.Component {
         node.loading = true;
         delete node.children;
         this.forceUpdate();
-        return listFiles(node.id, ['.bal'])
+        return listFiles(node.id, this.props.extensions)
                 .then((data) => {
                     node.loading = false;
                     if (_.isEmpty(data)) {
@@ -136,6 +136,7 @@ class FileTree extends React.Component {
                         this.forceUpdate();
                     }}
                     parentNode={parentNode}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 >
                     {
                         node.children
@@ -161,19 +162,24 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
+    panelResizeInProgress: PropTypes.bool,
     enableContextMenu: PropTypes.bool,
     onLoadData: PropTypes.func,
     onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
+    extensions: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 FileTree.defaultProps = {
+    panelResizeInProgress: false,
     enableContextMenu: false,
     onLoadData: () => {},
     onOpen: () => {},
     onSelect: () => {},
     root: FS_ROOT,
+    isDOMElementVisible: () => false,
+    extensions: ['bal'],
 };
 
 export default FileTree;

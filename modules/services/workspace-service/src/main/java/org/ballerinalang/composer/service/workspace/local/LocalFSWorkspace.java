@@ -81,6 +81,13 @@ public class LocalFSWorkspace implements Workspace {
         boolean exists = Files.exists(ioPath);
         result.addProperty(FILE_TYPE, path);
         result.addProperty(EXISTS, exists);
+        if (exists) {
+            if (Files.isDirectory(ioPath)) {
+                result.addProperty(NODE_TYPE, FOLDER_TYPE);
+            } else if (Files.isRegularFile(ioPath)) {
+                result.addProperty(NODE_TYPE, FILE_TYPE);
+            }
+        }
         return result;
     }
 

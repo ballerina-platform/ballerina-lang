@@ -71,13 +71,23 @@
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-native</artifactId>
+                <groupId>org.wso2.ballerina.connectors</groupId>
+                <artifactId>connectors</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina.connectors</groupId>
-                <artifactId>connectors</artifactId>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-lang</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>

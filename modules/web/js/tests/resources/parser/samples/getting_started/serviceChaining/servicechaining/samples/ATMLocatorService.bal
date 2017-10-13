@@ -33,7 +33,7 @@ service<http> ATMLocator {
         messages:setJsonPayload(backendServiceReq, bankInfoReq);
         response = bankInfoService.post("", backendServiceReq);
         
-        reply response;
+        response:send(response);
     
     }    
 }

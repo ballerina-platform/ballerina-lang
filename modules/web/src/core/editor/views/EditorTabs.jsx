@@ -19,6 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import Tabs, { TabPane } from 'rc-tabs';
 import SplitPane from 'react-split-pane';
 import TabContent from 'rc-tabs/lib/TabContent';
@@ -29,9 +30,6 @@ import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
-
-const DEFAULT_PREVIEW_VIEW_SIZE = document.body.clientWidth - (((document.body.clientWidth / 2) - 250));
-const MINIMUM_PREVIEW_VIEW_SIZE = 250;
 
 const tabTitleHeight = 21;
 
@@ -53,30 +51,27 @@ class EditorTabs extends View {
     constructor(props) {
         super(props);
         this.onTabClose = this.onTabClose.bind(this);
-        this.onPreviewViewTabClose = this.onPreviewViewTabClose.bind(this);
+        this.onPreviewTabClose = this.onPreviewTabClose.bind(this);
         this.previewSplitRef = undefined;
 
         const { history } = props.editorPlugin.appContext.pref;
-        const previewViewEnabled = !_.isNil(history.get(HISTORY.ACTIVE_PREVIEW_VIEW));
+        const previewPanelEnabledHistory = history.get(HISTORY.PREVIEW_VIEW_IS_ACTIVE);
+        const previewPanelEnabled = !_.isNil(previewPanelEnabledHistory) ? previewPanelEnabledHistory : false;
+        const previewPanelSize = previewPanelEnabled
+                                ? (parseInt(history.get(HISTORY.PREVIEW_VIEW_PANEL_SIZE), 10)
+                                        || this.props.width / 2)
+                                : 0;
 
         // Setting view states.
         this.state = {
-            previewViewEnabled,
+            panelResizeInProgress: false,
+            previewPanelEnabled,
+            previewPanelSize,
         };
 
         // Binding commands.
-        props.editorPlugin.appContext.command.on('show-split-view', (enabled) => {
-            if (enabled) {
-                history.put(HISTORY.ACTIVE_PREVIEW_VIEW, true);
-            } else {
-                history.put(HISTORY.ACTIVE_PREVIEW_VIEW, undefined);
-            }
-
-            this.setState({
-                previewViewEnabled: enabled,
-            });
-
-            this.props.editorPlugin.reRender();
+        props.editorPlugin.appContext.command.on('show-split-view', () => {
+            this.setPreviewPanelState(true);
         });
     }
 
@@ -93,63 +88,11 @@ class EditorTabs extends View {
     }
 
     /**
-     * Gets the size of the preview view.
-     * @param {boolean} previewViewEnabled Whether preview view is enabled.
-     * @returns {number|string} The preview view size.
+     * On split view close.
      * @memberof EditorTabs
      */
-    getPreviewViewSize(previewViewEnabled) {
-        const { history } = this.props.editorPlugin.appContext.pref;
-        const activeEditor = this.props.editorPlugin.appContext.editor.getActiveEditor();
-        let previewViewSize;
-        if (!_.isNil(activeEditor) && previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
-            if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
-                previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
-            } else {
-                previewViewSize = DEFAULT_PREVIEW_VIEW_SIZE;
-            }
-        } else {
-            previewViewSize = '100%';
-        }
-
-        return previewViewSize;
-    }
-
-    /**
-     * Get 'right' style value for the bottom controls.
-     * @returns {integer} The value for 'right' style attribute.
-     * @memberof EditorTabs
-     */
-    getBottomControlsRightPos() {
-        const previewSize = this.getPreviewViewSize(this.state.previewViewEnabled);
-        const firstPaneWidth = this.previewSplitRef.splitPane.getElementsByClassName('Pane vertical')[0].offsetWidth;
-        const secondPaneWidth = this.previewSplitRef.splitPane.getElementsByClassName('Pane vertical')[1].offsetWidth;
-        let rightPos;
-        if (_.isString(previewSize)) {
-            rightPos = firstPaneWidth;
-        } else {
-            rightPos = previewSize;
-        }
-
-        // Padding
-        rightPos += 50;
-        if (secondPaneWidth - firstPaneWidth < 200) {
-            // Hide the button if the right pane is smaller.
-            return 0;
-        } else {
-            return rightPos;
-        }
-    }
-
-    /**
-     * On split view button/icon is clicked.
-     * @memberof EditorTabs
-     */
-    onPreviewViewTabClose() {
-        this.props.editorPlugin.appContext.command.dispatch('show-split-view', false);
-        this.setState({
-            previewViewEnabled: false,
-        });
+    onPreviewTabClose() {
+        this.setPreviewPanelState(false);
     }
 
     /**
@@ -161,17 +104,24 @@ class EditorTabs extends View {
     }
 
     /**
-    * Update left panel state
-    * @param {boolean} showLeftPanel
-    * @param {number} leftPanelSize
+    * Update preview panel state
+    * @param {boolean} previewPanelEnabled
+    * @param {number} previewPanelSize
     */
-    setPreviewViewState(previewViewSize) {
+    setPreviewPanelState(previewPanelEnabled, previewPanelSize) {
         const { history } = this.props.editorPlugin.appContext.pref;
-        if (_.isNil(previewViewSize)) {
-            previewViewSize = this.getPreviewViewSize(true);
+        if (_.isNil(previewPanelSize)) {
+            const sizeFromHistory = history.get(HISTORY.PREVIEW_VIEW_PANEL_SIZE);
+            previewPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
+                                    ? sizeFromHistory
+                                    : this.props.width / 2;
         }
-        history.put(HISTORY.PREVIEW_VIEW_ENABLED_SIZE, previewViewSize);
-        this.forceUpdate();
+        history.put(HISTORY.PREVIEW_VIEW_IS_ACTIVE, previewPanelEnabled);
+        history.put(HISTORY.PREVIEW_VIEW_PANEL_SIZE, previewPanelSize);
+        this.setState({
+            previewPanelEnabled,
+            previewPanelSize,
+        });
     }
 
     /**
@@ -182,8 +132,8 @@ class EditorTabs extends View {
         const { activeEditorID } = this.props.editorPlugin;
         const dimensions = {
             width: this.props.width -
-                (_.isNumber(this.state.previewViewSize)
-                    ? this.state.previewViewSize : 0),
+                (this.state.previewPanelEnabled
+                    ? this.state.previewPanelSize : 0),
             height: this.props.height - tabTitleHeight,
         };
         if (editor instanceof Editor) {
@@ -206,19 +156,22 @@ class EditorTabs extends View {
                         file={file}
                         commandProxy={this.props.editorPlugin.appContext.command}
                         {...customPropsProvider()}
-                        isPreviewViewEnabled={this.state.previewViewEnabled}
+                        isPreviewViewEnabled={this.state.previewPanelEnabled}
                         {...dimensions}
+                        panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
                     />
                 </TabPane>
             );
         } else if (editor instanceof CustomEditor) {
             const { id, title, icon, propsProvider } = editor;
+            const customTabDimensions = {
+                width: this.props.width, // custom tabs doesn't support split view hence full width
+                height: this.props.height - tabTitleHeight,
+            };
             return (
                 <TabPane
                     tab={
                         <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
-                            <i className={`fw fw-${icon} tab-icon`} />
-                            {title}
                             <button
                                 type="button"
                                 className="close close-tab pull-right"
@@ -226,16 +179,25 @@ class EditorTabs extends View {
                             >
                                 ×
                             </button>
+                            <i className={`fw fw-${icon} tab-icon`} />
+                            {title}
                         </div>
                     }
                     data-extra="tabpane"
                     key={id}
                 >
-                    <editor.component
-                        isActive={activeEditorID === id}
-                        {...propsProvider()}
-                        {...dimensions}
-                    />
+                    <Scrollbars
+                        style={customTabDimensions}
+                        autoHide // Hide delay in ms
+                        autoHideTimeout={1000}
+                    >
+                        <editor.component
+                            isActive={activeEditorID === id}
+                            {...propsProvider()}
+                            {...customTabDimensions}
+                            panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
+                        />
+                    </Scrollbars>
                 </TabPane>
             );
         } else {
@@ -251,17 +213,16 @@ class EditorTabs extends View {
     renderPreviewTab() {
         const editor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         const dimensions = {
-            width: this.state.previewViewSize,
+            width: this.state.previewPanelSize,
             height: this.props.height - tabTitleHeight,
         };
         if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
             const { file, definition } = editor;
             const previewDefinition = definition.previewView;
-            const bottomControlsRightPos = this.getBottomControlsRightPos();
             return (
                 <TabPane
                     tab={
-                        <EditorTabTitle editor={editor} onTabClose={this.onPreviewViewTabClose} />
+                        <EditorTabTitle editor={editor} onTabClose={this.onPreviewTabClose} />
                     }
                     data-extra="tabpane"
                     key='preview-view'
@@ -275,11 +236,8 @@ class EditorTabs extends View {
                         />
                         <div
                             className='bottom-right-controls-container split-view-controls-container'
-                            style={{
-                                right: `${bottomControlsRightPos}px`,
-                            }}
                         >
-                            <div className="view-split-view-btn btn-icon" onClick={this.onPreviewViewTabClose}>
+                            <div className="view-split-view-btn btn-icon" onClick={this.onPreviewTabClose}>
                                 <div className="bottom-label-icon-wrapper">
                                     <i className="fw fw-code fw-inverse" />
                                 </div>
@@ -300,7 +258,7 @@ class EditorTabs extends View {
      * @inheritdoc
      */
     render() {
-        const { activeEditorID, openedEditors } = this.props.editorPlugin;
+        const { activeEditorID, openedEditors, activeEditor } = this.props.editorPlugin;
         const tabs = [];
         openedEditors.forEach((editor) => {
             tabs.push(this.makeTabPane(editor));
@@ -311,19 +269,39 @@ class EditorTabs extends View {
             <SplitPane
                 ref={(ref) => { this.previewSplitRef = ref; }}
                 split="vertical"
-                minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : 0}
-                defaultSize={this.getPreviewViewSize(this.state.previewViewEnabled)}
-                onDragFinished={(previewViewSize) => {
-                    this.setPreviewViewState(previewViewSize);
+                allowResize={this.state.previewPanelEnabled}
+                minSize={
+                    this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
+                        ? this.props.width * 0.25
+                        : 0
+                }
+                defaultSize={
+                    this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
+                        ? this.state.previewPanelSize
+                        : 0
+                }
+                maxSize={this.props.width * 0.75}
+                onChange={(previewPanelSize) => {
+                    this.state.panelResizeInProgress = true;
+                    this.setPreviewPanelState(true, previewPanelSize);
+                }}
+                onDragFinished={() => {
                     if (!_.isNil(this.previewSplitRef)) {
                         this.previewSplitRef.setState({
                             resized: false,
                             draggedSize: undefined,
                         });
                     }
-                }}
-                pane2Style={{
-                    width: '100%',
+                    this.setState({
+                        panelResizeInProgress: false,
+                    });
+                }
+                }
+                primary="second"
+                pane1Style={{
+                    width: this.props.width -
+                        (this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
+                           ? this.state.previewPanelSize : 0),
                 }}
             >
                 <Tabs
@@ -364,6 +342,7 @@ class EditorTabs extends View {
 
 EditorTabs.propTypes = {
     editorPlugin: PropTypes.objectOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

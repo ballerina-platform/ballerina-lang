@@ -13,7 +13,7 @@ service<http> nyseStockQuote {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         message response = {};
         messages:setJsonPayload(response, payload);
-        reply response;
+        response:send(response);
 
     }
 

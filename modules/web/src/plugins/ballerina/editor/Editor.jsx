@@ -70,6 +70,7 @@ class Editor extends React.Component {
 Editor.propTypes = {
     editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.objectOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     isActive: PropTypes.bool.isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
@@ -79,6 +80,8 @@ Editor.propTypes = {
     isPreviewViewEnabled: PropTypes.bool.isRequired,
     ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     onUndoableOperation: PropTypes.func.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 Editor.defaultProps = {

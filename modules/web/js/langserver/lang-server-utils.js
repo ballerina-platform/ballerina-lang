@@ -29,13 +29,18 @@ export function getResolvedTypeData(completionItem) {
         // there are more details on the type. e.g. : array dimensions, constraints
         const data = completionItem.data.data.type;
         if (data.isArrayType) {
-            typeName += Array(data.dimensions + 1).join('[]');
+            typeName = data.arrayType;
         }
-        if (data.pkgName) {
+        if (data.pkgName !== '.') {
             packageName = data.pkgName;
         }
         if (data.constraint) {
-            constraint = { type: data.constraint.name, packageName: data.constraint.pkgName };
+            let constraintPkgName = data.constraintPkgName;
+            if (constraintPkgName === '.') {
+                constraintPkgName = null;
+            }
+            constraint = { type: data.constraintName, packageName: constraintPkgName };
+            typeName = 'json'
         }
     }
     return ({ typeName, packageName, constraint });

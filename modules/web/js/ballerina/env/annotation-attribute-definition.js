@@ -56,7 +56,7 @@ class AnnotationAttributeDefinition extends EventChannel {
     }
 
     isArrayType() {
-        return this._arrayType;
+        return this._bType.includes('[]');
     }
 
     setPackagePath(packagePath) {

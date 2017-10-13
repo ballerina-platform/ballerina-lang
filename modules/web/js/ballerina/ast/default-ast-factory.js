@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTFactory from './ast-factory';
 import FragmentUtils from '../utils/fragment-utils';
+import TreeBuilder from '../model/tree-builder';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 
 /**
@@ -272,12 +273,6 @@ DefaultASTFactory.createAggregatedAssignmentStatement = function (args) {
         return node;
     }
     return ASTFactory.createAssignmentStatement(args);
-};
-
-DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args = {}) {
-    const assignmentStmt = ASTFactory.createAssignmentStatement();
-    assignmentStmt.setStatementFromString(`var __output1 = ${args.defaultExpression}`);
-    return assignmentStmt;
 };
 
 DefaultASTFactory.createTransformAssignmentRightExpStatement = function (args) {

@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
+import uuid from 'uuid/v1';
 
 class RequestSession {
     constructor() {
@@ -50,16 +48,5 @@ class RequestSession {
         this._callback(message);
     }
 }
-
-// Auto generated Id for the session
-var uuid = function () {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return `${s4() + s4()}-${s4()}-${s4()}-${
-        s4()}-${s4()}${s4()}${s4()}`;
-};
 
 export default RequestSession;

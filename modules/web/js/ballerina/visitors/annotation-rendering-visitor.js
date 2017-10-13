@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from 'ballerina/ast/ast-factory';
-import AnnotationContainer from '../diagram/views/default/components/utils/annotation-container';
+import TreeUtil from 'ballerina/model/tree-util';
+import AnnotationContainerMockNode from 'ballerina/diagram2/views/default/components/decorators/annotation-container';
 
 class AnnotationRenderingVisitor {
 
@@ -35,28 +35,25 @@ class AnnotationRenderingVisitor {
     }
 
     beginVisit(node) {
-        const annotations = node.getChildrenOfType(ASTFactory.isAnnotationAttachment);
-
-        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
-            ASTFactory.isConnectorDefinition(node) || ASTFactory.isConnectorAction(node) ||
-            ASTFactory.isAnnotationDefinition(node) || ASTFactory.isStructDefinition(node) ||
-            (ASTFactory.isFunctionDefinition(node) && !node.isLambda())) {
-            if (node.viewState.showAnnotationContainer && !node.getParent().getViewState().collapsed) {
+        const isTopLevelNode = (TreeUtil.isService(node) || TreeUtil.isConnector(node) ||
+                                TreeUtil.isAnnotation(node) || TreeUtil.isStruct(node) ||
+                                (TreeUtil.isFunction(node) && !node.lambda)) && TreeUtil.isCompilationUnit(node.parent);
+        const isSecondLevelNode = (TreeUtil.isResource(node) && TreeUtil.isService(node.parent)) ||
+                                    (TreeUtil.isAction(node) && TreeUtil.isConnector(node.parent));
+        if (isTopLevelNode || isSecondLevelNode) {
+            const annotations = node.getAnnotationAttachments();
+            if (node.viewState.showAnnotationContainer && !node.parent.viewState.collapsed) {
                 const bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h;
-                this.annotations.push(new AnnotationContainer(bBox, annotations, node));
+                this.annotations.push(new AnnotationContainerMockNode(bBox, annotations, node));
             }
             annotations.forEach((annotation) => {
-                annotation.getViewState().disableEdit = false;
-            });
-        } else {
-            annotations.forEach((annotation) => {
-                annotation.getViewState().disableEdit = true;
+                annotation.viewState.disableEdit = false;
             });
         }
 
         // hide annotations of resources if service is hidded
-        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isConnectorDefinition(node)) {
+        if (TreeUtil.isService(node) || TreeUtil.isConnector(node)) {
             this.hiddenService = node.viewState.collapsed;
         }
 
@@ -64,7 +61,7 @@ class AnnotationRenderingVisitor {
     }
 
     endVisit(node) {
-        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isConnectorDefinition(node)) {
+        if (TreeUtil.isService(node) || TreeUtil.isConnector(node)) {
             this.hiddenService = false;
         }
         return undefined;

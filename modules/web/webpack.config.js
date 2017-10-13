@@ -75,12 +75,12 @@ const config = [{
     plugins: [
         new ProgressBarPlugin(),
         extractCSSBundle,
-        new UnusedFilesWebpackPlugin({
-            pattern: 'js/**/*.*',
-            globOptions: {
-                ignore: 'js/tests/**/*.*',
-            },
-        }),
+        // new UnusedFilesWebpackPlugin({
+        //    pattern: 'js/**/*.*',
+        //    globOptions: {
+        //        ignore: 'js/tests/**/*.*',
+        //    },
+        // }),
         // https://github.com/fronteed/icheck/issues/322
         new webpack.ProvidePlugin({
             $: 'jquery',
@@ -115,7 +115,7 @@ const config = [{
         contentBase: './public',
     },
     externals: {
-        'jsdom': 'window',
+        jsdom: 'window',
         'react-addons-test-utils': true,
         'react/addons': true,
         'react/lib/ExecutionEnvironment': true,
@@ -131,27 +131,15 @@ const config = [{
             // third party modules //
             // //////////////////////
             theme_wso2: 'theme-wso2-2.0.0/js/theme-wso2',
-            mcustom_scroller: 'malihu-custom-scrollbar-plugin',
-            underscore: 'lodash',
-            ace: 'ace-builds/src-noconflict',
             // /////////////////////
             // custom modules ////
             // ////////////////////
             log: 'log/log',
             event_channel: 'event/channel',
-            tool_bar: 'tool-bar/tool-bar',
+            ace: 'ace-builds/src-noconflict',
             alerts: 'utils/alerts',
             expression_editor_utils: 'expression-editor/expression-editor-utils',
-            constants: 'constants/constants',
-            typeMapper: 'type-mapper/type-mapper-renderer',
-            environment_content: 'ballerina/env/environment-content',
-            bal_utils: 'ballerina/utils',
-            bal_configs: 'ballerina/configs',
-            console: 'launcher/console',
             images: 'public/images',
-            workspace$: 'workspace/module',
-            ballerina$: 'ballerina/module',
-            'welcome-page$': 'welcome-page/module',
         },
     },
 
@@ -204,10 +192,10 @@ if (process.env.NODE_ENV === 'production') {
 
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-    config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
+     config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         mangle: {
-            keep_fnames: true
+            keep_fnames: true,
         },
     }));
 } else {
@@ -220,9 +208,21 @@ if (process.env.NODE_ENV === 'test') {
   // we run tests on nodejs. So compile for nodejs
     config[0].target = 'node';
     exportConfig = config[0];
-}
-
-if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
+} else if (process.env.NODE_ENV === 'test-source-gen-dev') {
+    const testConfig = config[0];
+    testConfig.target = 'node';
+    testConfig.entry = './js/tests/js/spec/ballerina-test.js';
+    testConfig.output = {
+        path: path.resolve(__dirname, 'target'),
+        filename: 'ballerina-test.js',
+    };
+    testConfig.plugins = [
+        new webpack.DefinePlugin({
+            PRODUCTION: JSON.stringify(false),
+        }),
+    ];
+    exportConfig = testConfig;
+} else if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
   // we run tests on nodejs. So compile for nodejs
     config[0].target = 'electron-renderer';
 

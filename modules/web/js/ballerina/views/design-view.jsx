@@ -19,12 +19,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import BallerinaDiagram from './../diagram/diagram';
-import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
+import DragLayer from './../drag-drop/drag-layer';
+import BallerinaDiagram from './../diagram2/diagram';
+import TransformExpanded from '../diagram2/views/default/components/transform/transform-expanded';
 import MessageManager from './../visitors/message-manager';
-import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
+import { TOOL_PALETTE_WIDTH } from './constants';
 
 class DesignView extends React.Component {
 
@@ -43,11 +46,16 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.dragDropManager = new DragDropManager();
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
         this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        // Always re render when transform is active
+        // Otherwise don't rerender for panel resizings
+        return !nextProps.panelResizeInProgress || nextState.isTransformActive;
     }
 
     setDiagramContainer(ref) {
@@ -113,7 +121,6 @@ class DesignView extends React.Component {
     getChildContext() {
         return {
             designView: this,
-            dragDropManager: this.dragDropManager,
             messageManager: this.messageManager,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -122,23 +129,28 @@ class DesignView extends React.Component {
 
     render() {
         const { isTransformActive, activeTransformModel } = this.state;
-
         return (
             <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
+                    <DragLayer />
                     <div className="canvas-container">
                         <div className="canvas-top-controls-container" />
                         <div className="html-overlay" ref={this.setOverlayContainer} />
                         <div className="diagram root" ref={this.setDiagramContainer} >
-                            <BallerinaDiagram
-                                model={this.props.model}
-                                mode={this.state.mode}
-                            />
+                            {this.props.model &&
+                                <BallerinaDiagram
+                                    model={this.props.model}
+                                    mode={this.state.mode}
+                                    width={this.props.width - TOOL_PALETTE_WIDTH}
+                                    height={this.props.height}
+                                />
+                            }
                         </div>
                     </div>
                     {isTransformActive &&
                         <TransformExpanded
                             model={activeTransformModel}
+                            panelResizeInProgress={this.props.panelResizeInProgress}
                         />
                     }
                 </div>
@@ -147,56 +159,34 @@ class DesignView extends React.Component {
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
+                        height={this.props.height}
+                        width={TOOL_PALETTE_WIDTH}
                     />
                 </div>
-                <div className="top-right-controls-container">
-                    <div className={`top-right-controls-container-editor-pane
-                            main-action-wrapper import-packages-pane`}
-                    >
-                        <div className="action-content-wrapper">
-                            <div className="action-content-wrapper-heading import-wrapper-heading">
-                                <span>Import :</span>
-                                <input id="import-package-text" type="text" />
-                                <div className="action-icon-wrapper">
-                                    <span className="fw-stack fw-lg">
-                                        <i className="fw fw-square fw-stack-2x" />
-                                        <i className="fw fw-add fw-stack-1x fw-inverse" />
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="action-content-wrapper-body">
-                                <div className="imports-wrapper">
-                                    <span className="font-bold">Current Imports </span>
-                                    <hr />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
-                    <div
-                        className="view-source-btn btn-icon"
-                        onClick={() => {
-                            this.context.editor.setActiveView('SOURCE_VIEW');
-                        }}
-                    >
+                    <div className="view-source-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
-                        <div className="bottom-view-label" >
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.context.editor.setActiveView('SOURCE_VIEW');
+                            }}
+                        >
                             Source View
                         </div>
                     </div>
-                    <div
-                        className="view-split-view-btn btn-icon"
-                        onClick={() => {
-                            this.props.commandProxy.dispatch('show-split-view', true);
-                        }}
-                    >
+                    <div className="view-split-view-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code fw-inverse" />
                         </div>
-                        <div className="bottom-view-label" >
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.props.commandProxy.dispatch('show-split-view', true);
+                            }}
+                        >
                             Split View
                         </div>
                     </div>
@@ -207,12 +197,15 @@ class DesignView extends React.Component {
 }
 
 DesignView.propTypes = {
-    model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    model: PropTypes.instanceOf(CompilationUnitNode),
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
     }).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
 };
 
 DesignView.contextTypes = {
@@ -222,10 +215,9 @@ DesignView.contextTypes = {
 
 DesignView.childContextTypes = {
     designView: PropTypes.instanceOf(DesignView).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default DesignView;
+export default DragDropContext(HTML5Backend)(DesignView);

@@ -18,7 +18,7 @@ service<http> oddEvenHttpService {
         ws:pushTextToGroup(evenWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -29,7 +29,7 @@ service<http> oddEvenHttpService {
         ws:pushTextToGroup(oddWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -40,7 +40,7 @@ service<http> oddEvenHttpService {
         ws:removeConnectionGroup(evenWebSocketConnectionGroupName);
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -51,7 +51,7 @@ service<http> oddEvenHttpService {
         ws:removeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -62,7 +62,7 @@ service<http> oddEvenHttpService {
         ws:closeConnectionGroup(evenWebSocketConnectionGroupName);
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -73,6 +73,6 @@ service<http> oddEvenHttpService {
         ws:closeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};
         messages:setStringPayload(res, "done");
-        reply res;
+        response:send(res);
     }
 }

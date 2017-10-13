@@ -22,10 +22,10 @@ import 'brace/ext/searchbox';
 import '../ballerina/utils/ace-mode';
 import DesignViewCompleterFactory from './../ballerina/utils/design-view-completer-factory';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
+import TreeUtil from './../ballerina/model/tree-util';
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
-
 
 // require possible themes
 function requireAll(requireContext) {
@@ -45,9 +45,12 @@ class ExpressionEditor {
         let didSemicolon = false;
         this.destroy();
         this.props = props;
-        this.file = props.model.getFile();
-        const expression = _.isNil(props.getterMethod.call(props.model)) ? '' :
-            props.getterMethod.call(props.model).replace(/(?:\r\n|\r|\n)/g, ' ');
+        this.file = props.model ? props.model.getFile() : null;
+
+        // Get the expression for the statement or expression.
+        const expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
+            (_.isNil(props.model.getSource()) ? '' : props.model.getSource(true).replace(/(?:\r\n|\r|\n)/g, ' '));
+
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;
 
@@ -147,8 +150,14 @@ class ExpressionEditor {
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey('Enter|Shift-Enter', (e) => {
             const text = this._editor.getSession().getValue();
-            props.setterMethod.call(props.model, text);
-            props.model.trigger('update-property-text', text, props.key);
+
+            // If setter method is available use it, else use setSource.
+            if (props.setterMethod instanceof Function) {
+                props.setterMethod.call(props.model, text);
+            } else {
+                TreeUtil.setSource(props.model, text);
+            }
+
             didEnter = true;
             props.model.trigger('focus-out');
             this.destroy();
@@ -168,8 +177,14 @@ class ExpressionEditor {
             try {
                 if (!didSemicolon && !didEnter) {
                     const text = this._editor.getSession().getValue();
-                    props.setterMethod.call(props.model, text);
-                    props.model.trigger('update-property-text', text, props.key);
+
+                    // If setter method is available use it, else use setSource.
+                    if (props.setterMethod instanceof Function) {
+                        props.setterMethod.call(props.model, text);
+                    } else {
+                        TreeUtil.setSource(props.model, text);
+                    }
+
                     if (_.isFunction(callback)) {
                         callback(text);
                     }
@@ -194,8 +209,14 @@ class ExpressionEditor {
                 const text = this._editor.getSession().getValue();
                 const textWithSemicolon = [text.slice(0, curser), ';', text.slice(curser)].join('');
                 if (this.end_check.exec(textWithSemicolon)) {
-                    props.setterMethod.call(props.model, text);
-                    props.model.trigger('update-property-text', text, props.key);
+
+                    // If setter method is available use it, else use setSource.
+                    if (props.setterMethod instanceof Function) {
+                        props.setterMethod.call(props.model, text);
+                    } else {
+                        TreeUtil.setSource(props.model, text);
+                    }
+
                     didSemicolon = true;
                     props.model.trigger('focus-out');
                     this.destroy();

@@ -16,7 +16,8 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import org.ballerinalang.model.AnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,25 +81,38 @@ public class AnnotationAttachment {
      * @param annotationAttachment The model to be converted.
      * @return Converted model.
      */
-    public static AnnotationAttachment convertToPackageModel(
-                                                    org.ballerinalang.model.AnnotationAttachment annotationAttachment) {
+    public static AnnotationAttachment convertToPackageModel(BLangAnnotationAttachmentPoint annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
-            tempAnnotationAttachment.setName(annotationAttachment.getName());
-            tempAnnotationAttachment.setPackageName(annotationAttachment.getPkgName());
+//            tempAnnotationAttachment.setName(annotationAttachment.getName());
+//            tempAnnotationAttachment.setPackageName(annotationAttachment.getPkgName());
             tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
-            
-            if (null != annotationAttachment.getAttachedPoint()) {
-                AnnotationAttachmentPoint attachmentPoint = annotationAttachment.getAttachedPoint();
-                tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getAttachmentPoint().getValue());
+            BLangAnnotationAttachmentPoint.AttachmentPoint attachmentPoint = annotationAttachment.getAttachmentPoint();
+            if (attachmentPoint != null) {
+                tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getValue());
             }
-    
-            for (Map.Entry<String, org.ballerinalang.model.AnnotationAttributeValue> annotationAttributeValueEntry :
-                    annotationAttachment.getAttributeNameValuePairs().entrySet()) {
-                tempAnnotationAttachment.getAttributeNameValPairs().put(annotationAttributeValueEntry.getKey(),
-                            AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
-            }
+//
+//            if (null != annotationAttachment.getAttachedPoint()) {
+//                AnnotationAttachmentPoint attachmentPoint = annotationAttachment.getAttachedPoint();
+//                tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getAttachmentPoint().getValue());
+//            }
+//
+//            for (Map.Entry<String, org.ballerinalang.model.AnnotationAttributeValue> annotationAttributeValueEntry :
+//                    annotationAttachment.getAttributeNameValuePairs().entrySet()) {
+//                tempAnnotationAttachment.getAttributeNameValPairs().put(annotationAttributeValueEntry.getKey(),
+//                            AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
+//            }
         
+            return tempAnnotationAttachment;
+        } else {
+            return null;
+        }
+    }
+
+    public static AnnotationAttachment convertToPackageModel(
+            BLangAnnotationAttachment annotationAttachment) {
+        if (null != annotationAttachment) {
+            AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
             return tempAnnotationAttachment;
         } else {
             return null;

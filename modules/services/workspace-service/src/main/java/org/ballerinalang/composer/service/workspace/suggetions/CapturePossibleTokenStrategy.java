@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.composer.service.workspace.suggetions;
 
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
@@ -25,6 +24,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
 /**
  * Capture possible errors from source
  */
-public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
+public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
     protected final Position cursorPosition;
 
@@ -40,10 +42,11 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
 
     private SuggestionsFilterDataModel suggestionsFilterDataModel;
 
-    public CapturePossibleTokenStrategy(Position cursorPosition) {
+    public CapturePossibleTokenStrategy(CompilerContext compilerContext, Position cursorPosition, SuggestionsFilterDataModel filterDataModel) {
+        super(compilerContext, null);
         this.cursorPosition = cursorPosition;
         possibleTokens = new LinkedList<>();
-        this.setSuggestionsFilterDataModel(new SuggestionsFilterDataModel());
+        this.suggestionsFilterDataModel = filterDataModel;
     }
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
@@ -71,24 +74,10 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
 
     protected void fetchPossibleTokens(Parser parser, Token currentToken, IntervalSet expectedTokens) {
         ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
-            expectedTokens.getIntervals().forEach((interval) -> {
-                int a = interval.a;
-                int b = interval.b;
-                if (a == b) {
-                    possibleTokens.add(new PossibleToken(a, parser.getVocabulary().getDisplayName(a),
-                            currentContext));
-                } else {
-                    for (int i = a; i <= b; ++i) {
-                        possibleTokens.add(new PossibleToken(i, parser.getVocabulary().getDisplayName(i),
-                                currentContext));
-                    }
-                }
-            });
+        // Currently disabling the check since the possible token based implementation has been skipped
 
-            SuggestionsFilterDataModel sfdModel =
-                    new SuggestionsFilterDataModel(parser, currentContext, this.possibleTokens);
-            this.setSuggestionsFilterDataModel(sfdModel);
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
+            this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
         }
 
     }
@@ -99,6 +88,7 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
      * @return true|false
      */
     protected boolean isCursorBetweenGivenTokenAndLastNonHiddenToken(Token token, Parser parser) {
+        this.setContextException(parser);
         boolean isCursorBetween = false;
         if (cursorPosition.equals(getSourcePosition(token))) {
             isCursorBetween = true;
@@ -130,29 +120,24 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
         return isCursorBetween;
     }
 
+    @Override
+    protected void setContextException(Parser parser) {
+        // Here the type of the exception is not important.
+        InputMismatchException e = new InputMismatchException(parser);
+        ParserRuleContext context = parser.getContext();
+        // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
+        // the run time
+        if (context instanceof BallerinaParser.CallableUnitBodyContext) {
+            context.exception = null;
+            return;
+        }
+        context.exception = e;
+    }
+
     protected Position getSourcePosition(Token token) {
         Position position = new Position();
         position.setLine(token.getLine());
         position.setCharacter(token.getCharPositionInLine());
         return position;
-    }
-
-    /**
-     * Get the SuggestionsFilterDataModel
-     * @return {@link SuggestionsFilterDataModel}
-     */
-    public SuggestionsFilterDataModel getSuggestionsFilterDataModel() {
-        if (this.suggestionsFilterDataModel == null) {
-            this.suggestionsFilterDataModel = new SuggestionsFilterDataModel(null, null, null);
-        }
-        return suggestionsFilterDataModel;
-    }
-
-    /**
-     * Set the SuggestionsFilterDataModel
-     * @param suggestionsFilterDataModel - suggestions filter data model
-     */
-    public void setSuggestionsFilterDataModel(SuggestionsFilterDataModel suggestionsFilterDataModel) {
-        this.suggestionsFilterDataModel = suggestionsFilterDataModel;
     }
 }

@@ -9,5 +9,5 @@ function sunstractJson() {
 	// Following line is invalid.
 	j3 = j1 - j2;
 	
-	reply m;
+	response:send(m);
 }

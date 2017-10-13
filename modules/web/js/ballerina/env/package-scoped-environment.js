@@ -52,7 +52,7 @@ class PackageScopedEnvironment {
     }
 
     getCurrentPackage() {
-        return this._currentPackage;
+        return this._currentPackage || new Package({ name: 'Current Package' });
     }
 
     resetCurrentPackage() {
@@ -61,6 +61,10 @@ class PackageScopedEnvironment {
 
     setCurrentPackage(pkg) {
         this._currentPackage = pkg;
+        this._packages = this._packages.filter(item => {
+             return item.getName() !== 'Current Package'; 
+            });
+        this._packages.push(pkg);
     }
 
     /**
@@ -85,7 +89,7 @@ class PackageScopedEnvironment {
     }
 
     getPackageByName(packageName) {
-        if (_.isEqual(packageName, 'Current Package')) {
+        if (!packageName) {
             return this._currentPackage;
         }
         return _.find(this._packages, pckg => pckg.getName() === packageName);

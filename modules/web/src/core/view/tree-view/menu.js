@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import log from 'log';
+import copy from 'copy-to-clipboard';
 import { listFiles } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_CMDS, DIALOGS as WORKSPACE_DIALOGS } from './../../workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../layout/constants';
@@ -22,6 +23,18 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
 
     const menuDivider = {
         divider: true,
+    };
+
+    const copyPathMenu = {
+        icon: '',
+        label: 'Copy Path',
+        handler: () => {
+            copy(node.id);
+        },
+        isActive: () => {
+            return true;
+        },
+        children: [],
     };
 
     const renameMenu = {
@@ -77,10 +90,15 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
                     label: '',
                     parent: targetNode.id,
                 };
+                // first expand the tree if in collapsed state
+                if (node.collapsed) {
+                    node.collapsed = false;
+                    onNodeUpdate(node);
+                }
                 targetNode.children.splice(0, 0, tempNode);
-                targetNode.collapsed = false;
                 onNodeUpdate(targetNode);
             };
+
             // if node children are not loaded yet
             if (_.isBoolean(node.children)) {
                 // empty folder
@@ -121,8 +139,12 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
                     label: '',
                     parent: targetNode.id,
                 };
+                // first expand the tree if in collapsed state
+                if (node.collapsed) {
+                    node.collapsed = false;
+                    onNodeUpdate(node);
+                }
                 targetNode.children.splice(0, 0, tempNode);
-                targetNode.collapsed = false;
                 onNodeUpdate(targetNode);
             };
             // if node children are not loaded yet
@@ -168,11 +190,15 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
             menu.push(menuDivider);
             menu.push(newFileMenu);
             menu.push(newFolderMenu);
+            menu.push(menuDivider);
+            menu.push(copyPathMenu);
             break;
         }
         case 'folder': {
             menu.push(newFileMenu);
             menu.push(newFolderMenu);
+            menu.push(menuDivider);
+            menu.push(copyPathMenu);
             menu.push(menuDivider);
             menu.push(renameMenu);
             menu.push(deleteMenu);
@@ -190,6 +216,8 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
                 },
                 children: [],
             });
+            menu.push(menuDivider);
+            menu.push(copyPathMenu);
             menu.push(menuDivider);
             menu.push(renameMenu);
             menu.push(deleteMenu);

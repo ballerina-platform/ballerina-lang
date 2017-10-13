@@ -18,12 +18,15 @@ package org.ballerinalang.composer.service.workspace.launcher;
 
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
-import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Command class represent the launcher commands.
@@ -138,17 +141,15 @@ public class Command {
             commandArgs = " " + this.commandArgs;
         }
 
-        try {
-            BallerinaFile bFile = Utils.getBFile(scriptLocation);
-            String packageName = bFile.getPackagePath();
-            if (!".".equals(packageName)) {
-                packagePath = bFile.getPackagePath().replace(".", File.separator);
-                packageDir = Utils.getProgramDirectory(bFile, scriptLocation).toString();
+        BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
+        if (ballerinaFile.getBLangPackage().pkgDecl != null) {
+            List<String> pkgNameCompsInString = ballerinaFile.getBLangPackage().pkgDecl.pkgNameComps.stream()
+                    .map(WorkspaceUtils.bLangIdentifierToString).collect(Collectors.<String>toList());
+            if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
+                packagePath = String.join(File.separator, pkgNameCompsInString);
+                packageDir = Utils.getProgramDirectory(pkgNameCompsInString.size(), Paths.get(scriptLocation)).toString();
             }
-        } catch (IOException e) {
-            logger.warn("could not find package name");
         }
-
         if (packagePath == null) {
             return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
         } else {

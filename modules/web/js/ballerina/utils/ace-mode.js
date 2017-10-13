@@ -29,7 +29,7 @@ ace.define('ace/mode/ballerina',
 
         const BallerinaHighlightRules = function () {
             const keywordMapper = this.createKeywordMapper({
-                'ballerina-keyword-control': 'if|else|iterator|try|catch|fork|join|while|throw|throws|return|break|timeout|transaction|aborted|abort|committed|failed|retry',
+                'ballerina-keyword-control': 'if|else|iterator|try|catch|finally|fork|join|while|throw|throws|return|break|timeout|transaction|aborted|abort|committed|failed|retry',
                 'ballerina-keyword-other': 'import|version|public|attach|as',
                 'ballerina-keyword-primitive-type': 'boolean|int|float|string|var|any',
                 'ballerina-keyword-non-primitive-type': 'message|map|exception|json|xml|xmlDocument|xmlns',
@@ -63,7 +63,7 @@ ace.define('ace/mode/ballerina',
             this.HighlightRules = BallerinaHighlightRules;
 
             this.createWorker = function (session) {
-                const worker = new WorkerClient(['ace/aceb', 'bal_utils', 'bal_configs'], 'ace/worker/ballerina', 'WorkerModule');
+                const worker = new WorkerClient(['ace/aceb'], 'ace/worker/ballerina', 'WorkerModule');
                 worker.attachToDocument(session.getDocument());
 
                 worker.on('lint', (results) => {

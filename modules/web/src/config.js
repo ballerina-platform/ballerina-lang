@@ -17,11 +17,13 @@
  */
 
 import { PLUGIN_ID as LAYOUT_MANAGER_PLUGIN_ID } from './core/layout/constants';
+import { PLUGIN_ID as ALERT_PLUGIN_ID } from './core/alert/constants';
 import BallerinaPlugin from './plugins/ballerina/plugin';
 import DebuggerPlugin from './plugins/debugger/plugin';
 import HelpPlugin from './plugins/help/plugin';
 import TryItPlugin from './plugins/try-it/plugin';
 import WelcomeTabPlugin from './plugins/welcome-tab/plugin';
+import ImportSwaggerPlugin from './plugins/import-swagger/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
 
@@ -33,11 +35,15 @@ export default {
             HelpPlugin,
             TryItPlugin,
             WelcomeTabPlugin,
+            ImportSwaggerPlugin,
         ],
     },
     // provide plugin specific configs - if any.
     // plugin-id will be the key
     pluginConfigs: {
+        [ALERT_PLUGIN_ID]: {
+            container: 'alert-container',
+        },
         [LAYOUT_MANAGER_PLUGIN_ID]: {
             container: 'app-container',
             dialogContainer: 'dialog-container',

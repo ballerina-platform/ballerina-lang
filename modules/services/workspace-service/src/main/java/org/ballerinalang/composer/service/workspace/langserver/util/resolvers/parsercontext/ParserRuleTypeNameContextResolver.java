@@ -20,14 +20,12 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.p
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parser Rule based item resolver for Type Name Context
@@ -38,10 +36,10 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> bTypeSymbolInfo = symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
-                .collect(Collectors.toList());
-        this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
+        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+        // Add the statement templates
+        completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+        this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
         return completionItems;
     }
 }

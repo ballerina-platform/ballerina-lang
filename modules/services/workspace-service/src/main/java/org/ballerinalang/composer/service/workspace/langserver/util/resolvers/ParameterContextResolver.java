@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class ParameterContextResolver extends AbstractItemResolver {
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredSymbols = symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
 
         filteredSymbols.forEach(symbolInfo -> {
@@ -48,6 +48,8 @@ public class ParameterContextResolver extends AbstractItemResolver {
             completionItem.setKind(ItemResolverConstants.PARAMETER_KIND);
             completionItems.add(completionItem);
         });
+
+        this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
 
         return completionItems;
     }

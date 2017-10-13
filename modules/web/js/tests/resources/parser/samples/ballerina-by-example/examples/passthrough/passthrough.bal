@@ -14,7 +14,7 @@ service<http> passthrough {
         string method = http:getMethod(m);
         //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
         message response = endPoint.execute(method, "/", m);
-        reply response;
+        response:send(response);
     }
 }
 
@@ -28,7 +28,7 @@ service<http> echo {
     resource echoResource (message m) {
         message response = {};
         messages:setStringPayload(response, "Resource is invoked");
-        reply response;
+        response:send(response);
     }
 }
 

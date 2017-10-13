@@ -24,16 +24,20 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,129 +60,191 @@ public abstract class AbstractItemResolver {
     public void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
 
         symbolInfoList.forEach(symbolInfo -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(symbolInfo.getSymbolName());
-            String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-            completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+            CompletionItem completionItem = null;
             if (symbolInfo.getSymbol() instanceof NativeUnitProxy
                     && symbolInfo.getSymbolName().contains("ClientConnector")) {
-                this.populateClientConnectorCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateClientConnectorCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
-                this.populateNativeUnitProxyCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof BallerinaFunction) {
-                this.populateBallerinaFunctionCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNativeUnitProxyCompletionItem(symbolInfo);
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind != null
+                    && !((BInvokableSymbol)symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
+                completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
-                this.populateNativePackageProxyCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof VariableDef) {
-                this.populateVariableDefCompletionItem(completionItem, symbolInfo);
-            } else if ((symbolInfo.getSymbol() instanceof StructDef)) {
-                this.populateStructDefCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof BType) {
-                this.populateBTypeCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNativePackageProxyCompletionItem(symbolInfo);
+            } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
+                    && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
+                completionItem = this.populateVariableDefCompletionItem(symbolInfo);
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
+                completionItem = this.populateBTypeCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NamespaceDeclaration) {
-                this.populateNamespaceDeclarationCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNamespaceDeclarationCompletionItem(symbolInfo);
             }
-            completionItems.add(completionItem);
+
+            if (completionItem != null) {
+                completionItems.add(completionItem);
+            }
         });
     }
 
     /**
      * Populate the Client Connector Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateClientConnectorCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateClientConnectorCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
         completionItem.setKind(ItemResolverConstants.ACTION_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Native Proxy Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNativeUnitProxyCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
         completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
+
+        return completionItem;
     }
 
     /**
      * Populate the Ballerina Function Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getLabel());
-        completionItem.setInsertText(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getInsertText());
+    CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+        assert bSymbol instanceof BInvokableSymbol;
+        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
+        if (bInvokableSymbol.getName().getValue().equals(".<init>") ||
+                bInvokableSymbol.getName().getValue().equals("main")) {
+            return null;
+        }
+        FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
+        completionItem.setLabel(functionSignature.getLabel());
+        completionItem.setInsertText(functionSignature.getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItem.setKind(ItemResolverConstants.FUNCTION_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Native Package Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNativePackageProxyCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItem.setKind(ItemResolverConstants.PACKAGE_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Variable Definition Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        String typeName = "";
-        SimpleTypeName type = ((VariableDef) symbolInfo.getSymbol()).getTypeName();
-        if (type != null) {
-            typeName = type.getName();
-        }
+    CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+        String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
 
         CompletionItemData data = new CompletionItemData();
+        Type type = new Type();
+
+        type.setPkgName(symbolInfo.getScopeEntry().symbol.pkgID.toString());
+        if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
+            BJSONType bJsonType = (BJSONType)symbolInfo.getScopeEntry().symbol.getType();
+            type.setConstraint(true);
+            type.setConstraintName(bJsonType.getConstraint().toString());
+            type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
+        } else if (symbolInfo.getScopeEntry().symbol.getType() instanceof BArrayType) {
+            type.setIsArrayType(true);
+            type.setArrayType(symbolInfo.getScopeEntry().symbol.getType().toString());
+        }
+
         data.addData("type", type);
         completionItem.setData(data);
 
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
         completionItem.setKind(ItemResolverConstants.VAR_DEF_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Struct Definition Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateStructDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateStructDefCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItem.setKind(ItemResolverConstants.STRUCT_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the BType Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateBTypeCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
         completionItem.setKind(ItemResolverConstants.B_TYPE_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Namespace declaration Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNamespaceDeclarationCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNamespaceDeclarationCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.XMLNS);
+
+        return completionItem;
     }
 
     /**
@@ -190,44 +256,34 @@ public abstract class AbstractItemResolver {
     private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
         StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
         int i = 0;
+        // TODO: Finalize
         String initString = "";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName()).append(" ").
-                    append(nativeUnit.getArgumentNames()[i]);
-            ++i;
-            initString = ", ";
-        }
         signature.append(")");
         initString = "(";
         String endString = "";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName());
-            initString = ", ";
-            endString = ")";
-        }
         signature.append(endString);
         return signature.toString();
     }
 
     /**
      * Get the function signature
-     * @param ballerinaFunction - ballerina function instance
+     * @param bInvokableSymbol - ballerina function instance
      * @return {@link String}
      */
-    private FunctionSignature getFunctionSignature(BallerinaFunction ballerinaFunction) {
-        StringBuffer signature = new StringBuffer(ballerinaFunction.getName() + "(");
-        StringBuffer insertText = new StringBuffer(ballerinaFunction.getName() + "(");
-        ParameterDef[] parameterDefs = ballerinaFunction.getParameterDefs();
+    private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
+        StringBuffer signature = new StringBuffer(bInvokableSymbol.getName() + "(");
+        StringBuffer insertText = new StringBuffer(bInvokableSymbol.getName() + "(");
+        List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
-        for (int itr = 0; itr < parameterDefs.length; itr++) {
-            signature.append(parameterDefs[itr].getTypeName()).append(" ")
-                    .append(parameterDefs[itr].getName());
+        for (int itr = 0; itr < parameterDefs.size(); itr++) {
+            signature.append(parameterDefs.get(itr).getType().toString()).append(" ")
+                    .append(parameterDefs.get(itr).getName());
             insertText.append("${")
                     .append((itr + 1))
                     .append(":")
-                    .append(parameterDefs[itr].getName())
+                    .append(parameterDefs.get(itr).getName())
                     .append("}");
-            if (itr < parameterDefs.length - 1) {
+            if (itr < parameterDefs.size() - 1) {
                 signature.append(", ");
                 insertText.append(", ");
             }
@@ -236,8 +292,14 @@ public abstract class AbstractItemResolver {
         insertText.append(")");
         String initString = "(";
         String endString = "";
-        for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
-            signature.append(initString).append(simpleTypeName.getTypeName());
+
+        List<BType> returnTypes = bInvokableSymbol.type.getReturnTypes();
+        List<BVarSymbol> returnParams = bInvokableSymbol.getReturnParameters();
+        for (int itr = 0; itr < returnTypes.size(); itr++) {
+            signature.append(initString).append(returnTypes.get(itr).toString());
+            if (returnParams.size() > itr) {
+                signature.append(" ").append(returnParams.get(itr).getName());
+            }
             initString = ", ";
             endString = ")";
         }
@@ -250,21 +312,32 @@ public abstract class AbstractItemResolver {
      * @param dataModel - Suggestions filter data model
      * @return {@link Boolean}
      */
-    public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
-        TokenStream tokenStream = dataModel.getTokenStream();
-        int currentTokenIndex = dataModel.getTokenIndex();
-        int searchTokenIndex = currentTokenIndex + 1;
-
+    protected boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        TokenStream tokenStream = dataModel.getTokenStream();
+        int searchTokenIndex = dataModel.getTokenIndex();
+        String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
+
+        if (terminalTokens.contains(currentTokenStr)) {
+            searchTokenIndex -= 1;
+            while (true) {
+                if (tokenStream.get(searchTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
+                    break;
+                } else {
+                    searchTokenIndex -= 1;
+                }
+            }
+        }
+
         while (true) {
             if (searchTokenIndex >= tokenStream.size()) {
                 return false;
             }
             String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (tokenString.equals(".") || tokenString.equals(":")) {
-                return true;
-            } else if (terminalTokens.contains(tokenString)) {
+            if (terminalTokens.contains(tokenString)) {
                 return false;
+            } else if (tokenString.equals(".") || tokenString.equals(":")) {
+                return true;
             } else {
                 searchTokenIndex++;
             }
@@ -396,5 +469,72 @@ public abstract class AbstractItemResolver {
         completionItem.setSortText(priority);
         completionItem.setLabel(label);
         return completionItem;
+    }
+
+    protected void populateBasicTypes(List<CompletionItem> completionItems, SymbolTable symbolTable) {
+        symbolTable.rootScope.entries.forEach((key, value) -> {
+            if (value.symbol instanceof BTypeSymbol) {
+                String insertText = value.symbol.getName().getValue();
+                completionItems.add(populateCompletionItem(insertText, ItemResolverConstants.B_TYPE,
+                        ItemResolverConstants.PRIORITY_4, insertText));
+            }
+        });
+    }
+
+    public class Type {
+        private boolean isArrayType;
+        private boolean constraint;
+        private String arrayType = null;
+        private String pkgName = null;
+        private String constraintName = null;
+        private String constraintPkgName = null;
+
+        public boolean isArrayType() {
+            return isArrayType;
+        }
+
+        public void setIsArrayType(boolean arrayType) {
+            isArrayType = arrayType;
+        }
+
+        public boolean isConstraint() {
+            return constraint;
+        }
+
+        public void setConstraint(boolean constraint) {
+            this.constraint = constraint;
+        }
+
+        public String getArrayType() {
+            return arrayType;
+        }
+
+        public void setArrayType(String arrayType) {
+            this.arrayType = arrayType;
+        }
+
+        public String getPkgName() {
+            return pkgName;
+        }
+
+        public void setPkgName(String pkgName) {
+            this.pkgName = pkgName;
+        }
+
+        public String getConstraintName() {
+            return constraintName;
+        }
+
+        public void setConstraintName(String constraintName) {
+            this.constraintName = constraintName;
+        }
+
+        public String getConstraintPkgName() {
+            return constraintPkgName;
+        }
+
+        public void setConstraintPkgName(String constraintPkgName) {
+            this.constraintPkgName = constraintPkgName;
+        }
     }
 }

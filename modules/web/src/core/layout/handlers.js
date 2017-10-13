@@ -57,6 +57,12 @@ export function getHandlerDefinitions(layoutManager) {
             },
         },
         {
+            cmdID: COMMANDS.SHOW_BOTTOM_PANEL,
+            handler: () => {
+                layoutManager.trigger(EVENTS.SHOW_BOTTOM_PANEL);
+            },
+        },
+        {
             cmdID: COMMANDS.POPUP_DIALOG,
             handler: (args) => {
                 const { id, additionalProps = {} } = args;

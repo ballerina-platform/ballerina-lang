@@ -25,17 +25,16 @@ import io.swagger.codegen.DefaultGenerator;
 import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import io.swagger.util.Json;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.swagger.generators.BallerinaCodeGenerator;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
@@ -45,20 +44,25 @@ import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.util.parser.BallerinaLexer;
-import org.ballerinalang.util.parser.BallerinaParser;
-import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Swagger related utility classes.
@@ -79,43 +83,42 @@ public class SwaggerConverterUtils {
      * @throws IOException when input stream handling error.
      */
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
-        BallerinaFile bFile = getBFileFromBallerinaDefinition(ballerinaDefinition);
         List<Service> services = new ArrayList<Service>();
-        for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
-            Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
-            if (service != null) {
-                services.add(service);
-            }
-        }
         return services.toArray(new Service[services.size()]);
     }
     
     /**
      * Generate ballerina fine from the String definition
      *
-     * @param ballerinaDefinition ballerina string definition
+     * @param bFile ballerina string definition
      * @return ballerina file created from ballerina string definition
      * @throws IOException IO exception
      */
-    public static BallerinaFile getBFileFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
-        //TODO this method need to replaced with the utility provided by ballerina core.
-        ANTLRInputStream antlrInputStream = new ANTLRInputStream(ballerinaDefinition);
-        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        ballerinaParser.setErrorHandler(new BallerinaComposerErrorStrategy());
-        GlobalScope globalScope = GlobalScope.getInstance();
-        BTypes.loadBuiltInTypes(globalScope);
-        BLangPackage bLangPackage = new BLangPackage(globalScope);
-        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
-                StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder,
-                Paths.get("temp/temp.bal")); // TODO get the actual file name and path from client
-        ballerinaParser.addParseListener(ballerinaBaseListener);
-        ballerinaParser.compilationUnit();
-        BallerinaFile bFile = bLangModelBuilder.build();
-        return bFile;
+    public static BLangCompilationUnit getTopLevelNodeFromBallerinaFile(BFile bFile) throws IOException {
+    
+        String filePath = bFile.getFilePath();
+        String fileName = bFile.getFileName();
+        String content = bFile.getContent();
+    
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model;
+    
+        // Sometimes we are getting Ballerina content without a file in the file-system.
+        if (!Files.exists(Paths.get(filePath, fileName))) {
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                    CompilerPhase.CODE_ANALYZE);
+            model = ballerinaFile.getBLangPackage();
+        
+        } else {
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
+            model = ballerinaFile.getBLangPackage();
+        }
+    
+        final Map<String, ModelPackage> modelPackage = new HashMap<>();
+        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
+    
+        return model.getCompilationUnits().stream().
+                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        
     }
     
     /**
@@ -481,19 +484,8 @@ public class SwaggerConverterUtils {
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
         StringBuilder swaggerDefinitionsString = new StringBuilder();
         if (services.length > 0) {
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
-            //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
             swaggerDefinitionsString.append("[");
-            for (int i = 0; i < services.length; i++) {
-                if (services[i].getResources().length > 0) {
-                    Swagger swaggerModel = swaggerServiceMapper.convertServiceToSwagger(services[i]);
-                    swaggerDefinitionsString.append(swaggerServiceMapper.generateSwaggerString(swaggerModel));
-                    if (i != services.length - 1) {
-                        swaggerDefinitionsString.append(",");
-                    }
-                }
-            }
             swaggerDefinitionsString.append("]");
         }
         return swaggerDefinitionsString.toString();
@@ -510,17 +502,19 @@ public class SwaggerConverterUtils {
      */
     public static String generateSwaggerDefinitions(String ballerinaSource, String serviceName) throws IOException {
         // Get the ballerina model using the ballerina source code.
-        BallerinaFile ballerinaFile = SwaggerConverterUtils.getBFileFromBallerinaDefinition(ballerinaSource);
-    
-        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
+        BFile balFile = new BFile();
+        balFile.setContent(ballerinaSource);
+        BLangCompilationUnit topCompilationUnit = SwaggerConverterUtils.getTopLevelNodeFromBallerinaFile(balFile);
+        String httpAlias = getAlias(topCompilationUnit, "ballerina.net.http");
+        String swaggerAlias = getAlias(topCompilationUnit, "ballerina.net.http.swagger");
+        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
         String swaggerSource = StringUtils.EMPTY;
-        for (int i = 0; i < ballerinaFile.getCompilationUnits().length; i++) {
-            CompilationUnit compilationUnit = ballerinaFile.getCompilationUnits()[i];
-            if (compilationUnit instanceof Service) {
-                Service serviceDefinition = (Service) compilationUnit;
+        for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangService) {
+                ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
-                    if (serviceDefinition.getName().equals(serviceName)) {
+                    if (serviceDefinition.getName().getValue().equals(serviceName)) {
                         Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
                         swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
                         break;
@@ -536,7 +530,28 @@ public class SwaggerConverterUtils {
     
         return swaggerSource;
     }
-
+    
+    /**
+     * Gets the alias for a given package from a bLang file root node.
+     * @param topCompilationUnit The root node.
+     * @param packageName The package name.
+     * @return The alias.
+     */
+    private static String getAlias(BLangCompilationUnit topCompilationUnit, String packageName) {
+        for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangImportPackage) {
+                BLangImportPackage importPackage = (BLangImportPackage) topLevelNode;
+                String packagePath = importPackage.getPackageName().stream().map(BLangIdentifier::getValue).collect
+                        (Collectors.joining("."));
+                if (packageName.equals(packagePath)) {
+                    return importPackage.getAlias().getValue();
+                }
+            }
+        }
+        
+        return null;
+    }
+    
     protected static AnnotationAttachment createSingleValuedAnnotationAttachment(String annotationName,
                                                                                  String annotationPkg, String value) {
         ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();

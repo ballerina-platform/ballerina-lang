@@ -11,6 +11,6 @@ service<http> helloWorld {
         // A util method that can be used to set string payload.
         messages:setStringPayload(response, "Hello, World!");
         // Reply keyword sends the response back to the client.
-        reply response;
+        response:send(response);
     }
 }
