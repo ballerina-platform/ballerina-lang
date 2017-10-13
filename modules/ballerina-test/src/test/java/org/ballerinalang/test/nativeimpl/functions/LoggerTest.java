@@ -67,7 +67,7 @@ public class LoggerTest {
 
         BTestUtils.invoke(result, "testError", new BValue[]{new BString(logMsg)});
 
-        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length()), expectedLog);
     }
 
     @Test(description = "Test case for warn level logging through the log API")
@@ -78,7 +78,7 @@ public class LoggerTest {
 
         BTestUtils.invoke(result, "testWarn", new BValue[]{new BString(logMsg)});
 
-        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length()), expectedLog);
     }
 
     @Test(description = "Test case for info level logging through the log API")
@@ -89,7 +89,7 @@ public class LoggerTest {
 
         BTestUtils.invoke(result, "testInfo", new BValue[]{new BString(logMsg)});
 
-        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length()), expectedLog);
     }
 
     @Test(description = "Test case for debug level logging through the log API")
@@ -100,7 +100,7 @@ public class LoggerTest {
 
         BTestUtils.invoke(result, "testDebug", new BValue[]{new BString(logMsg)});
 
-        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length()), expectedLog);
     }
 
     @Test(description = "Test case for trace level logging through the log API")
@@ -111,6 +111,6 @@ public class LoggerTest {
 
         BTestUtils.invoke(result, "testTrace", new BValue[]{new BString(logMsg)});
 
-        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length()), expectedLog);
     }
 }
