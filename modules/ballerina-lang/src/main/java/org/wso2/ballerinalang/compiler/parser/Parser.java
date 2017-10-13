@@ -109,9 +109,9 @@ public class Parser {
                                             CompilationUnitNode compUnit,
                                             BDiagnosticSource diagnosticSrc) {
         if (this.preserveWhitespace) {
-            return new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
+            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc);
         } else {
-            return new BLangParserListener(compUnit, diagnosticSrc);
+            return new BLangParserListener(this.context, compUnit, diagnosticSrc);
         }
     }
 

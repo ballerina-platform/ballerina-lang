@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
 import java.util.Iterator;
@@ -35,10 +36,11 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
     // Set of all WS, from the ParserContexts that has been exited, since the last call to getWS
     private SortedSet<Whitespace> wsSinceLastNode = new TreeSet<>();
 
-    public BLangWSPreservingParserListener(CommonTokenStream tokenStream,
+    public BLangWSPreservingParserListener(CompilerContext context,
+                                           CommonTokenStream tokenStream,
                                            CompilationUnitNode compUnit,
                                            BDiagnosticSource diagnosticSrc) {
-        super(compUnit, diagnosticSrc);
+        super(context, compUnit, diagnosticSrc);
         this.tokenStream = tokenStream;
         this.compUnit = compUnit;
         createNewRange(-1); // a fake range, repressions stuff before CompilationUnit.
