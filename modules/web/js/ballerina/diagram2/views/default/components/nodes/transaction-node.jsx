@@ -68,6 +68,7 @@ class TransactionNode extends React.Component {
                     dropTarget={model}
                     bBox={transactionBody.viewState.bBox}
                     title={'Transaction'}
+                    titleWidth={transactionBody.viewState.components.titleWidth.w}
                     model={transactionBody}
                     body={transactionBody}
                 />
@@ -76,6 +77,7 @@ class TransactionNode extends React.Component {
                         dropTarget={failedBody}
                         bBox={failedBody.viewState.bBox}
                         title={'Failed'}
+                        titleWidth={failedBody.viewState.components.titleWidth.w}
                         model={failedBody}
                         body={failedBody}
                     />
@@ -84,6 +86,7 @@ class TransactionNode extends React.Component {
                     <CompoundStatementDecorator
                         bBox={abortedBody.viewState.bBox}
                         title={'Aborted'}
+                        titleWidth={abortedBody.viewState.components.titleWidth.w}
                         model={abortedBody}
                         body={abortedBody}
                     />
@@ -92,6 +95,7 @@ class TransactionNode extends React.Component {
                     <CompoundStatementDecorator
                         bBox={committedBody.viewState.bBox}
                         title={'Committed'}
+                        titleWidth={committedBody.viewState.components.titleWidth.w}
                         model={committedBody}
                         body={committedBody}
                     />

@@ -31,16 +31,9 @@ class RetryNode extends React.Component {
             propertyType: 'text',
             key: 'Retry',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 
-    /**
-     * ToDo Update the edited expression
-     */
-    updateExpression(value) {
-    }
     /**
      * Render Function for the retry statement.
      * */

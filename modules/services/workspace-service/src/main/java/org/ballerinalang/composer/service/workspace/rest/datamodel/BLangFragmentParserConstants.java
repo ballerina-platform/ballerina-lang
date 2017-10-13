@@ -40,12 +40,12 @@ public class BLangFragmentParserConstants {
     protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
     protected static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT;\n}";
     protected static final String FORK_JOIN_CONDITION_WRAPPER =
-            "function testFunction(){fork{}join($FRAGMENT)(map param){}}";
+            "function testFunction(){\nfork{\n} join($FRAGMENT)(map param){\n}\n}";
     protected static final String FRAGMENT_PLACE_HOLDER = "$FRAGMENT";
     protected static final String FUNCTION_SIGNATURE_PARAMETER_WRAPPER = "function testFunction($FRAGMENT){\n}";
     protected static final String FUNCTION_SIGNATURE_RETURN_WRAPPER = "function testFunction()($FRAGMENT){\n}";
     protected static final String TRANSACTION_FAILED_RETRY_WRAPPER =
-            "function testFunction(){transaction{}failed{$FRAGMENT}aborted{}committed{}}";
+            "function testFunction(){\ntransaction{\n}failed{\n$FRAGMENT\n}aborted{\n}committed{\n}\n}";
     protected static final String VAR_REFERENCE_LIST_WRAPPER =
             "function testFunction(){\n$FRAGMENT=testFunction();\n}";
 }

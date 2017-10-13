@@ -18,9 +18,13 @@
 
 import AbstractTransactionNode from './abstract-tree/transaction-node';
 
+/**
+ * class for the transaction node.
+ * @extends AbstractTransactionNode
+ * */
 class TransactionNode extends AbstractTransactionNode {
     /**
-     * Set Children Alias
+     * Set alias to recognize the children.
      * */
     setChildrenAlias() {
         if (this.abortedBody) {

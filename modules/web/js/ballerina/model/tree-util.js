@@ -21,8 +21,17 @@ import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
 import { getLangServerClientInstance } from 'langserver/lang-server-client-controller';
 
+/**
+ * Util class for tree related functionality.
+ * @class TreeUtil
+ * @extends AbstractTreeUtil
+ * */
 class TreeUtil extends AbstractTreeUtil {
-
+    /**
+     * Get the full package name for the given node.
+     * @param {Node} node - current node.
+     * @return {String} full package name.
+     * */
     getFullPackageName(node) {
         const root = node.getRoot();
         if (!root) {
@@ -187,6 +196,7 @@ class TreeUtil extends AbstractTreeUtil {
         } else if (this.isVariableDef(node)) {
             return _.get(node, 'variable.initialExpression');
         }
+        return false;
     }
 
     /**
@@ -303,17 +313,28 @@ class TreeUtil extends AbstractTreeUtil {
         if (node.isStatement) {
             // get the parent of the node.
             const statementParentNode = node.parent;
+            let fragment;
+            // If node kind is retry
+            if (node.kind === 'Retry') {
+                fragment = FragmentUtils.createTransactionFailedFragment(source);
+            } else {
+                fragment = FragmentUtils.createStatementFragment(source);
+            }
 
             // invoke the fragment util for the coresponding kind.
-            const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
+            const parsedJson = FragmentUtils.parseFragment(fragment);
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
             // clear white space data so it will be formated properly.
             newStatementNode.clearWS();
+
             // replace the old node with new node.
             if (this.isService(statementParentNode)) {
                 statementParentNode.replaceVariables(node, newStatementNode, false);
             } else if (this.isConnector(statementParentNode)) {
                 statementParentNode.replaceVariableDefs(node, newStatementNode, false);
+            } else if (this.isTransaction(newStatementNode)) {
+                statementParentNode.parent.setCondition(newStatementNode.getCondition());
+                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements[0], false);
             } else {
                 statementParentNode.replaceStatements(node, newStatementNode, false);
             }
