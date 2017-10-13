@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.Identifier;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,13 +33,11 @@ import org.ballerinalang.model.values.BValue;
 public abstract class BType implements BLangSymbol {
     protected String typeName;
     protected String pkgPath;
-    protected SymbolName symbolName;
     protected Class<? extends BValue> valueClass;
 
     protected BType(String typeName, String pkgPath, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
         this.pkgPath = pkgPath;
-        this.symbolName = new SymbolName(typeName, pkgPath);
         this.valueClass = valueClass;
     }
 
@@ -77,21 +73,21 @@ public abstract class BType implements BLangSymbol {
         return (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
     }
 
-    public boolean equals(Object obj) {
-        if (obj instanceof BType) {
-            BType other = (BType) obj;
-            boolean namesEqual = this.typeName.equals(other.getName());
-
-            // If both package paths are null or both package paths are not null,
-            //    then check their names. If not return false
-            if (this.pkgPath == null && other.getPackagePath() == null) {
-                return namesEqual;
-            } else if (this.pkgPath != null && other.getPackagePath() != null) {
-                return this.pkgPath.equals(other.getPackagePath()) && namesEqual;
-            }
-        }
-        return false;
-    }
+//    public boolean equals(Object obj) {
+//        if (obj instanceof BType) {
+//            BType other = (BType) obj;
+//            boolean namesEqual = this.typeName.equals(other.getName());
+//
+//            // If both package paths are null or both package paths are not null,
+//            //    then check their names. If not return false
+//            if (this.pkgPath == null && other.getPackagePath() == null) {
+//                return namesEqual;
+//            } else if (this.pkgPath != null && other.getPackagePath() != null) {
+//                return this.pkgPath.equals(other.getPackagePath()) && namesEqual;
+//            }
+//        }
+//        return false;
+//    }
 
     public int hashCode() {
         return (pkgPath + ":" + typeName).hashCode();
@@ -102,11 +98,6 @@ public abstract class BType implements BLangSymbol {
     @Override
     public String getName() {
         return typeName;
-    }
-
-    @Override
-    public Identifier getIdentifier() {
-        return null;
     }
 
     @Override
@@ -122,10 +113,5 @@ public abstract class BType implements BLangSymbol {
     @Override
     public boolean isNative() {
         return false;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
     }
 }

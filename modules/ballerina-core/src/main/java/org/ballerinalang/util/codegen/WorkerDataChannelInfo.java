@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class WorkerDataChannelInfo {
 
     private BlockingQueue<Object[]> channel;
     private BType[] types;
-    private static final Logger log = LoggerFactory.getLogger(WorkerDataChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(WorkerDataChannelInfo.class);
 
     public WorkerDataChannelInfo(int sourceCPIndex, String source, int targetCPIndex, String target) {
         this.sourceCPIndex = sourceCPIndex;
