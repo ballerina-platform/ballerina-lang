@@ -10,7 +10,8 @@ import { MENUS as WORKSPACE_MENUS } from './../workspace/constants';
  *
  */
 export function getMenuDefinitions() {
-    return [
+    // TODO To be enabled once the Preferences dialog is fixed
+    /* return [
         {
             id: MENU_IDS.PREFERENCES_MENU,
             parent: WORKSPACE_MENUS.FILE_MENU,
@@ -22,5 +23,5 @@ export function getMenuDefinitions() {
             icon: 'settings',
             type: MENU_DEF_TYPES.ITEM,
         },
-    ];
+    ];*/
 }
