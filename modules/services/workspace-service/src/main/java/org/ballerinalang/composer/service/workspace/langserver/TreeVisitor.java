@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -431,6 +432,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangNext nextNode) {
         isCursorBeforeStatement(nextNode.getPosition(), nextNode);
         /* ignore */
+    }
+
+    @Override
+    public void visit(BLangComment comment) {
+        isCursorBeforeStatement(comment.getPosition(), comment);
     }
 
     // Private methods
