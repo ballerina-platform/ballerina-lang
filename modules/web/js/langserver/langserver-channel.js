@@ -64,9 +64,10 @@ class LangserverChannel extends EventChannel {
         if (this.wsCloseEventHandler) {
             this.wsCloseEventHandler(event);
         } else {
-            // invoke default ws close event handler. 
+            // invoke default ws close event handler.
             this.defaultWsCloseEventHandler(event);
         }
+        this.trigger('close');
     }
 
     onError(error) {
