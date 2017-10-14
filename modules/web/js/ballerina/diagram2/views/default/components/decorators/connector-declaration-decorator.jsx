@@ -28,9 +28,45 @@ import TreeUtils from './../../../../../model/tree-util';
 class ConnectorDeclarationDecorator extends React.Component {
 
     /**
+     * Constructor for connector declaration
+     * @param {objects} props - properties
+     */
+    constructor(props) {
+        super(props);
+        this.getConnectorName = this.getConnectorName.bind(this);
+        this.setConnectorName = this.setConnectorName.bind(this);
+    }
+
+    /**
      * ToDo Update the edited expression
      */
     updateExpression(value) {
+    }
+
+    /**
+     * Get connector name to be displayed
+     * @return {*} - name of the connector
+     */
+    getConnectorName() {
+        const model = this.props.model;
+        let connectorName;
+        if (TreeUtils.isVariableDef(model)) {
+            connectorName = model.getVariableName().value;
+        }
+        return connectorName;
+    }
+
+    /**
+     * Set connector name callback for the expression editor
+     * @param {string} newName - new connector name
+     */
+    setConnectorName(newName) {
+        const model = this.props.model;
+        if (TreeUtils.isVariableDef(model)) {
+            const oldVariable = this.props.model.getVariable();
+            oldVariable.name.value = newName;
+            model.setVariable(oldVariable, false);
+        }
     }
 
     /**
@@ -43,6 +79,16 @@ class ConnectorDeclarationDecorator extends React.Component {
             lineClass: 'connector-life-line',
             polygonClass: 'connector-life-line-polygon',
         };
+
+        // Editor options for the expression editor
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'ConnectorDeclaration',
+            model: this.props.model,
+            getterMethod: this.getConnectorName,
+            setterMethod: this.setConnectorName,
+        };
+
         return (
             <g>
                 <LifeLine

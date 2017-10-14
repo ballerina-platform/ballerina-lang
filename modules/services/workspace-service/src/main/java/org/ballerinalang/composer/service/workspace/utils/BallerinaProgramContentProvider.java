@@ -19,7 +19,6 @@ package org.ballerinalang.composer.service.workspace.utils;
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +40,7 @@ public class BallerinaProgramContentProvider {
      * @return JsonArray
      */
     public List<SymbolInformation> builtinTypes() {
-        List<SymbolInformation> symbolInfoList = new ArrayList<>();
-        return symbolInfoList;
+        return org.ballerinalang.composer.service.workspace.util.WorkspaceUtils.getBuiltinTypes();
     }
 
     /**
