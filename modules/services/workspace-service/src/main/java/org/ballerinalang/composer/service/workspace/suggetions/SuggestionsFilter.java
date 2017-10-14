@@ -45,12 +45,12 @@ public class SuggestionsFilter {
         BLangNode symbolEnvNode = dataModel.getSymbolEnvNode();
         if (symbolEnvNode == null) {
             return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+        } else if (symbolEnvNode instanceof BLangBlockStmt) {
+            // Refactor callable unit body resolver to block statement context resolver
+            return resolveCommandExecutor
+                    .resolveCompletionItems(CallableUnitBodyContextResolver.class, dataModel, symbols);
         } else {
-            if (symbolEnvNode instanceof BLangBlockStmt) {
-                return resolveCommandExecutor.resolveCompletionItems(CallableUnitBodyContextResolver.class,
-                        dataModel, symbols);
-            }
-            return null;
+            return resolveCommandExecutor.resolveCompletionItems(symbolEnvNode.getClass(), dataModel, symbols);
         }
     }
 }
