@@ -180,5 +180,4 @@ public class CipherSuitesTest {
             TestUtil.handleException("Exception occurred while running testCiphersuites", e);
         }
     }
-
 }

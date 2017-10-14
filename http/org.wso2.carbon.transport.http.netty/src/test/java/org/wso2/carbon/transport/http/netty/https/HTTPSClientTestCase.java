@@ -21,14 +21,19 @@ package org.wso2.carbon.transport.http.netty.https;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.http2.HTTP2MessageProcessor;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -50,6 +55,8 @@ import static org.testng.AssertJUnit.assertNotNull;
  * Tests for HTTPS client connector
  */
 public class HTTPSClientTestCase {
+
+    private static Logger logger = LoggerFactory.getLogger(HTTP2MessageProcessor.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
@@ -94,6 +101,15 @@ public class HTTPSClientTestCase {
             assertEquals(testValue, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            httpsServer.shutdown();
+        } catch (InterruptedException e) {
+            logger.error("Failed to shutdown the test server");
         }
     }
 }
