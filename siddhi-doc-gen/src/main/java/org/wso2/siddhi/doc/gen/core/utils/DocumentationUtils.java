@@ -268,7 +268,6 @@ public class DocumentationUtils {
                         if (s2s.length > i) {
                             s2a = s2s[i];
                         }
-                        System.out.println(s1a +" "+s2a);
                         int s1aInt = Integer.parseInt(s1a);
                         int s2aInt = Integer.parseInt(s2a);
                         if (s2aInt > s1aInt) {
