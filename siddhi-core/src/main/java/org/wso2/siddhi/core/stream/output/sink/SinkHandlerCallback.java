@@ -16,18 +16,26 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.event.Event;
 
 /**
- * This interface wraps {@link org.wso2.siddhi.core.stream.input.InputHandler} class in order to guarantee exactly
- * once processing
+ * Sink Handler Callback is used to send events to the {@link SinkMapper} after being handled by {@link SinkHandler}.
  */
-public interface InputEventHandler {
+public class SinkHandlerCallback {
 
-    void sendEvents(Event[] events) throws InterruptedException;
+    private SinkMapper sinkMapper;
 
-    void sendEvent(Event event) throws InterruptedException;
+    public SinkHandlerCallback(SinkMapper sinkMapper) {
+        this.sinkMapper = sinkMapper;
+    }
 
+    public void mapAndSend(Event event) {
+        sinkMapper.mapAndSend(event);
+    }
+
+    public void mapAndSend(Event[] events) {
+        sinkMapper.mapAndSend(events);
+    }
 }

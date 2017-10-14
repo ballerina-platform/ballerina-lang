@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
@@ -46,6 +48,8 @@ public class SiddhiContext {
     private StatisticsConfiguration statisticsConfiguration;
     private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
     private ConfigManager configManager = null;
+    private SinkHandlerManager sinkHandlerManager = null;
+    private SourceHandlerManager sourceHandlerManager = null;
 
     public SiddhiContext() {
         SiddhiExtensionLoader.loadSiddhiExtensions(siddhiExtensions);
@@ -119,4 +123,19 @@ public class SiddhiContext {
         return defaultDisrupterExceptionHandler;
     }
 
+    public SinkHandlerManager getSinkHandlerManager() {
+        return sinkHandlerManager;
+    }
+
+    public void setSinkHandlerManager(SinkHandlerManager sinkHandlerManager) {
+        this.sinkHandlerManager = sinkHandlerManager;
+    }
+
+    public SourceHandlerManager getSourceHandlerManager() {
+        return sourceHandlerManager;
+    }
+
+    public void setSourceHandlerManager(SourceHandlerManager sourceHandlerManager) {
+        this.sourceHandlerManager = sourceHandlerManager;
+    }
 }
