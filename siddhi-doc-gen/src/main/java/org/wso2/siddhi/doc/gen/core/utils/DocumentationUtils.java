@@ -380,11 +380,12 @@ public class DocumentationUtils {
      *
      * @param version       The version of the documentation
      * @param baseDirectory The base directory of the project
+     * @param url           The SCM URL
      * @param scmUsername   The SCM username
      * @param scmPassword   The SCM password
      * @param logger        The maven logger
      */
-    public static void deployMkdocsOnGitHubPages(String version, File baseDirectory, String scmUsername,
+    public static void deployMkdocsOnGitHubPages(String version, File baseDirectory, String url, String scmUsername,
                                                  String scmPassword, Log logger) {
         try {
             // Find initial branch name
@@ -441,11 +442,13 @@ public class DocumentationUtils {
                     Collections.addAll(gitCommitCommand, siteDirectoryContent);
                     executeCommand(gitCommitCommand.toArray(new String[gitCommitCommand.size()]), logger);
 
-                    if (scmUsername != null && scmPassword != null) {
+                    if (scmUsername != null && scmPassword != null && url != null) {
                         // Using scm username and password env var values
+                        String urlWithUsernameAndPassword = url.replaceFirst(Constants.GITHUB_URL,
+                                Constants.GITHUB_URL_WITH_USERNAME_PASSWORD);
                         executeCommand(new String[]{Constants.GIT_COMMAND,
                                 Constants.GIT_PUSH_COMMAND,
-                                String.format(Constants.GIT_REMOTE_WITH_USERNAME_PASSWORD, scmUsername, scmPassword),
+                                String.format(urlWithUsernameAndPassword, scmUsername, scmPassword),
                                 Constants.GIT_GH_PAGES_BRANCH}, logger);
 
                     } else {
