@@ -323,7 +323,7 @@ class TreeUtil extends AbstractTreeUtil {
      * @param {Node} node - Node for setting source.
      * @param {string|array} source - set source for the node.
      * */
-    setSource(node, source) {
+    setSource(node, source, ballerinaFileEditor) {
         /* TODO: handle expression, argument parameter and return parameter. */
         // check node kind.
         if (node.isStatement) {
@@ -339,6 +339,11 @@ class TreeUtil extends AbstractTreeUtil {
 
             // invoke the fragment util for the coresponding kind.
             const parsedJson = FragmentUtils.parseFragment(fragment);
+            // show an error and skip the setSource method when user provides an unparsable content.
+            if (parsedJson.error){
+                ballerinaFileEditor.context.alert.showError('Invalid content provided !');
+                return;
+            }
             const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
             // clear white space data so it will be formated properly.
             newStatementNode.clearWS();

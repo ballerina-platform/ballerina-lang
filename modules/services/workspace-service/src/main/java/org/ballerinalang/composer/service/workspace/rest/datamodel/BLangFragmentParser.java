@@ -120,10 +120,13 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
+        BLangCompilationUnit compilationUnit = null;
         BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.DEFINE)
                 .getBLangPackage();
-        BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
-                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        if (model != null) {
+            compilationUnit = model.getCompilationUnits().stream().
+                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        }
 
         try {
             return BLangFileRestService.generateJSON(compilationUnit);

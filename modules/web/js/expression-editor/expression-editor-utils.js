@@ -40,12 +40,13 @@ const langTools = ace.acequire('ace/ext/language_tools');
 
 class ExpressionEditor {
 
-    constructor(bBox, callback, props, packageScope) {
+    constructor(bBox, callback, props, packageScope, ballerinaFileEditor) {
         let didEnter = false;
         let didSemicolon = false;
         this.destroy();
         this.props = props;
         this.file = props.model ? props.model.getFile() : null;
+        this.ballerinaFileEditor = ballerinaFileEditor;
 
         // Get the expression for the statement or expression.
         const expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
@@ -182,7 +183,7 @@ class ExpressionEditor {
                     if (props.setterMethod instanceof Function) {
                         props.setterMethod.call(props.model, text);
                     } else {
-                        TreeUtil.setSource(props.model, text);
+                        TreeUtil.setSource(props.model, text, this.ballerinaFileEditor);
                     }
 
                     if (_.isFunction(callback)) {
