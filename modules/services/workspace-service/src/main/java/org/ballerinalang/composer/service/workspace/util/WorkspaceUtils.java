@@ -180,6 +180,10 @@ public class WorkspaceUtils {
         return modelPackage;
     }
 
+    /**
+     * Get the builtin types
+     * @return {@link List} list of builtin types
+     */
     public static List<SymbolInformation> getBuiltinTypes () {
         CompilerContext context = prepareCompilerContext("", "");
         SymbolTable symbolTable = SymbolTable.getInstance(context);
