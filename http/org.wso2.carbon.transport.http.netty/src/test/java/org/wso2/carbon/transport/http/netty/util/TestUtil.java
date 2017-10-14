@@ -148,20 +148,6 @@ public class TestUtil {
         return httpServer;
     }
 
-//    public static HttpServer startHTTPServer(int port, String message, String contentType) {
-//        HttpServer httpServer = new HttpServer(port);
-//        CountDownLatch latch = new CountDownLatch(1);
-//        ServerThread serverThread = new ServerThread(latch, httpServer);
-//        try {
-//            serverThread.start();
-//            latch.await();
-//            httpServer.setMessage(message, contentType);
-//        } catch (Exception e) {
-//            log.error("Thread Interrupted while sleeping ", e);
-//        }
-//        return httpServer;
-//    }
-
     public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer) {
         HttpsServer httpServer = new HttpsServer(port, channelInitializer);
         CountDownLatch latch = new CountDownLatch(1);

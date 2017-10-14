@@ -52,7 +52,6 @@ public abstract class HTTPServerInitializer extends ChannelInitializer {
 
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
-//        p.addLast("handler", businessLogicHandler);
         addBusinessLogicHandler(channel);
     }
 
