@@ -39,7 +39,7 @@ import ActiveArbiter from './views/default/components/decorators/active-arbiter'
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
-const padding = 10;
+const padding = 5;
 
 /**
  * React component for diagram.
