@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
@@ -154,11 +155,10 @@ public abstract class AbstractItemResolver {
         if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
             assert symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType : "Invalid symbol type found";
             BType bType = symbolInfo.getScopeEntry().symbol.getType();
-            if (bType instanceof BJSONType) {
+            if (bType instanceof BJSONType && !(((BJSONType) bType).getConstraint() instanceof BNoType)) {
                 BJSONType bJsonType = (BJSONType) bType;
                 type.setConstraint(true);
                 type.setConstraintName(bJsonType.getConstraint().toString());
-                type.setConstraintPkgName(bJsonType.getConstraint().tsymbol.pkgID.toString());
             }
         } else if (symbolInfo.getScopeEntry().symbol.getType() instanceof BArrayType) {
             type.setIsArrayType(true);

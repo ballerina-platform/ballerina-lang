@@ -158,10 +158,21 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
-        this.symbolEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
-        Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-        this.populateSymbols(visibleSymbolEntries, null);
-        this.terminateVisitor = true;
+        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
+
+        if (structNode.fields.isEmpty()) {
+            symbolEnv = structEnv;
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbolEntries, null);
+            this.terminateVisitor = true;
+        } else {
+            // Since the struct definition do not have a block statement within, we push null
+            this.blockStmtStack.push(null);
+            this.blockOwnerStack.push(structNode);
+            structNode.fields.forEach(field -> acceptNode(field, structEnv));
+            this.blockStmtStack.pop();
+            this.blockOwnerStack.pop();
+        }
     }
 
     @Override
@@ -170,7 +181,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        // TODO: Finalize
+        isCursorBeforeStatement(varNode.getPosition(), varNode);
     }
 
     @Override
@@ -508,7 +519,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
         int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
 
-        boolean isLastStatement = (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
+        boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
 
         if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) ||
                 (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
@@ -520,6 +531,17 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
+        if (bLangBlockStmt != null) {
+            return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
+        } else if (blockOwner instanceof BLangStruct) {
+            List<BLangVariable> structFields = ((BLangStruct) blockOwner).getFields();
+            return (structFields.indexOf(node) == structFields.size() - 1);
+        } else {
+            return false;
+        }
     }
 
     private boolean isCursorWithinBlock(DiagnosticPos nodePosition, Node node, SymbolEnv symbolEnv) {
