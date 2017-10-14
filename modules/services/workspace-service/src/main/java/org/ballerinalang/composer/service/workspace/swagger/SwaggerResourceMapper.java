@@ -87,7 +87,7 @@ public class SwaggerResourceMapper {
     protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
         for (ResourceNode resource : resources) {
-            if (this.getHttpMethods(resource).size() > 1) {
+            if (this.getHttpMethods(resource, false).size() == 0 || this.getHttpMethods(resource, false).size() > 1) {
                 useMultiResourceMapper(pathMap, resource);
             } else {
                 useDefaultResourceMapper(pathMap, resource);
@@ -102,26 +102,21 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      */
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
-        List<String> httpMethods = this.getHttpMethods(resource);
+        List<String> httpMethods = this.getHttpMethods(resource, true);
         String path = this.getPath(resource);
         Operation operation = null;
-        boolean hasGetOnly = true;
         for (String httpMethod : httpMethods) {
-            if (!httpMethod.equalsIgnoreCase("get")) {
-                hasGetOnly = false;
-                break;
+            // If operation is still not assigned and has GET method, then get the operation for GET. This is because
+            // GET operations have an extra param.
+            if (null == operation && httpMethod.equalsIgnoreCase("get")) {
+                operation = this.convertResourceToOperation(resource,
+                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
             }
-        }
-        
-        if (hasGetOnly) {
-            operation = this.convertResourceToOperation(resource, null).getOperation();
-        } else {
-            for (String httpMethod : httpMethods) {
-                if (!httpMethod.equalsIgnoreCase("get")) {
-                    operation = this.convertResourceToOperation(resource,
-                            httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-                    break;
-                }
+            // But if there are other http methods, their operation will be used.
+            if (!httpMethod.equalsIgnoreCase("get")) {
+                operation = this.convertResourceToOperation(resource,
+                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
+                break;
             }
         }
     
@@ -585,9 +580,10 @@ public class SwaggerResourceMapper {
     /**
      * Gets the http methods of a resource.
      * @param resource The ballerina resource.
+     * @param useDefaults True to add default http methods, else false.
      * @return A list of http methods.
      */
-    private List<String> getHttpMethods(ResourceNode resource) {
+    private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
                                                                             resource.getAnnotationAttachments().stream()
                 .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
@@ -606,9 +602,14 @@ public class SwaggerResourceMapper {
             }
         }
         
-        if (httpMethods.isEmpty()) {
-            // By default get is supported.
+        if (httpMethods.isEmpty() && useDefaults) {
+            // By default http methods is supported.
             httpMethods.add("GET");
+            httpMethods.add("POST");
+            httpMethods.add("HEAD");
+            httpMethods.add("OPTIONS");
+            httpMethods.add("DELETE");
+            httpMethods.add("PUT");
         }
         return Lists.reverse(new ArrayList<>(httpMethods));
     }

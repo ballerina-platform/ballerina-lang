@@ -7,8 +7,18 @@
   "basePath": "/Service1",
   "paths": {
     "/Resource1": {
-      "get": {
+      "x-MULTI": {
         "operationId": "Resource1",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "req",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Request"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful",
@@ -16,8 +26,21 @@
               "application/json": "Ok"
             }
           }
-        }
+        },
+        "x-METHODS": [
+          "PUT",
+          "DELETE",
+          "OPTIONS",
+          "HEAD",
+          "POST",
+          "GET"
+        ]
       }
+    }
+  },
+  "definitions": {
+    "Request": {
+      "type": "object"
     }
   }
 }

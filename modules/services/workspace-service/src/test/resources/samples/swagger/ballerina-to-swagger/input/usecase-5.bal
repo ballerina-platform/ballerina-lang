@@ -1,6 +1,5 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
@@ -92,6 +91,5 @@ service<http> Service5 {
                                     @http:QueryParam{value: "tag"} string tag,
                                     @http:QueryParam{value: "limit"} int limit,
                                     @http:QueryParam{value: "isEmpty"} boolean isEmpty) {
-        response:send(res);
     }
 }
