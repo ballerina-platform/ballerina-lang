@@ -101,6 +101,5 @@ public class HttpsServer implements TestServer {
     }
 
     public void setMessage(String message, String contentType) {
-//        httpServerInitializer.setMessage(message, contentType);
     }
 }
