@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -208,47 +207,6 @@ public class SiddhiManager {
     public void persist() {
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
             siddhiAppRuntime.persist();
-        }
-    }
-
-    /**
-     * Method to get the current snapshot of all siddhi applications.
-     *
-     * @return map with siddhi app runtime name as key and snapshot in byte array as value.
-     */
-    public Map<String, byte[]> getSnapshot() {
-        Map<String, byte[]> snapshotMap = new HashMap<>();
-        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
-            byte[] snapshot = siddhiAppRuntime.snapshot();
-            snapshotMap.put(siddhiAppRuntime.getName(), snapshot);
-        }
-        return snapshotMap;
-    }
-
-    /**
-     * Method to restore a given snapshot for all siddhi applications.
-     *
-     * @param snapshotMap map with siddhi app runtime name as key and snapshot in byte array as value.
-     */
-    public void restoreState(Map<String, byte[]> snapshotMap) {
-        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
-            byte[] snapshot = snapshotMap.get(siddhiAppRuntime.getName());
-            if (snapshot != null) {
-                siddhiAppRuntime.restore(snapshot);
-            }
-        }
-    }
-
-    /**
-     * Method to restore a given snapshot of a given siddhi application.
-     *
-     * @param siddhiAppRuntimeName the name of the siddhi app whose snapshot is to be restored.
-     * @param snapshot the snapshot of the siddhi app that should be restored.
-     */
-    public void restoreState(String siddhiAppRuntimeName, byte[] snapshot) {
-        SiddhiAppRuntime siddhiAppRuntime = siddhiAppRuntimeMap.get(siddhiAppRuntimeName);
-        if (siddhiAppRuntime != null) {
-            siddhiAppRuntime.restore(snapshot);
         }
     }
 
