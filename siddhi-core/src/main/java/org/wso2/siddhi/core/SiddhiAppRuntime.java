@@ -38,9 +38,11 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -261,6 +263,10 @@ public class SiddhiAppRuntime {
         return sourceMap.values();
     }
 
+    public Collection<List<Sink>> getSinks() {
+        return sinkMap.values();
+    }
+
     public synchronized void start() {
         if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().startReporting();
@@ -289,9 +295,13 @@ public class SiddhiAppRuntime {
     }
 
     public synchronized void shutdown() {
+        SourceHandlerManager sourceHandlerManager = siddhiAppContext.getSiddhiContext().getSourceHandlerManager();
         for (List<Source> sources : sourceMap.values()) {
             for (Source source : sources) {
                 try {
+                    if (sourceHandlerManager != null) {
+                        sourceHandlerManager.unregisterSourceHandler(source.getElementId());
+                    }
                     source.shutdown();
                 } catch (Throwable t) {
                     log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +
@@ -314,9 +324,13 @@ public class SiddhiAppRuntime {
             }
         }
 
+        SinkHandlerManager sinkHandlerManager = siddhiAppContext.getSiddhiContext().getSinkHandlerManager();
         for (List<Sink> sinks : sinkMap.values()) {
             for (Sink sink : sinks) {
                 try {
+                    if (sinkHandlerManager != null) {
+                        sinkHandlerManager.unregisterSinkHandler(sink.getElementId());
+                    }
                     sink.shutdown();
                 } catch (Throwable t) {
                     log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +

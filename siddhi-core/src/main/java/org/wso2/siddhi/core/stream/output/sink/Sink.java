@@ -45,6 +45,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private StreamDefinition streamDefinition;
     private String type;
     private SinkMapper mapper;
+    private SinkHandler handler;
     private String elementId;
     private SiddhiAppContext siddhiAppContext;
 
@@ -56,7 +57,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     public final void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                            ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
-                           OptionHolder mapOptionHolder, List<Element> payloadElementList,
+                           OptionHolder mapOptionHolder, SinkHandler sinkHandler, List<Element> payloadElementList,
                            ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.type = type;
@@ -67,6 +68,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payloadElementList, this,
                     mapperConfigReader, siddhiAppContext);
             this.mapper = sinkMapper;
+        }
+        if (sinkHandler != null) {
+            sinkHandler.init(elementId, streamDefinition, new SinkHandlerCallback(sinkMapper));
+            this.handler = sinkHandler;
         }
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
 
@@ -158,6 +163,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     public final SinkMapper getMapper() {
         return mapper;
+    }
+
+    public final SinkHandler getHandler() {
+        return handler;
     }
 
     public void connectWithRetry() {
