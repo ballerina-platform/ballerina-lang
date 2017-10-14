@@ -232,7 +232,10 @@ public class SiddhiManager {
      */
     public void restoreState(Map<String, byte[]> snapshotMap) {
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeMap.values()) {
-            siddhiAppRuntime.restore(snapshotMap.get(siddhiAppRuntime.getName()));
+            byte[] snapshot = snapshotMap.get(siddhiAppRuntime.getName());
+            if (snapshot != null) {
+                siddhiAppRuntime.restore(snapshot);
+            }
         }
     }
 
@@ -243,7 +246,10 @@ public class SiddhiManager {
      * @param snapshot the snapshot of the siddhi app that should be restored.
      */
     public void restoreState(String siddhiAppRuntimeName, byte[] snapshot) {
-        siddhiAppRuntimeMap.get(siddhiAppRuntimeName).restore(snapshot);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiAppRuntimeMap.get(siddhiAppRuntimeName);
+        if (siddhiAppRuntime != null) {
+            siddhiAppRuntime.restore(snapshot);
+        }
     }
 
     /**

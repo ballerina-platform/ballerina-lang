@@ -33,8 +33,12 @@ public abstract class SinkHandlerManager {
 
     public abstract SinkHandler generateSinkHandler();
 
-    public void registerSinkHandler(SinkHandler sinkHandler) {
-        this.registeredSinkHandlers.put(sinkHandler.getSinkElementId(), sinkHandler);
+    public void registerSinkHandler(String elementId, SinkHandler sinkHandler) {
+        this.registeredSinkHandlers.put(elementId, sinkHandler);
+    }
+
+    public void unregisterSinkHandler(String elementId) {
+        this.registeredSinkHandlers.remove(elementId);
     }
 
     public HashMap<String, SinkHandler> getRegisteredSinkHandlers() {

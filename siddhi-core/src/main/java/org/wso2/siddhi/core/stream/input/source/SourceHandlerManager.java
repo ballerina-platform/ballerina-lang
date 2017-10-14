@@ -33,8 +33,12 @@ public abstract class SourceHandlerManager {
 
     public abstract SourceHandler generateSourceHandler();
 
-    public void registerSourceHandler(SourceHandler sourceHandler) {
-        this.registeredSourceHandlers.put(sourceHandler.getSourceElementId(), sourceHandler);
+    public void registerSourceHandler(String elementId, SourceHandler sourceHandler) {
+        this.registeredSourceHandlers.put(elementId, sourceHandler);
+    }
+
+    public void unregisterSourceHandler(String elementId) {
+        this.registeredSourceHandlers.remove(elementId);
     }
 
     public HashMap<String, SourceHandler> getRegsiteredSourceHandlers() {
