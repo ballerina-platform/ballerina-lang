@@ -133,15 +133,16 @@ class DesignView extends React.Component {
         return (
             <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
+                    <DragLayer />
                     <Scrollbars
                         style={{
                             width: this.props.width - TOOL_PALETTE_WIDTH,
                             height: this.props.height,
+                            marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                         autoHide // Hide delay in ms
                         autoHideTimeout={1000}
                     >
-                        <DragLayer />
                         <div className="canvas-container">
                             <div className="canvas-top-controls-container" />
                             <div className="html-overlay" ref={this.setOverlayContainer} />
@@ -156,13 +157,16 @@ class DesignView extends React.Component {
                                 }
                             </div>
                         </div>
-                        {isTransformActive &&
-                            <TransformExpanded
-                                model={activeTransformModel}
-                                panelResizeInProgress={this.props.panelResizeInProgress}
-                            />
-                        }
                     </Scrollbars>
+                    {isTransformActive &&
+                        <TransformExpanded
+                            model={activeTransformModel}
+                            panelResizeInProgress={this.props.panelResizeInProgress}
+                            leftOffset={TOOL_PALETTE_WIDTH}
+                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                            height={this.props.height}
+                        />
+                    }
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
                     <ToolPaletteView

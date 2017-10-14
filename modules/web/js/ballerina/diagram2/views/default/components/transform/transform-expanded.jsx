@@ -1098,6 +1098,7 @@ class TransformExpanded extends React.Component {
     }
 
     render() {
+        const { leftOffset, width, height } = this.props;
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.inputs;
         const outputNodes = this.props.model.outputs;
@@ -1154,6 +1155,7 @@ class TransformExpanded extends React.Component {
         return (
             <div
                 className='transformOverlay'
+                style={{ paddingLeft: leftOffset }}
             >
                 <div id='transformHeader' className='transform-header'>
                     <i onClick={this.onClose} className='fw fw-left icon close-transform' />
@@ -1291,6 +1293,9 @@ class TransformExpanded extends React.Component {
 TransformExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformNode).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
+    leftOffset: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 TransformExpanded.contextTypes = {
