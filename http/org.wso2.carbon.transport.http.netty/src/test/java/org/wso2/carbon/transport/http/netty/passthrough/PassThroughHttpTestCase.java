@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
+import org.wso2.carbon.transport.http.netty.util.server.initializers.MockServerInitializer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -54,7 +55,8 @@ public class PassThroughHttpTestCase {
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
         serverConnectors = TestUtil.startConnectors(
                 configuration, new PassthroughMessageProcessorListener(configuration));
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT,
+                new MockServerInitializer(testValue, Constants.TEXT_PLAIN, 200));
     }
 
     @Test

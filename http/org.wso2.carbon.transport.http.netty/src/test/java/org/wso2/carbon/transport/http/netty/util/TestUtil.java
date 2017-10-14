@@ -19,6 +19,7 @@
 package org.wso2.carbon.transport.http.netty.util;
 
 import com.google.common.io.ByteStreams;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.io.Charsets;
@@ -133,8 +134,8 @@ public class TestUtil {
         return connectors;
     }
 
-    public static HttpServer startHTTPServer(int port) {
-        HttpServer httpServer = new HttpServer(port);
+    public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {
+        HttpServer httpServer = new HttpServer(port, channelInitializer);
         CountDownLatch latch = new CountDownLatch(1);
 
         ServerThread serverThread = new ServerThread(latch, httpServer);
@@ -147,28 +148,27 @@ public class TestUtil {
         return httpServer;
     }
 
-    public static HttpServer startHTTPServer(int port, String message, String contentType) {
-        HttpServer httpServer = new HttpServer(port);
-        CountDownLatch latch = new CountDownLatch(1);
-        ServerThread serverThread = new ServerThread(latch, httpServer);
-        try {
-            serverThread.start();
-            latch.await();
-            httpServer.setMessage(message, contentType);
-        } catch (Exception e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-        return httpServer;
-    }
+//    public static HttpServer startHTTPServer(int port, String message, String contentType) {
+//        HttpServer httpServer = new HttpServer(port);
+//        CountDownLatch latch = new CountDownLatch(1);
+//        ServerThread serverThread = new ServerThread(latch, httpServer);
+//        try {
+//            serverThread.start();
+//            latch.await();
+//            httpServer.setMessage(message, contentType);
+//        } catch (Exception e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//        return httpServer;
+//    }
 
-    public static HttpsServer startHttpsServer(int port, String message, String contentType) {
-        HttpsServer httpServer = new HttpsServer(port);
+    public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer) {
+        HttpsServer httpServer = new HttpsServer(port, channelInitializer);
         CountDownLatch latch = new CountDownLatch(1);
         ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
             serverThread.start();
             latch.await();
-            httpServer.setMessage(message, contentType);
         } catch (Exception e) {
             log.error("Thread Interrupted while sleeping ", e);
         }

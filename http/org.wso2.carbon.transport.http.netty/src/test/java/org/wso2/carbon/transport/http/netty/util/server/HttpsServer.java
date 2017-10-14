@@ -20,6 +20,7 @@ package org.wso2.carbon.transport.http.netty.util.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -27,6 +28,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
+import org.wso2.carbon.transport.http.netty.util.server.initializers.HTTPServerInitializer;
 
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;
@@ -47,14 +49,15 @@ public class HttpsServer implements TestServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private SSLContext sslContext;
-    private HTTPServerInitializer httpServerInitializer;
+    private ChannelInitializer channelInitializer;
 
     String ksName = "src/test/resources/simple-test-config/wso2carbon.jks";
     char ksPass[] = "wso2carbon".toCharArray();
     char ctPass[] = "wso2carbon".toCharArray();
 
-    public HttpsServer(int port) {
+    public HttpsServer(int port, ChannelInitializer channelInitializer) {
         this.port = port;
+        this.channelInitializer = channelInitializer;
     }
 
     /**
@@ -77,10 +80,9 @@ public class HttpsServer implements TestServer {
 
             sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kmf.getKeyManagers(), null, null);
-            httpServerInitializer = new HTTPServerInitializer();
-            httpServerInitializer.setSslContext(sslContext);
+            ((HTTPServerInitializer) channelInitializer).setSslContext(sslContext);
 
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
             logger.info("HttpServer started on port " + port);
@@ -99,6 +101,6 @@ public class HttpsServer implements TestServer {
     }
 
     public void setMessage(String message, String contentType) {
-        httpServerInitializer.setMessage(message, contentType);
+//        httpServerInitializer.setMessage(message, contentType);
     }
 }

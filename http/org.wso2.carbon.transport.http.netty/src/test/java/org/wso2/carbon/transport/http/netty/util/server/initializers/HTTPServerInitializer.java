@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.util.server;
+package org.wso2.carbon.transport.http.netty.util.server.initializers;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -33,14 +33,11 @@ import javax.net.ssl.SSLEngine;
 /**
  * An initializer class for HTTP Server
  */
-public class HTTPServerInitializer extends ChannelInitializer {
+public abstract class HTTPServerInitializer extends ChannelInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServerInitializer.class);
 
     private SSLContext sslContext;
-    private String message;
-    private String contentType;
-    private int responseCode = 200;
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
@@ -55,22 +52,13 @@ public class HTTPServerInitializer extends ChannelInitializer {
 
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
-        HTTPServerHandler httpServerHandler = new HTTPServerHandler();
-        httpServerHandler.setMessage(message, contentType);
-        httpServerHandler.setResponseStatusCode(responseCode);
-        p.addLast("handler", httpServerHandler);
+//        p.addLast("handler", businessLogicHandler);
+        addBusinessLogicHandler(channel);
     }
 
     public void setSslContext(SSLContext sslContext) {
         this.sslContext = sslContext;
     }
 
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    public void setMessage(String message, String contentType) {
-        this.message = message;
-        this.contentType = contentType;
-    }
+    protected abstract void addBusinessLogicHandler(Channel channel);
 }

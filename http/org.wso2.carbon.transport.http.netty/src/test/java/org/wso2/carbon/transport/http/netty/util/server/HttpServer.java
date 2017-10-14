@@ -20,6 +20,7 @@ package org.wso2.carbon.transport.http.netty.util.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -42,10 +43,11 @@ public class HttpServer implements TestServer {
     private int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private HTTPServerInitializer httpServerInitializer;
+    private ChannelInitializer channelInitializer;
 
-    public HttpServer(int port) {
+    public HttpServer(int port, ChannelInitializer channelInitializer) {
         this.port = port;
+        this.channelInitializer = channelInitializer;
     }
 
     /**
@@ -60,8 +62,7 @@ public class HttpServer implements TestServer {
             b.childOption(ChannelOption.TCP_NODELAY, true);
             b.option(ChannelOption.SO_KEEPALIVE, true);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
-            httpServerInitializer = new HTTPServerInitializer();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
             logger.info("HttpServer started on port " + port);
@@ -79,7 +80,5 @@ public class HttpServer implements TestServer {
         logger.info("HttpServer shutdown ");
     }
 
-    public void setMessage(String message, String contentType) {
-        httpServerInitializer.setMessage(message, contentType);
-    }
+    public void setMessage(String message, String contentType) {}
 }
