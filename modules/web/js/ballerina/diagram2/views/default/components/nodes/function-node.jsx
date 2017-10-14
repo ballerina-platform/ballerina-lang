@@ -70,44 +70,7 @@ class FunctionNode extends React.Component {
                         bBox={statement.viewState.bBox}
                     />);
             });
-        /*
-        if (TreeUtil.isConnectorInitExpr(initialExpression)) {
-            const title = model.variable.name.value;
 
-            connectorLifeLine = ();
-        }
-
-        const titleComponentData = [{
-            isNode: true,
-            model: this.props.model.getArgumentParameterDefinitionHolder(),
-        }, {
-            isNode: true,
-            model: this.props.model.getReturnParameterDefinitionHolder(),
-        }];
-        const isLambda = this.props.model.isLambda();
-        const lifeline = (<LifeLine
-            title="default"
-            bBox={function_worker_bBox}
-            classes={classes}
-            icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-            iconColor='#025482'
-        />);
-        const statemnts = (<StatementContainer
-            dropTarget={this.props.model
-            }
-            title="StatementContainer"
-            bBox={statementContainerBBox}
-        >
-            { children }
-        </StatementContainer>);
-
-        if (isLambda) {
-            return (<g>
-                <rect x={bBox.x} y={bBox.y} height={30} width={bBox.w} className="return-parameter-group" />
-                {lifeline}
-                {statemnts}
-            </g>);
-        } else {*/
         return (
             <PanelDecorator
                 bBox={bBox}

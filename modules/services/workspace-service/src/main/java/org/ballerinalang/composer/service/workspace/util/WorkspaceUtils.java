@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.service.workspace.util;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.langserver.model.Action;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationAttachment;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationDef;
@@ -34,6 +35,8 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -175,6 +178,28 @@ public class WorkspaceUtils {
             }
         });
         return modelPackage;
+    }
+
+    /**
+     * Get the builtin types
+     * @return {@link List} list of builtin types
+     */
+    public static List<SymbolInformation> getBuiltinTypes () {
+        CompilerContext context = prepareCompilerContext("", "");
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        List<SymbolInformation> symbolInformationList = new ArrayList<>();
+
+        // TODO: Need to fill the default values
+        symbolTable.rootScope.entries.forEach((key, value) -> {
+            if (value.symbol instanceof BTypeSymbol) {
+                SymbolInformation symbolInfo = new SymbolInformation();
+                String symbolName = value.symbol.getName().getValue();
+                symbolInfo.setName(symbolName);
+                symbolInformationList.add(symbolInfo);
+            }
+        });
+
+        return symbolInformationList;
     }
 
     /**
