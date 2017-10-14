@@ -64,6 +64,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,16 +253,42 @@ public class DocumentationUtils {
             apiDirectoryContent = new ArrayList<>();
         } else {
             apiDirectoryContent = Arrays.asList(documentationFiles);
-            apiDirectoryContent.sort(String::compareTo);
-            Collections.reverse(apiDirectoryContent);
+            apiDirectoryContent.sort(new Comparator<String>() {
+                @Override
+                public int compare(String s1, String s2) {
+                    String[] s1s = s1.split("\\D+");
+                    String[] s2s = s2.split("\\D+");
+                    int i = 0;
+                    while (s1s.length > i || s2s.length > i) {
+                        String s1a = "0";
+                        String s2a = "0";
+                        if (s1s.length > i) {
+                            s1a = s1s[i];
+                        }
+                        if (s2s.length > i) {
+                            s2a = s2s[i];
+                        }
+                        System.out.println(s1a +" "+s2a);
+                        int s1aInt = Integer.parseInt(s1a);
+                        int s2aInt = Integer.parseInt(s2a);
+                        if (s2aInt > s1aInt) {
+                            return 1;
+                        } else if (s2aInt < s1aInt) {
+                            return -1;
+                        }
+                        i++;
+                    }
+                    return 0;
+                }
+            });
         }
 
         String latestVersionFile = null;
         if (apiDirectoryContent.size() > 1) {
             String first = apiDirectoryContent.get(0);
-            String secound = apiDirectoryContent.get(1);
+            String second = apiDirectoryContent.get(1);
             if (first.equals(Constants.LATEST_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION)) {
-                latestVersionFile = secound;
+                latestVersionFile = second;
             }
         }
 
