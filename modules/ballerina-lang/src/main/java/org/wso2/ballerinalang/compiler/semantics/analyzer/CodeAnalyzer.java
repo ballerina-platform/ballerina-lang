@@ -127,7 +127,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private int loopCount;
     private int transactionCount;
-    private int failedBlockCount;
     private boolean statementReturns;
     private boolean lastStatement;
     private int forkJoinCount;
@@ -136,8 +135,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
-    private Stack<BLangStatement> retryValidityCheckStack = new Stack<>();
-    private Stack<BLangStatement> transactionValidityStack = new Stack<>();
+    private Stack<Boolean> retryStmtCheckStack = new Stack<>();
+    private Stack<BLangStatement> loopWithintransactionCheckStack = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -269,17 +268,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
-        this.transactionValidityStack.push(transactionNode);
+        this.loopWithintransactionCheckStack.push(transactionNode);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.failedBody != null) {
-            this.failedBlockCount++;
+            this.retryStmtCheckStack.push(true);
             transactionNode.failedBody.accept(this);
-            this.failedBlockCount--;
             this.resetStatementReturns();
             this.resetLastStatement();
+            this.retryStmtCheckStack.pop();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
@@ -289,7 +288,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             transactionNode.abortedBody.accept(this);
             this.resetStatementReturns();
         }
-        this.transactionValidityStack.pop();
+        this.loopWithintransactionCheckStack.pop();
     }
 
     @Override
@@ -303,12 +302,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (this.failedBlockCount == 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
-            return;
+        boolean error = true;
+        if (this.retryStmtCheckStack.size() > 0) {
+            boolean isParentIsFailed = this.retryStmtCheckStack.peek();
+            if (isParentIsFailed) {
+                error = false;
+            }
         }
-        if (this.retryValidityCheckStack.size() > 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_SHOULD_BE_A_ROOT_LEVEL_STATEMENT);
+        if (error) {
+            this.dlog.error(retryNode.pos, DiagnosticCode.INVALID_RETRY_POSITION);
             return;
         }
         this.lastStatement = true;
@@ -349,7 +351,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangIf ifStmt) {
-        addToRetryBlockValidationStack(ifStmt);
+        this.retryStmtCheckStack.push(false);
         this.checkStatementExecutionValidity(ifStmt);
         ifStmt.body.accept(this);
         boolean ifStmtReturns = this.statementReturns;
@@ -358,20 +360,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
-        removeFromRetryBlockValidationStack();
+        this.retryStmtCheckStack.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        addToRetryBlockValidationStack(whileNode);
-        this.transactionValidityStack.push(whileNode);
+        this.retryStmtCheckStack.push(false);
+        this.loopWithintransactionCheckStack.push(whileNode);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
         whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
         this.resetLastStatement();
-        removeFromRetryBlockValidationStack();
-        this.transactionValidityStack.pop();
+        this.loopWithintransactionCheckStack.pop();
+        this.retryStmtCheckStack.pop();
     }
     
     @Override
@@ -832,21 +834,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addToRetryBlockValidationStack(BLangStatement statement) {
-        if (this.failedBlockCount > 0) {
-            this.retryValidityCheckStack.push(statement);
-        }
-    }
-
-    private void removeFromRetryBlockValidationStack() {
-        if (this.failedBlockCount > 0) {
-            this.retryValidityCheckStack.pop();
-        }
-    }
-
     private boolean checkNextBreakValidityInTransaction() {
         boolean invalid = false;
-        ListIterator<BLangStatement> iterator = transactionValidityStack.listIterator(transactionValidityStack.size());
+        ListIterator<BLangStatement> iterator = loopWithintransactionCheckStack
+                .listIterator(loopWithintransactionCheckStack.size());
         while (iterator.hasPrevious()) {
             BLangStatement stmt = iterator.previous();
             if (stmt.getKind() == NodeKind.WHILE) {

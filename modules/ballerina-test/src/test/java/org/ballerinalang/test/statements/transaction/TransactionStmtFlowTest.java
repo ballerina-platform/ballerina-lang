@@ -356,7 +356,8 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 19, 15);
         BTestUtils.validateError(resultNegative, 1, "invalid transaction retry count", 19, 15);
-        BTestUtils.validateError(resultNegative, 2, "retry cannot be used outside of a transaction failed block", 7, 9);
+        BTestUtils.validateError(resultNegative, 2,
+                "invalid retry statement position, should be a root level statement within failed block", 7, 9);
         BTestUtils.validateError(resultNegative, 3, "abort cannot be used outside of a transaction block", 33, 9);
         BTestUtils.validateError(resultNegative, 4, "abort cannot be used outside of a transaction block", 43, 9);
         BTestUtils.validateError(resultNegative, 5, "abort cannot be used outside of a transaction block", 49, 5);
@@ -372,16 +373,14 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(res.getErrorCount(), 7);
         BTestUtils.validateError(res, 0, "invalid transaction retry count", 7, 15);
         BTestUtils.validateError(res, 1, "invalid transaction retry count", 23, 15);
-        BTestUtils
-                .validateError(res, 2, "retry statement should be a root level statement within failed block", 42, 13);
-        BTestUtils
-                .validateError(res, 3, "retry statement should be a root level statement within failed block", 44, 13);
-        BTestUtils
-                .validateError(res, 4, "retry statement should be a root level statement within failed block", 62, 13);
-        BTestUtils
-                .validateError(res, 5, "break statement cannot be used to exit from a transaction", 78, 17);
-        BTestUtils
-                .validateError(res, 6, "next statement cannot be used to exit from a transaction", 91, 17);
+        BTestUtils.validateError(res, 2,
+                "invalid retry statement position, should be a root level statement within failed block", 42, 13);
+        BTestUtils.validateError(res, 3,
+                "invalid retry statement position, should be a root level statement within failed block", 44, 13);
+        BTestUtils.validateError(res, 4,
+                "invalid retry statement position, should be a root level statement within failed block", 62, 13);
+        BTestUtils.validateError(res, 5, "break statement cannot be used to exit from a transaction", 78, 17);
+        BTestUtils.validateError(res, 6, "next statement cannot be used to exit from a transaction", 91, 17);
     }
 
 }
