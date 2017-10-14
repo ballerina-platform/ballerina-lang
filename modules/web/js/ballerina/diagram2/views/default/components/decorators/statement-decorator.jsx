@@ -115,9 +115,10 @@ class StatementDecorator extends React.Component {
     openEditor() {
         const options = this.props.editorOptions;
         const packageScope = this.context.environment;
+        const ballerinaFileEditor = this.context.editor;
         if (options) {
             new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
+                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor).render(this.context.getOverlayContainer());
         }
     }
 
