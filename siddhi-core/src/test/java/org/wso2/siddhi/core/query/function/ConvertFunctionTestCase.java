@@ -239,23 +239,7 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS) as valueB1 " +
                 "insert into outputStream ;";
 
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timestamp, inEvents, removeEvents);
-                count++;
-
-            }
-
-        });
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
-        Thread.sleep(100);
-        AssertJUnit.assertEquals(0, count);
-        siddhiAppRuntime.shutdown();
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test(expectedExceptions = SiddhiAppCreationException.class)
@@ -274,23 +258,7 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS,'string','int') as valueB1 " +
                 "insert into outputStream ;";
 
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timestamp, inEvents, removeEvents);
-                count++;
-
-            }
-
-        });
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
-        Thread.sleep(100);
-        AssertJUnit.assertEquals(0, count);
-        siddhiAppRuntime.shutdown();
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test(expectedExceptions = SiddhiAppValidationException.class)
@@ -309,22 +277,83 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS,string) as valueB1 " +
                 "insert into outputStream ;";
 
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timestamp, inEvents, removeEvents);
-                count++;
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void convertFunctionExceptionTest7() throws InterruptedException {
+        log.info("convert function test 7");
 
-            }
+        SiddhiManager siddhiManager = new SiddhiManager();
 
-        });
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
-        Thread.sleep(100);
-        AssertJUnit.assertEquals(0, count);
-        siddhiAppRuntime.shutdown();
+        String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
+                                "long, typeB bool, typeN double) ;";
+        String query = "" +
+                       "@info(name = 'query1') " +
+                       "from typeStream " +
+                       "select convert(typeS,'234') as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                       "insert into outputStream ;";
+
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void convertFunctionExceptionTest8() throws InterruptedException {
+        log.info("convert function test 8");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
+                                "long, typeB bool, typeN double) ;";
+        String query = "" +
+                       "@info(name = 'query1') " +
+                       "from typeStream " +
+                       "select convert(typeS,123) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                       "insert into outputStream ;";
+
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void convertFunctionExceptionTest9() throws InterruptedException {
+        log.info("convert function test 9");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream typeStream (typeS object, typeF float, typeD double, typeI int, typeL " +
+                                "long, typeB bool, typeN double) ;";
+        String query = "" +
+                       "@info(name = 'query1') " +
+                       "from typeStream " +
+                       "select convert(typeS,typeS) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                       "insert into outputStream ;";
+
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void convertFunctionExceptionTest10() throws InterruptedException {
+        log.info("convert function test 10");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
+                                "long, typeB bool, typeN double) ;";
+        String query = "" +
+                       "@info(name = 'query1') " +
+                       "from typeStream " +
+                       "select convert(typeS,'invalidType') as valueS, convert(typeF,'float') as valueF, convert" +
+                       "(typeD," +
+                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                       "insert into outputStream ;";
+
+        siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 }
