@@ -1485,13 +1485,14 @@ public class PartitionTestCase {
         InputHandler inputHandlerB = siddhiAppRuntime.getInputHandler("streamB");
 
         siddhiAppRuntime.start();
-        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  700}));
-        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
-        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
-        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  700}));
-        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
-        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
-        SiddhiTestHelper.waitForEvents(100,  6,  count,  60000);
+        Thread.sleep(500);
+        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  701}));
+        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  61}));
+        inputHandlerA.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  62}));
+        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  702}));
+        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  63}));
+        inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  64}));
+        SiddhiTestHelper.waitForEvents(500,  6,  count,  60000);
         AssertJUnit.assertTrue(eventArrived);
         AssertJUnit.assertEquals(6,  count.get());
         siddhiAppRuntime.shutdown();
