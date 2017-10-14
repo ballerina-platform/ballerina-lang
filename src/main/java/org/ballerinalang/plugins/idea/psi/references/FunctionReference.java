@@ -21,6 +21,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
@@ -28,6 +29,10 @@ import org.ballerinalang.plugins.idea.completion.ParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,11 +81,17 @@ public class FunctionReference extends BallerinaElementReference {
         if (containingFile == null) {
             return null;
         }
-        PsiDirectory psiDirectory = containingFile.getParent();
+        PsiFile originalFile = containingFile.getOriginalFile();
+        PsiDirectory psiDirectory = originalFile.getParent();
         if (psiDirectory == null) {
             return null;
         }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
+        PsiElement element = BallerinaPsiImplUtil.resolveFunctionInPackage(identifier, true, true, true);
+        if (element != null) {
+            return element;
+        }
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
+                false, false, true);
     }
 
     @Nullable
@@ -91,7 +102,8 @@ public class FunctionReference extends BallerinaElementReference {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
+                false, false, false);
     }
 
     @NotNull
@@ -103,9 +115,41 @@ public class FunctionReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
 
         if (containingPackage != null) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions,
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                    true);
+            results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions,
                     ParenthesisInsertHandler.INSTANCE));
+        }
+
+        // Todo - use a util method
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                TopLevelDefinition.class, LowerLevelDefinition.class);
+        if (scope != null) {
+            int caretOffset = identifier.getStartOffset();
+
+            List<IdentifierPSINode> variables =
+                    BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            for (IdentifierPSINode variable : variables) {
+                if (BallerinaPsiImplUtil.isALambdaFunction(variable)) {
+                    results.add(BallerinaCompletionUtils.createVariableLookupElement(variable));
+                }
+            }
+
+            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                    caretOffset);
+            for (IdentifierPSINode parameter : parameters) {
+                if (BallerinaPsiImplUtil.isALambdaFunction(parameter)) {
+                    results.add(BallerinaCompletionUtils.createParameterLookupElement(parameter));
+                }
+            }
+
+            List<IdentifierPSINode> globalVariables =
+                    BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+            for (IdentifierPSINode variable : globalVariables) {
+                if (BallerinaPsiImplUtil.isALambdaFunction(variable)) {
+                    results.add(BallerinaCompletionUtils.createGlobalVariableLookupElement(variable));
+                }
+            }
         }
 
         List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
@@ -123,8 +167,8 @@ public class FunctionReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage);
-        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+        List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
+        results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
         return results;
     }
 }

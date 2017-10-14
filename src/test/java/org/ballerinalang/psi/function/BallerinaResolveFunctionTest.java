@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
 
-    private String function = "function /*def*/fun ()(string) {\n    return \"\";\n}";
+    private String function = "public function /*def*/fun ()(string) {\n    return \"\";\n}";
 
     @Override
     protected String getTestDataPath() {

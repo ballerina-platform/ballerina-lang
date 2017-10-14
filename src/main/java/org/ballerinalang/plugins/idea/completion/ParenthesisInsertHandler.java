@@ -48,7 +48,9 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
     public void handleInsert(InsertionContext context, LookupElement item) {
         Editor editor = context.getEditor();
         char completionChar = context.getCompletionChar();
-        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) return;
+        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) {
+            return;
+        }
         Project project = editor.getProject();
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);

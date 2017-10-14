@@ -87,6 +87,7 @@ public class BallerinaTypes {
     public static final RuleIElementType WHILE_STATEMENT = ruleIElementTypes.get(RULE_whileStatement);
     public static final RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(RULE_tryCatchStatement);
     public static final RuleIElementType CATCH_CLAUSE = ruleIElementTypes.get(RULE_catchClause);
+    public static final RuleIElementType CATCH_CLAUSES = ruleIElementTypes.get(RULE_catchClauses);
     public static final RuleIElementType FINALLY_CLAUSE = ruleIElementTypes.get(RULE_finallyClause);
     public static final RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(RULE_typeMapperBody);
     public static final RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(RULE_workerDeclaration);
@@ -117,6 +118,8 @@ public class BallerinaTypes {
     public static final RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(RULE_attachmentPoint);
     public static final RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
             ruleIElementTypes.get(RULE_annotationAttributeList);
+    public static final RuleIElementType ANNOTATION_ATTRIBUTE_VALUE =
+            ruleIElementTypes.get(RULE_annotationAttributeValue);
     public static final RuleIElementType MAP_STRUCT_LITERAL = ruleIElementTypes.get(RULE_mapStructLiteral);
     public static final RuleIElementType MAP_STRUCT_KEY_VALUE = ruleIElementTypes.get(RULE_mapStructKeyValue);
 
@@ -127,10 +130,14 @@ public class BallerinaTypes {
     public static final RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(RULE_simpleExpression);
     public static final RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(RULE_returnParameters);
     public static final RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(RULE_valueTypeName);
-    public static final RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(RULE_actionInvocation);
+    //    public static final RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(RULE_actionInvocation);
     public static final RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(RULE_xmlNamespaceName);
     public static final RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(RULE_sourceNotation);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
+    public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
+    public static final RuleIElementType CONNECTOR_DECLARATION_STATEMENT =
+            ruleIElementTypes.get(RULE_connectorDeclarationStmt);
+    public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
 
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
@@ -158,9 +165,9 @@ public class BallerinaTypes {
     public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
     public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
-    public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.TYPE_MESSAGE);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
+    public static final TokenIElementType PUBLIC = tokenIElementTypes.get(BallerinaLexer.PUBLIC);
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static final TokenIElementType RETRY = tokenIElementTypes.get(BallerinaLexer.RETRY);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);

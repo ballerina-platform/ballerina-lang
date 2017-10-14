@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi.impl;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
@@ -36,7 +37,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
@@ -45,12 +45,11 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
@@ -58,15 +57,21 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
+import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -114,13 +119,12 @@ import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
-    private static final String ANNOTATION_DEFINITION = "//annotationDefinition/Identifier";
-    private static final String CONSTANT_DEFINITION = "//constantDefinition/Identifier";
-    private static final String GLOBAL_VARIABLE_DEFINITION = "//globalVariableDefinition/Identifier";
-    private static final String FUNCTION_DEFINITION = "//functionDefinition/Identifier";
-    private static final String CONNECTOR_DEFINITION = "//connectorDefinition/Identifier";
-    private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
-    private static final String STRUCT_DEFINITION = "//structDefinition/Identifier";
+    private static List<String> builtInFiles = new LinkedList<>();
+
+    static {
+        builtInFiles.add("/ballerina/builtin/source.bal");
+        builtInFiles.add("/ballerina/builtin/core/source.bal");
+    }
 
     private BallerinaPsiImplUtil() {
 
@@ -325,7 +329,7 @@ public class BallerinaPsiImplUtil {
      * @return suggestions for auto completion
      */
     @NotNull
-    public static PsiDirectory[] suggestImportPackages(PsiElement element) {
+    public static PsiDirectory[] suggestImportPackages(@NotNull PsiElement element) {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
 
@@ -396,7 +400,7 @@ public class BallerinaPsiImplUtil {
      * @return all matching directories
      */
     @NotNull
-    private static List<VirtualFile> suggestDirectory(@NotNull VirtualFile root, List<PsiElement> packages) {
+    private static List<VirtualFile> suggestDirectory(@NotNull VirtualFile root, @NotNull List<PsiElement> packages) {
         VirtualFile tempRoot = root;
         List<VirtualFile> results = new ArrayList<>();
         VirtualFile match;
@@ -432,65 +436,52 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
-        if (element instanceof PsiDirectory) {
-            return getAllConnectorsFromPackage((PsiDirectory) element);
-        }
-        PsiElement parent = element.getParent();
-        if (parent != null) {
-            return getAllConnectorsFromPackage((PsiDirectory) parent);
-        }
-        return new LinkedList<>();
+    public static List<IdentifierPSINode> getAllConnectorsFromPackage(@NotNull PsiDirectory packageElement,
+                                                                      boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(packageElement, ConnectorDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllConnectorsFromPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, CONNECTOR_DEFINITION);
+    public static List<IdentifierPSINode> getAllAnnotationsInPackage(@NotNull PsiDirectory packageElement,
+                                                                     boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(packageElement, AnnotationDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, ANNOTATION_DEFINITION);
+    public static List<IdentifierPSINode> getAllStructsFromPackage(@NotNull PsiDirectory directory,
+                                                                   boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, StructDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
-        if (element instanceof PsiDirectory) {
-            return getAllStructsFromPackage((PsiDirectory) element);
-        }
-        PsiElement parent = element.getParent();
-        if (parent != null) {
-            return getAllStructsFromPackage((PsiDirectory) parent);
-        }
-        return new LinkedList<>();
+    public static List<IdentifierPSINode> getAllEnumsFromPackage(@NotNull PsiDirectory directory,
+                                                                 boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, EnumDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllStructsFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
+    public static List<IdentifierPSINode> getAllFunctionsFromPackage(@NotNull PsiDirectory directory,
+                                                                     boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, FunctionDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllFunctionsFromPackage(@NotNull PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
+    public static List<IdentifierPSINode> getAllConstantsFromPackage(PsiDirectory directory, boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, ConstantDefinitionNode.class, includePrivate);
     }
 
     @NotNull
-    public static List<PsiElement> getAllConstantsFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, CONSTANT_DEFINITION);
-    }
-
-    @NotNull
-    public static List<PsiElement> getAllGlobalVariablesFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, GLOBAL_VARIABLE_DEFINITION);
+    public static List<IdentifierPSINode> getAllGlobalVariablesFromPackage(@NotNull PsiDirectory directory,
+                                                                           boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, GlobalVariableDefinitionNode.class, includePrivate);
     }
 
     @NotNull
     public static List<PsiElement> getImportedPackages(@NotNull PsiFile file) {
-        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
-        filteredPackages.addAll(getImportedPackagesInCurrentFile(file));
-        filteredPackages.addAll(getPackagesImportedAsAliasInCurrentFile(file));
-        return filteredPackages;
+        ArrayList<PsiElement> packages = new ArrayList<>();
+        packages.addAll(getImportedPackagesInCurrentFile(file));
+        packages.addAll(getPackagesImportedAsAliasInCurrentFile(file));
+        return packages;
     }
 
     @NotNull
@@ -537,13 +528,14 @@ public class BallerinaPsiImplUtil {
      * Returns all the elements in the given directory(package) which matches the given xpath.
      *
      * @param directory which is used to get the functions
-     * @param xpath     xpath to the element
      * @return all functions in the given directory(package)
      */
     @NotNull
-    private static List<PsiElement> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, String xpath) {
+    private static <T extends PsiElement>
+    List<IdentifierPSINode> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, @NotNull Class<T> clazz,
+                                                              boolean includePrivate) {
         Project project = directory.getProject();
-        List<PsiElement> results = new ArrayList<>();
+        List<IdentifierPSINode> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
         VirtualFile[] children = virtualFile.getChildren();
         for (VirtualFile child : children) {
@@ -554,9 +546,40 @@ public class BallerinaPsiImplUtil {
             if (!(psiFile instanceof BallerinaFile)) {
                 continue;
             }
-            Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
+            results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
+        }
 
-            results.addAll(functions);
+        // Add elements from built-in packages
+        for (String builtInFile : builtInFiles) {
+            VirtualFile file = BallerinaPsiImplUtil.findFileInSDK(project, directory, builtInFile);
+            if (file == null) {
+                return results;
+            }
+            // Find the file.
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (psiFile == null) {
+                return results;
+            }
+            results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
+        }
+        return results;
+    }
+
+    private static <T extends PsiElement>
+    List<IdentifierPSINode> getMatchingElementsFromAFile(@NotNull PsiFile psiFile, @NotNull Class<T> clazz,
+                                                         boolean includePrivate) {
+        List<IdentifierPSINode> results = new ArrayList<>();
+        Collection<T> definitions = PsiTreeUtil.findChildrenOfType(psiFile, clazz);
+        for (T definition : definitions) {
+            PsiElement firstChild = definition.getFirstChild();
+            if (!includePrivate && firstChild instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+                if (elementType != BallerinaTypes.PUBLIC) {
+                    continue;
+                }
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definition, IdentifierPSINode.class);
+            results.add(identifier);
         }
         return results;
     }
@@ -568,15 +591,18 @@ public class BallerinaPsiImplUtil {
      * @return List of all actions/native actions defined in the given ConnectorDefinitionNode.
      */
     @NotNull
-    public static List<PsiElement> getAllActionsFromAConnector(@NotNull PsiElement connectorDefinitionNode) {
-        List<PsiElement> results = new ArrayList<>();
-        // Todo - use PsiTreeUtil
-        Collection<? extends PsiElement> allActions = XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode,
-                ACTION_DEFINITION);
-        results.addAll(allActions);
+    public static List<IdentifierPSINode> getAllActionsFromAConnector(@NotNull PsiElement connectorDefinitionNode) {
+        List<IdentifierPSINode> results = new ArrayList<>();
+        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorDefinitionNode,
+                ActionDefinitionNode.class);
+        for (ActionDefinitionNode definitionNode : actionDefinitionNodes) {
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
+            results.add(identifier);
+        }
         return results;
     }
 
+    @NotNull
     public static List<PsiDirectory> getAllPackagesInResolvableScopes(@NotNull Project project) {
         GlobalSearchScope scope = GlobalSearchScope.allScope(project);
         // Todo - Use caching
@@ -706,9 +732,21 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    // Todo - change return type
     @Nullable
     public static StructDefinitionNode resolveStructFromDefinitionNode(@NotNull PsiElement definitionNode) {
+        if (definitionNode instanceof ConnectorDeclarationStatementNode) {
+            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(definitionNode, NameReferenceNode.class);
+            if (nameReferenceNode != null) {
+                PsiReference reference = nameReferenceNode.findReferenceAt(nameReferenceNode.getTextLength());
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null && resolvedElement.getParent() instanceof StructDefinitionNode) {
+                        return ((StructDefinitionNode) resolvedElement.getParent());
+                    }
+                }
+            }
+        }
+
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
@@ -735,9 +773,8 @@ public class BallerinaPsiImplUtil {
         return ((StructDefinitionNode) resolvedDefElement.getParent());
     }
 
-    public static StructDefinitionNode resolveField(@NotNull FieldDefinitionNode fieldDefinitionNode) {
-
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
+    public static StructDefinitionNode resolveTypeNodeStruct(@NotNull PsiElement element) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(element, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
         }
@@ -842,8 +879,9 @@ public class BallerinaPsiImplUtil {
      * @return
      */
     @NotNull
-    public static List<PsiElement> getAllLocalVariablesInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllLocalVariablesInResolvableScope(@NotNull ScopeNode scope,
+                                                                                int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         if (scope instanceof VariableContainer || scope instanceof CodeBlockScope) {
             results.addAll(getAllLocalVariablesInScope(scope, caretOffset));
             ScopeNode context = scope.getContext();
@@ -867,14 +905,16 @@ public class BallerinaPsiImplUtil {
      * @return
      */
     @NotNull
-    public static List<PsiElement> getAllLocalVariablesInScope(@NotNull ScopeNode scope, int caretOffset) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllLocalVariablesInScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         Collection<VariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
                 VariableDefinitionNode.class);
         for (VariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
             if (isValidVariable(variableDefinitionNode, scope, caretOffset)) {
                 PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-                results.add(identifier);
+                if (identifier != null && identifier instanceof IdentifierPSINode) {
+                    results.add(((IdentifierPSINode) identifier));
+                }
             }
         }
 
@@ -886,9 +926,10 @@ public class BallerinaPsiImplUtil {
                 if (closestScope == null || !closestScope.equals(scope)) {
                     continue;
                 }
-
                 PsiElement identifier = node.getNameIdentifier();
-                results.add(identifier);
+                if (identifier != null && identifier instanceof IdentifierPSINode) {
+                    results.add(((IdentifierPSINode) identifier));
+                }
             }
         }
 
@@ -1079,8 +1120,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllParametersInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllParametersInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         if (scope instanceof VariableContainer || scope instanceof CodeBlockScope) {
             ScopeNode context = scope.getContext();
             if (context != null) {
@@ -1097,14 +1138,18 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    private static List<PsiElement> getAllParametersInScope(@NotNull ScopeNode scope, int caretOffset) {
-        List<PsiElement> results = new LinkedList<>();
+    private static List<IdentifierPSINode> getAllParametersInScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(scope,
                 ParameterNode.class);
         for (ParameterNode parameter : parameterNodes) {
+            ScopeNode parentScope = PsiTreeUtil.getParentOfType(parameter, ScopeNode.class);
+            if (!scope.equals(parentScope)) {
+                continue;
+            }
             PsiElement identifier = parameter.getNameIdentifier();
-            if (identifier != null) {
-                results.add(identifier);
+            if (identifier != null && identifier instanceof IdentifierPSINode) {
+                results.add(((IdentifierPSINode) identifier));
             }
         }
 
@@ -1126,8 +1171,8 @@ public class BallerinaPsiImplUtil {
                 continue;
             }
             PsiElement identifier = parameter.getNameIdentifier();
-            if (identifier != null) {
-                results.add(identifier);
+            if (identifier != null && identifier instanceof IdentifierPSINode) {
+                results.add(((IdentifierPSINode) identifier));
             }
         }
 
@@ -1135,8 +1180,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllGlobalVariablesInResolvableScope(@NotNull ScopeNode scope) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllGlobalVariablesInResolvableScope(@NotNull ScopeNode scope) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         if (scope instanceof VariableContainer || scope instanceof ParameterContainer || scope instanceof CodeBlockScope
                 || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
@@ -1150,14 +1195,14 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllGlobalVariablesInScope(@NotNull ScopeNode scope) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllGlobalVariablesInScope(@NotNull ScopeNode scope) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         Collection<GlobalVariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
                 GlobalVariableDefinitionNode.class);
         for (GlobalVariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
             PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-            if (identifier != null) {
-                results.add(identifier);
+            if (identifier != null && identifier instanceof IdentifierPSINode) {
+                results.add(((IdentifierPSINode) identifier));
             }
         }
         PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
@@ -1174,8 +1219,8 @@ public class BallerinaPsiImplUtil {
             variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(file, GlobalVariableDefinitionNode.class);
             for (GlobalVariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
                 PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-                if (identifier != null) {
-                    results.add(identifier);
+                if (identifier != null && identifier instanceof IdentifierPSINode) {
+                    results.add(((IdentifierPSINode) identifier));
                 }
             }
         }
@@ -1183,8 +1228,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllConstantsInResolvableScope(@NotNull ScopeNode scope) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllConstantsInResolvableScope(@NotNull ScopeNode scope) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         if (scope instanceof VariableContainer || scope instanceof ParameterContainer || scope instanceof CodeBlockScope
                 || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
@@ -1198,14 +1243,14 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllConstantsInScope(@NotNull ScopeNode scope) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<IdentifierPSINode> getAllConstantsInScope(@NotNull ScopeNode scope) {
+        List<IdentifierPSINode> results = new LinkedList<>();
         Collection<ConstantDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
                 ConstantDefinitionNode.class);
         for (ConstantDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
             PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-            if (identifier != null) {
-                results.add(identifier);
+            if (identifier != null && identifier instanceof IdentifierPSINode) {
+                results.add(((IdentifierPSINode) identifier));
             }
         }
         PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
@@ -1223,8 +1268,8 @@ public class BallerinaPsiImplUtil {
             variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(file, ConstantDefinitionNode.class);
             for (ConstantDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
                 PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-                if (identifier != null) {
-                    results.add(identifier);
+                if (identifier != null && identifier instanceof IdentifierPSINode) {
+                    results.add(((IdentifierPSINode) identifier));
                 }
             }
         }
@@ -1246,7 +1291,6 @@ public class BallerinaPsiImplUtil {
         }
         return null;
     }
-
 
     @NotNull
     public static List<LookupElement> getPackagesAsLookups(@NotNull PsiFile file,
@@ -1277,8 +1321,9 @@ public class BallerinaPsiImplUtil {
                 if (resolvedPackage == null) {
                     continue;
                 }
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                        importedPackage.getText(), importedPackageIH);
+                LookupElement lookupElement =
+                        BallerinaCompletionUtils.createImportedPackageLookupElement(resolvedPackage,
+                                importedPackage.getText(), importedPackageIH);
                 results.add(lookupElement);
                 importedPackageNames.add(importedPackage.getText());
             }
@@ -1288,10 +1333,10 @@ public class BallerinaPsiImplUtil {
             for (PsiDirectory unImportedPackage : unImportedPackages) {
                 LookupElement lookupElement;
                 if (importedPackageNames.contains(unImportedPackage.getName())) {
-                    lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                    lookupElement = BallerinaCompletionUtils.createUnimportedPackageLookupElement(unImportedPackage,
                             unImportedPackage.getName(), AutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP);
                 } else {
-                    lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                    lookupElement = BallerinaCompletionUtils.createUnimportedPackageLookupElement(unImportedPackage,
                             unImportedPackage.getName(), unImportedPackageIH);
                 }
                 results.add(lookupElement);
@@ -1303,49 +1348,109 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static PsiElement resolveElementInPackage(@NotNull PsiDirectory aPackage,
                                                      @NotNull IdentifierPSINode identifier, boolean matchFunctions,
-                                                     boolean matchConnectors, boolean matchStructs,
-                                                     boolean matchGlobalVariables, boolean matchConstants) {
+                                                     boolean matchConnectors, boolean matchStructs, boolean matchEnums,
+                                                     boolean matchGlobalVariables, boolean matchConstants,
+                                                     boolean includePrivate) {
         if (matchFunctions) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(aPackage);
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(aPackage,
+                    includePrivate);
             for (PsiElement function : functions) {
+                if (function == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(function.getText())) {
                     return function;
                 }
             }
         }
         if (matchConnectors) {
-            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(aPackage);
+            List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(aPackage,
+                    includePrivate);
             for (PsiElement connector : connectors) {
+                if (connector == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(connector.getText())) {
                     return connector;
                 }
             }
         }
         if (matchStructs) {
-            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage);
+            List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage, includePrivate);
             for (PsiElement struct : structs) {
+                if (struct == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(struct.getText())) {
                     return struct;
                 }
             }
         }
+        if (matchEnums) {
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(aPackage, includePrivate);
+            for (PsiElement anEnum : enums) {
+                if (anEnum == null) {
+                    continue;
+                }
+                if (identifier.getText().equals(anEnum.getText())) {
+                    return anEnum;
+                }
+            }
+        }
         if (matchGlobalVariables) {
-            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(aPackage);
+            List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(aPackage,
+                    includePrivate);
             for (PsiElement variable : globalVariables) {
+                if (variable == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(variable.getText())) {
                     return variable;
                 }
             }
         }
         if (matchConstants) {
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(aPackage);
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(aPackage,
+                    includePrivate);
             for (PsiElement constant : constants) {
+                if (constant == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(constant.getText())) {
                     return constant;
                 }
             }
         }
         return null;
+    }
+
+    @Nullable
+    public static PsiElement resolveFunctionInPackage(@NotNull IdentifierPSINode identifier,
+                                                      boolean matchLocalVariables, boolean matchParameters,
+                                                      boolean matchGlobalVariables) {
+        PsiElement element = resolveElementInScope(identifier, matchLocalVariables, matchParameters,
+                matchGlobalVariables, false);
+        if (element == null) {
+            return null;
+        }
+        if (isALambdaFunction(element)) {
+            return element;
+        }
+        return null;
+    }
+
+    public static boolean isALambdaFunction(@NotNull PsiElement element) {
+        BuiltInReferenceTypeNameNode builtInReferenceTypeNameNode = PsiTreeUtil.findChildOfType(element.getParent(),
+                BuiltInReferenceTypeNameNode.class);
+        if (builtInReferenceTypeNameNode == null) {
+            return false;
+        }
+        FunctionTypeNameNode functionTypeNameNode = PsiTreeUtil.getChildOfType(builtInReferenceTypeNameNode,
+                FunctionTypeNameNode.class);
+        if (functionTypeNameNode == null) {
+            return false;
+        }
+        return true;
     }
 
     @Nullable
@@ -1357,34 +1462,35 @@ public class BallerinaPsiImplUtil {
         if (scope != null) {
             int caretOffset = identifier.getStartOffset();
             if (matchLocalVariables) {
-                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
                         caretOffset);
-                for (PsiElement variable : variables) {
+                for (IdentifierPSINode variable : variables) {
                     if (identifier.getText().equals(variable.getText())) {
                         return variable;
                     }
                 }
             }
             if (matchParameters) {
-                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
                         caretOffset);
-                for (PsiElement parameter : parameters) {
+                for (IdentifierPSINode parameter : parameters) {
                     if (identifier.getText().equals(parameter.getText())) {
                         return parameter;
                     }
                 }
             }
             if (matchGlobalVariables) {
-                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-                for (PsiElement variable : globalVariables) {
+                List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
+                        (scope);
+                for (IdentifierPSINode variable : globalVariables) {
                     if (identifier.getText().equals(variable.getText())) {
                         return variable;
                     }
                 }
             }
             if (matchConstants) {
-                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-                for (PsiElement constant : constants) {
+                List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                for (IdentifierPSINode constant : constants) {
                     if (identifier.getText().equals(constant.getText())) {
                         return constant;
                     }
@@ -1475,15 +1581,17 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllAnnotationAttachmentsForType(@NotNull PsiDirectory packageElement,
-                                                                      @NotNull String type) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
-                ANNOTATION_DEFINITION);
+    public static List<IdentifierPSINode> getAllAnnotationAttachmentsForType(@NotNull PsiDirectory packageElement,
+                                                                             @NotNull String type,
+                                                                             boolean includePrivate) {
+        List<IdentifierPSINode> results = new ArrayList<>();
+        // Todo - Do we need to add public to Annotations as well?
+        List<IdentifierPSINode> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
+                AnnotationDefinitionNode.class, includePrivate);
         if (annotationDefinitions.isEmpty()) {
             return results;
         }
-        for (PsiElement annotationDefinition : annotationDefinitions) {
+        for (IdentifierPSINode annotationDefinition : annotationDefinitions) {
             if (annotationDefinition.getParent() instanceof AnnotationDefinitionNode) {
                 AnnotationDefinitionNode annotationDefinitionNode =
                         (AnnotationDefinitionNode) annotationDefinition.getParent();
@@ -1542,11 +1650,8 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
                                                                                              definitionNode) {
-        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
-        if (typeNameNode == null) {
-            return null;
-        }
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(typeNameNode, NameReferenceNode.class);
+
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(definitionNode, NameReferenceNode.class);
         if (nameReferenceNode == null) {
             return null;
         }
@@ -1579,19 +1684,16 @@ public class BallerinaPsiImplUtil {
     /**
      * Finds a file in project or module SDK.
      *
-     * @param identifier an identifier element
-     * @param path       relative file path in the SDK
+     * @param project a project element
+     * @param element a PsiElement
+     * @param path    relative file path in the SDK
      * @return {@code null} if the file cannot be found, otherwise returns the corresponding {@link VirtualFile}.
      */
     @Nullable
-    public static VirtualFile findFileInSDK(@NotNull IdentifierPSINode identifier, @NotNull String path) {
-        Project project = identifier.getProject();
-        PsiFile containingFile = identifier.getContainingFile();
-        PsiFile originalFile = containingFile.getOriginalFile();
-        VirtualFile virtualFile = originalFile.getVirtualFile();
-
+    public static VirtualFile findFileInSDK(@NotNull Project project, @NotNull PsiElement element,
+                                            @NotNull String path) {
         // First we check the sources of module SDK.
-        VirtualFile file = findFileInModuleSDK(project, virtualFile, path);
+        VirtualFile file = findFileInModuleSDK(element, path);
         if (file == null) {
             // Then we check the sources of project SDK.
             file = findFileInProjectSDK(project, path);
@@ -1602,15 +1704,13 @@ public class BallerinaPsiImplUtil {
     /**
      * Finds a file in the module SDK.
      *
-     * @param project     current project
-     * @param virtualFile a file in the current module
-     * @param path        relative file path in the SDK
+     * @param element a PsiElement
+     * @param path    relative file path in the SDK
      * @return {@code null} if the file cannot be found, otherwise returns the corresponding {@link VirtualFile}.
      */
     @Nullable
-    public static VirtualFile findFileInModuleSDK(@NotNull Project project, @NotNull VirtualFile virtualFile,
-                                                  @NotNull String path) {
-        Module module = ModuleUtilCore.findModuleForFile(virtualFile, project);
+    public static VirtualFile findFileInModuleSDK(@NotNull PsiElement element, @NotNull String path) {
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
         if (module == null) {
             return null;
         }
@@ -1740,9 +1840,19 @@ public class BallerinaPsiImplUtil {
             return getStructDefinition((VariableReferenceNode) expressionNodeFirstChild, assignmentStatementNode,
                     structReferenceNode);
         } else if (expressionNodeFirstChild instanceof TypeCastNode) {
-            return getErrorStruct(assignmentStatementNode, structReferenceNode, true, false);
+            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+            if (index == 0) {
+                return resolveTypeNodeStruct((expressionNodeFirstChild));
+            } else if (index == 1) {
+                return getErrorStruct(assignmentStatementNode, structReferenceNode, true, false);
+            }
         } else if (expressionNodeFirstChild instanceof TypeConversionNode) {
-            return getErrorStruct(assignmentStatementNode, structReferenceNode, false, true);
+            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+            if (index == 0) {
+                return resolveTypeNodeStruct((expressionNodeFirstChild));
+            } else if (index == 1) {
+                return getErrorStruct(assignmentStatementNode, structReferenceNode, false, true);
+            }
         }
         return null;
     }
@@ -1778,38 +1888,12 @@ public class BallerinaPsiImplUtil {
             if (resolvedFunctionIdentifier == null) {
                 return null;
             }
-            // Check whether the resolved element's parent is a function definiton.
-            PsiElement parent = resolvedFunctionIdentifier.getParent();
-            if (!(parent instanceof FunctionDefinitionNode)) {
+            // Check whether the resolved element's parent is a function definition.
+            PsiElement definitionNode = resolvedFunctionIdentifier.getParent();
+            if (!(definitionNode instanceof FunctionDefinitionNode)) {
                 return null;
             }
-            // Now we need to know the index of the provided struct reference node in the assignment statement node.
-            int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
-            if (index < 0) {
-                return null;
-            }
-            // Now we get all of the return types from the function.
-            List<PsiElement> returnTypes = getReturnTypes(((FunctionDefinitionNode) parent));
-            // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
-            // at least 1, etc.
-            if (returnTypes.size() <= index) {
-                return null;
-            }
-            // Get the corresponding return type.
-            PsiElement elementType = returnTypes.get(index);
-            // If this is a struct, we need to resolve it to the definition.
-            PsiReference referenceAtElementType = elementType.findReferenceAt(elementType.getTextLength());
-            if (referenceAtElementType == null) {
-                return null;
-            }
-            PsiElement resolvedIdentifier = referenceAtElementType.resolve();
-            if (resolvedIdentifier != null) {
-                // If we can resolve it to a definition, parent should be a struct definition node.
-                PsiElement structDefinition = resolvedIdentifier.getParent();
-                if (structDefinition instanceof StructDefinitionNode) {
-                    return (StructDefinitionNode) structDefinition;
-                }
-            }
+            return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
         } else if (node instanceof NameReferenceNode) {
             // If the node is a NameReferenceNode, that means RHS contains a variable.
             PsiReference reference = node.findReferenceAt(node.getTextLength());
@@ -1823,8 +1907,106 @@ public class BallerinaPsiImplUtil {
             }
             // Then recursively call the findStructDefinition method to get the correct definition.
             return findStructDefinition((IdentifierPSINode) resolvedDefinition);
+        } else if (node instanceof FunctionInvocationNode) {
+            FunctionReferenceNode functionReferenceNode = PsiTreeUtil.getChildOfType(node, FunctionReferenceNode.class);
+            if (functionReferenceNode == null) {
+                return null;
+            }
+            PsiReference reference = functionReferenceNode.findReferenceAt(functionReferenceNode.getTextLength());
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedDefinition = reference.resolve();
+            if (resolvedDefinition == null || !(resolvedDefinition instanceof IdentifierPSINode)) {
+                return null;
+            }
+            PsiElement definitionNode = resolvedDefinition.getParent();
+            if (!(definitionNode instanceof FunctionDefinitionNode)) {
+                return null;
+            }
+            return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
         }
         return null;
+    }
+
+    @Nullable
+    public static StructDefinitionNode getStructDefinition(@NotNull AssignmentStatementNode assignmentStatementNode,
+                                                           @NotNull IdentifierPSINode structReferenceNode,
+                                                           @NotNull PsiElement definitionNode) {
+        // Now we need to know the index of the provided struct reference node in the assignment statement node.
+        int index = getVariableIndexFromVarAssignment(assignmentStatementNode, structReferenceNode);
+        if (index < 0) {
+            return null;
+        }
+        // Now we get all of the return types from the function.
+        List<TypeNameNode> returnTypes = getReturnTypes(((FunctionDefinitionNode) definitionNode));
+        // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
+        // at least 1, etc.
+        if (returnTypes.size() <= index) {
+            return null;
+        }
+        // Get the corresponding return type.
+        PsiElement elementType = returnTypes.get(index);
+        // If this is a struct, we need to resolve it to the definition.
+        PsiReference referenceAtElementType = elementType.findReferenceAt(elementType.getTextLength());
+        if (referenceAtElementType == null) {
+            return null;
+        }
+        PsiElement resolvedIdentifier = referenceAtElementType.resolve();
+        if (resolvedIdentifier != null) {
+            // If we can resolve it to a definition, parent should be a struct definition node.
+            PsiElement structDefinition = resolvedIdentifier.getParent();
+            if (structDefinition instanceof StructDefinitionNode) {
+                return (StructDefinitionNode) structDefinition;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static StructDefinitionNode getAnonymousStruct(@NotNull Object element,
+                                                          @NotNull List<PsiElement> parameterListNodes,
+                                                          int offset) {
+        int index = BallerinaParameterInfoHandler.getCurrentParameterIndex(element, offset);
+        PsiElement parameterListNode = parameterListNodes.get(0);
+
+        if (parameterListNode instanceof ParameterListNode) {
+            List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
+                    ParameterNode.class);
+
+            if (index <= -1) {
+                return null;
+            }
+            ParameterNode parameterNode = parameterNodes.get(index);
+            TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(parameterNode, TypeNameNode.class);
+            if (typeNameNode == null) {
+                return null;
+            }
+            PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null || !(resolvedElement.getParent() instanceof StructDefinitionNode)) {
+                return null;
+            }
+            return (StructDefinitionNode) resolvedElement.getParent();
+        }
+        return null;
+    }
+
+    @Nullable
+    public static StructDefinitionNode resolveAnonymousStruct(IdentifierPSINode identifier) {
+        Object element = BallerinaParameterInfoHandler.findElement(identifier, PsiTreeUtil.prevVisibleLeaf(identifier));
+        if (element == null) {
+            return null;
+        }
+        List<PsiElement> parameters = BallerinaParameterInfoHandler.getParameters(element);
+        if (parameters.isEmpty()) {
+            return null;
+        }
+        int index = identifier.getStartOffset() + identifier.getTextLength();
+        return BallerinaPsiImplUtil.getAnonymousStruct(element, parameters, index);
     }
 
     /**
@@ -1855,11 +2037,12 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         // Now we need to find the error.bal file which contains the definition of these error structs.
-        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(referenceNode, "/ballerina/lang/errors/error.bal");
+        Project project = referenceNode.getProject();
+        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(project, referenceNode,
+                "/ballerina/builtin/core/source.bal");
         if (errorFile == null) {
             return null;
         }
-        Project project = referenceNode.getProject();
         // Find the file.
         PsiFile psiFile = PsiManager.getInstance(project).findFile(errorFile);
         if (psiFile == null) {
@@ -1891,8 +2074,8 @@ public class BallerinaPsiImplUtil {
      * @return return types of the provided {@link FunctionDefinitionNode}.
      */
     @NotNull
-    public static List<PsiElement> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<TypeNameNode> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
+        List<TypeNameNode> results = new LinkedList<>();
         // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
         // node.
         ReturnParametersNode node = PsiTreeUtil.findChildOfType(functionDefinitionNode, ReturnParametersNode.class);
@@ -1950,7 +2133,6 @@ public class BallerinaPsiImplUtil {
         }
         return -1;
     }
-
 
     /**
      * Resolves the given package name node to the corresponding definition. packageNameNode can be either a
@@ -2011,5 +2193,43 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         return directories.get(0);
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAttachedFunctions(@NotNull StructDefinitionNode structDefinitionNode) {
+        List<IdentifierPSINode> attachedFunctions = new LinkedList<>();
+        PsiFile containingFile = structDefinitionNode.getContainingFile();
+        PsiDirectory containingPackage = containingFile.getParent();
+        if (containingPackage != null) {
+            ApplicationManager.getApplication().runReadAction(()->{
+                List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                        false);
+                for (IdentifierPSINode function : functions) {
+                    ProgressManager.checkCanceled();
+                    CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
+                            CodeBlockParameterNode.class);
+                    if (codeBlockParameterNode == null) {
+                        continue;
+                    }
+                    TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
+                    if (typeNameNode == null) {
+                        continue;
+                    }
+                    PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+                    if (reference == null) {
+                        continue;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    if (!resolvedElement.getParent().equals(structDefinitionNode)) {
+                        continue;
+                    }
+                    attachedFunctions.add(function);
+                }
+            });
+        }
+        return attachedFunctions;
     }
 }

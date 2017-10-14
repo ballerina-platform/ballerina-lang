@@ -17,11 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class ReplyStatementNode extends StatementNode {
+public class FunctionInvocationNode extends ANTLRPsiNode {
 
-    public ReplyStatementNode(@NotNull ASTNode node) {
+    public FunctionInvocationNode(@NotNull ASTNode node) {
         super(node);
     }
 }

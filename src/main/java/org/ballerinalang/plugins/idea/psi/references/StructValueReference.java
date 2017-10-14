@@ -26,6 +26,7 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -37,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class StructValueReference extends BallerinaElementReference {
         }
         // First we try to resolve the reference to following definitions.
         PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
-                true, true, true);
+                true, true, true, true, true);
         if (element != null) {
             return element;
         }
@@ -104,14 +106,21 @@ public class StructValueReference extends BallerinaElementReference {
                     PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
                     if (mapStructKeyNode.getText().equals(resolvedPackage.getName())) {
 
-                        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage);
-                        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+                        List<IdentifierPSINode> functions =
+                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
+                        results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
-                        List<PsiElement> globalVariables =
-                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage);
+                        Collection<EnumFieldNode> fieldDefinitionNodes =
+                                PsiTreeUtil.findChildrenOfType(resolvedPackage, EnumFieldNode.class);
+                        results.addAll(BallerinaCompletionUtils.createEnumFieldLookupElements(fieldDefinitionNodes,
+                                (IdentifierPSINode) resolvedElement));
+
+                        List<IdentifierPSINode> globalVariables =
+                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false);
                         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-                        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage);
+                        List<IdentifierPSINode> constants =
+                                BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage, false);
                         results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                     }
                 }
@@ -120,14 +129,17 @@ public class StructValueReference extends BallerinaElementReference {
 
         PsiDirectory currentPackage = originalFile.getParent();
         if (currentPackage != null) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage, true);
+            results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
-            List<PsiElement> globalVariables =
-                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage);
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(currentPackage, true);
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+
+            List<IdentifierPSINode> globalVariables =
+                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage);
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
 
@@ -137,19 +149,19 @@ public class StructValueReference extends BallerinaElementReference {
         if (scope != null) {
             int caretOffset = identifier.getStartOffset();
 
-            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+            List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
                     caretOffset);
             results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
-            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
                     caretOffset);
             results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
-            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
+            List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
                     (scope);
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
             results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
         return results.toArray(new LookupElement[results.size()]);

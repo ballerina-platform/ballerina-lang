@@ -108,7 +108,7 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == MAP_STRUCT_LITERAL) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == CODE_BLOCK_BODY) {
+                } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
                     if (parentElementType == VARIABLE_REFERENCE) {
@@ -154,12 +154,12 @@ public class BallerinaBlock extends AbstractBlock {
 
     private static boolean isACodeBlock(@NotNull final IElementType parentElementType) {
         if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
-                || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
-                || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
-                || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == TRANSFORM_STATEMENT || parentElementType == IF_CLAUSE
-                || parentElementType == ELSE_IF_CLAUSE || parentElementType == ELSE_CLAUSE
-                || parentElementType == TRY_CATCH_STATEMENT || parentElementType == CATCH_CLAUSE
+                || parentElementType == WHILE_STATEMENT || parentElementType == WORKER_DECLARATION
+                || parentElementType == TYPE_MAPPER_BODY || parentElementType == FORK_JOIN_STATEMENT
+                || parentElementType == TRANSACTION_STATEMENT || parentElementType == TRANSFORM_STATEMENT
+                || parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
+                || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
+                || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
                 || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
                 || parentElementType == FAILED_CLAUSE || parentElementType == ABORTED_CLAUSE

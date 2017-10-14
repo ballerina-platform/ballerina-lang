@@ -24,7 +24,7 @@ import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,7 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
             case RULE_annotationDefinition:
                 return "Annotation";
             case RULE_nameReference:
-                PsiElement parentNode = PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+                PsiElement parentNode = PsiTreeUtil.getParentOfType(element, FunctionInvocationNode.class);
                 if (parentNode != null) {
                     return "Function";
                 }
@@ -102,6 +102,10 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Namespace";
             case RULE_workerDeclaration:
                 return "Worker";
+            case RULE_enumDefinition:
+                return "Enum";
+            case RULE_enumField:
+                return "Enum Field";
         }
         return "";
     }
