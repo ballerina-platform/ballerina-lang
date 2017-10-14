@@ -152,9 +152,6 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             if (scmUsername == null && scmPassword == null) {
                 getLog().info("SCM_USERNAME and SCM_PASSWORD not defined!");
             }
-//             getLog().info("scmUsername:" + scmUsername);
-//             getLog().info("scmPassword:" + scmPassword);
-
             String url = null;
             Scm scm = rootMavenProject.getScm();
             if (scm != null) {
