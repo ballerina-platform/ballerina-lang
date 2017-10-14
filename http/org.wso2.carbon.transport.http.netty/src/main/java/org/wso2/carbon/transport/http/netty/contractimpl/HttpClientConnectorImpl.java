@@ -93,6 +93,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                                 channelFuture.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
                                 channelFuture.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
                                         .set(httpResponseFuture);
+                                channelFuture.channel().attr(Constants.TARGET_CHANNEL_REFERENCE)
+                                        .set(targetChannel);
                                 channelFuture.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME)
                                         .set(System.currentTimeMillis());
                                 channelFuture.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT)
@@ -111,7 +113,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
                             if (channelFuture.isDone() && channelFuture.isSuccess()) {
                                 if (log.isDebugEnabled()) {
-                                    log.debug("Created the connection to address: {}", route.toString());
+                                    log.debug("Created the connection to address: {}", route.toString() + " "
+                                            + "Original Channel ID is : " + channelFuture.channel().id());
                                 }
                                 return true;
                             }

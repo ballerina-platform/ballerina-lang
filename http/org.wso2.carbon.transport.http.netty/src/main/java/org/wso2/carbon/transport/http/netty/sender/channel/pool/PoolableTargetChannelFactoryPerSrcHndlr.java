@@ -45,11 +45,16 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     @Override
     public void destroyObject(Object o) throws Exception {
         if (((TargetChannel) o).getChannel().isActive()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Original Channel " + ((TargetChannel) o).getChannel().id() + " is returned to the pool. ");
+            }
             this.genericObjectPool.returnObject(o);
         } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Original Channel is destroyed. ");
+            }
             this.genericObjectPool.invalidateObject(o);
         }
-        log.debug("Destroying channel: {}", o);
     }
 
     @Override

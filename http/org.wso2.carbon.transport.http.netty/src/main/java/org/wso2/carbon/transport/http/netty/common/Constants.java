@@ -18,6 +18,7 @@ package org.wso2.carbon.transport.http.netty.common;
 import io.netty.util.AttributeKey;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 /**
  * Common Constants used by gate way.
@@ -283,6 +284,9 @@ public final class Constants {
     public static final AttributeKey<Integer> ORIGINAL_CHANNEL_TIMEOUT = AttributeKey
             .<Integer>valueOf
                     ("ORIGINAL_CHANNEL_TIMEOUT");
+    public static final AttributeKey<TargetChannel> TARGET_CHANNEL_REFERENCE = AttributeKey
+            .<TargetChannel>valueOf
+                    ("TARGET_CHANNEL_REFERENCE");
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
