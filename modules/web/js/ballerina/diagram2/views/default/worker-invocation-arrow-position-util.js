@@ -34,29 +34,37 @@ class InvocationArrowPositionUtil {
         const statementBox = viewState.components['statement-box'];
         const workerList = node.parent.parent.parent.workers;
         const sendTo = TreeUtil.getWorkerByName(node.workerName.value, workerList);
-        const receiverNode = TreeUtil.getReceiverForSender(sendTo);
-        const receiverStatementBox = receiverNode.viewState.components['statement-box'];
-        const arrowStart = new SimpleBBox();
-        const arrowEnd = new SimpleBBox();
-        let backwardArrow = false;
 
-        if (receiverStatementBox.x < statementBox.x) {
-            backwardArrow = true;
-            arrowStart.x = statementBox.x;
-            arrowEnd.x = receiverStatementBox.x + receiverStatementBox.w;
-        } else {
-            arrowStart.x = statementBox.x + statementBox.w;
-            arrowEnd.x = receiverStatementBox.x;
+        if (sendTo) {
+            // TODO: Currently, assume that the sender is a direct child of a worker
+            const workerOwningSender = node.parent.parent;
+            const receiverNode = TreeUtil.getReceiverForSender(sendTo, workerOwningSender);
+
+            if (receiverNode) {
+                const receiverStatementBox = receiverNode.viewState.components['statement-box'];
+                const arrowStart = new SimpleBBox();
+                const arrowEnd = new SimpleBBox();
+                let backwardArrow = false;
+
+                if (receiverStatementBox.x < statementBox.x) {
+                    backwardArrow = true;
+                    arrowStart.x = statementBox.x;
+                    arrowEnd.x = receiverStatementBox.x + receiverStatementBox.w;
+                } else {
+                    arrowStart.x = statementBox.x + statementBox.w;
+                    arrowEnd.x = receiverStatementBox.x;
+                }
+
+                arrowStart.y = statementBox.y + (statementBox.h / 2);
+                arrowEnd.y = arrowStart.y;
+
+                viewState.components['invocation-arrow'] = {
+                    start: arrowStart,
+                    end: arrowEnd,
+                    backward: backwardArrow,
+                };
+            }
         }
-
-        arrowStart.y = statementBox.y + (statementBox.h / 2);
-        arrowEnd.y = arrowStart.y;
-
-        viewState.components['invocation-arrow'] = {
-            start: arrowStart,
-            end: arrowEnd,
-            backward: backwardArrow,
-        };
     }
 }
 
