@@ -7,3 +7,8 @@
     stroke: white;
     stroke-width: 3;
 }
+.invisible-rect{
+    stroke-opacity: 0;
+    stroke: white;
+    fill-opacity: 0;
+}

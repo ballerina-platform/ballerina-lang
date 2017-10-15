@@ -196,6 +196,7 @@ class CompoundStatementDecorator extends React.Component {
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
         const statementBBox = viewState.components['statement-box'];
+        const displayExpression = viewState.components.expression;
 
         const p1X = statementBBox.x;
         const p1Y = statementBBox.y + titleH;
@@ -275,14 +276,25 @@ class CompoundStatementDecorator extends React.Component {
                 <text x={titleX} y={titleY} className="statement-text">{title}</text>
 
                 {expression &&
-                <text
-                    x={expressionX}
-                    y={titleY}
-                    className="condition-text"
-                    onClick={this.openExpressionEditor}
-                >
-                    {expression.text}
-                </text>}
+                    <text
+                        x={expressionX}
+                        y={titleY}
+                        className="condition-text"
+                    >
+                        {displayExpression.text}
+                    </text>
+                }
+                <g>
+                    <rect
+                        x={p3X}
+                        y={statementBBox.y}
+                        width={statementBBox.w - p3X + statementBBox.x}
+                        height={titleH}
+                        onClick={this.openExpressionEditor}
+                        className="invisible-rect"
+                    />
+                    {expression && <title> {expression.text} </title>}
+                </g>
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
@@ -304,10 +316,17 @@ class CompoundStatementDecorator extends React.Component {
                         x={paramSeparatorX + blockStatement.heading.paramPaddingX}
                         y={titleY}
                         className="condition-text"
-                        onClick={this.openParameterEditor}
                     >
                         ( {parameterText} )
                     </text>
+                    <rect
+                        x={paramSeparatorX}
+                        y={statementBBox.y}
+                        width={statementBBox.w - paramSeparatorX + statementBBox.x}
+                        height={titleH}
+                        onClick={this.openParameterEditor}
+                        className="invisible-rect"
+                    />
                 </g>}
 
                 <polyline points={`${p1X},${p1Y} ${p2X},${p2Y} ${p3X},${p3Y}`} className="statement-title-polyline" />
