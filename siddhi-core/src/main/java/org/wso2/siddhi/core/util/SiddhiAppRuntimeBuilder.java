@@ -34,7 +34,7 @@ import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.trigger.EventTrigger;
+import org.wso2.siddhi.core.trigger.Trigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.AggregationParser;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
@@ -82,8 +82,8 @@ public class SiddhiAppRuntimeBuilder {
             new ConcurrentHashMap<String, Window>(); //contains windows
     private ConcurrentMap<String, AggregationRuntime> aggregationMap =
             new ConcurrentHashMap<String, AggregationRuntime>(); //contains aggregation runtime
-    private ConcurrentMap<String, EventTrigger> triggerMap =
-            new ConcurrentHashMap<String, EventTrigger>(); //contains triggers
+    private ConcurrentMap<String, Trigger> triggerMap =
+            new ConcurrentHashMap<String, Trigger>(); //contains triggers
     private ConcurrentMap<String, PartitionRuntime> partitionMap =
             new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ConcurrentMap<String, SiddhiAppRuntime> siddhiAppRuntimeMap = null;

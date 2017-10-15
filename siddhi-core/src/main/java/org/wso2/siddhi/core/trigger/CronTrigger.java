@@ -29,7 +29,6 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
-import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
@@ -38,11 +37,11 @@ import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
- * Implementation of {@link EventTrigger} which will trigger events based on a cron expression.
+ * Implementation of {@link Trigger} which will trigger events based on a cron expression.
  */
-public class CronEventTrigger implements EventTrigger, Job {
+public class CronTrigger implements Trigger, Job {
 
-    protected static final Logger LOG = Logger.getLogger(CronEventTrigger.class);
+    protected static final Logger LOG = Logger.getLogger(CronTrigger.class);
 
     private TriggerDefinition triggerDefinition;
     private SiddhiAppContext siddhiAppContext;
@@ -112,12 +111,12 @@ public class CronEventTrigger implements EventTrigger, Job {
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("trigger", this);
 
-            JobDetail job = org.quartz.JobBuilder.newJob(CronEventTrigger.class)
+            JobDetail job = org.quartz.JobBuilder.newJob(CronTrigger.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)
                     .build();
 
-            Trigger trigger = org.quartz.TriggerBuilder.newTrigger()
+            org.quartz.Trigger trigger = org.quartz.TriggerBuilder.newTrigger()
                     .withIdentity("TriggerJob_" + elementId, jobGroup)
                     .withSchedule(CronScheduleBuilder.cronSchedule(cronString))
                     .build();
@@ -133,7 +132,7 @@ public class CronEventTrigger implements EventTrigger, Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-        CronEventTrigger cronEventTrigger = (CronEventTrigger) dataMap.get("trigger");
+        CronTrigger cronEventTrigger = (CronTrigger) dataMap.get("trigger");
         if (LOG.isDebugEnabled()) {
             LOG.debug("Running Trigger Job '" + cronEventTrigger.getId() + "'");
         }

@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.definition.TriggerDefinition;
  * Interface class to represent event triggers. Event triggers are used to trigger events within Siddhi itself
  * according to a user given criteria.
  */
-public interface EventTrigger extends EternalReferencedHolder {
+public interface Trigger extends EternalReferencedHolder {
 
     void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
             streamJunction);

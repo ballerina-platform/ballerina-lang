@@ -23,17 +23,13 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 /**
- * Implementation of {@link EventTrigger} which will trigger events based on a pre-defined period.
+ * Implementation of {@link Trigger} which will trigger events when siddhi app in started.
  */
-public class PeriodicEventTrigger implements EventTrigger {
+public class StartTrigger implements Trigger {
     private TriggerDefinition triggerDefinition;
     private SiddhiAppContext siddhiAppContext;
     private StreamJunction streamJunction;
-    private ScheduledFuture scheduledFuture;
 
     @Override
     public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
@@ -62,13 +58,8 @@ public class PeriodicEventTrigger implements EventTrigger {
      */
     @Override
     public void start() {
-        scheduledFuture = siddhiAppContext.getScheduledExecutorService().scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
-                streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
-            }
-        }, triggerDefinition.getAtEvery(), triggerDefinition.getAtEvery(), TimeUnit.MILLISECONDS);
+        long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
+        streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
     }
 
     /**
@@ -78,8 +69,6 @@ public class PeriodicEventTrigger implements EventTrigger {
      */
     @Override
     public void stop() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-        }
+
     }
 }

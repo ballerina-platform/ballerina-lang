@@ -41,10 +41,10 @@ import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.trigger.CronEventTrigger;
-import org.wso2.siddhi.core.trigger.EventTrigger;
-import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;
-import org.wso2.siddhi.core.trigger.StartEventTrigger;
+import org.wso2.siddhi.core.trigger.CronTrigger;
+import org.wso2.siddhi.core.trigger.Trigger;
+import org.wso2.siddhi.core.trigger.PeriodicTrigger;
+import org.wso2.siddhi.core.trigger.StartTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -262,22 +262,22 @@ public class DefinitionParserHelper {
     }
 
     public static void addEventTrigger(TriggerDefinition triggerDefinition,
-                                       ConcurrentMap<String, EventTrigger> eventTriggerMap,
+                                       ConcurrentMap<String, Trigger> eventTriggerMap,
                                        ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                        SiddhiAppContext siddhiAppContext) {
         if (!eventTriggerMap.containsKey(triggerDefinition.getId())) {
-            EventTrigger eventTrigger;
+            Trigger trigger;
             if (triggerDefinition.getAtEvery() != null) {
-                eventTrigger = new PeriodicEventTrigger();
+                trigger = new PeriodicTrigger();
             } else if (triggerDefinition.getAt().trim().equalsIgnoreCase(SiddhiConstants.TRIGGER_START)) {
-                eventTrigger = new StartEventTrigger();
+                trigger = new StartTrigger();
             } else {
-                eventTrigger = new CronEventTrigger();
+                trigger = new CronTrigger();
             }
             StreamJunction streamJunction = streamJunctionMap.get(triggerDefinition.getId());
-            eventTrigger.init(triggerDefinition, siddhiAppContext, streamJunction);
-            siddhiAppContext.addEternalReferencedHolder(eventTrigger);
-            eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
+            trigger.init(triggerDefinition, siddhiAppContext, streamJunction);
+            siddhiAppContext.addEternalReferencedHolder(trigger);
+            eventTriggerMap.putIfAbsent(trigger.getId(), trigger);
         }
     }
 
