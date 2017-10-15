@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -42,6 +43,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.sender.RedirectHandler;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 
@@ -133,13 +135,18 @@ public class HTTPClientRedirectTestCase {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
         embeddedChannel.pipeline().addLast(new HttpResponseDecoder());
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5));
+        embeddedChannel.pipeline()
+                .addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(50000, 50000, 0, TimeUnit.MILLISECONDS));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, null, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
         embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new HttpResponseFutureImpl());
+        TargetChannel targetChannel = new TargetChannel(null, null);
+        targetChannel.setChannel(embeddedChannel);
+        embeddedChannel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
         embeddedChannel.attr(Constants.REDIRECT_COUNT).set(5);
         embeddedChannel.writeInbound(response);
         embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);

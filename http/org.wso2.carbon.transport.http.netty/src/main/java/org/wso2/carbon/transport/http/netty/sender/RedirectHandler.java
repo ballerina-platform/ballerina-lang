@@ -71,6 +71,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private Integer currentRedirectCount;
     private HTTPCarbonMessage targetRespMsg;
     private ChannelHandlerContext originalChannelContext;
+    private boolean isIdleHandlerOfTargetChannelRemoved = false;
+    private boolean isIdleHandlerOfRedirectChannelRemoved = false;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount) {
         this.sslEngine = sslEngine;
@@ -79,11 +81,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
-            ChannelHandlerContext originalChannelContext) {
+            ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
         this.originalChannelContext = originalChannelContext;
+        this.isIdleHandlerOfTargetChannelRemoved = isIdleHandlerOfTargetChannelRemoved;
     }
 
     @Override
@@ -147,7 +150,20 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                if (originalChannelContext == null) {
+                    originalChannelContext = ctx;
+                }
+                if (ctx == originalChannelContext) {
+                    if (!isIdleHandlerOfTargetChannelRemoved) {
+                        ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                        isIdleHandlerOfTargetChannelRemoved = true;
+                    }
+                } else {
+                    if (!isIdleHandlerOfRedirectChannelRemoved) {
+                        ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                        isIdleHandlerOfRedirectChannelRemoved = true;
+                    }
+                }
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
                 }
@@ -308,15 +324,29 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         + "RedirectHandler. Currently in channel : " + ctx.channel().id());
             }
             Util.resetChannelAttributes(ctx);
-            ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-            if (ctx != originalChannelContext) {
+            if (ctx == originalChannelContext) {
+                if (!isIdleHandlerOfTargetChannelRemoved) {
+                    ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                    isIdleHandlerOfTargetChannelRemoved = true;
+                }
+            } else {
+                if (!isIdleHandlerOfRedirectChannelRemoved) {
+                    ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                    isIdleHandlerOfRedirectChannelRemoved = true;
+                }
                 Util.resetChannelAttributes(originalChannelContext);
-                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                if (!isIdleHandlerOfTargetChannelRemoved) {
+                    targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                    isIdleHandlerOfTargetChannelRemoved = true;
+                }
             }
             ConnectionManager.getInstance().returnChannel(targetChannel);
+            if (ctx != originalChannelContext) {
+                ctx.close();
+            }
         } catch (Exception e) {
             LOG.error(
-                    "Error occurred while returning target channel" + targetChannel.getChannel().id() + " from current"
+                    "Error occurred while returning target channel " + targetChannel.getChannel().id() + " from current"
                             + " channel" + ctx.channel().id() + " " + "to its pool in " + "markEndOfMessage", e);
             throw new Exception();
         }
@@ -630,8 +660,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount,
-                        originalChannelContext));
+                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, originalChannelContext,
+                        isIdleHandlerOfTargetChannelRemoved));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         registerListener(channelHandlerContext, channelFuture, httpCarbonRequest, httpRequest);
@@ -671,6 +701,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                                     TimeUnit.MILLISECONDS));
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    /* if the previous channel is not original channel, closes it after sending the request through
+                     new channel*/
+                    if (channelHandlerContext != originalChannelContext) {
+                        channelHandlerContext.close();
+                    }
                 } else {
                     LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
                     exceptionCaught(channelHandlerContext, future.cause());

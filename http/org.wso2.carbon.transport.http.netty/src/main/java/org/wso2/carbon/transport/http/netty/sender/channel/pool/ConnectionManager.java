@@ -157,8 +157,10 @@ public class ConnectionManager {
     //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
         targetChannel.setRequestWritten(false);
-        Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-        releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
+        if (targetChannel.getCorrelatedSource() != null) {
+            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
+            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
+        }
     }
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
