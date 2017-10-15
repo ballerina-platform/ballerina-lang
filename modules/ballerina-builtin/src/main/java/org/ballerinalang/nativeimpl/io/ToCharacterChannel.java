@@ -22,8 +22,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,6 +49,15 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class ToCharacterChannel extends AbstractNativeFunction {
 
+    /**
+     * Specifies the index of the character channel  in ballerina.io#toCharacterChannel
+     */
+    private static final int CHAR_CHANNEL_INDEX = 0;
+
+    /**
+     * Specifies the index of the encoding in ballerina.io#toCharacterChannel
+     */
+    private static final int ENCODING_INDEX = 0;
     /**
      * represents the information related to the byte channel
      */
@@ -92,8 +101,8 @@ public class ToCharacterChannel extends AbstractNativeFunction {
 
         try {
             //File which holds access to the channel information
-            characterChannelInfo = (BStruct) getRefArgument(context, 0);
-            encoding = getStringArgument(context, 0);
+            characterChannelInfo = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
+            encoding = getStringArgument(context, ENCODING_INDEX);
 
             characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 

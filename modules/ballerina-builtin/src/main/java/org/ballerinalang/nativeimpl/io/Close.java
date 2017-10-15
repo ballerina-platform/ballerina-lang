@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,6 +41,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class Close extends AbstractNativeFunction {
 
     /**
+     * The index of the byte channel in the ballerina.io#close()
+     */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
+    /**
      * Reads bytes from a given channel
      * <p>
      * {@inheritDoc}
@@ -50,7 +55,7 @@ public class Close extends AbstractNativeFunction {
         BStruct channel;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byteChannel.close();
         } catch (Throwable e) {

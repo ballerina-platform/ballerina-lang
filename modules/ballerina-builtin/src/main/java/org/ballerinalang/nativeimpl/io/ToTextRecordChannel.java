@@ -22,8 +22,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.BTextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,6 +50,19 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class ToTextRecordChannel extends AbstractNativeFunction {
 
+    /**
+     * The index od the text record channel in ballerina.io#toTextRecordChannel()
+     */
+    private static final int TXT_RECORD_CHANNEL_INDEX = 0;
+    /**
+     * The index of the record channel separator in ballerina.io#toTextRecordChannel()
+     */
+    private static final int RECORD_SEPARATOR_INDEX = 0;
+
+    /**
+     * The index of the field separator in ballerina.io#toTextRecordChannel()
+     */
+    private static final int FIELD_SEPARATOR_INDEX = 1;
     /**
      * represents the information related to the byte channel
      */
@@ -90,9 +103,9 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
 
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) getRefArgument(context, 0);
-            recordSeparator = getStringArgument(context, 0);
-            fieldSeparator = getStringArgument(context, 1);
+            textRecordChannelInfo = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
+            fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
 
             textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 

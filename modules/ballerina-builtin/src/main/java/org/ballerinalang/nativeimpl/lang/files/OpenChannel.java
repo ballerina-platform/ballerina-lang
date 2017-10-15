@@ -19,24 +19,20 @@ package org.ballerinalang.nativeimpl.lang.files;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
+import org.ballerinalang.nativeimpl.io.channels.BFileChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
-import java.nio.channels.ByteChannel;
+import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -64,42 +60,22 @@ import java.util.Set;
         value = "The File that should be opened")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "accessMode",
         value = "The mode the file should be opened in")})
-public class OpenChannel extends AbstractNativeFunction {
+public class OpenChannel extends AbstractNativeChannel {
 
     /**
-     * represents the information related to the byte channel
+     * File channel index in ballerina.lang.files#openChannel
      */
-    private StructInfo byteChannelStructInfo;
+    private static final int FILE_CHANNEL_INDEX = 0;
 
     /**
-     * The package path of the byte channel
+     * File access mode defined in ballerina.lang.files#openChannel
      */
-    private static final String BYTE_CHANNEL_PACKAGE = "ballerina.io";
+    private static final int FILE_ACCESS_MODE_INDEX = 0;
 
     /**
-     * The type of the byte channel
+     * File path defined under ballerina.lang.files.File
      */
-    private static final String STRUCT_TYPE = "ByteChannel";
-
-    /**
-     * Represents the type of the channel
-     */
-    private static final String CHANNEL_TYPE = "file";
-
-    /**
-     * Gets the struct related to BByteChannel
-     *
-     * @param context invocation context
-     * @return the struct related to BByteChannel
-     */
-    private StructInfo getByteChannelStructInfo(Context context) {
-        StructInfo result = byteChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(BYTE_CHANNEL_PACKAGE);
-            byteChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return byteChannelStructInfo;
-    }
+    private static final int PATH_FIELD_INDEX = 0;
 
     /**
      * Creates a directory at the specified path
@@ -117,16 +93,19 @@ public class OpenChannel extends AbstractNativeFunction {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
-        BStruct channelStruct = null;
-        String accessMode = getStringArgument(context, 0);
+    public BByteChannel flow(Context context) throws BallerinaException {
+        BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
+        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
         Path path = null;
+        BByteChannel channel;
         try {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
 
-            path = Paths.get(fileStruct.getStringField(0));
+            path = Paths.get(fileStruct.getStringField(PATH_FIELD_INDEX));
             Set<OpenOption> opts = new HashSet<>();
 
             if (accessLC.contains("r")) {
@@ -155,15 +134,14 @@ public class OpenChannel extends AbstractNativeFunction {
                     opts.add(StandardOpenOption.WRITE);
                 }
             }
-            ByteChannel channel = Files.newByteChannel(path, opts);
-            channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context), CHANNEL_TYPE);
-            BByteChannel byteChannel = new BByteChannel(channel);
-            channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            // ByteChannel channel = FileChannel.open(path,opts);
+            FileChannel byteChannel = FileChannel.open(path, opts);
+            channel = new BFileChannel(byteChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }
-        return getBValues(channelStruct);
+        return channel;
     }
 }

@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.channels;
+package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.Close;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 
 /**
@@ -35,7 +36,7 @@ import java.util.Arrays;
  * This is a stateful channel
  * </p>
  */
-public class BByteChannel {
+public abstract class BByteChannel {
 
     /**
      * Represents the channel for reading bytes
@@ -84,6 +85,17 @@ public class BByteChannel {
         this.fixedBufferSize = fixedBufferSize;
         this.fixedBuffer = ByteBuffer.allocate(fixedBufferSize);
     }
+
+
+    /**
+     * Will be used when performing direct transfer operations from OS cache
+     *
+     * @param position   starting position of the bytes to be transferred
+     * @param count      number of bytes to be transferred
+     * @param dstChannel destination channel to transfer
+     * @throws IOException during I/O error
+     */
+    public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
 
     /**
      * Shrinks a given byte getByteArray to the specified length
@@ -143,58 +155,90 @@ public class BByteChannel {
         //We dump the remaining bytes to the response
         if (remainingBytes >= numberOfBytes) {
             //This means the requested amount of bytes are available in the channel
-            byte[] remainingContent = Arrays.copyOfRange(fixedBuffer.array(), fixedBuffer.position(), numberOfBytes);
+            byte[] remainingContent = getBytes(numberOfBytes);
             responseBuffer.put(remainingContent, 0, remainingContent.length);
         } else {
             //We need a refill the buffer with the existing content
-            byte[] remainingContent = Arrays.copyOfRange(fixedBuffer.array(), fixedBuffer.position(), remainingBytes);
+            byte[] remainingContent = getBytes(remainingBytes);
             responseBuffer.put(remainingContent, 0, remainingContent.length);
             //Let's request for a re-fill of the remaining
             int numberOfRemainingBytesToBeRead = numberOfBytes - remainingBytes;
             int blockCount = (int) Math.ceil((float) numberOfRemainingBytesToBeRead / (float) fixedBufferSize);
-
-            //We need to retrieve the content into blocks
-            for (int block = 0; block < blockCount; block++) {
-                //We clear the existing buffer
-                fixedBuffer.clear();
-                fixedBuffer = readFromChannel(fixedBufferSize);
-
-                if (null == fixedBuffer) {
-                    //This means the buffer has reached it's end
-                    break;
-                }
-
-                if (block == (blockCount - 1)) {
-                    //This means it will be the final lap and only the relevant bytes should be put to the response
-                    int finalByteCount = numberOfRemainingBytesToBeRead - (fixedBufferSize * block);
-                    byte[] finalContent;
-                    //We need to identify the content ready to be read
-                    fixedBuffer.flip();
-
-                    if (fixedBuffer.remaining() < finalByteCount) {
-                        //If the end of file has reached before acquiring the required bytes
-                        finalContent = Arrays.copyOfRange(fixedBuffer.array(), fixedBuffer.position(), fixedBuffer
-                                .remaining());
-                    } else {
-                        finalContent = Arrays.copyOfRange(fixedBuffer.array(), fixedBuffer.position(),
-                                finalByteCount);
-                    }
-
-                    fixedBuffer.position(finalContent.length);
-                    //Will take the un-read bytes forward
-                    fixedBuffer.compact();
-                    responseBuffer.put(finalContent, 0, finalContent.length);
-                } else {
-                    //Making the fixed buffer readable
-                    fixedBuffer.flip();
-                    responseBuffer.put(fixedBuffer);
-                }
-
-            }
-
+            readBlocksFromChannel(responseBuffer, numberOfRemainingBytesToBeRead, blockCount);
         }
 
         return responseBuffer;
+    }
+
+    /**
+     * Reads content from the channel as blocks
+     *
+     * @param responseBuffer                 buffer which will holds the final content which will be the response
+     * @param numberOfRemainingBytesToBeRead number of bytes which should be read
+     * @param blockCount                     the number of iterations to read all the bytes required
+     * @throws IOException I/O error when reading the content
+     */
+    private void readBlocksFromChannel(ByteBuffer responseBuffer, int numberOfRemainingBytesToBeRead, int blockCount)
+            throws IOException {
+        //We need to retrieve the content into blocks
+        for (int block = 0; block < blockCount; block++) {
+            //We clear the existing buffer
+            fixedBuffer.clear();
+            fixedBuffer = readFromChannel(fixedBufferSize);
+
+            if (null == fixedBuffer) {
+                //This means the buffer has reached it's end
+                break;
+            }
+
+            if (block == (blockCount - 1)) {
+                //This means it will be the final lap and only the relevant bytes should be put to the response
+                int finalByteCount = numberOfRemainingBytesToBeRead - (fixedBufferSize * block);
+                //We need to identify the content ready to be read
+                fixedBuffer.flip();
+                byte[] finalContent = copyFinalContent(finalByteCount);
+                fixedBuffer.position(finalContent.length);
+                //Will take the un-read bytes forward
+                fixedBuffer.compact();
+                responseBuffer.put(finalContent, 0, finalContent.length);
+            } else {
+                //Making the fixed buffer readable
+                fixedBuffer.flip();
+                responseBuffer.put(fixedBuffer);
+            }
+
+        }
+    }
+
+    /**
+     * Returns the last byte block read
+     *
+     * @param finalByteCount the number of bytes read in the final block
+     * @return the number of bytes read from the channel
+     */
+    private byte[] copyFinalContent(int finalByteCount) {
+        byte[] finalContent;
+        if (fixedBuffer.remaining() < finalByteCount) {
+            //If the end of file has reached before acquiring the required bytes
+            finalContent = getBytes(fixedBuffer.remaining());
+        } else {
+            finalContent = getBytes(finalByteCount);
+        }
+        return finalContent;
+    }
+
+    /**
+     * <p>
+     * Returns a copy of the array for the specified content length index
+     * </p>
+     *
+     * @param toByteIndex final index of the bytes which should be copied from it's position
+     * @return the array which is copied from the buffer
+     */
+    private byte[] getBytes(int toByteIndex) {
+        byte[] finalContent;
+        finalContent = Arrays.copyOfRange(fixedBuffer.array(), fixedBuffer.position(), toByteIndex);
+        return finalContent;
     }
 
     /**
@@ -253,27 +297,12 @@ public class BByteChannel {
     public byte[] read(int numberOfBytes) throws IOException {
         byte[] bytesRead = new byte[0];
 
-        if (numberOfBytes < 0) {
-            String message = "Illegal number of bytes specified " + numberOfBytes + ", expected a positive integer";
-            throw new IOException(message);
+        if (shouldNotContinue(numberOfBytes)) {
+            return bytesRead;
         }
 
-        if (null != fixedBuffer) {
-            //We flip the buffer to read-mode
-            fixedBuffer.flip();
-        }
-
-        if (!hasReachedToEnd || (fixedBuffer != null && fixedBuffer.hasRemaining())) {
-            ByteBuffer readBuffer;
-
-            if (fixedBufferSize > 0) {
-                readBuffer = readFromFixedBuffer(numberOfBytes);
-            } else {
-                readBuffer = readFromChannel(numberOfBytes);
-            }
-
-            bytesRead = getByteArray(readBuffer);
-        }
+        ByteBuffer readBuffer = getBuffer(numberOfBytes);
+        bytesRead = getByteArray(readBuffer);
         return bytesRead;
     }
 
@@ -285,9 +314,24 @@ public class BByteChannel {
      * @throws IOException during I/O error
      */
     ByteBuffer getReadBuffer(int numberOfBytes) throws IOException {
+        ByteBuffer readBuffer;
 
-        ByteBuffer readBuffer = null;
+        if (shouldNotContinue(numberOfBytes)) {
+            return null;
+        }
 
+        readBuffer = getBuffer(numberOfBytes);
+        return readBuffer;
+    }
+
+    /**
+     * Returns whether the operations should be continues
+     *
+     * @param numberOfBytes number of bytes requested to be read
+     * @return true if the operations should not be continued
+     * @throws IOException during I/O error
+     */
+    private boolean shouldNotContinue(int numberOfBytes) throws IOException {
         if (numberOfBytes < 0) {
             String message = "Illegal number of bytes specified " + numberOfBytes + ", expected a positive integer";
             throw new IOException(message);
@@ -298,15 +342,30 @@ public class BByteChannel {
             fixedBuffer.flip();
         }
 
-        if (!hasReachedToEnd || (fixedBuffer != null && fixedBuffer.hasRemaining())) {
+        return hasReachedToEnd && (fixedBuffer == null || !fixedBuffer.hasRemaining());
+    }
 
-            if (fixedBufferSize > 0) {
-                readBuffer = readFromFixedBuffer(numberOfBytes);
-            } else {
-                readBuffer = readFromChannel(numberOfBytes);
-            }
+    /**
+     * <p>
+     * Based on the type of the buffer the bytes will be read and returned
+     * </p>
+     * <p>>
+     * There will be two types of buffers
+     * 1. Fixed size buffer, where the size of the buffer is fixed and the channel read will fill the buffer
+     * 2. The allocation of the buffer will be dynamic and the state will not be maintained
+     * </p>
+     *
+     * @param numberOfBytes number of to be read from the channel
+     * @return the Buffer which will hold the read content
+     * @throws IOException during I/O error when reading the buffer
+     */
+    private ByteBuffer getBuffer(int numberOfBytes) throws IOException {
+        ByteBuffer readBuffer;
+        if (fixedBufferSize > 0) {
+            readBuffer = readFromFixedBuffer(numberOfBytes);
+        } else {
+            readBuffer = readFromChannel(numberOfBytes);
         }
-
         return readBuffer;
     }
 

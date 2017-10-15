@@ -17,8 +17,9 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.characters;
 
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -55,7 +56,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
-        BByteChannel channel = new BByteChannel(byteChannel, 10);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 10);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
@@ -78,7 +79,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String text = "HelloǊ";

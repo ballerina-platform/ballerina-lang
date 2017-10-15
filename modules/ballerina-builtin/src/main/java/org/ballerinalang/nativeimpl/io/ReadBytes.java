@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,6 +48,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadBytes extends AbstractNativeFunction {
 
     /**
+     * Specifies the index which holds the number of bytes in ballerina.lo#readBytes
+     */
+    private static final int NUMBER_OF_BYTES_INDEX = 0;
+
+    /**
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
+    /**
      * Reads bytes from a given channel
      * <p>
      * {@inheritDoc}
@@ -60,8 +70,8 @@ public class ReadBytes extends AbstractNativeFunction {
         BInteger numberOfReadBytes;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
-            numberOfBytes = getIntArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            numberOfBytes = getIntArgument(context, NUMBER_OF_BYTES_INDEX);
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] readBytes = byteChannel.read((int) numberOfBytes);
             readByteBlob = new BBlob(readBytes);

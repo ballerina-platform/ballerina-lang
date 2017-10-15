@@ -18,23 +18,18 @@
 package org.ballerinalang.nativeimpl.tcp;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
+import org.ballerinalang.nativeimpl.io.channels.BSocketChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -55,43 +50,27 @@ import java.util.Iterator;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class OpenChannel extends AbstractNativeFunction {
+public class OpenChannel extends AbstractNativeChannel {
 
     /**
-     * represents the information related to the byte channel
+     * Specifies the address in ballerina.tcp#openChannel
      */
-    private StructInfo byteChannelStructInfo;
+    private static final int ADDRESS_INDEX = 0;
 
     /**
-     * The package path of the byte channel
+     * Specifies the destination in ballerina.tcp#openChannel
      */
-    private static final String BYTE_CHANNEL_PACKAGE = "ballerina.io";
+    private static final int DESTINATION_INDEX = 0;
 
     /**
-     * The type of the byte channel
+     * Specified the port in ballerina.tcp#openChannel
      */
-    private static final String STRUCT_TYPE = "ByteChannel";
+    private static final int PORT_INDEX = 0;
 
     /**
-     * Represents the type of the channel
+     * Specifies the permission in ballerina.tcp#openChannel
      */
-    private static final String CHANNEL_TYPE = "tcp";
-
-
-    /**
-     * Gets the struct related to BByteChannel
-     *
-     * @param context invocation context
-     * @return the struct related to BByteChannel
-     */
-    private StructInfo getByteChannelStructInfo(Context context) {
-        StructInfo result = byteChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(BYTE_CHANNEL_PACKAGE);
-            byteChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return byteChannelStructInfo;
-    }
+    private static final int PERMISSION_INDEX = 0;
 
     /**
      * Creates a tcp socket for the relevant destination
@@ -100,7 +79,7 @@ public class OpenChannel extends AbstractNativeFunction {
      * @param port    destination TCP port
      * @return I/O channel representation
      */
-    private ByteChannel createTcpSocketForWriting(String address, int port) throws IOException {
+    private SocketChannel createTcpSocketForWriting(String address, int port) throws IOException {
         InetSocketAddress destinationAddress = new InetSocketAddress(address, port);
         return SocketChannel.open(destinationAddress);
     }
@@ -111,7 +90,7 @@ public class OpenChannel extends AbstractNativeFunction {
 
         // Accept the connection and make it non-blocking
         SocketChannel socketChannel = serverSocketChannel.accept();
-        Socket socket = socketChannel.socket();
+       // Socket socket = socketChannel.socket();
         socketChannel.configureBlocking(false);
 
         // Register the new SocketChannel with our Selector, indicating
@@ -167,26 +146,16 @@ public class OpenChannel extends AbstractNativeFunction {
         }
     }
 
-
-    /**
-     * <p>
-     * Opens a TCP connection in ballerina
-     * </p>
-     * {@inheritDoc}
-     */
     @Override
-    public BValue[] execute(Context context) {
-
-        BStruct byteStruct;
+    public BByteChannel flow(Context context) throws BallerinaException {
+        BByteChannel byteChannel;
 
         try {
-            BStruct address = (BStruct) getRefArgument(context, 0);
-            String destination = address.getStringField(0);
-            int port = (int) address.getIntField(0);
-            String permission = getStringArgument(context, 0);
+            BStruct address = (BStruct) getRefArgument(context, ADDRESS_INDEX);
+            String destination = address.getStringField(DESTINATION_INDEX);
+            int port = (int) address.getIntField(PORT_INDEX);
+            String permission = getStringArgument(context, PERMISSION_INDEX);
             ByteChannel tcpSocket;
-
-            byteStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context), CHANNEL_TYPE);
 
             if ("r".contains(permission)) {
                 tcpSocket = createTcpSocketForReading(destination, port);
@@ -195,16 +164,13 @@ public class OpenChannel extends AbstractNativeFunction {
                 tcpSocket = createTcpSocketForWriting(destination, port);
             }
 
-
-            BByteChannel byteChannel = new BByteChannel(tcpSocket);
-
-            byteStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            byteChannel = new BSocketChannel(tcpSocket);
 
         } catch (Throwable e) {
             String message = "Error occurred while opening TCP channel ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
 
-        return getBValues(byteStruct);
+        return byteChannel;
     }
 }

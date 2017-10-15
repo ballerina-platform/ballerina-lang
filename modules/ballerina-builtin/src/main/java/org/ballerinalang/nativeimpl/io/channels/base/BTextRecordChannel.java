@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.channels;
+package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.model.values.BStringArray;
 import org.slf4j.Logger;

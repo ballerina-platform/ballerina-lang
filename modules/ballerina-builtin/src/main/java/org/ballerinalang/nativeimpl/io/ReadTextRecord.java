@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BTextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,13 +42,19 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         isPublic = true
 )
 public class ReadTextRecord extends AbstractNativeFunction {
+
+    /**
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
         BStringArray record;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
 
             BTextRecordChannel textRecordChannel = (BTextRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);

@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,6 +46,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadCharacters extends AbstractNativeFunction {
 
     /**
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
+    /**
+     * Specifies the index which holds number of characters in ballerina.lo#readBytes
+     */
+    private static final int NUMBER_OF_CHARS_INDEX = 0;
+
+    /**
      * Reads characters from the channel
      * <p>
      * {@inheritDoc}
@@ -58,8 +68,8 @@ public class ReadCharacters extends AbstractNativeFunction {
         BString content;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
-            numberOfCharacters = getIntArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             BCharacterChannel characterChannel = (BCharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             String readBytes = characterChannel.read((int) numberOfCharacters);

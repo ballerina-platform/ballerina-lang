@@ -18,9 +18,10 @@
 package org.ballerinalang.test.nativeimpl.functions.io.records;
 
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.BTextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -58,7 +59,7 @@ public class RecordInputOutputTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -79,7 +80,7 @@ public class RecordInputOutputTest {
     public void readNonIndentedRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -101,7 +102,7 @@ public class RecordInputOutputTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 

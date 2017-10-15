@@ -17,7 +17,8 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -63,7 +64,7 @@ public class BytesInputOutputBufferTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         byte[] readBytes = channel.read(initialReadLimit);
 
         //This should hold the number of bytes read
@@ -102,7 +103,7 @@ public class BytesInputOutputBufferTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannel(byteChannel, 2);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 2);
         byte[] readBytes = channel.read(initialReadLimit);
 
         //This should hold the number of bytes read
@@ -126,7 +127,7 @@ public class BytesInputOutputBufferTest {
         int expectedLimit = 6;
 
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         byte[] readBytes = channel.read(requestedLimit);
 
         channel.close();
@@ -137,7 +138,7 @@ public class BytesInputOutputBufferTest {
     public void writeBytesToFile() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        BByteChannel channel = new BByteChannel(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel);
         byte[] bytes = "hello".getBytes();
         int numberOfBytesWritten = channel.write(bytes, 0);
 

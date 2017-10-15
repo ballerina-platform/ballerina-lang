@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,6 +47,21 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class WriteCharacters extends AbstractNativeFunction {
 
     /**
+     * Index of the content provided in ballerina.io#writeCharacters
+     */
+    private static final int CONTENT_INDEX = 0;
+
+    /**
+     * Index of the character channel in ballerina.io#writeCharacters
+     */
+    private static final int CHAR_CHANNEL_INDEX = 0;
+
+    /**
+     * Index of the start offset in ballerina.io#writeCharacters
+     */
+    private static final int START_OFFSET_INDEX = 0;
+
+    /**
      * Writes characters to a given file
      * {@inheritDoc}
      */
@@ -58,9 +73,9 @@ public class WriteCharacters extends AbstractNativeFunction {
         int numberOfCharactersWritten;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
-            content = getStringArgument(context, 0);
-            startOffset = getIntArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
+            content = getStringArgument(context, CONTENT_INDEX);
+            startOffset = getIntArgument(context, START_OFFSET_INDEX);
 
             BCharacterChannel characterChannel = (BCharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);

@@ -4,9 +4,7 @@ import ballerina.doc;
 
 
 @doc:Description {value:"Ballerina ByteChannel represents an I/O channel which could be used to source/sink"}
-@doc:Field {value:"channelType: specified the type of the channel i.e file/netowrk socket"}
 public struct ByteChannel{
-    string channelType;
 }
 
 @doc:Description {value:"Ballerina CharacterChannel reprsents reading character streams from a byte channel"}

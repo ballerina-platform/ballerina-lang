@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,6 +47,21 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class WriteBytes extends AbstractNativeFunction {
 
     /**
+     * Index which holds the byte channel in ballerina.io#writeBytes
+     */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
+    /**
+     * Index which holds the content in ballerina.io#writeBytes
+     */
+    private static final int CONTENT_INDEX = 0;
+
+    /**
+     * Index which holds the start offset in ballerina.io#writeBytes
+     */
+    private static final int START_OFFSET_INDEX = 0;
+
+    /**
      * Writes bytes to a given channel
      * <p>
      * {@inheritDoc}
@@ -59,9 +74,9 @@ public class WriteBytes extends AbstractNativeFunction {
         int numberOfBytesWritten;
 
         try {
-            channel = (BStruct) getRefArgument(context, 0);
-            content = getBlobArgument(context, 0);
-            startOffset = getIntArgument(context, 0);
+            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            content = getBlobArgument(context, CONTENT_INDEX);
+            startOffset = getIntArgument(context, START_OFFSET_INDEX);
 
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
 
