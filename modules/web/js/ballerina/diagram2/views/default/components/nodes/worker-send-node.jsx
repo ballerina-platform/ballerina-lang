@@ -49,9 +49,16 @@ class WorkerSendNode extends React.Component {
         const model = this.props.model;
         const expression = model.viewState.expression;
         const viewState = model.viewState;
-        const arrowStart = viewState.components['invocation-arrow'].start;
-        const arrowEnd = viewState.components['invocation-arrow'].end;
-        const backward = viewState.components['invocation-arrow'].backward;
+        const isInvocationArrowPresent = viewState.components['invocation-arrow'];
+        let arrowStart;
+        let arrowEnd;
+        let backward;
+
+        if (isInvocationArrowPresent) {
+            arrowStart = viewState.components['invocation-arrow'].start;
+            arrowEnd = viewState.components['invocation-arrow'].end;
+            backward = viewState.components['invocation-arrow'].backward;
+        }
 
         return (
             <g>
@@ -61,11 +68,13 @@ class WorkerSendNode extends React.Component {
                     expression={expression}
                     editorOptions={this.editorOptions}
                 />
-                <ArrowDecorator
-                    start={arrowStart}
-                    end={arrowEnd}
-                    backward={backward}
-                />
+                {isInvocationArrowPresent &&
+                    <ArrowDecorator
+                        start={arrowStart}
+                        end={arrowEnd}
+                        backward={backward}
+                    />
+                }
             </g>);
     }
 }

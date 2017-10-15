@@ -32,6 +32,7 @@ class Clean {
         node.viewState.offSet = 0;
         node.viewState.hidden = false;
         node.viewState.dimensionsSynced = false;
+        node.viewState.components['invocation-arrow'] = undefined;
     }
 
     endVisit(node) {

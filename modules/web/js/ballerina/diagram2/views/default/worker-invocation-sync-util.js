@@ -34,21 +34,30 @@ class WorkerInvocationSyncUtil {
         }
         const workerList = node.parent.parent.parent.workers;
         const sendTo = TreeUtil.getWorkerByName(node.workerName.value, workerList);
-        const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
-        const receiverNode = TreeUtil.getReceiverForSender(sendTo);
-        const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
-        const heightToReceiver = this.getHeightUptoNode(sendTo.body.statements, receiverNode);
 
-        if (heightToCurrentNode > heightToReceiver) {
-            receiverNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToReceiver);
-            receiverNode.viewState.bBox.h += (heightToCurrentNode - heightToReceiver);
-        } else {
-            node.viewState.components['drop-zone'].h += (heightToReceiver - heightToCurrentNode);
-            node.viewState.bBox.h += (heightToReceiver - heightToCurrentNode);
+        if (sendTo) {
+            const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
+            // TODO: Currently, assume that the sender is a direct child of a worker
+            const workerOwningSender = node.parent.parent;
+            const receiverNode = TreeUtil.getReceiverForSender(sendTo, workerOwningSender);
+
+            if (receiverNode) {
+                const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
+                const heightToReceiver = this.getHeightUptoNode(sendTo.body.statements, receiverNode);
+
+                if (heightToCurrentNode > heightToReceiver) {
+                    receiverNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToReceiver);
+                    receiverNode.viewState.bBox.h += (heightToCurrentNode - heightToReceiver);
+                } else {
+                    node.viewState.components['drop-zone'].h += (heightToReceiver - heightToCurrentNode);
+                    node.viewState.bBox.h += (heightToReceiver - heightToCurrentNode);
+                }
+
+                receiverNode.viewState.dimensionsSynced = true;
+            }
         }
 
         node.viewState.dimensionsSynced = true;
-        receiverNode.viewState.dimensionsSynced = true;
     }
 
     syncWorkerReceiverNode(node) {
@@ -57,21 +66,28 @@ class WorkerInvocationSyncUtil {
         }
         const workerList = node.parent.parent.parent.workers;
         const receiveFrom = TreeUtil.getWorkerByName(node.workerName.value, workerList);
-        const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
-        const senderNode = TreeUtil.getSenderForReceiver(receiveFrom);
-        const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
-        const heightToSender = this.getHeightUptoNode(receiveFrom.body.statements, senderNode);
 
-        if (heightToCurrentNode > heightToSender) {
-            senderNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToSender);
-            senderNode.viewState.bBox.h += (heightToCurrentNode - heightToSender);
-        } else {
-            node.viewState.components['drop-zone'].h += (heightToSender - heightToCurrentNode);
-            node.viewState.bBox.h += (heightToSender - heightToCurrentNode);
+        if (receiveFrom) {
+            const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
+            const senderNode = TreeUtil.getSenderForReceiver(receiveFrom);
+
+            if (senderNode) {
+                const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
+                const heightToSender = this.getHeightUptoNode(receiveFrom.body.statements, senderNode);
+
+                if (heightToCurrentNode > heightToSender) {
+                    senderNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToSender);
+                    senderNode.viewState.bBox.h += (heightToCurrentNode - heightToSender);
+                } else {
+                    node.viewState.components['drop-zone'].h += (heightToSender - heightToCurrentNode);
+                    node.viewState.bBox.h += (heightToSender - heightToCurrentNode);
+                }
+
+                senderNode.viewState.dimensionsSynced = true;
+            }
         }
 
         node.viewState.dimensionsSynced = true;
-        senderNode.viewState.dimensionsSynced = true;
     }
 
     getHeightUptoNode(statements, node) {

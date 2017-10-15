@@ -273,10 +273,10 @@ class TreeUtil extends AbstractTreeUtil {
      * @param {object} worker - worker node
      * @return {*} index of the statement
      */
-    getReceiverForSender(worker) {
+    getReceiverForSender(worker, sender) {
         const statements = worker.body.statements;
         const receiverIndex = _.findIndex(statements, (stmt) => {
-            return this.isWorkerReceive(stmt);
+            return this.isWorkerReceive(stmt) && stmt.workerName.value === sender.name.value;
         });
 
         if (receiverIndex >= 0) {
@@ -315,7 +315,7 @@ class TreeUtil extends AbstractTreeUtil {
             return worker.name.value === workerName;
         });
 
-        return workerList[index];
+        return index >= 0 ? workerList[index] : undefined;
     }
 
     /**
