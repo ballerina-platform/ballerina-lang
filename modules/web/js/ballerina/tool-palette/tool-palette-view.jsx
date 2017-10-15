@@ -379,9 +379,11 @@ class ToolPaletteView extends React.Component {
         }
 
         if (withFunctions) {
-            const functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
+            let functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
                 return functionDef.getName();
             }]);
+            // temporary fix for duplicate functions.
+            functionsOrdered = _.uniqBy(functionsOrdered, (item) => { return item.getName(); });
 
             _.each(functionsOrdered, (functionDef) => {
                 if (functionDef.getName() === 'main') {
