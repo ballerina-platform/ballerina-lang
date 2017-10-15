@@ -17,9 +17,12 @@
 */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.BLangCompiler;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -30,6 +33,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.USER_HOME;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
@@ -86,7 +92,17 @@ public class UserRepositoryUtils {
         // Let's try to compile and see.
         // If it won't compile, we won't install the package
         Path packagePath = Paths.get(packageStr);
-        BLangCompiler.compile(sourceRootPath, packagePath);
+
+        CompilerContext context = new CompilerContext();
+        CompilerOptions cOptions = CompilerOptions.getInstance(context);
+        cOptions.put(SOURCE_ROOT, sourceRootPath.toString());
+        cOptions.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        cOptions.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(packagePath.toString());
+
         Path srcDirectoryPath = BLangPrograms.validateAndResolveSourcePath(sourceRootPath, packagePath);
 
         Path packageName = BLangPackages.convertToPackageName(packagePath);

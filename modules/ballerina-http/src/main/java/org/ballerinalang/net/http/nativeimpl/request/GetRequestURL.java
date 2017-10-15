@@ -24,8 +24,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -35,16 +35,16 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Get the request url of the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "getRequestURL",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetRequestURL extends AbstractNativeFunction {
-    String requestURL = "";
     public BValue[] execute(Context ctx) {
+        String requestURL = "";
         BStruct requestStruct  = ((BStruct) getRefArgument(ctx, 0));
         //TODO check below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);

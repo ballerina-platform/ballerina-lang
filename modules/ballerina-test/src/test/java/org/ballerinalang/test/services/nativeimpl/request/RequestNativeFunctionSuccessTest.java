@@ -76,7 +76,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(headerName), headerValue);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testCloneMethod() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
@@ -101,12 +101,12 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
     }
 
+    //TODO Test this with multipart support, not needed for now
     @Test(enabled = false)
     public void testGetBinaryPayloadMethod() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "ballerina";
-        //TODO add payload properly and enable test
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         cMsg.setMessageDataSource(dataSource);
@@ -171,16 +171,6 @@ public class RequestNativeFunctionSuccessTest {
     }
 
     @Test
-    public void testGetMethod() {
-        String path = "/hello/11";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), Constants.HTTP_METHOD_GET);
-    }
-
-    @Test
     public void testGetProperty() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
@@ -194,16 +184,6 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
-    }
-
-    @Test
-    public void testGetRequestURL() {
-        String path = "/hello/12";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), path);
     }
 
     @Test
@@ -374,6 +354,26 @@ public class RequestNativeFunctionSuccessTest {
         BXMLItem xmlValue = (BXMLItem) response.getMessageDataSource();
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina"
                 , "Payload is not set properly");
+    }
+
+    @Test
+    public void testGetMethod() {
+        String path = "/hello/11";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), Constants.HTTP_METHOD_GET);
+    }
+
+    @Test
+    public void testGetRequestURL() {
+        String path = "/hello/12";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), path);
     }
 
     @AfterClass

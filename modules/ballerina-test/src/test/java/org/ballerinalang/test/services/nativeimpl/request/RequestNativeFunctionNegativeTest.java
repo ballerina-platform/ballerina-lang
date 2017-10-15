@@ -167,8 +167,8 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 85)
-                , "error while retrieving XML payload from message: empty content");
+        Assert.assertTrue(error.contains("error: error, message: error while retrieving XML payload from message: " +
+                "Unexpected EOF in prolog"));
     }
 
     @Test
@@ -215,7 +215,7 @@ public class RequestNativeFunctionNegativeTest {
     }
 
     @Test
-    public void testGetRequestURL() {
+    public void testGetRequestURLNegative() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
@@ -229,16 +229,17 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetBinaryPayloadMethod() {
-        //TODO
+        //TODO Test this with multipart support, not needed for now
     }
 
     @Test
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
-        BTestUtils.validateError(resultNegative, 0, "undefined function 'setStatusCode'", 5, 5);
+        BTestUtils.validateError(resultNegative, 0,
+                                 "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
         //testRequestGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 35);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
     }
 
 }

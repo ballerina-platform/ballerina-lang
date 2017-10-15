@@ -45,7 +45,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         result = BTestUtils.compile("test-src/types/any/any-type-native-success.bal");
     }
 
-    @Test(description = "Test json value in any type get casted to xml in two steps", enabled = false)
+    @Test(description = "Test json value in any type get casted to xml in two steps")
     public void testJsonInAnyCastToX() {
         BValue[] returns = BTestUtils.invoke(result, "successfulXmlCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);

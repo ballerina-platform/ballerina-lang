@@ -208,7 +208,6 @@ public interface InstructionCodes {
     int ANY2JSON = 170;
     int ANY2XML = 171;
     int ANY2MAP = 172;
-    int ANY2MSG = 173;
     int ANY2DT = 174;
 
     int ANY2T = 178;
@@ -226,6 +225,8 @@ public interface InstructionCodes {
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
     int FORKJOIN = 192;
+    int WRKSTART = 193;
+    int WRKRETURN = 194;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -240,7 +241,6 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
-    int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
     int IRET = 231;

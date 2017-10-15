@@ -43,7 +43,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = EnvironmentInitializer.setupProgramFile("test-src/statements/services/echoService.bal");
+        compileResult = EnvironmentInitializer.setupProgramFile("test-src/services/echoService.bal");
     }
 
     @Test
@@ -52,6 +52,13 @@ public class ServiceTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
+    }
+    
+    @Test
+    public void testServiceDispatchingWithWorker() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
     }
 
     @Test(description = "Test for service availability check")
@@ -182,7 +189,7 @@ public class ServiceTest {
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue().substring(86, 107), "empty message payload");
+        Assert.assertTrue(stringDataSource.getValue().contains("empty message payload"));
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
@@ -194,7 +201,7 @@ public class ServiceTest {
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue().substring(86, 108), "unsupported media type");
+        Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
     }
 
     @AfterClass

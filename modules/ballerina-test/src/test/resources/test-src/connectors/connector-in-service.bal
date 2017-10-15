@@ -1,5 +1,5 @@
-import ballerina.lang.messages;
 import ballerina.lang.strings;
+import ballerina.net.http;
 
 const string myConst = "MyParam1";
 
@@ -27,7 +27,7 @@ connector TestConnector(string param1, string param2, int param3) {
 
     action action5(string actionParam) (string) {
         string s;
-        s = EchoConnector.echoAction(echoConnector, actionParam);
+        s = echoConnector.echoAction(actionParam);
         return s;
     }
 
@@ -35,7 +35,7 @@ connector TestConnector(string param1, string param2, int param3) {
         EchoConnector localEchoConnector = create EchoConnector(echoConnectorParam);
         string s;
 
-        s =  EchoConnector.echoAction(localEchoConnector, actionParam);
+        s =  localEchoConnector.echoAction(actionParam);
         return s;
     }
 }
@@ -48,66 +48,69 @@ connector EchoConnector(string greeting) {
 
 }
 
-@BasePath {value:"/invoke"}
-service actionInvokeService {
+@http:configuration {
+    basePath:"/invoke"
+}
+service<http> actionInvokeService {
 
     TestConnector testConnector = create TestConnector(myConst, "MyParam2", 5);
 
-    @GET{}
-    @Path {value:"/action3"}
-    resource action3Resource (message m) {
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/action3"
+    }
+    resource action3Resource (http:Request req, http:Response res) {
 
         string actionResponse;
-
         actionResponse = testConnector.action3();
-        message response = {};
-        messages:setStringPayload(response, actionResponse);
-        reply response;
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 
-
-    @GET{}
-    @Path {value:"/action1"}
-    resource action1Resource (message m) {
+    
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/action1"
+    }
+    resource action1Resource (http:Request req, http:Response res) {
 
         boolean actionResponse;
-
         actionResponse = testConnector.action1();
-        message response = {};
-        messages:setStringPayload(response, strings:valueOf(actionResponse));
-        reply response;
+        res.setStringPayload(strings:valueOf(actionResponse));
+        res.send();
     }
-
-
-    @GET{}
-    @Path {value:"/action2"}
-    resource action2Resource (message m) {
+    
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/action2"
+    }
+    resource action2Resource (http:Request req, http:Response res) {
 
         testConnector.action2();
-        reply m;
+        res.send();
     }
 
-    @GET{}
-    @Path {value:"/action5"}
-    resource action5Resource (message m) {
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/action5"
+    }
+    resource action5Resource (http:Request req, http:Response res) {
 
         string actionResponse;
-
         actionResponse = testConnector.action5(myConst);
-        message response = {};
-        messages:setStringPayload(response, actionResponse);
-        reply response;
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 
-    @GET{}
-    @Path {value:"/action6"}
-    resource action6Resource (message m) {
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/action6"
+    }
+    resource action6Resource (http:Request req, http:Response res) {
 
         string actionResponse;
-
         actionResponse = testConnector.action6("Hello", "World");
-        message response = {};
-        messages:setStringPayload(response, actionResponse);
-        reply response;
+        res.setStringPayload(actionResponse);
+        res.send();
     }
 }

@@ -110,12 +110,13 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -405,7 +406,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        serviceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        serviceNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentServiceInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.env);
@@ -418,7 +419,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        resourceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        resourceNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv resourceEnv = SymbolEnv
@@ -432,7 +433,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        funcNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        funcNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
     }
@@ -441,12 +442,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
         for (BLangStatement stmt : blockNode.stmts) {
-            addLineNumberInfo(stmt);
+            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
+                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                addLineNumberInfo(stmt.pos);
+            }
 
             genNode(stmt, blockEnv);
 
             // Update the maxRegIndexes structure
-            setMaxRegIndexes();
+            setMaxRegIndexes(regIndexes, maxRegIndexes);
 
             // Reset the regIndexes structure for every statement
             regIndexes = new VariableIndex();
@@ -490,26 +494,14 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangReturn returnNode) {
-        BLangExpression expr;
-        int i = 0;
-        while (i < returnNode.exprs.size()) {
-            expr = returnNode.exprs.get(i);
-            this.genNode(expr, this.env);
-            if (expr.isMultiReturnExpr()) {
-                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
-                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
-                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
-                    i++;
-                }
-            } else {
-                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
-                i++;
-            }
-        }
-        generateFinallyInstructions(returnNode);
+        visitReturnStatementsExprs(returnNode);
         emit(InstructionCodes.RET);
     }
 
+    public void visit(BLangWorkerReturn returnNode) {
+        visitReturnStatementsExprs(returnNode);
+        this.emit(InstructionFactory.get(InstructionCodes.WRKRETURN));
+    }
 
     public void visit(BLangTransform transformNode) {
         this.genNode(transformNode.body, this.env);
@@ -595,7 +587,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        BType etype = ((BArrayType) arrayLiteral.type).eType;
+        BType etype;
+        if (arrayLiteral.type.tag == TypeTags.ANY) {
+            etype = arrayLiteral.type;
+        } else {
+            etype = ((BArrayType) arrayLiteral.type).eType;
+        }
 
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, arrayLiteral.type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
@@ -779,7 +776,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionVarRef functionVarRef) {
-        visitFunctionPointerLoad((BInvokableSymbol) functionVarRef.symbol);
+        visitFunctionPointerLoad(functionVarRef, (BInvokableSymbol) functionVarRef.symbol);
     }
 
     @Override
@@ -1188,7 +1185,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        visitFunctionPointerLoad(((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
+        visitFunctionPointerLoad(bLangLambdaFunction, ((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
     }
 
 
@@ -1355,16 +1352,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     break;
             }
 
-        } else if (attributeNode.value != null) {
-            // Annotation attribute value is another annotation attachment
-            BLangAnnotationAttachment attachment = (BLangAnnotationAttachment) attributeNode.value;
-            AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
-
-            String typeDesc = TypeDescriptor.SIG_ANNOTATION;
-            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
-            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
-            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
-
         } else if (attributeNode.value != null
                 && attributeNode.value instanceof BLangSimpleVarRef) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) attributeNode.value;
@@ -1386,6 +1373,16 @@ public class CodeGenerator extends BLangNodeVisitor {
             attribValue.setConstVarExpr(true);
 
             programFile.addUnresolvedAnnAttrValue(attribValue);
+        } else if (attributeNode.value != null) {
+            // Annotation attribute value is another annotation attachment
+            BLangAnnotationAttachment attachment = (BLangAnnotationAttachment) attributeNode.value;
+            AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
+
+            String typeDesc = TypeDescriptor.SIG_ANNOTATION;
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
+
         } else {
             List<BLangAnnotAttachmentAttributeValue> attributeValues =
                     attributeNode.arrayValues;
@@ -1427,7 +1424,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                     localVarAttributeInfo, invokableSymbolEnv, true, lvIndexCopy);
             for (BLangWorker worker : invokableNode.getWorkers()) {
                 this.processWorker(invokableNode, callableUnitInfo.getWorkerInfo(worker.name.value),
-                        worker.body, localVarAttributeInfo, invokableSymbolEnv, false, lvIndexCopy);
+                        worker.body, localVarAttributeInfo, invokableSymbolEnv, false, this.copyVarIndex(lvIndexCopy));
             }
         }
     }
@@ -1442,13 +1439,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
             localVarAttrInfo.localVars = new ArrayList<>(localVarAttributeInfo.localVars);
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
-            this.lvIndexes = this.copyVarIndex(lvIndexCopy);
+            this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (invokableNode.retParams.isEmpty() && defaultWorker) {
-                /* for functions that has no return values, we must provide a default
-                 * return statement to stop the execution and jump to the caller */
-                this.emit(InstructionCodes.RET);
+            if (defaultWorker) {
+                if (invokableNode.workers.size() > 0) {
+                    this.emit(InstructionCodes.WRKSTART);
+                }
             }
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
@@ -1485,10 +1482,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         localVarAttrInfo.localVars.add(localVarInfo);
     }
 
-    private void visitServiceAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
+    private void visitAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
                                                   AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
         annotationAttributeInfo.attachmentList.add(attachmentInfo);
+    }
+
+    private void visitReturnStatementsExprs(BLangReturn returnNode) {
+        BLangExpression expr;
+        int i = 0;
+        while (i < returnNode.exprs.size()) {
+            expr = returnNode.exprs.get(i);
+            this.genNode(expr, this.env);
+            if (expr.isMultiReturnExpr()) {
+                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
+                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
+                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
+                    i++;
+                }
+            } else {
+                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
+                i++;
+            }
+        }
+        generateFinallyInstructions(returnNode);
     }
 
     private VariableIndex copyVarIndex(VariableIndex that) {
@@ -1526,19 +1543,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         maxRegIndexes = new VariableIndex();
     }
 
-    private void setMaxRegIndexes() {
-        maxRegIndexes.tInt = (maxRegIndexes.tInt > regIndexes.tInt) ?
-                maxRegIndexes.tInt : regIndexes.tInt;
-        maxRegIndexes.tFloat = (maxRegIndexes.tFloat > regIndexes.tFloat) ?
-                maxRegIndexes.tFloat : regIndexes.tFloat;
-        maxRegIndexes.tString = (maxRegIndexes.tString > regIndexes.tString) ?
-                maxRegIndexes.tString : regIndexes.tString;
-        maxRegIndexes.tBoolean = (maxRegIndexes.tBoolean > regIndexes.tBoolean) ?
-                maxRegIndexes.tBoolean : regIndexes.tBoolean;
-        maxRegIndexes.tBlob = (maxRegIndexes.tBlob > regIndexes.tBlob) ?
-                maxRegIndexes.tBlob : regIndexes.tBlob;
-        maxRegIndexes.tRef = (maxRegIndexes.tRef > regIndexes.tRef) ?
-                maxRegIndexes.tRef : regIndexes.tRef;
+    private void setMaxRegIndexes(VariableIndex current, VariableIndex max) {
+        max.tInt = (max.tInt > current.tInt) ? max.tInt : current.tInt;
+        max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
+        max.tString = (max.tString > current.tString) ? max.tString : current.tString;
+        max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
+        max.tBlob = (max.tBlob > current.tBlob) ? max.tBlob : current.tBlob;
+        max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
     private void prepareIndexes(VariableIndex indexes) {
@@ -1789,21 +1800,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
         PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
-        String protocolPkg = protocolPkgId.getName().value;
-        int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
-        ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
-        // Add service level variables
-        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
-        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-        serviceNode.vars.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
-        serviceInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
-        // Create the init function info
-        BLangFunction serviceInitFunction = (BLangFunction) serviceNode.getInitFunction();
-        createFunctionInfoEntry(serviceInitFunction);
-        serviceInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(serviceInitFunction.name.toString());
-        currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
-        // Create resource info entries for all resources
-        serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
+        if (protocolPkgId != null) {
+            String protocolPkg = protocolPkgId.getName().value;
+            int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
+            ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
+            // Add service level variables
+            int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo,
+                                                      AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+            LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+            serviceNode.vars.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
+            serviceInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
+            // Create the init function info
+            BLangFunction serviceInitFunction = (BLangFunction) serviceNode.getInitFunction();
+            createFunctionInfoEntry(serviceInitFunction);
+            serviceInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(serviceInitFunction.name.toString());
+            currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
+            // Create resource info entries for all resources
+            serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
+        }
     }
 
     private void createResourceInfoEntry(BLangResource resourceNode, ServiceInfo serviceInfo) {
@@ -1841,11 +1855,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         return errorTable;
     }
 
-    private void addLineNumberInfo(BLangStatement statement) {
-        DiagnosticPos pos = statement.pos;
-        if (NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
-            return;
-        }
+    private void addLineNumberInfo(DiagnosticPos pos) {
         LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
         lineNoAttrInfo.addLineNumberInfo(lineNumInfo);
     }
@@ -2080,6 +2090,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
+        forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
     }
@@ -2189,7 +2200,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        connectorNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        connectorNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentConnectorInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, this.env);
@@ -2204,7 +2215,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        actionNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        actionNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv actionEnv = SymbolEnv
@@ -2213,7 +2224,13 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        /* ignore */
+        StructInfo structInfo = currentPkgInfo.getStructInfo(structNode.getName().getValue());
+
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        structNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
+        structInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
     }
 
     public void visit(BLangEnum enumNode) {
@@ -2274,7 +2291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
         generateFinallyInstructions(continueNode, NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
@@ -2294,6 +2311,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
+        addLineNumberInfo(ifNode.pos);
         this.genNode(ifNode.expr, this.env);
         Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
         this.emit(ifCondJumpInstr);
@@ -2332,8 +2350,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(transactionNode.retryCount, this.env);
             retryCountAvailable = 1;
         }
-        //TODO:Add below error handling code
-        //ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
         Instruction gotoStartOfAbortedBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
         abortInstructions.push(gotoStartOfAbortedBlock);
@@ -2389,9 +2407,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         emit(InstructionFactory.get(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
-        //TODO:Add below error handling code
-        //ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
-        //errorTable.addErrorTableEntry(errorTableEntry);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        errorTable.addErrorTableEntry(errorTableEntry);
         emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
     }
 
@@ -2570,17 +2588,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
-        
+
         genNode(xmlAttributeAccessExpr.expr, this.env);
         int varRefRegIndex = xmlAttributeAccessExpr.expr.regIndex;
-        
+
         if (xmlAttributeAccessExpr.indexExpr == null) {
             int xmlValueRegIndex = ++regIndexes.tRef;
             emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
             xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
             return;
         }
-        
+
         BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
         genNode(xmlAttributeAccessExpr.indexExpr, this.env);
         int qnameRegIndex = xmlAttributeAccessExpr.indexExpr.regIndex;
@@ -2628,6 +2646,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Handle catch blocks.
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
             genNode(bLangCatch, env);
             unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
@@ -2680,13 +2699,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    private void visitFunctionPointerLoad(BInvokableSymbol funcSymbol) {
+    private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
+        fpExpr.regIndex = nextIndex;
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
     }
 

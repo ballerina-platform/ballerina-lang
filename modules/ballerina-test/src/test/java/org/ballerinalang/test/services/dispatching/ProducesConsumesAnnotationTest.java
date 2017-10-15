@@ -21,6 +21,7 @@ package org.ballerinalang.test.services.dispatching;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.utils.CompileResult;
@@ -40,14 +41,14 @@ public class ProducesConsumesAnnotationTest {
     @BeforeClass()
     public void setup() {
         compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/producesConsumesTest.bal");
+                .setupProgramFile("test-src/services/dispatching/producesConsumesTest.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
     public void testConsumesAnnotation() {
         String path = "/echo66/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "compileResult/xml; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "application/xml; charset=ISO-8859-4");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -55,10 +56,10 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(bJson.value().get("msg").asText(), "wso2", "Content type matched");
     }
 
-    @Test(description = "Test incorrect Consumes annotation with URL. /echo66/test1 ", enabled = false)
+    @Test(description = "Test incorrect Consumes annotation with URL. /echo66/test1 ")
     public void testIncorrectConsumesAnnotation() {
         String path = "/echo66/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "compileResult/json");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -67,10 +68,10 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(trueResponse, 415, "Unsupported media type");
     }
 
-    @Test(description = "Test bogus Consumes annotation with URL. /echo66/test1 ", enabled = false)
+    @Test(description = "Test bogus Consumes annotation with URL. /echo66/test1 ")
     public void testBogusConsumesAnnotation() {
         String path = "/echo66/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, ",:vhjv");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -126,10 +127,10 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(bJson.value().get("msg").asText(), "wso22", "media type matched");
     }
 
-    @Test(description = "Test incorrect Produces annotation with URL. /echo66/test2 ", enabled = false)
+    @Test(description = "Test incorrect Produces annotation with URL. /echo66/test2 ")
     public void testIncorrectProducesAnnotation() {
         String path = "/echo66/test2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "multipart/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -138,10 +139,10 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
-    @Test(description = "Test bogus Produces annotation with URL. /echo66/test2 ", enabled = false)
+    @Test(description = "Test bogus Produces annotation with URL. /echo66/test2 ")
     public void testBogusProducesAnnotation() {
         String path = "/echo66/test2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, ":,;,v567br");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -163,10 +164,10 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(bJson.value().get("msg").asText(), "wso222", "media types matched");
     }
 
-    @Test(description = "Test Incorrect Produces and Consumes with URL. /echo66/test3 ", enabled = false)
+    @Test(description = "Test Incorrect Produces and Consumes with URL. /echo66/test3 ")
     public void testIncorrectProducesConsumeAnnotation() {
         String path = "/echo66/test3";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain ; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "compileResult/xml, text/html");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);

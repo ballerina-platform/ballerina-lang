@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -36,11 +37,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Set HTTP StatusCode to the message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "setStatusCode",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "statusCode", type = TypeKind.INT)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "statusCode", type = TypeKind.INT)},
         isPublic = true
 )
 public class SetStatusCode extends AbstractNativeFunction {

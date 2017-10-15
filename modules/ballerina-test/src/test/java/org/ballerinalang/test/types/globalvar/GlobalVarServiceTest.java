@@ -38,10 +38,11 @@ public class GlobalVarServiceTest {
 
     @BeforeClass
     public void setup() {
-        result = EnvironmentInitializer.setupProgramFile("lang/globalvar/global-var-service.bal");
+        result = EnvironmentInitializer
+                .setupProgramFile("test-src/statements/variabledef/globalvar/global-var-service.bal");
     }
 
-    @Test(description = "Test defining global variables in services", enabled = false)
+    @Test(description = "Test defining global variables in services")
     public void testDefiningGlobalVarInService() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar/defined", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -53,7 +54,7 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "99.34323");
     }
 
-    @Test(description = "Test accessing global variables in service level", enabled = false)
+    @Test(description = "Test accessing global variables in service level")
     public void testAccessingGlobalVarInServiceLevel() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar/access-service-level", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -63,7 +64,7 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("serviceVarFloat").asText(), "99.34323");
     }
 
-    @Test(description = "Test changing global variables in resource level", enabled = false)
+    @Test(description = "Test changing global variables in resource level")
     public void testChangingGlobalVarInResourceLevel() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar/change-resource-level", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -73,7 +74,7 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
     }
 
-    @Test(description = "Test accessing changed global var in another resource in same service", enabled = false)
+    @Test(description = "Test accessing changed global var in another resource in same service")
     public void testAccessingChangedGlobalVarInAnotherResource() {
         HTTPCarbonMessage cMsgChange = MessageUtils.generateHTTPMessage("/globalvar/change-resource-level", "GET");
         Services.invokeNew(cMsgChange);
@@ -86,7 +87,7 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
     }
 
-    @Test(description = "Test accessing changed global var in another resource in different service", enabled = false)
+    @Test(description = "Test accessing changed global var in another resource in different service")
     public void testAccessingChangedGlobalVarInAnotherResourceInAnotherService() {
         HTTPCarbonMessage cMsgChange = MessageUtils.generateHTTPMessage("/globalvar/change-resource-level", "GET");
         Services.invokeNew(cMsgChange);

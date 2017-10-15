@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,19 +34,8 @@ public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
     private int dimensions = 1;
 
-    /**
-     * Create a type from the given name.
-     *
-     * @param typeName string name of the type
-     */
-    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope, int dimensions) {
-        super(typeName, pkgPath, symbolScope, BArray.class);
-        this.elementType = elementType;
-        this.dimensions = dimensions;
-    }
-
     public BArrayType(BType elementType) {
-        super(null, null, null, BArray.class);
+        super(null, null, BArray.class);
         this.elementType = elementType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;

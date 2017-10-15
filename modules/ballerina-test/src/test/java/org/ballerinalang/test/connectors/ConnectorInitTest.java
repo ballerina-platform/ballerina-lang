@@ -17,17 +17,14 @@
 */
 package org.ballerinalang.test.connectors;
 
-//import org.ballerinalang.model.values.BInteger;
-//import org.ballerinalang.model.values.BString;
-//import org.ballerinalang.model.values.BValue;
-//import org.ballerinalang.test.utils.BTestUtils;
-//import org.ballerinalang.test.utils.CompileResult;
-//import org.ballerinalang.util.codegen.ProgramFile;
-//import org.ballerinalang.util.exceptions.SemanticException;
-//import org.ballerinalang.util.program.BLangFunctions;
-//import org.testng.Assert;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test the hidden <init> function invocation in connectors.
@@ -36,55 +33,54 @@ package org.ballerinalang.test.connectors;
  */
 public class ConnectorInitTest {
 
-//    private ProgramFile programFile;
-//    CompileResult result;
-//
-//    @BeforeClass
-//    public void setup() {
-//        result = BTestUtils.compile("test-src/connectors/init");
-//    }
-//
-//    @Test(description = "Test Connector int functionality")
-//    public void testConnectorInit() {
-//        BValue[] args = {new BString("Apple"), new BInteger(13)};
-//
-//        BValue[] returns = BTestUtils.invoke(result, "lang.connectors.init",
-//                "testConnectorInit", args);
-//
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertSame(returns[1].getClass(), BString.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 151);
-//        Assert.assertEquals(returns[1].stringValue(), "151:Applesameera");
-//    }
+    CompileResult result;
 
-//    @Test(description = "Test connector init with invalid parameter count",
-//            expectedExceptions = { SemanticException.class },
-//            expectedExceptionsMessageRegExp = "connector-init-invalid-arg-count.bal:13: arguments count mismatch: " +
-//                    "expected 2, found 1")
-//    public void testConnectorInitWithInvalidArgCount() {
-//        BTestUtils.getProgramFile("lang/connectors/init/invalid/connector-init-invalid-arg-count.bal");
-//    }
-//
-//    @Test(description = "Test connector init using parameters with implicitly castable types")
-//    public void testConnectorInitWithImplicitCastableTypes() {
-//        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.connectors.init",
-//                "testConnectorInitWithImplicitCastableTypes", new BString[] {});
-//        Assert.assertEquals(returns.length, 2);
-//
-//        Assert.assertSame(returns[0].getClass(), BString.class);
-//        Assert.assertSame(returns[1].getClass(), BInteger.class);
-//
-//        Assert.assertEquals(returns[0].stringValue(), "John");
-//        Assert.assertEquals(((BInteger) returns[1]).intValue(), 40);
-//    }
-//
-//    @Test(description = "Test connector init with invalid parameter count",
-//            expectedExceptions = { SemanticException.class },
-//         expectedExceptionsMessageRegExp = "connector-init-invalid-arg-type.bal:13: incompatible types: expected " +
-//                "'int', found 'string'")
-//    public void testConnectorInitWithInvalidArgTypes() {
-//        BTestUtils.getProgramFile("lang/connectors/init/invalid/connector-init-invalid-arg-type.bal");
-//    }
+    @BeforeClass
+    public void setup() {
+        result = BTestUtils.compile("test-src/connectors/init");
+    }
+
+    @Test(description = "Test Connector int functionality")
+    public void testConnectorInit() {
+        BValue[] args = {new BString("Apple"), new BInteger(13)};
+        BValue[] returns = BTestUtils.invoke(result, "connectors.init",
+                "testConnectorInit", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 151);
+        Assert.assertEquals(returns[1].stringValue(), "151:Applesameera");
+    }
+
+
+
+    @Test(description = "Test connector init using parameters with implicitly castable types")
+    public void testConnectorInitWithImplicitCastableTypes() {
+        BValue[] returns = BTestUtils.invoke(result, "connectors.init",
+                "testConnectorInitWithImplicitCastableTypes", new BString[] {});
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "John");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 40);
+    }
+
+    @Test(description = "Test connector init with invalid parameter count")
+    public void testConnectorInitWithInvalidArgTypes() {
+        CompileResult resultNegative = BTestUtils
+                .compile("test-src/connectors/init/invalid/connector-init-arg-type-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 13, 32);
+    }
+
+    @Test(description = "Test connector init with invalid parameter count")
+    public void testConnectorInitWithInvalidArgCount() {
+        CompileResult resultNegative = BTestUtils
+                .compile("test-src/connectors/init/invalid/connector-init-arg-count-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "not enough arguments in call to 'Foo()'", 13, 13);
+    }
 }

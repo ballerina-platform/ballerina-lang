@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -34,8 +33,8 @@ public class BXMLType extends BType {
      *
      * @param typeName string name of the type
      */
-    BXMLType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BXML.class);
+    BXMLType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BXML.class);
     }
 
     @Override
