@@ -285,7 +285,7 @@ class CompoundStatementDecorator extends React.Component {
                 <rect
                     x={p3X}
                     y={statementBBox.y}
-                    width={statementBBox.w - paramSeparatorX + p3X}
+                    width={statementBBox.w - p3X + statementBBox.x}
                     height={titleH}
                     onClick={this.openExpressionEditor}
                     className="invisible-rect"
