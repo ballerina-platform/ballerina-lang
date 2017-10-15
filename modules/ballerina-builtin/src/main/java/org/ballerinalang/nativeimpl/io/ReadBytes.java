@@ -28,6 +28,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -39,8 +40,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "readBytes",
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT),
-                @Argument(name = "numberOfBytes", type = TypeKind.INT)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "numberOfBytes", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BLOB),
                 @ReturnType(type = TypeKind.INT)},
         isPublic = true

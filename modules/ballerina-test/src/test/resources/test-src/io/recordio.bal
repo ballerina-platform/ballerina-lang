@@ -5,16 +5,16 @@ io:TextRecordChannel textRecordChannel;
 
 function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
     files:File src = {path:filePath};
-    io:ByteChannel channel = files:openChannel(src, permission);
-    io:CharacterChannel  characterChannel = io:toCharacterChannel(channel,encoding);
-    textRecordChannel = io:toTextRecordChannel(characterChannel,rs,fs);
+    io:ByteChannel channel = src.openChannel(permission);
+    io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
+    textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
 }
 
 function readRecord () (string[]) {
-    string[] fields = io:readTextRecord(textRecordChannel);
+    string[] fields = textRecordChannel.readTextRecord();
     return fields;
 }
 
 function writeRecord (string[] fields) {
-    io:writeTextRecord(textRecordChannel, fields);
+    textRecordChannel.writeTextRecord(fields);
 }

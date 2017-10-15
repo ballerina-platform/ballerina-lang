@@ -3,19 +3,19 @@ import ballerina.io;
 
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     files:File src = {path:filePath};
-    io:ByteChannel channel = files:openChannel(src, permission);
+    io:ByteChannel channel = src.openChannel(permission);
     return channel;
 }
 
 function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
     blob bytes;
     int numberOfBytesRead;
-    bytes, numberOfBytesRead = io:readBytes(channel, numberOfBytes);
+    bytes, numberOfBytesRead = channel.readBytes(numberOfBytes);
     return bytes, numberOfBytesRead;
 }
 
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int) {
-    int numberOfBytesWritten = io:writeBytes(channel, content, startOffset);
+    int numberOfBytesWritten = channel.writeBytes(content, startOffset);
     return numberOfBytesWritten;
 }
 

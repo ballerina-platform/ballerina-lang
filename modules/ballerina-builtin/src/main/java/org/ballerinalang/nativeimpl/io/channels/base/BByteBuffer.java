@@ -26,11 +26,11 @@ import java.util.Arrays;
 
 /**
  * <p>
- *  Specialized ByteBuffer which will dynamically resize, maintain state and call the underlying ByteChannel as
- *  necessary to return the required amount of bytes
+ * Specialized ByteBuffer which will dynamically resize, maintain state and call the underlying ByteChannel as
+ * necessary to return the required amount of bytes
  * </p>
  * <p>
- *  BByteBuffer also focuses on offering the capability to read bytes through multiple channels and place into one
+ * BByteBuffer also focuses on offering the capability to read bytes through multiple channels and place into one
  * </p>
  */
 public class BByteBuffer {
@@ -151,8 +151,12 @@ public class BByteBuffer {
      * @param count the number of bytes which should be reversed
      */
     void reverse(int count) {
-        int reversedByteBufferPosition = byteBuffer.position() - count;
-        byteBuffer.position(reversedByteBufferPosition);
+        if (null != byteBuffer) {
+            int reversedByteBufferPosition = byteBuffer.position() - count;
+            byteBuffer.position(reversedByteBufferPosition);
+        } else {
+            log.error("An unread ByteBuffer is attempted for reverse, please read from buffer first");
+        }
     }
 
     /**

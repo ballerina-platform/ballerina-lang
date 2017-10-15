@@ -5,23 +5,22 @@ io:ByteChannel channel;
 
 function initFileChannel(string filePath, string permission){
     files:File src = {path:filePath};
-    files:openAsync(src, permission);
-    channel = io:toByteChannel(src);
+    channel = src.openChannel(permission);
 }
 
 function readBytes (int numberOfBytes) (blob) {
     blob bytes;
     int numberOfBytesRead;
-    bytes,numberOfBytesRead = io:readBytes(channel, numberOfBytes);
+    bytes,numberOfBytesRead = channel.readBytes(numberOfBytes);
     return bytes;
 }
 
 function writeBytes (blob content, int startOffset) (int) {
-    int numberOfBytesWritten = io:writeBytes(channel, content, startOffset);
+    int numberOfBytesWritten = channel.writeBytes(content, startOffset);
     return numberOfBytesWritten;
 }
 
 function close(){
-    io:close(channel);
+    channel.close();
 }
 

@@ -15,4 +15,4 @@ int port;
 @doc:Description {value:"Retrieves the channel of the TCP"}
 @doc:Param {value:"socket: TCP socket"}
 @doc:Param {value:"permission: whether the socket will be opened for reading or writing"}
-public native function openChannel (Socket socket, string permission) (io:ByteChannel);
+public native function <Socket socket> openChannel (string permission) (io:ByteChannel);

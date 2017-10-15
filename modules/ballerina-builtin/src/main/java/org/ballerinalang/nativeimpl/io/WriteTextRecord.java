@@ -26,6 +26,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -36,8 +37,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "writeTextRecord",
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT),
-                @Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TextRecordChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 public class WriteTextRecord extends AbstractNativeFunction {

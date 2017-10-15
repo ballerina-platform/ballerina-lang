@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -49,8 +50,8 @@ import java.util.Set;
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "openChannel",
-        args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "ballerina.lang.files"), @Argument(name = "accessMode", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.lang.files"),
+        args = {@Argument(name = "accessMode", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )

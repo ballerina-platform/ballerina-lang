@@ -26,6 +26,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -37,10 +38,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "writeCharacters",
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT),
-                @Argument(name = "content", type = TypeKind.STRING),
-                @Argument(name = "startOffset", type = TypeKind.INT)
-        },
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "content", type = TypeKind.STRING),
+                @Argument(name = "startOffset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

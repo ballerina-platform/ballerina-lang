@@ -25,6 +25,7 @@ import org.ballerinalang.nativeimpl.io.channels.BSocketChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -45,8 +46,8 @@ import java.util.Iterator;
 @BallerinaFunction(
         packageName = "ballerina.tcp",
         functionName = "openChannel",
-        args = {@Argument(name = "socket", type = TypeKind.STRUCT),
-                @Argument(name = "permission", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.tcp"),
+        args = {@Argument(name = "permission", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )

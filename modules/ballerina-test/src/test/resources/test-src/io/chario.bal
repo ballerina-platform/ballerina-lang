@@ -5,17 +5,17 @@ io:CharacterChannel characterChannel;
 
 function initFileChannel(string filePath,string permission,string encoding){
     files:File src = {path:filePath};
-    io:ByteChannel channel = files:openChannel(src, permission);
-    characterChannel = io:toCharacterChannel(channel,encoding);
+    io:ByteChannel channel = src.openChannel(permission);
+    characterChannel = channel.toCharacterChannel(encoding);
 }
 
 function readCharacters (int numberOfCharacters) (string) {
-    string characters = io:readCharacters(characterChannel, numberOfCharacters);
+    string characters = characterChannel.readCharacters(numberOfCharacters);
     return characters;
 }
 
 function writeCharacters (string content, int startOffset) (int) {
-    int numberOfCharactersWritten = io:writeCharacters(characterChannel, content, startOffset);
+    int numberOfCharactersWritten = characterChannel.writeCharacters(content, startOffset);
     return numberOfCharactersWritten;
 }
 
