@@ -196,6 +196,7 @@ class CompoundStatementDecorator extends React.Component {
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
         const statementBBox = viewState.components['statement-box'];
+        const displayExpression = viewState.components.expression;
 
         const p1X = statementBBox.x;
         const p1Y = statementBBox.y + titleH;
@@ -275,21 +276,25 @@ class CompoundStatementDecorator extends React.Component {
                 <text x={titleX} y={titleY} className="statement-text">{title}</text>
 
                 {expression &&
-                <text
-                    x={expressionX}
-                    y={titleY}
-                    className="condition-text"
-                >
-                    {expression.text}
-                </text>}
-                <rect
-                    x={p3X}
-                    y={statementBBox.y}
-                    width={statementBBox.w - p3X + statementBBox.x}
-                    height={titleH}
-                    onClick={this.openExpressionEditor}
-                    className="invisible-rect"
-                />
+                    <text
+                        x={expressionX}
+                        y={titleY}
+                        className="condition-text"
+                    >
+                        {displayExpression.text}
+                    </text>
+                }
+                <g>
+                    <rect
+                        x={p3X}
+                        y={statementBBox.y}
+                        width={statementBBox.w - p3X + statementBBox.x}
+                        height={titleH}
+                        onClick={this.openExpressionEditor}
+                        className="invisible-rect"
+                    />
+                    {expression && <title> {expression.text} </title>}
+                </g>
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
