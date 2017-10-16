@@ -11,15 +11,18 @@ struct Person {
 }
 
 function main (string[] args) {
-    // Create a new json which is constrained by Person struct.
-    json<Person> person = {};
+    // Create a new json which is constrained by Person struct. Only the fields defined in the Person struct can be
+    // accessed. If we try to access a non existing field, it will produce a compilation error.
+    json<Person> person = {name:"jon"};
 
     // We can access fields defined in the Person struct without any issue.
-    person.name = "Jon";
     person.age = 25;
     person.city = "Colombo";
     system:println(person);
 
-    // If we access a field which is not defined in the Person struct, it will cause a compilation error. Eg:-
-    // person.address = "";
+    // We can cast this constrained json to a json.
+    json employee = (json)person;
+    // After that, we can add new elements to the json.
+    employee.profession="Software Engineer";
+    system:println(employee);
 }
