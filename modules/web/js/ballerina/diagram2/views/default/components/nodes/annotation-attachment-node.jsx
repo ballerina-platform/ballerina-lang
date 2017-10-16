@@ -56,6 +56,7 @@ class AnnotationAttachmentNode extends React.Component {
         this.onPackageNameSelected = this.onPackageNameSelected.bind(this);
         this.onNameSelected = this.onNameSelected.bind(this);
         this.toggleCollapse = this.toggleCollapse.bind(this);
+        this.removeEmptyAttribute = this.removeEmptyAttribute.bind(this);
     }
 
     /**
@@ -143,6 +144,12 @@ class AnnotationAttachmentNode extends React.Component {
     toggleCollapse() {
         this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
         this.context.editor.update();
+    }
+
+    removeEmptyAttribute() {
+        this.setState({
+            addingEmptyAttribute: false,
+        });
     }
 
     /**
@@ -301,6 +308,7 @@ class AnnotationAttachmentNode extends React.Component {
                 model={addAttribute()}
                 annotationDefinitionModel={annotationDefModel}
                 parent={this.props.model}
+                removeEmptyAttribute={this.removeEmptyAttribute}
             />);
         }
         return (null);

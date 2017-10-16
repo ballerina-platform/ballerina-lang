@@ -274,11 +274,13 @@ class AnnotationAttribute extends React.Component {
                 attributeModel={this.props.model}
                 annotationDefinitionModel={this.props.annotationDefinitionModel}
                 parent={this.props.parent}
+                removeEmptyAttribute={this.props.removeEmptyAttribute}
             />);
         } else {
             return (<AnnotationAttributeKey
                 attributeModel={this.props.model}
                 parent={this.props.parent}
+                removeEmptyAttribute={this.props.removeEmptyAttribute}
             />);
         }
     }
@@ -520,11 +522,13 @@ AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttributeTreeNode).isRequired,
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
     parent: PropTypes.instanceOf(AnnotationAttachmentTreeNode),
+    removeEmptyAttribute: PropTypes.func,
 };
 
 AnnotationAttribute.defaultProps = {
     annotationDefinitionModel: undefined,
     parent: undefined,
+    removeEmptyAttribute: undefined,
 };
 
 AnnotationAttribute.contextTypes = {
