@@ -371,6 +371,18 @@ public class BLangFileRestService {
         });
         JsonObject result = new JsonObject();
         result.add("errors", errors);
+
+        // adding current package info whenever we have a parsed model
+        final Map<String, ModelPackage> modelPackage = new HashMap<>();
+        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
+        // Add 'packageInfo' only if there are any packages.
+        Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
+        if (packageInfoJson.isPresent()) {
+            Gson gson = new Gson();
+            JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
+            result.add("packageInfo", packageInfo);
+        }
+
         return result;
     }
 

@@ -66,12 +66,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.EmptyStackException;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -499,8 +499,8 @@ public class LangServerManager {
             // HashMap<String, byte[]> contentMap = new HashMap<>();
             // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
-             options = CompilerOptions.getInstance(compilerContext);
-             options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
+            options = CompilerOptions.getInstance(compilerContext);
+            options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
 
             // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
             // LangServerPackageRepository pkgRepo =
@@ -536,9 +536,9 @@ public class LangServerManager {
                 filterDataModel.setPackages(this.getPackages());
 
                 completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
-            } catch (NullPointerException | EmptyStackException e ) {
+            } catch (NullPointerException | EmptyStackException e) {
                 //TODO : These exceptions are throwing from core, a proper solution should be followed to handle these
-                 logger.debug("Failed to resolve completion items", e.getMessage());
+                logger.debug("Failed to resolve completion items", e.getMessage());
                 completionItems = new ArrayList<>();
             }
             // Create the response message for client request
