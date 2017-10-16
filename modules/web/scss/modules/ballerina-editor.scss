@@ -809,6 +809,17 @@
         .action-menu-icon-wrapper .fw {
             font-size: 0.8em;
         }
+
+        .annotation-action-menu-items {
+            .fw {
+                opacity: 0.6;
+                margin-left: 5px;
+                cursor: pointer;
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
     }
     
     .annotation-attachment-package-name {
