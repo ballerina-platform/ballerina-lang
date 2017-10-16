@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -67,8 +66,6 @@ public abstract class AbstractItemResolver {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof NamespaceDeclaration) {
-                completionItem = this.populateNamespaceDeclarationCompletionItem(symbolInfo);
             }
 
             if (completionItem != null) {
