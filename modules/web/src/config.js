@@ -82,11 +82,11 @@ export default {
                     image: 'preview_transformStmt',
                 },
                 {
-                    name: 'JMS',
+                    name: 'Service Chaining',
                     isFile: false,
-                    folder: '/samples/jms/',
-                    path: '/samples/jms/jmsReceiver.bal',
-                    image: 'preview_jms',
+                    folder: '/samples/serviceChaining/',
+                    path: '/samples/serviceChaining/servicechaining/samples/BankLocatorService.bal',
+                    image: 'preview_servicechaining',
                 },
                 {
                     name: 'Restful Service',
@@ -99,14 +99,14 @@ export default {
                     name: 'Routing Services',
                     isFile: false,
                     folder: '/samples/routingServices',
-                    path: '/samples/routingServices/samples/contentBasedRoutingService.bal',
+                    path: '/samples/routingServices/routingServices/samples/contentBasedRoutingService.bal',
                     image: 'preview_routingServices',
                 },
                 {
                     name: 'Websocket',
                     isFile: false,
                     folder: '/samples/websocket',
-                    path: '/samples/websocket/echoServer/server/websocketEchoServer.bal',
+                    path: '/samples/websocket/echoserver/server/EchoServer.bal',
                     image: 'preview_websocket',
                 }],
         }
