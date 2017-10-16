@@ -144,7 +144,7 @@ public class TaskTest {
     public void testScheduleAppointmentEveryMinuteOnMondays() {
         consoleOutput.reset();
         int taskId;
-        int dayOfWeek = 1;
+        int dayOfWeek = 2;
         long expectedDuration = 60000;
         createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
@@ -159,6 +159,9 @@ public class TaskTest {
             modifiedTime.set(Calendar.SECOND, 0);
             modifiedTime.set(Calendar.MILLISECOND, 0);
             modifiedTime.set(Calendar.AM_PM, 0);
+            if (modifiedTime.before(currentTime)) {
+                modifiedTime.add(Calendar.DATE, 7);
+            }
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
@@ -255,10 +258,10 @@ public class TaskTest {
         taskId = Integer.parseInt(returns[0].stringValue());
         String log = consoleOutput.toString();
         String logEntry = log.substring(log.lastIndexOf(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT));
-        String logEntryWithRuntime = logEntry.substring(logEntry.lastIndexOf(Constant.SCHEDULER_RUNTIME_HINT));
+        String logEntryWithRuntime = logEntry.substring(logEntry.lastIndexOf(Constant.SCHEDULER_LIFETIME_HINT));
         long calculatedDuration = getCalculatedDuration(Constant.PREFIX_TIMER, taskId, log);
         int period = Integer.parseInt(logEntryWithRuntime
-                .substring(Constant.SCHEDULER_RUNTIME_HINT.length(), logEntryWithRuntime.indexOf("]")));
+                .substring(Constant.SCHEDULER_LIFETIME_HINT.length(), logEntryWithRuntime.indexOf("]")));
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
         Assert.assertTrue(period == calculatedDuration + 59 * 60000);
@@ -274,16 +277,20 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
-            if (currentTime.get(Calendar.DAY_OF_MONTH) > dayOfMonth || dayOfMonth > currentTime
-                    .getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                modifiedTime.add(Calendar.MONTH, 1);
-            }
-            modifiedTime.set(Calendar.DATE, dayOfMonth);
             modifiedTime.set(Calendar.HOUR, 0);
             modifiedTime.set(Calendar.MINUTE, 0);
             modifiedTime.set(Calendar.SECOND, 0);
             modifiedTime.set(Calendar.MILLISECOND, 0);
             modifiedTime.set(Calendar.AM_PM, 0);
+            if (dayOfMonth > modifiedTime.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+                modifiedTime.add(Calendar.MONTH, 1);
+                modifiedTime.set(Calendar.DATE, dayOfMonth);
+            } else {
+                modifiedTime.set(Calendar.DATE, dayOfMonth);
+                if (modifiedTime.before(currentTime)) {
+                    modifiedTime.add(Calendar.MONTH, 1);
+                }
+            }
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
@@ -313,25 +320,29 @@ public class TaskTest {
                     7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
                     dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
             modifiedTimeByDOW.add(Calendar.DATE, days);
-            modifiedTimeByDOW.set(Calendar.HOUR, 0);
-            modifiedTimeByDOW.set(Calendar.MINUTE, 0);
-            modifiedTimeByDOW.set(Calendar.SECOND, 0);
-            modifiedTimeByDOW.set(Calendar.MILLISECOND, 0);
-            modifiedTimeByDOW.set(Calendar.AM_PM, 0);
+        }
+        modifiedTimeByDOW.set(Calendar.HOUR, 0);
+        modifiedTimeByDOW.set(Calendar.MINUTE, 0);
+        modifiedTimeByDOW.set(Calendar.SECOND, 0);
+        modifiedTimeByDOW.set(Calendar.MILLISECOND, 0);
+        modifiedTimeByDOW.set(Calendar.AM_PM, 0);
+        if (modifiedTimeByDOW.before(currentTime)) {
+            modifiedTimeByDOW.add(Calendar.DATE, 7);
         }
         long expectedDurationByDOW = calculateDifference(currentTime, modifiedTimeByDOW);
-
-        if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
-            if (currentTime.get(Calendar.DAY_OF_MONTH) > dayOfMonth || dayOfMonth > currentTime
-                    .getActualMaximum(Calendar.DAY_OF_MONTH)) {
+        modifiedTimeByDOM.set(Calendar.HOUR, 0);
+        modifiedTimeByDOM.set(Calendar.MINUTE, 0);
+        modifiedTimeByDOM.set(Calendar.SECOND, 0);
+        modifiedTimeByDOM.set(Calendar.MILLISECOND, 0);
+        modifiedTimeByDOM.set(Calendar.AM_PM, 0);
+        if (dayOfMonth > modifiedTimeByDOM.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+            modifiedTimeByDOM.add(Calendar.MONTH, 1);
+            modifiedTimeByDOM.set(Calendar.DATE, dayOfMonth);
+        } else {
+            modifiedTimeByDOM.set(Calendar.DATE, dayOfMonth);
+            if (modifiedTimeByDOM.before(currentTime)) {
                 modifiedTimeByDOM.add(Calendar.MONTH, 1);
             }
-            modifiedTimeByDOM.set(Calendar.DATE, dayOfMonth);
-            modifiedTimeByDOM.set(Calendar.HOUR, 0);
-            modifiedTimeByDOM.set(Calendar.MINUTE, 0);
-            modifiedTimeByDOM.set(Calendar.SECOND, 0);
-            modifiedTimeByDOM.set(Calendar.MILLISECOND, 0);
-            modifiedTimeByDOM.set(Calendar.AM_PM, 0);
         }
         long expectedDurationByDOM = calculateDifference(currentTime, modifiedTimeByDOM);
         long expectedDuration =
@@ -363,7 +374,7 @@ public class TaskTest {
                 .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(),
                         firstLogEntry.indexOf("]")));
         String lastLogEntry = log.substring(log.lastIndexOf(taskId + Constant.DELAY_HINT));
-        if (lastLogEntry.contains(Constant.SCHEDULER_RUNTIME_HINT)) {
+        if (lastLogEntry.contains(Constant.SCHEDULER_LIFETIME_HINT)) {
             log.substring(log.lastIndexOf(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT));
         }
         long lastCalculatedDuration = Long.parseLong(lastLogEntry

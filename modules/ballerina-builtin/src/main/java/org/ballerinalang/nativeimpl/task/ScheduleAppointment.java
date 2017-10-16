@@ -69,7 +69,7 @@ public class ScheduleAppointment extends AbstractNativeFunction {
         BString error = new BString("Unable to schedule the appointment");
         int taskId = TaskUtil.generateTaskId(ctx);
         if (taskId != -1) {
-            ctx.setProperty(Constant.SCHEDULER_RUNTIME + "_" + taskId, 0);
+            ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 0);
             TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
                     onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
