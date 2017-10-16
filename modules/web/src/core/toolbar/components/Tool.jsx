@@ -12,7 +12,8 @@ class Tool extends React.Component {
      * @inheritdoc
      */
     render() {
-        const { tool: { icon, commandID, commandArgs = {}, isActive = () => true, isVisible = () => true },
+        const { tool: { icon, commandID, commandArgs = {}, isActive = () => true, isVisible = () => true,
+                        description },
                 dispatch } = this.props;
 
         if (!isVisible()) {
@@ -26,6 +27,7 @@ class Tool extends React.Component {
                         dispatch(commandID, commandArgs);
                     }
                 }}
+                title={description}
             >
                 <i className={`fw fw-${icon}`} />
             </div>
@@ -41,6 +43,7 @@ Tool.propTypes = {
         commandID: PropTypes.string.isRequired,
         commandArgs: PropTypes.objectOf(Object),
         isActive: PropTypes.func,
+        description: PropTypes.string,
     }).isRequired,
 };
 

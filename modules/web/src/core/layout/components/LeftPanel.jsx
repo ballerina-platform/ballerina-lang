@@ -50,7 +50,7 @@ class LeftPanelTab extends React.Component {
             } = this.props;
         const actions = [];
         if (!_.isNil(panelActions) && _.isArray(panelActions)) {
-            panelActions.forEach(({ icon, isActive, handleAction }, index) => {
+            panelActions.forEach(({ icon, isActive, handleAction, description }, index) => {
                 const isActionactive = _.isFunction(isActive) ? isActive() : true;
                 actions.push((
                     <i
@@ -61,6 +61,7 @@ class LeftPanelTab extends React.Component {
                                 handleAction();
                             }
                         }}
+                        title={description}
                     />
                 ));
             });
@@ -139,11 +140,12 @@ class LeftPanel extends React.Component {
             const {
                     id,
                     regionOptions: {
+                        panelTitle,
                         activityBarIcon,
                     },
                   } = viewDef;
             tabs.push((
-                <NavItem key={id} eventKey={id}>
+                <NavItem key={id} eventKey={id} title={panelTitle}>
                     <i className={`fw fw-${activityBarIcon} fw-lg`} />
                 </NavItem>
             ));

@@ -75,6 +75,7 @@ class BallerinaPlugin extends Plugin {
                         const activeEditor = editor.getActiveEditor();
                         return (activeEditor && activeEditor.file);
                     },
+                    description: 'Default View',
                 },
                 {
                     id: TOOL_IDS.ACTION_VIEW,
@@ -87,6 +88,7 @@ class BallerinaPlugin extends Plugin {
                         const activeEditor = editor.getActiveEditor();
                         return (activeEditor && activeEditor.file);
                     },
+                    description: 'Action View',
                 },
                 {
                     id: TOOL_IDS.COMPACT_VIEW,
@@ -99,6 +101,7 @@ class BallerinaPlugin extends Plugin {
                         const activeEditor = editor.getActiveEditor();
                         return (activeEditor && activeEditor.file);
                     },
+                    description: 'Compact View',
                 },
             ],
         };

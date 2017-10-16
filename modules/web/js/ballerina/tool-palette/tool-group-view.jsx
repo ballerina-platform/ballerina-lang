@@ -141,10 +141,10 @@ class ToolGroupView extends React.Component {
                 >
                     <div className={`tool-group-body tool-group-body-${this.state.activeGridStyle}`}>
                         {this.props.showGridStyles && <div className="tools-view-modes-controls clearfix">
-                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="tiles" >
+                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="tiles" title="Grid View" >
                                 <i className="fw fw-tiles" />
                             </a>
-                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="list" >
+                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="list" title="List View" >
                                 <i className="fw fw-list" />
                             </a>
                         </div>
