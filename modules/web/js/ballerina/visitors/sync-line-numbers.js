@@ -31,6 +31,7 @@ class SyncLineNumbers extends ASTVisitor {
         if (!node.position) {
             return;
         }
+
         node.position = newNode.position;
         // we will also sync the action invocation falgs.
         if (newNode.invocationType) {
