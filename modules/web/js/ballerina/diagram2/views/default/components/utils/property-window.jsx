@@ -280,15 +280,6 @@ class PropertiesWindow extends React.Component {
      * @returns {XML}
      */
     renderStructs(key) {
-        // Filter all struct field values and check if they have values
-        /* let atleastOneFieldValuExists = true;
-        Object.keys(this.state.data).forEach((key) => {
-            if (key.startsWith('connectorOptions:')) {
-                if (!this.state.data[key]) {
-                    atleastOneFieldValuExists = false;
-                }
-            }
-        });*/
         return (<div className="structsContainer">
             <div id='optionGroup' key={key.identifier} className="form-group">
                 <label
@@ -347,6 +338,9 @@ class PropertiesWindow extends React.Component {
                                 break;
                             case 'array':
                                 return this.renderTagInputs(fieldName, identifier);
+                                break;
+                            default:
+                                return this.renderTextInputs(fieldName, identifier);
                                 break;
                         }
                     })}
