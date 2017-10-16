@@ -387,9 +387,11 @@ class BallerinaFileEditor extends React.Component {
      * @param {Object} currentPackageInfo Updated current package information
      */
     updateEnvironment(environment, currentPackageInfo) {
-        const pkg = BallerinaEnvFactory.createPackage();
-        pkg.initFromJson(currentPackageInfo);
-        environment.setCurrentPackage(pkg);
+        if (currentPackageInfo){
+            const pkg = BallerinaEnvFactory.createPackage();
+            pkg.initFromJson(currentPackageInfo);
+            environment.setCurrentPackage(pkg);
+        }
     }
 
     /**
