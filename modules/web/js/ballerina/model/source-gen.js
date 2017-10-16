@@ -40,7 +40,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
     const b = a;
 
     function indent() {
-            ++l;
+        ++l;
         return '';
     }
 
@@ -448,9 +448,9 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             if (node.annotationAttachments && node.public && node.name.value
                          && node.fields) {
                 return join(node.annotationAttachments, pretty, l, w, '') + dent() + w()
-                 + 'public' + w() + 'struct' + w(' ') + node.name.value + w(' ')
-                 + '{' + indent() + join(node.fields, pretty, l, w, '', ';', true)
-                 + outdent() + w() + '}';
+                 + 'public' + a(' ') + w() + 'struct' + w(' ') + node.name.value
+                 + w(' ') + '{' + indent()
+                 + join(node.fields, pretty, l, w, '', ';', true) + outdent() + w() + '}';
             } else {
                 return join(node.annotationAttachments, pretty, l, w, '') + dent() + w()
                  + 'struct' + w(' ') + node.name.value + w(' ') + '{' + indent()
