@@ -1,5 +1,4 @@
 import ballerina.lang.system;
-import ballerina.lang.errors;
 import ballerina.lang.maps;
 import ballerina.net.ws;
 
@@ -9,38 +8,35 @@ import ballerina.net.ws;
 }
 service<ws> SimpleProxyServer {
 
+    ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
     map clientConnMap = {};
 
     resource onHandshake(ws:HandshakeConnection con) {
-        ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
-        ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
-        ws:Connection clientConn;
         try {
-            clientConn = c.connect(clientConnectorConfig);
-        } catch (errors:Error err) {
+            ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
+            ws:Connection  clientConn = c.connect(clientConnectorConfig);
+            clientConnMap[con.connectionID] = clientConn;
+        } catch (error err) {
             system:println("Error occcurred : " + err.msg);
-            ws:cancelHandshake(con, 1001, "Cannot connect to remote server");
+            con.cancelHandshake(1001, "Cannot connect to remote server");
         }
-        clientConnMap[con.connectionID] = clientConn;
     }
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        var clientConn, e = (ws:Connection) clientConnMap[ws:getID(conn)];
+        var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
 
         if (frame.text == "closeMe") {
-            ws:closeConnection(clientConn, 1001, "Client is going away");
-            ws:closeConnection(conn, 1001, "You told to close your connection");
+            clientConn.closeConnection(1001, "Client is going away");
+            conn.closeConnection(1001, "You told to close your connection");
         } else if (clientConn != null) {
-            ws:pushText(clientConn, frame.text);
+            clientConn.pushText(frame.text);
         }
     }
 
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        var clientConn, e = (ws:Connection) clientConnMap[ws:getID(conn)];
-        if (clientConn != null) {
-            ws:closeConnection(clientConn, 1001, "Client closing connection");
-        }
-        maps:remove(clientConnMap, ws:getID(conn));
+        var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
+        clientConn.closeConnection(1001, "Client closing connection");
+        maps:remove(clientConnMap, conn.getID());
     }
 }
 
@@ -48,13 +44,13 @@ service<ws> SimpleProxyServer {
 service<ws> ClientService {
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        ws:Connection parentCon = ws:getParentConnection(conn);
-        ws:pushText(parentCon, "client service: " + frame.text);
+        ws:Connection parentCon = conn.getParentConnection();
+        parentCon.pushText("client service: " + frame.text);
     }
 
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        ws:Connection parentCon = ws:getParentConnection(conn);
-        ws:closeConnection(parentCon, 1001, "Server closing connection");
+        ws:Connection parentCon = conn.getParentConnection();
+        parentCon.closeConnection(1001, "Server closing connection");
     }
 
 }

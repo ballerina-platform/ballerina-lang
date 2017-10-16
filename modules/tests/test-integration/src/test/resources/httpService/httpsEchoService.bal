@@ -1,12 +1,11 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 
 @http:configuration {
     basePath:"/echo",
     httpsPort:9095,
     keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePass:"wso2carbon",
-    certPass:"wso2carbon"
+    keyStorePassword:"wso2carbon",
+    certPassword:"wso2carbon"
 }
 service<http> echo {
 
@@ -14,10 +13,9 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (message m) {
-        message resp = {};
-        messages:setStringPayload(resp, "hello world");
-        reply resp;
+    resource echo (http:Request req, http:Response res) {
+        res.setStringPayload("hello world");
+        res.send();
 
     }
 }
@@ -27,8 +25,8 @@ service<http> echo {
     port:9094,
     httpsPort:9095,
     keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePass:"wso2carbon",
-    certPass:"wso2carbon"
+    keyStorePassword:"wso2carbon",
+    certPassword:"wso2carbon"
 }
 service<http> echoOne {
 
@@ -36,10 +34,9 @@ service<http> echoOne {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (message m) {
-        message resp = {};
-        messages:setStringPayload(resp, "hello world");
-        reply resp;
+    resource echoAbc (http:Request req, http:Response res) {
+        res.setStringPayload("hello world");
+        res.send();
 
     }
 }
@@ -54,10 +51,9 @@ service<http> echoDummy {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (message m) {
-        message resp = {};
-        messages:setStringPayload(resp, "hello world");
-        reply resp;
+    resource echoDummy (http:Request req, http:Response res) {
+        res.setStringPayload("hello world");
+        res.send();
 
     }
 
