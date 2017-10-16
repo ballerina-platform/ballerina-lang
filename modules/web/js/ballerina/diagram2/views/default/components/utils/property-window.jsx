@@ -130,7 +130,6 @@ class PropertiesWindow extends React.Component {
         this.props.addedValues(this.state.data);
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.overlayContainer = {};
-        this.context.editor.update();
     }
 
     /**
@@ -282,14 +281,14 @@ class PropertiesWindow extends React.Component {
      */
     renderStructs(key) {
         // Filter all struct field values and check if they have values
-        let atleastOneFieldValuExists = true;
+        /* let atleastOneFieldValuExists = true;
         Object.keys(this.state.data).forEach((key) => {
             if (key.startsWith('connectorOptions:')) {
                 if (!this.state.data[key]) {
                     atleastOneFieldValuExists = false;
                 }
             }
-        });
+        });*/
         return (<div className="structsContainer">
             <div id='optionGroup' key={key.identifier} className="form-group">
                 <label

@@ -265,7 +265,7 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '340px',
+                height: '375px',
                 minWidth: '500px',
             },
             arrowStyle: {

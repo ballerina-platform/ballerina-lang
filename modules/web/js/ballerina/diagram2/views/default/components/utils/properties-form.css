@@ -388,3 +388,11 @@ span { cursor: pointer; }
 .structsContainer input:disabled{
     cursor: not-allowed;
 }
+
+.optionsDiv{
+    height: 120px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%;
+    border: solid 1px;
+}
