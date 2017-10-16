@@ -13,7 +13,7 @@ class Tool extends React.Component {
      */
     render() {
         const { tool: { icon, commandID, commandArgs = {}, isActive = () => true, isVisible = () => true,
-                        description },
+                        description, shortCutLabel },
                 dispatch } = this.props;
 
         if (!isVisible()) {
@@ -27,7 +27,7 @@ class Tool extends React.Component {
                         dispatch(commandID, commandArgs);
                     }
                 }}
-                title={description}
+                title={`${description} ${`${shortCutLabel ? `(${shortCutLabel})` : ''}`}`}
             >
                 <i className={`fw fw-${icon}`} />
             </div>
