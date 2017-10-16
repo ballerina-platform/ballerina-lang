@@ -44,16 +44,17 @@ public class SimpleSplitStringExpression extends Expression {
         StringBuffer buffer = new StringBuffer();
         for (Variable var : variableList) {
             String name = var.getName();
-            if (variables.containsKey(name)) {
-                if (buffer.length() > 0) {
-                    buffer.append(getSeparator());
-                }
-                String value = var.modify(variables.get(name));
-                if ("".equals(value)) {
-                    emptyString = true;
-                }
-                buffer.append(encodeValue(value));
+            if (!variables.containsKey(name)) {
+                continue;
             }
+            if (buffer.length() > 0) {
+                buffer.append(getSeparator());
+            }
+            String value = var.modify(variables.get(name));
+            if ("".equals(value)) {
+                emptyString = true;
+            }
+            buffer.append(encodeValue(value));
         }
 
         if (buffer.length() == 0 && !emptyString) {
@@ -113,20 +114,21 @@ public class SimpleSplitStringExpression extends Expression {
             }
         }
 
-        if (variableList.size() > length) {
-            for (int i = length; i < variableList.size(); i++) {
-                Variable var = variableList.get(i);
-                String name = var.getName();
-                String finalValue = "";
-                if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
-                    return false;
-                }
+        if (variableList.size() <= length) {
+            return true;
+        }
+        for (int i = length; i < variableList.size(); i++) {
+            Variable var = variableList.get(i);
+            String name = var.getName();
+            String finalValue = "";
+            if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
+                return false;
+            }
 
-                if (var.checkModifier(finalValue)) {
-                    variables.put(name, finalValue);
-                } else {
-                    return false;
-                }
+            if (var.checkModifier(finalValue)) {
+                variables.put(name, finalValue);
+            } else {
+                return false;
             }
         }
         return true;
