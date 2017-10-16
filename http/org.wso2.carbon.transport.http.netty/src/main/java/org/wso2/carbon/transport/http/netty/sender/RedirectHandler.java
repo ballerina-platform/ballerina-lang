@@ -248,7 +248,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 sendResponseHeadersToClient(ctx, msg);
             }
         } catch (UnsupportedEncodingException exception) {
-            LOG.error("Error occurred when deciding whether a redirection is required", exception);
+            LOG.error("UnsupportedEncodingException occurred when deciding whether a redirection is required",
+                    exception);
+            exceptionCaught(ctx, exception.getCause());
+        } catch (MalformedURLException exception) {
+            LOG.error("MalformedURLException occurred when deciding whether a redirection is required", exception);
             exceptionCaught(ctx, exception.getCause());
         }
     }
@@ -277,10 +281,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
             } catch (MalformedURLException exception) {
                 LOG.error("Error occurred when parsing redirect url", exception);
-                throw exception;
+                exceptionCaught(ctx, exception.getCause());
             } catch (Exception exception) {
                 LOG.error("Error occurred during redirection", exception);
-                throw exception;
+                exceptionCaught(ctx, exception.getCause());
             }
         } else {
             if (LOG.isDebugEnabled()) {
