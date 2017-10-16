@@ -297,9 +297,10 @@ class DefaultNodeFactory {
 
     // FIXME
     createRetry() {
-        return getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
+        const tempNode = getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
             retry 3;
         `));
+        return tempNode.failedBody.statements[0];
     }
 
     createForkJoin() {
