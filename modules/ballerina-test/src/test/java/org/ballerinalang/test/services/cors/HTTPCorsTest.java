@@ -313,7 +313,7 @@ public class HTTPCorsTest {
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, null, null
                 , null, null, null);
-        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.ALLOW));
+        Assert.assertEquals(response.getHeader(Constants.ALLOW), "POST, OPTIONS");
     }
 
     @Test(description = "Test for simple OPTIONS request")

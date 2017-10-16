@@ -15,9 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.test.debugger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
@@ -41,5 +42,7 @@ public class DebuggerExecutor implements Runnable {
         bContext.getDebugInfoHolder().getDebugSessionObserver().addContext(bContext);
         bContext.getDebugInfoHolder().waitTillDebuggeeResponds();
         bLangVM.run(bContext);
+        bContext.await();
+        bContext.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
     }
 }

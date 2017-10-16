@@ -125,10 +125,9 @@ public class HttpConnectionManager {
             if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
                 throw new BallerinaConnectorException("Conflicting configuration detected for listener " +
                         "configuration id " + listenerConfig.getId());
-            } else {
-                httpServerConnectorContext.incrementReferenceCount();
-                return httpServerConnectorContext.getServerConnector();
             }
+            httpServerConnectorContext.incrementReferenceCount();
+            return httpServerConnectorContext.getServerConnector();
         }
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
@@ -272,16 +271,15 @@ public class HttpConnectionManager {
 
     private boolean checkForConflicts(ListenerConfiguration listenerConfiguration,
             HttpServerConnectorContext context) {
-        if (context != null) {
-            if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
-                ListenerConfiguration config = context.getListenerConfiguration();
-                if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
-                        || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
-                        || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
-                    return true;
-                }
-            } else {
-                return false;
+        if (context == null) {
+            return false;
+        }
+        if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
+            ListenerConfiguration config = context.getListenerConfiguration();
+            if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
+                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
+                    || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
+                return true;
             }
         }
         return false;
@@ -291,10 +289,9 @@ public class HttpConnectionManager {
         HttpServerConnectorContext context = serverConnectorPool.get(connectorId);
         if (context.getReferenceCount() == 1) {
             return context.getServerConnector().stop();
-        } else {
-            context.decrementReferenceCount();
-            return false;
         }
+        context.decrementReferenceCount();
+        return false;
     }
 
     public WebSocketClientConnector getWebSocketClientConnector(WsClientConnectorConfig configuration) {
@@ -311,17 +308,18 @@ public class HttpConnectionManager {
 
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
         int noOfExceptions = startupSyncer.getExceptions().size();
-        if (noOfExceptions > 0) {
-            PrintStream console = System.err;
-            String errMsg = "following host/port configurations are already in use: " +
-                                                                    startupSyncer.getExceptions().keySet();
-
-            if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
-                // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
-                // connectors have started properly and we can terminate the runtime
-                throw new BallerinaConnectorException(errMsg);
-            }
-            console.println("ballerina: " + errMsg);
+        if (noOfExceptions <= 0) {
+            return;
         }
+        PrintStream console = System.err;
+        String errMsg = "following host/port configurations are already in use: " +
+                startupSyncer.getExceptions().keySet();
+
+        if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
+            // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
+            // connectors have started properly and we can terminate the runtime
+            throw new BallerinaConnectorException(errMsg);
+        }
+        console.println("ballerina: " + errMsg);
     }
 }

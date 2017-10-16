@@ -53,21 +53,20 @@ public class ReservedStringExpression extends SimpleStringExpression {
 
     @Override
     protected boolean setVariables(String expressionValue, Map<String, String> variables) {
-        if (variableList.size() == 1) {
-            Variable var = variableList.get(0);
-            String name = var.getName();
-            String finalValue = decodeValue(expressionValue);
-            if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
-                return false;
-            }
-
-            if (var.checkModifier(finalValue)) {
-                variables.put(name, finalValue);
-                return true;
-            } else {
-                return false;
-            }
+        if (variableList.size() != 1) {
+            return super.setVariables(expressionValue, variables);
         }
-        return super.setVariables(expressionValue, variables);
+        Variable var = variableList.get(0);
+        String name = var.getName();
+        String finalValue = decodeValue(expressionValue);
+        if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
+            return false;
+        }
+
+        if (var.checkModifier(finalValue)) {
+            variables.put(name, finalValue);
+            return true;
+        }
+        return false;
     }
 }
