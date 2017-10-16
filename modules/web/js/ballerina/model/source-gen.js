@@ -40,17 +40,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
     const b = a;
 
     function indent() {
-        if (shouldIndent) {
-            // return '\n' + _.repeat(tab, ++l);
             ++l;
-        }
         return '';
     }
 
     function outdent() {
+        --l;
         if (shouldIndent) {
-            return '\n' + _.repeat(tab, --l);
-            // l--;
+            return '\n' + _.repeat(tab, l);
         }
         return '';
     }
