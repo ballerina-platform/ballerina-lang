@@ -238,7 +238,7 @@ const lengthOfOpTool = {
     icon: 'lengthof',
     title: 'Length Of',
     factoryArgs: {
-        defaultExpression: 'lengthof a',
+        defaultExpression: 'lengthof []',
     },
     nodeFactoryMethod: operatorStatementCreator,
 };
@@ -249,7 +249,7 @@ const typeOfOpTool = {
     icon: 'typeof',
     title: 'Type Of',
     factoryArgs: {
-        defaultExpression: 'typeof a',
+        defaultExpression: 'typeof 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
 };

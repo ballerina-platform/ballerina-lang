@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { getUserHome } from 'api-client/api-client';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { exists as checkPathExists } from './../fs-util';
 
 
 const FOLDER_TYPE = 'folder';
+const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.folder-open-dialog.last-active-path';
 
 /**
  * Folder Open Wizard Dialog
@@ -20,14 +22,30 @@ class FolderOpenDialog extends React.Component {
      */
     constructor(props) {
         super(props);
+        const { history } = props.workspaceManager.appContext.pref;
+        const folderPath = history.get(HISTORY_LAST_ACTIVE_PATH) || '';
         this.state = {
             error: '',
             selectedNode: undefined,
             showDialog: true,
-            folderPath: '',
+            folderPath,
         };
         this.onFolderOpen = this.onFolderOpen.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        if (!this.state.folderPath) {
+            getUserHome()
+                .then((userHome) => {
+                    this.setState({
+                        folderPath: userHome,
+                    });
+                });
+        }
     }
 
     /**
@@ -75,6 +93,21 @@ class FolderOpenDialog extends React.Component {
     }
 
     /**
+     * Update state and history
+     *
+     * @param {Object} state
+     */
+    updateState({ error, selectedNode, folderPath }) {
+        const { history } = this.props.workspaceManager.appContext.pref;
+        history.put(HISTORY_LAST_ACTIVE_PATH, folderPath);
+        this.setState({
+            error,
+            folderPath,
+            selectedNode,
+        });
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
@@ -116,7 +149,7 @@ class FolderOpenDialog extends React.Component {
                                     }
                                 }}
                                 onChange={(evt) => {
-                                    this.setState({
+                                    this.updateState({
                                         error: '',
                                         folderPath: evt.target.value,
                                         selectedNode: undefined,
@@ -128,7 +161,7 @@ class FolderOpenDialog extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-                <Scrollbars
+                <ScrollBarsWithContextAPI
                     style={{
                         width: 608,
                         height: 500,
@@ -136,9 +169,10 @@ class FolderOpenDialog extends React.Component {
                     autoHide
                 >
                     <FileTree
+                        activeKey={this.state.folderPath}
                         onSelect={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
                                     folderPath: node.id,
@@ -147,16 +181,16 @@ class FolderOpenDialog extends React.Component {
                         }
                         onOpen={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
-                                    filePath: node.id,
+                                    folderPath: node.id,
                                 });
                                 this.onFolderOpen();
                             }
                         }
                     />
-                </Scrollbars>
+                </ScrollBarsWithContextAPI>
             </Dialog>
         );
     }

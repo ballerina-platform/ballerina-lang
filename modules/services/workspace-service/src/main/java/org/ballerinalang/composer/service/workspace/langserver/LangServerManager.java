@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.EmptyStackException;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -518,22 +519,28 @@ public class LangServerManager {
             compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
-            // here we need to compile the whole package
-            compiler.compile(comilationUnitId);
-            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+            try {
+                // here we need to compile the whole package
+                compiler.compile(comilationUnitId);
+                BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
 
-            // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(comilationUnitId, compilerContext,
-                    symbols, position, filterDataModel);
-            bLangPackage.accept(treeVisitor);
-            // Set the symbol table
-            filterDataModel.setSymbolTable(treeVisitor.getSymTable());
+                // Visit the package to resolve the symbols
+                TreeVisitor treeVisitor = new TreeVisitor(comilationUnitId, compilerContext,
+                        symbols, position, filterDataModel);
+                bLangPackage.accept(treeVisitor);
+                // Set the symbol table
+                filterDataModel.setSymbolTable(treeVisitor.getSymTable());
 
-            // Filter the suggestions
-            SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
-            filterDataModel.setPackages(this.getPackages());
-            completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
+                // Filter the suggestions
+                SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
+                filterDataModel.setPackages(this.getPackages());
 
+                completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
+            } catch (NullPointerException | EmptyStackException e ) {
+                //TODO : These exceptions are throwing from core, a proper solution should be followed to handle these
+                 logger.debug("Failed to resolve completion items", e.getMessage());
+                completionItems = new ArrayList<>();
+            }
             // Create the response message for client request
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setId(((RequestMessage) message).getId());

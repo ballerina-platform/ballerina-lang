@@ -37,6 +37,7 @@ class TreeNode extends React.Component {
         this.errorDiv = undefined;
         this.nameInput = undefined;
         this.focusHighligher = undefined;
+        this.nodeRef = undefined;
         this.onEditName = this.onEditName.bind(this);
         this.onEditComplete = this.onEditComplete.bind(this);
     }
@@ -46,13 +47,13 @@ class TreeNode extends React.Component {
      */
     componentDidMount() {
         if (this.props.node.enableEdit && !_.isNil(this.nameInput)) {
-            if (_.isFunction(this.context.getScroller)) {
-                const scroller = this.context.getScroller();
-                this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
-                const { offsetTop, offsetHeight } = this.nameInput;
-                scroller.scrollTop(offsetTop + offsetHeight + 10);
-            }
+            const { scroller } = this.context;
+            this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
+            scroller.scrollToElement(this.nameInput);
             this.nameInput.focus();
+        }
+        if (this.props.node.active) {
+            this.scrollToNode();
         }
     }
 
@@ -77,16 +78,15 @@ class TreeNode extends React.Component {
             }
         }
         if (!_.isNil(this.nameInput) && !_.isNil(this.errorDiv)) {
-            if (_.isFunction(this.context.getScroller)) {
-                const scroller = this.context.getScroller();
-                const { clientHeight, scrollHeight, scrollTop } = scroller.getValues();
-                const { offsetTop, offsetHeight } = this.errorDiv;
-                // if error div is hidden in screen
-                if ((clientHeight + scrollTop) < (offsetTop + offsetHeight)) {
-                    scroller.scrollTop(offsetTop + offsetHeight + 10);
-                }
-                this.focusHighligher.style.height = `${scrollHeight}px`;
+            const { scroller } = this.context;
+            // if error div is hidden in screen
+            if (!scroller.isElementVisible(this.errorDiv)) {
+                scroller.scrollToElement(this.errorDiv);
             }
+            this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
+        }
+        if (this.props.node.active) {
+            this.scrollToNode();
         }
     }
 
@@ -195,6 +195,15 @@ class TreeNode extends React.Component {
     }
 
     /**
+     * Scroll to node in tree.
+     */
+    scrollToNode() {
+        if (this.nodeRef && !this.context.scroller.isElementVisible(this.nodeRef)) {
+            this.context.scroller.scrollToElement(this.nodeRef);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
@@ -232,6 +241,9 @@ class TreeNode extends React.Component {
                     if (!enableEdit) {
                         onDoubleClick(node);
                     }
+                }}
+                ref={(ref) => {
+                    this.nodeRef = ref;
                 }}
             >
                 <div className="tree-node-highlight-row" />
@@ -356,6 +368,7 @@ TreeNode.propTypes = {
         type: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
         enableEdit: PropTypes.bool,
+        active: PropTypes.bool,
 
     }).isRequired,
     parentNode: PropTypes.objectOf(Object),
@@ -389,7 +402,11 @@ TreeNode.contextTypes = {
         on: PropTypes.func,
         dispatch: PropTypes.func,
     }),
-    getScroller: PropTypes.func,
+    scroller: PropTypes.shape({
+        getScrollHeight: PropTypes.func.isRequired,
+        scrollToElement: PropTypes.func.isRequired,
+        isElementVisible: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 export default TreeNode;

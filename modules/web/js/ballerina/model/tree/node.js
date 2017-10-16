@@ -259,7 +259,7 @@ class Node extends EventChannel {
     }
 
     /**
-     * Remove the node from the tree. Currently works only for nodes in a list.
+     * Remove the node from the tree.
      *
      * @memberof Node
      */

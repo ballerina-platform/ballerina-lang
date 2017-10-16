@@ -788,8 +788,8 @@ class TransformNodeMapper {
         _.remove(this._transformStmt.inputs, (input) => {
             return type.name === input;
         });
-        this._transformStmt.body
-            .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
+        this._transformStmt.body.filterStatements(
+            (node) => { return TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node); })
             .forEach((stmt) => {
                 this.removeInputExpressions(stmt, type.name);
             });
@@ -808,14 +808,20 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeInputExpressions(stmt, expStr) {
-        const rightExpression = stmt.getExpression();
-        if ((TreeUtil.isSimpleVariableRef(rightExpression)
-              && rightExpression.variableName.getValue() === expStr) ||
-            (TreeUtil.isFieldBasedAccessExpr(rightExpression)
-              && rightExpression.expression.variableName === expStr)) {
-            this._transformStmt.body.removeStatements(stmt, true);
+        if (TreeUtil.isVariableDef(stmt)) {
+            if (stmt.getVariableName().getValue() === expStr) {
+                this._transformStmt.body.removeStatements(stmt, true);
+            }
         } else {
-            this.removeInputNestedExpressions(rightExpression, expStr);
+            const rightExpression = stmt.getExpression();
+            if ((TreeUtil.isSimpleVariableRef(rightExpression)
+                  && rightExpression.variableName.getValue() === expStr) ||
+                (TreeUtil.isFieldBasedAccessExpr(rightExpression)
+                  && rightExpression.expression.variableName === expStr)) {
+                this._transformStmt.body.removeStatements(stmt, true);
+            } else {
+                this.removeInputNestedExpressions(rightExpression, expStr);
+            }
         }
     }
 
@@ -871,11 +877,9 @@ class TransformNodeMapper {
         _.remove(this._transformStmt.outputs, (output) => {
             return type.name === output;
         });
-        this._transformStmt.body
-            .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
-            .forEach((stmt) => {
-                this.removeOutputExpressions(stmt, type.name);
-            });
+        this._transformStmt.body.filterStatements(TreeUtil.isAssignment).forEach((stmt) => {
+            this.removeOutputExpressions(stmt, type.name);
+        });
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-target-removed',

@@ -275,6 +275,7 @@ class WorkspacePlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.REFRESH_EXPLORER, {});
                                 },
+                                description: 'Refresh',
                             },
                             {
                                 icon: 'add-folder',
@@ -285,6 +286,7 @@ class WorkspacePlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
                                 },
+                                description: 'Open Folder',
                             },
                         ],
                     },
@@ -344,12 +346,14 @@ class WorkspacePlugin extends Plugin {
                     group: TOOL_IDS.GROUP,
                     icon: 'blank-document',
                     commandID: COMMAND_IDS.CREATE_NEW_FILE,
+                    description: 'Create New',
                 },
                 {
                     id: TOOL_IDS.OPEN_FILE,
                     group: TOOL_IDS.GROUP,
                     icon: 'folder-open',
                     commandID: COMMAND_IDS.SHOW_FILE_OPEN_WIZARD,
+                    description: 'Open File',
                 },
                 {
                     id: TOOL_IDS.SAVE_FILE,
@@ -364,6 +368,7 @@ class WorkspacePlugin extends Plugin {
                         }
                         return false;
                     },
+                    description: 'Save File',
                 },
             ],
         };

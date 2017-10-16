@@ -56,4 +56,6 @@ public interface Workspace {
     
     void log(String logger, String timestamp, String level, String url, String message, String layout) throws
             IOException;
+
+    String getUserHome();
 }
