@@ -22,6 +22,8 @@ import ToolView from './tool-view';
 import { TOOL_GROUP } from './spec';
 import './tool-palette.css';
 
+const GRID_STYLE_HISTORY = 'composer.history.ballerina.tool-pallete-grid-style';
+
 /**
  * Renders a tool group.
  *
@@ -36,10 +38,10 @@ class ToolGroupView extends React.Component {
      *
      * @memberof ToolGroupView
      */
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
         this.state = {
-            activeGridStyle: 'list',
+            activeGridStyle: context.history.get(GRID_STYLE_HISTORY) || 'list',
         };
         this.changeGridStyle = this.changeGridStyle.bind(this);
     }
@@ -76,7 +78,9 @@ class ToolGroupView extends React.Component {
      * @memberof ToolGroupView
      */
     changeGridStyle(event) {
-        this.setState({ activeGridStyle: event.currentTarget.dataset.style });
+        const { style } = event.currentTarget.dataset;
+        this.context.history.put(GRID_STYLE_HISTORY, style);
+        this.setState({ activeGridStyle: style });
     }
 
     /**
@@ -160,6 +164,10 @@ ToolGroupView.propTypes = {
 
 ToolGroupView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
 };
 
 export default ToolGroupView;
