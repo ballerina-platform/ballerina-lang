@@ -357,11 +357,11 @@ public class HTTPClientRedirectTestCase {
             assertEquals("https://localhost:8080/redirect1", redirectUrl);
 
         } catch (NoSuchMethodException e) {
-            TestUtil.handleException("NoSuchMethodException occurred while running justRelativePathName", e);
+            TestUtil.handleException("NoSuchMethodException occurred while running requestPathEndsWithSlash", e);
         } catch (InvocationTargetException e) {
-            TestUtil.handleException("InvocationTargetException occurred while running justRelativePathName", e);
+            TestUtil.handleException("InvocationTargetException occurred while running requestPathEndsWithSlash", e);
         } catch (IllegalAccessException e) {
-            TestUtil.handleException("IllegalAccessException occurred while running justRelativePathName", e);
+            TestUtil.handleException("IllegalAccessException occurred while running requestPathEndsWithSlash", e);
         }
     }
 
