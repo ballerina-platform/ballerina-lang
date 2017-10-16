@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import { getPathSeperator, getUserHome } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { createOrUpdate, exists as checkFileExists } from './../fs-util';
@@ -226,7 +226,7 @@ class FileSaveDialog extends React.Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                    <Scrollbars
+                    <ScrollBarsWithContextAPI
                         style={{
                             width: 608,
                             height: 500,
@@ -251,7 +251,7 @@ class FileSaveDialog extends React.Component {
                                 }
                             }
                         />
-                    </Scrollbars>
+                    </ScrollBarsWithContextAPI>
                 </Dialog>
             </div>
         );

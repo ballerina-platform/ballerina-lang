@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import { getUserHome } from 'api-client/api-client';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { exists as checkPathExists } from './../fs-util';
@@ -161,7 +161,7 @@ class FolderOpenDialog extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-                <Scrollbars
+                <ScrollBarsWithContextAPI
                     style={{
                         width: 608,
                         height: 500,
@@ -190,7 +190,7 @@ class FolderOpenDialog extends React.Component {
                             }
                         }
                     />
-                </Scrollbars>
+                </ScrollBarsWithContextAPI>
             </Dialog>
         );
     }
