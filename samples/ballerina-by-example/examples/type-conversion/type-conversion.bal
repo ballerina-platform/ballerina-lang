@@ -4,7 +4,7 @@ function main (string[] args) {
     //floattype to int conversion is considered as a type conversion in Ballerina,
     // because the underlying representation of the value changes with this conversion.
     float f = 10.0;
-    var i, _ = <int>f;
+    var i = <int>f;
     system:println(i);
 
     //'int' to 'string' conversion is always safe.

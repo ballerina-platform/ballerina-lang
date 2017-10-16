@@ -56,7 +56,6 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
-HTTP Redirects
 Log API
 Function Pointers
 Lambda
