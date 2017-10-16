@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.test.statements.packageimport;
 
 import org.ballerinalang.test.utils.BTestUtils;
@@ -28,15 +27,12 @@ import org.testng.annotations.Test;
  */
 public class PackageImportTest {
 
-    /*
-     * Negative tests
-     */
-    
-    @Test(enabled = false)
+    @Test
     public void testDuplicatePackageImports() {
         CompileResult result = BTestUtils.compile(
                 "test-src/statements/packageimport/duplicate-import-negative.bal");
-        // TODO: This should handle in a proper way after duplicate import is handled.
         Assert.assertTrue(result.getDiagnostics().length > 0);
+        BTestUtils.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
     }
+    
 }

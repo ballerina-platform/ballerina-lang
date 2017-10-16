@@ -13,7 +13,7 @@ service<ws> ChatApp {
 
     resource onOpen(ws:Connection conn) {
         broadcast(consMap, "New client connected");
-        consMap[ws:getID(conn)] = conn;
+        consMap[conn.getID()] = conn;
     }
 
     resource onTextMessage(ws:Connection con, ws:TextFrame frame) {
@@ -22,12 +22,12 @@ service<ws> ChatApp {
 
     resource onIdleTimeout(ws:Connection con) {
         // Connection is closed due to inactivity after 1 hour
-        system:println("Idle timeout: " + ws:getID(con));
-        ws:closeConnection(con, 1000, "Closing connection due to inactivity in chat");
+        system:println("Idle timeout: " + con.getID());
+        con.closeConnection(1000, "Closing connection due to inactivity in chat");
     }
 
     resource onClose(ws:Connection con, ws:CloseFrame frame) {
-        maps:remove(consMap, ws:getID(con));
+        maps:remove(consMap, con.getID());
         broadcast(consMap, "User left");
     }
 }
@@ -35,11 +35,11 @@ service<ws> ChatApp {
 function broadcast(map consMap, string text) {
     int i = 0;
     string[] conKeys = maps:keys(consMap);
-    int len = conKeys.length;
+    int len = lengthof conKeys;
     while (i < len) {
         var con, e = (ws:Connection)consMap[conKeys[i]];
         if (e == null) {
-            ws:pushText(con, text);
+            con.pushText(text);
         }
         i = i + 1;
     }

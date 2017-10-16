@@ -412,14 +412,14 @@ public class BJSONValueTest {
         Assert.assertEquals(json.toString(), "{\\\"name\\\", \"supun\"}");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonArrayToJsonCasting() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testJsonArrayToJsonCasting");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonToJsonArrayCasting() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testJsonToJsonArrayCasting");
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -427,7 +427,7 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertEquals(returns[0], null);
@@ -450,28 +450,6 @@ public class BJSONValueTest {
     
     // TODO: fix the following test cases
     /*
-        function testJsonArrayToJsonCasting () (json) {
-            json[][] j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
-        
-            var j2, _ = (json)j1;
-            return j2;
-        }
-        
-        function testJsonToJsonArrayCasting () (json[], json[][], TypeCastError) {
-            json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
-        
-            var j2, e = (json[])j1;
-            var j3, e = (json[][])j1;
-        
-            return j2, j3, e;
-        }
-        
-        function testJsonToJsonArrayInvalidCasting () (json[][][], TypeCastError) {
-            json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
-        
-            var j2, e = (json[][][])j1;
-        
-            return j2, e;
-        }
+
      */
 }

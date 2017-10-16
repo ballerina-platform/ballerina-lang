@@ -224,8 +224,6 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BXML result = null;
         try {
-            // Accessing First Parameter Value.
-//            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
             BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(struct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -240,9 +238,6 @@ public class HttpUtil {
                     result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                if (httpCarbonMessage.isEmpty()) {
-                    throw new BallerinaException("empty content");
-                }
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
                 result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
@@ -327,6 +322,9 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
@@ -354,6 +352,8 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         String payload = abstractNativeFunction.getStringArgument(context, 0);
         StringDataSource stringDataSource = new StringDataSource(payload
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
@@ -373,8 +373,13 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+        httpCarbonMessage.setAlreadyRead(true);
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -559,6 +564,10 @@ public class HttpUtil {
         AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
         AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
         AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+        AnnAttrValue sslEnabledProtocolsAttrVal = configInfo
+                .getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
+        AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
+        AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
@@ -617,6 +626,16 @@ public class HttpUtil {
             if (trustStorePasswordAttrVal != null) {
                 httpsPropMap
                         .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
+            }
+            if (sslEnabledProtocolsAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                        sslEnabledProtocolsAttrVal.getStringValue());
+            }
+            if (ciphersAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+            }
+            if (sslProtocolAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL, sslProtocolAttrVal.getStringValue());
             }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }

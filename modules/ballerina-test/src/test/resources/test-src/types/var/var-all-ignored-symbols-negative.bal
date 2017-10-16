@@ -1,5 +1,5 @@
 function testVarDeclarationWithAllIgnoredSymbols () (int) {
-    float f = 10.0;
-    var _, _ = <int>f;
+    string s = "10";
+    var _, _ = <int> s;
     return 1;
 }

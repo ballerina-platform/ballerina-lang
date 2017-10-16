@@ -2,7 +2,7 @@ import ballerina.lang.system;
 import ballerina.lang.xmls;
 
 function main (string[] args) {
-    //Create xml
+    //Create a XML.
     xml x = xmls:parse("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
                      "<h:name>Anne</h:name>" +
                      "<h:address><h:street>Main</h:street>" +

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -90,7 +91,7 @@ public class Parser {
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            parser.setErrorHandler(new BallerinaParserErrorStrategy(context, diagnosticSrc));
+            parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
 
@@ -108,9 +109,9 @@ public class Parser {
                                             CompilationUnitNode compUnit,
                                             BDiagnosticSource diagnosticSrc) {
         if (this.preserveWhitespace) {
-            return new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
+            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc);
         } else {
-            return new BLangParserListener(compUnit, diagnosticSrc);
+            return new BLangParserListener(this.context, compUnit, diagnosticSrc);
         }
     }
 
@@ -119,4 +120,11 @@ public class Parser {
         return new BDiagnosticSource(sourceEntry.getPackageID(), entryName);
     }
 
+    private DefaultErrorStrategy getErrorStrategy(BDiagnosticSource diagnosticSrc) {
+        DefaultErrorStrategy customErrorStrategy = context.get(DefaultErrorStrategy.class);
+        if (customErrorStrategy == null) {
+            customErrorStrategy = new BallerinaParserErrorStrategy(context, diagnosticSrc);
+        }
+        return customErrorStrategy;
+    }
 }

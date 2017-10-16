@@ -37,7 +37,7 @@ public class BStructType extends BType {
      * @param pkgPath package of the struct
      */
     public BStructType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null, BStruct.class);
+        super(typeName, pkgPath, BStruct.class);
     }
 
     public StructField[] getStructFields() {

@@ -15,12 +15,12 @@ service<jms> jmsService {
     resource onMessage (message m) {
         // Read a message property.
         string myProperty = messages:getProperty(m, "MyProperty");
-        // Print the property values
+        // Print the property values.
         system:println("myProperty value " + myProperty);
 
         message responseMessage = {};
         // Set a custom message property. This value will be treated as a JMS 
-        // message string property when sending to a JMS provider
+        // message string property when sending to a JMS provider.
         messages:setProperty(responseMessage, "MySecondProperty", 
                                               "Hello from Ballerina!");
 

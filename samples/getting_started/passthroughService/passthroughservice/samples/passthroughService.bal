@@ -1,7 +1,6 @@
 package passthroughservice.samples;
 
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/passthrough"}
 service<http> passthrough {
@@ -11,8 +10,8 @@ service<http> passthrough {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response res) {
-        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090", {});
         res = nyseEP.get("/nyseStock/stocks", req);
-        response:send(res);
+        res.send();
     }
 }

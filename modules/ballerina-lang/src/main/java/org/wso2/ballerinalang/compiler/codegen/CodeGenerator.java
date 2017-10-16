@@ -110,10 +110,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -442,7 +442,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
         for (BLangStatement stmt : blockNode.stmts) {
-            addLineNumberInfo(stmt);
+            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
+                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                addLineNumberInfo(stmt.pos);
+            }
 
             genNode(stmt, blockEnv);
 
@@ -773,7 +776,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionVarRef functionVarRef) {
-        visitFunctionPointerLoad((BInvokableSymbol) functionVarRef.symbol);
+        visitFunctionPointerLoad(functionVarRef, (BInvokableSymbol) functionVarRef.symbol);
     }
 
     @Override
@@ -1182,7 +1185,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        visitFunctionPointerLoad(((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
+        visitFunctionPointerLoad(bLangLambdaFunction, ((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
     }
 
 
@@ -1440,11 +1443,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
             if (defaultWorker) {
-                if (invokableNode.workers.size() == 0 && invokableNode.retParams.isEmpty()) {
-                /* for functions that has no return values, we must provide a default
-                 * return statement to stop the execution and jump to the caller */
-                    this.emit(InstructionCodes.RET);
-                } else if (invokableNode.workers.size() > 0) {
+                if (invokableNode.workers.size() > 0) {
                     this.emit(InstructionCodes.WRKSTART);
                 }
             }
@@ -1856,11 +1855,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         return errorTable;
     }
 
-    private void addLineNumberInfo(BLangStatement statement) {
-        DiagnosticPos pos = statement.pos;
-        if (NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
-            return;
-        }
+    private void addLineNumberInfo(DiagnosticPos pos) {
         LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
         lineNoAttrInfo.addLineNumberInfo(lineNumInfo);
     }
@@ -2296,7 +2291,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
         generateFinallyInstructions(continueNode, NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
@@ -2316,6 +2311,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
+        addLineNumberInfo(ifNode.pos);
         this.genNode(ifNode.expr, this.env);
         Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
         this.emit(ifCondJumpInstr);
@@ -2650,6 +2646,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Handle catch blocks.
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
             genNode(bLangCatch, env);
             unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
@@ -2702,13 +2699,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    private void visitFunctionPointerLoad(BInvokableSymbol funcSymbol) {
+    private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
+        fpExpr.regIndex = nextIndex;
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
     }
 

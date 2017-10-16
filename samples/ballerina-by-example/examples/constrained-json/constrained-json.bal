@@ -5,17 +5,17 @@ import ballerina.net.http.request;
 import ballerina.net.http.response;
 
 @doc:Description {
-    value: "Defining people array"
+    value:"Defining people array"
 }
-Person[] people = [{name: "Ann Frank", age: 30, city: "London"},
-                   {name: "Tim Yank", age: 20, city: "New York"},
-                   {name: "John Grisham", age: 25, city: "Brisbane"},
-                   {name: "Sarah Paulin", age: 10, city: "Chicago"},
-                   {name: "Trevor Noah", age: 45, city: "Cape Town"}];
+Person[] people = [{name:"Ann Frank", age:30, city:"London"},
+                   {name:"Tim Yank", age:20, city:"New York"},
+                   {name:"John Grisham", age:25, city:"Brisbane"},
+                   {name:"Sarah Paulin", age:10, city:"Chicago"},
+                   {name:"Trevor Noah", age:45, city:"Cape Town"}];
 
 
 @doc:Description {
-    value: "Defining Person struct"
+    value:"Defining Person struct"
 }
 struct Person {
     string name;
@@ -31,10 +31,10 @@ struct Employee {
 }
 
 @http:configuration {
-    basePath: "/people"
+    basePath:"/people"
 }
 @doc:Description {
-    value: "Define people management service which can be accessed with /people"
+    value:"Define people management service which can be accessed with /people"
 }
 service<http> PeopleManagementService {
 
@@ -43,8 +43,7 @@ service<http> PeopleManagementService {
         path:"/employee/"
     }
     @doc:Description {
-        value: "Resource to get employee for the person by index which" +
-        " can be invoked with /people/employee?index={index}"
+        value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
     }
     resource getEmployee (http:Request req, http:Response res) {
         //Define a struct constrained by Employee struct. With this constraint, the json, employeeJson can only
@@ -74,8 +73,7 @@ service<http> PeopleManagementService {
         path:"/update"
     }
     @doc:Description {
-        value: "Resource to update person by index which can be invoked with " +
-        "/people/update?index={index}"
+        value: "Resource to update person by index which can be invoked with /people/update?index={index}"
     }
     resource updatePerson (http:Request req, http:Response res) {
         //Get the json payload from the request message m
@@ -86,9 +84,9 @@ service<http> PeopleManagementService {
         // Define an error that can be used during conversion from json to person struct.
 
         transform {
-            people[index].name, _ = (string) jsonPerson.name;
-            people[index].age, _ = (int) jsonPerson.age;
-            people[index].city, _ = (string) jsonPerson.city;
+            people[index].name, _ = (string)jsonPerson.name;
+            people[index].age, _ = (int)jsonPerson.age;
+            people[index].city, _ = (string)jsonPerson.city;
             // Accessing an invalid field that is not a field in Employee struct will give an error.
             // E.g. : employeeJson.address will give an error as "unknown field 'address' in json with struct constraint 'Person'"
         }
@@ -98,20 +96,19 @@ service<http> PeopleManagementService {
         response:send(res);
     }
 
-
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
     @doc:Description {
-        value: "Get all people which can be invoked as /people/"
+        value:"Get all people which can be invoked as /people/"
     }
     resource GetPeople (http:Request req, http:Response res) {
         // define empty json array
         json jsonResponse = [];
         int index = 0;
         while (index < lengthof people) {
-            // convert each person from people array to a json and set to the array
+            // Convert each person from people array to a JSON and set to the array.
             jsonResponse[index], _ = <json>people[index];
             index = index + 1;
         }

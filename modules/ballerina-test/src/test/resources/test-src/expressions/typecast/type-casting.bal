@@ -1,7 +1,7 @@
 function floattoint(float value)(int) {
     int result;
     //float to int should be a conversion
-    result, _ = <int>value;
+    result = <int>value;
     return result;
 }
  
@@ -17,6 +17,13 @@ function stringtoint(string value)(int) {
     //string to int should be a unsafe conversion
     result, _ = <int>value;
     return result;
+}
+
+function testJsonIntToString() (string) {
+    json j = 5;
+    int value;
+    value, _ = (int)j;
+    return <string> value;
 }
 
 function stringtofloat(string value)(float) {
@@ -114,6 +121,76 @@ struct Student {
     int age;
     map address;
     int[] marks;
+}
+
+function testStructToStruct() (Student) {
+    Person p = { name:"Supun",
+                   age:25,
+                   parent:{name:"Parent", age:50},
+                   address:{"city":"Kandy", "country":"SriLanka"},
+                   info:{status:"single"},
+                   marks:[24, 81]
+               };
+    return (Student) p;
+}
+
+function testNullStructToStruct() (Student) {
+    Person p;
+    return (Student) p;
+}
+
+function testStructAsAnyToStruct() (Person) {
+    Person p1 = { name:"Supun",
+                    age:25,
+                    parent:{name:"Parent", age:50},
+                    address:{"city":"Kandy", "country":"SriLanka"},
+                    info:{status:"single"},
+                    marks:[24, 81]
+                };
+    any a = p1;
+    Person p2;
+    p2, _ = (Person) a;
+    return p2;
+}
+
+function testAnyToStruct() (Person) {
+    any a = { name:"Supun",
+                age:25,
+                parent:{name:"Parent", age:50},
+                address:{"city":"Kandy", "country":"SriLanka"},
+                info:{status:"single"},
+                marks:[24, 81]
+            };
+    Person p2;
+    TypeCastError e;
+    p2, e = (Person) a;
+    if (e != null) {
+        throw e;
+    }
+    return p2;
+}
+
+function testAnyNullToStruct() (Person) {
+    any a;
+    Person p;
+    p, _ = (Person) a;
+    return p;
+}
+
+function testStructToAnyExplicit() (any) {
+    Person p = { name:"Supun",
+                   age:25,
+                   parent:{name:"Parent", age:50},
+                   address:{"city":"Kandy", "country":"SriLanka"},
+                   info:{status:"single"},
+                   marks:[24, 81]
+               };
+    return (any) p;
+}
+
+function testMapToAnyExplicit() (any) {
+    map m = {name:"supun"};
+    return (any) m;
 }
 
 function testBooleanInJsonToInt() (int) {
@@ -319,6 +396,28 @@ struct A {
 
 struct B {
     string x;
+}
+
+function testCompatibleStructForceCasting()(A, TypeCastError) {
+    A a = {x: "x-valueof-a", y:4};
+    B b = {x: "x-valueof-b"};
+    A c;
+
+    b = (B) a;
+    TypeCastError err;
+    c, err = (A) b;
+
+    a.x = "updated-x-valueof-a";
+    return c, err;
+}
+
+function testInCompatibleStructForceCasting()(A, TypeCastError) {
+    B b = {x: "x-valueof-b"};
+    A a;
+    TypeCastError err;
+    a, err = (A) b;
+
+    return a, err;
 }
 
 function testAnyToStringWithErrors()(string, TypeCastError) {

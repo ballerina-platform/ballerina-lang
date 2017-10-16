@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -28,8 +27,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BTypeType extends BType {
 
-    public BTypeType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BValue.class);
+    public BTypeType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BValue.class);
     }
 
     @Override

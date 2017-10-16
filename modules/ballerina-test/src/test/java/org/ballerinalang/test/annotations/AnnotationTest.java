@@ -16,11 +16,8 @@
  */
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
-import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.test.utils.TestHTTPServiceDispatcher;
 
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -39,8 +36,6 @@ public class AnnotationTest {
 
     @BeforeClass
     public void setup() {
-        ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
-        DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
         compileResult = BTestUtils.compile("test-src", "lang/annotations/foo");
     }
 
@@ -282,7 +277,7 @@ public class AnnotationTest {
                 .compile("test-src", "lang/annotations/invalid-service-annotation.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
-                "incompatible types: expected 'string', found 'int'", 5, 24);
+                "incompatible types: expected 'string', found 'int'", 4, 24);
     }
 
     @Test(description = "Test an invalid resource annotation")
@@ -291,7 +286,7 @@ public class AnnotationTest {
                 .compile("test-src", "lang/annotations/invalid-resource-annotation.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
-                "incompatible types: expected 'string', found 'int'", 13, 28);
+                "incompatible types: expected 'string', found 'int'", 12, 28);
     }
 
     @Test(description = "Test an invalid connector annotation")

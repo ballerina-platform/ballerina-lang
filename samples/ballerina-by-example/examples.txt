@@ -56,16 +56,12 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
-File System Server Connector
-FTP Client Connector
-FTP Server Connector
-Filter Connector
+HTTP Redirects
 Log API
 Function Pointers
 Lambda
-WebSocket Basic Endpoint
-WebSocket Basic Functions
+WebSocket Basic Sample
 WebSocket Chat Application
-WebSocket Client Connector
 WebSocket Proxy Server
 Passthrough
+Mutual SSL

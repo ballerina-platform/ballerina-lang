@@ -1,6 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/hello"}
 service<http> echo11 {
@@ -11,8 +9,8 @@ service<http> echo11 {
     }
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo5":"echo5"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -21,8 +19,8 @@ service<http> echo11 {
     }
     resource echo2 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":abc, "second":xyz};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -31,8 +29,8 @@ service<http> echo11 {
     }
     resource echo3 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":xyz, "second":abc};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -41,8 +39,8 @@ service<http> echo11 {
     }
     resource echo4 (http:Request req, http:Response res, string abc) {
         json responseJson = {"echo3":abc};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -51,8 +49,8 @@ service<http> echo11 {
     }
     resource echo5 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -61,8 +59,8 @@ service<http> echo11 {
     }
     resource echo6 (http:Request req, http:Response res, string abc, string xyz, string bar) {
         json responseJson = {"first":abc, "second":xyz, "echo4":bar};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -71,8 +69,8 @@ service<http> echo11 {
     }
     resource echo7 (http:Request req, http:Response res) {
         json responseJson = {"echo5":"any"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -81,8 +79,8 @@ service<http> echo11 {
     }
     resource echo8 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -90,12 +88,12 @@ service<http> echo11 {
         path:"/echo3/{abc}+{xyz}"
     }
     resource echo9 (http:Request req, http:Response res, string abc, string xyz) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
         json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9":"echo9"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -103,21 +101,21 @@ service<http> echo11 {
         path:"/"
     }
     resource echo10 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo10":"echo10"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     resource echo11 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo11":"echo11"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -126,8 +124,35 @@ service<http> echo11 {
     }
     resource echo12 (http:Request req, http:Response res, string abc) {
         json responseJson = {"echo12":abc};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/echo125"
+    }
+    resource echo125 (http:Request req, http:Response res) {
+        map params = req.getQueryParams();
+        string bar;
+        bar, _ = (string)params.foo;
+        json responseJson = {"echo125":bar};
+        res.setJsonPayload(responseJson);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/paramNeg"
+    }
+    resource paramNeg (http:Request req, http:Response res) {
+        map params = req.getQueryParams();
+        TypeCastError err;
+        string bar;
+        bar, err = (string)params.foo;
+        json responseJson = {"echo125":bar, "error":err.msg};
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -135,12 +160,14 @@ service<http> echo11 {
         path:"/echo13"
     }
     resource echo13 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
-        string bar;
-        bar, _ = (string)params.foo;
+        map params = req.getQueryParams();
+        string barStr;
+        int bar;
+        barStr, _ = (string)params.foo;
+        bar, _ = <int>barStr;
         json responseJson = {"echo13":bar};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -148,12 +175,14 @@ service<http> echo11 {
         path:"/echo14"
     }
     resource echo14 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
-        string bar;
-        bar, _ = (string)params.foo;
+        map params = req.getQueryParams();
+        string barStr;
+        float bar;
+        barStr, _ = (string)params.foo;
+        bar, _ = <float>barStr;
         json responseJson = {"echo14":bar};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -161,12 +190,14 @@ service<http> echo11 {
         path:"/echo15"
     }
     resource echo15 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
+        string barStr;
         boolean bar;
-        bar, _ = (boolean) params.foo;
+        barStr, _ = (string) params.foo;
+        bar, _ = <boolean> barStr;
         json responseJson = {"echo15":bar};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -174,9 +205,6 @@ service<http> echo11 {
         path:"/so2"
     }
     resource echo (http:Request req, http:Response res) {
-        //http:convertToResponse(req);
-        //reply m;
-
     }
 }
 
@@ -189,8 +217,8 @@ service<http> echo22 {
     }
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo1":"echo1"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -199,8 +227,8 @@ service<http> echo22 {
     }
     resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"echo2":"echo2"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -209,20 +237,20 @@ service<http> echo22 {
     }
     resource echo3 (http:Request req, http:Response res) {
         json responseJson = {"echo3":"echo3"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
 @http:configuration {basePath:"/"}
 service<http> echo33 {
     resource echo1 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo33":"echo1"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -234,16 +262,16 @@ service<http> echo44 {
     }
     resource echo221 (http:Request req, http:Response res) {
         json responseJson = {"first":"zzz"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     resource echo1 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         var foo, _ = (string)params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -252,8 +280,8 @@ service<http> echo44 {
     }
     resource echo222 (http:Request req, http:Response res) {
         json responseJson = {"first":"bar"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -263,12 +291,12 @@ service<http> echo55 {
         path:"/foo/bar"
     }
     resource echo1 (http:Request req, http:Response res) {
-        map params = request:getQueryParams(req);
+        map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
         json responseJson = {"echo55":"echo55"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -276,7 +304,7 @@ service<http> echo55 {
     }
     resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"echo55":"default"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
