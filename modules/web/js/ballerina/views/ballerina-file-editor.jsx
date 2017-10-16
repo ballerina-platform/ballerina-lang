@@ -105,6 +105,20 @@ class BallerinaFileEditor extends React.Component {
         props.commandProxy.on('resize', () => {
             this.update();
         }, this);
+        // Format the source code.
+        props.commandProxy.on('source-format', () => {
+            // we need to fetch a new tree if there are updated content.
+            this.validateAndParseFile()
+                .then((state) => {
+                    this.setState(state);
+                    const newContent = this.state.model.getSource(true);
+                    // set the underlaying file.
+                    this.props.file.setContent(newContent, {
+                        type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                    });
+                })
+                .catch(error => log.error(error)); // if error we need to display a message.
+        }, this);
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
     }
