@@ -207,6 +207,7 @@ Transaction
    | transaction { <transactionBody.source> } failed { <failedBody.source> }
    | transaction { <transactionBody.source> } committed { <committedBody.source> }
    | transaction { <transactionBody.source> } aborted { <abortedBody.source> }
+   | transaction { <transactionBody.source> }
    ;
 
 Transform
