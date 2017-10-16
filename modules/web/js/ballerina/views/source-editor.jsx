@@ -24,15 +24,11 @@ import log from 'log';
 import _ from 'lodash';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from './../../../src/core/workspace/model/file';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
-import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import { CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
-import { FORMAT, GO_TO_POSITION } from './../../constants/commands';
-import { parseFile } from './../../api-client/api-client';
-import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
+import { GO_TO_POSITION } from './../../constants/commands';
 
 
 const ace = global.ace;
@@ -84,7 +80,6 @@ class SourceEditor extends React.Component {
         this.container = undefined;
         this.editor = undefined;
         this.inSilentMode = false;
-        this.format = this.format.bind(this);
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
@@ -128,8 +123,6 @@ class SourceEditor extends React.Component {
             this.props.commandProxy.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
-            // register handler for source format command
-            this.props.commandProxy.on(FORMAT, this.format, this);
              // register handler for go to position command
             this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition, this);
             // listen to changes done to file content
@@ -197,25 +190,6 @@ class SourceEditor extends React.Component {
         if (this.props.file.id === args.file.id) {
             this.goToCursorPosition(args.row, args.column);
         }
-    }
-
-    /**
-     * format handler
-     */
-    format() {
-        parseFile(this.props.file)
-            .then((parserRes) => {
-                const ast = BallerinaASTDeserializer.getASTModel(parserRes);
-                const enableDefaultWSVisitor = new EnableDefaultWSVisitor();
-                ast.accept(enableDefaultWSVisitor);
-                const sourceGenVisitor = new SourceGenVisitor();
-                ast.accept(sourceGenVisitor);
-                const formattedContent = sourceGenVisitor.getGeneratedSource();
-                // Note the second arg. We need to inform others about this change.
-                // Eg: undo manager should track this and the file should be updated.
-                this.replaceContent(formattedContent, false);
-            })
-            .catch(error => log.error(error));
     }
 
     /**
