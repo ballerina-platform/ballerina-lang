@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,12 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Parse string and get an XML") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xmlStr",
-        value = "String representation of XML") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "x",
-        value = "Parsed xml") })
 public class Parse extends AbstractNativeFunction {
 
 private static final String OPERATION = "parse xml";

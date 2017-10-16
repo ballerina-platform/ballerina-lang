@@ -126,7 +126,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private int loopCount;
     private int transactionCount;
-    private int failedBlockCount;
     private boolean statementReturns;
     private boolean lastStatement;
     private int forkJoinCount;
@@ -135,6 +134,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
+    private Stack<Boolean> retryStmtCheckStack = new Stack<>();
+    private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -266,16 +267,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
+        this.loopWithintransactionCheckStack.push(false);
+        this.retryStmtCheckStack.push(false);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.failedBody != null) {
-            this.failedBlockCount++;
+            this.retryStmtCheckStack.push(true);
             transactionNode.failedBody.accept(this);
-            this.failedBlockCount--;
             this.resetStatementReturns();
             this.resetLastStatement();
+            this.retryStmtCheckStack.pop();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
@@ -285,6 +288,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             transactionNode.abortedBody.accept(this);
             this.resetStatementReturns();
         }
+        this.loopWithintransactionCheckStack.pop();
+        this.retryStmtCheckStack.pop();
     }
 
     @Override
@@ -298,8 +303,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (this.failedBlockCount == 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+        boolean valid = !this.retryStmtCheckStack.isEmpty() && this.retryStmtCheckStack.peek();
+        if (!valid) {
+            this.dlog.error(retryNode.pos, DiagnosticCode.INVALID_RETRY_POSITION);
             return;
         }
         this.lastStatement = true;
@@ -340,6 +346,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangIf ifStmt) {
+        this.retryStmtCheckStack.push(false);
         this.checkStatementExecutionValidity(ifStmt);
         ifStmt.body.accept(this);
         boolean ifStmtReturns = this.statementReturns;
@@ -348,15 +355,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
+        this.retryStmtCheckStack.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
+        this.retryStmtCheckStack.push(false);
+        this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
         whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
         this.resetLastStatement();
+        this.loopWithintransactionCheckStack.pop();
+        this.retryStmtCheckStack.pop();
     }
     
     @Override
@@ -364,6 +376,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            return;
+        }
+        if (checkNextBreakValidityInTransaction()) {
+            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
@@ -463,6 +479,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
+        if (checkNextBreakValidityInTransaction()) {
+            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
         this.lastStatement = true;
     }
 
@@ -484,6 +504,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTryCatchFinally tryNode) {
         this.checkStatementExecutionValidity(tryNode);
+        this.retryStmtCheckStack.push(false);
+        tryNode.tryBody.accept(this);
+        this.resetStatementReturns();
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             if (caughtTypes.contains(bLangCatch.getParameter().type)) {
@@ -491,8 +514,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         bLangCatch.getParameter().type);
             }
             caughtTypes.add(bLangCatch.getParameter().type);
+            bLangCatch.body.accept(this);
+            this.resetStatementReturns();
         }
-
+        if (tryNode.finallyBody != null) {
+            tryNode.finallyBody.accept(this);
+            this.resetStatementReturns();
+        }
+        this.retryStmtCheckStack.pop();
     }
 
     public void visit(BLangCatch catchNode) {
@@ -807,6 +836,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < typeList.size(); i++) {
             this.typeChecker.checkExpr(send.exprs.get(i), send.env, Arrays.asList(typeList.get(i)));
         }
+    }
+
+    private boolean checkNextBreakValidityInTransaction() {
+        return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
     }
 
     /**

@@ -18,8 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code SimpleTypeName} represents a simple type name(int, boolean, json, Person..) in Ballerina.
@@ -27,12 +25,10 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
  * @since 0.8.0
  */
 public class SimpleTypeName {
-    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected NodeLocation location;
     protected String name;
     protected String pkgName;
     protected String pkgPath;
-    protected SymbolName symbolName;
     protected boolean isArrayType;
     protected int dimensions = 1;
 
@@ -40,23 +36,6 @@ public class SimpleTypeName {
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
-    }
-
-    public SimpleTypeName(String name) {
-        this(name, null, null);
-    }
-    
-    public SimpleTypeName(String name, boolean isArrayType, int dimensions) {
-        this(name, null, null);
-        this.isArrayType = isArrayType;
-        this.dimensions = dimensions;
-    }
-    
-    public SimpleTypeName(String name, String pkgPath, boolean isArrayType, int dimensions) {
-        this(name, null, null);
-        this.isArrayType = isArrayType;
-        this.pkgPath = pkgPath;
-        this.dimensions = dimensions;
     }
 
     public String getName() {
@@ -73,14 +52,6 @@ public class SimpleTypeName {
 
     public void setPkgPath(String pkgPath) {
         this.pkgPath = pkgPath;
-    }
-
-    public SymbolName getSymbolName() {
-        if (symbolName == null) {
-            this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
-        }
-
-        return symbolName;
     }
 
     public boolean isArrayType() {
@@ -110,26 +81,5 @@ public class SimpleTypeName {
 
     public int getDimensions() {
         return dimensions;
-    }
-
-    public void setArrayType(int dimensions) {
-        this.isArrayType = true;
-        this.dimensions =  dimensions;
-    }
-
-    public void setNodeLocation(NodeLocation location) {
-        this.location = location;
-    }
-
-    public NodeLocation getNodeLocation() {
-        return location;
-    }
-
-    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return whiteSpaceDescriptor;
-    }
-
-    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 }

@@ -18,9 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BType;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,13 +30,6 @@ import java.util.List;
  */
 public class ParameterDef extends SimpleVariableDef implements Node {
     private List<AnnotationAttachment> annotations;
-
-    public ParameterDef(BType type, SymbolName symbolName) {
-        super(null, null, null, null, null);
-        this.type = type;
-        this.symbolName = symbolName;
-        this.annotations = new ArrayList<>();
-    }
 
     /**
      * Get all the Annotations attached to this parameter.

@@ -23,8 +23,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -44,16 +42,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
                       @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the hour, minute, second and millisecond values of the given the Time.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Hour of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Minute of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Second of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "MilliSecond of the given time value")})
 public class GetTime extends AbstractTimeFunction {
 
     @Override
