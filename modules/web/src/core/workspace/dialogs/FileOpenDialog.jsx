@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { getUserHome } from 'api-client/api-client';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { exists as checkPathExists } from './../fs-util';
 
 const FILE_TYPE = 'file';
+const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.file-open-dialog.last-active-path';
 
 /**
  * File Open Wizard Dialog
@@ -19,14 +21,30 @@ class FileOpenDialog extends React.Component {
      */
     constructor(props) {
         super(props);
+        const { history } = props.workspaceManager.appContext.pref;
+        const filePath = history.get(HISTORY_LAST_ACTIVE_PATH) || '';
         this.state = {
             error: '',
             selectedNode: undefined,
-            filePath: '',
+            filePath,
             showDialog: true,
         };
         this.onFileOpen = this.onFileOpen.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        if (!this.state.filePath) {
+            getUserHome()
+                .then((userHome) => {
+                    this.setState({
+                        filePath: userHome,
+                    });
+                });
+        }
     }
 
     /**
@@ -74,6 +92,21 @@ class FileOpenDialog extends React.Component {
     }
 
     /**
+     * Update state and history
+     *
+     * @param {Object} state
+     */
+    updateState({ error, selectedNode, filePath }) {
+        const { history } = this.props.workspaceManager.appContext.pref;
+        history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
+        this.setState({
+            error,
+            filePath,
+            selectedNode,
+        });
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
@@ -115,7 +148,7 @@ class FileOpenDialog extends React.Component {
                                     }
                                 }}
                                 onChange={(evt) => {
-                                    this.setState({
+                                    this.updateState({
                                         error: '',
                                         filePath: evt.target.value,
                                         selectedNode: undefined,
@@ -127,7 +160,7 @@ class FileOpenDialog extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-                <Scrollbars
+                <ScrollBarsWithContextAPI
                     style={{
                         width: 608,
                         height: 500,
@@ -135,9 +168,10 @@ class FileOpenDialog extends React.Component {
                     autoHide
                 >
                     <FileTree
+                        activeKey={this.state.filePath}
                         onSelect={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
                                     filePath: node.id,
@@ -146,7 +180,7 @@ class FileOpenDialog extends React.Component {
                         }
                         onOpen={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
                                     filePath: node.id,
@@ -155,7 +189,7 @@ class FileOpenDialog extends React.Component {
                             }
                         }
                     />
-                </Scrollbars>
+                </ScrollBarsWithContextAPI>
             </Dialog>
         );
     }

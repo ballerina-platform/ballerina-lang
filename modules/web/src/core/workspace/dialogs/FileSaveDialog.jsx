@@ -1,9 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import { getPathSeperator } from 'api-client/api-client';
+import { getPathSeperator, getUserHome } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { createOrUpdate, exists as checkFileExists } from './../fs-util';
@@ -11,6 +11,8 @@ import { DIALOGS } from './../constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../layout/constants';
 
 const FILE_TYPE = 'file';
+const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.file-save-dialog.last-active-path';
+const HISTORY_LAST_ACTIVE_NAME = 'composer.history.workspace.file-save-dialog.last-active-name';
 
 /**
  * File Save Wizard Dialog
@@ -23,14 +25,31 @@ class FileSaveDialog extends React.Component {
      */
     constructor(props) {
         super(props);
+        const { history } = props.workspaceManager.appContext.pref;
+        const filePath = history.get(HISTORY_LAST_ACTIVE_PATH) || '';
+        const fileName = history.get(HISTORY_LAST_ACTIVE_NAME) || '';
         this.state = {
             error: '',
-            filePath: '',
-            fileName: '',
+            filePath,
+            fileName,
             showDialog: true,
         };
         this.onFileSave = this.onFileSave.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
+    }
+
+     /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        if (!this.state.filePath) {
+            getUserHome()
+                .then((userHome) => {
+                    this.setState({
+                        filePath: userHome,
+                    });
+                });
+        }
     }
 
     /**
@@ -118,6 +137,22 @@ class FileSaveDialog extends React.Component {
     }
 
     /**
+     * Update state and history
+     *
+     * @param {Object} state
+     */
+    updateState({ error, filePath, fileName }) {
+        const { history } = this.props.workspaceManager.appContext.pref;
+        history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
+        history.put(HISTORY_LAST_ACTIVE_NAME, fileName);
+        this.setState({
+            error,
+            filePath,
+            fileName,
+        });
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
@@ -155,7 +190,7 @@ class FileSaveDialog extends React.Component {
                                     }}
                                     value={this.state.filePath}
                                     onChange={(evt) => {
-                                        this.setState({
+                                        this.updateState({
                                             error: '',
                                             filePath: evt.target.value,
                                         });
@@ -180,7 +215,7 @@ class FileSaveDialog extends React.Component {
                                     }}
                                     value={this.state.fileName}
                                     onChange={(evt) => {
-                                        this.setState({
+                                        this.updateState({
                                             error: '',
                                             fileName: evt.target.value,
                                         });
@@ -191,7 +226,7 @@ class FileSaveDialog extends React.Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                    <Scrollbars
+                    <ScrollBarsWithContextAPI
                         style={{
                             width: 608,
                             height: 500,
@@ -199,6 +234,7 @@ class FileSaveDialog extends React.Component {
                         autoHide
                     >
                         <FileTree
+                            activeKey={this.state.filePath}
                             onSelect={
                                 (node) => {
                                     let filePath = node.id;
@@ -207,7 +243,7 @@ class FileSaveDialog extends React.Component {
                                         filePath = node.filePath;
                                         fileName = node.fileName + '.' + node.extension;
                                     }
-                                    this.setState({
+                                    this.updateState({
                                         error: '',
                                         filePath,
                                         fileName,
@@ -215,7 +251,7 @@ class FileSaveDialog extends React.Component {
                                 }
                             }
                         />
-                    </Scrollbars>
+                    </ScrollBarsWithContextAPI>
                 </Dialog>
             </div>
         );

@@ -2,8 +2,8 @@ import React from 'react';
 import classnames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
+import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import ActivityBar from './ActivityBar';
 import { HISTORY } from './../constants';
 import { createViewFromViewDef } from './utils';
@@ -22,17 +22,6 @@ class LeftPanelTab extends React.Component {
     constructor(...args) {
         super(...args);
         this.scroller = undefined;
-    }
-
-    /**
-     * @override
-     */
-    getChildContext() {
-        return {
-            getScroller: () => {
-                return this.scroller;
-            },
-        };
     }
 
     /**
@@ -82,7 +71,7 @@ class LeftPanelTab extends React.Component {
                     </div>
                     <div className="panel-actions">{actions}</div>
                 </div>
-                <Scrollbars
+                <ScrollBarsWithContextAPI
                     style={dimensions}
                     className="panel-content-scroll-container"
                     ref={(ref) => {
@@ -96,7 +85,7 @@ class LeftPanelTab extends React.Component {
                             createViewFromViewDef(viewDef, viewProps)
                         }
                     </div>
-                </Scrollbars>
+                </ScrollBarsWithContextAPI>
             </div>
         );
     }
@@ -108,10 +97,6 @@ LeftPanelTab.propTypes = {
     panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-};
-
-LeftPanelTab.childContextTypes = {
-    getScroller: PropTypes.func.isRequired,
 };
 
 /**

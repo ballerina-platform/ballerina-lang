@@ -62,7 +62,12 @@ public class CloudWorkspace implements Workspace {
     public void log(String logger, String timestamp, String level, String url, String message, String layout) throws
             IOException {
     }
-    
+
+    @Override
+    public String getUserHome() {
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */
