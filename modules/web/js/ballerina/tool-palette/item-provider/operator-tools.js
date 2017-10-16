@@ -193,7 +193,7 @@ const plusOpTool = {
     icon: 'add',
     title: 'Plus',
     factoryArgs: {
-        defaultExpression: '+ 1',
+        defaultExpression: '+ (1)',
     },
     nodeFactoryMethod: operatorStatementCreator,
 };
@@ -204,7 +204,7 @@ const minusOpTool = {
     icon: 'minus',
     title: 'Minus',
     factoryArgs: {
-        defaultExpression: '- 1',
+        defaultExpression: '- (1)',
     },
     nodeFactoryMethod: operatorStatementCreator,
 };
