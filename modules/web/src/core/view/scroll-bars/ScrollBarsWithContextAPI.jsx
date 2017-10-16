@@ -68,8 +68,8 @@ export default class ScrollBarsWithContextAPI extends React.Component {
                         }
                         const { clientHeight, scrollTop, clientWidth, scrollLeft } = this.scrollBarRef.getValues();
                         const { offsetTop, offsetHeight, offsetLeft, offsetWidth } = element;
-                        return (clientWidth + scrollLeft) > (offsetLeft + offsetWidth)
-                                    && (clientHeight + scrollTop) > (offsetTop + offsetHeight);
+                        return (clientWidth + scrollLeft) >= (offsetLeft + offsetWidth)
+                                    && (clientHeight + scrollTop) >= (offsetTop + offsetHeight);
                     }
                     return false;
                 },

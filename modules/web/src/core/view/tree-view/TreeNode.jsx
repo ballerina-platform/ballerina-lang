@@ -37,6 +37,7 @@ class TreeNode extends React.Component {
         this.errorDiv = undefined;
         this.nameInput = undefined;
         this.focusHighligher = undefined;
+        this.nodeRef = undefined;
         this.onEditName = this.onEditName.bind(this);
         this.onEditComplete = this.onEditComplete.bind(this);
     }
@@ -50,6 +51,9 @@ class TreeNode extends React.Component {
             this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
             scroller.scrollToElement(this.nameInput);
             this.nameInput.focus();
+        }
+        if (this.props.node.active) {
+            this.scrollToNode();
         }
     }
 
@@ -80,6 +84,9 @@ class TreeNode extends React.Component {
                 scroller.scrollToElement(this.errorDiv);
             }
             this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
+        }
+        if (this.props.node.active) {
+            this.scrollToNode();
         }
     }
 
@@ -188,6 +195,15 @@ class TreeNode extends React.Component {
     }
 
     /**
+     * Scroll to node in tree.
+     */
+    scrollToNode() {
+        if (this.nodeRef && !this.context.scroller.isElementVisible(this.nodeRef)) {
+            this.context.scroller.scrollToElement(this.nodeRef);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
@@ -225,6 +241,9 @@ class TreeNode extends React.Component {
                     if (!enableEdit) {
                         onDoubleClick(node);
                     }
+                }}
+                ref={(ref) => {
+                    this.nodeRef = ref;
                 }}
             >
                 <div className="tree-node-highlight-row" />
@@ -349,6 +368,7 @@ TreeNode.propTypes = {
         type: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
         enableEdit: PropTypes.bool,
+        active: PropTypes.bool,
 
     }).isRequired,
     parentNode: PropTypes.objectOf(Object),
