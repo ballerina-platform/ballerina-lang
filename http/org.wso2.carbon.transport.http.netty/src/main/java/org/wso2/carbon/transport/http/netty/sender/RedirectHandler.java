@@ -118,8 +118,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * When an exception occurs, if the original channel is still active send it to the next handler else, notify
-     * listener.
+     * When an exception occurs, notify the listener.
      *
      * @param ctx   Channel context
      * @param cause Exception occurred
@@ -198,10 +197,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 TargetChannel targetChannel = ctx.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
                 ConnectionManager.getInstance().invalidateTargetChannel(targetChannel);
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 LOG.error("Error occurred while invalidating target channel " + ctx.channel().id() + " to pool in "
-                        + "markEndOfMessage", e);
-                throw new Exception();
+                        + "markEndOfMessage", exception);
+                exceptionCaught(ctx, exception.getCause());
             }
         }
         ctx.close();
@@ -213,8 +212,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param ctx ChannelHandler context
      * @param msg Response message
      */
-    private void handleRedirectState(ChannelHandlerContext ctx, HttpResponse msg)
-            throws UnsupportedEncodingException, MalformedURLException {
+    private void handleRedirectState(ChannelHandlerContext ctx, HttpResponse msg) throws Exception {
         try {
             originalRequest = ctx.channel().attr(Constants.ORIGINAL_REQUEST).get();
             String location = getLocationFromResponseHeader(msg);
@@ -249,9 +247,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 isRedirect = false;
                 sendResponseHeadersToClient(ctx, msg);
             }
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("Error occurred when deciding whether a redirection is required", e);
-            throw new UnsupportedEncodingException();
+        } catch (UnsupportedEncodingException exception) {
+            LOG.error("Error occurred when deciding whether a redirection is required", exception);
+            exceptionCaught(ctx, exception.getCause());
         }
     }
 
@@ -277,12 +275,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     writeContentToExistingChannel(ctx, httpCarbonRequest, httpRequest);
                 }
-            } catch (MalformedURLException e) {
-                LOG.error("Error occurred when parsing redirect url", e);
-                throw new MalformedURLException();
-            } catch (Exception e) {
-                LOG.error("Error occurred during redirection", e);
-                throw new Exception();
+            } catch (MalformedURLException exception) {
+                LOG.error("Error occurred when parsing redirect url", exception);
+                throw exception;
+            } catch (Exception exception) {
+                LOG.error("Error occurred during redirection", exception);
+                throw exception;
             }
         } else {
             if (LOG.isDebugEnabled()) {
@@ -353,11 +351,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             if (ctx != originalChannelContext) {
                 ctx.close();
             }
-        } catch (Exception e) {
+        } catch (Exception exception) {
             LOG.error(
                     "Error occurred while returning target channel " + targetChannel.getChannel().id() + " from current"
-                            + " channel" + ctx.channel().id() + " " + "to its pool in " + "markEndOfMessage", e);
-            throw new Exception();
+                            + " channel" + ctx.channel().id() + " " + "to its pool in " + "markEndOfMessage",
+                    exception);
+            exceptionCaught(ctx, exception.getCause());
         }
     }
 
@@ -575,9 +574,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     }
                     return true;
                 }
-            } catch (MalformedURLException e) {
-                LOG.error("MalformedURLException occurred while deciding whether the redirect url is cross domain", e);
-                throw new MalformedURLException();
+            } catch (MalformedURLException exception) {
+                LOG.error("MalformedURLException occurred while deciding whether the redirect url is cross domain",
+                        exception);
+                throw exception;
             }
         }
         if (LOG.isDebugEnabled()) {
