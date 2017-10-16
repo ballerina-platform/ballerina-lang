@@ -61,12 +61,12 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.EmptyStackException;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -516,7 +516,7 @@ public class LangServerManager {
                 filterDataModel.setPackages(this.getPackages());
 
                 completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
-            } catch (NullPointerException | EmptyStackException e ) {
+            } catch (NullPointerException | EmptyStackException e) {
                 //TODO : These exceptions are throwing from core, a proper solution should be followed to handle these
                  logger.debug("Failed to resolve completion items", e.getMessage());
                 completionItems = new ArrayList<>();
