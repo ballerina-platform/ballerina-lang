@@ -63,7 +63,7 @@ class FileSaveDialog extends React.Component {
                         error: '',
                         showDialog: false,
                     });
-                    file.name = fileName;
+                    file.name = _.endsWith(fileName, '.bal') ? _.split(fileName, '.bal')[0] : fileName;
                     file.path = derivedFilePath;
                     file.extension = 'bal';
                     file.fullPath = derivedFilePath + derivedFileName;

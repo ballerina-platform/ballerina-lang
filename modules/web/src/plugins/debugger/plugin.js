@@ -121,6 +121,7 @@ class DebuggerPlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
+                                description: 'Show Launch Config Dialog',
                             },
                             {
                                 icon: 'console',
@@ -128,6 +129,7 @@ class DebuggerPlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(LAYOUT_COMMANDS.TOGGLE_BOTTOM_PANEL);
                                 },
+                                description: 'Toggle Console',
                             },   
                         ],
                     },
@@ -194,6 +196,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return !LaunchManager.active;
                     },
+                    description: 'Run',
                 },
                 {
                     id: TOOL_IDS.STOP,
@@ -206,6 +209,7 @@ class DebuggerPlugin extends Plugin {
                         }
                         return LaunchManager.active;
                     },
+                    description: 'Stop',
                 },
                 {
                     id: TOOL_IDS.DEBUG,
@@ -220,6 +224,7 @@ class DebuggerPlugin extends Plugin {
                         return activeEditor && activeEditor.definition &&
                             activeEditor.definition.id === 'composer.editor.ballerina' && !DebugManager.active;
                     },
+                    description: 'Run With Debug',
                 },
                 {
                     id: TOOL_IDS.DEBUG_STOP,
@@ -229,6 +234,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return DebugManager.active;
                     },
+                    description: 'Stop Debug',
                 },
                 {
                     id: TOOL_IDS.RESUME,
@@ -238,6 +244,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return DebugManager.active;
                     },
+                    description: 'Resume',
                 },
                 {
                     id: TOOL_IDS.STEP_OVER,
@@ -247,6 +254,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return DebugManager.active;
                     },
+                    description: 'Step Over',
                 },
                 {
                     id: TOOL_IDS.STEP_IN,
@@ -256,6 +264,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return DebugManager.active;
                     },
+                    description: 'Step In',
                 },
                 {
                     id: TOOL_IDS.STEP_OUT,
@@ -265,6 +274,7 @@ class DebuggerPlugin extends Plugin {
                     isVisible: () => {
                         return DebugManager.active;
                     },
+                    description: 'Step Out',
                 },
             ],
         };

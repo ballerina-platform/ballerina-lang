@@ -22,6 +22,8 @@ import ToolView from './tool-view';
 import { TOOL_GROUP } from './spec';
 import './tool-palette.css';
 
+const GRID_STYLE_HISTORY = 'composer.history.ballerina.tool-pallete-grid-style';
+
 /**
  * Renders a tool group.
  *
@@ -36,10 +38,10 @@ class ToolGroupView extends React.Component {
      *
      * @memberof ToolGroupView
      */
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
         this.state = {
-            activeGridStyle: 'list',
+            activeGridStyle: context.history.get(GRID_STYLE_HISTORY) || 'list',
         };
         this.changeGridStyle = this.changeGridStyle.bind(this);
     }
@@ -76,7 +78,9 @@ class ToolGroupView extends React.Component {
      * @memberof ToolGroupView
      */
     changeGridStyle(event) {
-        this.setState({ activeGridStyle: event.currentTarget.dataset.style });
+        const { style } = event.currentTarget.dataset;
+        this.context.history.put(GRID_STYLE_HISTORY, style);
+        this.setState({ activeGridStyle: style });
     }
 
     /**
@@ -137,10 +141,10 @@ class ToolGroupView extends React.Component {
                 >
                     <div className={`tool-group-body tool-group-body-${this.state.activeGridStyle}`}>
                         {this.props.showGridStyles && <div className="tools-view-modes-controls clearfix">
-                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="tiles" >
+                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="tiles" title="Grid View" >
                                 <i className="fw fw-tiles" />
                             </a>
-                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="list" >
+                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="list" title="List View" >
                                 <i className="fw fw-list" />
                             </a>
                         </div>
@@ -160,6 +164,10 @@ ToolGroupView.propTypes = {
 
 ToolGroupView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
 };
 
 export default ToolGroupView;
