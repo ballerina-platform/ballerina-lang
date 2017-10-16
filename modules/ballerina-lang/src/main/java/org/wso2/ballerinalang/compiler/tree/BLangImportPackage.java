@@ -93,7 +93,11 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
             return false;
         }
 
-        return version != null ? version.equals(that.version) : that.version == null;
+        if (version != null ? !version.equals(that.version) : that.version != null) {
+            return false;
+        }
+
+        return alias.equals(that.alias);
     }
 
     @Override
