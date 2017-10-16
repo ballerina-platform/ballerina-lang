@@ -197,7 +197,7 @@ public class HttpConnectionManager {
         }
 
         BStruct options = (BStruct) bConnector.getRefField(OPTIONS_STRUCT_INDEX);
-        if (options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
+        if (options != null && options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
             BStruct followRedirects = (BStruct) options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX);
             followRedirect = followRedirects.getBooleanField(FOLLOW_REDIRECT_INDEX);
             maxRedirectCount = (int) followRedirects.getIntField(MAX_REDIRECT_COUNT);
@@ -205,7 +205,7 @@ public class HttpConnectionManager {
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
 
-        if (options.getRefField(SSL_STRUCT_INDEX) != null) {
+        if (options != null && options.getRefField(SSL_STRUCT_INDEX) != null) {
             BStruct ssl = (BStruct) options.getRefField(SSL_STRUCT_INDEX);
             String trustStoreFile = ssl.getStringField(TRUST_STORE_FILE_INDEX);
             String trustStorePassword = ssl.getStringField(TRUST_STORE_PASSWORD_INDEX);
