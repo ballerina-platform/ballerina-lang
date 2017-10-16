@@ -21,7 +21,6 @@ import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transform-node-mapper';
 import TransformFactory from '../../../../../model/transform-factory';
-import TransformUtils, { VarPrefix, ExpressionType } from '../../../../../utils/transform-utils';
 
 /**
  * Transform node manager

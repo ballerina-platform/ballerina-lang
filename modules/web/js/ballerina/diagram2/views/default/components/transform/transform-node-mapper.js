@@ -464,7 +464,8 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping function ${source.funcInv.getFunctionName()} to operator ${target.operator.getOperatorKind()}`,
+            title: 'Create mapping function ' + source.funcInv.getFunctionName() + ' to operator ' +
+                    target.operator.getOperatorKind(),
             data: {},
         });
     }
@@ -580,9 +581,7 @@ class TransformNodeMapper {
         const nodeName = (source.funcInv) ? nodeExpression.getFunctionName() : nodeExpression.getOperatorKind();
 
         const stmtSource = this.getParentStatement(nodeExpression);
-        const expression = this.getVariables(stmtSource).find((varExp) => {
-            return (varExp.getSource().trim() === targetName);
-        });
+        const expression = this.getVariables(stmtSource)[source.index];
 
         if (expression) {
             this.removeOutputExpressions(stmtSource, targetName);
@@ -915,7 +914,8 @@ class TransformNodeMapper {
     removeOutputExpressions(stmt, expStr) {
         this.getVariables(stmt).forEach((exp, index) => {
             if (exp.getSource().trim() === expStr) {
-                if (TreeUtil.isSimpleVariableRef(this.getExpression(stmt))) {
+                const stmtExpr = this.getExpression(stmt);
+                if (TreeUtil.isSimpleVariableRef(stmtExpr)) {
                     // if it is a direct mapping, remove the statement
                     this._transformStmt.body.removeStatements(stmt, true);
 
@@ -944,12 +944,13 @@ class TransformNodeMapper {
                             this._transformStmt.body.removeStatements(tempUsedStmts[0], true);
                         }
                     }
-                } else {
-                    // TODO: fix this for var defs
+                } else if (TreeUtil.isAssignment(stmt)) {
                     stmt.setDeclaredWithVar(true, true);
-                    const outputVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT);
+                    const outputVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR);
                     const simpleVarRefExpression = TransformFactory.createVariableRefExpression(outputVarName);
                     stmt.replaceVariablesByIndex(index, simpleVarRefExpression, true);
+                } else {
+                    log.warn('Cannot remove output expressions in other statement types');
                 }
             } else if (TreeUtil.isFieldBasedAccessExpr(stmt.getVariables()[0])) {
                 this.removeNestedOutputExpressions(stmt, stmt.getVariables()[0], expStr);
@@ -1033,7 +1034,7 @@ class TransformNodeMapper {
     createNewAssignment(expression) {
         const assignment = NodeFactory.createAssignment({ expression });
         const variableExp = TransformFactory.createVariableRefExpression(
-            TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT));
+                                TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR));
         assignment.addVariables(variableExp);
         assignment.setDeclaredWithVar(true);
         return assignment;
@@ -1119,7 +1120,7 @@ class TransformNodeMapper {
         const varExp = assignmentStmt.getVariables().find((exp) => {
             return exp.getSource().trim() === varExpression.getSource();
         });
-        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT);
+        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR);
         const outputVar = TransformFactory.createVariableRefExpression(tempVarName);
         assignmentStmt.replaceVariables(varExp, outputVar, true);
     }
@@ -1145,7 +1146,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     assignExpressionToTempVariable(expression, index = 0, safe = true) {
-        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.TEMP);
+        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR);
         const variables = [];
         variables.push(TransformFactory.createVariableRefExpression(tempVarName));
         if (!safe) {
