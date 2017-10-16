@@ -173,7 +173,7 @@ class TransformNodeManager {
 
         if (source.endpointKind === 'input') {
             if (target.funcInv) {
-                this._mapper.removeInputToFunctionMapping(source.name, target);
+                this._mapper.removeInputToFunctionMapping(source, target);
                 return;
             }
             if (target.operator) {

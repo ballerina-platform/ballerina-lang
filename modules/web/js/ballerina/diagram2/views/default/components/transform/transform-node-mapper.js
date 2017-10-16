@@ -93,11 +93,11 @@ class TransformNodeMapper {
             funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
         } else {
             sourceExpression = this.getCompatibleSourceExpression(sourceExpression, compatibility.type, target.type);
-            const stmt = this.getParentStatement(funcNode);
-            const stmtIndex = this._transformStmt.body.getIndexOfStatements(stmt);
             let tempVarName = this.getAssignedTempVarName(sourceExpression);
             if (!tempVarName) {
                 // if no assigned temp var, assign the expression to a new temp var
+                const stmt = this.getParentStatement(funcNode);
+                const stmtIndex = this._transformStmt.body.getIndexOfStatements(stmt);
                 tempVarName = this.assignExpressionToTempVariable(sourceExpression, stmtIndex, false);
             }
             sourceExpression = TransformFactory.createVariableRefExpression(tempVarName);
@@ -373,7 +373,8 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping function ${source.funcInv.getFunctionName()} to function ${target.funcInv.getFunctionName()}`,
+            title: 'Create mapping operator ' + source.funcInv.getFunctionName() + ' to function ' +
+                    target.funcInv.getFunctionName(),
             data: {},
         });
     }
@@ -404,7 +405,8 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping operator ${source.operator.getOperatorKind()} to operator ${target.operator.getOperatorKind()}`,
+            title: 'Create mapping operator ' + source.operator.getOperatorKind() + ' to function ' +
+                    target.operator.getOperatorKind(),
             data: {},
         });
     }
@@ -430,7 +432,8 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping operator ${source.operator.getOperatorKind()} to function ${target.funcInv.getFunctionName()}`,
+            title: 'Create mapping operator ' + source.operator.getOperatorKind() + ' to function ' +
+                    target.funcInv.getFunctionName(),
             data: {},
         });
     }
@@ -614,33 +617,36 @@ class TransformNodeMapper {
 
     /**
      * Remove input variable to function mapping.
-     * @param {any} sourceName source name
+     * @param {any} source source
      * @param {any} target target
      * @memberof TransformNodeMapper
      */
-    removeInputToFunctionMapping(sourceName, target) {
+    removeInputToFunctionMapping(source, target) {
         const functionInv = target.funcInv;
-        const expression = _.find(functionInv.getArgumentExpressions(), (child) => {
-            return (this.getMappableExpression(child).getSource().trim() === sourceName);
-        });
+
+        const argExp = functionInv.getArgumentExpressions()[target.index];
+        const stmt = this.getParentStatement(functionInv);
+
+        if (this.isTempVariable(argExp, stmt)) {
+            // remove temp variable assignment if it is no longer being used
+            const tempUsedStmts = this.getInputStatements(argExp);
+            if (tempUsedStmts.length === 1) {
+                const tempAssignStmt = this.getOutputStatement(argExp);
+                if (tempAssignStmt && !this.isComplexExpression(this.getExpression(tempAssignStmt))) {
+                    // only remove if the temp variable is not a complex expression, since a complex expression
+                    // is open for further mappings
+                    this._transformStmt.body.removeStatements(tempAssignStmt, true);
+                }
+            }
+        }
+
         functionInv.replaceArgumentExpressionsByIndex(target.index,
             TransformFactory.createDefaultExpression(target.type), true);
 
-        // TODO: work on this logic
-        // if (expression.getExpressionString().startsWith('__temp')) {
-        //     // remove temp variable assignment if it is not used
-        //     const tempUsages = this.findTempVarUsages(expression.getExpressionString());
-        //     if (tempUsages.length === 0) {
-        //         const tempAssignStmt = this.findAssignedVertexForTemp(expression);
-        //         if (tempAssignStmt) {
-        //             this._transformStmt.removeChild(tempAssignStmt, true);
-        //         }
-        //     }
-        // }
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
-            title: `Remove mapping ${sourceName} to ${functionInv.getFunctionName()}`,
+            title: `Remove mapping ${source.name} to ${functionInv.getFunctionName()}`,
             data: {},
         });
     }
@@ -991,7 +997,7 @@ class TransformNodeMapper {
     getAssignedTempVarName(expression) {
         let tempVarName;
         this._transformStmt.body.getStatements().forEach((stmt) => {
-            if (this.getExpression(stmt).getSource() === expression.getSource()) {
+            if (this.getExpression(stmt).getSource().trim() === expression.getSource().trim()) {
                 const outputExpressions = this.getOutputExpressions(stmt);
                 // TODO: handle multiple temp returns here
                 if (outputExpressions.length === 1) {
@@ -1037,8 +1043,8 @@ class TransformNodeMapper {
 
     /**
     * Gets the enclosing statement.
-    * @param {Node} node
-    * @returns {StatementNode} enclosing statement
+    * @param {Statement|Expression} node
+    * @returns {Statement} enclosing statement
     * @memberof TransformNodeMapper
     */
     getParentStatement(node) {
