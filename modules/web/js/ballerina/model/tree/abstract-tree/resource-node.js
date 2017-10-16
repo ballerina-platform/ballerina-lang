@@ -129,6 +129,7 @@ class AbstractResourceNode extends Node {
     replaceReturnParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParameters(oldChild);
         this.returnParameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +145,7 @@ class AbstractResourceNode extends Node {
 
     replaceReturnParametersByIndex(index, newChild, silent) {
         this.returnParameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

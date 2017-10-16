@@ -57,10 +57,14 @@ class AnnotationAttributeKey extends React.Component {
      * Event when key is blurred.
      * @memberof AnnotationAttributeKey
      */
-    onKeyBlur() {
-        this.setState({
-            editState: 0,
-        });
+    onKeyBlur(event) {
+        if (event.target.value.trim() !== '') {
+            this.setState({
+                editState: 0,
+            });
+        } else if (this.props.removeEmptyAttribute) {
+            this.props.removeEmptyAttribute();
+        }
     }
 
     /**
@@ -99,6 +103,17 @@ class AnnotationAttributeKey extends React.Component {
                     value: undefined,
                 });
                 if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType().replace('[]', ''))) {
+                    const literalInArray = NodeFactory.createLiteral({
+                        value: AnnotationHelper.generateDefaultValue(annotationAttributeDef
+                                                                                    .getBType().replace('[]', '')),
+                    });
+                    const arrayAnnotationAttributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
+                    arrayAnnotationAttributeValue.setValue(literalInArray);
+
+                    if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                        this.props.parent.addAttributes(this.props.attributeModel, -1, true);
+                    }
+                    annotationAttributeValue.addValueArray(arrayAnnotationAttributeValue);
                 } else {
                     const annotationAttachmentInArray = NodeFactory.createAnnotationAttachment({
                         packageAlias: NodeFactory.createLiteral({
@@ -118,10 +133,15 @@ class AnnotationAttributeKey extends React.Component {
                 }
             } else if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
                 const bValue = NodeFactory.createLiteral({
-                    value: '""',
+                    value: AnnotationHelper.generateDefaultValue(annotationAttributeDef
+                        .getBType().replace('[]', '')),
                 });
                 // bValue.setBType(annotationAttributeDef.getBType());
                 annotationAttributeValue.setValue(bValue);
+
+                if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                    this.props.parent.addAttributes(this.props.attributeModel, -1, true);
+                }
             } else {
                 const annotationAttachment = NodeFactory.createAnnotationAttachment();
                 annotationAttachment.setPackageAlias(NodeFactory.createLiteral({
@@ -176,7 +196,7 @@ class AnnotationAttributeKey extends React.Component {
                 placeholder={'Key'}
                 initialValue=''
                 onSuggestionSelected={(event, { suggestionValue }) => { this.onKeySelected(suggestionValue); }}
-                onBlur={() => this.onKeyBlur()}
+                onBlur={e => this.onKeyBlur(e)}
                 minWidth={130}
                 maxWidth={1000}
                 showAllAtStart
@@ -200,7 +220,7 @@ class AnnotationAttributeKey extends React.Component {
                 placeholder={'Key'}
                 initialValue={initialValue}
                 onSuggestionSelected={(event, { suggestionValue }) => { this.onKeySelected(suggestionValue); }}
-                onBlur={() => this.onKeyBlur()}
+                onBlur={e => this.onKeyBlur(e)}
                 minWidth={130}
                 maxWidth={1000}
                 showAllAtStart
@@ -214,12 +234,14 @@ AnnotationAttributeKey.propTypes = {
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
     editState: PropTypes.number,
     parent: PropTypes.instanceOf(AnnotationAttachmentTreeNode),
+    removeEmptyAttribute: PropTypes.func,
 };
 
 AnnotationAttributeKey.defaultProps = {
     annotationDefinitionModel: undefined,
     editState: 0,
     parent: undefined,
+    removeEmptyAttribute: undefined,
 };
 
 AnnotationAttributeKey.contextTypes = {

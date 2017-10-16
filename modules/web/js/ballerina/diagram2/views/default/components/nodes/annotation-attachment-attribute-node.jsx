@@ -274,11 +274,13 @@ class AnnotationAttribute extends React.Component {
                 attributeModel={this.props.model}
                 annotationDefinitionModel={this.props.annotationDefinitionModel}
                 parent={this.props.parent}
+                removeEmptyAttribute={this.props.removeEmptyAttribute}
             />);
         } else {
             return (<AnnotationAttributeKey
                 attributeModel={this.props.model}
                 parent={this.props.parent}
+                removeEmptyAttribute={this.props.removeEmptyAttribute}
             />);
         }
     }
@@ -305,6 +307,10 @@ class AnnotationAttribute extends React.Component {
             };
             actionMenuItems.push(deleteButton);
 
+            const actionItems = actionMenuItems.map((item) => {
+                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+            });
+
             const literalNode = attributeValue.getValue();
             if (this.state.isBValueEdit) {
                 const width = util.getTextWidth(this.state.bValueText, 150, 1000);
@@ -313,7 +319,6 @@ class AnnotationAttribute extends React.Component {
                         <li className={cn('action-menu-wrapper',
                             { 'annotation-attribute-error': this.state.hasError })}
                         >
-                            <ActionMenu items={actionMenuItems} />
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 <input
@@ -328,6 +333,9 @@ class AnnotationAttribute extends React.Component {
                                     style={{ width: parseInt(width.w + 20, 10) }}
                                 />
                             </span>
+                            <span className='annotation-action-menu-items'>
+                                {actionItems}
+                            </span>
                         </li>
                     </ul>
                 );
@@ -339,10 +347,12 @@ class AnnotationAttribute extends React.Component {
                             className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}
                             onClick={() => this.onBValueEdit(false)}
                         >
-                            <ActionMenu items={actionMenuItems} />
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 {literalNode.getValue()}
+                            </span>
+                            <span className='annotation-action-menu-items'>
+                                {actionItems}
                             </span>
                         </li>
                     </ul>
@@ -353,10 +363,12 @@ class AnnotationAttribute extends React.Component {
                     className="attribute-value-bvalue"
                 >
                     <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
-                        <ActionMenu items={actionMenuItems} />
                         {key}
                         <span className="annotation-attribute-value-wrapper" onClick={() => this.onBValueEdit(true)}>
                             {literalNode.getValue()}
+                        </span>
+                        <span className='annotation-action-menu-items'>
+                            {actionItems}
                         </span>
                     </li>
                 </ul>
@@ -395,6 +407,11 @@ class AnnotationAttribute extends React.Component {
                 };
                 actionMenuItems.push(addAttributeButton);
             }
+
+            const actionItems = actionMenuItems.map((item) => {
+                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+            });
+
             const attributes = this.props.model.viewState.collapsed ? [] :
                 this.renderAnnotationAttributes(annotationAttachment);
             let emptyAttribute = (null);
@@ -406,7 +423,7 @@ class AnnotationAttribute extends React.Component {
                     className="attribute-value-annotation"
                 >
                     <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
-                        <ActionMenu items={actionMenuItems} />
+                        
                         <CSSTransitionGroup
                             component="span"
                             transitionName="annotation-expand"
@@ -427,6 +444,9 @@ class AnnotationAttribute extends React.Component {
                         :{name}
                         <span className='annotation-attachment-badge hide'>
                             <i className="fw fw-annotation-badge" />
+                        </span>
+                        <span className='annotation-action-menu-items'>
+                            {actionItems}
                         </span>
                     </li>
                     {emptyAttribute}
@@ -455,6 +475,10 @@ class AnnotationAttribute extends React.Component {
             };
             actionMenuItems.push(deleteButton);
             actionMenuItems.push(addNewToArray);
+
+            const actionItems = actionMenuItems.map((item) => {
+                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+            });
             const arrayValues = this.props.model.viewState.collapsed ? [] :
                 attributeValue.getValueArray().map((annotationAttributeValue) => {
                     return this.renderAnnotationAttributeValue(annotationAttributeValue);
@@ -464,7 +488,6 @@ class AnnotationAttribute extends React.Component {
                     className="attribute-value-array"
                 >
                     <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
-                        <ActionMenu items={actionMenuItems} />
                         <CSSTransitionGroup
                             component="span"
                             transitionName="annotation-expand"
@@ -482,6 +505,9 @@ class AnnotationAttribute extends React.Component {
                         <span className='annotation-attribute-array-badge'>
                             [ ]
                         </span>
+                        <span className='annotation-action-menu-items'>
+                            {actionItems}
+                        </span>
                     </li>
                     {arrayValues}
                 </ul>
@@ -496,11 +522,13 @@ AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttributeTreeNode).isRequired,
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
     parent: PropTypes.instanceOf(AnnotationAttachmentTreeNode),
+    removeEmptyAttribute: PropTypes.func,
 };
 
 AnnotationAttribute.defaultProps = {
     annotationDefinitionModel: undefined,
     parent: undefined,
+    removeEmptyAttribute: undefined,
 };
 
 AnnotationAttribute.contextTypes = {

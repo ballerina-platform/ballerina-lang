@@ -79,7 +79,7 @@ public class ItemResolverConstants {
     public static final String BREAK_TEMPLATE = "break;";
     public static final String FORK_TEMPLATE = "fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}";
     public static final String TRY_CATCH_TEMPLATE =
-            "try {\n\t${1}\n} catch (${2:errors}:${3:Error} ${4:err}) {\n\t${5}\n}";
+            "try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}";
     public static final String RETURN_TEMPLATE = "return;";
     public static final String REPLY_TEMPLATE = "reply ${1};";
     public static final String ABORT_TEMPLATE = "abort;";

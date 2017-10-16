@@ -194,12 +194,36 @@ public class WorkspaceUtils {
             if (value.symbol instanceof BTypeSymbol) {
                 SymbolInformation symbolInfo = new SymbolInformation();
                 String symbolName = value.symbol.getName().getValue();
-                symbolInfo.setName(symbolName);
-                symbolInformationList.add(symbolInfo);
+                if (!symbolName.equals(BuiltInType.INVALID_TYPE)) {
+                    symbolInfo.setName(symbolName);
+                    setDefaultValuesForType(symbolName, symbolInfo);
+                    symbolInformationList.add(symbolInfo);
+                }
             }
         });
 
         return symbolInformationList;
+    }
+
+    private static void setDefaultValuesForType(String type, SymbolInformation symbolInfo) {
+        switch (type) {
+            case BuiltInType.INT :
+                symbolInfo.setDefaultValue(BuiltInType.INT_DEFAULT);
+                break;
+            case BuiltInType.FLOAT :
+                symbolInfo.setDefaultValue(BuiltInType.FLOAT_DEFAULT);
+                break;
+            case BuiltInType.STRING :
+                symbolInfo.setDefaultValue(BuiltInType.STRING_DEFAULT);
+                break;
+            case BuiltInType.BOOLEAN :
+                symbolInfo.setDefaultValue(BuiltInType.BOOLEAN_DEFAULT);
+                break;
+            default:
+                // TODO: Here we are setting the null for blob as well
+                symbolInfo.setDefaultValue(BuiltInType.NULL_DEFAULT);
+                break;
+        }
     }
 
     /**
