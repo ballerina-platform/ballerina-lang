@@ -33,8 +33,17 @@ class ConnectorDeclarationDecorator extends React.Component {
      */
     constructor(props) {
         super(props);
+        this.onDelete = this.onDelete.bind(this);
         this.getConnectorName = this.getConnectorName.bind(this);
         this.setConnectorName = this.setConnectorName.bind(this);
+    }
+
+    /**
+     * Removes self on delete button click.
+     * @returns {void}
+     */
+    onDelete() {
+        this.props.model.remove();
     }
 
     /**
@@ -88,7 +97,6 @@ class ConnectorDeclarationDecorator extends React.Component {
             getterMethod: this.getConnectorName,
             setterMethod: this.setConnectorName,
         };
-
         return (
             <g>
                 <LifeLine
@@ -99,6 +107,7 @@ class ConnectorDeclarationDecorator extends React.Component {
                     icon={ImageUtil.getConnectorIcon(connectorInitExpression.connectorType.packageAlias.value)}
                     editorOptions={this.editorOptions}
                     iconColor='#1a8278'
+                    onDelete={this.onDelete}
                 />
             </g>
         );
