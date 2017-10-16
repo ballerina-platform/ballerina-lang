@@ -22,8 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 
@@ -39,10 +37,6 @@ import java.io.PrintStream;
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Prints a 'any' value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "a",
-        value = "any value to be printed") })
 public class PrintAny extends AbstractNativeFunction {
 
 

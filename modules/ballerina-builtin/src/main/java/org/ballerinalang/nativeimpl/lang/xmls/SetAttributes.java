@@ -26,8 +26,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -42,12 +40,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets the attributes to the provided attributes map.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributes",
-        value = "Attributes map") })
 public class SetAttributes extends AbstractNativeFunction {
 
     private static final String OPERATION = "set attributes";

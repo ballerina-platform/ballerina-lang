@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -43,12 +41,6 @@ import java.io.File;
                         structPackage = "ballerina.lang.files")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "This function moves a file from a given location to another") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "source",
-        value = "File that should be moved") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destination",
-        value = "The location where the File should moved to") })
 public class Move extends AbstractNativeFunction {
 
     @Override 

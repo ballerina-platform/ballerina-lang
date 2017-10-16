@@ -23,8 +23,6 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -41,12 +39,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-               value = "Returns the current row of the datatable as a struct.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
-               value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
-               value = "The struct created with the data of the current row") })
 public class GetNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

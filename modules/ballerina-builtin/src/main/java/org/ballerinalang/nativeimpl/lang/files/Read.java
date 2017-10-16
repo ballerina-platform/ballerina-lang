@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -47,16 +45,6 @@ import java.util.Arrays;
                       @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Read byte data from a file") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "is",
-        value = "The File struct") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "number",
-        value = "The number of bytes to be read") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "data",
-        value = "The blob containing files read") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "numberRead",
-        value = "The number of bytes actually read") })
 public class Read extends AbstractNativeFunction {
 
     @Override

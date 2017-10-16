@@ -26,7 +26,6 @@ import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.value.EmptySequence;
-
 import org.apache.axiom.om.OMElement;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -38,8 +37,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -55,17 +52,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Evaluates the XPath on an XML object and returns the matching string value."
-                + " Namespaces are supported.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
-        value = "An XPath") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "namespaces",
-        value = "A map object consisting of namespaces") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "Matching string value") })
 public class GetStringWithNamespaces extends AbstractNativeFunction {
 
     private static final String OPERATION = "get string from xml";

@@ -24,12 +24,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.osgi.service.component.annotations.Component;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
@@ -54,21 +51,6 @@ import javax.crypto.spec.SecretKeySpec;
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a hash of a given string using the key provided ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "baseString",
-        value = "The string to be hashed") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "keyString",
-        value = "The key string ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "algorithm",
-        value = "The hashing algorithm to be used") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The hashed string") })
-@Component(
-        name = "func.util_getHmac",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetHmac extends AbstractNativeFunction {
 
