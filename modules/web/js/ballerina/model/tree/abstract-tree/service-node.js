@@ -417,6 +417,7 @@ class AbstractServiceNode extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -432,6 +433,7 @@ class AbstractServiceNode extends Node {
 
     replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

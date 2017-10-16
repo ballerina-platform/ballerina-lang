@@ -104,6 +104,7 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
     replace{{methodSuffix}}(oldChild, newChild, silent) {
         const index = this.getIndexOf{{methodSuffix}}(oldChild);
         this.{{property}}[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -119,6 +120,7 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
 
     replace{{methodSuffix}}ByIndex(index, newChild, silent) {
         this.{{property}}[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -130,7 +132,7 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
                 },
             });
         }
-    }    
+    }
 
     getIndexOf{{methodSuffix}}(child) {
         return _.findIndex(this.{{property}}, ['id', child.id]);
