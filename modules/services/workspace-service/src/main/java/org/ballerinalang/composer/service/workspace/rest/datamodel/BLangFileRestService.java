@@ -188,12 +188,14 @@ public class BLangFileRestService {
     
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
-    
-        BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
-                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
-        JsonElement modelElement = generateJSON(compilationUnit);
         JsonObject result = new JsonObject();
-        result.add("model", modelElement);
+
+        if (model != null) {
+            BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
+                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+            JsonElement modelElement = generateJSON(compilationUnit);
+            result.add("model", modelElement);
+        }
         result.add("diagnostics", diagnosticsJson);
     
         // Add 'packageInfo' only if there are any packages.
@@ -362,11 +364,17 @@ public class BLangFileRestService {
         final String errorCategoryName = errorCategory.name();
         diagnostics.forEach(diagnostic -> {
             JsonObject error = new JsonObject();
-            error.addProperty("row", diagnostic.getPosition().getStartLine());
-            error.addProperty("column", diagnostic.getPosition().startColumn());
+            Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
+            if (position != null) {
+                error.addProperty("row", position.getStartLine());
+                error.addProperty("column", position.startColumn());
+                error.addProperty("type", "error");
+                error.addProperty("category", errorCategoryName);
+            } else {
+                error.addProperty("category", "runtime");
+            }
+
             error.addProperty("text", diagnostic.getMessage());
-            error.addProperty("type", "error");
-            error.addProperty("category", errorCategoryName);
             errors.add(error);
         });
         JsonObject result = new JsonObject();
