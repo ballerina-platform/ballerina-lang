@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -133,7 +134,13 @@ public class WorkspaceUtils {
         Compiler compiler = Compiler.getInstance(context);
 
         BallerinaFile ballerinaFile = new BallerinaFile();
-        compiler.compile(fileName);
+        try {
+            compiler.compile(fileName);
+        } catch (Exception ex) {
+            BDiagnostic catastrophic = new BDiagnostic();
+            catastrophic.msg = "Failed in the runtime parse/analyze";
+            diagnostics.add(catastrophic);
+        }
         ballerinaFile.setBLangPackage((BLangPackage) compiler.getAST());
         ballerinaFile.setDiagnostics(diagnostics);
         return ballerinaFile;
