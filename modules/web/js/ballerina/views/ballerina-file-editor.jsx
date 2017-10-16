@@ -32,7 +32,7 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
-import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
+import { OPEN_SYMBOL_DOCS, GO_TO_POSITION, FORMAT } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -106,15 +106,17 @@ class BallerinaFileEditor extends React.Component {
             this.update();
         }, this);
         // Format the source code.
-        props.commandProxy.on('source-format', () => {
+        props.commandProxy.on(FORMAT, () => {
+            this.skipLoadingOverlay = true;
             // we need to fetch a new tree if there are updated content.
             this.validateAndParseFile()
                 .then((state) => {
+                    this.skipLoadingOverlay = false;
                     this.setState(state);
                     const newContent = this.state.model.getSource(true);
                     // set the underlaying file.
                     this.props.file.setContent(newContent, {
-                        type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                        type: CHANGE_EVT_TYPES.CODE_FORMAT,
                     });
                 })
                 .catch(error => log.error(error)); // if error we need to display a message.

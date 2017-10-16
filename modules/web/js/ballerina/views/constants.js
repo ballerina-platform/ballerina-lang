@@ -3,6 +3,7 @@ export const SOURCE_VIEW = 'SOURCE_VIEW';
 export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 
 export const CHANGE_EVT_TYPES = {
+    CODE_FORMAT: 'code-format',
     TREE_MODIFIED: 'tree-modified',
     SOURCE_MODIFIED: 'source-modified',
 };
