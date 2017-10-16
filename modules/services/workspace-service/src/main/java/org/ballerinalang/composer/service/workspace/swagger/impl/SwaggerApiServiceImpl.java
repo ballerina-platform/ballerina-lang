@@ -33,8 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Service implementation class for convert both swagger to ballerina service definitions and
- * ballerina to swagger service definitions
+ * Service implementation class for convert both swagger to ballerina service definitions.
  */
 @Path("/service/swagger")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -68,55 +67,17 @@ public class SwaggerApiServiceImpl {
             logger.error("Error while processing service definition at converter service" + ex.getMessage());
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
-            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         }
-    }
-
-
-    @POST
-    @Path("/swagger-to-ballerina")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response convertToBallerina(SwaggerServiceContainer swaggerServiceContainer) {
-        String ballerinaDefinition = swaggerServiceContainer.getBallerinaDefinition();
-        String swaggerDefinition = swaggerServiceContainer.getSwaggerDefinition();
-        try {
-            //Take ballerina source and generate swagger and add it to service definition.
-            if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
-                if (swaggerDefinition != null && !swaggerDefinition.isEmpty()) {
-//                    SwaggerConverterUtils.getServiceFromSwaggerDefinition(ballerinaDefinition);
-                } else {
-                    return Response.noContent().entity("Please provide valid swagger source.").build();
-                }
-            } else {
-                // ballerina source cannot be null or empty.
-                return Response.noContent().entity("Please provide valid ballerina source.").build();
-            }
-        } catch (Throwable throwable) {
-            logger.error("Error while processing service definition at converter service" +
-                    throwable.getMessage());
-            JsonObject entity = new JsonObject();
-            entity.addProperty("Error", throwable.toString());
-            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
-        }
-        return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*')
-                .build();
     }
     
     @OPTIONS
     @Path("/ballerina-to-swagger")
     public Response sendCORSHeadersForConvertToSwaggerPost() {
-        return sendCORSHeaders();
-    }
-
-    @OPTIONS
-    @Path("/swagger-to-ballerina")
-    public Response sendCORSHeadersForConvertToBallerinaPost() {
-        return sendCORSHeaders();
+        return this.sendCORSHeaders();
     }
     
     /**
