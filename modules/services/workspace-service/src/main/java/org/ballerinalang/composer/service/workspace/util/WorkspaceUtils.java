@@ -194,9 +194,11 @@ public class WorkspaceUtils {
             if (value.symbol instanceof BTypeSymbol) {
                 SymbolInformation symbolInfo = new SymbolInformation();
                 String symbolName = value.symbol.getName().getValue();
-                symbolInfo.setName(symbolName);
-                setDefaultValuesForType(symbolName, symbolInfo);
-                symbolInformationList.add(symbolInfo);
+                if (!symbolName.equals(BuiltInType.INVALID_TYPE)) {
+                    symbolInfo.setName(symbolName);
+                    setDefaultValuesForType(symbolName, symbolInfo);
+                    symbolInformationList.add(symbolInfo);
+                }
             }
         });
 

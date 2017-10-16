@@ -30,4 +30,6 @@ public class BuiltInType {
     public static final String BOOLEAN_DEFAULT = "false";
     public static final String STRING_DEFAULT = "";
     public static final String NULL_DEFAULT = "null";
+
+    public static final String INVALID_TYPE = "><";
 }
