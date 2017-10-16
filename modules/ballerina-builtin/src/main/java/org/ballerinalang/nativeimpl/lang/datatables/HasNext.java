@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,12 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Checks for a new row in the given datatable. If a new row is found, moves the cursor to it.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
-        value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
-        value = "True if there is a new row; false otherwise") })
 public class HasNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
