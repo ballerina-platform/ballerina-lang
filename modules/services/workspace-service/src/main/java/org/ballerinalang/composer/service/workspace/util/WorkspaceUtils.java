@@ -205,21 +205,21 @@ public class WorkspaceUtils {
 
     private static void setDefaultValuesForType(String type, SymbolInformation symbolInfo) {
         switch (type) {
-            case "int" :
-                symbolInfo.setDefaultValue("0");
+            case BuiltInType.INT :
+                symbolInfo.setDefaultValue(BuiltInType.INT_DEFAULT);
                 break;
-            case "float" :
-                symbolInfo.setDefaultValue("0.0");
+            case BuiltInType.FLOAT :
+                symbolInfo.setDefaultValue(BuiltInType.FLOAT_DEFAULT);
                 break;
-            case "string" :
-                symbolInfo.setDefaultValue("");
+            case BuiltInType.STRING :
+                symbolInfo.setDefaultValue(BuiltInType.STRING_DEFAULT);
                 break;
-            case "boolean" :
-                symbolInfo.setDefaultValue("false");
+            case BuiltInType.BOOLEAN :
+                symbolInfo.setDefaultValue(BuiltInType.BOOLEAN_DEFAULT);
                 break;
             default:
                 // TODO: Here we are setting the null for blob as well
-                symbolInfo.setDefaultValue("null");
+                symbolInfo.setDefaultValue(BuiltInType.NULL_DEFAULT);
                 break;
         }
     }
