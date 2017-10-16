@@ -348,6 +348,7 @@ class CompoundStatementDecorator extends React.Component {
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
+                    disableButtons={this.props.disableButtons}
                 />
             </g>);
     }
@@ -363,7 +364,7 @@ CompoundStatementDecorator.defaultProps = {
     utilities: null,
     parameterBbox: null,
     expression: null,
-    disabledButtons: {
+    disableButtons: {
         debug: false,
         delete: false,
         jump: false,
@@ -401,7 +402,7 @@ CompoundStatementDecorator.propTypes = {
     }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
-    disabledButtons: PropTypes.shape({
+    disableButtons: PropTypes.shape({
         debug: PropTypes.bool.isRequired,
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
