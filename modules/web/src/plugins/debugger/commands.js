@@ -29,26 +29,20 @@ export function getCommandDefinitions(debuggerInstance) {
         {
             id: COMMANDS.RUN,
             shortcut: {
-                default: 'command+r',
+                default: 'ctrl+shift+r',
             },
         },
         {
             id: COMMANDS.RUN_WITH_DEBUG,
             shortcut: {
-                default: 'command+d',
+                default: 'ctrl+shift+d',
             },
         },
         {
             id: COMMANDS.TOGGLE_DEBUGGER,
-            shortcut: {
-                default: 'command+shift+d',
-            },
         },
         {
             id: COMMANDS.TOGGLE_LAUNCHER,
-            shortcut: {
-                default: 'command+shift+r',
-            },
         },
         {
             id: COMMANDS.STEP_OVER,
