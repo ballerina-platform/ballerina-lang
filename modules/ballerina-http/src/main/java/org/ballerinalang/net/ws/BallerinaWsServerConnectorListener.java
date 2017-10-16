@@ -77,7 +77,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
                 public void notifySuccess() {
-                    //TODO need to find a way to execute this after resource  invocation.
+                    //TODO need to find a way to execute this after resource invocation.
                     if (!webSocketInitMessage.isCancelled()) {
                         handleHandshake(webSocketInitMessage, wsService);
                     }
