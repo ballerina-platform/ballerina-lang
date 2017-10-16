@@ -115,18 +115,15 @@ public class BallerinaStackFrame extends XStackFrame {
         // Iterate through each scope in the map.
         scopeMap.forEach((scopeName, variableList) -> {
             // Create a new XValueChildrenList to hold the XValues.
-            XValueChildrenList xValueChildrenList = new XValueChildrenList(variableList.size());
+            XValueChildrenList xValueChildrenList = new XValueChildrenList();
             // Create a new variable to represent the scope.
             Variable scopeVariable = new Variable();
             // Set the variable name.
             scopeVariable.setName(scopeName);
             // Set the children.
             scopeVariable.setChildren(variableList);
-            // Create a new XValue.
-            BallerinaXValue ballerinaXValue = new BallerinaXValue(myProcess, myFrame.getFrameName(), scopeVariable,
-                    AllIcons.Debugger.Value);
-            // Add the XValue to the list.
-            xValueChildrenList.add(scopeName, ballerinaXValue);
+            // Add the variables to the children list using a ValueGroup.
+            xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scopeName, scopeVariable));
             // Add the list to the node as children.
             node.addChildren(xValueChildrenList, true);
         });
