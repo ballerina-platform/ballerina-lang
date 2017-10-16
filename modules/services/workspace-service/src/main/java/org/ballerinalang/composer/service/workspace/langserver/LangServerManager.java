@@ -512,8 +512,12 @@ public class LangServerManager {
             // Filter the suggestions
             SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
             filterDataModel.setPackages(this.getPackages());
-            completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
-
+            try {
+                completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
+            } catch (Exception e) {
+                logger.debug("Failed to resolve completion items");
+                completionItems = new ArrayList<>();
+            }
             // Create the response message for client request
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setId(((RequestMessage) message).getId());
