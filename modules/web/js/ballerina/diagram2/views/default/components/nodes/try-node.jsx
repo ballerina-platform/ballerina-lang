@@ -22,6 +22,7 @@ import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
+import DefaultNodeFactory from './../../../../../model/default-node-factory';
 import './try-node.css';
 
 class TryNode extends React.Component {
@@ -35,11 +36,21 @@ class TryNode extends React.Component {
             getterMethod: props.model.getConditionString,
             setterMethod: props.model.setConditionFromString,
         };
-        this.onAddElseClick = this.onAddElseClick.bind(this);
+        this.onAddCatchClick = this.onAddCatchClick.bind(this);
     }
 
-    onAddElseClick() {
+    /**
+     * Add new catch block to the try catch statement.
+     * */
+    onAddCatchClick() {
+        const model = this.props.model;
+        const catchBlocks = model.getCatchBlocks();
+        if (catchBlocks) {
+            const catchBlock = DefaultNodeFactory.createTry().getCatchBlocks()[0];
+            model.addCatchBlocks(catchBlock);
+        }
     }
+
 
     render() {
         const model = this.props.model;
@@ -59,6 +70,7 @@ class TryNode extends React.Component {
                     dropBefore={model}
                     renderUponDragStart
                 />
+
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
@@ -68,6 +80,34 @@ class TryNode extends React.Component {
                     model={model}
                     body={model.body}
                 />
+
+                <g onClick={this.onAddCatchClick}>
+                    <rect
+                        x={model.viewState.components['statement-box'].x
+                        + model.viewState.components['statement-box'].w
+                        + model.viewState.bBox.expansionW - 10}
+                        y={model.viewState.components['statement-box'].y
+                        + model.viewState.components['statement-box'].h - 25}
+                        width={20}
+                        height={20}
+                        rx={10}
+                        ry={10}
+                        className="add-catch-button"
+                    />
+                    <text
+                        x={model.viewState.components['statement-box'].x
+                        + model.viewState.components['statement-box'].w
+                        + model.viewState.bBox.expansionW - 4}
+                        y={model.viewState.components['statement-box'].y
+                        + model.viewState.components['statement-box'].h - 15}
+                        width={20}
+                        height={20}
+                        className="add-catch-button-label"
+                    >
+                        +
+                    </text>
+                </g>
+
                 {catchViews}
                 {model.finallyBody &&
                 <CompoundStatementDecorator
