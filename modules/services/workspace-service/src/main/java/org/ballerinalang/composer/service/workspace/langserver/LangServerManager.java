@@ -23,6 +23,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.stream.JsonReader;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
@@ -59,6 +60,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,15 +144,30 @@ public class LangServerManager {
 
     void processFrame(String json) {
         Gson gson = new Gson();
-        RequestMessage message = gson.fromJson(json, RequestMessage.class);
-        if (LangServerConstants.PING.equals(message.getMethod())) {
-            sendPong();
-        } else if (message.getId() != null) {
-            // Request Message Received
-            processRequest(message);
-        } else {
-            // Notification message Received
-            processNotification(message);
+        JsonReader jsonReader;
+        try {
+            byte[] bytes = json.getBytes(Charset.forName("UTF-8"));
+            jsonReader = new JsonReader(new InputStreamReader(
+                    new ByteArrayInputStream(bytes), Charset.forName("UTF-8")));
+            jsonReader.beginObject();
+
+            while (jsonReader.hasNext()) {
+                RequestMessage message = gson.fromJson(json, RequestMessage.class);
+                if (LangServerConstants.PING.equals(message.getMethod())) {
+                    sendPong();
+                } else if (message.getId() != null) {
+                    // Request Message Received
+                    processRequest(message);
+                } else {
+                    // Notification message Received
+                    processNotification(message);
+                }
+                break;
+            }
+            jsonReader.close();
+        } catch (IOException e) {
+            sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND,
+                    new RequestMessage(), null);
         }
     }
 
