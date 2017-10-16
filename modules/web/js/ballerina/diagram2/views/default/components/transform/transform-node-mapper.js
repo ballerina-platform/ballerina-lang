@@ -295,23 +295,34 @@ class TransformNodeMapper {
 
             this._transformStmt.body.addStatements(newAssignmentStmt, -1, true);
         } else if (outputExpressions[0].type === ExpressionType.PLACEHOLDER) {
-            // TODO: for vardef stmts
-            stmt.setExpression(expression, true);
+            if (TreeUtil.isAssignment(stmt)) {
+                stmt.setExpression(expression, true);
 
-            stmt.replaceVariablesByIndex(0, targetExpression, true);
-            // TODO: conditionally remove var if all outputs are mapped
-            stmt.setDeclaredWithVar(false, true);
+                stmt.replaceVariablesByIndex(0, targetExpression, true);
+                // TODO: conditionally remove var if all outputs are mapped
+                stmt.setDeclaredWithVar(false, true);
 
-            if (!compatibility.safe) {
-                // TODO: only add error reference if there is not one already
-                // TODO: also remove error variable if no longer required
-                const errorVarRef = TransformFactory.createVariableRefExpression('_');
-                stmt.addVariables(errorVarRef, true);
+                if (!compatibility.safe) {
+                    // TODO: only add error reference if there is not one already
+                    // TODO: also remove error variable if no longer required
+                    const errorVarRef = TransformFactory.createVariableRefExpression('_');
+                    stmt.addVariables(errorVarRef, true);
+                }
+            } else if (TreeUtil.isVariableDef(stmt)) {
+                const assignmentStmt = NodeFactory.createAssignment();
+                assignmentStmt.addVariables(targetExpression, true);
+                assignmentStmt.setExpression(TransformFactory.createVariableRefExpression(
+                    outputExpressions[source.index].expression.getSource().trim()));
+
+                if (!compatibility.safe) {
+                    const errorVarRef = TransformFactory.createVariableRefExpression('_');
+                    assignmentStmt.addVariables(errorVarRef, true);
+                }
+                this._transformStmt.body.addStatements(assignmentStmt, -1, true);
             }
         } else if (outputExpressions[0].type === ExpressionType.DIRECT) {
             const tempVarName = this.assignStatementToTempVariable(stmt);
             const tempVarRefExpr = TransformFactory.createVariableRefExpression(tempVarName);
-            // TODO: do for var def statements
             stmt.setExpression(tempVarRefExpr, true);
 
             const newAssignmentStmt = NodeFactory.createAssignment({});
