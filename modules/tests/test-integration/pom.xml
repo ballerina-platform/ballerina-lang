@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.92.1-SNAPSHOT</version>
+        <version>0.93.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -25,11 +25,8 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
+            <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-log4j12</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
@@ -48,11 +45,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-all</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -83,12 +75,6 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.apache.activemq</groupId>
-                                    <artifactId>activemq-all</artifactId>
-                                    <version>${activemq.broker.vesion}</version>
-                                    <outputDirectory>${basedir}/target/</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>commons-net</groupId>
                                     <artifactId>commons-net</artifactId>
                                     <version>${commons-net.version}</version>
@@ -109,7 +95,7 @@
                             ${basedir}/../../ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
                         <project.build.directory>${project.build.directory}</project.build.directory>
-                        <activemq.all.jar>activemq-all-${activemq.broker.vesion}.jar</activemq.all.jar>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.92.1-SNAPSHOT</version>
+        <version>0.93.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -121,7 +121,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src
+                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
