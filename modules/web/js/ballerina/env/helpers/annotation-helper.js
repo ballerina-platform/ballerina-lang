@@ -266,6 +266,18 @@ class AnnotationHelper {
         return packageName.join('.');
     }
 
+    static generateDefaultValue(type) {
+        if (type === 'string') {
+            return '""';
+        } else if (type === 'int') {
+            return '0';
+        } else if (type === 'boolean') {
+            return 'false';
+        }
+
+        return '';
+    }
+
 }
 
 export default AnnotationHelper;

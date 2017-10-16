@@ -56,6 +56,7 @@ class AnnotationAttachmentNode extends React.Component {
         this.onPackageNameSelected = this.onPackageNameSelected.bind(this);
         this.onNameSelected = this.onNameSelected.bind(this);
         this.toggleCollapse = this.toggleCollapse.bind(this);
+        this.removeEmptyAttribute = this.removeEmptyAttribute.bind(this);
     }
 
     /**
@@ -143,6 +144,12 @@ class AnnotationAttachmentNode extends React.Component {
     toggleCollapse() {
         this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
         this.context.editor.update();
+    }
+
+    removeEmptyAttribute() {
+        this.setState({
+            addingEmptyAttribute: false,
+        });
     }
 
     /**
@@ -245,8 +252,10 @@ class AnnotationAttachmentNode extends React.Component {
             };
             actionMenuItems.push(addAttributeButton);
         }
-
-        return <ActionMenu items={actionMenuItems} />;
+        return actionMenuItems.map((item) => {
+            return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+        });
+        // return <ActionMenu items={actionMenuItems} />;
     }
 
     /**
@@ -299,6 +308,7 @@ class AnnotationAttachmentNode extends React.Component {
                 model={addAttribute()}
                 annotationDefinitionModel={annotationDefModel}
                 parent={this.props.model}
+                removeEmptyAttribute={this.removeEmptyAttribute}
             />);
         }
         return (null);
@@ -323,7 +333,7 @@ class AnnotationAttachmentNode extends React.Component {
             <li className={cn('annotation-attachment-text-li', 'action-menu-wrapper',
                 { 'annotation-attachment-error': this.state.hasError })}
             >
-                {actionMenu}
+
                 <CSSTransitionGroup
                     component="span"
                     transitionName="annotation-expand"
@@ -342,7 +352,9 @@ class AnnotationAttachmentNode extends React.Component {
                 <span className='annotation-attachment-badge hide'>
                     <i className="fw fw-annotation-badge" />
                 </span>
-
+                <span className='annotation-action-menu-items'>
+                    {actionMenu}
+                </span>
             </li>
             {emptyAttribute}
             {attributes}
