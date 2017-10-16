@@ -197,7 +197,10 @@ public class SenderConfiguration {
         this.followRedirect = followRedirect;
     }
 
-    public int getMaxRedirectCount() {
+    public int getMaxRedirectCount(int defaultValue) {
+        if (maxRedirectCount == 0) {
+            return defaultValue;
+        }
         return maxRedirectCount;
     }
 

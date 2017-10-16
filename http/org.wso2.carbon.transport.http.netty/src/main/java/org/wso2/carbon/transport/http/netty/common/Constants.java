@@ -292,6 +292,7 @@ public final class Constants {
     public static final String URL_AUTHORITY = "://";
     public static final String FORWRD_SLASH = "/";
     public static final String COLON = ":";
+    public static final int MAX_REDIRECT_COUNT = 5;
 
     private Constants() {
     }
