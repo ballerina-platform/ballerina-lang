@@ -273,7 +273,17 @@ class Node extends EventChannel {
         for (const key of Object.keys(this.parent)) {
             const prop = this.parent[key];
             if (prop instanceof Node && key !== 'parent') {
-                // TODO need to see how we can remove node attributes.
+                if (prop.getID() === this.getID() && prop instanceof Node) {
+                    delete this.parent[key];
+                    parent.trigger('tree-modified', {
+                        origin: this,
+                        type: 'child-removed',
+                        title: `Removed ${this.kind}`,
+                        data: {
+                            node: this,
+                        },
+                    });
+                }
             } else if (_.isArray(prop) && prop.length > 0 && prop[0] instanceof Node) {
                 let i = 0;
                 for (const propI of prop) {
