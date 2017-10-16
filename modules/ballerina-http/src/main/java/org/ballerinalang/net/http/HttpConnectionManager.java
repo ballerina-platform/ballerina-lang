@@ -69,31 +69,16 @@ public class HttpConnectionManager {
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
-    private static final String CIPHERS = "ciphers";
-    private static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
-    private static final int OPTIONS_STRUCT_INDEX = 0;
-    private static final int SSL_STRUCT_INDEX = 1;
-    private static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
-    private static final int FOLLOW_REDIRECT_INDEX = 0;
-    private static final int MAX_REDIRECT_COUNT = 0;
-    private static final int TRUST_STORE_FILE_INDEX = 0;
-    private static final int TRUST_STORE_PASSWORD_INDEX = 1;
-    private static final int KEY_STORE_FILE_INDEX = 2;
-    private static final int KEY_STORE_PASSWORD_INDEX = 3;
-    private static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
-    private static final int CIPHERS_INDEX = 5;
-    private static final int SSL_PROTOCOL_INDEX = 6;
 
     private HttpConnectionManager() {
-        String nettyConfigFile = System.getProperty(HTTP_TRANSPORT_CONF,
+        String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
                 "conf" + File.separator + "transports" +
                         File.separator + "netty-transports.yml");
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (isHTTPTraceLoggerEnabled()) {
             try {
                 ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
             } catch (IOException e) {
@@ -131,7 +116,7 @@ public class HttpConnectionManager {
             }
         }
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (isHTTPTraceLoggerEnabled()) {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
@@ -172,80 +157,28 @@ public class HttpConnectionManager {
             setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
-
         try {
             // Wait for all the connectors to start
             startupSyncer.getCountDownLatch().await();
         } catch (InterruptedException e) {
             throw new BallerinaConnectorException("Error in starting HTTP server connector(s)");
         }
-
         validateConnectorStartup(startupSyncer);
         startupDelayedHTTPServerConnectors.clear();
     }
 
     public HttpClientConnector getHTTPHttpClientConnector(String scheme, BConnector bConnector) {
-        //TODO Define default values until we get Anonymous struct (issues #3635)
-        int followRedirect = 0;
-        int maxRedirectCount = 5;
         Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
 
-        BStruct options = (BStruct) bConnector.getRefField(OPTIONS_STRUCT_INDEX);
-        if (options == null) {
-            return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
-        }
-        if (options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
-            BStruct followRedirects = (BStruct) options.getRefField(FOLLOW_REDIRECT_STRUCT_INDEX);
-            followRedirect = followRedirects.getBooleanField(FOLLOW_REDIRECT_INDEX);
-            maxRedirectCount = (int) followRedirects.getIntField(MAX_REDIRECT_COUNT);
-        }
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
-        senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-
-        if (options.getRefField(SSL_STRUCT_INDEX) != null) {
-            BStruct ssl = (BStruct) options.getRefField(SSL_STRUCT_INDEX);
-            String trustStoreFile = ssl.getStringField(TRUST_STORE_FILE_INDEX);
-            String trustStorePassword = ssl.getStringField(TRUST_STORE_PASSWORD_INDEX);
-            String keyStoreFile = ssl.getStringField(KEY_STORE_FILE_INDEX);
-            String keyStorePassword = ssl.getStringField(KEY_STORE_PASSWORD_INDEX);
-            String sslEnabledProtocols = ssl.getStringField(SSL_ENABLED_PROTOCOLS_INDEX);
-            String ciphers = ssl.getStringField(CIPHERS_INDEX);
-            String sslProtocol = ssl.getStringField(SSL_PROTOCOL_INDEX);
-
-            if (StringUtils.isNotBlank(trustStoreFile)) {
-                senderConfiguration.setTrustStoreFile(trustStoreFile);
-            }
-            if (StringUtils.isNotBlank(trustStorePassword)) {
-                senderConfiguration.setTrustStorePass(trustStorePassword);
-            }
-            if (StringUtils.isNotBlank(keyStoreFile)) {
-                senderConfiguration.setKeyStoreFile(keyStoreFile);
-            }
-            if (StringUtils.isNotBlank(keyStorePassword)) {
-                senderConfiguration.setKeyStorePassword(keyStorePassword);
-            }
-
-            List<Parameter> clientParams = new ArrayList<>();
-            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
-                Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                clientParams.add(clientProtocols);
-            }
-            if (StringUtils.isNotBlank(ciphers)) {
-                Parameter clientCiphers = new Parameter(CIPHERS, ciphers);
-                clientParams.add(clientCiphers);
-            }
-            if (StringUtils.isNotBlank(sslProtocol)) {
-                senderConfiguration.setSslProtocol(sslProtocol);
-            }
-            if (!clientParams.isEmpty()) {
-                senderConfiguration.setParameters(clientParams);
-            }
+        BStruct options = (BStruct) bConnector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
+        if (options != null) {
+            populateSenderConfigurationOptions(senderConfiguration, options);
         }
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
@@ -335,5 +268,61 @@ public class HttpConnectionManager {
             }
             console.println("ballerina: " + errMsg);
         }
+    }
+
+    private boolean isHTTPTraceLoggerEnabled() {
+        return System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null ? true : false;
+    }
+
+    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
+        //TODO Define default values until we get Anonymous struct (issues #3635)
+        int followRedirect = 0;
+        int maxRedirectCount = 5;
+        if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
+            BStruct followRedirects = (BStruct) options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX);
+            followRedirect = followRedirects.getBooleanField(Constants.FOLLOW_REDIRECT_INDEX);
+            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT);
+        }
+        if (options.getRefField(Constants.SSL_STRUCT_INDEX) != null) {
+            BStruct ssl = (BStruct) options.getRefField(Constants.SSL_STRUCT_INDEX);
+            String trustStoreFile = ssl.getStringField(Constants.TRUST_STORE_FILE_INDEX);
+            String trustStorePassword = ssl.getStringField(Constants.TRUST_STORE_PASSWORD_INDEX);
+            String keyStoreFile = ssl.getStringField(Constants.KEY_STORE_FILE_INDEX);
+            String keyStorePassword = ssl.getStringField(Constants.KEY_STORE_PASSWORD_INDEX);
+            String sslEnabledProtocols = ssl.getStringField(Constants.SSL_ENABLED_PROTOCOLS_INDEX);
+            String ciphers = ssl.getStringField(Constants.CIPHERS_INDEX);
+            String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
+
+            if (StringUtils.isNotBlank(trustStoreFile)) {
+                senderConfiguration.setTrustStoreFile(trustStoreFile);
+            }
+            if (StringUtils.isNotBlank(trustStorePassword)) {
+                senderConfiguration.setTrustStorePass(trustStorePassword);
+            }
+            if (StringUtils.isNotBlank(keyStoreFile)) {
+                senderConfiguration.setKeyStoreFile(keyStoreFile);
+            }
+            if (StringUtils.isNotBlank(keyStorePassword)) {
+                senderConfiguration.setKeyStorePassword(keyStorePassword);
+            }
+
+            List<Parameter> clientParams = new ArrayList<>();
+            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                Parameter clientProtocols = new Parameter(Constants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                clientParams.add(clientProtocols);
+            }
+            if (StringUtils.isNotBlank(ciphers)) {
+                Parameter clientCiphers = new Parameter(Constants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
+            if (StringUtils.isNotBlank(sslProtocol)) {
+                senderConfiguration.setSslProtocol(sslProtocol);
+            }
+            if (!clientParams.isEmpty()) {
+                senderConfiguration.setParameters(clientParams);
+            }
+        }
+        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        senderConfiguration.setMaxRedirectCount(maxRedirectCount);
     }
 }
