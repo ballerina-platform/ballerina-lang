@@ -196,6 +196,11 @@ public class LocalFSWorkspace implements Workspace {
         }
     }
 
+    @Override
+    public String getUserHome() {
+        return System.getProperty("user.home");
+    }
+
     private JsonArray getJsonArrayForDirs(List<Path> rootDirs, List<String> extensionList) {
         JsonArray rootArray = new JsonArray();
         for (Path root : rootDirs) {

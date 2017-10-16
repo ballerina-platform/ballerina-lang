@@ -32,6 +32,15 @@ class FileTree extends React.Component {
     }
 
     /**
+     * @inheritdoc
+     */
+    componentWillReceiveProps(newProps) {
+        if (this.props.activeKey !== newProps.activeKey) {
+            this.loadGivenPath(newProps.activeKey);
+        }
+    }
+
+    /**
      * On Node Toggole
      * @param {Object} node node object
      * @param {Boolean} collapsed collapsed state
@@ -52,7 +61,7 @@ class FileTree extends React.Component {
      * Load tree data
      */
     loadData() {
-        const { extensions, root, onLoadData, activeKey } = this.props;
+        const { extensions, root, onLoadData } = this.props;
         const loadData = root === FS_ROOT ? getFSRoots(extensions) : listFiles(root, extensions);
         loadData
             .then((tree) => {
@@ -61,7 +70,7 @@ class FileTree extends React.Component {
                     data,
                 });
                 onLoadData(data);
-                if (!_.isNil(activeKey)) {
+                if (!_.isNil(this.props.activeKey)) {
                     this.loadActiveNode();
                 }
             });
@@ -81,7 +90,10 @@ class FileTree extends React.Component {
      * @param {Node} root root Node to load from
      * @param {String} path Path to load
      */
-    loadGivenPath(path = '', root) {
+    loadGivenPath(path, root) {
+        if (_.isNil(path)) {
+            return;
+        }
         let resolveNodeChildren = Promise.resolve(this.state.data);
         if (root) {
             root.collapsed = false;
