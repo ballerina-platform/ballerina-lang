@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,12 +38,12 @@ import org.testng.annotations.Test;
 public class BNullValueTest {
 
     private CompileResult positiveCompileResult;
-    private CompileResult negativeCompileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         positiveCompileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
+        negativeResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
     }
 
     @Test(description = "Test null value of a xml")
@@ -200,12 +199,13 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Diagnostic[] diags = this.negativeCompileResult.getDiagnostics();
-        Assert.assertEquals(diags.length, 5);
-        diags[0].getMessage().equals("operator '==' not defined for 'xml' and 'json'");
-        diags[1].getMessage().equals("incompatible types: expected 'string', found 'null'");
-        diags[2].getMessage().equals("operator '>' not defined for 'null' and 'xml'");
-        diags[3].getMessage().equals("incompatible types: expected 'int', found 'null'");
-        diags[4].getMessage().equals("operator '+' not defined for 'null' and 'null'");
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        BTestUtils.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
+        BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
+        BTestUtils.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
+        BTestUtils.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
+        BTestUtils.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
+        BTestUtils.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
+        BTestUtils.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
     }
 }
