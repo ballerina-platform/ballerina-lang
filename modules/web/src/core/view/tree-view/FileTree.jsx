@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { getFSRoots, listFiles } from 'api-client/api-client';
@@ -43,10 +42,7 @@ class FileTree extends React.Component {
         if (node.children) {
             node.collapsed = collapsed;
             if (_.isEmpty(node.children)) {
-                this.loadNodeChildren(node)
-                    .then(() => {
-                        this.forceUpdate();
-                    });
+                this.loadNodeChildren(node);
             }
         }
         this.forceUpdate();
@@ -56,16 +52,69 @@ class FileTree extends React.Component {
      * Load tree data
      */
     loadData() {
-        const extensions = this.props.extensions;
-        const isFSRoot = this.props.root === FS_ROOT;
-        const loadData = isFSRoot ? getFSRoots(extensions) : listFiles(this.props.root, extensions);
+        const { extensions, root, onLoadData, activeKey } = this.props;
+        const loadData = root === FS_ROOT ? getFSRoots(extensions) : listFiles(root, extensions);
         loadData
             .then((tree) => {
                 const data = tree;
                 this.setState({
                     data,
                 });
-                this.props.onLoadData(data);
+                onLoadData(data);
+                if (!_.isNil(activeKey)) {
+                    this.loadActiveNode();
+                }
+            });
+    }
+
+    /**
+     * Load and activate the given active key in tree
+     */
+    loadActiveNode() {
+        const { activeKey } = this.props;
+        this.loadGivenPath(activeKey);
+    }
+
+    /**
+     * Recursively load given path
+     *
+     * @param {Node} root root Node to load from
+     * @param {String} path Path to load
+     */
+    loadGivenPath(path = '', root) {
+        let resolveNodeChildren = Promise.resolve(this.state.data);
+        if (root) {
+            root.collapsed = false;
+            if (_.isBoolean(root.children)) {
+                if (root.children) {
+                    resolveNodeChildren = this.loadNodeChildren(root)
+                                            .then(loadedNode => loadedNode.children);
+                } else {
+                    resolveNodeChildren = Promise.resolve([]);
+                }
+            } else if (_.isArray(root.children)) {
+                resolveNodeChildren = Promise.resolve(root.children);
+            }
+        }
+        const resolveTargetChild = resolveNodeChildren
+            .then((children) => {
+                if (_.isArray(children)) {
+                    return _.find(children, child => path.startsWith(child.id));
+                } else {
+                    return null;
+                }
+            });
+        resolveTargetChild
+            .then((targetChild) => {
+                if (targetChild) {
+                    // this is the target
+                    if (path === targetChild.id) {
+                        targetChild.active = true;
+                        this.forceUpdate();
+                    } else if (targetChild.children) {
+                        this.loadGivenPath(path, targetChild);
+                    }
+                }
             });
     }
 
@@ -87,6 +136,10 @@ class FileTree extends React.Component {
                     } else {
                         node.children = data;
                     }
+                    return node;
+                })
+                .then(() => {
+                    this.forceUpdate();
                     return node;
                 });
     }
@@ -121,10 +174,7 @@ class FileTree extends React.Component {
                         if (_.isNil(targetNode)) {
                             this.loadData();
                         } else {
-                            this.loadNodeChildren(targetNode)
-                                .then(() => {
-                                    this.forceUpdate();
-                                });
+                            this.loadNodeChildren(targetNode);
                         }
                     }}
                     onNodeDelete={(targetNode) => {
@@ -162,6 +212,7 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
+    activeKey: PropTypes.string,
     panelResizeInProgress: PropTypes.bool,
     enableContextMenu: PropTypes.bool,
     onLoadData: PropTypes.func,
@@ -172,6 +223,7 @@ FileTree.propTypes = {
 };
 
 FileTree.defaultProps = {
+    activeKey: undefined,
     panelResizeInProgress: false,
     enableContextMenu: false,
     onLoadData: () => {},
