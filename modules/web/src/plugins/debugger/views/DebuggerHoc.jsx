@@ -40,21 +40,21 @@ function debuggerHoc(WrappedComponent) {
          * hook for componentDidMount
          */
         componentDidMount() {
-            this.addListner = DebugManager.on('breakpoint-added', this.updateBreakpoints.bind(this));
-            this.removeListner = DebugManager.on('breakpoint-removed', this.updateBreakpoints.bind(this));
-            this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
-            this.cmpListner = DebugManager.on('execution-ended', this.end.bind(this));
-            this.resumeListner = DebugManager.on('resume-execution', this.end.bind(this));
+            DebugManager.on('breakpoint-added', this.updateBreakpoints, this);
+            DebugManager.on('breakpoint-removed', this.updateBreakpoints, this);
+            DebugManager.on('debug-hit', this.debugHit, this);
+            DebugManager.on('execution-ended', this.end, this);
+            DebugManager.on('resume-execution', this.end, this);
         }
         /**
          * hook for componentWillUnmount
          */
         componentWillUnmount() {
-            DebugManager.off('breakpoint-added', this.addListner, this);
-            DebugManager.off('breakpoint-removed', this.removeListner, this);
-            DebugManager.off('debug-hit', this.hitListner, this);
-            DebugManager.off('execution-ended', this.cmpListner, this);
-            DebugManager.off('resume-execution', this.resumeListner, this);
+            DebugManager.off('breakpoint-added', this.updateBreakpoints, this);
+            DebugManager.off('breakpoint-removed', this.updateBreakpoints, this);
+            DebugManager.off('debug-hit', this.debugHit, this);
+            DebugManager.off('execution-ended', this.end, this);
+            DebugManager.off('resume-execution', this.end, this);
         }
         /**
          * update breakpoints
@@ -129,10 +129,14 @@ function debuggerHoc(WrappedComponent) {
          * @inheritdoc
          */
         render() {
+            const fileName = this.getFileName();
+            const breakpoints = DebugManager.getDebugPoints(fileName);
+            const sourceViewBreakpoints = breakpoints.map(breakpoint => breakpoint - 1);
+
             const newProps = {
-                breakpoints: this.state.breakpoints,
+                breakpoints,
                 debugHit: this.state.debugHit,
-                sourceViewBreakpoints: this.state.sourceViewBreakpoints,
+                sourceViewBreakpoints,
                 addBreakpoint: this.addBreakpoint.bind(this),
                 removeBreakpoint: this.removeBreakpoint.bind(this),
             };

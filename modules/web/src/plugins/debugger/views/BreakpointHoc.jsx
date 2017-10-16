@@ -51,42 +51,54 @@ function breakpointHoc(WrappedComponent) {
                     isBreakpoint: true,
                 });
             }
-            const { position } = this.props.model;
-            this.addListner = DebugManager.on('breakpoint-added', ({ lineNumber, fileName: bpFileName }) => {
-                const { editor } = this.context;
-                const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
-                if (fileName === bpFileName && position && position.startLine === lineNumber) {
-                    this.setState({
-                        isBreakpoint: true,
-                    });
-                    this.props.model.isBreakpoint = true;
-                }
-            });
-            this.removeListner = DebugManager.on('breakpoint-removed', ({ lineNumber, fileName: bpFileName }) => {
-                const { editor } = this.context;
-                const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
-                if (fileName === bpFileName && position && position.startLine === lineNumber) {
-                    this.setState({
-                        isBreakpoint: false,
-                    });
-                    this.props.model.isBreakpoint = false;
-                }
-            });
-            this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
-            this.endListner = DebugManager.on('session-ended', this.end.bind(this));
-            this.cmpListner = DebugManager.on('execution-ended', this.end.bind(this));
-            this.continueListner = DebugManager.on('resume-execution', this.end.bind(this));
+            DebugManager.on('breakpoint-added', this.onBreakpointAdded, this);
+            DebugManager.on('breakpoint-removed', this.onBreakpointRemoved, this);
+            DebugManager.on('debug-hit', this.debugHit, this);
+            DebugManager.on('session-ended', this.end, this);
+            DebugManager.on('execution-ended', this.end, this);
+            DebugManager.on('resume-execution', this.end, this);
         }
         /**
          * hook for componentWillUnmount
          */
         componentWillUnmount() {
-            DebugManager.off('breakpoint-added', this.addListner);
-            DebugManager.off('breakpoint-removed', this.removeListner);
-            DebugManager.off('debug-hit', this.hitListner);
-            DebugManager.off('session-ended', this.endListner);
-            DebugManager.off('execution-ended', this.cmpListner);
-            DebugManager.off('resume-execution', this.continueListner);
+            DebugManager.off('breakpoint-added', this.onBreakpointAdded, this);
+            DebugManager.off('breakpoint-removed', this.onBreakpointRemoved, this);
+            DebugManager.off('debug-hit', this.debugHit, this);
+            DebugManager.off('session-ended', this.end, this);
+            DebugManager.off('execution-ended', this.end, this);
+            DebugManager.off('resume-execution', this.end, this);
+        }
+        /**
+         * on adding breakpoint
+         * @param {Object} { lineNumber, fileName: bpFileName}
+         */
+        onBreakpointAdded({ lineNumber, fileName: bpFileName }) {
+            const { position } = this.props.model;
+            const { editor } = this.context;
+            const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
+            if (fileName === bpFileName && position && position.startLine === lineNumber) {
+                this.setState({
+                    isBreakpoint: true,
+                });
+                this.props.model.isBreakpoint = true;
+            }
+        }
+        /**
+         * on removing breakpoint
+         *
+         * @param {Object} { lineNumber, fileName: bpFileName }
+         */
+        onBreakpointRemoved({ lineNumber, fileName: bpFileName }) {
+            const { position } = this.props.model;
+            const { editor } = this.context;
+            const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
+            if (fileName === bpFileName && position && position.startLine === lineNumber) {
+                this.setState({
+                    isBreakpoint: false,
+                });
+                this.props.model.isBreakpoint = false;
+            }
         }
         /**
          * indicate a debug hit
