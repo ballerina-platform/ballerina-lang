@@ -46,12 +46,10 @@ class TreeNode extends React.Component {
      */
     componentDidMount() {
         if (this.props.node.enableEdit && !_.isNil(this.nameInput)) {
-            if (_.isFunction(this.context.getScroller)) {
-                const scroller = this.context.getScroller();
-                this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
-                const { offsetTop, offsetHeight } = this.nameInput;
-                scroller.scrollTop(offsetTop + offsetHeight + 10);
-            }
+            const { scroller } = this.context;
+            this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
+            const { offsetTop, offsetHeight } = this.nameInput;
+            scroller.scrollTop(offsetTop + offsetHeight + 10);
             this.nameInput.focus();
         }
     }
@@ -77,16 +75,13 @@ class TreeNode extends React.Component {
             }
         }
         if (!_.isNil(this.nameInput) && !_.isNil(this.errorDiv)) {
-            if (_.isFunction(this.context.getScroller)) {
-                const scroller = this.context.getScroller();
-                const { clientHeight, scrollHeight, scrollTop } = scroller.getValues();
-                const { offsetTop, offsetHeight } = this.errorDiv;
-                // if error div is hidden in screen
-                if ((clientHeight + scrollTop) < (offsetTop + offsetHeight)) {
-                    scroller.scrollTop(offsetTop + offsetHeight + 10);
-                }
-                this.focusHighligher.style.height = `${scrollHeight}px`;
+            const { scroller } = this.context;
+            const { offsetTop, offsetHeight } = this.errorDiv;
+            // if error div is hidden in screen
+            if (!scroller.isTopVisible(offsetTop + offsetHeight)) {
+                scroller.scrollTop(offsetTop + offsetHeight + 10);
             }
+            this.focusHighligher.style.height = `${scroller.getScrollHeight()}px`;
         }
     }
 
@@ -389,7 +384,12 @@ TreeNode.contextTypes = {
         on: PropTypes.func,
         dispatch: PropTypes.func,
     }),
-    getScroller: PropTypes.func,
+    scroller: PropTypes.shape({
+        scrollTop: PropTypes.func.isRequired,
+        scrollLeft: PropTypes.func.isRequired,
+        isTopVisible: PropTypes.func.isRequired,
+        isLeftVisible: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 export default TreeNode;
