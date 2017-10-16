@@ -270,6 +270,102 @@ public class HTTPClientRedirectTestCase {
     }
 
     /**
+     * Check whether the redirect url is built properly when relative path starts with "/"
+     */
+    @Test
+    public void relativePathStartsWithSlash() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
+                            Integer.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "/test", "/redirect1", "https", "localhost", 8080);
+            assertEquals("https://localhost:8080/redirect1", redirectUrl);
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running relativePathStartsWithSlash", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running relativePathStartsWithSlash", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running relativePathStartsWithSlash", e);
+        }
+    }
+
+    /**
+     * Check whether the redirect url is built properly when relative path ends with "/"
+     */
+    @Test
+    public void relativePathEndsWithSlash() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
+                            Integer.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "/test", "redirect1/", "https", "localhost", 8080);
+            assertEquals("https://localhost:8080/test/redirect1/", redirectUrl);
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running relativePathEndsWithSlash", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running relativePathEndsWithSlash", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running relativePathEndsWithSlash", e);
+        }
+    }
+
+    /**
+     * Check whether the redirect url is built properly when relative path doesn't contain any slashes.
+     */
+    @Test
+    public void justRelativePathName() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
+                            Integer.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "/test", "redirect1", "https", "localhost", 8080);
+            assertEquals("https://localhost:8080/test/redirect1", redirectUrl);
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running justRelativePathName", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running justRelativePathName", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running justRelativePathName", e);
+        }
+    }
+
+    /**
+     * Check whether the redirect url is built properly when request path ends with "/"
+     */
+    @Test
+    public void requestPathEndsWithSlash() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
+                            Integer.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "test/", "/redirect1", "https", "localhost", 8080);
+            assertEquals("https://localhost:8080/redirect1", redirectUrl);
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running justRelativePathName", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running justRelativePathName", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running justRelativePathName", e);
+        }
+    }
+
+    /**
      * Test for single redirection in cross domain situation where the location is defined as an absolute path.
      */
     @Test

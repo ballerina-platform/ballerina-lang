@@ -175,6 +175,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
                     responseFuture.removeHttpListener();
                 }
+                if (ctx != originalChannelContext) {
+                    ctx.close();
+                } else {
+                    TargetChannel targetChannel = ctx.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
+                    ConnectionManager.getInstance().returnChannel(targetChannel);
+                }
             }
         }
     }
@@ -336,11 +342,14 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 Util.resetChannelAttributes(originalChannelContext);
                 if (!isIdleHandlerOfTargetChannelRemoved) {
-                    targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                    isIdleHandlerOfTargetChannelRemoved = true;
+                    if (targetChannel.getChannel().isActive()) {
+                        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                        isIdleHandlerOfTargetChannelRemoved = true;
+                    }
                 }
             }
             ConnectionManager.getInstance().returnChannel(targetChannel);
+            isIdleHandlerOfTargetChannelRemoved = false;
             if (ctx != originalChannelContext) {
                 ctx.close();
             }
