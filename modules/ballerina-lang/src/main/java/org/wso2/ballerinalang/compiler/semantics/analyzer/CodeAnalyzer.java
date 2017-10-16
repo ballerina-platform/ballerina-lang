@@ -609,11 +609,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
+        if (!this.inWorker()) {
+            return;
+        }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (!this.inWorker()) {
+            return;
+        }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
     }
 
