@@ -371,7 +371,7 @@ public class BLangFileRestService {
                 error.addProperty("type", "error");
                 error.addProperty("category", errorCategoryName);
             } else {
-                error.addProperty("category", "runtime");
+                error.addProperty("category", "RUNTIME");
             }
 
             error.addProperty("text", diagnostic.getMessage());
