@@ -90,7 +90,7 @@ class ApplicationMenu extends View {
         switch (type) {
             case MENU_DEF_TYPES.ROOT:
                 return (
-                    <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
+                    <SubMenu className="root-item" disabled={!item.isActive()} title={<span>{label}</span>} key={id}>
                         {children}
                     </SubMenu >
                 );
