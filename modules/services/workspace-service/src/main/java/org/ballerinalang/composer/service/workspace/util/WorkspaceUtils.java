@@ -195,11 +195,33 @@ public class WorkspaceUtils {
                 SymbolInformation symbolInfo = new SymbolInformation();
                 String symbolName = value.symbol.getName().getValue();
                 symbolInfo.setName(symbolName);
+                setDefaultValuesForType(symbolName, symbolInfo);
                 symbolInformationList.add(symbolInfo);
             }
         });
 
         return symbolInformationList;
+    }
+
+    private static void setDefaultValuesForType(String type, SymbolInformation symbolInfo) {
+        switch (type) {
+            case "int" :
+                symbolInfo.setDefaultValue("0");
+                break;
+            case "float" :
+                symbolInfo.setDefaultValue("0.0");
+                break;
+            case "string" :
+                symbolInfo.setDefaultValue("");
+                break;
+            case "boolean" :
+                symbolInfo.setDefaultValue("false");
+                break;
+            default:
+                // TODO: Here we are setting the null for blob as well
+                symbolInfo.setDefaultValue("null");
+                break;
+        }
     }
 
     /**
