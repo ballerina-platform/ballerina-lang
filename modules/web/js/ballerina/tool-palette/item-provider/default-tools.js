@@ -140,7 +140,7 @@ const tools = [
         icon: 'dgm-while',
         title: 'While',
         nodeFactoryMethod: DefaultNodeFactory.createWhile,
-        description: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
+        description: 'Provide a way to execute a series of statements as long as a boolean expression is met',
     },
     {
         id: 'Transform',
@@ -240,7 +240,7 @@ const tools = [
         title: 'Fork',
         nodeFactoryMethod: DefaultNodeFactory.createForkJoin,
         description: 'Provide a way to replicate a message to any number of parallel workers'
-        + 'and have them independently operate on the copies of the message',
+        + ' and have them independently operate on the copies of the message',
     },
     {
         id: 'Namespace',
