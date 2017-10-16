@@ -1581,11 +1581,12 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void createTransformStatement(DiagnosticPos pos) {
+    public void createTransformStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
         transformNode.pos = pos;
         BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         transformBlock.pos = pos;
+        transformNode.addWS(ws);
         transformNode.setBody(transformBlock);
         addStmtToCurrentBlock(transformNode);
     }
