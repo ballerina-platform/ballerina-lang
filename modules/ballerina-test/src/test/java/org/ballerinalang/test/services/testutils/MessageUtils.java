@@ -51,6 +51,7 @@ public class MessageUtils {
     }
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
+
         return generateHTTPMessage(path, method, null, payload);
     }
 
@@ -87,6 +88,8 @@ public class MessageUtils {
             payload.setOutputStream(new HttpMessageDataStreamer(carbonMessage).getOutputStream());
             carbonMessage.setMessageDataSource(payload);
             carbonMessage.setAlreadyRead(true);
+        } else {
+            carbonMessage.setEndOfMsgAdded(true);
         }
 
         return carbonMessage;
