@@ -504,6 +504,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTryCatchFinally tryNode) {
         this.checkStatementExecutionValidity(tryNode);
+        this.retryStmtCheckStack.push(false);
+        tryNode.tryBody.accept(this);
+        this.resetStatementReturns();
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             if (caughtTypes.contains(bLangCatch.getParameter().type)) {
@@ -511,8 +514,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         bLangCatch.getParameter().type);
             }
             caughtTypes.add(bLangCatch.getParameter().type);
+            bLangCatch.body.accept(this);
+            this.resetStatementReturns();
         }
-
+        if (tryNode.finallyBody != null) {
+            tryNode.finallyBody.accept(this);
+            this.resetStatementReturns();
+        }
+        this.retryStmtCheckStack.pop();
     }
 
     public void visit(BLangCatch catchNode) {

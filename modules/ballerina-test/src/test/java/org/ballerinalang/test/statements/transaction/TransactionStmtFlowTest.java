@@ -352,7 +352,7 @@ public class TransactionStmtFlowTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 19, 15);
         BTestUtils.validateError(resultNegative, 1, "invalid transaction retry count", 19, 15);
         BTestUtils.validateError(resultNegative, 2,
@@ -366,6 +366,16 @@ public class TransactionStmtFlowTest {
         BTestUtils.validateError(resultNegative, 9, "unreachable code", 93, 9);
         BTestUtils.validateError(resultNegative, 10,
                 "invalid retry statement position, should be a root level statement within failed block", 106, 13);
+        BTestUtils.validateError(resultNegative, 11,
+                "invalid retry statement position, should be a root level statement within failed block", 123, 13);
+        BTestUtils.validateError(resultNegative, 12,
+                "invalid retry statement position, should be a root level statement within failed block", 140, 13);
+        BTestUtils.validateError(resultNegative, 13,
+                "invalid retry statement position, should be a root level statement within failed block", 155, 13);
+        BTestUtils.validateError(resultNegative, 14,
+                "invalid retry statement position, should be a root level statement within failed block", 174, 13);
+        BTestUtils.validateError(resultNegative, 15,
+                "invalid retry statement position, should be a root level statement within failed block", 191, 13);
     }
 
     @Test(description = "Test transaction statement with errors")
@@ -383,5 +393,4 @@ public class TransactionStmtFlowTest {
         BTestUtils.validateError(res, 5, "break statement cannot be used to exit from a transaction", 78, 17);
         BTestUtils.validateError(res, 6, "next statement cannot be used to exit from a transaction", 91, 17);
     }
-
 }

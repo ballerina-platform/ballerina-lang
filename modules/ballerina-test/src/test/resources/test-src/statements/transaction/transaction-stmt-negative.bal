@@ -112,3 +112,87 @@ function testTransactionRetry6(int i) (string) {
     return a;
 }
 
+function testTransactionRetry7(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        transaction {
+            a = a + " inTrx";
+        } aborted {
+            retry 4;
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionRetry8(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        transaction {
+            a = a + " inTrx";
+        } committed {
+            retry 4;
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionRetry9(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        try {
+            retry 4;
+        } finally {
+
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionRetry10(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        try {
+            a = a + "try";
+        } finally {
+            retry 5;
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionRetry11(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        try {
+            a = a + "try";
+        } catch (error e) {
+            retry 5;
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
