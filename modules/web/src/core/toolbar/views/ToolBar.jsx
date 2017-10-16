@@ -29,6 +29,7 @@ class ToolBar extends View {
                 toolsByGroup[tool.group] = [];
             }
             toolsByGroup[tool.group].push(tool);
+            tool.shortCutLabel = this.props.getLabelForCommand(tool.commandID);
         });
         const toolGroupComponents = _.toPairs(toolsByGroup).map((pair) => {
             return (
@@ -51,6 +52,7 @@ class ToolBar extends View {
 
 ToolBar.propTypes = {
     toolBarPlugin: PropTypes.objectOf(Object).isRequired,
+    getLabelForCommand: PropTypes.func.isRequired,
 };
 
 export default ToolBar;

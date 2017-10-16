@@ -79,6 +79,10 @@ class ToolBarPlugin extends Plugin {
                     propsProvider: () => {
                         return {
                             toolBarPlugin: this,
+                            getLabelForCommand: (cmdID) => {
+                                const cmd = this.appContext.command.findCommand(cmdID);
+                                return _.get(cmd, 'shortcut.derived.label', '');
+                            },
                         };
                     },
                     region: REGIONS.TOOL_AREA,
