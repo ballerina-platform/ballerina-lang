@@ -83,6 +83,8 @@ class BallerinaFileEditor extends React.Component {
                     .then((state) => {
                         const newAST = state.model;
                         const currentAST = this.state.model;
+                        // update environment object with updated current package info
+                        this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
                         // remove new AST from new state to be set
                         delete state.model;
@@ -232,7 +234,7 @@ class BallerinaFileEditor extends React.Component {
             let connectorExists = false;
             while (!TreeUtils.isCompilationUnit(immediateParent)) {
                 if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
-                || TreeUtils.isAction(immediateParent)) {
+                    || TreeUtils.isAction(immediateParent)) {
                     const connectors = immediateParent.getBody().filterStatements((statement) => {
                         return TreeUtils.isConnectorDeclaration(statement);
                     });
@@ -241,7 +243,7 @@ class BallerinaFileEditor extends React.Component {
                             === node.getExpression().getPackageAlias().value) {
                             connectorExists = true;
                             node.getExpression().getExpression().getVariableName()
-                                    .setValue(connector.getVariableName().value);
+                                .setValue(connector.getVariableName().value);
                         }
                     });
                 } else if (TreeUtils.isService(immediateParent)) {
@@ -380,6 +382,17 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Update environment object with updated current package info
+     * @param {PackageScopedEnvironment} environment Package scoped environment
+     * @param {Object} currentPackageInfo Updated current package information
+     */
+    updateEnvironment(environment, currentPackageInfo) {
+        const pkg = BallerinaEnvFactory.createPackage();
+        pkg.initFromJson(currentPackageInfo);
+        environment.setCurrentPackage(pkg);
+    }
+
+    /**
      * Go to source of given AST Node
      *
      * @param {ASTNode} node AST Node
@@ -485,6 +498,8 @@ class BallerinaFileEditor extends React.Component {
             // first validate the file for syntax errors
             validateFile(file)
                 .then((data) => {
+                    // keep current package information.
+                    newState.packageInfo = data.packageInfo;
                     const syntaxErrors = data.errors.filter(({ category }) => {
                         return category === 'SYNTAX';
                     });
