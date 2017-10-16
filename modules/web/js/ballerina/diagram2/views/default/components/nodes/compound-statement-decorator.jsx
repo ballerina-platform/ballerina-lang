@@ -78,7 +78,7 @@ class CompoundStatementDecorator extends React.Component {
      */
     onDelete() {
         const model = this.props.model || this.props.dropTarget;
-        model.parent.remove();
+        model.remove();
     }
     /**
      * Navigates to codeline in the source view from the design view node
@@ -222,10 +222,11 @@ class CompoundStatementDecorator extends React.Component {
         this.conditionBox = new SimpleBBox(p1X, statementBBox.y, bBox.w, titleH);
         const { designer } = this.context;
         const actionBoxBbox = new SimpleBBox();
+        const headerHeight = viewState.components['block-header'].h;
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
         actionBoxBbox.x = bBox.x + (bBox.w - actionBoxBbox.w) / 2;
-        actionBoxBbox.y = bBox.y + bBox.h + designer.config.actionBox.padding.top;
+        actionBoxBbox.y = statementBBox.y + headerHeight + designer.config.actionBox.padding.top;
         const utilClassName = CLASS_MAP[this.state.active];
 
         let statementRectClass = 'statement-title-rect';
@@ -295,14 +296,6 @@ class CompoundStatementDecorator extends React.Component {
                     />
                     {expression && <title> {expression.text} </title>}
                 </g>
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                />
                 {parameterText &&
                 <g>
                     <line
@@ -348,6 +341,14 @@ class CompoundStatementDecorator extends React.Component {
                 />
                 {this.props.children}
                 {body}
+                <ActionBox
+                    bBox={actionBoxBbox}
+                    show={this.state.active}
+                    isBreakpoint={isBreakpoint}
+                    onDelete={() => this.onDelete()}
+                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
+                    onBreakpointClick={() => this.props.onBreakpointClick()}
+                />
             </g>);
     }
 }
