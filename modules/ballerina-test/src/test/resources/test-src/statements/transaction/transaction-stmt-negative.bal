@@ -95,3 +95,20 @@ function testTransactionAbort5 () {
         i = i + 10;
     }
 }
+
+
+function testTransactionRetry6(int i) (string) {
+    string a = "start";
+    transaction {
+        a = a + " inTrx";
+    } failed {
+        transaction {
+            retry 4;
+        }
+    } committed {
+        a = a + " inTrx";
+    }
+    a = a + " end";
+    return a;
+}
+

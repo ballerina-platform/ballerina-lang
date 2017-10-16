@@ -350,10 +350,9 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
 
-
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 19, 15);
         BTestUtils.validateError(resultNegative, 1, "invalid transaction retry count", 19, 15);
         BTestUtils.validateError(resultNegative, 2,
@@ -365,6 +364,8 @@ public class TransactionStmtFlowTest {
         BTestUtils.validateError(resultNegative, 7, "unreachable code", 70, 9);
         BTestUtils.validateError(resultNegative, 8, "unreachable code", 89, 17);
         BTestUtils.validateError(resultNegative, 9, "unreachable code", 93, 9);
+        BTestUtils.validateError(resultNegative, 10,
+                "invalid retry statement position, should be a root level statement within failed block", 106, 13);
     }
 
     @Test(description = "Test transaction statement with errors")
