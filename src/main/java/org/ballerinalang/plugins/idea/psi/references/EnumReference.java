@@ -31,12 +31,13 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ConnectorReference extends BallerinaElementReference {
+public class EnumReference extends BallerinaElementReference {
 
-    public ConnectorReference(@NotNull IdentifierPSINode element) {
+    public EnumReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
@@ -54,22 +55,6 @@ public class ConnectorReference extends BallerinaElementReference {
         }
     }
 
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        List<LookupElement> results = new LinkedList<>();
-        IdentifierPSINode identifier = getElement();
-        PsiElement parent = identifier.getParent();
-
-        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
-        if (packageNameNode == null) {
-            results.addAll(getVariantsInCurrentPackage());
-        } else {
-            results.addAll(getVariantsInPackage(packageNameNode));
-        }
-        return results.toArray(new LookupElement[results.size()]);
-    }
-
     @Nullable
     private PsiElement resolveInCurrentPackage(@NotNull IdentifierPSINode identifier) {
         PsiFile containingFile = identifier.getContainingFile();
@@ -80,12 +65,8 @@ public class ConnectorReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true,
-                false, false, false, false, true);
-        if (element != null) {
-            return element;
-        }
-        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
+                false, false, true);
     }
 
     @Nullable
@@ -96,44 +77,52 @@ public class ConnectorReference extends BallerinaElementReference {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true, false, false,
-                false,
-                false, false);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
+                false, false, false);
     }
 
     @NotNull
-    private List<LookupElement> getVariantsInCurrentPackage() {
+    @Override
+    public Object[] getVariants() {
         List<LookupElement> results = new LinkedList<>();
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
 
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            results.addAll(getVariantsFromCurrentPackage());
+        } else {
+            results.addAll(getVariantsFromPackage(packageNameNode));
+        }
+        return results.toArray(new LookupElement[results.size()]);
+    }
+
+    @NotNull
+    private List<LookupElement> getVariantsFromCurrentPackage() {
+        List<LookupElement> results = new LinkedList<>();
         IdentifierPSINode identifier = getElement();
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
-
         PsiDirectory containingPackage = originalFile.getParent();
+
         if (containingPackage != null) {
-            List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage,
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage,
                     true);
-            results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
-                    ParenthesisInsertHandler.INSTANCE));
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         }
-        List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
-                PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
-                AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        results.addAll(packages);
         return results;
     }
 
     @NotNull
-    private List<LookupElement> getVariantsInPackage(@NotNull PackageNameNode packageNameNode) {
+    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
         List<LookupElement> results = new LinkedList<>();
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(resolvedPackage, false);
-        results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
-                ParenthesisInsertHandler.INSTANCE));
+        List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(resolvedPackage, false);
+        results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         return results;
     }
 }

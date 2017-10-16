@@ -26,6 +26,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
@@ -69,17 +70,20 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
         if (parent instanceof NameReferenceNode) {
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleLeaf != null && "public".equals(prevVisibleLeaf.getText())) {
+                result.addAllElements(getFileLevelKeywordsAsLookups(false, true, true));
+            }
             if (prevVisibleLeaf instanceof IdentifierPSINode) {
-                addAttachKeyword(result);
+                result.addElement(getAttachKeyword());
                 return;
             }
 
             ANTLRPsiNode definitionParent = PsiTreeUtil.getParentOfType(parent, CallableUnitBodyNode.class,
                     ServiceBodyNode.class, ConnectorBodyNode.class);
             if (definitionParent != null && prevVisibleLeaf != null && "=".equals(prevVisibleLeaf.getText())) {
-                addCreateKeyword(result);
-                addTypeOfKeyword(result);
-                addLengthOfKeyword(result);
+                result.addElement(getCreateKeyword());
+                result.addElement(getTypeOfKeyword());
+                result.addElement(getLengthOfKeyword());
                 result.addAllElements(getValueKeywords());
             }
 
@@ -91,7 +95,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 }
                 PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
                 if ((prevVisibleLeaf != null && "(".equals(prevVisibleLeaf.getText())) ||
-                        (nextVisibleLeaf != null && ")".equals(nextVisibleLeaf.getText()))) {
+                        (nextVisibleLeaf != null && ")".equals(nextVisibleLeaf.getText())
+                                && !":".equals(prevVisibleLeaf.getText()))) {
                     addOtherTypeAsLookup(result);
                     addValueTypesAsLookups(result);
                     addReferenceTypesAsLookups(result);
@@ -120,9 +125,9 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         if (parent instanceof StatementNode) {
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
             if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
-                addCreateKeyword(result);
-                addTypeOfKeyword(result);
-                addLengthOfKeyword(result);
+                result.addElement(getCreateKeyword());
+                result.addElement(getTypeOfKeyword());
+                result.addElement(getLengthOfKeyword());
             }
         }
 
@@ -144,10 +149,10 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             if (definitionNode != null) {
 
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
-                    addCreateKeyword(result);
+                    result.addElement(getCreateKeyword());
                     result.addAllElements(getValueKeywords());
-                    addTypeOfKeyword(result);
-                    addLengthOfKeyword(result);
+                    result.addElement(getTypeOfKeyword());
+                    result.addElement(getLengthOfKeyword());
                 }
 
                 if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")
@@ -164,23 +169,32 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     if (definitionNode instanceof ResourceDefinitionNode) {
                         result.addAllElements(getResourceSpecificKeywords());
                     }
-                    result.addAllElements(getCommonKeywords());
+                    if (definitionNode instanceof ServiceDefinitionNode) {
+                        result.addAllElements(getServiceSpecificKeywords());
+                    }
+                    if (definitionNode instanceof ConnectorDefinitionNode) {
+                        result.addAllElements(getConnectorSpecificKeywords());
+                    }
+                    if (!(definitionNode instanceof ServiceDefinitionNode
+                            || definitionNode instanceof ConnectorDefinitionNode)) {
+                        result.addAllElements(getCommonKeywords());
+                    }
                 }
-                if (prevVisibleSibling == null
-                        || !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)) {
+                if (prevVisibleSibling != null && !prevVisibleSibling.getText().matches("[{}]")
+                        /*|| !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)*/) {
                     result.addAllElements(getValueKeywords());
                 }
             }
 
             ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
             if (connectorBodyNode != null) {
-                addConnectorSpecificKeywords(result);
+                result.addAllElements(getConnectorSpecificKeywords());
             }
 
             ConnectorDefinitionNode connectorDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ConnectorDefinitionNode.class);
             if (connectorDefinitionNode != null) {
-                addConnectorSpecificKeywords(result);
+                result.addAllElements(getConnectorSpecificKeywords());
             }
             return;
         }
@@ -211,19 +225,21 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                     ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
                     if (serviceBodyNode != null) {
-                        result.addAllElements(createServiceSpecificKeywords());
+                        result.addAllElements(getServiceSpecificKeywords());
                     }
 
                     ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
                     if (connectorBodyNode != null) {
-                        addConnectorSpecificKeywords(result);
+                        result.addAllElements(getConnectorSpecificKeywords());
                     }
+                } else if (prevVisibleSibling != null && "}".equals(prevVisibleSibling.getText())) {
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, false));
                 }
             }
         }
 
         if (parent instanceof ResourceDefinitionNode) {
-            result.addAllElements(createServiceSpecificKeywords());
+            result.addAllElements(getServiceSpecificKeywords());
         }
 
         if (parent.getPrevSibling() == null) {
@@ -233,6 +249,16 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             if (globalVariableDefinitionNode != null) {
                 PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
                 if (prevVisibleSibling != null && !(";".equals(prevVisibleSibling.getText()))) {
+                    if (!(prevVisibleSibling.getText().matches("[:=]") || prevVisibleSibling instanceof
+                            IdentifierPSINode || "create".equals(prevVisibleSibling.getText()))) {
+                        if (prevVisibleSibling instanceof LeafPsiElement) {
+                            IElementType elementType = ((LeafPsiElement) prevVisibleSibling).getElementType();
+                            if (BallerinaParserDefinition.KEYWORDS.contains(elementType)) {
+                                return;
+                            }
+                        }
+                        result.addAllElements(getCommonKeywords());
+                    }
                     return;
                 }
 
@@ -255,21 +281,21 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                 if (prevPackageDeclarationNode == null && prevImportDeclarationNode == null
                         && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
-                    addFileLevelKeywordsAsLookups(result, true, true);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, true, true));
                 } else if ((prevPackageDeclarationNode != null || prevImportDeclarationNode != null)
                         && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
-                    addFileLevelKeywordsAsLookups(result, false, true);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, true));
                 } else {
-                    addFileLevelKeywordsAsLookups(result, false, false);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, false));
                 }
 
                 addTypeNamesAsLookups(result);
             }
         }
 
-        if(element instanceof IdentifierPSINode){
+        if (element instanceof IdentifierPSINode) {
             PsiReference reference = element.findReferenceAt(element.getTextLength());
-            if(reference instanceof WorkerReference){
+            if (reference instanceof WorkerReference) {
                 result.addAllElements(getWorkerInteractionKeywords());
             }
         }

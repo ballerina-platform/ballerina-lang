@@ -1,6 +1,6 @@
 function main (string[] args) {
     Con c = create Con();
-    Con.test(<caret>)
+    c.test(<caret>)
 }
 
 connector Con () {

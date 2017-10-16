@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueRef
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
@@ -45,8 +46,9 @@ import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
-import org.ballerinalang.plugins.idea.psi.references.VariableReference;
+import org.ballerinalang.plugins.idea.psi.references.InvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -118,8 +120,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return null;
                     }
                     return new PackageNameReference(this);
-                case RULE_actionInvocation:
-                    return new ActionInvocationReference(this);
                 case RULE_nameReference:
                     // If we are currently resolving a var variable, we don't need to resolve it since it is the
                     // definition.
@@ -168,8 +168,34 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             return new AttachmentPointReference(this);
                         }
                     }
+
                     return new NameReference(this);
                 case RULE_field:
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+                    PsiReference variableReference = null;
+                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+                        PsiElement connectorVariable = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+                        if (connectorVariable != null) {
+                            variableReference = connectorVariable.findReferenceAt(connectorVariable.getTextLength());
+                        }
+                    } else {
+                        PsiElement prevSibling = parent.getPrevSibling();
+                        variableReference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+                    }
+
+                    if (variableReference == null) {
+                        return null;
+                    }
+                    PsiElement variableDefinition = variableReference.resolve();
+                    if (variableDefinition == null) {
+                        return new FieldReference(this);
+                    }
+                    ConnectorDefinitionNode connectorDefinitionNode =
+                            BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinition
+                                    .getParent());
+                    if (connectorDefinitionNode != null) {
+                        return new ActionInvocationReference(this);
+                    }
                     return new FieldReference(this);
                 case RULE_functionReference:
                     return new FunctionReference(this);
@@ -190,14 +216,22 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return reference;
                     }
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
-                        return new FieldReference(this);
+                    if (prevVisibleLeaf != null) {
+                        if (".".equals(prevVisibleLeaf.getText())) {
+                            return new FieldReference(this);
+                        } else if (prevVisibleLeaf.getText().matches("[{,]")) {
+                            return new StructKeyReference(this);
+                        }
                     }
                     PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getPsi());
                     if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
                         return new PackageNameReference(this);
                     }
                     return new StatementReference(this);
+                case RULE_invocation:
+                    return suggestReferenceTypeForInvocation();
+                case RULE_structReference:
+                    return new StructReference(this);
                 default:
                     return null;
             }
@@ -208,6 +242,29 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         return null;
     }
 
+    @Nullable
+    private PsiReference suggestReferenceTypeForInvocation() {
+        PsiElement parent = getParent();
+        PsiElement prevSibling = parent.getPrevSibling();
+        if (prevSibling == null) {
+            return null;
+        }
+        PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement definitionNode = resolvedElement.getParent();
+        if (definitionNode instanceof ConnectorDeclarationStatementNode) {
+            return new ActionInvocationReference(this);
+        }
+        return new InvocationReference(this);
+    }
+
+    @Nullable
     private PsiReference checkAndSuggestReferenceAfterDot() {
         // Todo - update logic
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
@@ -233,17 +290,19 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                 return new ActionInvocationReference(this);
                             }
                             return new FieldReference(this);
+                        } else if (definitionNode instanceof EnumDefinitionNode) {
+                            return new EnumFieldReference(this);
                         }
                     }
                 } else {
                     // Todo - might need to do this for assignment statements as well
-                    return new VariableReference(this);
                 }
             }
         }
         return null;
     }
 
+    @NotNull
     private PsiReference suggestReferenceType(@NotNull PsiElement parent) {
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
         if (nextVisibleLeaf != null) {
@@ -265,9 +324,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         return new NameReference(this);
     }
 
+    @NotNull
     private PsiReference checkDefinitionAndSuggestReference(@NotNull VariableDefinitionNode variableDefinitionNode) {
-        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                (variableDefinitionNode);
+        StructDefinitionNode structDefinitionNode =
+                BallerinaPsiImplUtil.resolveStructFromDefinitionNode(variableDefinitionNode);
         if (structDefinitionNode != null) {
             return new FieldReference(this);
         }
@@ -278,7 +338,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return new ActionInvocationReference(this);
         }
 
-        return new VariableReference(this);
+        return null;
     }
 
     @Override

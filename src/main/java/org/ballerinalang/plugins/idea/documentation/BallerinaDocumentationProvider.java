@@ -35,6 +35,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -120,7 +121,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-        } else if (parent instanceof ActionDefinitionNode) {
+        } else if (parent instanceof ActionDefinitionNode || parent instanceof InvocationNode) {
             // Add the action signature.
             stringBuilder.append("action ");
             stringBuilder.append(element.getText());

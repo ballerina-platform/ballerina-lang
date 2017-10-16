@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
 
-    private String struct = "struct /*def*/testStruct {\n    string a;\n}";
+    private String struct = "public struct /*def*/testStruct {\n    string a;\n}";
 
     @Override
     protected String getTestDataPath() {

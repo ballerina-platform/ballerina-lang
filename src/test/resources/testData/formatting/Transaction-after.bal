@@ -1,7 +1,7 @@
 function test () {
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "username":"SA",
                             "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters = [];
     transaction {
         int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')", parameters);

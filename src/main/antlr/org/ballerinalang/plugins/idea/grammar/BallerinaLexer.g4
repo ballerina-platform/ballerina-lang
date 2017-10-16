@@ -9,6 +9,7 @@ lexer grammar BallerinaLexer;
 PACKAGE         : 'package';
 IMPORT          : 'import';
 AS              : 'as';
+PUBLIC          : 'public';
 NATIVE          : 'native';
 SERVICE         : 'service';
 RESOURCE        : 'resource';
@@ -17,12 +18,14 @@ CONNECTOR       : 'connector';
 ACTION          : 'action';
 STRUCT          : 'struct';
 ANNOTATION      : 'annotation';
+ENUM            : 'enum' ;
 PARAMETER       : 'parameter';
 CONST           : 'const';
 TYPEMAPPER      : 'typemapper';
 WORKER          : 'worker';
 XMLNS           : 'xmlns';
 RETURNS         : 'returns';
+VERSION         : 'version';
 
 TYPE_INT        : 'int';
 TYPE_FLOAT      : 'float';
@@ -32,10 +35,9 @@ TYPE_BLOB       : 'blob';
 TYPE_MAP        : 'map';
 TYPE_JSON       : 'json';
 TYPE_XML        : 'xml';
-TYPE_MESSAGE    : 'message';
 TYPE_DATATABLE  : 'datatable';
 TYPE_ANY        : 'any';
-TYPE_TYPE       : 'type' ;
+TYPE_TYPE       : 'type';
 
 VAR             : 'var';
 CREATE          : 'create';
@@ -45,7 +47,7 @@ IF              : 'if';
 ELSE            : 'else';
 ITERATE         : 'iterate';
 WHILE           : 'while';
-CONTINUE        : 'continue';
+NEXT            : 'next';
 BREAK           : 'break';
 FORK            : 'fork';
 JOIN            : 'join';
@@ -80,6 +82,7 @@ LEFT_PARENTHESIS    : '(';
 RIGHT_PARENTHESIS   : ')';
 LEFT_BRACKET        : '[';
 RIGHT_BRACKET       : ']';
+QUESTION_MARK       : '?';
 
 // Arithmetic operators
 
