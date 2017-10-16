@@ -52,5 +52,24 @@ export function getMenuDefinitions(plugin) {
             icon: 'redo',
             type: MENU_DEF_TYPES.ITEM,
         },
+        {
+            id: MENUS.FORMAT,
+            parent: MENUS.EDIT,
+            label: LABELS.FORMAT,
+            isActive: () => {
+                const { editor } = plugin.appContext;
+                const activeEditor = editor.getActiveEditor();
+                if (activeEditor && activeEditor.constructor.name === 'Editor') {
+                    return true;
+                }
+                return false;
+            },
+            command: COMMANDS.FORMAT,
+            icon: 'format',
+            type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                before: true,
+            },
+        },
     ];
 }
