@@ -31,6 +31,16 @@ export default class ScrollBarsWithContextAPI extends React.Component {
                         this.scrollBarRef.scrollLeft(left);
                     }
                 },
+                scrollToElement: (element) => {
+                    if (this.scrollBarRef) {
+                        if (!(element instanceof HTMLElement)) {
+                            throw Error('Argument should be a dom instance');
+                        }
+                        const { offsetTop, offsetLeft } = element;
+                        this.scrollBarRef.scrollTop(offsetTop);
+                        this.scrollBarRef.scrollLeft(offsetLeft);
+                    }
+                },
                 getScrollWidth: () => {
                     return this.scrollBarRef ? this.scrollBarRef.getScrollWidth() : undefined;
                 },
@@ -48,6 +58,18 @@ export default class ScrollBarsWithContextAPI extends React.Component {
                     if (this.scrollBarRef) {
                         const { clientWidth, scrollLeft } = this.scrollBarRef.getValues();
                         return (clientWidth + scrollLeft) > left;
+                    }
+                    return false;
+                },
+                isElementVisible: (element) => {
+                    if (this.scrollBarRef) {
+                        if (!(element instanceof HTMLElement)) {
+                            throw Error('Argument should be a dom instance');
+                        }
+                        const { clientHeight, scrollTop, clientWidth, scrollLeft } = this.scrollBarRef.getValues();
+                        const { offsetTop, offsetHeight, offsetLeft, offsetWidth } = element;
+                        return (clientWidth + scrollLeft) > (offsetLeft + offsetWidth)
+                                    && (clientHeight + scrollTop) > (offsetTop + offsetHeight);
                     }
                     return false;
                 },
@@ -79,10 +101,12 @@ ScrollBarsWithContextAPI.childContextTypes = {
     scroller: PropTypes.shape({
         scrollTop: PropTypes.func.isRequired,
         scrollLeft: PropTypes.func.isRequired,
+        scrollToElement: PropTypes.func.isRequired,
         getScrollWidth: PropTypes.func.isRequired,
         getScrollHeight: PropTypes.func.isRequired,
         isTopVisible: PropTypes.func.isRequired,
         isLeftVisible: PropTypes.func.isRequired,
+        isElementVisible: PropTypes.func.isRequired,
         getValues: PropTypes.func.isRequired,
     }).isRequired,
 };
