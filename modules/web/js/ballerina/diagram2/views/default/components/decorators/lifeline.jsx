@@ -26,11 +26,16 @@ import ExpressionEditor from 'expression_editor_utils';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
+import ActionBox from './action-box';
+import ActiveArbiter from './active-arbiter';
 
 class LifeLine extends React.Component {
 
     constructor(props) {
         super(props);
+        this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
+        this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
+
         const bBox = this.props.bBox;
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, lifeLine.head.height);
         this.state = { active: 'hidden' };
@@ -59,6 +64,18 @@ class LifeLine extends React.Component {
         if (options) {
             new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
                 .render(this.context.getOverlayContainer());
+        }
+    }
+    
+    /**
+     * Shows the action box.
+     * @param {boolean} show - Display action box if true or else hide.
+     */
+    setActionVisibility(show) {
+        if (show) {
+            this.context.activeArbiter.readyToActivate(this);
+        } else {
+            this.context.activeArbiter.readyToDeactivate(this);
         }
     }
 
@@ -114,6 +131,8 @@ class LifeLine extends React.Component {
         }
         return (<g
             className="life-line-group"
+            onMouseOut={this.setActionVisibilityFalse}
+            onMouseOver={this.setActionVisibilityTrue}
         >
 
             <title> {tooltip} </title>
@@ -209,14 +228,14 @@ class LifeLine extends React.Component {
                 dominantBaseline="central"
                 className="life-line-text genericT unhoverable"
             >{this.props.title}</text>
-            {/* this.props.onDelete &&
+            {this.props.onDelete &&
                 <ActionBox
                     show={this.state.active}
                     bBox={actionBbox}
                     onDelete={() => this.props.onDelete()}
                     onJumptoCodeLine={() => this.onJumptoCodeLine()}
                 />
-            */}
+            }
         </g>);
     }
 }
@@ -226,6 +245,7 @@ LifeLine.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
 export default LifeLine;

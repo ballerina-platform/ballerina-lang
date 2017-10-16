@@ -30,6 +30,7 @@ class WorkerNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onDelete = this.onDelete.bind(this);
 
         // TODO: Set the name
         this.editorOptions = {
@@ -45,6 +46,14 @@ class WorkerNode extends React.Component {
      * ToDo Update the edited expression
      */
     updateExpression(value) {
+    }
+
+    /**
+     * Removes self on delete button click.
+     * @returns {void}
+     */
+    onDelete() {
+        this.props.model.remove();
     }
 
     /**
@@ -69,6 +78,7 @@ class WorkerNode extends React.Component {
                     classes={classes}
                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                     iconColor='#0380c6'
+                    onDelete={this.onDelete}
                 />
                 {blockNode}
             </g>
