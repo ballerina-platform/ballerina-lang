@@ -28,7 +28,7 @@ const toolIdOperatorMap = {
     greaterThan: '>',
     lessThanOrEqual: '<=',
     greaterThanOrEqual: '>=',
-    equal: '=',
+    equal: '==',
     notEqual: '!=',
     and: '&&',
     or: '||',
