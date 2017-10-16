@@ -57,6 +57,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();
+            isOpen = false;
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);
