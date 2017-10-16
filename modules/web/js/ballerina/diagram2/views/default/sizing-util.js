@@ -202,7 +202,7 @@ class SizingUtil {
      * @param {object} node
      */
     sizeCatchNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getParameter());
     }
 
     /**
@@ -1214,7 +1214,7 @@ class SizingUtil {
      * @param {object} node If Object
      */
     sizeIfNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getCondition());
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
@@ -1384,7 +1384,7 @@ class SizingUtil {
      *
      */
     sizeWhileNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getCondition());
     }
 
 
@@ -1480,9 +1480,10 @@ class SizingUtil {
     /**
      * Set the sizing of the compound statement node (eg: IF, ElseIF, Try, Catch, etc.)
      * @param {object} node compound statement node
+     * @param {string} node expression
      */
-    sizeCompoundNode(node) {
-        const expression =  _.isFunction(node.getCondition) ? node.getCondition() : undefined;
+    sizeCompoundNode(node, nodeExpression) {
+        const expression = nodeExpression;
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;

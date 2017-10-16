@@ -242,7 +242,7 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             try {
 
-            } catch (errors:Error e) {
+            } catch (error err) {
 
             } finally {
             

@@ -23,6 +23,8 @@ import { getComponentForNodeArray } from './../../../../diagram-util';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
+import TreeBuilder from './../../../../../model/tree-builder';
+import FragmentUtils from './../../../../../utils/fragment-utils';
 import './try-node.css';
 
 class TryNode extends React.Component {
@@ -37,6 +39,7 @@ class TryNode extends React.Component {
             setterMethod: props.model.setConditionFromString,
         };
         this.onAddCatchClick = this.onAddCatchClick.bind(this);
+        this.setCatchCondition = this.setCatchCondition.bind(this);
     }
 
     /**
@@ -51,6 +54,12 @@ class TryNode extends React.Component {
         }
     }
 
+    setCatchCondition(newCondition, catchBlock) {
+        const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
+        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
+        const newNode = TreeBuilder.build(parsedJson, catchBlock, 'Catch');
+        catchBlock.setParameter(newNode);
+    }
 
     render() {
         const model = this.props.model;
@@ -107,8 +116,30 @@ class TryNode extends React.Component {
                         +
                     </text>
                 </g>
+                <g>
+                {model.catchBlocks.map((catchBlock) => {
+                    const editorOptions = {
+                        propertyType: 'text',
+                        key: 'Catch condition',
+                        model: catchBlock,
+                        getterMethod: () => { return catchBlock.getParameter().getSource(); },
+                        setterMethod: (newValue) => { this.setCatchCondition(newValue, catchBlock); },
+                    };
 
-                {catchViews}
+                    const expressiona = catchBlock.getParameter().getSource();
+
+                    return (
+                        <CompoundStatementDecorator
+                            bBox={bBox}
+                            title={'Catch'}
+                            expression={expressiona}
+                            model={catchBlock}
+                            body={catchBlock.body}
+                            editorOptions={editorOptions}
+                        />
+                    );
+                })}
+                    </g>
                 {model.finallyBody &&
                 <CompoundStatementDecorator
                     bBox={bBox}
