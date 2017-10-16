@@ -81,6 +81,17 @@ const powerOpTool = {
     nodeFactoryMethod: operatorStatementCreator,
 };
 
+const modulusOpTool = {
+    id: 'modulus',
+    name: 'Modulus',
+    icon: 'modulus',
+    title: 'Modulus',
+    factoryArgs: {
+        defaultExpression: '1 % 1',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
 const lessThanOpTool = {
     id: 'lessThan',
     name: 'Less Than',
@@ -175,6 +186,7 @@ export const binaryOpTools = [
     divideOpTool,
     multiplyOpTool,
     powerOpTool,
+    modulusOpTool,
     getSeperator('sep-numeric'),
     lessThanOpTool,
     greaterThanOpTool,

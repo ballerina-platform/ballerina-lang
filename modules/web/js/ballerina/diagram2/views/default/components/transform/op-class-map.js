@@ -24,6 +24,7 @@ const toolIdOperatorMap = {
     divide: '/',
     multiply: '*',
     power: '^',
+    modulus: '%',
     lessThan: '<',
     greaterThan: '>',
     lessThanOrEqual: '<=',
