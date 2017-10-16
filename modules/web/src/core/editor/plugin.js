@@ -267,6 +267,7 @@ class EditorPlugin extends Plugin {
                         }
                         return false;
                     },
+                    description: 'Undo',
                 },
                 {
                     id: TOOL_IDS.REDO,
@@ -282,6 +283,7 @@ class EditorPlugin extends Plugin {
                         }
                         return false;
                     },
+                    description: 'Redo',
                 },
             ],
             [DIALOGS]: [

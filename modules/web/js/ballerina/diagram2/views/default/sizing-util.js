@@ -1479,7 +1479,7 @@ class SizingUtil {
      * @param {object} node compound statement node
      */
     sizeCompoundNode(node) {
-        const expression = '';
+        const expression =  _.isFunction(node.getCondition) ? node.getCondition() : undefined;
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
@@ -1511,10 +1511,10 @@ class SizingUtil {
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
-        if (!expression) {
+        if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression, 0, available);
+            components.expression = this.getTextWidth(expression.getSource(), 0, available);
         }
     }
 
