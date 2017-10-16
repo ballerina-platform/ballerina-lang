@@ -627,18 +627,7 @@ class TransformNodeMapper {
         const argExp = functionInv.getArgumentExpressions()[target.index];
         const stmt = this.getParentStatement(functionInv);
 
-        if (this.isTempVariable(argExp, stmt)) {
-            // remove temp variable assignment if it is no longer being used
-            const tempUsedStmts = this.getInputStatements(argExp);
-            if (tempUsedStmts.length === 1) {
-                const tempAssignStmt = this.getOutputStatement(argExp);
-                if (tempAssignStmt && !this.isComplexExpression(this.getExpression(tempAssignStmt))) {
-                    // only remove if the temp variable is not a complex expression, since a complex expression
-                    // is open for further mappings
-                    this._transformStmt.body.removeStatements(tempAssignStmt, true);
-                }
-            }
-        }
+        this.removeTempVariable(argExp, stmt);
 
         functionInv.replaceArgumentExpressionsByIndex(target.index,
             TransformFactory.createDefaultExpression(target.type), true);
@@ -982,12 +971,34 @@ class TransformNodeMapper {
             this._transformStmt.body.removeStatements(stmt, true);
         }
     }
+
     // **** UTILITY FUNCTIONS ***** //
 
+    /**
+     * Remove a temporary variable if it is no longer being used and is not a complex expression.
+     * @param {any} tempVarExp temp variable expression
+     * @param {any} statement statement
+     * @memberof TransformNodeMapper
+     */
+    removeTempVariable(tempVarExp, statement) {
+        if (this.isTempVariable(tempVarExp, statement)) {
+            // remove temp variable assignment if it is no longer being used
+            const tempUsedStmts = this.getInputStatements(tempVarExp);
+            if (tempUsedStmts.length === 1) {
+                const tempAssignStmt = this.getOutputStatement(tempVarExp);
+                if (tempAssignStmt && !this.isComplexExpression(this.getExpression(tempAssignStmt))) {
+                    // only remove if the temp variable is not a complex expression, since a complex expression
+                    // is open for further mappings
+                    this._transformStmt.body.removeStatements(tempAssignStmt, true);
+                }
+            }
+        }
+    }
 
     /**
      * Get the temporary variable name assigned for a given source expression.
-     *  - If the source expression is already assigned to a temporary variable, return that variable name
+     *  - If the source expression is already assigned to a temporary variable or a placeholder,
+     *      return that variable name
      *  - If the source expression is assigned to a direct variable, assign that to a temporary variable and
      *  return the new temporary variable name
      * @param {any} expression source expression
@@ -1000,11 +1011,11 @@ class TransformNodeMapper {
             if (this.getExpression(stmt).getSource().trim() === expression.getSource().trim()) {
                 const outputExpressions = this.getOutputExpressions(stmt);
                 // TODO: handle multiple temp returns here
-                if (outputExpressions.length === 1) {
-                    if (outputExpressions[0].type === ExpressionType.TEMPVAR) {
-                        tempVarName = outputExpressions[0].expression.getSource;
-                    } else if ((outputExpressions[0].type === ExpressionType.DIRECT
-                                || outputExpressions[0].type === ExpressionType.PLACEHOLDER)) {
+                if (outputExpressions.length > 0) {
+                    if ((outputExpressions[0].type === ExpressionType.TEMPVAR)
+                        || (outputExpressions[0].type === ExpressionType.PLACEHOLDER)) {
+                        tempVarName = outputExpressions[0].expression.getSource();
+                    } else if (outputExpressions[0].type === ExpressionType.DIRECT) {
                         tempVarName = this.assignStatementToTempVariable(stmt);
                     }
                 }
