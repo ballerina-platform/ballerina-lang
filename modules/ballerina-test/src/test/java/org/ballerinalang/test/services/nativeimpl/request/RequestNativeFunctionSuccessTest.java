@@ -76,7 +76,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(headerName), headerValue);
     }
 
-    @Test(description = "Test addHeader function within a service" )
+    @Test(description = "Test addHeader function within a service")
     public void testServiceAddHeader() {
         String key = "lang";
         String value = "ballerina";
@@ -114,7 +114,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
     }
 
-    @Test(description = "Test CloneMethod function within a service" )
+    @Test(description = "Test CloneMethod function within a service")
     public void testServiceCloneMethod() {
         String key = "lang";
         String value = "ballerina";
@@ -164,7 +164,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
     }
 
-    @Test(description = "Test GetContentLength function within a service" )
+    @Test(description = "Test GetContentLength function within a service")
     public void testServiceGetContentLength() {
         String key = "lang";
         String value = "ballerina";
@@ -196,7 +196,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
     }
 
-    @Test(description = "Test GetHeader function within a service" )
+    @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
         String path = "/hello/getHeader";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
@@ -226,7 +226,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(((BJSON) returnVals[0]).value().get("code").asText(), "123");
     }
 
-    @Test(description = "Test GetJsonPayload function within a service" )
+    @Test(description = "Test GetJsonPayload function within a service")
     public void testServiceGetJsonPayload() {
         String key = "lang";
         String value = "ballerina";
@@ -255,7 +255,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
     }
 
-    @Test(description = "Test GetProperty function within a service" )
+    @Test(description = "Test GetProperty function within a service")
     public void testServiceGetProperty() {
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
@@ -286,7 +286,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test(description = "Test GetStringPayload function within a service" )
+    @Test(description = "Test GetStringPayload function within a service")
     public void testServiceGetStringPayload() {
         String value = "ballerina";
         String path = "/hello/GetStringPayload";
@@ -314,7 +314,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
     }
 
-    @Test(description = "Test GetXmlPayload function within a service" )
+    @Test(description = "Test GetXmlPayload function within a service")
     public void testServiceGetXmlPayload() {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
@@ -343,7 +343,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertNull(response.getHeader(expect));
     }
 
-    @Test(description = "Test RemoveHeader function within a service" )
+    @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
         String path = "/hello/RemoveHeader";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
@@ -374,7 +374,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertNull(response.getHeader(range));
     }
 
-    @Test(description = "Test RemoveAllHeaders function within a service" )
+    @Test(description = "Test RemoveAllHeaders function within a service")
     public void testServiceRemoveAllHeaders() {
         String expect = "Expect";
         String range = "Range";
@@ -404,7 +404,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "10");
     }
 
-    @Test(description = "Test SetContentLength function within a service" )
+    @Test(description = "Test SetContentLength function within a service")
     public void testServiceSetContentLength() {
         String key = "lang";
         String value = "ballerina";
@@ -439,7 +439,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(range), rangeValue);
     }
 
-    @Test(description = "Test SetHeader function within a service" )
+    @Test(description = "Test SetHeader function within a service")
     public void testServiceSetHeader() {
         String key = "lang";
         String value = "ballerina";
@@ -468,7 +468,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
-    @Test(description = "Test SetJsonPayload function within a service" )
+    @Test(description = "Test SetJsonPayload function within a service")
     public void testServiceSetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/SetJsonPayload/" + value;
@@ -498,7 +498,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
     }
 
-    @Test(description = "Test SetProperty function within a service" )
+    @Test(description = "Test SetProperty function within a service")
     public void testServiceSetProperty() {
         String key = "lang";
         String value = "ballerina";
@@ -527,7 +527,7 @@ public class RequestNativeFunctionSuccessTest {
                 , "Payload is not set properly");
     }
 
-    @Test(description = "Test SetStringPayload function within a service" )
+    @Test(description = "Test SetStringPayload function within a service")
     public void testServiceSetStringPayload() {
         String value = "ballerina";
         String path = "/hello/SetStringPayload/" + value;
@@ -556,7 +556,7 @@ public class RequestNativeFunctionSuccessTest {
                 , "Payload is not set properly");
     }
 
-    @Test(description = "Test SetXmlPayload function within a service" )
+    @Test(description = "Test SetXmlPayload function within a service")
     public void testServiceSetXmlPayload() {
         String value = "Ballerina";
         String path = "/hello/SetXmlPayload/";
