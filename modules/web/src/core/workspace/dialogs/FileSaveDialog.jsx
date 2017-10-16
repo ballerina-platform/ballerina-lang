@@ -141,7 +141,7 @@ class FileSaveDialog extends React.Component {
      *
      * @param {Object} state
      */
-    updateState({ error, filePath, fileName }) {
+    updateState({ error, filePath = this.state.filePath, fileName = this.state.fileName }) {
         const { history } = this.props.workspaceManager.appContext.pref;
         history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
         history.put(HISTORY_LAST_ACTIVE_NAME, fileName);
