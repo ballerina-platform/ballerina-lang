@@ -502,11 +502,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w()
                  + '}' + w() + 'committed' + w() + '{' + indent()
                  + getSourceOf(node.committedBody, pretty, l) + outdent() + w() + '}';
-            } else {
+            } else if (node.transactionBody && node.abortedBody) {
                 return dent() + dent() + w() + 'transaction' + w() + '{' + indent()
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w()
                  + '}' + w() + 'aborted' + w() + '{' + indent()
                  + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}';
+            } else {
+                return dent() + w() + 'transaction' + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l) + outdent() + w() + '}';
             }
         case 'Transform':
             return dent() + w() + 'transform' + w(' ') + '{' + indent()
