@@ -92,7 +92,7 @@ class SourceView extends React.Component {
                 title={
                     <div>
                         <i className="fw fw-alert fw-lg" />
-                        <span>Found Syntax Errors</span>
+                        <span>Cannot update design view due to syntax errors</span>
                     </div>
                 }
             >

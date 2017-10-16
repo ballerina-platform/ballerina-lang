@@ -518,8 +518,7 @@ class BallerinaFileEditor extends React.Component {
                                     newState.model = undefined;
                                 }
                                 resolve(newState);
-                                this.context.alert.showError('Seems to be there is a bug in back-end parser.'
-                                    + 'Please report an issue attaching current source.');
+                                this.context.alert.showError('Unexpected error occurred while parsing.');
                                 return;
                             }
                             // get ast from json
