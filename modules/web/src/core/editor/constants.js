@@ -30,16 +30,18 @@ export const MENUS = {
 };
 
 export const TOOLS = {
-    GROUP: 'composer.tool.group.editor',
+    UNDO_REDO_GROUP: 'composer.tool.group.editor.undo-redo',
+    CODE_GROUP: 'composer.tool.group.editor.code ',
     UNDO: 'composer.tool.editor.undo',
     REDO: 'composer.tool.editor.redo',
+    FORMAT: 'composer.tool.editor.format',
 };
 
 export const LABELS = {
     EDIT: 'Edit',
     UNDO: 'Undo',
     REDO: 'Redo',
-    FORMAT: 'Format',
+    FORMAT: 'Reformat Code',
 };
 
 export const HISTORY = {
