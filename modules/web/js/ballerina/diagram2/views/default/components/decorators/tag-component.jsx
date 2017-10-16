@@ -336,7 +336,7 @@ class TagController extends React.Component {
                 >(
                 </text>
                 {modelComponents.map((item) =>
-                    (<ParameterDefinition model={item} />),
+                    (<ParameterDefinition model={item} key={item.id} />),
                 )}
 
                 <g
@@ -393,7 +393,7 @@ class TagController extends React.Component {
                 >(
                 </text>
                 {modelComponents.map((item) =>
-                    (<ParameterDefinition model={item} />),
+                    (<ParameterDefinition model={item} key={item.id} />),
                 )}
                 <g
                     onClick={() => {
