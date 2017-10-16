@@ -99,6 +99,10 @@ public abstract class SourceMapper implements SourceEventListener {
         }
     }
 
+    public SourceHandler getHandler() {
+        return this.sourceHandler;
+    }
+
     public final StreamDefinition getStreamDefinition() {
         return streamDefinition;
     }
