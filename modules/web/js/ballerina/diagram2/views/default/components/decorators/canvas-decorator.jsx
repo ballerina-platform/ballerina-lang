@@ -21,7 +21,6 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PropTypes from 'prop-types';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
-import MessageManager from './../../../../../visitors/message-manager';
 import './canvas-decorator.css';
 import { setCanvasOverlay } from './../../../../../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
@@ -78,8 +77,8 @@ class CanvasDecorator extends React.Component {
                         dropTarget={this.props.dropTarget}
                     />
                     {this.props.children}
-                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
-                    <BackwardArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
+                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable />
+                    <BackwardArrowDecorator start={arrowStart} end={arrowEnd} enable />
                 </svg>
             </div>
         );
@@ -101,9 +100,4 @@ CanvasDecorator.defaultProps = {
     annotations: [],
     overlayComponents: [],
 };
-
-CanvasDecorator.contextTypes = {
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-};
-
 export default CanvasDecorator;

@@ -153,7 +153,7 @@ class TreeNode extends React.Component {
     onEditComplete() {
         const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
         let newFullPath = parent + getPathSeperator() + this.state.inputValue;
-        if (!_.endsWith(newFullPath, EXT)) {
+        if (type === NODE_TYPES.FILE && !_.endsWith(newFullPath, EXT)) {
             newFullPath += EXT;
         }
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
