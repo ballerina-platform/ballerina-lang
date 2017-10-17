@@ -274,7 +274,7 @@ public class TaskScheduler {
      * @param dayOfWeek
      * @param dayOfMonth
      * @param month
-     * @return
+     * @return delay which is used to schedule the appointment
      */
     private static long calculateDelay(Context ctx, int taskId, long minute, long hour, long dayOfWeek, long dayOfMonth,
                                        long month) {
@@ -331,7 +331,7 @@ public class TaskScheduler {
      * @param dayOfWeek
      * @param dayOfMonth
      * @param month
-     * @return
+     * @return boolean value. 'true' if the input is valid else 'false'
      */
     private static boolean isValidInput(long minute, long hour, long dayOfWeek, long dayOfMonth, long month) {
         //Valid ranges: (minute :- 0 - 59, hour :- 0 - 23, dayOfWeek :- 1 - 7, dayOfMonth :- 1 - 31, month :- 0 - 11)
@@ -344,7 +344,7 @@ public class TaskScheduler {
      * @param executionStartTime
      * @param minute
      * @param hour
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByMinute(Calendar executionStartTime, long minute, long hour) {
         if (minute == -1) {
@@ -376,7 +376,7 @@ public class TaskScheduler {
      * @param executionStartTime
      * @param minute
      * @param hour
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByHour(Calendar currentTime, Calendar executionStartTime, long minute,
                                                    long hour) {
@@ -408,7 +408,7 @@ public class TaskScheduler {
      * @param executionStartTime
      * @param dayOfWeek
      * @param month
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByDOW(Calendar currentTime, Calendar executionStartTime, long dayOfWeek,
                                                   long month) {
@@ -455,7 +455,7 @@ public class TaskScheduler {
      * @param currentTime
      * @param executionStartTime
      * @param dayOfMonth
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByDOM(Calendar currentTime, Calendar executionStartTime, long dayOfMonth) {
         if (dayOfMonth >= 1) {
@@ -487,7 +487,7 @@ public class TaskScheduler {
      * @param dayOfWeek
      * @param dayOfMonth
      * @param month
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByMonth(Context ctx, int taskId, Calendar currentTime,
                                                     Calendar executionStartTime, long minute, long hour,
@@ -543,7 +543,7 @@ public class TaskScheduler {
      * @param dayOfWeek
      * @param dayOfMonth
      * @param month
-     * @return
+     * @return updated Calendar
      */
     private static Calendar tuneTheTimestampByCheckingTheYear(Calendar currentTime, Calendar executionStartTime,
                                                               long minute, long hour, long dayOfWeek, long dayOfMonth,
@@ -586,7 +586,7 @@ public class TaskScheduler {
      * @param executionStartTime
      * @param dayOfWeek
      * @param dayOfMonth
-     * @return
+     * @return updated Calendar
      */
     private static Calendar cloneCalendarAndSetTime(Calendar executionStartTime, long dayOfWeek, long dayOfMonth) {
         //Clone the Calendar to another instance
@@ -603,7 +603,7 @@ public class TaskScheduler {
      * Calculates the time difference in milliseconds
      * @param taskId
      * @param executionStartTime
-     * @return
+     * @return duration in milliseconds
      */
     private static long calculateDifference(int taskId, Calendar executionStartTime) {
         //Calculate the time difference between current time and the calculated execution time in milli seconds
@@ -637,7 +637,7 @@ public class TaskScheduler {
      * @param seconds
      * @param minutes
      * @param hours
-     * @return
+     * @return updated Calendar
      */
     private static Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
                                        int hours) {

@@ -30,16 +30,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TaskUtil {
     private static final Log log = LogFactory.getLog(TaskUtil.class.getName());
 
+    /**
+     * Generates the task id
+     * @param ctx
+     * @return taskId which is computed with the process id and atomic integer
+     */
     protected static synchronized int generateTaskId(Context ctx) {
         if (log.isDebugEnabled()) {
             log.info("Generating the task id");
         }
+        //Get the process id
         String process = ManagementFactory.getRuntimeMXBean().getName();
         int pid = Integer.parseInt(process.substring(0, process.indexOf('@')));
+        //Find an integer
         AtomicInteger id = ctx.getProperty(Constant.ID) != null ?
                 new AtomicInteger(Integer.parseInt(ctx.getProperty(Constant.ID).toString())) :
                 new AtomicInteger();
         ctx.setProperty(Constant.ID, id);
+        //Append the process id with the generated id
         int taskId = Integer.parseInt(pid + "" + id);
         if (log.isDebugEnabled()) {
             log.info("ID " + taskId + " is generated for this appointment");
