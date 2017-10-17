@@ -161,6 +161,7 @@ public class TaskScheduler {
                             executorServiceMap.remove(taskId);
                             ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
                             ctx.setProperty(Constant.ERROR + "_" + taskId, "");
+                            ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 0);
                         } else {
                             log.error("Unable to stop the task");
                             String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
@@ -279,6 +280,7 @@ public class TaskScheduler {
     }
 
     private static boolean isValidInput(long minute, long hour, long dayOfWeek, long dayOfMonth, long month) {
+        //Valid ranges: (minute :- 0 - 59, hour :- 0 - 23, dayOfWeek :- 1 - 7, dayOfMonth :- 1 - 31, month :- 0 - 11)
         return minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
                 || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1;
     }
@@ -296,7 +298,7 @@ public class TaskScheduler {
                 //If the hour = -1 and minute > 0, set interval as the value of the minute
                 //e.g; if minute = 5, execute every 5 minutes
 
-                //If the hour = -1 and minute == 0, don't increase the value of the minute since it should be
+                //If the hour = -1 and minute == 0, don't increase THE value of the minute since it should be
                 //scheduled every hour
                 executionStartTime.add(Calendar.MINUTE, (int) minute);
             } else {
