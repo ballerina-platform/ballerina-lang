@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StatementReference extends BallerinaElementReference {
 
@@ -185,6 +186,9 @@ public class StatementReference extends BallerinaElementReference {
 
         // Todo - add util method
         List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, false);
+        functions= functions.stream()
+                .filter(function -> !BallerinaPsiImplUtil.isAttachedFunction(function))
+                .collect(Collectors.toList());
         results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
         List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage, false);
