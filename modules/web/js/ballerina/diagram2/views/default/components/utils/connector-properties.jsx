@@ -224,7 +224,7 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '375px',
+                height: '390px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -244,6 +244,7 @@ class ConnectorPropertiesForm extends React.Component {
                 styles={styles}
                 supportedProps={this.getSupportedProps()}
                 addedValues={this.setDataToConnectorInitArgs}
+                isConnector='true'
             />);
     }
 }
