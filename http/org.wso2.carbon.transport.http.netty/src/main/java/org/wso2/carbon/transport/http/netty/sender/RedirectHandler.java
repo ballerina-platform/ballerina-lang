@@ -156,13 +156,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     originalChannelContext = ctx;
                 }
                 if (ctx == originalChannelContext) {
-                    if (!isIdleHandlerOfTargetChannelRemoved) {
-                        /*ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);*/
-                        originalChannelContext.fireUserEventTriggered(evt);
-                        isIdleHandlerOfTargetChannelRemoved = true;
-                    }
+                    originalChannelContext.fireUserEventTriggered(evt);
+                    isIdleHandlerOfTargetChannelRemoved = true;
                 } else {
-                    sendErrorMessage(ctx);
+                    sendTimeoutError(ctx);
                 }
                 /*Once a timeout occurs after sending the response, close the channel, otherwise we will still be
                  getting response data  after the timeout, if backend sends data. */
@@ -173,7 +170,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void sendErrorMessage(ChannelHandlerContext ctx) {
+    /**
+     * Send timeout error
+     *
+     * @param ctx Channel handler context.
+     */
+    private void sendTimeoutError(ChannelHandlerContext ctx) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
         }
