@@ -39,5 +39,4 @@ public interface NativeUnit {
 
     void setStackFrameSize(int frameSize);
 
-    void setSymbolName(SymbolName symbolName);
 }

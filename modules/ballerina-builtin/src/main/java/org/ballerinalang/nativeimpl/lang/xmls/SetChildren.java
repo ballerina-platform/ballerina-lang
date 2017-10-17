@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -42,12 +40,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "children", type = TypeKind.XML)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Set the children of this XML. Any existing children will be removed") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "children",
-        value = "XML Sequence to set as the children") })
 public class SetChildren extends AbstractNativeFunction {
 
     private static final String OPERATION = "set children to xml element";

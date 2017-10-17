@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -43,12 +41,6 @@ import java.util.Locale;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a string with all the characters converted to uppercase") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
-        value = "The original string argument") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The string converted to uppercase") })
 public class ToUpperCase extends AbstractNativeFunction {
 
     @Override

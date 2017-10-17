@@ -19,26 +19,15 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
-
-import java.util.Map;
 
 /**
  * {@code CallableUnit} represents Functions, Action or Resources.
  *
  * @see Function
  * @see Action
- * @see Resource
  * @since 0.8.0
  */
 public interface CallableUnit extends BLangSymbol, Node {
-
-    /**
-     * Replaces the symbol name of this callable unit with the specified symbol name.
-     *
-     * @param symbolName name of the symbol.
-     */
-    void setSymbolName(SymbolName symbolName);
 
     /**
      * Returns an arrays of annotations attached this callable unit.
@@ -123,18 +112,4 @@ public interface CallableUnit extends BLangSymbol, Node {
      * @param parameterTypes arrays of the input parameters
      */
     void setParameterTypes(BType[] parameterTypes);
-
-    /**
-     * Add worker data channel to the callable unit.
-     *
-     * @param workerDataChannel     To be added.
-     */
-    void addWorkerDataChannel(WorkerDataChannel workerDataChannel);
-
-    /**
-     * Get worker data channel map.
-     *
-     * @return workerDataChannelMap instance.
-     */
-    Map<String, WorkerDataChannel> getWorkerDataChannelMap();
 }

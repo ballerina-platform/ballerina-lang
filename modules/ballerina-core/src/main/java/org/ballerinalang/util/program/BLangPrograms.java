@@ -18,22 +18,12 @@
 package org.ballerinalang.util.program;
 
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.repository.PackageRepository;
-import org.ballerinalang.util.repository.UserRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.ballerinalang.util.BLangConstants.USER_HOME;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_ENV_KEY;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_OBJ_DIRNAME;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
 
 /**
  * This class contains a set of static methods to operate on {@code BLangProgram} objects.
@@ -65,58 +55,6 @@ public class BLangPrograms {
             throw new RuntimeException("error reading from file: " + sourcePath +
                     " reason: " + e.getMessage(), e);
         }
-    }
-
-    private static UserRepository initUserRepository(PackageRepository systemRepo, PackageRepository[] extRepos) {
-        Path userRepoPath;
-        String userRepoDir = System.getenv(USER_REPO_ENV_KEY);
-        if (userRepoDir == null || userRepoDir.isEmpty()) {
-            // User has not specified the user repo path.
-            // We try to initialize if there exits a directory called ".ballerina" in user home.
-            String userHomeDir = System.getProperty(USER_HOME);
-            if (userHomeDir == null || userHomeDir.isEmpty()) {
-                // Error creating Ballerina user repository;
-                // But we ignore it assuming that user has never used the user repository.
-                return null;
-            }
-
-            userRepoPath = Paths.get(userHomeDir, USER_REPO_DEFAULT_DIRNAME).toAbsolutePath();
-            if (Files.exists(userRepoPath) && !Files.isDirectory(userRepoPath, LinkOption.NOFOLLOW_LINKS)) {
-                // User repository exists, but it is not a directory
-                // Error creating Ballerina user repository
-                // But we ignore it assuming that user has never used the user repository
-                return null;
-            } else if (!Files.exists(userRepoPath)) {
-                // User repository directory does not exists
-                // But we ignore it assuming that user has never used the user repository
-                return null;
-            }
-
-        } else {
-            // User has specified the user repo path with env variable.
-            userRepoPath = Paths.get(userRepoDir);
-        }
-
-        userRepoPath = createUserRepoDirStructure(userRepoPath);
-        return new UserRepository(userRepoPath, systemRepo, extRepos);
-    }
-
-    public static Path createUserRepoDirStructure(Path userRepoPath) {
-        // create directory structure, if not already done.
-        userRepoPath = userRepoPath.toAbsolutePath();
-        if (Files.exists(userRepoPath) && !Files.isDirectory(userRepoPath, LinkOption.NOFOLLOW_LINKS)) {
-            throw new RuntimeException("user repository is not a directory: " + userRepoPath.toString());
-        }
-
-        // 1) create artifacts/src directory
-        Path artifactsDirPath = userRepoPath.resolve(USER_REPO_ARTIFACTS_DIRNAME);
-        Path srcDirPath = artifactsDirPath.resolve(USER_REPO_SRC_DIRNAME);
-        Path objDirPath = artifactsDirPath.resolve(USER_REPO_OBJ_DIRNAME);
-        createDirectory(userRepoPath);
-        createDirectory(artifactsDirPath);
-        createDirectory(srcDirPath);
-        createDirectory(objDirPath);
-        return userRepoPath;
     }
 
     public static void createDirectory(Path dirPath) {

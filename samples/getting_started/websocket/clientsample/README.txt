@@ -1,6 +1,6 @@
 Description
 ===========
-This a sample to understand how WebSocket client connector is implemented in ballerina.
+This example explains how to create and use WebSocket client connector in ballerina.
 
 How to run the sample
 =====================

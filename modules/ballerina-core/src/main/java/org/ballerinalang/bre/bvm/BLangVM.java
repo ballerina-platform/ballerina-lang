@@ -181,10 +181,6 @@ public class BLangVM {
 
         try {
             exec();
-            if (context.isDebugEnabled()) {
-                context.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
-                VMDebugManager.getInstance().releaseExecutionLock();
-            }
         } catch (Throwable e) {
             String message;
             if (e.getMessage() == null) {

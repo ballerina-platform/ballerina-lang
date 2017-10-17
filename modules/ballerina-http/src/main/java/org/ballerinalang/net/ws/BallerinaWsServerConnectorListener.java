@@ -78,7 +78,9 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 @Override
                 public void notifySuccess() {
                     //TODO need to find a way to execute this after resource invocation.
-                    handleHandshake(webSocketInitMessage, wsService);
+                    if (!webSocketInitMessage.isCancelled()) {
+                        handleHandshake(webSocketInitMessage, wsService);
+                    }
                 }
 
                 @Override
