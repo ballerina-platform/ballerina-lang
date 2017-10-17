@@ -17,6 +17,9 @@ export const NODE_TYPES = {
     FILE: 'file',
     FOLDER: 'folder',
 };
+// TODO: make supported extensions pluggable
+// via editor contributions
+const EXT = '.bal';
 
 /**
  * Class to represent a tree node
@@ -149,8 +152,10 @@ class TreeNode extends React.Component {
      */
     onEditComplete() {
         const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
-        const newFullPath = parent + getPathSeperator() + this.state.inputValue;
-
+        let newFullPath = parent + getPathSeperator() + this.state.inputValue;
+        if (!_.endsWith(newFullPath, EXT)) {
+            newFullPath += EXT;
+        }
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
             onNodeDelete(node);
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
