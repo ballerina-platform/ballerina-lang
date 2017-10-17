@@ -9,8 +9,9 @@ struct Person {
 }
 
 function main (string[] args) {
-    // Create a new json which is constrained by Person struct. Only the fields defined in the Person struct can be
-    // accessed. If we try to access a non existing field, it will produce a compilation error.
+    // Create a new json which is constrained by Person struct. Only the fields
+    // defined in the Person struct can be accessed. If we try to access a non
+    // existing field, it will produce a compilation error.
     json<Person> person = {name:"jon"};
 
     // We can access fields defined in the Person struct without any issue.
