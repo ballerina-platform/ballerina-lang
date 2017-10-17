@@ -32,9 +32,10 @@ class PropertyWindow extends React.Component {
     constructor(props) {
         super(props);
         this.previousItems = [];
-        this.connectorProps = props.supportedProps;
+        this.breadCrumbs = ['Properties'];
+        this.supportedKeys = props.supportedProps;
         this.state = {
-            properties: this.connectorProps,
+            properties: this.supportedKeys,
         };
         this.onChange = this.onChange.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
@@ -47,6 +48,7 @@ class PropertyWindow extends React.Component {
         this.onTagsAdded = this.onTagsAdded.bind(this);
         this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
+        this.toggleStructView = this.toggleStructView.bind(this);
     }
 
     componentDidMount() {
@@ -84,7 +86,7 @@ class PropertyWindow extends React.Component {
      * Hanldes the dismiss/cancel event of the prop window
      */
     handleDismiss() {
-        this.props.addedValues(this.connectorProps);
+        this.props.addedValues(this.supportedKeys);
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.overlayContainer = {};
         this.context.editor.update();
@@ -103,17 +105,22 @@ class PropertyWindow extends React.Component {
     }
 
     /**
-     *
+     * Toggles the struct properties
      */
-    toggleStructProperties(fields) {
+    toggleStructProperties(identifier, fields) {
         this.previousItems.push(this.state.properties);
+        this.breadCrumbs.push(identifier);
         this.setState({
             properties: fields,
         });
     }
 
+    /**
+     * Handles rendering the previous view with the props
+     */
     goToPreviousView() {
         const poppedData = this.previousItems.pop();
+        this.breadCrumbs.pop();
         this.setState({
             properties: poppedData,
         });
@@ -203,7 +210,7 @@ class PropertyWindow extends React.Component {
      * @returns {XML}
      */
     renderStructs(key) {
-        return (<div className="structsContainer">
+        return (<div className="propWindowStruct">
             <div id='optionGroup' key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
@@ -216,17 +223,15 @@ class PropertyWindow extends React.Component {
                         id={key.identifier}
                         name={key.identifier}
                         type='text'
-                        placeholder='Specify a defined option object or a method'
+                        placeholder='Defined option object or a method'
                         value={key.value}
                         onChange={event => this.onChange(event, key)}
                     />
-                </div>
-                <div className='col-sm-1'>
                     <input
                         id='viewOptionParams'
                         type='button'
                         value='+'
-                        onClick={() => { this.toggleStructProperties(key.fields); }}
+                        onClick={() => { this.toggleStructProperties(key.identifier, key.fields); }}
                     />
                 </div>
             </div>
@@ -295,6 +300,11 @@ class PropertyWindow extends React.Component {
      * @memberof PropertyWindow
      */
     render() {
+        const breadCrumbContainer = this.breadCrumbs.map((key, index) => {
+            return (
+                <li><a>{key}</a></li>
+            );
+        });
         return (
             <div
                 id={`popover-${this.props.model.id}`}
@@ -310,7 +320,7 @@ class PropertyWindow extends React.Component {
                     key={`propertiesForm/${this.props.model.id}`}
                     style={this.props.styles.popover}
                 >
-                    <div className="form-header">
+                    <div className="formHeader">
                         <button
                             id='dismissBtn'
                             type="button"
@@ -322,6 +332,9 @@ class PropertyWindow extends React.Component {
                         </button>
                         <h5 className="form-title file-dialog-title">
                             {this.props.formHeading}</h5>
+                        <ul id="breadcrumbs-one">
+                            {breadCrumbContainer}
+                        </ul>
                     </div>
                     <div className="form-body formContainer">
                         <div className="container-fluid">
