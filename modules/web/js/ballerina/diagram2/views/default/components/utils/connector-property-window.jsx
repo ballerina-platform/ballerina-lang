@@ -20,8 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './properties-form.css';
-import Pagination from './pagination';
-
 /**
  * React component for a service definition.
  *
@@ -35,7 +33,6 @@ class ConnectorPropertiesWindow extends React.Component {
         this.previousItems = [];
         this.connectorProps = props.supportedProps;
         this.state = {
-            pageOfItems: [],
             properties: this.connectorProps,
         };
         this.onChange = this.onChange.bind(this);
@@ -44,7 +41,6 @@ class ConnectorPropertiesWindow extends React.Component {
         this.renderNumericInputs = this.renderNumericInputs.bind(this);
         this.renderTextInputs = this.renderTextInputs.bind(this);
         this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
-        this.onChangePage = this.onChangePage.bind(this);
         this.toggleStructProperties = this.toggleStructProperties.bind(this);
         this.goToPreviousView = this.goToPreviousView.bind(this);
     }
@@ -67,15 +63,6 @@ class ConnectorPropertiesWindow extends React.Component {
 
     componentWillUnmount() {
         document.removeEventListener('mouseup', this.handleOutsideClick, false);
-    }
-
-    /**
-     * On page change event
-     * @param pageOfItems
-     */
-    onChangePage(pageOfItems) {
-        // update state with new page of items
-        this.setState({ pageOfItems });
     }
 
     /**
@@ -118,7 +105,6 @@ class ConnectorPropertiesWindow extends React.Component {
         this.previousItems.push(this.state.properties);
         this.setState({
             properties: fields,
-           // pageOfItems: fields,
         });
     }
 
@@ -126,7 +112,6 @@ class ConnectorPropertiesWindow extends React.Component {
         const poppedData = this.previousItems.pop();
         this.setState({
             properties: poppedData,
-           // pageOfItems: poppedData,
         });
     }
     /**
@@ -308,7 +293,6 @@ class ConnectorPropertiesWindow extends React.Component {
                             />
                         </div> }
                     </div>
-                    {/*<Pagination items={this.state.properties} onChangePage={this.onChangePage} />*/}
                 </div>
             </div>);
     }
