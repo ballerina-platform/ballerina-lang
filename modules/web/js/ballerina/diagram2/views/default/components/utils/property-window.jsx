@@ -367,6 +367,8 @@ class PropertyWindow extends React.Component {
                                         return this.renderBooleanInputs(key, booleanValue);
                                     } else if (key.bType === 'array') {
                                         return this.renderTagInputs(key);
+                                    } else if (key.bType === 'map') {
+                                        return this.renderTextInputs(key);
                                     } else {
                                         return this.renderStructs(key);
                                     }
