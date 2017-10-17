@@ -26,7 +26,7 @@ const tools = [
         title: 'HTTP Service',
         nodeFactoryMethod: DefaultNodeFactory.createHTTPServiceDef,
         description: 'Http container of resources, each of which defines the logic for'
-        + 'handling one type of request',
+        + ' handling one type of request',
     },
     {
         id: 'service',
@@ -35,7 +35,7 @@ const tools = [
         title: 'WS Service',
         nodeFactoryMethod: DefaultNodeFactory.createWSServiceDef,
         description: 'Web Socket container of resources,'
-        + 'each of which defines the logic for handling one type of request',
+        + ' each of which defines the logic for handling one type of request',
     },
     {
         id: 'function',
@@ -67,7 +67,7 @@ const tools = [
         title: 'Connector Definition',
         nodeFactoryMethod: DefaultNodeFactory.createConnector,
         description: 'Participant in the integration and is used to interact with an external'
-        + 'system or a service defined',
+        + ' system or a service defined',
     },
     {
         id: 'connectorAction',
@@ -92,7 +92,7 @@ const tools = [
         title: 'Worker',
         nodeFactoryMethod: DefaultNodeFactory.createWorker,
         description: 'Programmable actor which is represented on a sequence diagram'
-        + 'as a vertical lifeline of logic to be executed.',
+        + ' as a vertical lifeline of logic to be executed.',
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
@@ -140,7 +140,7 @@ const tools = [
         icon: 'dgm-while',
         title: 'While',
         nodeFactoryMethod: DefaultNodeFactory.createWhile,
-        description: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
+        description: 'Provide a way to execute a series of statements as long as a boolean expression is met',
     },
     {
         id: 'Transform',
@@ -173,7 +173,7 @@ const tools = [
         title: 'Try-Catch',
         nodeFactoryMethod: DefaultNodeFactory.createTry,
         description: 'Handle the exception by the block after the catch,'
-        + 'if any exception occurs while executing the first block of statements ',
+        + ' if any exception occurs while executing the first block of statements',
     },
     {
         id: 'Throw',
@@ -240,7 +240,7 @@ const tools = [
         title: 'Fork',
         nodeFactoryMethod: DefaultNodeFactory.createForkJoin,
         description: 'Provide a way to replicate a message to any number of parallel workers'
-        + 'and have them independently operate on the copies of the message',
+        + ' and have them independently operate on the copies of the message',
     },
     {
         id: 'Namespace',

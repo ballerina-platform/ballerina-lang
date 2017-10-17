@@ -35,7 +35,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createExpressionFragment(name);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
-        refExpr.ws = null;
+        refExpr.clearWS();
         return refExpr;
     }
 
@@ -50,7 +50,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createStatementFragment(type + ' ' + name + ' = ' + value + '"";');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const varDef = TreeBuilder.build(parsedJson);
-        varDef.ws = null;
+        varDef.clearWS();
         return varDef;
     }
 
@@ -69,7 +69,7 @@ class TransformFactory {
         }
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
-        exp.ws = null;
+        exp.clearWS();
         return exp;
     }
 
@@ -99,7 +99,7 @@ class TransformFactory {
         }
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
-        exp.ws = null;
+        exp.clearWS();
         return exp;
     }
 
@@ -112,7 +112,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createStatementFragment(`${statement};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson);
-        refExpr.ws = null;
+        refExpr.clearWS();
         return refExpr;
     }
 
@@ -128,7 +128,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createExpressionFragment(`(${targetType})${expression.getSource()}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const castExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
-        castExpr.ws = null;
+        castExpr.clearWS();
         return castExpr;
     }
 
@@ -144,7 +144,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createExpressionFragment(`<${targetType}>${expression.getSource()}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const conExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
-        conExpr.ws = null;
+        conExpr.clearWS();
         return conExpr;
     }
 
@@ -153,7 +153,7 @@ class TransformFactory {
         const fragment = FragmentUtils.createStatementFragment(statement);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const tree = TreeBuilder.build(parsedJson);
-        tree.ws = null;
+        tree.clearWS();
         return tree;
     }
 }

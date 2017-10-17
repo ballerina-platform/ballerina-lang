@@ -238,10 +238,7 @@ class StructNode extends React.Component {
         };
         const { environment } = this.context;
         // Environment does not load the types
-        // const structSuggestions = environment.getTypes().map(name => ({ name }));
-        const typeArray = ['any', 'blob', 'boolean', 'connector', 'datatable', 'float', 'int', 'json', 'map',
-            'message', 'string', 'type', 'xml'];
-        const structSuggestions = typeArray.map(name => ({ name }));
+        const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />

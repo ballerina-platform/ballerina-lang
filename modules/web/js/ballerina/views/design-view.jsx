@@ -140,8 +140,6 @@ class DesignView extends React.Component {
                             height: this.props.height,
                             marginLeft: TOOL_PALETTE_WIDTH,
                         }}
-                        autoHide // Hide delay in ms
-                        autoHideTimeout={1000}
                     >
                         <div className="canvas-container">
                             <div className="canvas-top-controls-container" />

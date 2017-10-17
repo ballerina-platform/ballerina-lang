@@ -40,7 +40,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
     const b = a;
 
     function indent() {
-            ++l;
+        ++l;
         return '';
     }
 

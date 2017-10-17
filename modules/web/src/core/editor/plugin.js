@@ -255,7 +255,7 @@ class EditorPlugin extends Plugin {
             [TOOLS]: [
                 {
                     id: TOOL_IDS.UNDO,
-                    group: TOOL_IDS.GROUP,
+                    group: TOOL_IDS.UNDO_REDO_GROUP,
                     icon: 'undo',
                     commandID: COMMMAND_IDS.UNDO,
                     commandArgs: {},
@@ -271,7 +271,7 @@ class EditorPlugin extends Plugin {
                 },
                 {
                     id: TOOL_IDS.REDO,
-                    group: TOOL_IDS.GROUP,
+                    group: TOOL_IDS.UNDO_REDO_GROUP,
                     icon: 'redo',
                     commandID: COMMMAND_IDS.REDO,
                     commandArgs: {},
@@ -284,6 +284,22 @@ class EditorPlugin extends Plugin {
                         return false;
                     },
                     description: 'Redo',
+                },
+                {
+                    id: TOOL_IDS.FORMAT,
+                    group: TOOL_IDS.CODE_GROUP,
+                    icon: 'format',
+                    commandID: COMMMAND_IDS.FORMAT,
+                    commandArgs: {},
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        if (activeEditor && activeEditor.constructor.name === 'Editor') {
+                            return true;
+                        }
+                        return false;
+                    },
+                    description: 'Reformat Code',
                 },
             ],
             [DIALOGS]: [

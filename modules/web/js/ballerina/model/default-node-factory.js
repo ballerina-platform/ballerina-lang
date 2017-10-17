@@ -242,7 +242,7 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             try {
 
-            } catch (errors:Error e) {
+            } catch (error err) {
 
             } finally {
             
@@ -297,9 +297,10 @@ class DefaultNodeFactory {
 
     // FIXME
     createRetry() {
-        return getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
+        const tempNode = getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
             retry 3;
         `));
+        return tempNode.failedBody.statements[0];
     }
 
     createForkJoin() {
@@ -337,9 +338,7 @@ class DefaultNodeFactory {
         }
         const connectorInit = `${packageName}:${connector.getName()} endpoint1
                 = create ${packageName}:${connector.getName()}(${paramString});`;
-        const fragment = FragmentUtils.createStatementFragment(connectorInit);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const connectorDeclaration = TreeBuilder.build(parsedJson);
+        const connectorDeclaration = getNodeForFragment(FragmentUtils.createStatementFragment(connectorInit));
         connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         connectorDeclaration.viewState.showOverlayContainer = true;
         return connectorDeclaration;
@@ -371,9 +370,7 @@ class DefaultNodeFactory {
             const varRefListString = `var ${varRefNames.join(', ')}`;
             actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
         }
-        const fragment = FragmentUtils.createStatementFragment(actionInvokeString);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const invocationNode = TreeBuilder.build(parsedJson);
+        const invocationNode = getNodeForFragment(FragmentUtils.createStatementFragment(actionInvokeString));
         invocationNode.getExpression().setFullPackageName(fullPackageName);
         invocationNode.getExpression().invocationType = 'ACTION';
         invocationNode.getExpression().getPackageAlias().setValue(packageName);
@@ -402,9 +399,7 @@ class DefaultNodeFactory {
             const varRefListString = `var ${varRefNames.join(', ')}`;
             functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
         }
-        const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const invocationNode = TreeBuilder.build(parsedJson);
+        const invocationNode = getNodeForFragment(FragmentUtils.createStatementFragment(functionInvokeString));
         invocationNode.getExpression().setFullPackageName(fullPackageName);
         return invocationNode;
     }

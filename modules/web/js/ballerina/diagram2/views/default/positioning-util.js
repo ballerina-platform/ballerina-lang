@@ -855,62 +855,69 @@ class PositioningUtil {
         node.viewState.bBox.y = node.viewState.components['statement-box'].y
             + node.viewState.components['block-header'].h;
 
-        // Calculate join block x and y.
-        const joinX = bBox.x;
-        let joinY = viewState.components['statement-box'].y
-            + viewState.components['statement-box'].h;
-
-        // Create a bbox for parameter of join.
-        joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
-                joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
-
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
         node.viewState.components['block-header'].w = node.viewState.bBox.w;
         node.viewState.components['statement-body'].w = node.viewState.bBox.w;
 
-        if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
-            joinStmt.viewState.bBox.w = node.viewState.bBox.w;
-            if (TreeUtil.isBlock(joinStmt)) {
-                joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+        if (joinStmt) {
+            // Calculate join block x and y.
+            const joinX = bBox.x;
+            let joinY = viewState.components['statement-box'].y
+                + viewState.components['statement-box'].h;
+
+            // Create a bbox for parameter of join.
+            joinStmt.viewState.components.param =
+                new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
+                    joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
+
+            if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
+                joinStmt.viewState.bBox.w = node.viewState.bBox.w;
+                if (TreeUtil.isBlock(joinStmt)) {
+                    joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+                    joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
+                    joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+                }
             }
-        }
 
-        if (joinStmt && TreeUtil.isBlock(joinStmt)) {
-            joinY += joinStmt.viewState.components['block-header'].h;
-        }
-
-        joinStmt.viewState.bBox.y = joinY;
-        joinStmt.viewState.bBox.x = joinX;
-        this.positionCompoundStatementComponents(joinStmt);
-
-        // Calculate timeout block x and y.
-        const timeoutX = bBox.x;
-        const timeoutY = joinStmt.viewState.bBox.y
-            + joinStmt.viewState.bBox.h;
-
-        // Create a bbox for parameter of timeout.
-        timeoutStmt.viewState.components.param =
-            new SimpleBBox(timeoutX + timeoutStmt.viewState.components.expression.w, 0, 0, 0, 0);
-
-        if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
-            timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
-            if (TreeUtil.isBlock(joinStmt)) {
-                timeoutStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                timeoutStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                timeoutStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+            if (joinStmt && TreeUtil.isBlock(joinStmt)) {
+                joinY += joinStmt.viewState.components['block-header'].h;
             }
+
+            joinStmt.viewState.components['statement-box'].h += joinStmt.viewState.components['block-header'].h;
+
+            joinStmt.viewState.bBox.y = joinY;
+            joinStmt.viewState.bBox.x = joinX;
+            this.positionCompoundStatementComponents(joinStmt);
         }
 
-        // Add the block header value to the statement box of the timeout statement.
-        timeoutStmt.viewState.components['statement-box'].h += timeoutStmt.viewState.components['block-header'].h;
+        if (timeoutStmt) {
+            // Calculate timeout block x and y.
+            const timeoutX = bBox.x;
+            const timeoutY = joinStmt ? (joinStmt.viewState.bBox.y
+                + joinStmt.viewState.components['statement-box'].h) : (node.viewState.components['statement-box'].y
+                + node.viewState.components['statement-box'].h);
 
-        timeoutStmt.viewState.bBox.y = timeoutY;
-        timeoutStmt.viewState.bBox.x = timeoutX;
-        this.positionCompoundStatementComponents(timeoutStmt);
+            // Create a bbox for parameter of timeout.
+            timeoutStmt.viewState.components.param =
+                new SimpleBBox(timeoutX + timeoutStmt.viewState.components.expression.w, 0, 0, 0, 0);
+
+            if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
+                timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
+                if (TreeUtil.isBlock(timeoutStmt)) {
+                    timeoutStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+                    timeoutStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
+                    timeoutStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+                }
+            }
+
+            // Add the block header value to the statement box of the timeout statement.
+            timeoutStmt.viewState.components['statement-box'].h += timeoutStmt.viewState.components['block-header'].h;
+
+            timeoutStmt.viewState.bBox.y = timeoutY;
+            timeoutStmt.viewState.bBox.x = timeoutX;
+            this.positionCompoundStatementComponents(timeoutStmt);
+        }
 
         // Position Workers
         let xIndex = bBox.x + this.config.fork.padding.left + this.config.fork.lifeLineGutterH;
@@ -929,6 +936,11 @@ class PositioningUtil {
         node.viewState.components['statement-body'].y = node.viewState.components['statement-box'].y
             + node.viewState.components['block-header'].h;
         node.viewState.components['statement-body'].x = node.viewState.components['statement-box'].x;
+
+        node.viewState.bBox.h = node.viewState.components['statement-body'].h
+            + node.viewState.components['block-header'].h
+            + (joinStmt ? joinStmt.viewState.components['statement-box'].h : 0)
+            + (timeoutStmt ? timeoutStmt.viewState.components['statement-box'].h : 0);
     }
 
 

@@ -4,6 +4,7 @@ export const COMMANDS = {
     UNDO: 'undo',
     REDO: 'redo',
     ACTIVATE_EDITOR_FOR_FILE: 'activate-editor-for-file',
+    FORMAT: 'source-format',
 };
 
 export const EVENTS = {
@@ -25,18 +26,22 @@ export const MENUS = {
     EDIT: 'composer.menu.editor.edit',
     UNDO: 'composer.menu.editor.undo',
     REDO: 'composer.menu.editor.redo',
+    FORMAT: 'composer.menu.editor.format',
 };
 
 export const TOOLS = {
-    GROUP: 'composer.tool.group.editor',
+    UNDO_REDO_GROUP: 'composer.tool.group.editor.undo-redo',
+    CODE_GROUP: 'composer.tool.group.editor.code ',
     UNDO: 'composer.tool.editor.undo',
     REDO: 'composer.tool.editor.redo',
+    FORMAT: 'composer.tool.editor.format',
 };
 
 export const LABELS = {
     EDIT: 'Edit',
     UNDO: 'Undo',
     REDO: 'Redo',
+    FORMAT: 'Reformat Code',
 };
 
 export const HISTORY = {

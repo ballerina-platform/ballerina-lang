@@ -44,5 +44,11 @@ export function getCommandDefinitions() {
                 filePath: PropTypes.string.isRequired,
             },
         },
+        {
+            id: COMMANDS.FORMAT,
+            shortcut: {
+                default: 'ctrl+shift+l',
+            },
+        },
     ];
 }

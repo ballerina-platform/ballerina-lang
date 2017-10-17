@@ -257,6 +257,20 @@ public class WorkspaceService {
         }
     }
 
+    @GET
+    @Path("/userHome")
+    @Produces("text/plain")
+    public Response userHome() {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.getUserHome()).header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
+            logger.error("/userHome service error", throwable.getMessage());
+            return getErrorResponse(throwable);
+        }
+    }
+
     @POST
     @Path("/log")
     @Produces("application/json")

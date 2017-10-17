@@ -202,7 +202,7 @@ class SizingUtil {
      * @param {object} node
      */
     sizeCatchNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getParameter());
     }
 
     /**
@@ -1119,63 +1119,65 @@ class SizingUtil {
         // Set the compound node default sizing values.
         this.sizeCompoundNode(node);
 
-        // Calculate join keyword length;
-        joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
-        timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
-
-        // Calculate join and timeout expression lengths.
-        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
-        timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
-
-        // Calculate join and timeout parameter expression lengths.
-        joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
-        timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
-
         // Set the node height as available in the node if not set the default.
-        const nodeHeight = node.viewState.bBox.h;
+        const nodeHeight = node.viewState.bBox.h + node.viewState.components['block-header'].h;
 
         // Set the node width to default.
         let nodeWidth = node.viewState.bBox.w;
 
-        // Set the compound box width as to the max width from all the blocks.
-        if (joinStmt.viewState.bBox.w > node.viewState.bBox.w &&
-            timeoutStmt.viewState.bBox.w < joinStmt.viewState.bBox.w) {
-            node.viewState.bBox.w = joinStmt.viewState.bBox.w;
-        } else if (timeoutStmt.viewState.bBox.w > node.viewState.bBox.w &&
-            joinStmt.viewState.bBox.w < timeoutStmt.viewState.bBox.w) {
-            nodeWidth = timeoutStmt.viewState.bBox.w;
-        } else if (timeoutStmt.viewState.bBox.w > node.viewState.bBox.w &&
-            timeoutStmt.viewState.bBox.w === joinStmt.viewState.bBox.w) {
-            nodeWidth = timeoutStmt.viewState.bBox.w;
+        if (joinStmt) {
+            // Calculate join keyword, parameter expression, expression lengths;
+            joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
+            joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
+            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
+
+            if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
+                nodeWidth = joinStmt.viewState.bBox.w;
+            }
         }
+
+        if (timeoutStmt) {
+            // Calculate timeout expression, parameter expression, keyword lengths.
+            timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
+            timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
+            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
+            if (timeoutStmt.viewState.bBox.w > nodeWidth) {
+                nodeWidth = timeoutStmt.viewState.bBox.w;
+            }
+        }
+
         // Get the total of join and timeout block heights.
         let joinTimeoutBlockHeight = 0;
 
         if (TreeUtil.isBlock(node.parent)) {
             if (joinStmt) {
-                joinTimeoutBlockHeight += joinStmt.viewState.bBox.h;
+                joinTimeoutBlockHeight += joinStmt.viewState.components['statement-box'].h;
             }
             if (timeoutStmt) {
-                joinTimeoutBlockHeight += timeoutStmt.viewState.bBox.h;
+                joinTimeoutBlockHeight += timeoutStmt.viewState.components['statement-box'].h;
             }
         }
         // Get the condition box max width for join and timeout blocks.
         let conditionBoxWidth = 0;
 
-        if (joinStmt.viewState.components.parameter.w > timeoutStmt.viewState.components.parameter.w) {
+        if (joinStmt && timeoutStmt &&
+            joinStmt.viewState.components.parameter.w > timeoutStmt.viewState.components.parameter.w) {
             conditionBoxWidth += joinStmt.viewState.components.parameter.w;
         } else {
-            conditionBoxWidth += timeoutStmt.viewState.components.parameter.w;
+            conditionBoxWidth += timeoutStmt ? timeoutStmt.viewState.components.parameter.w :
+                (joinStmt ? joinStmt.viewState.components.parameter.w : 0);
         }
 
-        if (joinStmt.viewState.components.expression.w > timeoutStmt.viewState.components.expression.w) {
+        if (joinStmt && timeoutStmt &&
+            joinStmt.viewState.components.expression.w > timeoutStmt.viewState.components.expression.w) {
             conditionBoxWidth += joinStmt.viewState.components.expression.w;
         } else {
-            conditionBoxWidth += timeoutStmt.viewState.components.expression.w;
+            conditionBoxWidth += timeoutStmt ? timeoutStmt.viewState.components.expression.w :
+                (joinStmt ? joinStmt.viewState.components.expression.w : 0);
         }
 
-        conditionBoxWidth += timeoutStmt.viewState.components.titleWidth.w;
-
+        conditionBoxWidth += timeoutStmt ? timeoutStmt.viewState.components.titleWidth.w :
+            (joinStmt ? joinStmt.viewState.components.titleWidth.w : 0);
 
         // Get the forkJoin node width
         nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;
@@ -1199,8 +1201,9 @@ class SizingUtil {
             new SimpleBBox(0, 0, 0, node.viewState.components['statement-box'].h, 0, 0);
 
         // Set the whole fork join compound box dimensions.
-        node.viewState.bBox.h = nodeHeight + maxHeightOfWorkers + joinTimeoutBlockHeight
-            + this.config.fork.padding.top + this.config.fork.padding.bottom;
+        node.viewState.bBox.h = node.viewState.components['statement-box'].h + joinTimeoutBlockHeight
+            + this.config.fork.padding.top + this.config.fork.padding.bottom
+            + node.viewState.components['block-header'].h;
         node.viewState.bBox.w = (nodeWidth > maxWidthOfWorkers ? nodeWidth : maxWidthOfWorkers)
             + this.config.fork.padding.left + this.config.fork.padding.right;
     }
@@ -1211,7 +1214,7 @@ class SizingUtil {
      * @param {object} node If Object
      */
     sizeIfNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getCondition());
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
@@ -1302,20 +1305,27 @@ class SizingUtil {
         }
         if (node.failedBody) {
             node.failedBody.viewState.components.titleWidth = this.getTextWidth('Failed');
+            node.failedBody.viewState.components['statement-box'].h
+                += node.failedBody.viewState.components['block-header'].h;
             node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
         }
         if (node.abortedBody) {
             node.abortedBody.viewState.components.titleWidth = this.getTextWidth('Aborted');
+            node.abortedBody.viewState.components['statement-box'].h
+                += node.abortedBody.viewState.components['block-header'].h;
             node.viewState.components['statement-box'].h += node.abortedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.abortedBody.viewState.bBox.w);
         }
         if (node.committedBody) {
             node.committedBody.viewState.components.titleWidth = this.getTextWidth('Committed');
+            node.committedBody.viewState.components['statement-box'].h
+                += node.committedBody.viewState.components['block-header'].h;
             node.viewState.components['statement-box'].h += node.committedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.committedBody.viewState.bBox.w);
         }
-        node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h;
+        node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h
+            + node.viewState.components['block-header'].h;
         node.viewState.bBox.w += Math.max(node.transactionBody.viewState.components.titleWidth.w,
             (node.failedBody ? node.failedBody.viewState.components.titleWidth.w : 0),
             (node.abortedBody ? node.abortedBody.viewState.components.titleWidth.w : 0),
@@ -1381,7 +1391,7 @@ class SizingUtil {
      *
      */
     sizeWhileNode(node) {
-        this.sizeCompoundNode(node);
+        this.sizeCompoundNode(node, node.getCondition());
     }
 
 
@@ -1477,9 +1487,10 @@ class SizingUtil {
     /**
      * Set the sizing of the compound statement node (eg: IF, ElseIF, Try, Catch, etc.)
      * @param {object} node compound statement node
+     * @param {string} node expression
      */
-    sizeCompoundNode(node) {
-        const expression =  _.isFunction(node.getCondition) ? node.getCondition() : undefined;
+    sizeCompoundNode(node, nodeExpression) {
+        const expression = nodeExpression;
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;

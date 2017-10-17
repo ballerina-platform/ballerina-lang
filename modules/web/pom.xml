@@ -171,7 +171,7 @@
                 <configuration>
                     <includes>
                         <include>${basedir}/package.json</include>
-                        <include>${basedir}/index.html</include>
+                        <include>${basedir}/src/plugins/help/dialogs/about-dialog.jsx</include>
                     </includes>
                     <replacements>
                         <replacement>
@@ -179,12 +179,8 @@
                             <value>"version": "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}",</value>
                         </replacement>
                         <replacement>
-                            <token>Ballerina Composer v(.*?)( \|)</token>
-                            <value>Ballerina Composer v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion} |</value>
-                        </replacement>
-                        <replacement>
-                            <token>id="aboutModalLabel"&gt;v(.*?)&lt;</token>
-                            <value>id="aboutModalLabel"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}&lt;</value>
+                            <token>className="version"&gt;v(.*?)&lt;</token>
+                            <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.qualifier}&lt;</value>
                         </replacement>
                     </replacements>
                 </configuration>

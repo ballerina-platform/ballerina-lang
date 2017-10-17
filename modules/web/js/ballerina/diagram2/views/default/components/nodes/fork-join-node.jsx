@@ -128,47 +128,57 @@ class ForkJoinNode extends React.Component {
         const dropZone = model.viewState.components['drop-zone'];
 
         const forkLineHiderBottom = model.getJoinBody() ? model.getJoinBody().viewState.bBox.y :
-            (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : bBox.getBottom());
+            (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : (bBox.y +
+                (model.viewState.components['statement-box'].h - model.viewState.components['block-header'].h)));
+
         const joinLineHiderBottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y :
             (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
         const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
             : 0;
 
-        const joinConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Join condition',
-            model: this.props.model,
-            getterMethod: this.handleGetJoinCondition,
-            setterMethod: this.handleSetJoinCondition,
-        };
+        let joinConditionEditorOptions = false;
+        let joinParameterEditorOptions = false;
+        if (model.joinBody) {
+            joinConditionEditorOptions = {
+                propertyType: 'text',
+                key: 'Join condition',
+                model: this.props.model,
+                getterMethod: this.handleGetJoinCondition,
+                setterMethod: this.handleSetJoinCondition,
+            };
 
-        const timeoutConditionEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout condition',
-            model: model.getTimeOutExpression(),
-            setterMethod: this.handleSetTimeoutCondition,
-        };
+            joinParameterEditorOptions = {
+                propertyType: 'text',
+                key: 'Join parameter',
+                value: model.getJoinResultVar().getSource(),
+                model: model.getJoinResultVar(),
+                setterMethod: this.handleSetJoinParameter,
+            };
+        }
 
-        const joinParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Join parameter',
-            value: model.getJoinResultVar().getSource(),
-            model: model.getJoinResultVar(),
-            setterMethod: this.handleSetJoinParameter,
-        };
+        let timeoutConditionEditorOptions = false;
+        let timeoutParameterEditorOptions = false;
+        if (model.timeoutBody) {
+            timeoutConditionEditorOptions = {
+                propertyType: 'text',
+                key: 'Timeout condition',
+                model: model.getTimeOutExpression(),
+                setterMethod: this.handleSetTimeoutCondition,
+            };
 
-        const timeoutParameterEditorOptions = {
-            propertyType: 'text',
-            key: 'Timeout parameter',
-            value: model.getTimeOutVariable().getSource(),
-            model: model.getTimeOutVariable(),
-            setterMethod: this.handleSetTimeoutParameter,
-        };
+            timeoutParameterEditorOptions = {
+                propertyType: 'text',
+                key: 'Timeout parameter',
+                value: model.getTimeOutVariable().getSource(),
+                model: model.getTimeOutVariable(),
+                setterMethod: this.handleSetTimeoutParameter,
+            };
+        }
 
         // Get join block life line y1 and y2.
         let joinLifeLineY1 = 0;
         let joinLifeLineY2 = 0;
-        if (model.getJoinBody().getStatements().length > 0) {
+        if (model.getJoinBody() && model.getJoinBody().getStatements().length > 0) {
             const joinChildren = model.getJoinBody().getStatements();
             const firstJoinChild = joinChildren[0].viewState;
             joinLifeLineY1 = firstJoinChild.bBox.y + firstJoinChild.bBox.h;
@@ -179,7 +189,7 @@ class ForkJoinNode extends React.Component {
         // Get timeout block life line y1 and y2.
         let timeoutLifeLineY1 = 0;
         let timeoutLifeLineY2 = 0;
-        if (model.getTimeoutBody().getStatements().length > 0) {
+        if (model.getTimeoutBody() && model.getTimeoutBody().getStatements().length > 0) {
             const children = model.getTimeoutBody().getStatements();
             const firstChild = children[0].viewState;
             timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
@@ -239,7 +249,7 @@ class ForkJoinNode extends React.Component {
                 />
                 }
 
-                {model.getJoinBody() &&
+                {model.joinBody &&
                 <line
                     x1={model.getJoinBody().viewState.bBox.getCenterX()}
                     y1={joinLifeLineY1}
@@ -261,10 +271,11 @@ class ForkJoinNode extends React.Component {
                     parameterBbox={model.getJoinBody().viewState.components.param}
                     parameterEditorOptions={joinParameterEditorOptions}
                     editorOptions={joinConditionEditorOptions}
+                    disableButtons={{ delete: true }}
                 />
                 }
 
-                {model.getTimeoutBody() &&
+                {model.timeoutBody &&
                 <line
                     x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
                     y1={model.getTimeoutBody().viewState.bBox.y}
@@ -274,7 +285,7 @@ class ForkJoinNode extends React.Component {
                 />
                 }
 
-                {model.getTimeoutBody() &&
+                {model.timeoutBody &&
                 <line
                     x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
                     y1={timeoutLifeLineY1}

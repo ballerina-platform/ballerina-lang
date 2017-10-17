@@ -67,7 +67,7 @@ class TransactionNode extends React.Component {
                     bBox={transactionBody.viewState.bBox}
                     title={'Transaction'}
                     titleWidth={transactionBody.viewState.components.titleWidth.w}
-                    model={transactionBody}
+                    model={model}
                     body={transactionBody}
                 />
                 {failedBody &&

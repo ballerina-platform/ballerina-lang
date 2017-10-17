@@ -32,7 +32,7 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
-import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
+import { OPEN_SYMBOL_DOCS, GO_TO_POSITION, FORMAT } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -83,6 +83,8 @@ class BallerinaFileEditor extends React.Component {
                     .then((state) => {
                         const newAST = state.model;
                         const currentAST = this.state.model;
+                        // update environment object with updated current package info
+                        this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
                         // remove new AST from new state to be set
                         delete state.model;
@@ -104,6 +106,22 @@ class BallerinaFileEditor extends React.Component {
         // Resize the canvas
         props.commandProxy.on('resize', () => {
             this.update();
+        }, this);
+        // Format the source code.
+        props.commandProxy.on(FORMAT, () => {
+            this.skipLoadingOverlay = true;
+            // we need to fetch a new tree if there are updated content.
+            this.validateAndParseFile()
+                .then((state) => {
+                    this.skipLoadingOverlay = false;
+                    this.setState(state);
+                    const newContent = this.state.model.getSource(true);
+                    // set the underlaying file.
+                    this.props.file.setContent(newContent, {
+                        type: CHANGE_EVT_TYPES.CODE_FORMAT,
+                    });
+                })
+                .catch(error => log.error(error)); // if error we need to display a message.
         }, this);
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
@@ -216,7 +234,7 @@ class BallerinaFileEditor extends React.Component {
             let connectorExists = false;
             while (!TreeUtils.isCompilationUnit(immediateParent)) {
                 if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
-                || TreeUtils.isAction(immediateParent)) {
+                    || TreeUtils.isAction(immediateParent)) {
                     const connectors = immediateParent.getBody().filterStatements((statement) => {
                         return TreeUtils.isConnectorDeclaration(statement);
                     });
@@ -225,7 +243,7 @@ class BallerinaFileEditor extends React.Component {
                             === node.getExpression().getPackageAlias().value) {
                             connectorExists = true;
                             node.getExpression().getExpression().getVariableName()
-                                    .setValue(connector.getVariableName().value);
+                                .setValue(connector.getVariableName().value);
                         }
                     });
                 } else if (TreeUtils.isService(immediateParent)) {
@@ -364,6 +382,19 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Update environment object with updated current package info
+     * @param {PackageScopedEnvironment} environment Package scoped environment
+     * @param {Object} currentPackageInfo Updated current package information
+     */
+    updateEnvironment(environment, currentPackageInfo) {
+        if (currentPackageInfo){
+            const pkg = BallerinaEnvFactory.createPackage();
+            pkg.initFromJson(currentPackageInfo);
+            environment.setCurrentPackage(pkg);
+        }
+    }
+
+    /**
      * Go to source of given AST Node
      *
      * @param {ASTNode} node AST Node
@@ -469,6 +500,8 @@ class BallerinaFileEditor extends React.Component {
             // first validate the file for syntax errors
             validateFile(file)
                 .then((data) => {
+                    // keep current package information.
+                    newState.packageInfo = data.packageInfo;
                     const syntaxErrors = data.errors.filter(({ category }) => {
                         return category === 'SYNTAX';
                     });
@@ -518,8 +551,7 @@ class BallerinaFileEditor extends React.Component {
                                     newState.model = undefined;
                                 }
                                 resolve(newState);
-                                this.context.alert.showError('Seems to be there is a bug in back-end parser.'
-                                    + 'Please report an issue attaching current source.');
+                                this.context.alert.showError('Unexpected error occurred while parsing.');
                                 return;
                             }
                             // get ast from json

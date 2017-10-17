@@ -355,3 +355,19 @@ export function invokeTryIt(tryItPayload, protocol) {
             }).catch(error => reject(error));
     });
 }
+
+
+/**
+ * Gets user home from backend
+ *
+ * @returns {Promise} Resolves string path
+ */
+export function getUserHome() {
+    const endpoint = `${getServiceEndpoint('workspace')}/userHome`;
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, {})
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
