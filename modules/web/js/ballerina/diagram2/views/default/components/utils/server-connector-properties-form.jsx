@@ -292,7 +292,7 @@ class ServerConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '390px',
+                height: '400px',
                 minWidth: '500px',
             },
             arrowStyle: {

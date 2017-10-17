@@ -49,6 +49,7 @@ class PropertyWindow extends React.Component {
         this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
+        this.closePropertyWindow = this.closePropertyWindow.bind(this);
     }
 
     componentDidMount() {
@@ -100,11 +101,20 @@ class PropertyWindow extends React.Component {
     handleOutsideClick(e) {
         if (this.node) {
             if (!this.node.contains(e.target)) {
-                this.handleDismiss();
+                this.closePropertyWindow();
             }
         }
     }
 
+    /**
+     * Close the property window without saving any changes
+     */
+    closePropertyWindow() {
+        this.props.model.viewState.showOverlayContainer = false;
+        this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
+        this.props.model.viewState.overlayContainer = {};
+        this.context.editor.update();
+    }
     /**
      * Toggles the struct properties
      */
@@ -390,6 +400,18 @@ class PropertyWindow extends React.Component {
                                 onClick={this.goToPreviousView}
                             />
                         </div> }
+                    </div>
+                    <div className="formFooter">
+                        <button
+                            type="button"
+                            className="propWindowBtn"
+                            onClick={this.closePropertyWindow}
+                        >Close</button>
+                        <button
+                            type="button"
+                            className="propWindowBtn"
+                            onClick={this.handleDismiss}
+                        >Apply</button>
                     </div>
                 </div>
             </div>);
