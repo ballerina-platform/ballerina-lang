@@ -18,11 +18,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import ConnectorHelper from './../../../../../env/helpers/connector-helper';
 import './properties-form.css';
-import PropertiesWindow from './property-window';
+import ConnectorPropertiesWindow from './connector-property-window';
 import TreeUtils from './../../../../../model/tree-util';
-import NodeFactory from './../../../../../model/node-factory';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 /**
  * React component for a connector prop window
  *
@@ -38,6 +40,8 @@ class ConnectorPropertiesForm extends React.Component {
         this.setDataToConnectorInitArgs = this.setDataToConnectorInitArgs.bind(this);
         this.getConnectorInstanceString = this.getConnectorInstanceString.bind(this);
         this.getAddedValueOfProp = this.getAddedValueOfProp.bind(this);
+        this.addQuotationForStringValues = this.addQuotationForStringValues.bind(this);
+        this.getStringifiedMap = this.getStringifiedMap.bind(this);
     }
 
     /**
@@ -66,39 +70,34 @@ class ConnectorPropertiesForm extends React.Component {
         const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment, pkgAlias);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
-            if (addedValues.length > 0 && (index <= addedValues.length - 1)) {
-                // Check for the connection properties
-                // TODO make the logic generic. The options/structs of a connector now doesn't come with a generic type
-                if (property.identifier === 'connectorOptions' || property.identifier === 'options') {
-                    if (TreeUtils.isSimpleVariableRef(addedValues[index])) {
-                        property.value = this.getAddedValueOfProp(addedValues[index]);
-                    } else {
-                        // Check the field values given
-                        if (property.fields) {
-                            if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // If its a map
-                                // Get all the key-value pairs
-                                if (addedValues[index].getKeyValuePairs()) {
-                                    addedValues[index].getKeyValuePairs().map((element) => {
-                                        if (TreeUtils.isRecordLiteralKeyValue(element)) {
-                                            const key = element.getKey().getVariableName().value;
-                                                // Get the value
-                                            if (element.getValue()) {
-                                                // Iterate over the property fields until the key matches the field name
-                                                property.fields.map((field) => {
-                                                    if (field.getName() === key) {
-                                                        field.setDefaultValue(this
-                                                            .getAddedValueOfProp(element.getValue()));
-                                                    }
-                                                });
-                                            }
+            if (addedValues.length > 0) {
+                if (TreeUtils.isSimpleVariableRef(addedValues[index]) || TreeUtils.isLiteral(addedValues[index])) {
+                    property.value = this.getAddedValueOfProp(addedValues[index]);
+                } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) {
+                    addedValues[index].getKeyValuePairs().forEach((element) => {
+                        if (TreeUtils.isRecordLiteralKeyValue(element)) {
+                            const key = element.getKey().getVariableName().value ||
+                                element.getKey().value;
+                                // If the value is a Literal Node
+                            if (TreeUtils.isLiteral(element.getValue())) {
+                                const obj = _.find(property.fields, { identifier: key });
+                                obj.value = (this.getAddedValueOfProp(element.getValue()));
+                            } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
+                                const propName = _.find(property.fields, { identifier: key });
+                                element.getValue().getKeyValuePairs().map((innerElement) => {
+                                    if (TreeUtils.isRecordLiteralKeyValue(innerElement)) {
+                                        const innerKey = innerElement.getKey().getVariableName().value ||
+                                            innerElement.getKey().value;
+                                            // If the value is a Literal Node
+                                        if (TreeUtils.isLiteral(innerElement.getValue())) {
+                                            const obj = _.find(propName.fields, { identifier: innerKey });
+                                            obj.value = (this.getAddedValueOfProp(innerElement.getValue()));
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
                         }
-                    }
-                } else {
-                    property.value = this.getAddedValueOfProp(addedValues[index]);
+                    });
                 }
             }
         });
@@ -114,122 +113,82 @@ class ConnectorPropertiesForm extends React.Component {
         }
         return value;
     }
-
     /**
      * Create the connector init string
      * @param connectorInit
      * @param data
      * @returns {string}
      */
-    getConnectorInstanceString(connectorInit, data) {
+    getConnectorInstanceString(connectorInit, pkgAlias, data) {
         // Set the expressions to null
         connectorInit.setExpressions([], true);
-        const optionProps = {};
-        // Filter all values in the connection option struct
-        Object.keys(data).forEach((key) => {
-            // TODO make the logic generic. The options/structs of a connector now doesn't come with a generic type
-            if (key.startsWith('connectorOptions:')) {
-                const propName = key.replace('connectorOptions:', '');
-                optionProps[propName] = data[key];
-            }
 
-            if (key.startsWith('options:')) {
-                const propName = key.replace('options:', '');
-                optionProps[propName] = data[key];
+        let connectorParamString = '';
+        const paramArray = [];
+        let map;
+        data.forEach((key) => {
+            if (key.bType === 'string') {
+                key.value = this.addQuotationForStringValues(key.value);
+            }
+            // For simple fields
+            if (key.fields.length === 0) {
+                paramArray.push(key.value);
+            } else if (key.value) {
+                paramArray.push(key.value);
+            } else {
+                map = this.getStringifiedMap(key.fields);
             }
         });
-        // According to the values added, construct the nodes again
-        Object.keys(data).forEach((key, indexOfKey) => {
-            // We need the supported props to preserve the order of the entered params
-            this.getSupportedProps().map((property) => {
-                let nodeToBeAdded = null;
-                let indexOfThisNode = 0;
-                if (key === property.identifier) {
-                    // Check for options
-                    // TODO make the logic generic. The options properties of a connector now doesn't come with a generic type
-                    if (key === 'connectorOptions' || key === 'options') {
-                        if (data[key]) {
-                            // Create an identifier node
-                            const variableNameNode = NodeFactory.createIdentifier({ value: data[key] });
-                            // Create a SimpleVarDef Node
-                            const simpleVarDefNode = NodeFactory.createSimpleVariableRef({
-                                variableName: variableNameNode });
-                            let index = connectorInit.getExpressions().length - 1;
-                            if (index === -1) {
-                                index = 0;
-                            }
-                            nodeToBeAdded = simpleVarDefNode;
-                            indexOfThisNode = index + 1;
-                        } else {
-                            // No reference value, then add the values for the fields
-                            // Create a RecordLiteralExprNode
-                            const recordLiteralExprNode = NodeFactory.createRecordLiteralExpr();
-                            // Iterate over the connector options
-                            Object.keys(optionProps).forEach((prop) => {
-                                // Check if there are value
-                                if (optionProps[prop]) {
-                                    // Iterate over the property fields of the struct to preserve the
-                                    // order and to get the bType
-                                    if (property.fields) {
-                                        property.fields.map((field) => {
-                                            if (prop === field.getName()) {
-                                                // Get value of property
-                                                let value = optionProps[prop];
-                                                // Get type of the prop field
-                                                if (field.getType() === 'string') {
-                                                    value = this.addQuotationForStringValues(value);
-                                                }
-                                                // Create a SimpleVarDef Node for the key
-                                                const variableNameNode = NodeFactory.createIdentifier({ value: prop });
-                                                const simpleVarDefNode = NodeFactory.createSimpleVariableRef({
-                                                    variableName: variableNameNode });
-                                                // Create a Literal Node for the value
-                                                const literalNode = NodeFactory.createLiteral({ value });
-                                                // Create a Record Literal Value Node
-                                                const recordLiteralKeyValueNode = NodeFactory.createRecordLiteralKeyValue({ key: simpleVarDefNode, value: literalNode });
-                                                let index = recordLiteralExprNode.getKeyValuePairs().length - 1;
-                                                if (index === -1) {
-                                                    index = 0;
-                                                }
-                                                // Add the key-value pair node to the RecordLiteralExpr node
-                                                recordLiteralExprNode.addKeyValuePairs(recordLiteralKeyValueNode, index + 1, true);
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                            // Add the RecordLiteralExpr Node to the connector init expression
-                            let index = connectorInit.getExpressions().length - 1;
-                            if (index === -1) {
-                                index = 0;
-                            }
-                            nodeToBeAdded = recordLiteralExprNode;
-                            indexOfThisNode = index + 1;
-                        }
-                    } else {
-                        // Assuming for the literals user can only give that type variables
-                        let value = data[key];
-                        if (property.bType === 'string') {
-                            value = this.addQuotationForStringValues(value);
-                        }
-                        const literalNode = NodeFactory.createLiteral({ value });
-                        let index = connectorInit.getExpressions().length - 1;
-                        if (index === -1) {
-                            index = 0;
-                        }
-                        nodeToBeAdded = literalNode;
-                        indexOfThisNode = index + 1;
-                    }
-                    if (indexOfKey === ((Object.keys(data).length - Object.keys(optionProps).length) - 1)) {
-                        connectorInit.addExpressions(nodeToBeAdded, indexOfThisNode);
-                    } else {
-                        connectorInit.addExpressions(nodeToBeAdded, indexOfThisNode, true);
-                    }
-                }
-            });
-        });
+        if (map) {
+            paramArray.push(map);
+        }
+        connectorParamString = paramArray.join(',');
+        const connectorInitString = pkgAlias + ':ClientConnector __endpoint1 = ' +
+                    'create ' + pkgAlias + ':ClientConnector(' + connectorParamString + ')';
+        const fragment = FragmentUtils.createStatementFragment(`${connectorInitString};`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const varDefNode = TreeBuilder.build(parsedJson);
+        connectorInit.setExpressions(varDefNode.getVariable().getInitialExpression().getExpressions());
     }
 
+    /**
+     * Get the stringified map
+     * @param properties
+     * @returns {string} stringified map
+     */
+    getStringifiedMap(properties) {
+        const valueArr = [];
+        properties.forEach((field) => {
+            // Remove quotation marks of the identifier
+            if (field.identifier.startsWith('"')) {
+                field.identifier = JSON.parse(field.identifier);
+            }
+            // If the btype is string, add quotation marks to the value
+            if (field.bType === 'string') {
+                field.value = this.addQuotationForStringValues(field.value);
+            }
+            if (field.fields.length === 0) {
+                valueArr.push(field.identifier + ':' + field.value);
+            } else if (field.value) {
+                valueArr.push(field.identifier + ':' + field.value);
+            } else {
+                const innerValueArr = [];
+                field.fields.forEach((innerField) => {
+                    if (innerField.identifier.startsWith('"')) {
+                        innerField.identifier = JSON.parse(innerField.identifier);
+                    }
+                    if (innerField.bType === 'string') {
+                        innerField.value = this.addQuotationForStringValues(innerField.value);
+                    }
+                    innerValueArr.push(innerField.identifier + ':' + innerField.value);
+                });
+                const localMap = field.identifier + ': {' + innerValueArr.join(',') + '}';
+                valueArr.push(localMap);
+            }
+        });
+        const map = '{' + valueArr.join(',') + '}';
+        return map;
+    }
     /**
      * Set data to the connector init arguments and create the connector init string
      * @param data
@@ -237,7 +196,8 @@ class ConnectorPropertiesForm extends React.Component {
     setDataToConnectorInitArgs(data) {
         const props = this.props.model.props;
         const connectorInit = props.model.getVariable().getInitialExpression();
-        this.getConnectorInstanceString(connectorInit, data);
+        const pkgAlias = connectorInit.getConnectorType().getPackageAlias().value;
+        this.getConnectorInstanceString(connectorInit, pkgAlias, data);
     }
 
     /**
@@ -256,7 +216,6 @@ class ConnectorPropertiesForm extends React.Component {
      * @memberof connector properties window
      */
     render() {
-        // this.getSupportedProps();
         const props = this.props.model.props;
         const positionX = (props.bBox.x) - 8 + 'px';
         const positionY = (props.bBox.y) + 'px';
@@ -265,7 +224,7 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '340px',
+                height: '375px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -278,7 +237,7 @@ class ConnectorPropertiesForm extends React.Component {
             return null;
         }
         return (
-            <PropertiesWindow
+            <ConnectorPropertiesWindow
                 model={props.model}
                 formHeading='Connector Properties'
                 key={`connectorProp/${props.model.id}`}

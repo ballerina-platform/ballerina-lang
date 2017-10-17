@@ -381,10 +381,27 @@ span { cursor: pointer; }
     padding-left: -10px;
     height: 25px;
     width: 22px;
-    margin-left: -12px;
-    margin-top: 6px;
+    margin-left: -51px;
+    margin-top: 8px;
 }
 
 .structsContainer input:disabled{
     cursor: not-allowed;
+}
+
+.optionsDiv{
+    height: 120px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%;
+    border: solid 1px;
+}
+
+.backBtn{
+    margin-bottom: 5px;
+}
+
+.formContainer{
+    height: 330px;
+    overflow-y: scroll;
 }

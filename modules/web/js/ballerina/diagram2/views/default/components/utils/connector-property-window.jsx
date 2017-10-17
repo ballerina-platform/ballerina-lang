@@ -20,46 +20,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './properties-form.css';
-import TagInput from './tag-input';
-import Pagination from './pagination';
-
 /**
  * React component for a service definition.
  *
  * @class ServiceDefinition
  * @extends {React.Component}
  */
-class PropertiesWindow extends React.Component {
+class ConnectorPropertiesWindow extends React.Component {
 
     constructor(props) {
         super(props);
-        const data = {};
-        this.props.supportedProps.map((addedAnnotation) => {
-            const key = addedAnnotation.identifier;
-            data[key] = addedAnnotation.value;
-            /* if (addedAnnotation.fields) {
-                addedAnnotation.fields.map((field) => {
-                    key = addedAnnotation.identifier + ':' + (field.getName());
-                    data[key] = field.getDefaultValue();
-                });
-            }*/
-        });
-
-        this.state = { data,
-            pageOfItems: [],
-            expandProperties: false,
+        this.previousItems = [];
+        this.connectorProps = props.supportedProps;
+        this.state = {
+            properties: this.connectorProps,
         };
         this.onChange = this.onChange.bind(this);
-        this.onTagsAdded = this.onTagsAdded.bind(this);
-        this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
         this.handleOutsideClick = this.handleOutsideClick.bind(this);
         this.renderNumericInputs = this.renderNumericInputs.bind(this);
         this.renderTextInputs = this.renderTextInputs.bind(this);
         this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
-        this.renderTagInputs = this.renderTagInputs.bind(this);
-        this.onChangePage = this.onChangePage.bind(this);
         this.toggleStructProperties = this.toggleStructProperties.bind(this);
+        this.goToPreviousView = this.goToPreviousView.bind(this);
     }
 
     componentDidMount() {
@@ -83,64 +66,24 @@ class PropertiesWindow extends React.Component {
     }
 
     /**
-     * On page change event
-     * @param pageOfItems
-     */
-    onChangePage(pageOfItems) {
-        // update state with new page of items
-        this.setState({ pageOfItems });
-    }
-
-    /**
      * On change event for form inputs
      * @param event
      * @param index
      */
-    onChange(event, index) {
+    onChange(event, key) {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-        this.setState({ data: _.extend(this.state.data, { [index]: value }) });
-    }
-
-    /**
-     * Handle when tags are added to tag inputs
-     * @param event
-     * @param index
-     */
-    onTagsAdded(event, index) {
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            const { value } = event.target;
-            if (this.state.data[index] === undefined) {
-                this.setState({ data: _.extend(this.state.data,
-                    { [index]: [] }) });
-            }
-            const obj = { [index]: [...this.state.data[index], value] };
-            this.setState({ data: _.extend(this.state.data, obj) });
-        }
-
-        if ([this.state.data[index]].length && event.keyCode === 8) {
-            this.removeTagsAdded(index, this.state.data[index].length - 1);
-        }
+        key.value = value;
+        this.forceUpdate();
     }
 
     /**
      * Hanldes the dismiss/cancel event of the prop window
      */
     handleDismiss() {
-        this.props.addedValues(this.state.data);
+        this.props.addedValues(this.connectorProps);
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.overlayContainer = {};
-    }
-
-    /**
-     * Handles the tags that are removed from the tag input
-     * @param identifier
-     * @param index
-     */
-    removeTagsAdded(identifier, index) {
-        this.setState({ data: _.extend(this.state.data, { [identifier]:
-            this.state.data[identifier].filter((item, i) => i !== index),
-        }) });
+        this.context.editor.update();
     }
 
     /**
@@ -158,23 +101,25 @@ class PropertiesWindow extends React.Component {
     /**
      *
      */
-    toggleStructProperties() {
-        if (this.state.expandProperties) {
-            this.setState({
-                expandProperties: false,
-            });
-        } else {
-            this.setState({
-                expandProperties: true,
-            });
-        }
+    toggleStructProperties(fields) {
+        this.previousItems.push(this.state.properties);
+        this.setState({
+            properties: fields,
+        });
+    }
+
+    goToPreviousView() {
+        const poppedData = this.previousItems.pop();
+        this.setState({
+            properties: poppedData,
+        });
     }
     /**
      * Renders text input for form
      * @param key
      * @returns {XML}
      */
-    renderTextInputs(key, identifier) {
+    renderTextInputs(key) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
@@ -189,8 +134,8 @@ class PropertiesWindow extends React.Component {
                         name={key.identifier}
                         type='text'
                         placeholder={key.identifier}
-                        value={this.state.data[identifier] || this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, identifier || key.identifier)}
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
                     />
                 </div>
             </div>);
@@ -201,7 +146,7 @@ class PropertiesWindow extends React.Component {
      * @param key
      * @returns {XML}
      */
-    renderNumericInputs(key, identifier) {
+    renderNumericInputs(key) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
@@ -216,8 +161,8 @@ class PropertiesWindow extends React.Component {
                         name={key.identifier}
                         type='number'
                         placeholder={key.identifier}
-                        value={this.state.data[identifier] || this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, identifier || key.identifier)}
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
                     />
                 </div>
             </div>);
@@ -229,7 +174,7 @@ class PropertiesWindow extends React.Component {
      * @param booleanValue
      * @returns {XML}
      */
-    renderBooleanInputs(key, booleanValue, identifier) {
+    renderBooleanInputs(key, booleanValue) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
@@ -243,37 +188,11 @@ class PropertiesWindow extends React.Component {
                         type="checkbox"
                         id={key.identifier}
                         checked={booleanValue}
-                        onChange={event => this.onChange(event, identifier || key.identifier)}
+                        onChange={event => this.onChange(event, key)}
                     />
                 </div>
             </div>);
     }
-
-    /**
-     * Renders tag inputs for form
-     * @param key
-     * @returns {XML}
-     */
-    renderTagInputs(key, identifier) {
-        return (<div key={key.identifier} className="form-group">
-            <label
-                className="col-sm-4 property-dialog-label"
-                htmlFor="tags"
-            >{key.identifier}</label>
-            <div className='col-sm-7 properties-tags'>
-                <TagInput
-                    id={key.identifier}
-                    taggedElements={this.state.data[identifier] || this.state.data[key.identifier]}
-                    onTagsAdded={event =>
-                        this.onTagsAdded(event, identifier || key.identifier)}
-                    removeTagsAdded={this.removeTagsAdded}
-                    placeholder={key.identifier}
-                    ref={(node) => { this.node = node; }}
-                />
-            </div>
-        </div>);
-    }
-
     /**
      * Renders structs / collapsible divs for form
      * @param key
@@ -294,55 +213,19 @@ class PropertiesWindow extends React.Component {
                         name={key.identifier}
                         type='text'
                         placeholder='Specify a defined option object or a method'
-                        value={this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, key.identifier)}
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
                     />
                 </div>
-                {(key.fields !== null && (!this.state.data[key.identifier])) &&
                 <div className='col-sm-1'>
                     <input
                         id='viewOptionParams'
                         type='button'
-                        value={this.state.expandProperties ? '-' : '+'}
-                        onClick={this.toggleStructProperties}
+                        value='+'
+                        onClick={() => { this.toggleStructProperties(key.fields); }}
                     />
-                </div> }
-            </div>
-            {(key.fields !== null) &&
-            <div
-                id={key.identifier}
-                className="optionsDiv"
-                style={{ display: this.state.expandProperties ? 'block' : 'none' }}
-            >
-                <div className="collapsiblePanelBody" style={{ paddingLeft: '3px' }}>
-                    <label> Specify the Option attributes</label>
-                    { key.fields.map((field) => {
-                        const fieldName = { identifier: field.getName() };
-                        const identifier = (key.identifier) + ':' + fieldName.identifier;
-                        switch (field.getType()) {
-                            case 'string':
-                                return this.renderTextInputs(fieldName, identifier);
-                                break;
-                            case 'int':
-                                return this.renderNumericInputs(fieldName, identifier);
-                                break;
-                            case 'boolean':
-                                let booleanValue = false;
-                                if (this.state.data[identifier]) {
-                                    booleanValue = JSON.parse(this.state.data[identifier]);
-                                }
-                                return this.renderBooleanInputs(fieldName, booleanValue, identifier);
-                                break;
-                            case 'array':
-                                return this.renderTagInputs(fieldName, identifier);
-                                break;
-                            default:
-                                return this.renderTextInputs(fieldName, identifier);
-                                break;
-                        }
-                    })}
                 </div>
-            </div> }
+            </div>
         </div>);
     }
     /**
@@ -380,36 +263,42 @@ class PropertiesWindow extends React.Component {
                         <h5 className="form-title file-dialog-title">
                             {this.props.formHeading}</h5>
                     </div>
-                    <div className="form-body">
+                    <div className="form-body formContainer">
                         <div className="container-fluid">
                             <form className='form-horizontal propertyForm'>
-                                {this.state.pageOfItems.map((key) => {
+                                {this.state.properties.map((key) => {
                                     if (key.bType === 'int') {
                                         return this.renderNumericInputs(key);
                                     } else if (key.bType === 'string') {
                                         return this.renderTextInputs(key);
                                     } else if (key.bType === 'boolean') {
                                         let booleanValue = false;
-                                        if (this.state.data[key.identifier]) {
-                                            booleanValue = JSON.parse(this.state.data[key.identifier]);
+                                        if (key.value) {
+                                            booleanValue = JSON.parse(key.value);
                                         }
                                         return this.renderBooleanInputs(key, booleanValue);
-                                    } else if (key.bType === 'array') {
-                                        return this.renderTagInputs(key);
                                     } else {
                                         return this.renderStructs(key);
                                     }
                                 })}
                             </form>
                         </div>
+                        {!_.isEmpty(this.previousItems) &&
+                        <div className='col-sm-3'>
+                            <input
+                                className="backBtn"
+                                type='button'
+                                value='&#xe68a;'
+                                onClick={this.goToPreviousView}
+                            />
+                        </div> }
                     </div>
-                    <Pagination items={this.props.supportedProps} onChangePage={this.onChangePage} />
                 </div>
             </div>);
     }
 }
 
-PropertiesWindow.contextTypes = {
+ConnectorPropertiesWindow.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
-export default PropertiesWindow;
+export default ConnectorPropertiesWindow;
