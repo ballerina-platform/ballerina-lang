@@ -33,13 +33,14 @@
             <class name="org.wso2.carbon.transport.http.netty.https.SSLProtocolsTest" />
             <class name="org.wso2.carbon.transport.http.netty.https.MutualSSLTestCase" />
             <class name="org.wso2.carbon.transport.http.netty.https.CipherSuitesTest" />
+            <class name="org.wso2.carbon.transport.http.netty.ClientConnectorTimeout" />
             <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
-            <class name="org.wso2.carbon.transport.http.netty.encoding.ContentEncodingTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketServerTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassThroughTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.HttpToWsProtocolSwitchTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.encoding.ContentEncodingTestCase"/>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketServerTestCase"/>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTestCase"/>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.HttpToWsProtocolSwitchTestCase"/>
         </classes>
     </test>
 </suite>
