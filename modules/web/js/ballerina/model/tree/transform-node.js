@@ -18,7 +18,6 @@
 import _ from 'lodash';
 
 import AbstractTransformNode from './abstract-tree/transform-node';
-import TransformUtils, { VarPrefix } from '../../utils/transform-utils';
 
 class TransformNode extends AbstractTransformNode {
 

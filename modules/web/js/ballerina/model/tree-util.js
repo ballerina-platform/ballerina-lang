@@ -359,7 +359,7 @@ class TreeUtil extends AbstractTreeUtil {
                 statementParentNode.replaceVariableDefs(node, newStatementNode, false);
             } else if (this.isTransaction(newStatementNode)) {
                 statementParentNode.parent.setCondition(newStatementNode.getCondition());
-                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements[0], false);
+                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
             } else {
                 statementParentNode.replaceStatements(node, newStatementNode, false);
             }

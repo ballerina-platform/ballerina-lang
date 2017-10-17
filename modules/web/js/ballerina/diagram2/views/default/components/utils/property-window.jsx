@@ -88,6 +88,7 @@ class PropertyWindow extends React.Component {
     handleDismiss() {
         this.props.addedValues(this.supportedKeys);
         this.props.model.viewState.showOverlayContainer = false;
+        this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
         this.props.model.viewState.overlayContainer = {};
         this.context.editor.update();
     }

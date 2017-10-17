@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import MessageManager from './../../../../../visitors/message-manager';
 
 /**
  * React component for a backward arrow.
@@ -36,10 +35,7 @@ class BackwardArrow extends React.Component {
      */
     constructor(props, context) {
         super(props);
-        this.state = { enable: true, drawOnMouseMoveFlag: -1 };
-        if (this.props.moveWithMessageManager) {
-            context.messageManager.setBackwardArrowDecorator(this);
-        }
+        this.state = { enable: true };
     }
 
     /**
@@ -66,33 +62,21 @@ class BackwardArrow extends React.Component {
     render() {
         const { start, end, arrowSize } = this.props;
         const enable = this.props.enable;
-        const drawOnMouseMove = this.state.drawOnMouseMoveFlag;
-        const messageManager = this.context.messageManager;
-        let arrowStart;
-        let arrowEnd;
-
-        if (drawOnMouseMove > -1) {
-            arrowStart = messageManager.getMessageStart();
-            arrowEnd = messageManager.getMessageEnd();
-        } else {
-            arrowStart = start;
-            arrowEnd = end;
-        }
 
         const className = 'action-arrow action-dash-line';
         return (<g >
             {enable && <line
-                x1={arrowStart.x}
-                x2={arrowEnd.x}
-                y1={arrowStart.y}
-                y2={arrowEnd.y}
+                x1={start.x}
+                x2={end.x}
+                y1={start.y}
+                y2={end.y}
                 className={className}
             /> }
             {enable &&
             <polygon
                 points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-                transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
-                            rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
+                transform={`translate(${start.x}, ${end.y})
+                            rotate(${this.getArrowAngle(start, end)}, 0, 0)`}
                 className="action-arrow-head"
             />
             }
@@ -100,12 +84,7 @@ class BackwardArrow extends React.Component {
     }
 }
 
-BackwardArrow.contextTypes = {
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-};
-
 BackwardArrow.propTypes = {
-    moveWithMessageManager: PropTypes.bool,
     start: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -119,7 +98,6 @@ BackwardArrow.propTypes = {
 };
 
 BackwardArrow.defaultProps = {
-    moveWithMessageManager: false,
     start: undefined,
     end: undefined,
     arrowSize: 5,
