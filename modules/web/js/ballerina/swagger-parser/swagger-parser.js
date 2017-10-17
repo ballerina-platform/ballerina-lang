@@ -449,11 +449,7 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.host)) {
             const hostValue = NodeFactory.createLiteral();
-            if (!_.isNil(this._swaggerJson.schemes) && this._swaggerJson.schemes.length > 0) {
-                hostValue.setValue(`"${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}"`);
-            } else {
-                hostValue.setValue(`"http://:${this._swaggerJson.host}"`);
-            }
+            hostValue.setValue(`"${this._swaggerJson.host}"`);
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostValue);
         }
 
