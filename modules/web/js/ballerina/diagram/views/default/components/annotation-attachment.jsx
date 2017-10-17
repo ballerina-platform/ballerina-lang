@@ -268,6 +268,7 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderPackageName() {
+        console.log(this.props.model);
         const supportedPackageNames = AnnotationHelper.getPackageNames(
             this.context.environment, this.props.model.getParent());
         if (this.state.isPackageNameInEdit && !this.props.model.getViewState().disableEdit) {

@@ -3809,8 +3809,8 @@
     }
     
     .annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span {
-        padding-right: 5px;
-        padding-left: 5px;
+        margin-right: 5px;
+        margin-left: 5px;
     }
     
     .annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span :hover{
@@ -3818,7 +3818,7 @@
     }
     
     .attribute-value-bvalue .annotation-attribute-key {
-        padding-left: 16px;
+        padding-left: 28px;
     }
     
     .popout-button-wrapper i {

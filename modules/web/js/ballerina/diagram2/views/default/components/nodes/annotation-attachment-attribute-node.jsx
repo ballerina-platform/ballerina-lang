@@ -119,6 +119,7 @@ class AnnotationAttribute extends React.Component {
         literal.setValue(event.target.value);
 
         if (this.props.model.parent === undefined && this.props.parent) {
+            this.props.model.addingEmptyAttribute = false;
             this.props.parent.addAttributes(this.props.model);
         }
     }
@@ -247,7 +248,11 @@ class AnnotationAttribute extends React.Component {
             actionMenuItems.push(deleteButton);
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
             return (<li key={attributeValue.getID()}>
                 <ul>
@@ -317,7 +322,11 @@ class AnnotationAttribute extends React.Component {
             actionMenuItems.push(deleteButton);
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
 
             const literalNode = attributeValue.getValue();
@@ -419,7 +428,11 @@ class AnnotationAttribute extends React.Component {
             }
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
 
             const attributes = this.props.model.viewState.collapsed ? [] :
@@ -486,7 +499,11 @@ class AnnotationAttribute extends React.Component {
             actionMenuItems.push(addNewToArray);
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
             const arrayValues = this.props.model.viewState.collapsed ? [] :
                 attributeValue.getValueArray().map((annotationAttributeValue) => {

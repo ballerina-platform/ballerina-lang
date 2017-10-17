@@ -46,7 +46,7 @@ class AnnotationAttachmentNode extends React.Component {
         this.state = {
             isInEdit: false,
             hasError: false,
-            addingEmptyAttribute: false,
+            addingEmptyAttribute: props.model.viewState.addingEmptyAttribute,
         };
 
         this.onNameEdit = this.onNameEdit.bind(this);
@@ -254,12 +254,17 @@ class AnnotationAttachmentNode extends React.Component {
                     this.setState({
                         addingEmptyAttribute: true,
                     });
+                    this.context.editor.update();
                 },
             };
             actionMenuItems.push(addAttributeButton);
         }
         return actionMenuItems.map((item) => {
-            return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+            return (<i
+                key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                className={'fw ' + item.icon}
+                onClick={item.onClick}
+            />);
         });
         // return <ActionMenu items={actionMenuItems} />;
     }
