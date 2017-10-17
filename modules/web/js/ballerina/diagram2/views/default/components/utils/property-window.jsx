@@ -376,7 +376,7 @@ class PropertyWindow extends React.Component {
                             <input
                                 className="backBtn"
                                 type='button'
-                                value='&#xe68a;'
+                                value='&#xe68a; Back'
                                 onClick={this.goToPreviousView}
                             />
                         </div> }

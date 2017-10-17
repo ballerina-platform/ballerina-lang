@@ -399,6 +399,8 @@ span { cursor: pointer; }
 }
 
 .backBtn{
+    width: 70px;
+    height: 30px;
     margin-bottom: 10px;
 }
 
