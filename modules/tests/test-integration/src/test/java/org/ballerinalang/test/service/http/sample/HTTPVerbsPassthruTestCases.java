@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Testing the passthrough service for Head method
+ * Testing the passthrough service for HTTP methods
  */
 public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
@@ -47,14 +47,14 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
 
     @Test(description = "Test simple passthrough test case For HEAD with URL. /sampleHead")
     public void testPassthroughSampleForHEAD() throws IOException {
-        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("sampleHead"));
+        HttpResponse response = HttpClientRequest.doHead(ballerinaServer.getServiceURLHttp("sampleHead"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), null, "Message content mismatched");
     }
 
     @Test(description = "Test simple passthrough test case For GET with URL. /headQuote/default")
     public void testPassthroughSampleForGET() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("headQuote/default"));
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("headQuote/default"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "wso2", "Message content mismatched");
     }
@@ -62,11 +62,11 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
     @Test(description = "Test simple passthrough test case For POST")
     public void testPassthroughSampleForPOST() throws IOException {
         Map<String, String> headers = new HashMap<>();
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("headQuote/default")
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("headQuote/default")
                 , "test", headers);
         if (response == null) {
             //Retrying to avoid intermittent test failure
-            response = HttpClientRequest.doPost(getServiceURLHttp("headQuote/default")
+            response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("headQuote/default")
                     , "test", headers);;
         }
         Assert.assertNotNull(response);
@@ -76,7 +76,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
 
     @Test(description = "Test simple passthrough test case with default resource")
     public void testPassthroughSampleWithDefaultResource() throws IOException {
-        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("headQuote/default"));
+        HttpResponse response = HttpClientRequest.doHead(ballerinaServer.getServiceURLHttp("headQuote/default"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get("Method"), "any", "Header mismatched");
         Assert.assertEquals(response.getData(), null, "Message content mismatched");
@@ -84,7 +84,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
 
     @Test(description = "Test default resource for outbound PUT with URL. /headQuote/getStock/PUT")
     public void testOutboundPUT() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("headQuote/getStock/PUT"));
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("headQuote/getStock/PUT"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get("Method"), "any", "Header mismatched");
         Assert.assertEquals(response.getData(), "default", "Message content mismatched");

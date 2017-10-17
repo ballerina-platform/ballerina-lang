@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 
 @http:configuration {basePath:"/headQuote"}
 service<http> headQuoteService {
@@ -7,20 +6,20 @@ service<http> headQuoteService {
     @http:resourceConfig {
         path:"/default"
     }
-    resource defaultResource (message m) {
-        string method = http:getMethod(m);
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090");
-        message response = endPoint.execute(method, "/getQuote/stocks", m);
-        reply response;
+    resource defaultResource (http:Request req, http:Response res) {
+        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
+        string method = req.getMethod();
+        res = endPoint.execute(method, "/getQuote/stocks", req);
+        res.send();
     }
 
     @http:resourceConfig {
         path:"/getStock/{method}"
     }
-    resource commonResource (message m, string method) {
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090");
-        message response = endPoint.execute(method, "/getQuote/stocks", m);
-        reply response;
+    resource commonResource (http:Request req, http:Response res, string method) {
+        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
+        res = endPoint.execute(method, "/getQuote/stocks", req);
+        res.send();
     }
 }
 
@@ -31,10 +30,10 @@ service<http> testClientConHEAD {
         methods:["HEAD"],
         path:"/"
     }
-    resource passthrough (message m) {
-        http:ClientConnector quoteEP = create http:ClientConnector("http://localhost:9090");
-	    message response = quoteEP.get("/getQuote/stocks", m);
-        reply response;
+    resource passthrough (http:Request req, http:Response res) {
+        http:ClientConnector quoteEP = create http:ClientConnector("http://localhost:9090", {});
+	    res = quoteEP.get("/getQuote/stocks", req);
+        res.send();
     }
 }
 
@@ -45,29 +44,26 @@ service<http> quoteService {
         methods:["GET"],
         path:"/stocks"
     }
-    resource company (message m) {
-        message response = {};
-        messages:setStringPayload(response, "wso2");
-        reply response;
+    resource company (http:Request req, http:Response res) {
+        res.setStringPayload("wso2");
+        res.send();
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/stocks"
     }
-    resource product (message m) {
-        message response = {};
-        messages:setStringPayload(response, "ballerina");
-        reply response;
+    resource product (http:Request req, http:Response res) {
+        res.setStringPayload("ballerina");
+        res.send();
     }
 
     @http:resourceConfig {
         path:"/stocks"
     }
-    resource defaultStock (message m) {
-        message response = {};
-        messages:setHeader(response, "Method", "any");
-        messages:setStringPayload(response, "default");
-        reply response;
+    resource defaultStock (http:Request req, http:Response res) {
+        res.setHeader("Method", "any");
+        res.setStringPayload("default");
+        res.send();
     }
 }
