@@ -669,11 +669,15 @@ class SizingUtil {
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
+        let newTotalStructH = this.config.panel.body.padding.top + this.config.panel.body.padding.top;
         children.forEach(() => {
-            if (!collapsed) {
-                bBox.h += this.config.structDefinitionStatement.height;
-            }
+            newTotalStructH += this.config.structDefinitionStatement.height;
         });
+
+        if (!collapsed && newTotalStructH > components.body.h) {
+            components.body.h = newTotalStructH;
+            bBox.h += (newTotalStructH - components.body.h);
+        }
     }
 
     /**
@@ -686,9 +690,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const components = {};
         // Initial statement height include panel heading and panel padding.
-        const bodyHeight = this.config.panel.body.padding.top
-            + this.config.panel.body.padding.bottom
-            + this.config.innerPanel.body.height;
+        const bodyHeight = this.config.innerPanel.body.height;
         // Set the width initial value to the padding left and right
         const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
 
@@ -718,7 +720,6 @@ class SizingUtil {
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
-        viewState.bBox.h -= 190;
         textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
