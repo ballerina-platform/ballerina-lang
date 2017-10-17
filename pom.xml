@@ -95,11 +95,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>annotation-processor</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -107,12 +102,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-test</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core-feature</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

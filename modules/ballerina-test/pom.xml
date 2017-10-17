@@ -33,6 +33,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
         </dependency>
@@ -62,5 +66,106 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.8</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/wso2/ballerina/core/parser/Ballerina*</exclude>
+                    </excludes>
+                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!--<execution>-->
+                        <!--<phase>prepare-package</phase>-->
+                        <!--<id>check</id>-->
+                        <!--<goals>-->
+                            <!--<goal>check</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>-->
+                            <!--<haltOnFailure>true</haltOnFailure>-->
+                            <!--<rules>-->
+                                <!--<rule>-->
+                                    <!--<element>BUNDLE</element>-->
+                                    <!--&lt;!&ndash; <limits>-->
+                                    <!--<limit >-->
+                                    <!--<counter>INSTRUCTION</counter>-->
+                                    <!--<value>COVEREDRATIO</value>-->
+                                    <!--<minimum>0.76</minimum>-->
+                                    <!--</limit>-->
+                                    <!--<limit >-->
+                                    <!--<counter>BRANCH</counter>-->
+                                    <!--<value>COVEREDRATIO</value>-->
+                                    <!--<minimum>0.62</minimum>-->
+                                    <!--</limit>-->
+                                    <!--</limits> &ndash;&gt;-->
+                                    <!--<excludes>-->
+                                        <!--<exclude>*Test</exclude>-->
+                                        <!--<exclude>org/ballerinalang/util/parser/-->
+                                            <!--BallerinaBaseListener*-->
+                                        <!--</exclude>-->
+                                        <!--<exclude>org/ballerinalang/util/parser/-->
+                                            <!--BallerinaLexer*-->
+                                        <!--</exclude>-->
+                                        <!--<exclude>org/ballerinalang/util/parser/-->
+                                            <!--BallerinaListener*-->
+                                        <!--</exclude>-->
+                                        <!--<exclude>org/ballerinalang/util/parser/-->
+                                            <!--BallerinaParser*-->
+                                        <!--</exclude>-->
+                                    <!--</excludes>-->
+                                <!--</rule>-->
+                            <!--</rules>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <title>JaCoCo</title>
+                            <footer>Code Coverage Report for JaCoCo ${project.version}</footer>
+                            <includes>
+                                <!-- Analyze class files only to exclude shaded agent JAR from report -->
+                                <include>**/*.class</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/HelpMojo.class</exclude>
+                            </excludes>
+                            <outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <!--<execution>-->
+                        <!--<id>jacoco-site</id>-->
+                        <!--<phase>test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>report</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>-->
+                            <!--<outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

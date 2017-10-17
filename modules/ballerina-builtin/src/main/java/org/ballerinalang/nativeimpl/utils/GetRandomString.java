@@ -23,11 +23,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.osgi.service.component.annotations.Component;
 
 import java.util.UUID;
 
@@ -41,15 +38,6 @@ import java.util.UUID;
         functionName = "getRandomString",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a random UUID string") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The random string") })
-@Component(
-        name = "func.util_getRandomString",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetRandomString extends AbstractNativeFunction {
 
