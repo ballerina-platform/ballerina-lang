@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.doc.gen.core;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,11 +26,13 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.wso2.siddhi.doc.gen.commons.metadata.NamespaceMetaData;
 import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import static org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils.updateAPIPagesInMkdocsConfig;
 
@@ -47,6 +50,13 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
+
+    /**
+     * The target module for which the files will be generated
+     * Optional
+     */
+    @Parameter(property = "module.target.directory")
+    private File moduleTargetDirectory;
 
     /**
      * The path of the mkdocs.yml file in the base directory
@@ -91,6 +101,14 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             rootMavenProject = rootMavenProject.getParent();
         }
 
+        // Setting the relevant modules target directory if not set by user
+        String moduleTargetPath;
+        if (moduleTargetDirectory != null) {
+            moduleTargetPath = moduleTargetDirectory.getAbsolutePath();
+        } else {
+            moduleTargetPath = mavenProject.getBuild().getDirectory();
+        }
+
         // Setting the mkdocs config file path if not set by user
         if (mkdocsConfigFile == null) {
             mkdocsConfigFile = new File(rootMavenProject.getBasedir() + File.separator
@@ -126,12 +144,27 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
                     + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
 
+        // Retrieving metadata
+        List<NamespaceMetaData> namespaceMetaDataList;
+        try {
+            namespaceMetaDataList = DocumentationUtils.getExtensionMetaData(
+                    moduleTargetPath,
+                    mavenProject.getRuntimeClasspathElements(),
+                    getLog()
+            );
+        } catch (DependencyResolutionRequiredException e) {
+            throw new MojoFailureException("Unable to resolve dependencies of the project", e);
+        }
 
-        DocumentationUtils.updateHeadingsInMarkdownFile(homePageTemplateFile, homePageFile,
-                rootMavenProject.getArtifactId(), mavenProject.getVersion(), null);
-        DocumentationUtils.updateHeadingsInMarkdownFile(readmeFile, readmeFile, rootMavenProject.getArtifactId(),
-                mavenProject.getVersion(), null);
-
+        // Generating the documentation
+        if (namespaceMetaDataList.size() > 0) {
+            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenBasePath, mavenProject.getVersion(),
+                    getLog());
+            DocumentationUtils.updateHeadingsInMarkdownFile(homePageTemplateFile, homePageFile,
+                    rootMavenProject.getArtifactId(), mavenProject.getVersion(), namespaceMetaDataList);
+            DocumentationUtils.updateHeadingsInMarkdownFile(readmeFile, readmeFile, rootMavenProject.getArtifactId(),
+                    mavenProject.getVersion(), namespaceMetaDataList);
+        }
 
         // Delete snapshot files
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
