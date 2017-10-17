@@ -195,7 +195,7 @@
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
-                         groupName="Declaration redundancy" enabledByDefault="true" level="ERROR"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedImportInspection"/>
 
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
