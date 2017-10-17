@@ -61,7 +61,7 @@ class AboutDialog extends React.Component {
                     />
                     <span className="appname">Composer</span>
                 </div>
-                <div> v0.93 </div>
+                <div className="version">v0.93.SNAPSHOT</div>
                 <br />
                 <p>
                     &nbsp;&nbsp;&nbsp;&nbsp;
