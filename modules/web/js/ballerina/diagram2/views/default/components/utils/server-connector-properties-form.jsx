@@ -302,6 +302,7 @@ class ServerConnectorPropertiesForm extends React.Component {
         };
         const supportedKeys = this.getSupportedKeys();
         if (!supportedKeys.length) {
+            props.model.viewState.shouldShowConnectorPropertyWindow = false;
             return null;
         }
         return (
