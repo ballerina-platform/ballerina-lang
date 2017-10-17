@@ -49,6 +49,7 @@ class PropertyWindow extends React.Component {
         this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
+        this.generateInputLable = this.generateInputLable.bind(this);
     }
 
     componentDidMount() {
@@ -139,19 +140,37 @@ class PropertyWindow extends React.Component {
             properties: elements,
         });
     }
+
+    /**
+     * Construct the identifier for the form inputs
+     */
+    generateInputLable(identifier) {
+        const splitStringArr = identifier.split(/(?=[A-Z])/);
+        // Change the first letter of the first word to capital
+        let firstWord = splitStringArr[0];
+        firstWord = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+        // Add the value back to the array as the 0th index value
+        splitStringArr[0] = firstWord;
+        return splitStringArr.join(' ');
+    }
     /**
      * Renders text input for form
      * @param key
      * @returns {XML}
      */
     renderTextInputs(key) {
+        let value = key.value;
+        if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.substring(1, value.length - 1);
+        }
+
         return (
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -159,7 +178,7 @@ class PropertyWindow extends React.Component {
                         name={key.identifier}
                         type='text'
                         placeholder={key.identifier}
-                        value={key.value}
+                        value={value}
                         onChange={event => this.onChange(event, key)}
                     />
                 </div>
@@ -178,7 +197,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -206,7 +225,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7 properties-checkbox'>
                     <input
                         className="toggle"
@@ -230,7 +249,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -262,7 +281,7 @@ class PropertyWindow extends React.Component {
             <label
                 className="col-sm-4 property-dialog-label"
                 htmlFor="tags"
-            >{key.identifier}</label>
+            >{this.generateInputLable(key.identifier)}</label>
             <div className='col-sm-7 properties-tags'>
                 <TagInput
                     id={key.identifier}
@@ -367,6 +386,8 @@ class PropertyWindow extends React.Component {
                                         return this.renderBooleanInputs(key, booleanValue);
                                     } else if (key.bType === 'array') {
                                         return this.renderTagInputs(key);
+                                    } else if (key.bType === 'map') {
+                                        return this.renderTextInputs(key);
                                     } else {
                                         return this.renderStructs(key);
                                     }
