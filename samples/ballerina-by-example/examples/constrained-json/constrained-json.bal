@@ -1,9 +1,7 @@
 import ballerina.doc;
 import ballerina.lang.system;
 
-@doc:Description {
-    value:"Defining Person struct."
-}
+@doc:Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
@@ -23,6 +21,6 @@ function main (string[] args) {
     // We can cast this constrained json to a json.
     json employee = (json)person;
     // After that, we can add new elements to the json.
-    employee.profession="Software Engineer";
+    employee.profession = "Software Engineer";
     system:println(employee);
 }
