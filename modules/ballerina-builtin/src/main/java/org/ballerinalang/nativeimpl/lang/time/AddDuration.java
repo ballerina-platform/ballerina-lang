@@ -22,8 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -48,10 +46,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
                                   structPackage = "ballerina.lang.time")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Add given durations to the time.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
-        value = "The Time struct")})
 public class AddDuration extends AbstractTimeFunction {
 
     @Override

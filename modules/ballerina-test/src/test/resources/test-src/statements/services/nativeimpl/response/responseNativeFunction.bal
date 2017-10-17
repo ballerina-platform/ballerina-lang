@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.lang.xmls;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
     res.addHeader(key, value);
@@ -109,6 +110,124 @@ service<http> helloServer {
     }
     resource echo3 (http:Request req, http:Response res) {
         res.setStatusCode(203);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addheader/{key}/{value}"
+    }
+    resource addheader (http:Request req, http:Response res, string key, string value) {
+        res.addHeader(key, value);
+        string result = res.getHeader(key);
+        res.setJsonPayload({lang:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/cloneMethod/{value}"
+    }
+    resource CloneMethod (http:Request req, http:Response res, string value) {
+        res.setJsonPayload({lang:value});
+        http:Response newRes = res.clone();
+        json jsonValue = newRes.getJsonPayload();
+        res.setJsonPayload(jsonValue);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getContentLength/{header}/{length}"
+    }
+    resource GetContentLength (http:Request req, http:Response res, string header, string length) {
+        res.setHeader(header, length);
+        int result = res.getContentLength();
+        res.setJsonPayload({value:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getHeader/{header}/{value}"
+    }
+    resource getHeader (http:Request req, http:Response res, string header, string value) {
+        res.setHeader(header, value);
+        string result = res.getHeader(header);
+        res.setJsonPayload({value:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getJsonPayload/{value}"
+    }
+    resource GetJsonPayload(http:Request req, http:Response res, string value) {
+        json jsonStr = {lang:value};
+        res.setJsonPayload(jsonStr);
+        json result = res.getJsonPayload();
+        json lang = result.lang;
+        res.setJsonPayload(lang);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetProperty/{key}/{value}"
+    }
+    resource GetProperty (http:Request req, http:Response res,string key, string value) {
+        res.setProperty(key, value);
+        string property = res.getProperty(key);
+        res.setJsonPayload({value:property});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetStringPayload/{valueStr}"
+    }
+    resource GetStringPayload(http:Request req, http:Response res, string valueStr) {
+        res.setStringPayload(valueStr);
+        string value = res.getStringPayload();
+        res.setStringPayload(value);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetXmlPayload"
+    }
+    resource GetXmlPayload(http:Request req, http:Response res) {
+        xml xmlStr = xml `<name>ballerina</name>`;
+        res.setXmlPayload(xmlStr);
+        xml value = res.getXmlPayload();
+        string name = xmls:getTextValue(value);
+        res.setStringPayload(name);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/RemoveHeader/{key}/{value}"
+    }
+    resource RemoveHeader (http:Request req, http:Response res, string key, string value) {
+        res.setHeader(key, value);
+        res.removeHeader(key);
+        string header = res.getHeader(key);
+        res.setJsonPayload({value:header});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/RemoveAllHeaders"
+    }
+    resource RemoveAllHeaders (http:Request req, http:Response res) {
+        res.setHeader("Expect", "100-continue");
+        res.setHeader("Range", "bytes=500-999");
+        res.removeAllHeaders();
+        string header = res.getHeader("Range");
+        res.setJsonPayload({value:header});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/setContentLength"
+    }
+    resource SetContentLength (http:Request req, http:Response res) {
+        res.setContentLength(100);
+        int length = res.getContentLength();
+        res.setJsonPayload({value:length});
         res.send();
     }
 }

@@ -76,6 +76,19 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(headerName), headerValue);
     }
 
+    @Test(description = "Test addHeader function within a service")
+    public void testServiceAddHeader() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/addheader/" + key + "/" + value;
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get(key).asText(), value);
+    }
+
     @Test
     public void testCloneMethod() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -99,6 +112,20 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), payload);
         Assert.assertEquals(response.getHeader(Constants.CONTENT_TYPE), Constants.TEXT_PLAIN);
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
+    }
+
+    @Test(description = "Test CloneMethod function within a service")
+    public void testServiceCloneMethod() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/cloneMethod";
+        BJSON bjson = new BJSON("{\"" + key + "\":\"" + value + "\"}");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, bjson);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     //TODO Test this with multipart support, not needed for now
@@ -137,6 +164,23 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
     }
 
+    @Test(description = "Test GetContentLength function within a service")
+    public void testServiceGetContentLength() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/getContentLength";
+        BJSON bjson = new BJSON("{\"" + key + "\":\"" + value + "\"}");
+        int length = bjson.getMessageAsString().length();
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, bjson);
+        cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(length));
+
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(length));
+    }
+
     @Test
     public void testGetHeader() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -150,6 +194,18 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
+    }
+
+    @Test(description = "Test GetHeader function within a service")
+    public void testServiceGetHeader() {
+        String path = "/hello/getHeader";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), Constants.APPLICATION_FORM);
     }
 
     @Test
@@ -170,6 +226,19 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(((BJSON) returnVals[0]).value().get("code").asText(), "123");
     }
 
+    @Test(description = "Test GetJsonPayload function within a service")
+    public void testServiceGetJsonPayload() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/getJsonPayload";
+        BJSON bjson = new BJSON("{\"" + key + "\":\"" + value + "\"}");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, bjson);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().toString(), value);
+    }
+
     @Test
     public void testGetProperty() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -184,6 +253,20 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
+    }
+
+    @Test(description = "Test GetProperty function within a service")
+    public void testServiceGetProperty() {
+        String propertyName = "wso2";
+        String propertyValue = "Ballerina";
+        String path = "/hello/GetProperty";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        cMsg.setProperty(propertyName, propertyValue);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
     @Test
@@ -203,6 +286,17 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
+    @Test(description = "Test GetStringPayload function within a service")
+    public void testServiceGetStringPayload() {
+        String value = "ballerina";
+        String path = "/hello/GetStringPayload";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, value);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), value);
+    }
+
     @Test
     public void testGetXmlPayload() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -220,6 +314,18 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
     }
 
+    @Test(description = "Test GetXmlPayload function within a service")
+    public void testServiceGetXmlPayload() {
+        String value = "ballerina";
+        String path = "/hello/GetXmlPayload";
+        BXMLItem bxmlItem = new BXMLItem("<name>ballerina</name>");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, bxmlItem);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), value);
+    }
+
     @Test
     public void testRemoveHeader() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -235,6 +341,18 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertNull(response.getHeader(expect));
+    }
+
+    @Test(description = "Test RemoveHeader function within a service")
+    public void testServiceRemoveHeader() {
+        String path = "/hello/RemoveHeader";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
     }
 
     @Test
@@ -256,6 +374,21 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertNull(response.getHeader(range));
     }
 
+    @Test(description = "Test RemoveAllHeaders function within a service")
+    public void testServiceRemoveAllHeaders() {
+        String expect = "Expect";
+        String range = "Range";
+        String path = "/hello/RemoveAllHeaders";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        cMsg.setHeader(expect, "100-continue");
+        cMsg.setHeader(range, "bytes=500-999");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
+    }
+
     @Test
     public void testSetContentLength() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -269,6 +402,23 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "10");
+    }
+
+    @Test(description = "Test SetContentLength function within a service")
+    public void testServiceSetContentLength() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/setContentLength";
+        BJSON bjson = new BJSON("{\"" + key + "\":\"" + value + "\"}");
+        int length = bjson.getMessageAsString().length();
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, bjson);
+        cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(length));
+
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(100));
     }
 
     @Test
@@ -289,6 +439,19 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getHeader(range), rangeValue);
     }
 
+    @Test(description = "Test SetHeader function within a service")
+    public void testServiceSetHeader() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/setHeader/" + key + "/" + value;
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), value);
+    }
+
     @Test
     public void testSetJsonPayload() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -303,6 +466,18 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
+    }
+
+    @Test(description = "Test SetJsonPayload function within a service")
+    public void testServiceSetJsonPayload() {
+        String value = "ballerina";
+        String path = "/hello/SetJsonPayload/" + value;
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
@@ -323,6 +498,19 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
     }
 
+    @Test(description = "Test SetProperty function within a service")
+    public void testServiceSetProperty() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/SetProperty/" + key + "/" + value;
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), value);
+    }
+
     @Test
     public void testSetStringPayload() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -337,6 +525,18 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "Ballerina"
                 , "Payload is not set properly");
+    }
+
+    @Test(description = "Test SetStringPayload function within a service")
+    public void testServiceSetStringPayload() {
+        String value = "ballerina";
+        String path = "/hello/SetStringPayload/" + value;
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
@@ -354,6 +554,18 @@ public class RequestNativeFunctionSuccessTest {
         BXMLItem xmlValue = (BXMLItem) response.getMessageDataSource();
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina"
                 , "Payload is not set properly");
+    }
+
+    @Test(description = "Test SetXmlPayload function within a service")
+    public void testServiceSetXmlPayload() {
+        String value = "Ballerina";
+        String path = "/hello/SetXmlPayload/";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
