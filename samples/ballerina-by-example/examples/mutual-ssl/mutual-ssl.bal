@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 import ballerina.lang.system;
 
 @http:configuration {
@@ -26,9 +25,9 @@ service<http> helloWorld {
 
     resource sayHello (http:Request req, http:Response res) {
         //Set response payload
-        response:setStringPayload(res, "Successful");
+        res.setStringPayload(res, "Successful");
         //Send response to client
-        response:send(res);
+        res.send(res);
     }
 }
 
@@ -39,8 +38,8 @@ function main (string[] args) {
     //creates a request
     http:Request req = {};
     http:Response resp = clientConnector.get("/hello/", req);
-    system:println("Response code: " + response:getStatusCode(resp));
-    system:println("Response: " + response:getStringPayload(resp));
+    system:println("Response code: " + resp.getStatusCode(resp));
+    system:println("Response: " + resp.getStringPayload(resp));
 }
 
 function getConnectorConfigs() (http:Options) {
