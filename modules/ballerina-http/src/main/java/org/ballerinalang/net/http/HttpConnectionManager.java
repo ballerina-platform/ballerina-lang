@@ -324,5 +324,11 @@ public class HttpConnectionManager {
         }
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
+
+        long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
+        if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
+            throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
+        }
+        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
     }
 }
