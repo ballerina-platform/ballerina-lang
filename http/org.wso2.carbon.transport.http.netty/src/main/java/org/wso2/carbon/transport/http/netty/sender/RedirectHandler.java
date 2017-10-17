@@ -72,7 +72,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage targetRespMsg;
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
-    private boolean isIdleHandlerOfRedirectChannelRemoved = false;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount) {
         this.sslEngine = sslEngine;
@@ -163,10 +162,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         isIdleHandlerOfTargetChannelRemoved = true;
                     }
                 } else {
-                    if (!isIdleHandlerOfRedirectChannelRemoved) {
-                        ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                        isIdleHandlerOfRedirectChannelRemoved = true;
-                    }
                     sendErrorMessage(ctx);
                 }
                 /*Once a timeout occurs after sending the response, close the channel, otherwise we will still be
@@ -337,26 +332,14 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         + "RedirectHandler. Currently in channel : " + ctx.channel().id());
             }
             Util.resetChannelAttributes(ctx);
-            if (ctx == originalChannelContext) {
-                if (!isIdleHandlerOfTargetChannelRemoved) {
-                    ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+            Util.resetChannelAttributes(originalChannelContext);
+            if (!isIdleHandlerOfTargetChannelRemoved) {
+                if (targetChannel.getChannel().isActive()) {
+                    targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                     isIdleHandlerOfTargetChannelRemoved = true;
-                }
-            } else {
-                if (!isIdleHandlerOfRedirectChannelRemoved) {
-                    ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                    isIdleHandlerOfRedirectChannelRemoved = true;
-                }
-                Util.resetChannelAttributes(originalChannelContext);
-                if (!isIdleHandlerOfTargetChannelRemoved) {
-                    if (targetChannel.getChannel().isActive()) {
-                        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                        isIdleHandlerOfTargetChannelRemoved = true;
-                    }
                 }
             }
             ConnectionManager.getInstance().returnChannel(targetChannel);
-            isIdleHandlerOfTargetChannelRemoved = false;
             if (ctx != originalChannelContext) {
                 ctx.close();
             }
