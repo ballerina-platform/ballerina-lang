@@ -21,9 +21,6 @@
  * @class ConnectorHelper
  */
 class ConnectorHelper {
-    constructor() {
-        this.propertyArray = [];
-    }
     /**
      * Get the default values of the connector parameters according to the bType
      * @param bType
@@ -65,29 +62,12 @@ class ConnectorHelper {
                     for (const connector of packageDefintion.getConnectors()) {
                         // Get Connection Properties
                         connector.getParams().map((parameter) => {
-                            // let structFields = [];
-                            /* if (parameter.type.startsWith(fullPackageName)) {
+                            let structFields = [];
+                            if (parameter.type.startsWith(fullPackageName)) {
                                 const structName = parameter.type.split(':')[1];
                                 structFields = this.getStructDataFields(fullPackageName,
                                     packageDefintion.getStructDefinitions(), structName, structFields);
-                            }*/
-                            let structFields = null;
-                            if (parameter.type.startsWith(fullPackageName)) {
-                                const structName = parameter.type.split(':')[1];
-                                for (const structDef of packageDefintion.getStructDefinitions()) {
-                                    if (structDef.getName() === structName) {
-                                        // Iterate over the struct fields to get their default values
-                                        structFields = structDef.getFields();
-                                        structFields.map((field) => {
-                                            if (field.getDefaultValue() === undefined) {
-                                                field.setDefaultValue(this
-                                                    .getDefaultValuesAccordingToBType(field.getType()));
-                                            }
-                                        });
-                                    }
-                                }
                             }
-
                             // Check the bType of each attribute and set the default values accordingly
                             const keyValuePair = {
                                 identifier: parameter.name,
@@ -106,13 +86,11 @@ class ConnectorHelper {
         return connectorParameters;
     }
 
-    /* static getStructDataFields(fullPackageName, structDefinitions, structName, structFields) {
+    static getStructDataFields(fullPackageName, structDefinitions, structName, structFields) {
         for (const structDef of structDefinitions) {
             if (structDef.getName() === structName) {
-                // Iterate over the struct fields to get their default values
-                // structFields = structDef.getFields();
                 structDef.getFields().map((field) => {
-                    let fieldArray = null;
+                    let fieldArray = [];
                     if (field.getType().startsWith(fullPackageName)) {
                         const innerStructName = field.getType().split(':')[1];
                         fieldArray = (this.getStructDataFields(fullPackageName, structDefinitions,
@@ -133,7 +111,7 @@ class ConnectorHelper {
             }
         }
         return structFields;
-    }*/
+    }
 
 }
 export default ConnectorHelper;
