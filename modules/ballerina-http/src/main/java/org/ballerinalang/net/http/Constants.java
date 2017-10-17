@@ -138,6 +138,7 @@ public class Constants {
     public static final String CIPHERS = "ciphers";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
+    public static final int IDLE_TIMEOUT_STRUCT_INDEX = 1;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -149,6 +150,7 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+    public static final int DEFAULT_IDLE_TIMEOUT = 60 * 1000; // 60 seconds
 
     /**
      * Content type HTTP header.
