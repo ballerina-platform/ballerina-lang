@@ -113,7 +113,34 @@ class EditorPlugin extends Plugin {
             getActiveEditor: () => {
                 return this.activeEditor;
             },
+            getEditorForFile: this.getEditorForFile.bind(this),
+            isFileOpenedInEditor: this.isFileOpenedInEditor.bind(this),
+            setActiveEditor: this.setActiveEditor.bind(this),
         };
+    }
+
+    /**
+     * Returns the editor for give file - if file is opened already.
+     *
+     * @param {String} filePath Path of the file.
+     *
+     * @returns {Editor|undefined} Editor instance or null
+     *
+     */
+    getEditorForFile(filePath) {
+        return _.find(this.openedEditors, ['id', filePath]);
+    }
+
+    /**
+     * Indicates whether the given file is opened in editor area.
+     *
+     * @param {String} filePath Path of the file.
+     *
+     * @returns {boolean} true if opened in Editor area.
+     *
+     */
+    isFileOpenedInEditor(filePath) {
+        return _.findIndex(this.openedEditors, ['id', filePath]) !== -1;
     }
 
     /**
