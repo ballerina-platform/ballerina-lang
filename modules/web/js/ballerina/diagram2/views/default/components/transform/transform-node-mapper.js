@@ -422,12 +422,7 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(assignmentStmtSource, true);
 
-        const currentChild = target.funcInv.getArgumentExpressions()[target.index];
-        if (currentChild) {
-            target.funcInv.removeArgumentExpressions(currentChild, true);
-        }
-
-        target.funcInv.addArgumentExpressions(source.operator, target.index, true);
+        target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.operator, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -1032,7 +1027,8 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     createNewAssignment(expression) {
-        const assignment = NodeFactory.createAssignment({ expression });
+        const assignment = NodeFactory.createAssignment();
+        assignment.setExpression(expression);
         const variableExp = TransformFactory.createVariableRefExpression(
                                 TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR));
         assignment.addVariables(variableExp);
