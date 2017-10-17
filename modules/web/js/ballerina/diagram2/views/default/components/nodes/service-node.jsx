@@ -86,6 +86,9 @@ class ServiceNode extends React.Component {
      * @memberof ServiceNode
      */
     handleAddVariable(value) {
+        if (!value) {
+            return;
+        }
         const fragment = FragmentUtils.createStatementFragment(`${value};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const index = this.props.model.getVariables().length - 1;
