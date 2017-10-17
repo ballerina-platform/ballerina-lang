@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import MessageManager from './../../../../../visitors/message-manager';
 
 /**
  * React component for an arrow.
@@ -84,9 +83,6 @@ class Arrow extends React.Component {
     }
 }
 
-Arrow.contextTypes = {
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-};
 
 Arrow.propTypes = {
     start: PropTypes.shape({
