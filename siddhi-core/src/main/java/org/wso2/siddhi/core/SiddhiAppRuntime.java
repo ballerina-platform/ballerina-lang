@@ -300,7 +300,7 @@ public class SiddhiAppRuntime {
             for (Source source : sources) {
                 try {
                     if (sourceHandlerManager != null) {
-                        sourceHandlerManager.unregisterSourceHandler(source.getElementId());
+                        sourceHandlerManager.unregisterSourceHandler(source.getMapper().getHandler().getElementId());
                     }
                     source.shutdown();
                 } catch (Throwable t) {
@@ -329,7 +329,7 @@ public class SiddhiAppRuntime {
             for (Sink sink : sinks) {
                 try {
                     if (sinkHandlerManager != null) {
-                        sinkHandlerManager.unregisterSinkHandler(sink.getElementId());
+                        sinkHandlerManager.unregisterSinkHandler(sink.getHandler().getElementId());
                     }
                     sink.shutdown();
                 } catch (Throwable t) {
