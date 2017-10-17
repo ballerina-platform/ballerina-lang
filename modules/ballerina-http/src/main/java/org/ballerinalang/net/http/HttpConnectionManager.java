@@ -327,10 +327,7 @@ public class HttpConnectionManager {
 
         long idleTimeout = options.getIntField(Constants.IDLE_TIMEOUT_STRUCT_INDEX);
         if (idleTimeout < 0 || (int) idleTimeout != idleTimeout) {
-            PrintStream out = System.out;
-            out.println("ballerina: invalid idle timeout: " + idleTimeout);
-            out.println("ballerina: using default idle timeout: " + Constants.DEFAULT_IDLE_TIMEOUT);
-            idleTimeout = Constants.DEFAULT_IDLE_TIMEOUT;
+            throw new BallerinaConnectorException("Invalid idle timeout: " + idleTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) idleTimeout);
     }
