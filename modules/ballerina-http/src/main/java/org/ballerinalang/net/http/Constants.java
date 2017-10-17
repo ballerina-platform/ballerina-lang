@@ -132,6 +132,7 @@ public class Constants {
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String RESPONSE_STATUS = "response_status";
     public static final String HTTP_SESSION = "http_session";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";

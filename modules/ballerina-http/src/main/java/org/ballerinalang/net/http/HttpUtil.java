@@ -505,6 +505,9 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
+    public static void addResponseFlag(BStruct response) {
+        response.addNativeData(Constants.RESPONSE_STATUS, true);
+    }
 
     /**
      * Extract the listener configurations from the config annotation.

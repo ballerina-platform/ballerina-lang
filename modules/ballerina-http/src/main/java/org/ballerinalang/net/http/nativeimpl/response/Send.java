@@ -19,12 +19,15 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,9 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
+        if (responseStruct.getNativeData(Constants.RESPONSE_STATUS) == null) {
+            throw new BallerinaException("Failed to send response: Incompatible response");
+        }
         context.getConnectorFuture().notifyReply(responseStruct);
         return VOID_RETURN;
     }
