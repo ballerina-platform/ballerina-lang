@@ -49,7 +49,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(balFile);
     }
 
-    @Test(description = "Test resource GET products in E-Commerce sample")
+    @Test(description = "Test resource GET products in E-Commerce sample", enabled = false)
     public void testGetProducts() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                 .getServiceURLHttp("ecommerceservice/products/123001"));
@@ -61,7 +61,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
                 "Message content mismatched");
     }
 
-    @Test(description = "Test resource GET orders in E-Commerce sample")
+    @Test(description = "Test resource GET orders in E-Commerce sample", enabled = false)
     public void testGetOrders() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                 .getServiceURLHttp("ecommerceservice/orders"));
@@ -73,7 +73,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
                 , "Message content mismatched");
     }
 
-    @Test(description = "Test resource GET customers in E-Commerce sample")
+    @Test(description = "Test resource GET customers in E-Commerce sample", enabled = false)
     public void testGetCustomers() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                 .getServiceURLHttp("ecommerceservice/customers"));
@@ -85,7 +85,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
                 , "Message content mismatched");
     }
 
-    @Test(description = "Test resource POST orders in E-Commerce sample")
+    @Test(description = "Test resource POST orders in E-Commerce sample", enabled = false)
     public void testPostOrder() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
@@ -99,7 +99,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
                 , "Message content mismatched");
     }
 
-    @Test(description = "Test resource POST products in E-Commerce sample")
+    @Test(description = "Test resource POST products in E-Commerce sample", enabled = false)
     public void testPostProduct() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
@@ -113,7 +113,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
                 , "Message content mismatched");
     }
 
-    @Test(description = "Test resource POST customers in E-Commerce sample")
+    @Test(description = "Test resource POST customers in E-Commerce sample", enabled = false)
     public void testPostCustomers() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);

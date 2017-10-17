@@ -54,7 +54,7 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(balFile);
     }
 
-    @Test(description = "Test Content base routing sample")
+    @Test(description = "Test Content base routing sample", enabled = false)
     public void testContentBaseRouting() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
@@ -77,7 +77,7 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
                                                                        "Routing failed for nasdaq");
     }
 
-    @Test(description = "Test Header base routing sample")
+    @Test(description = "Test Header base routing sample", enabled = false)
     public void testHeaderBaseRouting() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);

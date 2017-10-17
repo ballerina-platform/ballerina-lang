@@ -38,7 +38,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/testerina-core-jar//META-INF/natives
+                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -50,7 +50,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/connectors-jar//META-INF/natives
+                ${project.build.directory}/extracted-distributions/connectors-jar/META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
