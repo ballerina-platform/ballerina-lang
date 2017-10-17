@@ -45,7 +45,7 @@ public class HttpClientRequest {
      */
     public static HttpResponse doGet(String requestUrl, Map<String, String> headers)
             throws IOException {
-        return executeRequestWithoutRequestBody("GET", requestUrl, headers);
+        return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, headers);
     }
 
     /**
@@ -77,10 +77,10 @@ public class HttpClientRequest {
             for (Map.Entry<String, String> e : headers.entrySet()) {
                 urlConnection.setRequestProperty(e.getKey(), e.getValue());
             }
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod(TestConstant.HTTP_METHOD_POST);
             OutputStream out = urlConnection.getOutputStream();
             try {
-                Writer writer = new OutputStreamWriter(out, "UTF-8");
+                Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME);
                 writer.write(postBody);
                 writer.close();
             } finally {
@@ -97,7 +97,7 @@ public class HttpClientRequest {
     }
 
     public static HttpResponse doOptions(String requestUrl, Map<String, String> headers) throws IOException {
-        return executeRequestWithoutRequestBody("OPTIONS", requestUrl, headers);
+        return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_OPTIONS, requestUrl, headers);
     }
 
     public static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String

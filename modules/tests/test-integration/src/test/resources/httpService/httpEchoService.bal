@@ -57,6 +57,4 @@ service<http> echoDummy {
         res.setStringPayload("hello Options");
         res.send();
     }
-
-
 }
