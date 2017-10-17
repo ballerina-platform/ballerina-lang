@@ -92,11 +92,13 @@ class Node extends EventChannel {
         // eslint-disable-next-line guard-for-in
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
-                const child = this[childName];
-                const child2 = newTree[childName];
-                if (!child2) {
+                if (newTree === undefined || newTree[childName] === undefined) {
+                    console.warn(`could not find ${childName} in newTree`, newTree);
                     continue;
                 }
+
+                const child = this[childName];
+                const child2 = newTree[childName];
                 if (child instanceof Node && child.kind) {
                     child.sync(visitor, child2);
                 } else if (child instanceof Array) {
@@ -104,9 +106,7 @@ class Node extends EventChannel {
                         const childItem = child[i];
                         const childItem2 = child2[i];
                         if (childItem instanceof Node && childItem.kind) {
-                            if (!childItem2) {
-                                childItem.sync(visitor, childItem2);
-                            }
+                            childItem.sync(visitor, childItem2);
                         }
                     }
                 }

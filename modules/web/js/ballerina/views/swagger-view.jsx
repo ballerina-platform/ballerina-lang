@@ -332,27 +332,29 @@ class SwaggerView extends React.Component {
                                 Design View
                         </div>
                     </div>
-                    <div className={cn('view-source-btn btn-icon', { hide: this.context.isPreviewViewEnabled })}>
+                    <div
+                        className={cn('view-source-btn btn-icon', { hide: this.context.isPreviewViewEnabled })}
+                        onClick={
+                            () => {
+                                if (this.props.hideSwaggerAceEditor ||
+                                    this.swaggerAce.getSession().getUndoManager().isClean()) {
+                                    this.context.editor.setActiveView(SOURCE_VIEW);
+                                } else if (!this.hasSwaggerErrors()) {
+                                    this.updateService();
+                                    this.context.editor.setActiveView(SOURCE_VIEW);
+                                }
+                                this.props.resetSwaggerViewFun();
+                                this.context.astRoot.trigger('tree-modified', {
+                                    origin: this.context.astRoot,
+                                    type: 'swagger',
+                                    title: 'Modify Swagger Definition',
+                                    context: this.context.astRoot,
+                                });
+                            }
+                        }
+                    >
                         <div
                             className="bottom-label-icon-wrapper"
-                            onClick={
-                                () => {
-                                    if (this.props.hideSwaggerAceEditor ||
-                                        this.swaggerAce.getSession().getUndoManager().isClean()) {
-                                        this.context.editor.setActiveView(SOURCE_VIEW);
-                                    } else if (!this.hasSwaggerErrors()) {
-                                        this.updateService();
-                                        this.context.editor.setActiveView(SOURCE_VIEW);
-                                    }
-                                    this.props.resetSwaggerViewFun();
-                                    this.context.astRoot.trigger('tree-modified', {
-                                        origin: this.context.astRoot,
-                                        type: 'swagger',
-                                        title: 'Modify Swagger Definition',
-                                        context: this.context.astRoot,
-                                    });
-                                }
-                            }
                         >
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
