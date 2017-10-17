@@ -40,7 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Methods used for scheduling ballerina task.
+ * Methods which are used for scheduling ballerina task.
  */
 public class TaskScheduler {
 
@@ -53,13 +53,11 @@ public class TaskScheduler {
                 (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) :
                 new HashMap<>();
         try {
-            final Runnable schedulerFunc = new Runnable() {
-                public void run() {
-                    log.info(Constant.PREFIX_TIMER + taskId + " starts the execution");
-                    triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
-                    //Call the onTrigger function
-                    callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
-                }
+            final Runnable schedulerFunc = () -> {
+                log.info(Constant.PREFIX_TIMER + taskId + " starts the execution");
+                triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
+                //Call the onTrigger function
+                callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
             };
             if (executorServiceMap.get(taskId) == null && delay != 0) {
                 //Schedule the service with initial delay if the initial delay is set
@@ -102,21 +100,19 @@ public class TaskScheduler {
                 (HashMap<Integer, ScheduledExecutorService>) ctx.getProperty(Constant.SERVICEMAP) :
                 new HashMap<>();
         try {
-            final Runnable schedulerFunc = new Runnable() {
-                @Override public void run() {
-                    log.info(Constant.PREFIX_APPOINTMENT + taskId + " starts the execution");
-                    if (Long.parseLong(ctx.getProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId).toString()) > 0) {
-                        //Set the life time to 0 and trigger every minute
-                        ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 0);
-                        triggerAppointment(ctx, taskId, -1, -1, dayOfWeek, dayOfMonth, month, onTriggerFunction,
-                                onErrorFunction);
-                    } else {
-                        triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
-                                onErrorFunction);
-                    }
-                    //Call the onTrigger function
-                    callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
+            final Runnable schedulerFunc = () -> {
+                log.info(Constant.PREFIX_APPOINTMENT + taskId + " starts the execution");
+                if (Long.parseLong(ctx.getProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId).toString()) > 0) {
+                    //Set the life time to 0 and trigger every minute
+                    ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 0);
+                    triggerAppointment(ctx, taskId, -1, -1, dayOfWeek, dayOfMonth, month, onTriggerFunction,
+                            onErrorFunction);
+                } else {
+                    triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
+                            onErrorFunction);
                 }
+                //Call the onTrigger function
+                callFunction(ctx, taskId, onTriggerFunction, onErrorFunction);
             };
             //Calculate the delay
             long delay = calculateDelay(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month);
@@ -153,39 +149,38 @@ public class TaskScheduler {
             if (log.isDebugEnabled()) {
                 log.info("Attempting to stop the task: " + taskId);
             }
-            executorServiceToStopTheTask.schedule(new Runnable() {
-                public void run() {
-                    //Get the corresponding executor service from context
-                    ScheduledExecutorService executorService = executorServiceMap.get(taskId);
-                    if (executorService != null) {
-                        try {
-                            //Invoke shutdown of the executor service
-                            executorService.shutdown();
-                            if (executorService.isShutdown()) {
-                                //Remove the executor service from the context
-                                executorServiceMap.remove(taskId);
-                                ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
-                                ctx.setProperty(Constant.ERROR + "_" + taskId, "");
-                            } else {
-                                log.error("Unable to stop the task");
-                                String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
-                                String error = errorFromContext != null && !errorFromContext.isEmpty() ?
-                                        ctx.getProperty(Constant.ERROR + "_" + taskId)
-                                                + ",Unable to stop the task which is associated to the ID " + taskId :
-                                        "Unable to stop the task which is associated to the ID " + taskId;
-                                ctx.setProperty(Constant.ERROR + "_" + taskId, error);
-                            }
-                        } catch (SecurityException e) {
-                            log.error("Unable to stop the task: " + e.getMessage());
+            final Runnable schedulerFunc = () -> {
+                //Get the corresponding executor service from context
+                ScheduledExecutorService executorService = executorServiceMap.get(taskId);
+                if (executorService != null) {
+                    try {
+                        //Invoke shutdown of the executor service
+                        executorService.shutdown();
+                        if (executorService.isShutdown()) {
+                            //Remove the executor service from the context
+                            executorServiceMap.remove(taskId);
+                            ctx.setProperty(Constant.SERVICEMAP, executorServiceMap);
+                            ctx.setProperty(Constant.ERROR + "_" + taskId, "");
+                        } else {
+                            log.error("Unable to stop the task");
                             String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
                             String error = errorFromContext != null && !errorFromContext.isEmpty() ?
-                                    ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
-                                    e.getMessage();
+                                    ctx.getProperty(Constant.ERROR + "_" + taskId)
+                                            + ",Unable to stop the task which is associated to the ID " + taskId :
+                                    "Unable to stop the task which is associated to the ID " + taskId;
                             ctx.setProperty(Constant.ERROR + "_" + taskId, error);
                         }
+                    } catch (SecurityException e) {
+                        log.error("Unable to stop the task: " + e.getMessage());
+                        String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
+                        String error = errorFromContext != null && !errorFromContext.isEmpty() ?
+                                ctx.getProperty(Constant.ERROR + "_" + taskId) + "," + e.getMessage() :
+                                e.getMessage();
+                        ctx.setProperty(Constant.ERROR + "_" + taskId, error);
                     }
                 }
-            }, sPeriod, TimeUnit.MILLISECONDS);
+            };
+            executorServiceToStopTheTask.schedule(schedulerFunc, sPeriod, TimeUnit.MILLISECONDS);
         } else {
             log.error("Unable to find the corresponding task");
         }
@@ -209,7 +204,7 @@ public class TaskScheduler {
             //Invoke the onTrigger function
             BValue[] response = BLangFunctions
                     .invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
-            if (response.length == 1 && (response[0].stringValue() == null || response[0].stringValue().isEmpty())) {
+            if (response[0].stringValue() == null || response[0].stringValue().isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.info("Invoking the onError function due to no response from the triggered function");
                 }
@@ -399,16 +394,15 @@ public class TaskScheduler {
                                                     Calendar executionStartTime, long minute, long hour,
                                                     long dayOfWeek, long dayOfMonth, long month) {
         if ((minute == 0 || minute == -1) && hour > -1) {
-            //Set the minute and second to 0 if the task is scheduled to a particular hour
-            executionStartTime.set(Calendar.MINUTE, 0);
-            executionStartTime.set(Calendar.SECOND, 0);
+            //Set the minute, second and milli second to 0 if the task is scheduled to a particular hour
+            executionStartTime = setCalendarFields(executionStartTime, -1, 0, 0, 0, -1);
             if (minute == -1) {
                 //If the hour has considerable value and minute is -1, set the execution lifetime to 59 minutes
-                ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 59 * 60000);
+                ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, Constant.LIFETIME);
             }
         } else if (minute > 0 && hour != -1) {
-            //Set the second to 0 if the task is scheduled to the particular time with hour and minute
-            executionStartTime.set(Calendar.SECOND, 0);
+            //Set the second and milli second to 0 if the task is scheduled to the particular time with hour and minute
+            executionStartTime = setCalendarFields(executionStartTime, -1, 0, 0, -1, -1);
         }
         if (month > -1) {
             if (executionStartTime.get(Calendar.MONTH) < (int) month) {
@@ -452,10 +446,7 @@ public class TaskScheduler {
                 currentTime.get(Calendar.DAY_OF_MONTH) != executionStartTime.get(Calendar.DAY_OF_MONTH)
                         && dayOfMonth != -1)) && (hour == -1 && minute >= -1)) {
             //If the the execution start time is future, set the time to midnight (00.00.00)
-            executionStartTime.set(Calendar.AM_PM, 0);
-            executionStartTime.set(Calendar.HOUR, 0);
-            executionStartTime.set(Calendar.MINUTE, 0);
-            executionStartTime.set(Calendar.SECOND, 0);
+            executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0, 0, 0);
         }
         if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
                 ((dayOfWeek <= 7 && dayOfWeek >= 1) || dayOfWeek == -1)
@@ -508,5 +499,25 @@ public class TaskScheduler {
     protected static void stopTask(Context ctx, int taskId) {
         //Stop the corresponding task
         stopExecution(ctx, taskId, 0);
+    }
+
+    private static Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
+                                       int hours) {
+        if (hours != -1) {
+            calendar.set(Calendar.HOUR, hours);
+        }
+        if (minutes != -1) {
+            calendar.set(Calendar.MINUTE, minutes);
+        }
+        if (seconds != -1) {
+            calendar.set(Calendar.SECOND, seconds);
+        }
+        if (milliseconds != -1) {
+            calendar.set(Calendar.MILLISECOND, milliseconds);
+        }
+        if (ampm != -1) {
+            calendar.set(Calendar.AM_PM, ampm);
+        }
+        return calendar;
     }
 }

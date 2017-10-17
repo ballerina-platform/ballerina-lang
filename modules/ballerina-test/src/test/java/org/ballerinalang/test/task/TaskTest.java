@@ -120,11 +120,7 @@ public class TaskTest {
         createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
-        modifiedTime.set(Calendar.HOUR, hour);
-        modifiedTime.set(Calendar.MINUTE, 0);
-        modifiedTime.set(Calendar.SECOND, 0);
-        modifiedTime.set(Calendar.MILLISECOND, 0);
-        modifiedTime.set(Calendar.AM_PM, 0);
+        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 1);
         }
@@ -154,11 +150,7 @@ public class TaskTest {
                     7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
                     dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
             modifiedTime.add(Calendar.DATE, days);
-            modifiedTime.set(Calendar.HOUR, 0);
-            modifiedTime.set(Calendar.MINUTE, 0);
-            modifiedTime.set(Calendar.SECOND, 0);
-            modifiedTime.set(Calendar.MILLISECOND, 0);
-            modifiedTime.set(Calendar.AM_PM, 0);
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
             if (modifiedTime.before(currentTime)) {
                 modifiedTime.add(Calendar.DATE, 7);
             }
@@ -203,11 +195,7 @@ public class TaskTest {
             }
             modifiedTime.set(Calendar.MONTH, month);
             modifiedTime.set(Calendar.DATE, 1);
-            modifiedTime.set(Calendar.HOUR, 0);
-            modifiedTime.set(Calendar.MINUTE, 0);
-            modifiedTime.set(Calendar.SECOND, 0);
-            modifiedTime.set(Calendar.MILLISECOND, 0);
-            modifiedTime.set(Calendar.AM_PM, 0);
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
@@ -242,11 +230,7 @@ public class TaskTest {
         createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
-        modifiedTime.set(Calendar.HOUR, hour);
-        modifiedTime.set(Calendar.MINUTE, 0);
-        modifiedTime.set(Calendar.SECOND, 0);
-        modifiedTime.set(Calendar.MILLISECOND, 0);
-        modifiedTime.set(Calendar.AM_PM, 0);
+        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 1);
         }
@@ -264,7 +248,7 @@ public class TaskTest {
                 .substring(Constant.SCHEDULER_LIFETIME_HINT.length(), logEntryWithRuntime.indexOf("]")));
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-        Assert.assertTrue(period == calculatedDuration + 59 * 60000);
+        Assert.assertTrue(period == calculatedDuration + Constant.LIFETIME);
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 25th of every month")
@@ -277,20 +261,8 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
-            modifiedTime.set(Calendar.HOUR, 0);
-            modifiedTime.set(Calendar.MINUTE, 0);
-            modifiedTime.set(Calendar.SECOND, 0);
-            modifiedTime.set(Calendar.MILLISECOND, 0);
-            modifiedTime.set(Calendar.AM_PM, 0);
-            if (dayOfMonth > modifiedTime.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                modifiedTime.add(Calendar.MONTH, 1);
-                modifiedTime.set(Calendar.DATE, dayOfMonth);
-            } else {
-                modifiedTime.set(Calendar.DATE, dayOfMonth);
-                if (modifiedTime.before(currentTime)) {
-                    modifiedTime.add(Calendar.MONTH, 1);
-                }
-            }
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+            modifiedTime = tuneTheDateByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
@@ -321,29 +293,13 @@ public class TaskTest {
                     dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
             modifiedTimeByDOW.add(Calendar.DATE, days);
         }
-        modifiedTimeByDOW.set(Calendar.HOUR, 0);
-        modifiedTimeByDOW.set(Calendar.MINUTE, 0);
-        modifiedTimeByDOW.set(Calendar.SECOND, 0);
-        modifiedTimeByDOW.set(Calendar.MILLISECOND, 0);
-        modifiedTimeByDOW.set(Calendar.AM_PM, 0);
+        modifiedTimeByDOW = setCalendarFields(modifiedTimeByDOW, 0, 0, 0, 0, 0);
         if (modifiedTimeByDOW.before(currentTime)) {
             modifiedTimeByDOW.add(Calendar.DATE, 7);
         }
         long expectedDurationByDOW = calculateDifference(currentTime, modifiedTimeByDOW);
-        modifiedTimeByDOM.set(Calendar.HOUR, 0);
-        modifiedTimeByDOM.set(Calendar.MINUTE, 0);
-        modifiedTimeByDOM.set(Calendar.SECOND, 0);
-        modifiedTimeByDOM.set(Calendar.MILLISECOND, 0);
-        modifiedTimeByDOM.set(Calendar.AM_PM, 0);
-        if (dayOfMonth > modifiedTimeByDOM.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            modifiedTimeByDOM.add(Calendar.MONTH, 1);
-            modifiedTimeByDOM.set(Calendar.DATE, dayOfMonth);
-        } else {
-            modifiedTimeByDOM.set(Calendar.DATE, dayOfMonth);
-            if (modifiedTimeByDOM.before(currentTime)) {
-                modifiedTimeByDOM.add(Calendar.MONTH, 1);
-            }
-        }
+        modifiedTimeByDOM = setCalendarFields(modifiedTimeByDOM, 0, 0, 0, 0, 0);
+        modifiedTimeByDOM = tuneTheDateByDayOfMonth(modifiedTimeByDOM, currentTime, dayOfMonth);
         long expectedDurationByDOM = calculateDifference(currentTime, modifiedTimeByDOM);
         long expectedDuration =
                 expectedDurationByDOW < expectedDurationByDOM ? expectedDurationByDOW : expectedDurationByDOM;
@@ -439,5 +395,28 @@ public class TaskTest {
         ZonedDateTime zonedTime2 = ZonedDateTime.of(localTime2, currentZone);
         Duration duration = Duration.between(zonedTime1, zonedTime2);
         return duration.toMillis();
+    }
+
+    private Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
+                                       int hours) {
+        calendar.set(Calendar.HOUR, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, seconds);
+        calendar.set(Calendar.MILLISECOND, milliseconds);
+        calendar.set(Calendar.AM_PM, ampm);
+        return calendar;
+    }
+
+    private Calendar tuneTheDateByDayOfMonth(Calendar calendar, Calendar currentTime, int dayOfMonth) {
+        if (dayOfMonth > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+            calendar.add(Calendar.MONTH, 1);
+            calendar.set(Calendar.DATE, dayOfMonth);
+        } else {
+            calendar.set(Calendar.DATE, dayOfMonth);
+            if (calendar.before(currentTime)) {
+                calendar.add(Calendar.MONTH, 1);
+            }
+        }
+        return calendar;
     }
 }

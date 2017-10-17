@@ -37,4 +37,6 @@ public class Constant {
     public static final String PREFIX_TIMER = "";
     // The prefix of appointment log
     public static final String PREFIX_APPOINTMENT = "Appointment ";
+    //59 minutes in milli seconds
+    public static final int LIFETIME = 59 * 60000;
 }
