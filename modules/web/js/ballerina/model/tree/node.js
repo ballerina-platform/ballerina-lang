@@ -104,8 +104,9 @@ class Node extends EventChannel {
                         const childItem = child[i];
                         const childItem2 = child2[i];
                         if (childItem instanceof Node && childItem.kind) {
+                            childItem.sync(visitor, childItem2);
                             if (!childItem2) {
-                                childItem.sync(visitor, childItem2);
+                                child.splice(i, 1);
                             }
                         }
                     }
