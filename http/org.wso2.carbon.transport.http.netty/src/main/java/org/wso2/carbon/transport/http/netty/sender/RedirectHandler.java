@@ -110,8 +110,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                  /*Content is still flowing through the channel and when it's not a redirect, add content to the target
                  response*/
                 if (!isRedirect) {
-                    HttpContent httpContent = (HttpContent) msg;
-                    targetRespMsg.addHttpContent(httpContent);
+                    if (ctx == originalChannelContext) {
+                        originalChannelContext.fireChannelRead(msg);
+                    } else {
+                        HttpContent httpContent = (HttpContent) msg;
+                        targetRespMsg.addHttpContent(httpContent);
+                    }
                 }
             }
         }
@@ -154,7 +158,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (ctx == originalChannelContext) {
                     if (!isIdleHandlerOfTargetChannelRemoved) {
-                        ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                        /*ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);*/
+                        originalChannelContext.fireUserEventTriggered(evt);
                         isIdleHandlerOfTargetChannelRemoved = true;
                     }
                 } else {
@@ -162,25 +167,27 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         ctx.channel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         isIdleHandlerOfRedirectChannelRemoved = true;
                     }
+                    sendErrorMessage(ctx);
                 }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
-                }
-                String payload = "<errorMessage>" + "ReadTimeoutException occurred while redirecting request "
-                        + "</errorMessage>";
-                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
-                        .get();
-                if (responseFuture != null) {
-                    responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
-                    responseFuture.removeHttpListener();
-                }
+                /*Once a timeout occurs after sending the response, close the channel, otherwise we will still be
+                 getting response data  after the timeout, if backend sends data. */
                 if (ctx != originalChannelContext) {
                     ctx.close();
-                } else {
-                    TargetChannel targetChannel = ctx.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
-                    ConnectionManager.getInstance().returnChannel(targetChannel);
                 }
             }
+        }
+    }
+
+    private void sendErrorMessage(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
+        }
+        String payload =
+                "<errorMessage>" + "ReadTimeoutException occurred while redirecting request " + "</errorMessage>";
+        HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+        if (responseFuture != null) {
+            responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+            responseFuture.removeHttpListener();
         }
     }
 
@@ -190,20 +197,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from RedirectHandler.");
         }
         if (originalChannelContext == ctx) { //If this is the original channel it must be destroyed from the pool
-            try {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Send target channel  " + ctx.channel().id() + " to its destruction from "
-                            + "RedirectHandler.");
-                }
-                TargetChannel targetChannel = ctx.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
-                ConnectionManager.getInstance().invalidateTargetChannel(targetChannel);
-            } catch (Exception exception) {
-                LOG.error("Error occurred while invalidating target channel " + ctx.channel().id() + " to pool in "
-                        + "markEndOfMessage", exception);
-                exceptionCaught(ctx, exception.getCause());
-            }
+            ctx.fireChannelInactive();
+        } else {
+            ctx.close();
         }
-        ctx.close();
     }
 
     /**
@@ -245,7 +242,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     LOG.debug("Request is not eligible for redirection.");
                 }
                 isRedirect = false;
-                sendResponseHeadersToClient(ctx, msg);
+                if (ctx == originalChannelContext) {
+                    originalChannelContext.fireChannelRead(msg);
+                } else {
+                    sendResponseHeadersToClient(ctx, msg);
+                }
             }
         } catch (UnsupportedEncodingException exception) {
             LOG.error("UnsupportedEncodingException occurred when deciding whether a redirection is required",
@@ -290,7 +291,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("But is not a redirect.");
             }
-            markEndOfMessage(ctx, (HttpContent) msg);
+            if (ctx == originalChannelContext) {
+                originalChannelContext.fireChannelRead(msg);
+            } else {
+                markEndOfMessage(ctx, (HttpContent) msg);
+            }
         }
     }
 
@@ -667,7 +672,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private void bootstrapClient(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
             HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
         EventLoopGroup group = channelHandlerContext.channel().eventLoop();
-
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
