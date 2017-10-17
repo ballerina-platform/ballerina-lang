@@ -46,6 +46,15 @@ public class TaskScheduler {
 
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
 
+    /**
+     * Triggers the timer
+     * @param ctx
+     * @param taskId
+     * @param delay
+     * @param interval
+     * @param onTriggerFunction
+     * @param onErrorFunction
+     */
     protected static void triggerTimer(Context ctx, int taskId, long delay, long interval,
                                        FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -92,6 +101,18 @@ public class TaskScheduler {
         }
     }
 
+    /**
+     * Triggers the appointment
+     * @param ctx
+     * @param taskId
+     * @param minute
+     * @param hour
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @param month
+     * @param onTriggerFunction
+     * @param onErrorFunction
+     */
     protected static void triggerAppointment(Context ctx, int taskId, long minute, long hour, long dayOfWeek,
                                              long dayOfMonth, long month, FunctionRefCPEntry onTriggerFunction,
                                              FunctionRefCPEntry onErrorFunction) {
@@ -141,6 +162,12 @@ public class TaskScheduler {
         }
     }
 
+    /**
+     * Stops the execution
+     * @param ctx
+     * @param taskId
+     * @param sPeriod
+     */
     private static void stopExecution(Context ctx, int taskId, long sPeriod) {
         ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
         HashMap<Integer, ScheduledExecutorService> executorServiceMap = (HashMap<Integer, ScheduledExecutorService>) ctx
@@ -187,6 +214,13 @@ public class TaskScheduler {
         }
     }
 
+    /**
+     * Calls the onTrigger and onError functions
+     * @param ctx
+     * @param taskId
+     * @param onTriggerFunction
+     * @param onErrorFunction
+     */
     private static void callFunction(Context ctx, int taskId, FunctionRefCPEntry onTriggerFunction,
                                      FunctionRefCPEntry onErrorFunction) {
         AbstractNativeFunction abstractNativeFunction = new AbstractNativeFunction() {
@@ -231,6 +265,17 @@ public class TaskScheduler {
         }
     }
 
+    /**
+     * Calculates the delay to schedule the appointment
+     * @param ctx
+     * @param taskId
+     * @param minute
+     * @param hour
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @param month
+     * @return
+     */
     private static long calculateDelay(Context ctx, int taskId, long minute, long hour, long dayOfWeek, long dayOfMonth,
                                        long month) {
         if (isValidInput(minute, hour, dayOfWeek, dayOfMonth, month)) {
@@ -279,12 +324,28 @@ public class TaskScheduler {
         return 0;
     }
 
+    /**
+     * Checks the validity of the input
+     * @param minute
+     * @param hour
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @param month
+     * @return
+     */
     private static boolean isValidInput(long minute, long hour, long dayOfWeek, long dayOfMonth, long month) {
         //Valid ranges: (minute :- 0 - 59, hour :- 0 - 23, dayOfWeek :- 1 - 7, dayOfMonth :- 1 - 31, month :- 0 - 11)
         return minute > 59 || minute < -1 || hour > 23 || hour < -1 || dayOfWeek > 7 || dayOfWeek < -1 || dayOfWeek == 0
                 || dayOfMonth > 31 || dayOfMonth < -1 || dayOfMonth == 0 || month > 11 || month < -1;
     }
 
+    /**
+     * Tunes the Calendar by checking the minute
+     * @param executionStartTime
+     * @param minute
+     * @param hour
+     * @return
+     */
     private static Calendar tuneTheTimestampByMinute(Calendar executionStartTime, long minute, long hour) {
         if (minute == -1) {
             if (hour != -1) {
@@ -309,6 +370,14 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Tunes the Calendar by checking the hour
+     * @param currentTime
+     * @param executionStartTime
+     * @param minute
+     * @param hour
+     * @return
+     */
     private static Calendar tuneTheTimestampByHour(Calendar currentTime, Calendar executionStartTime, long minute,
                                                    long hour) {
         if (hour == -1 && minute == 0) {
@@ -333,6 +402,14 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Tunes the Calendar by checking the day of week
+     * @param currentTime
+     * @param executionStartTime
+     * @param dayOfWeek
+     * @param month
+     * @return
+     */
     private static Calendar tuneTheTimestampByDOW(Calendar currentTime, Calendar executionStartTime, long dayOfWeek,
                                                   long month) {
         int numberOfDaysToBeAdded = 0;
@@ -373,6 +450,13 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Tunes the Calendar by checking the day of month
+     * @param currentTime
+     * @param executionStartTime
+     * @param dayOfMonth
+     * @return
+     */
     private static Calendar tuneTheTimestampByDOM(Calendar currentTime, Calendar executionStartTime, long dayOfMonth) {
         if (dayOfMonth >= 1) {
             if (dayOfMonth > executionStartTime.getActualMaximum(Calendar.DAY_OF_MONTH)) {
@@ -392,6 +476,19 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Tunes the Calendar by checking the month
+     * @param ctx
+     * @param taskId
+     * @param currentTime
+     * @param executionStartTime
+     * @param minute
+     * @param hour
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @param month
+     * @return
+     */
     private static Calendar tuneTheTimestampByMonth(Context ctx, int taskId, Calendar currentTime,
                                                     Calendar executionStartTime, long minute, long hour,
                                                     long dayOfWeek, long dayOfMonth, long month) {
@@ -437,6 +534,17 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Tunes the Calendar by checking the year
+     * @param currentTime
+     * @param executionStartTime
+     * @param minute
+     * @param hour
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @param month
+     * @return
+     */
     private static Calendar tuneTheTimestampByCheckingTheYear(Calendar currentTime, Calendar executionStartTime,
                                                               long minute, long hour, long dayOfWeek, long dayOfMonth,
                                                               long month) {
@@ -473,6 +581,13 @@ public class TaskScheduler {
         return executionStartTime;
     }
 
+    /**
+     * Clone a Calendar into new instance
+     * @param executionStartTime
+     * @param dayOfWeek
+     * @param dayOfMonth
+     * @return
+     */
     private static Calendar cloneCalendarAndSetTime(Calendar executionStartTime, long dayOfWeek, long dayOfMonth) {
         //Clone the Calendar to another instance
         Calendar clonedCalendar = (Calendar) executionStartTime.clone();
@@ -484,6 +599,12 @@ public class TaskScheduler {
         return clonedCalendar;
     }
 
+    /**
+     * Calculates the time difference in milliseconds
+     * @param taskId
+     * @param executionStartTime
+     * @return
+     */
     private static long calculateDifference(int taskId, Calendar executionStartTime) {
         //Calculate the time difference between current time and the calculated execution time in milli seconds
         LocalDateTime localCurrentTime = LocalDateTime.now();
@@ -498,11 +619,26 @@ public class TaskScheduler {
         return duration.toMillis();
     }
 
+    /**
+     * Stops the running task
+     * @param ctx
+     * @param taskId
+     */
     protected static void stopTask(Context ctx, int taskId) {
         //Stop the corresponding task
         stopExecution(ctx, taskId, 0);
     }
 
+    /**
+     * Sets the calendar fields
+     * @param calendar
+     * @param ampm
+     * @param milliseconds
+     * @param seconds
+     * @param minutes
+     * @param hours
+     * @return
+     */
     private static Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
                                        int hours) {
         if (hours != -1) {
