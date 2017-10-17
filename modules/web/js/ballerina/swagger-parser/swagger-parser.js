@@ -621,6 +621,8 @@ class SwaggerParser {
                     const parameterType = NodeFactory.createValueType();
                     if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
                         parameterType.setTypeKind('int');
+                    } else if (swaggerParameter.type === 'array') {
+                        parameterType.setTypeKind(`${swaggerParameter.items.type}[]`);
                     } else {
                         parameterType.setTypeKind(swaggerParameter.type);
                     }
