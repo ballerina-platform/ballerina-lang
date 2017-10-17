@@ -279,7 +279,7 @@ class SizingUtil {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -600,7 +600,7 @@ class SizingUtil {
             });
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         let width = 0;
         // we will start the height with top padding.
@@ -712,7 +712,7 @@ class SizingUtil {
             node.viewState.showAnnotationContainer = true;
         }
 
-        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;
@@ -1552,8 +1552,14 @@ class SizingUtil {
             }
         } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
             const annotationAttachment = node;
+
             // Considering the start line of the annotation.
             height += annotationLineHeight;
+            if (_.isNil(annotationAttachment.viewState.addingEmptyAttribute)) {
+                annotationAttachment.viewState.addingEmptyAttribute = false;
+            } else if (annotationAttachment.viewState.addingEmptyAttribute === true) {
+                height += annotationLineHeight;
+            }
             if (!annotationAttachment.viewState.collapsed) {
                 if (annotationAttachment.getAttributes().length > 0) {
                     annotationAttachment.getAttributes().forEach((annotationAttribute) => {
@@ -1563,6 +1569,11 @@ class SizingUtil {
             }
         } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
             const annotationAttachmentAttribute = node;
+            if (_.isNil(annotationAttachmentAttribute.viewState.addingEmptyAttribute)) {
+                annotationAttachmentAttribute.viewState.addingEmptyAttribute = false;
+            } else if (annotationAttachmentAttribute.viewState.addingEmptyAttribute === true) {
+                height += annotationLineHeight;
+            }
             const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
             // If the annotation entry a simple native type value
             if (annotationAttachmentAttributeValue.isValueLiteral()) {

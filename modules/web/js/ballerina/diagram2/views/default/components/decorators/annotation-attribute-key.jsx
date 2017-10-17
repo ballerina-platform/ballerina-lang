@@ -111,6 +111,7 @@ class AnnotationAttributeKey extends React.Component {
                     arrayAnnotationAttributeValue.setValue(literalInArray);
 
                     if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                        this.props.parent.viewState.addingEmptyAttribute = false;
                         this.props.parent.addAttributes(this.props.attributeModel, -1, true);
                     }
                     annotationAttributeValue.addValueArray(arrayAnnotationAttributeValue);
@@ -127,6 +128,7 @@ class AnnotationAttributeKey extends React.Component {
                     arrayAnnotationAttributeValue.setValue(annotationAttachmentInArray);
 
                     if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                        this.props.parent.viewState.addingEmptyAttribute = false;
                         this.props.parent.addAttributes(this.props.attributeModel, -1, true);
                     }
                     annotationAttributeValue.addValueArray(arrayAnnotationAttributeValue);
@@ -140,6 +142,7 @@ class AnnotationAttributeKey extends React.Component {
                 annotationAttributeValue.setValue(bValue);
 
                 if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                    this.props.parent.viewState.addingEmptyAttribute = false;
                     this.props.parent.addAttributes(this.props.attributeModel, -1, true);
                 }
             } else {
@@ -152,11 +155,13 @@ class AnnotationAttributeKey extends React.Component {
                 }));
 
                 if (this.props.attributeModel.parent === undefined && this.props.parent) {
+                    this.props.parent.viewState.addingEmptyAttribute = false;
                     this.props.parent.addAttributes(this.props.attributeModel, -1, true);
                 }
 
                 annotationAttributeValue.setValue(annotationAttachment);
             }
+
             this.props.attributeModel.setValue(annotationAttributeValue);
         }
     }
