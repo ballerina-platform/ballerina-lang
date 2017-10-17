@@ -19,24 +19,25 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * SinkHandler is an optional interface before {@link SinkMapper}.
  * It will do optional processing to the events before sending the events to the desired mapper
  */
-public abstract class SinkHandler {
+public abstract class SinkHandler implements Snapshotable {
 
     private SinkHandlerCallback sinkHandlerCallback;
-    private String sinkElementId;
+    private String elementId;
 
-    final void init(String sinkElementId, StreamDefinition streamDefinition, SinkHandlerCallback sinkHandlerCallback) {
+    final void init(String elementId, StreamDefinition streamDefinition, SinkHandlerCallback sinkHandlerCallback) {
         this.sinkHandlerCallback = sinkHandlerCallback;
-        this.sinkElementId = sinkElementId;
-        init(sinkElementId, streamDefinition);
+        this.elementId = elementId;
+        init(elementId, streamDefinition);
     }
 
-    public abstract void init(String sinkElementId, StreamDefinition streamDefinition);
+    public abstract void init(String elementId, StreamDefinition streamDefinition);
 
     public void handle(Event event) {
         handle(event, sinkHandlerCallback);
@@ -50,7 +51,7 @@ public abstract class SinkHandler {
 
     public abstract void handle(Event[] events, SinkHandlerCallback sinkHandlerCallback);
 
-    String getSinkElementId() {
-        return sinkElementId;
+    public String getElementId() {
+        return elementId;
     }
 }

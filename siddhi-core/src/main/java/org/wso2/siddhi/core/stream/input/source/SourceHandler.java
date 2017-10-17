@@ -19,23 +19,24 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * SourceHandler is an optional implementable class that wraps {@link org.wso2.siddhi.core.stream.input.InputHandler}.
  * It will do optional processing to the events before sending the events to the input handler
  */
-public abstract class SourceHandler implements InputEventHandler {
+public abstract class SourceHandler implements InputEventHandler, Snapshotable {
 
     private InputEventHandlerImpl inputEventHandlerImpl;
-    private String sourceElementId;
+    private String elementId;
 
-    final void initSourceHandler(String sourceElementId, StreamDefinition streamDefinition) {
-        this.sourceElementId = sourceElementId;
-        init(sourceElementId, streamDefinition);
+    final void initSourceHandler(String elementId, StreamDefinition streamDefinition) {
+        this.elementId = elementId;
+        init(elementId, streamDefinition);
     }
 
-    public abstract void init(String sourceElementId, StreamDefinition streamDefinition);
+    public abstract void init(String elementId, StreamDefinition streamDefinition);
 
     final void setInputEventHandlerImpl(InputEventHandlerImpl inputEventHandlerImpl) {
         this.inputEventHandlerImpl = inputEventHandlerImpl;
@@ -55,7 +56,7 @@ public abstract class SourceHandler implements InputEventHandler {
 
     public abstract void handle(Event[] events, InputEventHandler inputEventHandler) throws InterruptedException;
 
-    String getSourceElementId() {
-        return sourceElementId;
+    public String getElementId() {
+        return elementId;
     }
 }

@@ -70,7 +70,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
             this.mapper = sinkMapper;
         }
         if (sinkHandler != null) {
-            sinkHandler.init(elementId, streamDefinition, new SinkHandlerCallback(sinkMapper));
+            sinkHandler.init(siddhiAppContext.getElementIdGenerator().createNewId(), streamDefinition,
+                    new SinkHandlerCallback(sinkMapper));
             this.handler = sinkHandler;
         }
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();

@@ -335,7 +335,8 @@ public class DefinitionParserHelper {
 
                     siddhiAppContext.getSnapshotService().addSnapshotable(source.getStreamDefinition().getId(), source);
                     if (sourceHandlerManager != null) {
-                        sourceHandlerManager.registerSourceHandler(source.getElementId(), sourceHandler);
+                        sourceHandlerManager.registerSourceHandler(sourceHandler.getElementId(), sourceHandler);
+                        siddhiAppContext.getSnapshotService().addSnapshotable(streamDefinition.getId(), sourceHandler);
                     }
                     List<Source> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
@@ -503,7 +504,9 @@ public class DefinitionParserHelper {
                         }
 
                         if (sinkHandlerManager != null) {
-                            sinkHandlerManager.registerSinkHandler(sink.getElementId(), sinkHandler);
+                            sinkHandlerManager.registerSinkHandler(sinkHandler.getElementId(), sinkHandler);
+                            siddhiAppContext.getSnapshotService().addSnapshotable(streamDefinition.getId(),
+                                    sinkHandler);
                         }
 
                         validateSinkMapperCompatibility(streamDefinition, sinkType, mapType, sink, sinkMapper,
