@@ -412,6 +412,12 @@ TreeNode.contextTypes = {
         scrollToElement: PropTypes.func.isRequired,
         isElementVisible: PropTypes.func.isRequired,
     }).isRequired,
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorForFile: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+    }).isRequired,
 };
 
 export default TreeNode;
