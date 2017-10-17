@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -41,6 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @since 0.94
  */
+@JavaSPIService("org.ballerinalang.connector.api.BallerinaServerConnector")
 public class HttpServerConnector implements BallerinaServerConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
 

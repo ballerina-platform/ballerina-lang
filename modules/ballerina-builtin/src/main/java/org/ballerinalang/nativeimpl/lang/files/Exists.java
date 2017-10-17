@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -44,12 +42,6 @@ import java.nio.file.Paths;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Checks whether a file exists") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "file",
-        value = "The File struct of witch existence is to be checked") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "isExists",
-        value = "Boolean representing whether a file exists") })
 public class Exists extends AbstractNativeFunction {
 
     @Override

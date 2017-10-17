@@ -15,9 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.connector.impl;
+package org.ballerinalang.runtime.threadpool;
 
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.Map;

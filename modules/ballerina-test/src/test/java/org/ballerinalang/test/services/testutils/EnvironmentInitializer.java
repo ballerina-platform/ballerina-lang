@@ -20,7 +20,6 @@ package org.ballerinalang.test.services.testutils;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,8 +35,6 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
-        // Load constructors
-        BuiltInNativeConstructLoader.loadConstructs();
         try {
             CompileResult compileResult;
             if (pkgPath == null) {
