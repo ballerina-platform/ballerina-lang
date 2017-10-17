@@ -49,7 +49,7 @@ class PropertyWindow extends React.Component {
         this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
-        this.generateInputLable = this.generateInputLable.bind(this);
+        this.closePropertyWindow = this.closePropertyWindow.bind(this);
     }
 
     componentDidMount() {
@@ -101,11 +101,20 @@ class PropertyWindow extends React.Component {
     handleOutsideClick(e) {
         if (this.node) {
             if (!this.node.contains(e.target)) {
-                this.handleDismiss();
+                this.closePropertyWindow();
             }
         }
     }
 
+    /**
+     * Close the property window without saving any changes
+     */
+    closePropertyWindow() {
+        this.props.model.viewState.showOverlayContainer = false;
+        this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
+        this.props.model.viewState.overlayContainer = {};
+        this.context.editor.update();
+    }
     /**
      * Toggles the struct properties
      */
@@ -142,18 +151,6 @@ class PropertyWindow extends React.Component {
     }
 
     /**
-     * Construct the identifier for the form inputs
-     */
-    generateInputLable(identifier) {
-        const splitStringArr = identifier.split(/(?=[A-Z])/);
-        // Change the first letter of the first word to capital
-        let firstWord = splitStringArr[0];
-        firstWord = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
-        // Add the value back to the array as the 0th index value
-        splitStringArr[0] = firstWord;
-        return splitStringArr.join(' ');
-    }
-    /**
      * Renders text input for form
      * @param key
      * @returns {XML}
@@ -170,7 +167,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {this.generateInputLable(key.identifier)}</label>
+                    {_.startCase(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -197,7 +194,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {this.generateInputLable(key.identifier)}</label>
+                    {_.startCase(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -225,7 +222,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {this.generateInputLable(key.identifier)}</label>
+                    {_.startCase(key.identifier)}</label>
                 <div className='col-sm-7 properties-checkbox'>
                     <input
                         className="toggle"
@@ -249,7 +246,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {this.generateInputLable(key.identifier)}</label>
+                    {_.startCase(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -281,7 +278,7 @@ class PropertyWindow extends React.Component {
             <label
                 className="col-sm-4 property-dialog-label"
                 htmlFor="tags"
-            >{this.generateInputLable(key.identifier)}</label>
+            >{_.startCase(key.identifier)}</label>
             <div className='col-sm-7 properties-tags'>
                 <TagInput
                     id={key.identifier}
@@ -403,6 +400,18 @@ class PropertyWindow extends React.Component {
                                 onClick={this.goToPreviousView}
                             />
                         </div> }
+                    </div>
+                    <div className="formFooter">
+                        <button
+                            type="button"
+                            className="propWindowBtn"
+                            onClick={this.closePropertyWindow}
+                        >Close</button>
+                        <button
+                            type="button"
+                            className="propWindowBtn"
+                            onClick={this.handleDismiss}
+                        >Apply</button>
                     </div>
                 </div>
             </div>);

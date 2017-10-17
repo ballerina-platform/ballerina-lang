@@ -156,6 +156,15 @@
     padding: 10px;
 }
 
+.formFooter{
+    text-align: center;
+    background: #d5d1d1;
+    margin: 0;
+    padding: 10px;
+    width: 100%;
+    float: right;
+}
+
 .form-body {
     text-align: center;
 }
@@ -488,4 +497,14 @@ span { cursor: pointer; }
 #breadcrumbs-one .current::after,
 #breadcrumbs-one .current::before{
     content: normal;
+}
+
+.propWindowBtn{
+    width: 70px;
+    height: 30px;
+    float: right;
+    background-color: #707276;
+    margin-right: 10px;
+    color: whitesmoke;
+
 }
