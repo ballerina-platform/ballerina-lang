@@ -60,7 +60,7 @@ public class HttpClientRequest {
     }
 
     /**
-     * Send a Http POST request to a service.
+     * Send an HTTP POST request to a service.
      *
      * @param endpoint - service endpoint
      * @param postBody - message payload
@@ -99,6 +99,16 @@ public class HttpClientRequest {
     public static HttpResponse doOptions(String requestUrl, Map<String, String> headers) throws IOException {
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_OPTIONS, requestUrl, headers);
     }
+    /**
+     * Sends an HTTP HEAD request to a url.
+     *
+     * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
+     * @return - HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the HEAD request
+     */
+    public static HttpResponse doHead(String requestUrl) throws IOException {
+        return doHead(requestUrl, new HashMap<>());
+    }
 
     public static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
@@ -117,9 +127,37 @@ public class HttpClientRequest {
             }
         }
     }
+    /**
+     * Sends an HTTP HEAD request to a url.
+     *
+     * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
+     * @param headers - http request header map
+     * @return - HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the HEAD request
+     */
+    public static HttpResponse doHead(String requestUrl, Map<String, String> headers) throws IOException {
+        HttpURLConnection conn = null;
+        HttpResponse httpResponse;
+        try {
+            conn = getURLConnection(requestUrl);
+            //setting request headers
+            for (Map.Entry<String, String> e : headers.entrySet()) {
+                conn.setRequestProperty(e.getKey(), e.getValue());
+            }
+            conn.setRequestMethod("HEAD");
+            conn.connect();
+            httpResponse = new HttpResponse(null, conn.getResponseCode());
+            httpResponse.setHeaders(readHeaders(conn));
+            httpResponse.setResponseMessage(conn.getResponseMessage());
+            return httpResponse;
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
 
-    private static HttpURLConnection getURLConnection(String requestUrl)
-            throws IOException {
+    private static HttpURLConnection getURLConnection(String requestUrl) throws IOException {
         URL url = new URL(requestUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
