@@ -449,11 +449,7 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.host)) {
             const hostValue = NodeFactory.createLiteral();
-            if (!_.isNil(this._swaggerJson.schemes) && this._swaggerJson.schemes.length > 0) {
-                hostValue.setValue(`"${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}"`);
-            } else {
-                hostValue.setValue(`"http://:${this._swaggerJson.host}"`);
-            }
+            hostValue.setValue(`"${this._swaggerJson.host}"`);
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostValue);
         }
 
@@ -621,6 +617,8 @@ class SwaggerParser {
                     const parameterType = NodeFactory.createValueType();
                     if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
                         parameterType.setTypeKind('int');
+                    } else if (swaggerParameter.type === 'array') {
+                        parameterType.setTypeKind(`${swaggerParameter.items.type}[]`);
                     } else {
                         parameterType.setTypeKind(swaggerParameter.type);
                     }
