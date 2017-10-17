@@ -92,7 +92,8 @@ class Node extends EventChannel {
         // eslint-disable-next-line guard-for-in
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
-                if (!this[childName] || !newTree || !newTree[childName]) {
+                if (newTree === undefined || newTree[childName] === undefined) {
+                    console.warn(`could not find ${childName} in newTree`, newTree);
                     continue;
                 }
 
