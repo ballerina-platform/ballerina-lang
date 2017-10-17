@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import ConnectorHelper from './../../../../../env/helpers/connector-helper';
 import './properties-form.css';
-import ConnectorPropertiesWindow from './connector-property-window';
+import PropertyWindow from './property-window';
 import TreeUtils from './../../../../../model/tree-util';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -237,7 +237,7 @@ class ConnectorPropertiesForm extends React.Component {
             return null;
         }
         return (
-            <ConnectorPropertiesWindow
+            <PropertyWindow
                 model={props.model}
                 formHeading='Connector Properties'
                 key={`connectorProp/${props.model.id}`}
