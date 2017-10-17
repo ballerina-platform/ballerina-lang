@@ -26,12 +26,12 @@ class StatementPropertyItemSelector extends React.Component {
 
     constructor(props) {
         super(props);
-        this.itemsMeta = this.props.itemsMeta;
         this.handleShowDropDown = this.handleShowDropDown.bind(this);
     }
 
     handleShowDropDown() {
         const node = this.props.model;
+        const itemsMetaArr = this.props.itemsMeta;
         const dropDownBBox = new SimpleBBox();
         dropDownBBox.x = node.viewState.components['statement-box'].x
             + node.viewState.components['statement-box'].w + 2;
@@ -42,7 +42,7 @@ class StatementPropertyItemSelector extends React.Component {
                 key: node.getID(),
                 model: node,
                 dropDownBBox,
-                itemsMeta: this.itemsMeta,
+                itemsMeta: itemsMetaArr,
                 editor: this.context.editor,
                 environment: this.context.environment,
             },
