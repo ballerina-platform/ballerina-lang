@@ -423,6 +423,7 @@ span { cursor: pointer; }
     box-shadow: 0 0 2px rgba(0,0,0,.2);
     overflow: hidden;
     width: 100%;
+    height: 36px;
 }
 
 #breadcrumbs-one li{

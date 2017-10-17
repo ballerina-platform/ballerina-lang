@@ -125,6 +125,19 @@ class PropertyWindow extends React.Component {
             properties: poppedData,
         });
     }
+
+    /**
+     * Toggle the struct view on breadcrumb element click
+     */
+    toggleStructView(index) {
+        // Get the elements related to the index
+        const elements = this.previousItems[index];
+        this.previousItems.splice(index);
+        this.breadCrumbs.splice(index + 1);
+        this.setState({
+            properties: elements,
+        });
+    }
     /**
      * Renders text input for form
      * @param key
@@ -302,7 +315,7 @@ class PropertyWindow extends React.Component {
     render() {
         const breadCrumbContainer = this.breadCrumbs.map((key, index) => {
             return (
-                <li><a>{key}</a></li>
+                <li><a onClick={() => { this.toggleStructView(index); }}> {key}</a></li>
             );
         });
         return (
