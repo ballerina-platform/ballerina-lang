@@ -487,7 +487,8 @@ class PositioningUtil {
             });
         }
         // Setting the overlay container if its true
-        if (viewState.showOverlayContainer) {
+        if (viewState.shouldShowConnectorPropertyWindow) {
+            viewState.showOverlayContainer = true;
             OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
         }
     }
