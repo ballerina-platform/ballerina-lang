@@ -159,6 +159,11 @@ class PropertyWindow extends React.Component {
      * @returns {XML}
      */
     renderTextInputs(key) {
+        let value = key.value;
+        if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.substring(1, value.length - 1);
+        }
+
         return (
             <div key={key.identifier} className="form-group">
                 <label
@@ -173,7 +178,7 @@ class PropertyWindow extends React.Component {
                         name={key.identifier}
                         type='text'
                         placeholder={key.identifier}
-                        value={key.value}
+                        value={value}
                         onChange={event => this.onChange(event, key)}
                     />
                 </div>
