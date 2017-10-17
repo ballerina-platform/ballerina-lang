@@ -43,9 +43,11 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                 [
                     <Button
                         key='dirty-file-close-confirm-dialog-dont-save'
-                        onClick={() => {
+                        onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onConfirm();
+                            evt.stopPropagation();
+                            evt.preventDefault();
                         }}
                     >
                         Don&#39;t Save
@@ -53,9 +55,11 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                     <Button
                         key='dirty-file-close-confirm-dialog-save'
                         bsStyle="primary"
-                        onClick={() => {
+                        onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onSave();
+                            evt.stopPropagation();
+                            evt.preventDefault();
                         }}
                     >
                         Save

@@ -19,8 +19,10 @@ class Dialog extends React.Component {
     /**
      * Close dialog
      */
-    close() {
+    close(evt) {
         this.props.onHide();
+        evt.stopPropagation();
+        evt.preventDefault();
     }
 
     /**

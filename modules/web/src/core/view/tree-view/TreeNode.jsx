@@ -340,7 +340,8 @@ class TreeNode extends React.Component {
                 {this.props.enableContextMenu && !enableEdit &&
                 <ContextMenuTrigger
                     id={node.id}
-                    menu={getContextMenuItems(node, parentNode, this.context.command, onNodeUpdate, onNodeRefresh)}
+                    menu={getContextMenuItems(node, parentNode,
+                        this.context.command, onNodeUpdate, onNodeRefresh, this.context)}
                     onShow={() => {
                         this.setState({
                             disableToolTip: true,
@@ -417,6 +418,13 @@ TreeNode.contextTypes = {
         getEditorForFile: PropTypes.func,
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
     }).isRequired,
 };
 

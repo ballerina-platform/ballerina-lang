@@ -320,6 +320,7 @@ App.childContextTypes = {
         getEditorForFile: PropTypes.func,
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
+        closeEditor: PropTypes.func,
     }).isRequired,
 };
 

@@ -4,6 +4,7 @@ import copy from 'copy-to-clipboard';
 import { listFiles } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_CMDS, DIALOGS as WORKSPACE_DIALOGS } from './../../workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../layout/constants';
+import { DIALOGS as EDITOR_DIALOGS } from './../../editor/constants';
 import { EDIT_TYPES } from './TreeNode';
 
 import { remove } from './../../workspace/fs-util';
@@ -15,8 +16,10 @@ import { remove } from './../../workspace/fs-util';
  * @param {Object} command Command API
  * @param {function} onNodeUpdate
  * @param {function} onNodeRefresh
+ * @param {Object} reactContext
  */
-export function getContextMenuItems(node, parentNode, command, onNodeUpdate = () => {}, onNodeRefresh = () => {}) {
+export function getContextMenuItems(node, parentNode, command,
+        onNodeUpdate = () => {}, onNodeRefresh = () => {}, reactContext) {
     const menu = [];
     const { dispatch } = command;
     const { type } = node;
@@ -41,9 +44,29 @@ export function getContextMenuItems(node, parentNode, command, onNodeUpdate = ()
         icon: '',
         label: 'Rename',
         handler: () => {
-            node.enableEdit = true;
-            node.editType = EDIT_TYPES.RENAME;
-            onNodeUpdate(node);
+            const { editor } = reactContext;
+            const prepareNodeForRename = () => {
+                node.enableEdit = true;
+                node.editType = EDIT_TYPES.RENAME;
+                onNodeUpdate(node);
+            };
+            if (editor.isFileOpenedInEditor(node.id)) {
+                const targetEditor = editor.getEditorForFile(node.id);
+                if (targetEditor.isDirty) {
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                        id: EDITOR_DIALOGS.DIRTY_CLOSE_CONFIRM,
+                        additionalProps: {
+                            file: targetEditor.file,
+                            onConfirm: prepareNodeForRename,
+                            onSave: prepareNodeForRename,
+                        },
+                    });
+                } else {
+                    prepareNodeForRename();
+                }
+            } else {
+                prepareNodeForRename();
+            }
         },
         isActive: () => {
             return true;
