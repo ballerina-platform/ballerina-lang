@@ -25,7 +25,6 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -181,22 +180,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 }
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 targetChannel.setRequestWritten(false);
-                sendBackTimeOutResponse();
+                httpResponseFuture.notifyHttpListener(new Exception("Endpoint timed out"));
             }
-        }
-    }
-
-    private void sendBackTimeOutResponse() {
-        String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                getHttpRoute().toString() + "</errorMessage>";
-        if (httpResponseFuture != null) {
-            try {
-                httpResponseFuture.notifyHttpListener(Util.createErrorMessage(payload));
-            } catch (Exception e) {
-                LOG.error("Error while notifying response to listener ", e);
-            }
-        } else {
-            LOG.error("Cannot correlate callback with request callback is null ");
         }
     }
 }
