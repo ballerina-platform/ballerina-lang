@@ -28,12 +28,11 @@ class SyncLineNumbers extends ASTVisitor {
      * @inheritdoc
      */
     beginVisit(node, newNode) {
-        if (!node.position) {
-            return;
+        if (newNode && newNode.position) {
+            node.position = newNode.position;
         }
-        node.position = newNode.position;
         // we will also sync the action invocation falgs.
-        if (newNode.invocationType) {
+        if (newNode && newNode.invocationType) {
             node.invocationType = newNode.invocationType;
         }
     }

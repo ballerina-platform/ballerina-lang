@@ -158,7 +158,6 @@ function breakpointHoc(WrappedComponent) {
          * add breakpoint
          */
         addBreakpoint() {
-            console.log(this.props.model.position.startLine);
             if (!this.props.model.position) {
                 return;
             }
@@ -172,7 +171,6 @@ function breakpointHoc(WrappedComponent) {
          * remove breakpoint
          */
         removeBreakpoint() {
-            console.log(this.props.model.position.startLine);
             if (!this.props.model.position) {
                 return;
             }
