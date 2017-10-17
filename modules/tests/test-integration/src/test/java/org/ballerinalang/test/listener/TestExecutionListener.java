@@ -157,11 +157,6 @@ public class TestExecutionListener implements IExecutionListener {
 //                        + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath()
 
 
-//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-//                        + "httpService" + File.separator + "httpMethodTest.bal").getAbsolutePath(),
-//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-//                        + "httpService" + File.separator + "quoteService.bal").getAbsolutePath()
-
         };
         return sampleFiles;
     }
