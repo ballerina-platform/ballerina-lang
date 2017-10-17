@@ -31,7 +31,7 @@
 
     <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>-->
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>
         </classes>
     </test>
 </suite>
