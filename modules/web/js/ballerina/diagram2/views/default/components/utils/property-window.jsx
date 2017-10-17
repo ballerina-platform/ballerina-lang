@@ -49,6 +49,7 @@ class PropertyWindow extends React.Component {
         this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
+        this.generateInputLable = this.generateInputLable.bind(this);
     }
 
     componentDidMount() {
@@ -139,6 +140,19 @@ class PropertyWindow extends React.Component {
             properties: elements,
         });
     }
+
+    /**
+     * Construct the identifier for the form inputs
+     */
+    generateInputLable(identifier) {
+        const splitStringArr = identifier.split(/(?=[A-Z])/);
+        // Change the first letter of the first word to capital
+        let firstWord = splitStringArr[0];
+        firstWord = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+        // Add the value back to the array as the 0th index value
+        splitStringArr[0] = firstWord;
+        return splitStringArr.join(' ');
+    }
     /**
      * Renders text input for form
      * @param key
@@ -151,7 +165,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -178,7 +192,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -206,7 +220,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7 properties-checkbox'>
                     <input
                         className="toggle"
@@ -230,7 +244,7 @@ class PropertyWindow extends React.Component {
                     htmlFor={key.identifier}
                     className='col-sm-4 property-dialog-label'
                 >
-                    {key.identifier}</label>
+                    {this.generateInputLable(key.identifier)}</label>
                 <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
@@ -262,7 +276,7 @@ class PropertyWindow extends React.Component {
             <label
                 className="col-sm-4 property-dialog-label"
                 htmlFor="tags"
-            >{key.identifier}</label>
+            >{this.generateInputLable(key.identifier)}</label>
             <div className='col-sm-7 properties-tags'>
                 <TagInput
                     id={key.identifier}
