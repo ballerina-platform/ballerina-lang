@@ -346,9 +346,10 @@ class PropertyWindow extends React.Component {
                         </button>
                         <h5 className="form-title file-dialog-title">
                             {this.props.formHeading}</h5>
-                        <ul id="breadcrumbs-one">
-                            {breadCrumbContainer}
-                        </ul>
+                        {this.props.isConnector &&
+                            <ul id="breadcrumbs-one">
+                                {breadCrumbContainer}
+                            </ul> }
                     </div>
                     <div className="form-body formContainer">
                         <div className="container-fluid">

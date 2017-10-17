@@ -244,6 +244,7 @@ class ConnectorPropertiesForm extends React.Component {
                 styles={styles}
                 supportedProps={this.getSupportedProps()}
                 addedValues={this.setDataToConnectorInitArgs}
+                isConnector='true'
             />);
     }
 }
