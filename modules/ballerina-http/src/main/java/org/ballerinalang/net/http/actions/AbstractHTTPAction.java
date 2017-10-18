@@ -94,12 +94,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             cMsg.setProperty(Constants.TO, toPath);
 
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            if (port != 80) {
-                cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
-            } else {
-                cMsg.getHeaders().set(Constants.HOST, host);
-            }
+            if (!cMsg.getHeaders().contains(Constants.HOST)) {
+                if (port != 80) {
+                    cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
+                } else {
+                    cMsg.getHeaders().set(Constants.HOST, host);
+                }
 
+            }
             //Set User-Agent Header
             Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
 
