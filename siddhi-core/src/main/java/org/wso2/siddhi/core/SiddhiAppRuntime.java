@@ -131,7 +131,7 @@ public class SiddhiAppRuntime {
         this.partitionMap = partitionMap;
         this.siddhiAppContext = siddhiAppContext;
         this.siddhiAppRuntimeMap = siddhiAppRuntimeMap;
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+        if (siddhiAppContext.getStatisticsManager() != null) {
             memoryUsageTracker = siddhiAppContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
@@ -268,7 +268,7 @@ public class SiddhiAppRuntime {
     }
 
     public synchronized void start() {
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+        if (siddhiAppContext.isStatsEnabled()) {
             siddhiAppContext.getStatisticsManager().startReporting();
         }
         for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
@@ -382,10 +382,14 @@ public class SiddhiAppRuntime {
         if (siddhiAppRuntimeMap != null) {
             siddhiAppRuntimeMap.remove(siddhiAppContext.getName());
         }
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+
+        if (siddhiAppContext.isStatsEnabled()) {
             siddhiAppContext.getStatisticsManager().stopReporting();
+        }
+        if (siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().cleanup();
         }
+
     }
 
     public synchronized SiddhiDebugger debug() {

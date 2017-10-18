@@ -52,6 +52,8 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -106,20 +108,25 @@ public class SiddhiAppParser {
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
                     siddhiApp.getAnnotations());
 
-            Element statElement = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_STATISTICS, null,
-                    siddhiApp.getAnnotations());
+            List<Element> statisticsElements = new ArrayList<>();
+            if (annotation != null) {
+                statisticsElements = annotation.getElements();
+            }
+            if (siddhiContext.getStatisticsConfiguration() != null) {
+                siddhiAppContext.setStatisticsManager(siddhiContext
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createStatisticsManager(statisticsElements));
+            }
+
+            Element statStateElement = AnnotationHelper.getAnnotationElement(
+                    SiddhiConstants.ANNOTATION_STATISTICS, null, siddhiApp.getAnnotations());
 
             // Both annotation and statElement should be checked since siddhi uses
             // @app:statistics(reporter = 'console', interval = '5' )
-            // where cep uses @app:statistics('true').
-            if (annotation != null && (statElement == null || Boolean.valueOf(statElement.getValue()))) {
-                if (siddhiContext.getStatisticsConfiguration() != null) {
-                    siddhiAppContext.setStatsEnabled(true);
-                    siddhiAppContext.setStatisticsManager(siddhiContext
-                            .getStatisticsConfiguration()
-                            .getFactory()
-                            .createStatisticsManager(annotation.getElements()));
-                }
+            // where sp uses @app:statistics('true').
+            if (annotation != null && (statStateElement == null || Boolean.valueOf(statStateElement.getValue()))) {
+                siddhiAppContext.setStatsEnabled(true);
             }
 
             siddhiAppContext.setThreadBarrier(new ThreadBarrier());
@@ -207,7 +214,7 @@ public class SiddhiAppParser {
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_WINDOWS +
                             SiddhiConstants.METRIC_DELIMITER + window.getWindowDefinition().getId();
             LatencyTracker latencyTracker = null;
-            if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            if (siddhiAppContext.getStatisticsManager() != null) {
                 latencyTracker = siddhiAppContext.getSiddhiContext()
                         .getStatisticsConfiguration()
                         .getFactory()
