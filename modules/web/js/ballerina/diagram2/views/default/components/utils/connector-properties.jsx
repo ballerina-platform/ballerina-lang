@@ -216,7 +216,10 @@ class ConnectorPropertiesForm extends React.Component {
         const props = this.props.model.props;
         const positionX = (props.bBox.x) - 8 + 'px';
         const positionY = (props.bBox.y) + 'px';
-
+        const pkgAlias = props.model.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
+        || '';
+        const connectorName = props.model.getVariableName().value || '';
+        const formH = `${pkgAlias} Client Connector ${connectorName}`;
         const styles = {
             popover: {
                 top: props.bBox.y + 10 + 'px',
@@ -237,7 +240,7 @@ class ConnectorPropertiesForm extends React.Component {
         return (
             <PropertyWindow
                 model={props.model}
-                formHeading='Connector Properties'
+                formHeading={formH}
                 key={`connectorProp/${props.model.id}`}
                 styles={styles}
                 supportedProps={supportedProps}
