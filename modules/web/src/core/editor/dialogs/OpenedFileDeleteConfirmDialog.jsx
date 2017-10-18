@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Grid, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -52,10 +52,11 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
      * @inheritdoc
      */
     render() {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Please Confirm"
+                title="Delete Opened File From Disk"
                 actions={
                 [
                     <Button
@@ -74,11 +75,22 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <p>
-                    {`File ${this.props.file.name}.${this.props.file.extension} is opened in editor.`}
-                    <br />
-                    {'File will be closed & deleted from file system.'}
-                </p>
+                <Grid fluid>
+                    <Row>
+                        <Col md={2}>
+                            <i className="fw fw-4x fw-warning danger" />
+                        </Col>
+                        <Col md={10}>
+                            <h4 style={{ marginTop: 0 }}>
+                                {`Do you want close editor tab and delete "${fileName}" from file system?`}
+                            </h4>
+                            <p>
+                                {`File ${fileName} is already opened in composer
+                                ${this.props.file.isDirty ? ' & contains unsaved content' : ''}.`}
+                            </p>
+                        </Col>
+                    </Row>
+                </Grid>
             </Dialog>
         );
     }

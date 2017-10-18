@@ -107,7 +107,8 @@ class FileSaveDialog extends React.Component {
                     dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                         id: DIALOGS.REPLACE_FILE_CONFIRM,
                         additionalProps: {
-                            filePath: derivedFilePath + derivedFileName,
+                            target: derivedFileName,
+                            parent: derivedFilePath,
                             onConfirm: () => {
                                 saveFile();
                             },
@@ -228,6 +229,7 @@ class FileSaveDialog extends React.Component {
                     </Form>
                     <ScrollBarsWithContextAPI
                         style={{
+                            margin: '15px 0 15px 40px',
                             width: 608,
                             height: 500,
                         }}

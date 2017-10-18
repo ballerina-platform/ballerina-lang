@@ -162,6 +162,7 @@ class FileOpenDialog extends React.Component {
                 </Form>
                 <ScrollBarsWithContextAPI
                     style={{
+                        margin: '15px 0 15px 40px',
                         width: 608,
                         height: 500,
                     }}

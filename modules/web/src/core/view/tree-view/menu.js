@@ -123,7 +123,8 @@ export function getContextMenuItems(node, parentNode, command,
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                     id: WORKSPACE_DIALOGS.DELETE_FILE_CONFIRM,
                     additionalProps: {
-                        filePath: node.id,
+                        isFolder: node.type === 'folder',
+                        target: node.label,
                         onConfirm: deleteFile,
                     },
                 });

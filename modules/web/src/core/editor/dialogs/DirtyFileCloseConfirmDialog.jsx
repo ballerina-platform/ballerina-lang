@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Grid, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -38,7 +38,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="File Contains Unsaved Content"
+                title="Save Unsaved Content"
                 actions={
                 [
                     <Button
@@ -54,7 +54,6 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                     </Button>,
                     <Button
                         key='dirty-file-close-confirm-dialog-save'
-                        bsStyle="primary"
                         onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onSave();
@@ -70,13 +69,22 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                 onAfterHide={this.props.onAfterHide}
                 error={this.state.error}
             >
-                <h4>
-                    Do you want to save the changes you made to 
-                    {' ' + this.props.file.name + '.' + this.props.file.extension}?
-                </h4>
-                <p>
-                    Your changes will be lost if you don't save them.
-                </p>
+                <Grid fluid>
+                    <Row>
+                        <Col md={2}>
+                            <i className="fw fw-4x fw-warning danger" />
+                        </Col>
+                        <Col md={10}>
+                            <h4 style={{ marginTop: 0 }}>
+                                Do you want to save the changes you made to 
+                                {' "' + this.props.file.name + '.' + this.props.file.extension + '" '}?
+                            </h4>
+                            <p>
+                                Your changes will be lost if you don't save them.
+                            </p>
+                        </Col>
+                    </Row>
+                </Grid>
             </Dialog>
         );
     }

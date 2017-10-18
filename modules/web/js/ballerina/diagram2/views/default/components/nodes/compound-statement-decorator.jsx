@@ -338,7 +338,7 @@ class CompoundStatementDecorator extends React.Component {
                     baseComponent="rect"
                     dropTarget={this.props.body}
                     enableDragBg
-                    enableCenterOverlayLine
+                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
                 {this.props.children}
                 {body}
@@ -370,6 +370,7 @@ CompoundStatementDecorator.defaultProps = {
         delete: false,
         jump: false,
     },
+    disableDropzoneMiddleLineOverlay: false,
 };
 
 CompoundStatementDecorator.propTypes = {
@@ -408,6 +409,7 @@ CompoundStatementDecorator.propTypes = {
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
     }),
+    disableDropzoneMiddleLineOverlay: PropTypes.bool,
 };
 
 CompoundStatementDecorator.contextTypes = {
