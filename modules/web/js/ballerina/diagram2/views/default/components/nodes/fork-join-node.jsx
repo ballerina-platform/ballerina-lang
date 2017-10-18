@@ -208,6 +208,8 @@ class ForkJoinNode extends React.Component {
                     dropTarget={model.parent}
                     dropBefore={model}
                     renderUponDragStart
+                    enableDragBg
+                    enableCenterOverlayLine
                 />
                 <line
                     x1={bBox.getCenterX()}

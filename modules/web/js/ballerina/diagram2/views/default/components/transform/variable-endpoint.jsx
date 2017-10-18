@@ -162,13 +162,24 @@ export default class VariableEndpoint extends React.Component {
     }
     onComplete() {
         let qoutes = '';
+        let valid = false;
         if (this.state.varType === 'string') {
             qoutes = '"';
+            valid = true;
+        } else if (this.state.varType === 'int') {
+            valid = Number.parseFloat(this.state.varVal) % 1 === 0;
+        } else if (this.state.varType === 'float') {
+            valid = !Number.isNaN(Number.parseFloat(this.state.varVal));
+        } else {
+            valid = true;
         }
-        const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes + this.state.varVal + qoutes;
-        const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
-        if (isUpdated) {
-            this.setState({ onEdit: false });
+        if (valid) {
+            const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes
+                              + this.state.varVal + qoutes;
+            const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
+            if (isUpdated) {
+                this.setState({ onEdit: false });
+            }
         }
     }
 }

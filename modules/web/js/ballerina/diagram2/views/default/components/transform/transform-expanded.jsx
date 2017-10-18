@@ -826,7 +826,7 @@ class TransformExpanded extends React.Component {
     addTarget(target) {
         if (this.isVertexExist(target)) {
             this.props.model.addOutput(target);
-            this.setState({ typedSource: '' });
+            this.setState({ typedTarget: '' });
         }
     }
 

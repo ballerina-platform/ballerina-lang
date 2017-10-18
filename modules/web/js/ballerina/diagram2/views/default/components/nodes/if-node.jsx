@@ -73,16 +73,20 @@ class IfNode extends React.Component {
         return (
             <g>
                 {!isElseIfNode &&
-                    <DropZone
-                        x={dropZone.x}
-                        y={dropZone.y}
-                        width={dropZone.w}
-                        height={dropZone.h}
-                        baseComponent="rect"
-                        dropTarget={model.parent}
-                        dropBefore={model}
-                        renderUponDragStart
-                    />
+                    <g>
+                        <DropZone
+                            x={dropZone.x}
+                            y={dropZone.y}
+                            width={dropZone.w}
+                            height={dropZone.h}
+                            baseComponent="rect"
+                            dropTarget={model.parent}
+                            dropBefore={model}
+                            renderUponDragStart
+                            enableDragBg
+                            enableCenterOverlayLine
+                        />
+                    </g>
                 }
                 <CompoundStatementDecorator
                     dropTarget={model}

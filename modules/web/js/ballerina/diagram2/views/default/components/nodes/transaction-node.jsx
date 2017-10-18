@@ -60,6 +60,8 @@ class TransactionNode extends React.Component {
                     dropTarget={model.parent}
                     dropBefore={model}
                     renderUponDragStart
+                    enableDragBg
+                    enableCenterOverlayLine
                 />
 
                 <CompoundStatementDecorator
