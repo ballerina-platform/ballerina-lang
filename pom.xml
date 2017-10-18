@@ -860,6 +860,11 @@
                 <artifactId>commons-net</artifactId>
                 <version>${commons-net.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1012,6 +1017,7 @@
         <atomikos-version>3.8.0.wso2v1</atomikos-version>
         <quartz.version>2.3.0.wso2v1</quartz.version>
         <commons-net.version>3.6</commons-net.version>
+        <jackson-core.version>2.8.6</jackson-core.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
