@@ -54,6 +54,11 @@ class TryNode extends React.Component {
         }
     }
 
+    /**
+     * Set catch condition.
+     * @param {String} newCondition - new condition to be applied to catch block.
+     * @param {Node} catchBlock - catch block node.
+     * */
     setCatchCondition(newCondition, catchBlock) {
         const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
         const parsedJson = FragmentUtils.parseFragment(fragmentJson);

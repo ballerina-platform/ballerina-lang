@@ -198,6 +198,10 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             if (true) {
 
+            } else if(false) {
+            
+            } else {
+
             }
         `));
     }

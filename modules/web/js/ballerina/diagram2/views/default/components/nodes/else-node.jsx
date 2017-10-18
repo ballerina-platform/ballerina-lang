@@ -33,8 +33,7 @@ class ElseNode extends React.Component {
                 model={model}
                 bBox={bBox}
                 title={'Else'}
-            >
-            </CompoundStatementDecorator>
+            />
         );
     }
 }
