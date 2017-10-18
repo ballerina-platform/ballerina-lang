@@ -375,7 +375,7 @@ public class BLangFileRestService {
                 error.addProperty("type", "error");
                 error.addProperty("category", errorCategoryName);
             } else {
-                error.addProperty("category", "RUNTIME");
+                error.addProperty("category", ErrorCategory.RUNTIME.name());
             }
 
             error.addProperty("text", diagnostic.getMessage());
@@ -404,6 +404,7 @@ public class BLangFileRestService {
     public enum ErrorCategory {
         SYNTAX,
         SEMANTIC,
+        RUNTIME,
         NONE;
     }
 

@@ -383,7 +383,7 @@ class BallerinaFileEditor extends React.Component {
         const newBreakpoints = syncBreakpoints.getBreakpoints();
         this.updateBreakpoints(newBreakpoints, newAST);
     }
-
+    
     /**
      * Update environment object with updated current package info
      * @param {PackageScopedEnvironment} environment Package scoped environment
@@ -508,8 +508,11 @@ class BallerinaFileEditor extends React.Component {
                     const syntaxErrors = data.errors.filter(({ category }) => {
                         return category === 'SYNTAX';
                     });
+                    const runtimeFailures = data.errors.filter(({ category }) => {
+                        return category === 'RUNTIME';
+                    });
                     // if syntax errors are found
-                    if (!_.isEmpty(syntaxErrors)) {
+                    if (!_.isEmpty(syntaxErrors) || !_.isEmpty(runtimeFailures)) {
                         newState.parseFailed = true;
                         newState.syntaxErrors = syntaxErrors;
                         newState.validatePending = false;
