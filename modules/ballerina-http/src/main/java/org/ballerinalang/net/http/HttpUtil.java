@@ -258,6 +258,7 @@ public class HttpUtil {
             clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithOutData();
             clonedHttpCarbonMessage.setMessageDataSource(((BallerinaMessageDataSource) httpCarbonMessage
                     .getMessageDataSource()).clone());
+            clonedHttpCarbonMessage.setAlreadyRead(httpCarbonMessage.isAlreadyRead());
         } else {
             clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithData();
         }
