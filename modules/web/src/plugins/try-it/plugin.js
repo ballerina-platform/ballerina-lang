@@ -52,7 +52,7 @@ class TryItPlugin extends Plugin {
      * @inheritdoc
      */
     onAfterInitialRender() {
-        const { command } = this.appContext;
+        const { command, editor } = this.appContext;
 
         command.on('debugger-run-with-debug-executed', (file) => {
             this.activeFile = file;
@@ -62,7 +62,14 @@ class TryItPlugin extends Plugin {
             this.activeFile = file;
         });
         command.on('debugger-stop-executed', () => {
-            command.dispatch(LAYOUT_COMMANDS.HIDE_VIEW, TRY_IT_VIEW.TRY_IT_VIEW_ID);
+            const tryItEditor = editor.getEditorByID(TRY_IT_VIEW.TRY_IT_VIEW_ID);
+            if (tryItEditor) {
+                editor.closeEditor(tryItEditor);
+                const prevEditor = editor.getEditorByID(this.activeFile.fullPath);
+                if (prevEditor) {
+                    editor.setActiveEditor(prevEditor);
+                }
+            }
         });
     }
 

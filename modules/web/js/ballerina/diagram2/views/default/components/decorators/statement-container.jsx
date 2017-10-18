@@ -20,24 +20,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DropZone from './../../../../../drag-drop/DropZone';
 import Node from './../../../../../model/tree/node';
-// TODOX import MessageManager from './../../../../visitors/';
 import './statement-container.css';
-// TODOX import ASTFactory from '../../../../ast/ast-factory.js';
 
 class StatementContainer extends React.Component {
-
-    componentDidMount() {
-        /* TODOX const { messageManager } = this.context;
-        messageManager.on('message-draw-start', this.startDropZones);
-        messageManager.on('message-draw-stop', this.stopDragZones);*/
-    }
-
-    componentWillUnmount() {
-        /* TODOX const { messageManager } = this.context;
-        messageManager.off('message-draw-start', this.startDropZones);
-        messageManager.off('message-draw-stop', this.stopDragZones);*/
-    }
-
 
     render() {
         const bBox = this.props.bBox;
@@ -73,10 +58,6 @@ StatementContainer.propTypes = {
 StatementContainer.defaultProps = {
     draggable: undefined,
     children: [],
-};
-
-StatementContainer.contextTypes = {
-    // TODOX messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 
 export default StatementContainer;

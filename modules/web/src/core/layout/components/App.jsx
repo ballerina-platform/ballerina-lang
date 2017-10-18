@@ -82,6 +82,7 @@ class App extends React.Component {
             history: this.props.appContext.pref.history,
             command: this.props.appContext.command,
             alert: this.props.appContext.alert,
+            editor: this.props.appContext.editor,
         };
     }
 
@@ -313,6 +314,13 @@ App.childContextTypes = {
         showSuccess: PropTypes.func,
         showWarning: PropTypes.func,
         showError: PropTypes.func,
+    }).isRequired,
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorByID: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+        closeEditor: PropTypes.func,
     }).isRequired,
 };
 

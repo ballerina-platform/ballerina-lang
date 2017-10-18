@@ -46,7 +46,7 @@ class AnnotationAttachmentNode extends React.Component {
         this.state = {
             isInEdit: false,
             hasError: false,
-            addingEmptyAttribute: false,
+            addingEmptyAttribute: props.model.viewState.addingEmptyAttribute,
         };
 
         this.onNameEdit = this.onNameEdit.bind(this);
@@ -146,7 +146,12 @@ class AnnotationAttachmentNode extends React.Component {
         this.context.editor.update();
     }
 
+    /**
+     * Removes empty attribute adding state.
+     * @memberof AnnotationAttachmentNode
+     */
     removeEmptyAttribute() {
+        this.props.model.viewState.addingEmptyAttribute = false;
         this.setState({
             addingEmptyAttribute: false,
         });
@@ -225,7 +230,7 @@ class AnnotationAttachmentNode extends React.Component {
         // Delete button.
         const deleteButton = {
             key: this.props.model.getID(),
-            icon: 'fw-delete',
+            icon: 'fw-cancel',
             text: 'Delete',
             onClick: () => {
                 deleteNode(this.props.model);
@@ -245,15 +250,21 @@ class AnnotationAttachmentNode extends React.Component {
                 text: 'Add Attribute',
                 onClick: () => {
                     this.props.model.viewState.collapsed = false;
+                    this.props.model.viewState.addingEmptyAttribute = true;
                     this.setState({
                         addingEmptyAttribute: true,
                     });
+                    this.context.editor.update();
                 },
             };
             actionMenuItems.push(addAttributeButton);
         }
         return actionMenuItems.map((item) => {
-            return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+            return (<i
+                key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                className={'fw ' + item.icon}
+                onClick={item.onClick}
+            />);
         });
         // return <ActionMenu items={actionMenuItems} />;
     }
@@ -333,7 +344,9 @@ class AnnotationAttachmentNode extends React.Component {
             <li className={cn('annotation-attachment-text-li', 'action-menu-wrapper',
                 { 'annotation-attachment-error': this.state.hasError })}
             >
-
+                <span className={cn('annotations-array-item-prefix', { hide: !this.props.isNestedAnnotation })}>
+                    <i className="fw fw-minus" />
+                </span>
                 <CSSTransitionGroup
                     component="span"
                     transitionName="annotation-expand"
@@ -344,7 +357,7 @@ class AnnotationAttachmentNode extends React.Component {
                         key={`${this.props.model.getID()}-collapser`}
                         className={cn('fw fw-right expand-icon',
                             { 'fw-rotate-90': !this.props.model.viewState.collapsed },
-                            { hide: this.props.model.getAttributes().length === 0 })}
+                            { invisible: this.props.model.getAttributes().length === 0 })}
                         onClick={this.toggleCollapse}
                     />
                 </CSSTransitionGroup>
@@ -364,6 +377,11 @@ class AnnotationAttachmentNode extends React.Component {
 
 AnnotationAttachmentNode.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttachmentTreeNode).isRequired,
+    isNestedAnnotation: PropTypes.bool,
+};
+
+AnnotationAttachmentNode.defaultProps = {
+    isNestedAnnotation: false,
 };
 
 AnnotationAttachmentNode.contextTypes = {

@@ -279,7 +279,7 @@ class SizingUtil {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -600,7 +600,7 @@ class SizingUtil {
             });
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         let width = 0;
         // we will start the height with top padding.
@@ -669,11 +669,15 @@ class SizingUtil {
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
+        let newTotalStructH = this.config.panel.body.padding.top + this.config.panel.body.padding.top;
         children.forEach(() => {
-            if (!collapsed) {
-                bBox.h += this.config.structDefinitionStatement.height;
-            }
+            newTotalStructH += this.config.structDefinitionStatement.height;
         });
+
+        if (!collapsed && newTotalStructH > components.body.h) {
+            components.body.h = newTotalStructH;
+            bBox.h += (newTotalStructH - components.body.h);
+        }
     }
 
     /**
@@ -686,9 +690,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const components = {};
         // Initial statement height include panel heading and panel padding.
-        const bodyHeight = this.config.panel.body.padding.top
-            + this.config.panel.body.padding.bottom
-            + this.config.innerPanel.body.height;
+        const bodyHeight = this.config.innerPanel.body.height;
         // Set the width initial value to the padding left and right
         const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
 
@@ -710,7 +712,7 @@ class SizingUtil {
             node.viewState.showAnnotationContainer = true;
         }
 
-        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 45);
+        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;
@@ -718,7 +720,6 @@ class SizingUtil {
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
-        viewState.bBox.h -= 190;
         textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
@@ -1551,8 +1552,14 @@ class SizingUtil {
             }
         } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
             const annotationAttachment = node;
+
             // Considering the start line of the annotation.
             height += annotationLineHeight;
+            if (_.isNil(annotationAttachment.viewState.addingEmptyAttribute)) {
+                annotationAttachment.viewState.addingEmptyAttribute = false;
+            } else if (annotationAttachment.viewState.addingEmptyAttribute === true) {
+                height += annotationLineHeight;
+            }
             if (!annotationAttachment.viewState.collapsed) {
                 if (annotationAttachment.getAttributes().length > 0) {
                     annotationAttachment.getAttributes().forEach((annotationAttribute) => {
@@ -1562,6 +1569,11 @@ class SizingUtil {
             }
         } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
             const annotationAttachmentAttribute = node;
+            if (_.isNil(annotationAttachmentAttribute.viewState.addingEmptyAttribute)) {
+                annotationAttachmentAttribute.viewState.addingEmptyAttribute = false;
+            } else if (annotationAttachmentAttribute.viewState.addingEmptyAttribute === true) {
+                height += annotationLineHeight;
+            }
             const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
             // If the annotation entry a simple native type value
             if (annotationAttachmentAttributeValue.isValueLiteral()) {

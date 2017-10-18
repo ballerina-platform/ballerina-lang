@@ -25,7 +25,6 @@ import { DragDropContext } from 'react-dnd';
 import DragLayer from './../drag-drop/drag-layer';
 import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram2/views/default/components/transform/transform-expanded';
-import MessageManager from './../visitors/message-manager';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 import { TOOL_PALETTE_WIDTH } from './constants';
@@ -47,7 +46,6 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
         this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
@@ -122,7 +120,6 @@ class DesignView extends React.Component {
     getChildContext() {
         return {
             designView: this,
-            messageManager: this.messageManager,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
         };
@@ -227,7 +224,6 @@ DesignView.contextTypes = {
 
 DesignView.childContextTypes = {
     designView: PropTypes.instanceOf(DesignView).isRequired,
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };

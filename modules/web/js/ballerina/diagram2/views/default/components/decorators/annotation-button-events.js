@@ -31,8 +31,13 @@ function deleteNode(node) {
         node.parent.removeAnnotationAttachments(node);
     } else if (TreeUtil.isAnnotationAttachmentAttribute(node) && TreeUtil.isAnnotationAttachment(node.parent)) {
         node.parent.removeAttributes(node);
-    } else if (TreeUtil.isAnnotationAttachmentAttributeValue(node) && TreeUtil.isAnnotationAttachmentAttributeValue(node.parent)) {
+    } else if (TreeUtil.isAnnotationAttachmentAttributeValue(node)
+                && TreeUtil.isAnnotationAttachmentAttributeValue(node.parent)) {
         node.parent.removeValueArray(node);
+    } else if (TreeUtil.isAnnotationAttachment(node)
+                && TreeUtil.isAnnotationAttachmentAttributeValue(node.parent)
+                && TreeUtil.isAnnotationAttachmentAttributeValue(node.parent.parent)) {
+        node.parent.parent.removeValueArray(node.parent);
     }
 }
 

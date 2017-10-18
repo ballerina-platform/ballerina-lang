@@ -363,6 +363,10 @@ public class BLangFileRestService {
         JsonArray errors = new JsonArray();
         final String errorCategoryName = errorCategory.name();
         diagnostics.forEach(diagnostic -> {
+            if (!diagnostic.getSource().getCompilationUnitName().equals(bFile.getFileName())) {
+                return;
+            }
+
             JsonObject error = new JsonObject();
             Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
             if (position != null) {
@@ -371,7 +375,7 @@ public class BLangFileRestService {
                 error.addProperty("type", "error");
                 error.addProperty("category", errorCategoryName);
             } else {
-                error.addProperty("category", "runtime");
+                error.addProperty("category", ErrorCategory.RUNTIME.name());
             }
 
             error.addProperty("text", diagnostic.getMessage());
@@ -400,6 +404,7 @@ public class BLangFileRestService {
     public enum ErrorCategory {
         SYNTAX,
         SEMANTIC,
+        RUNTIME,
         NONE;
     }
 

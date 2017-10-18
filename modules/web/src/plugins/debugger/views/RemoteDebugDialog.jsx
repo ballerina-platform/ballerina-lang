@@ -82,7 +82,7 @@ class RemoteDebugDialog extends React.Component {
 
     connectDebugger() {
         try {
-            DebugManager.connect(`ws://${this.state.url}/debug`);
+            DebugManager.startDebugger(`ws://${this.state.url}/debug`);
         } catch (error) {
             this.setState({
                 connecting: false,

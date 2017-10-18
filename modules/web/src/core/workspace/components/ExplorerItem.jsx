@@ -123,7 +123,8 @@ class ExplorerItem extends React.Component {
                             },
                             () => {
                                 this.forceUpdate();
-                            })
+                            },
+                            this.context)
                         }
                     onShow={() => {
                         this.setState({
@@ -199,6 +200,18 @@ ExplorerItem.contextTypes = {
     command: PropTypes.shape({
         on: PropTypes.func,
         dispatch: PropTypes.func,
+    }).isRequired,
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorByID: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
     }).isRequired,
 };
 

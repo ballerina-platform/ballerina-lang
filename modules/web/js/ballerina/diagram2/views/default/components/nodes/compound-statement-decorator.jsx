@@ -338,6 +338,7 @@ class CompoundStatementDecorator extends React.Component {
                     baseComponent="rect"
                     dropTarget={this.props.body}
                     enableDragBg
+                    enableCenterOverlayLine
                 />
                 {this.props.children}
                 {body}

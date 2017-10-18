@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import ConnectorHelper from './../../../../../env/helpers/connector-helper';
 import './properties-form.css';
-import ConnectorPropertiesWindow from './connector-property-window';
+import PropertyWindow from './property-window';
 import TreeUtils from './../../../../../model/tree-util';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -42,6 +42,7 @@ class ConnectorPropertiesForm extends React.Component {
         this.getAddedValueOfProp = this.getAddedValueOfProp.bind(this);
         this.addQuotationForStringValues = this.addQuotationForStringValues.bind(this);
         this.getStringifiedMap = this.getStringifiedMap.bind(this);
+        this.getValueOfStructs = this.getValueOfStructs.bind(this);
     }
 
     /**
@@ -71,37 +72,36 @@ class ConnectorPropertiesForm extends React.Component {
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
             if (addedValues.length > 0) {
+                // For simple fields -> Literal node or a simple variable reference
                 if (TreeUtils.isSimpleVariableRef(addedValues[index]) || TreeUtils.isLiteral(addedValues[index])) {
                     property.value = this.getAddedValueOfProp(addedValues[index]);
-                } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) {
-                    addedValues[index].getKeyValuePairs().forEach((element) => {
-                        if (TreeUtils.isRecordLiteralKeyValue(element)) {
-                            const key = element.getKey().getVariableName().value ||
-                                element.getKey().value;
-                                // If the value is a Literal Node
-                            if (TreeUtils.isLiteral(element.getValue())) {
-                                const obj = _.find(property.fields, { identifier: key });
-                                obj.value = (this.getAddedValueOfProp(element.getValue()));
-                            } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
-                                const propName = _.find(property.fields, { identifier: key });
-                                element.getValue().getKeyValuePairs().map((innerElement) => {
-                                    if (TreeUtils.isRecordLiteralKeyValue(innerElement)) {
-                                        const innerKey = innerElement.getKey().getVariableName().value ||
-                                            innerElement.getKey().value;
-                                            // If the value is a Literal Node
-                                        if (TreeUtils.isLiteral(innerElement.getValue())) {
-                                            const obj = _.find(propName.fields, { identifier: innerKey });
-                                            obj.value = (this.getAddedValueOfProp(innerElement.getValue()));
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
+                } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // For structs
+                    this.getValueOfStructs(addedValues[index], property.fields);
                 }
             }
         });
         return connectorProps;
+    }
+
+    /**
+     * Get value of structs
+     */
+    getValueOfStructs(addedValues, fields) {
+        addedValues.getKeyValuePairs().forEach((element) => {
+            if (TreeUtils.isRecordLiteralKeyValue(element)) {
+                const key = element.getKey().getVariableName().value ||
+                    element.getKey().value;
+                // If the value is a Literal Node
+                if (TreeUtils.isLiteral(element.getValue())
+                    || TreeUtils.isSimpleVariableRef(element.getValue())) {
+                    const obj = _.find(fields, { identifier: key });
+                    obj.value = (this.getAddedValueOfProp(element.getValue()));
+                } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
+                    const propName = _.find(fields, { identifier: key });
+                    this.getValueOfStructs(element.getValue(), propName.fields);
+                }
+            }
+        });
     }
 
     /**
@@ -172,17 +172,8 @@ class ConnectorPropertiesForm extends React.Component {
             } else if (field.value) {
                 valueArr.push(field.identifier + ':' + field.value);
             } else {
-                const innerValueArr = [];
-                field.fields.forEach((innerField) => {
-                    if (innerField.identifier.startsWith('"')) {
-                        innerField.identifier = JSON.parse(innerField.identifier);
-                    }
-                    if (innerField.bType === 'string') {
-                        innerField.value = this.addQuotationForStringValues(innerField.value);
-                    }
-                    innerValueArr.push(innerField.identifier + ':' + innerField.value);
-                });
-                const localMap = field.identifier + ': {' + innerValueArr.join(',') + '}';
+                let localMap = this.getStringifiedMap(field.fields);
+                localMap = field.identifier + ': ' + localMap;
                 valueArr.push(localMap);
             }
         });
@@ -224,7 +215,7 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '375px',
+                height: '428px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -237,13 +228,14 @@ class ConnectorPropertiesForm extends React.Component {
             return null;
         }
         return (
-            <ConnectorPropertiesWindow
+            <PropertyWindow
                 model={props.model}
                 formHeading='Connector Properties'
                 key={`connectorProp/${props.model.id}`}
                 styles={styles}
                 supportedProps={this.getSupportedProps()}
                 addedValues={this.setDataToConnectorInitArgs}
+                isConnector='true'
             />);
     }
 }

@@ -396,7 +396,22 @@ public class SwaggerResourceMapper {
                 queryParameter.required(false);
                 // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
                 // Set type
-                if ("int".equals(typeName)) {
+                if (typeName.contains("[]")) {
+                    queryParameter.setType("array");
+                    switch (typeName.replace("[]", "").trim()) {
+                        case "string":
+                            queryParameter.items(new StringProperty());
+                            break;
+                        case "int":
+                            queryParameter.items(new IntegerProperty());
+                            break;
+                        case "boolean":
+                            queryParameter.items(new BooleanProperty());
+                            break;
+                        default:
+                            break;
+                    }
+                } else if ("int".equals(typeName)) {
                     queryParameter.setType("integer");
                 } else {
                     queryParameter.setType(typeName);
@@ -424,7 +439,22 @@ public class SwaggerResourceMapper {
                 // Note: 'description' to be added using annotations, hence skipped here.
                 // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
                 // Set type
-                if ("int".equals(typeName)) {
+                if (typeName.contains("[]")) {
+                    pathParameter.setType("array");
+                    switch (typeName.replace("[]", "").trim()) {
+                        case "string":
+                            pathParameter.items(new StringProperty());
+                            break;
+                        case "int":
+                            pathParameter.items(new IntegerProperty());
+                            break;
+                        case "boolean":
+                            pathParameter.items(new BooleanProperty());
+                            break;
+                        default:
+                            break;
+                    }
+                } else if ("int".equals(typeName)) {
                     pathParameter.setType("integer");
                 } else {
                     pathParameter.setType(typeName);

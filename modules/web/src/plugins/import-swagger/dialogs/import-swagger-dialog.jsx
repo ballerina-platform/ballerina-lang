@@ -18,13 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from 'core/view/Dialog';
 import FileTree from 'core/view/tree-view/FileTree';
 import { exists as checkPathExists } from 'core/workspace/fs-util';
+import { getUserHome } from 'api-client/api-client';
+import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
 
 const FILE_TYPE = 'file';
+const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.import-swagger.last-active-path';
 
 /**
  * File Open Wizard Dialog
@@ -37,10 +39,12 @@ class ImportSwaggerDialog extends React.Component {
      */
     constructor(props) {
         super(props);
+        const { history } = props.importSwaggerPlugin.appContext.pref;
+        const filePath = history.get(HISTORY_LAST_ACTIVE_PATH) || '';
         this.state = {
             error: '',
             selectedNode: undefined,
-            filePath: '',
+            filePath,
             showDialog: true,
         };
         this.onFileOpen = this.onFileOpen.bind(this);
@@ -48,7 +52,22 @@ class ImportSwaggerDialog extends React.Component {
     }
 
     /**
-     * Called when user clicks open
+     * Setting the default file path on the dialog if not set in history.
+     * @memberof ImportSwaggerDialog
+     */
+    componentDidMount() {
+        if (!this.state.filePath) {
+            getUserHome()
+                .then((userHome) => {
+                    this.setState({
+                        filePath: userHome,
+                    });
+                });
+        }
+    }
+
+    /**
+     * Called when user clicks 'Import Swagger' menu item.
      */
     onFileOpen() {
         const { filePath } = this.state;
@@ -88,6 +107,21 @@ class ImportSwaggerDialog extends React.Component {
         this.setState({
             error: '',
             showDialog: false,
+        });
+    }
+
+    /**
+     * Updates the state of the dialog modal.
+     * @param {any} { error, selectedNode, filePath }
+     * @memberof ImportSwaggerDialog
+     */
+    updateState({ error, selectedNode, filePath }) {
+        const { history } = this.props.importSwaggerPlugin.appContext.pref;
+        history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
+        this.setState({
+            error,
+            filePath,
+            selectedNode,
         });
     }
 
@@ -133,7 +167,7 @@ class ImportSwaggerDialog extends React.Component {
                                     }
                                 }}
                                 onChange={(evt) => {
-                                    this.setState({
+                                    this.updateState({
                                         error: '',
                                         filePath: evt.target.value,
                                         selectedNode: undefined,
@@ -145,7 +179,7 @@ class ImportSwaggerDialog extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-                <Scrollbars
+                <ScrollBarsWithContextAPI
                     style={{
                         width: 608,
                         height: 500,
@@ -153,9 +187,10 @@ class ImportSwaggerDialog extends React.Component {
                     autoHide
                 >
                     <FileTree
+                        activeKey={this.state.filePath}
                         onSelect={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
                                     filePath: node.id,
@@ -164,7 +199,7 @@ class ImportSwaggerDialog extends React.Component {
                         }
                         onOpen={
                             (node) => {
-                                this.setState({
+                                this.updateState({
                                     error: '',
                                     selectedNode: node,
                                     filePath: node.id,
@@ -174,7 +209,7 @@ class ImportSwaggerDialog extends React.Component {
                         }
                         extensions={this.props.extensions}
                     />
-                </Scrollbars>
+                </ScrollBarsWithContextAPI>
             </Dialog>
         );
     }

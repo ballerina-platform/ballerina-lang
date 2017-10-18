@@ -47,7 +47,7 @@ export function getHandlerDefinitions(editorPlugin) {
             cmdID: COMMANDS.ACTIVATE_EDITOR_FOR_FILE,
             handler: (args) => {
                 const { filePath } = args;
-                const editor = editorPlugin.getEditorForFile(filePath);
+                const editor = editorPlugin.getEditorByID(filePath);
                 if (editor) {
                     editorPlugin.setActiveEditor(editor);
                 }

@@ -175,16 +175,20 @@ class IfNode extends React.Component {
         return (
             <g>
                 {!isElseIfNode &&
-                <DropZone
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    baseComponent="rect"
-                    dropTarget={model.parent}
-                    dropBefore={model}
-                    renderUponDragStart
-                />
+                    <g>
+                    <DropZone
+                        x={dropZone.x}
+                        y={dropZone.y}
+                        width={dropZone.w}
+                        height={dropZone.h}
+                        baseComponent="rect"
+                        dropTarget={model.parent}
+                        dropBefore={model}
+                        renderUponDragStart
+                            enableDragBg
+                            enableCenterOverlayLine
+                    />
+                    </g>
                 }
                 <CompoundStatementDecorator
                     dropTarget={model}
@@ -198,17 +202,17 @@ class IfNode extends React.Component {
                 {this.getAddBlockButton(isElseIfNode)}
 
                 {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp} />
+                    <IfNode model={elseComp} />
                 }
 
                 {elseComp && TreeUtil.isBlock(elseComp) &&
-                <CompoundStatementDecorator
-                    dropTarget={model}
-                    bBox={elseComp.viewState.bBox}
-                    title={'Else'}
-                    model={elseComp}
-                    body={elseComp}
-                />
+                    <CompoundStatementDecorator
+                        dropTarget={model}
+                        bBox={elseComp.viewState.bBox}
+                        title={'Else'}
+                        model={elseComp}
+                        body={elseComp}
+                    />
                 }
             </g>
         );
