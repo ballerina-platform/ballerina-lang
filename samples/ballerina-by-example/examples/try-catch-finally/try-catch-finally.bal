@@ -24,7 +24,9 @@ function main (string[] args) {
         //error type and catch clause's error type are structurally equivalent.
     } catch (error err) {
         system:println("error: " + err.msg);
-    //Catching specific error type 'errors:NullReferenceError'.
+    //Catching specific error type 'NullReferenceException'.
+    } catch (NullReferenceException err) {
+        system:println("NullReferenceException error occurred");
     } finally {
         //Closing the file.
         files:close(target);

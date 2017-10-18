@@ -4,9 +4,7 @@ import ballerina.doc;
 import ballerina.net.http.response;
 import ballerina.net.http.request;
 
-@doc:Description {
-    value: "Defining Person struct."
-}
+@doc:Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
@@ -16,18 +14,14 @@ struct Person {
 @http:configuration {
     basePath:"/person"
 }
-@doc:Description {
-    value: "Defining Person service which provides person details."
-}
+@doc:Description {value:"Defining Person service which provides person details."}
 service<http> PersonService {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    @doc:Description {
-        value: "Defining POST resource for the service to get person details."
-    }
+    @doc:Description {value:"Defining POST resource for the service to get person details."}
     resource getPerson (http:Request req, http:Response res) {
         // Get the JSON payload from the request
         json j = request:getJsonPayload(req);
