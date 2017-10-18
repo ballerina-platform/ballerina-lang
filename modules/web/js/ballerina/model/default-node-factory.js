@@ -41,15 +41,14 @@ class DefaultNodeFactory {
 
     createHTTPServiceDef() {
         const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-`
+            FragmentUtils.createTopLevelNodeFragment(`
     service<http> service1 {
         resource echo1 (http:Request req, http:Response res) {
 
         }
     }
-`,
-            ));
+`),
+            );
         node.viewState.showOverlayContainer = true;
         node.setFullPackageName('ballerina.net.http');
         return node;
@@ -57,8 +56,7 @@ class DefaultNodeFactory {
 
     createWSServiceDef() {
         const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-`
+            FragmentUtils.createTopLevelNodeFragment(`
     service<ws> service1 {
         resource onOpen(ws:Connection conn) {
 
@@ -70,8 +68,8 @@ class DefaultNodeFactory {
 
         }
     }
-`,
-            ));
+`),
+        );
         node.viewState.showOverlayContainer = true;
         node.setFullPackageName('ballerina.net.ws');
         return node;
@@ -200,6 +198,10 @@ class DefaultNodeFactory {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             if (true) {
 
+            } else if(false) {
+            
+            } else {
+            
             }
         `));
     }

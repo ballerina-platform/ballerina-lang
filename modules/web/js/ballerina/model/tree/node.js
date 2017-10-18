@@ -274,15 +274,42 @@ class Node extends EventChannel {
             const prop = this.parent[key];
             if (prop instanceof Node && key !== 'parent') {
                 if (prop.getID() === this.getID() && prop instanceof Node) {
-                    delete this.parent[key];
-                    parent.trigger('tree-modified', {
-                        origin: this,
-                        type: 'child-removed',
-                        title: `Removed ${this.kind}`,
-                        data: {
-                            node: this,
-                        },
-                    });
+                    // Delete if, else, and else if blocks as they have children tree.
+                    // Check whether prop is a else if block.
+                    const isElseIf = (prop.kind === 'If' && prop.parent.kind === 'If');
+                    if (isElseIf) {
+                        const elseStatement = prop.elseStatement;
+                        // if statement is not a kind of If
+                        if (elseStatement && elseStatement.kind !== 'If') {
+                            parent.ladderParent = false;
+                        }
+
+                        // If next else statement exist using setElseStatement otherwise
+                        // delete the property from object.
+                        if (elseStatement) {
+                            parent.setElseStatement(elseStatement);
+                        } else {
+                            delete this.parent[key];
+                            parent.trigger('tree-modified', {
+                                origin: this,
+                                type: 'child-removed',
+                                title: `Removed ${this.kind}`,
+                                data: {
+                                    node: this,
+                                },
+                            });
+                        }
+                    } else {
+                        delete this.parent[key];
+                        parent.trigger('tree-modified', {
+                            origin: this,
+                            type: 'child-removed',
+                            title: `Removed ${this.kind}`,
+                            data: {
+                                node: this,
+                            },
+                        });
+                    }
                 }
             } else if (_.isArray(prop) && prop.length > 0 && prop[0] instanceof Node) {
                 let i = 0;
