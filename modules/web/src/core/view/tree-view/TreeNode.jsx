@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
 import { exists, create, move } from './../../workspace/fs-util';
+import { COMMANDS as WORKSPACE_CMDS } from './../../workspace/constants';
 
 export const EDIT_TYPES = {
     NEW: 'new',
@@ -184,6 +185,17 @@ class TreeNode extends React.Component {
                 move(id, newFullPath)
                     .then((sucess) => {
                         if (sucess) {
+                            // if the old file was opened in an editor, close it and reopen a new tab
+                            const { editor, command: { dispatch } } = this.context;
+                            if (editor.isFileOpenedInEditor(node.id)) {
+                                const targetEditor = editor.getEditorForFile(node.id);
+                                const wasActive = editor.getActiveEditor().id === targetEditor.id;
+                                editor.closeEditor(targetEditor);
+                                dispatch(WORKSPACE_CMDS.OPEN_FILE, {
+                                    filePath: newFullPath,
+                                    activate: wasActive,
+                                });
+                            }
                             this.props.onNodeRefresh(this.props.parentNode);
                         }
                     })
@@ -340,7 +352,8 @@ class TreeNode extends React.Component {
                 {this.props.enableContextMenu && !enableEdit &&
                 <ContextMenuTrigger
                     id={node.id}
-                    menu={getContextMenuItems(node, parentNode, this.context.command, onNodeUpdate, onNodeRefresh)}
+                    menu={getContextMenuItems(node, parentNode,
+                        this.context.command, onNodeUpdate, onNodeRefresh, this.context)}
                     onShow={() => {
                         this.setState({
                             disableToolTip: true,
@@ -411,6 +424,19 @@ TreeNode.contextTypes = {
         getScrollHeight: PropTypes.func.isRequired,
         scrollToElement: PropTypes.func.isRequired,
         isElementVisible: PropTypes.func.isRequired,
+    }).isRequired,
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorForFile: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
     }).isRequired,
 };
 

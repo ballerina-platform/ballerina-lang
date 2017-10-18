@@ -101,9 +101,11 @@ class WorkspacePlugin extends Plugin {
      *
      * @param {String} filePath Path of the file.
      * @param {String} type type of the file.
+     * @param {Boolean} activate activate upon open.
+     *
      * @return {Promise} Resolves or reject with error.
      */
-    openFile(filePath, type = 'bal') {
+    openFile(filePath, type = 'bal', activate = true) {
         return new Promise((resolve, reject) => {
             const indexInOpenedFiles = _.findIndex(this.openedFiles, file => file.fullPath === filePath);
             // if not already opened
@@ -115,7 +117,7 @@ class WorkspacePlugin extends Plugin {
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                         file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
-                        editor.open(file);
+                        editor.open(file, activate);
                         resolve(file);
                     })
                     .catch((err) => {

@@ -73,3 +73,59 @@ export function createViewFromViewDef(viewDef, additionalProps) {
     );
 }
 
+
+/**
+ * Inject apis into context.
+ *
+ * @param {Reac.Component} Dialog 
+ * @param {Object} appContext 
+ */
+export function withDialogContext(Dialog, appContext) {
+    class DialogWrapper extends React.Component {
+
+        /**
+         * @inheritdoc
+         */
+        getChildContext() {
+            return {
+                history: appContext.pref.history,
+                command: appContext.command,
+                alert: appContext.alert,
+                editor: appContext.editor,
+            };
+        }
+
+         /**
+         * @inheritdoc
+         */
+        render() {
+            return (<Dialog {...this.props} />);
+        }
+    }
+
+    DialogWrapper.childContextTypes = {
+        history: PropTypes.shape({
+            put: PropTypes.func,
+            get: PropTypes.func,
+        }).isRequired,
+        command: PropTypes.shape({
+            on: PropTypes.func,
+            dispatch: PropTypes.func,
+        }).isRequired,
+        alert: PropTypes.shape({
+            showInfo: PropTypes.func,
+            showSuccess: PropTypes.func,
+            showWarning: PropTypes.func,
+            showError: PropTypes.func,
+        }).isRequired,
+        editor: PropTypes.shape({
+            isFileOpenedInEditor: PropTypes.func,
+            getEditorForFile: PropTypes.func,
+            setActiveEditor: PropTypes.func,
+            getActiveEditor: PropTypes.func,
+            closeEditor: PropTypes.func,
+        }).isRequired,
+    };
+
+    return DialogWrapper;
+}

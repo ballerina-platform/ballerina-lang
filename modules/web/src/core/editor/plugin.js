@@ -35,6 +35,7 @@ import CustomEditor from './model/CustomEditor';
 import Editor from './model/Editor';
 
 import DirtyFileCloseConfirmDialog from './dialogs/DirtyFileCloseConfirmDialog';
+import OpenedFileDeleteConfirmDialog from './dialogs/OpenedFileDeleteConfirmDialog';
 
 /**
  * Editor Plugin is responsible for providing editors to opening files.
@@ -113,7 +114,35 @@ class EditorPlugin extends Plugin {
             getActiveEditor: () => {
                 return this.activeEditor;
             },
+            getEditorForFile: this.getEditorForFile.bind(this),
+            isFileOpenedInEditor: this.isFileOpenedInEditor.bind(this),
+            setActiveEditor: this.setActiveEditor.bind(this),
+            closeEditor: this.closeTab.bind(this),
         };
+    }
+
+    /**
+     * Returns the editor for give file - if file is opened already.
+     *
+     * @param {String} filePath Path of the file.
+     *
+     * @returns {Editor|undefined} Editor instance or null
+     *
+     */
+    getEditorForFile(filePath) {
+        return _.find(this.openedEditors, ['id', filePath]);
+    }
+
+    /**
+     * Indicates whether the given file is opened in editor area.
+     *
+     * @param {String} filePath Path of the file.
+     *
+     * @returns {boolean} true if opened in Editor area.
+     *
+     */
+    isFileOpenedInEditor(filePath) {
+        return _.findIndex(this.openedEditors, ['id', filePath]) !== -1;
     }
 
     /**
@@ -306,6 +335,15 @@ class EditorPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
                     component: DirtyFileCloseConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            editorPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.OPENED_FILE_DELETE_CONFIRM,
+                    component: OpenedFileDeleteConfirmDialog,
                     propsProvider: () => {
                         return {
                             editorPlugin: this,
