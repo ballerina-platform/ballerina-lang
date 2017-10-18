@@ -67,6 +67,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                 ]}
                 closeAction
                 onHide={this.onDialogHide}
+                onAfterHide={this.props.onAfterHide}
                 error={this.state.error}
             >
                 <h4>
@@ -84,8 +85,13 @@ class DirtyFileCloseConfirmDialog extends React.Component {
 DirtyFileCloseConfirmDialog.propTypes = {
     file: PropTypes.objectOf(Object).isRequired,
     onConfirm: PropTypes.func.isRequired,
+    onAfterHide: PropTypes.func,
     onSave: PropTypes.func.isRequired,
     editorPlugin: PropTypes.objectOf(Object).isRequired,
+};
+
+DirtyFileCloseConfirmDialog.defaultProps = {
+    onAfterHide: () => {},
 };
 
 export default DirtyFileCloseConfirmDialog;

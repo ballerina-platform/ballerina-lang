@@ -53,12 +53,31 @@ export function getContextMenuItems(node, parentNode, command,
             if (editor.isFileOpenedInEditor(node.id)) {
                 const targetEditor = editor.getEditorForFile(node.id);
                 if (targetEditor.isDirty) {
+                    let canContinueRename = false;
+                    let saveBeforeRename = false;
                     dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                         id: EDITOR_DIALOGS.DIRTY_CLOSE_CONFIRM,
                         additionalProps: {
                             file: targetEditor.file,
-                            onConfirm: prepareNodeForRename,
-                            onSave: prepareNodeForRename,
+                            onConfirm: () => {
+                                canContinueRename = true;
+                            },
+                            onSave: () => {
+                                canContinueRename = true;
+                                saveBeforeRename = true;
+                            },
+                            onAfterHide: () => {
+                                if (canContinueRename) {
+                                    if (saveBeforeRename) {
+                                        dispatch(WORKSPACE_CMDS.SAVE_FILE, {
+                                            file: targetEditor.file,
+                                            onSaveSuccess: prepareNodeForRename,
+                                        });
+                                    } else {
+                                        prepareNodeForRename();
+                                    }
+                                }
+                            },
                         },
                     });
                 } else {

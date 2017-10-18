@@ -14,15 +14,21 @@ class Dialog extends React.Component {
     constructor(props) {
         super(props);
         this.close = this.close.bind(this);
+        this.onExited = this.onExited.bind(this);
+    }
+
+    /**
+     * Dialog exited
+     */
+    onExited() {
+        this.props.onAfterHide();
     }
 
     /**
      * Close dialog
      */
-    close(evt) {
+    close() {
         this.props.onHide();
-        evt.stopPropagation();
-        evt.preventDefault();
     }
 
     /**
@@ -34,6 +40,7 @@ class Dialog extends React.Component {
                 show={this.props.show}
                 onHide={this.close}
                 dialogClassName={'composer-dialog ' + this.props.className}
+                onExited={this.onExited}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
@@ -61,6 +68,7 @@ Dialog.propTypes = {
     show: PropTypes.bool,
     closeAction: PropTypes.bool,
     onHide: PropTypes.func,
+    onAfterHide: PropTypes.func.isRequired,
     title: PropTypes.node.isRequired,
     children: PropTypes.node.isRequired,
     actions: PropTypes.node,
@@ -72,6 +80,7 @@ Dialog.defaultProps = {
     show: true,
     closeAction: false,
     onHide: () => {},
+    onAfterHide: () => {},
     error: '',
     actions: '',
     className: '',
