@@ -61,33 +61,6 @@ public class DispatcherUtil {
         return getStringArray(methodsAttrVal.getAnnAttrValueArray());
     }
 
-//    public static String[] getConsumerList(Resource resourceInfo) {
-//        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-//                Constants.ANN_NAME_RESOURCE_CONFIG);
-//        if (rConfigAnnAtchmnt == null) {
-//            return null;
-//        }
-//        AnnAttrValue consumesAttrVal = rConfigAnnAtchmnt
-//                .getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
-//        if (consumesAttrVal == null) {
-//            return null;
-//        }
-//        return getStringArray(consumesAttrVal.getAnnAttrValueArray());
-//    }
-
-//    public static String[] getProducesList(Resource resourceInfo) {
-//        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-//                Constants.ANN_NAME_RESOURCE_CONFIG);
-//        if (rConfigAnnAtchmnt == null) {
-//            return null;
-//        }
-//        AnnAttrValue producesAttrVal = rConfigAnnAtchmnt.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
-//        if (producesAttrVal == null) {
-//            return null;
-//        }
-//        return getStringArray(producesAttrVal.getAnnAttrValueArray());
-//    }
-
     public static String[] getStringArray(AnnAttrValue[] annAttributeValues) {
         String[] values = new String[annAttributeValues.length];
         for (int i = 0; i < annAttributeValues.length; i++) {
