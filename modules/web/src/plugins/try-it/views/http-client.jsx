@@ -470,9 +470,13 @@ class HttpClient extends React.Component {
             return (<div className='row http-client-select-service-wrapper'>
                 <div className='selectors service-selector'>
                     <DropdownButton
-                        title='Select Service'
+                        title={this.state.selectedService === '' ? 'Select Service' :
+                                    serviceNodes.filter((serviceNode) => {
+                                        return serviceNode.getID() === this.state.selectedService;
+                                    })[0].getName().getValue()}
                         key='try-it-service-dropdown'
                         onSelect={this.onServiceSelected}
+                        eventKey={this.state.selectedService}
                     >
                         {serviceItems}
                     </DropdownButton>
@@ -482,7 +486,12 @@ class HttpClient extends React.Component {
                         { hide: this.state.selectedService === undefined || this.state.selectedService.trim() === '' })}
                 >
                     <DropdownButton
-                        title='Select Resource'
+                        title={this.state.selectedResource === '' ? 'Select Resource' :
+                            serviceNodes.filter((serviceNode) => {
+                                return serviceNode.getID() === this.state.selectedService;
+                            })[0].getResources().filter((resourceNode) => {
+                                return resourceNode.getID() === this.state.selectedResource;
+                            })[0].getName().getValue()}
                         key='try-it-resource-dropdown'
                         onSelect={this.onResourceSelected}
                     >
