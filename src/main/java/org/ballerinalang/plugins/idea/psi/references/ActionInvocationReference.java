@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -44,40 +45,29 @@ public class ActionInvocationReference extends BallerinaElementReference {
     public PsiElement resolve() {
         IdentifierPSINode identifier = getElement();
         PsiElement parent = identifier.getParent();
-        ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(parent,
-                ConnectorReferenceNode.class);
-        PsiReference reference;
-        if (connectorReferenceNode != null) {
-            reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
+
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+        PsiReference variableReference = null;
+        if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+            PsiElement connectorVariable = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+            if (connectorVariable != null) {
+                variableReference = connectorVariable.findReferenceAt(connectorVariable.getTextLength());
+            }
         } else {
-            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
-            if (prevVisibleLeaf == null || !".".equals(prevVisibleLeaf.getText())) {
-                return null;
-            }
-
-            PsiElement connectorName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-            if (connectorName == null || !(connectorName instanceof IdentifierPSINode)) {
-                return null;
-            }
-            reference = connectorName.findReferenceAt(connectorName.getTextLength());
-        }
-        if (reference == null) {
-            return null;
+            PsiElement prevSibling = parent.getPrevSibling();
+            variableReference = prevSibling.findReferenceAt(prevSibling.getTextLength());
         }
 
-        PsiElement connectorIdentifier = reference.resolve();
-        if (connectorIdentifier == null) {
+        if (variableReference == null) {
             return null;
         }
-        PsiElement connectorNode = connectorIdentifier.getParent();
-        if (connectorNode == null) {
+        PsiElement variableDefinition = variableReference.resolve();
+        if (variableDefinition == null) {
             return null;
         }
-        if (connectorNode instanceof VariableDefinitionNode || connectorNode instanceof CodeBlockParameterNode) {
-            connectorNode = BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(connectorNode);
-        }
-
-        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorNode,
+        ConnectorDefinitionNode connectorDefinitionNode =
+                BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinition.getParent());
+        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorDefinitionNode,
                 ActionDefinitionNode.class);
         for (ActionDefinitionNode actionDefinitionNode : actionDefinitionNodes) {
             IdentifierPSINode actionIdentifier = PsiTreeUtil.getChildOfType(actionDefinitionNode,
@@ -108,6 +98,15 @@ public class ActionInvocationReference extends BallerinaElementReference {
                     return new Object[0];
                 }
                 resolvedElement = reference.resolve();
+            } else {
+                PsiElement variableReference = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+                if (variableReference != null) {
+                    PsiReference reference = variableReference.findReferenceAt(variableReference.getTextLength());
+                    if (reference == null) {
+                        return new Object[0];
+                    }
+                    resolvedElement = reference.resolve();
+                }
             }
         } else {
             ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(parent,
@@ -132,7 +131,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
             return new Object[0];
         }
 
-        List<PsiElement> actions = BallerinaPsiImplUtil.getAllActionsFromAConnector(connectorNode);
+        List<IdentifierPSINode> actions = BallerinaPsiImplUtil.getAllActionsFromAConnector(connectorNode);
         List<LookupElement> results = BallerinaCompletionUtils.createActionLookupElements(actions);
 
         return results.toArray(new LookupElement[results.size()]);

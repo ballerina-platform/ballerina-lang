@@ -4,6 +4,6 @@ package ${PACKAGE_NAME};
 
 import ballerina.lang.system;
 
-function main (string[] args) {
+public function main (string[] args) {
     system:println("Hello, World!");
 }

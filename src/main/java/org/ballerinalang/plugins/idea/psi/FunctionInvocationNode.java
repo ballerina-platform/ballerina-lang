@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionInvocationStatementNode extends ANTLRPsiNode {
+public class FunctionInvocationNode extends ANTLRPsiNode {
 
-    public FunctionInvocationStatementNode(@NotNull ASTNode node) {
+    public FunctionInvocationNode(@NotNull ASTNode node) {
         super(node);
     }
 }

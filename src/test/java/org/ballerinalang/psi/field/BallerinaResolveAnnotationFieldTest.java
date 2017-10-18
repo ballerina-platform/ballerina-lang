@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BallerinaResolveAnnotationFieldTest extends BallerinaResolveTestBase {
 
-    private final String annotation = "\nannotation A attach function {\n    string /*def*/F;\n}\n";
+    private final String annotation = "\npublic annotation A attach function {\n    string /*def*/F;\n}\n";
 
     @Override
     protected String getTestDataPath() {

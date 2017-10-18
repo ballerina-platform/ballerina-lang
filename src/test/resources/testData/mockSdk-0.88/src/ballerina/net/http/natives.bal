@@ -41,7 +41,7 @@ native function setStatusCode (message m, int statusCode);
 @doc:Param { value:"reasonPhrase: Reason phrase value" }
 native function setReasonPhrase (message m, string reasonPhrase);
 
-connector ClientConnector (string serviceUri) {
+public connector ClientConnector (string serviceUri) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}
 	@doc:Param { value:"c: A connector object" }

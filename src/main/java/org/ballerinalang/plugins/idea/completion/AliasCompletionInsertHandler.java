@@ -43,16 +43,17 @@ public class AliasCompletionInsertHandler implements InsertHandler<LookupElement
             return;
         }
         Project project = editor.getProject();
-        if (project != null) {
-            if (!isCompletionCharAtSpace(editor)) {
-                EditorModificationUtil.insertStringAtCaret(editor, " as ;", false, 4);
-                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
-            } else {
-                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
-            }
-            if (myTriggerAutoPopup) {
-                AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-            }
+        if (project == null) {
+            return;
+        }
+        if (!isCompletionCharAtSpace(editor)) {
+            EditorModificationUtil.insertStringAtCaret(editor, " as ;", false, 4);
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        } else {
+            editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+        }
+        if (myTriggerAutoPopup) {
+            AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
         }
     }
 

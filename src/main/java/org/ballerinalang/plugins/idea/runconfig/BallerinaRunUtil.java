@@ -105,6 +105,11 @@ public class BallerinaRunUtil {
         return psiElement;
     }
 
+    public static void installBallerinaWithWorkingDirectoryChooser(Project project,
+                                                                   @NotNull TextFieldWithBrowseButton fileField) {
+        installWorkingDirectoryChooser(project, fileField);
+    }
+
     public static void installBallerinaWithMainFileChooser(Project project,
                                                            @NotNull TextFieldWithBrowseButton fileField) {
         installFileChooser(project, fileField, file ->
@@ -201,6 +206,23 @@ public class BallerinaRunUtil {
         chooseDirectoryDescriptor.setShowFileSystemRoots(false);
         chooseDirectoryDescriptor.withShowHiddenFiles(false);
         chooseDirectoryDescriptor.withFileFilter(fileFilter);
+        if (field instanceof TextFieldWithBrowseButton) {
+            ((TextFieldWithBrowseButton) field).addBrowseFolderListener(
+                    new TextBrowseFolderListener(chooseDirectoryDescriptor, project));
+        } else {
+            //noinspection unchecked
+            field.addBrowseFolderListener(project, new ComponentWithBrowseButton.BrowseFolderActionListener(null,
+                    null, field, project, chooseDirectoryDescriptor,
+                    TextComponentAccessor.TEXT_FIELD_WITH_HISTORY_WHOLE_TEXT));
+        }
+    }
+
+    private static void installWorkingDirectoryChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton
+            field) {
+        FileChooserDescriptor chooseDirectoryDescriptor =
+                FileChooserDescriptorFactory.createSingleFolderDescriptor();
+        chooseDirectoryDescriptor.setShowFileSystemRoots(true);
+        chooseDirectoryDescriptor.withShowHiddenFiles(false);
         if (field instanceof TextFieldWithBrowseButton) {
             ((TextFieldWithBrowseButton) field).addBrowseFolderListener(
                     new TextBrowseFolderListener(chooseDirectoryDescriptor, project));

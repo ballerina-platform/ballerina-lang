@@ -138,7 +138,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(COMMITTED).spaceIf(true)
                 .between(RBRACE, ABORTED).spaceIf(true)
                 .after(TRANSACTION).spaceIf(true)
-                .between(MESSAGE, IDENTIFIER).spaceIf(true)
                 .between(MAP, LT).spaces(0)
                 .between(JSON, LT).spaceIf(false)
                 .between(XML, LT).spaceIf(false)
@@ -147,6 +146,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
                 .between(XML_LOCAL_NAME, GT).spaceIf(false)
                 .between(NAME_REFERENCE, LBRACE).spaceIf(true)
+                .afterInside(NAME_REFERENCE, CONNECTOR_DECLARATION_STATEMENT).spaceIf(true)
                 .between(VARIABLE_REFERENCE, INDEX).spaceIf(false)
                 .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
                 .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
@@ -155,6 +155,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(FUNCTION_REFERENCE).spaceIf(false)
                 .after(CONNECTOR_REFERENCE).spaceIf(false)
                 .around(ANNOTATION_ATTRIBUTE_LIST).spaceIf(false)
+                .around(ANNOTATION_ATTRIBUTE_VALUE).spaceIf(false)
                 .around(NAME_REFERENCE).spaceIf(false)
                 .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(IDENTIFIER, LBRACE).spaceIf(true)
@@ -173,7 +174,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .withinPairInside(IDENTIFIER, LPAREN, CONNECTOR_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LPAREN, TYPE_MAPPER_DEFINTION).spaceIf(true)
-                .withinPairInside(IDENTIFIER, LPAREN, ACTION_INVOCATION).spaceIf(false);
+                .before(INVOCATION).spaceIf(false)
+                .afterInside(IDENTIFIER, INVOCATION).spaceIf(false);
     }
 
     @Nullable

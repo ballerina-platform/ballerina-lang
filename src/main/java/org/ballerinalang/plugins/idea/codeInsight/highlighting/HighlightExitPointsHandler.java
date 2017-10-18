@@ -28,7 +28,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Consumer;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ReplyStatementNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -61,8 +60,7 @@ public class HighlightExitPointsHandler extends HighlightUsagesHandlerBase<PsiEl
     @Override
     public void computeUsages(final List<PsiElement> targets) {
         PsiElement parent = PsiTreeUtil.getParentOfType(myTarget, StatementNode.class);
-        if (!(parent instanceof ReturnStatementNode) && !(parent instanceof ReplyStatementNode)
-                && !(parent instanceof ThrowStatementNode)) {
+        if (!(parent instanceof ReturnStatementNode) && !(parent instanceof ThrowStatementNode)) {
             return;
         }
         final PsiElement definitionNode = PsiTreeUtil.getParentOfType(parent, FunctionDefinitionNode.class,
@@ -79,7 +77,7 @@ public class HighlightExitPointsHandler extends HighlightUsagesHandlerBase<PsiEl
 
     private void highlightExitPoints(final PsiElement body) throws AnalysisCanceledException {
         Collection<StatementNode> statementNodes = PsiTreeUtil.findChildrenOfAnyType(body, ReturnStatementNode.class,
-                ReplyStatementNode.class, ThrowStatementNode.class);
+                ThrowStatementNode.class);
         for (PsiElement e : statementNodes) {
             addOccurrence(e);
         }

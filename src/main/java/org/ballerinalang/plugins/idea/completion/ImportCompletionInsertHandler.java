@@ -47,7 +47,9 @@ public class ImportCompletionInsertHandler implements InsertHandler<LookupElemen
     public void handleInsert(InsertionContext context, LookupElement item) {
         Editor editor = context.getEditor();
         char completionChar = context.getCompletionChar();
-        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) return;
+        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) {
+            return;
+        }
         Project project = editor.getProject();
         if (project != null) {
             if (!isCompletionCharAtSpace(editor)) {

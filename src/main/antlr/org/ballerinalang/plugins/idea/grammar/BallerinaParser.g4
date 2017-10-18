@@ -17,11 +17,15 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   PACKAGE fullyQualifiedPackageName SEMICOLON
+    :   PACKAGE fullyQualifiedPackageName version? SEMICOLON
+    ;
+
+version
+    : (VERSION Identifier)
     ;
 
 importDeclaration
-    :   IMPORT fullyQualifiedPackageName (AS alias)? SEMICOLON
+    :   IMPORT fullyQualifiedPackageName version? (AS alias)? SEMICOLON
     ;
 
 fullyQualifiedPackageName
@@ -41,6 +45,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   enumDefinition
     |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -56,7 +61,7 @@ sourceNotation
     ;
 
 serviceBody
-    :   variableDefinitionStatement* resourceDefinition*
+    :  connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition*
     ;
 
 resourceDefinition
@@ -64,12 +69,13 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :    statement* workerDeclaration*
+    :  connectorDeclarationStmt* statement*
+    |  connectorDeclarationStmt* workerDeclaration+
     ;
 
 functionDefinition
-    :   NATIVE FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   (PUBLIC)? NATIVE FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
+    |   (PUBLIC)? FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
@@ -77,11 +83,11 @@ lambdaFunction
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
+    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
     ;
 
 connectorBody
-    :   variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  connectorDeclarationStmt* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
@@ -90,7 +96,7 @@ actionDefinition
     ;
 
 structDefinition
-    :   STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
+    :   (PUBLIC)? STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
     ;
 
 structBody
@@ -98,11 +104,23 @@ structBody
     ;
 
 annotationDefinition
-    : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
+    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
+    ;
+
+enumDefinition
+    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    ;
+
+enumFieldList
+    :  enumField (COMMA enumField)*
+    ;
+
+enumField
+    :   Identifier
     ;
 
 globalVariableDefinition
-    :   typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -123,8 +141,8 @@ annotationBody
     ;
 
 typeMapperDefinition
-    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS typeName SEMICOLON
-    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS typeName LEFT_BRACE typeMapperBody RIGHT_BRACE
+    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS SEMICOLON
+    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS LEFT_BRACE typeMapperBody RIGHT_BRACE
     ;
 
 typeMapperBody
@@ -132,7 +150,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
     ;
 
 workerDeclaration
@@ -140,7 +158,7 @@ workerDeclaration
     ;
 
 workerBody
-    :   statement* workerDeclaration*
+    :   connectorDeclarationStmt* statement*
     ;
 
 typeName
@@ -165,8 +183,7 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MESSAGE
-    |   TYPE_MAP (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT structReference GT)?
     |   TYPE_DATATABLE
@@ -217,17 +234,15 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
-    |   continueStatement
+    |   nextStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
     |   returnStatement
-    |   replyStatement
-    |   workerInteractionStatement
+    |   (triggerWorker | workerReply)
     |   commentStatement
-    |   actionInvocationStatement
-    |   functionInvocationStatement
+    |   expressionStmt
     |   transformStatement
     |   transactionStatement
     |   abortStatement
@@ -255,7 +270,11 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | actionInvocation | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
+    ;
+
+connectorDeclarationStmt
+    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -283,7 +302,7 @@ connectorInitExpression
     ;
 
 filterInitExpression
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 filterInitExpressionList
@@ -291,7 +310,8 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | actionInvocation | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
     ;
 
 variableReferenceList
@@ -314,14 +334,6 @@ elseClause
     :   RIGHT_BRACE ELSE LEFT_BRACE codeBlockBody
     ;
 
-codeBlockBody
-    :   statement*
-    ;
-
-codeBlockParameter
-    :   typeName Identifier
-    ;
-
 //todo replace with 'foreach'
 iterateStatement
     :   ITERATE LEFT_PARENTHESIS codeBlockParameter COLON expression RIGHT_PARENTHESIS LEFT_BRACE codeBlockBody RIGHT_BRACE
@@ -331,8 +343,8 @@ whileStatement
     :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE codeBlockBody RIGHT_BRACE
     ;
 
-continueStatement
-    :   CONTINUE SEMICOLON
+nextStatement
+    :   NEXT SEMICOLON
     ;
 
 breakStatement
@@ -350,8 +362,8 @@ joinClause
     ;
 
 joinConditions
-    :   SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
+    :   SOME IntegerLiteral (workerReference (COMMA workerReference)*)?     # anyJoinCondition
+    |   ALL (workerReference (COMMA workerReference)*)?                     # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -384,25 +396,15 @@ returnStatement
     :   RETURN expressionList? SEMICOLON
     ;
 
-// below Identifier is only a type of TYPE_MESSAGE
-replyStatement
-    :   REPLY expression SEMICOLON
-    ;
-
-workerInteractionStatement
-    :   triggerWorker
-    |   workerReply
-    ;
-
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   variableReference (COMMA variableReference)* RARROW Identifier SEMICOLON #invokeWorker
-    |   variableReference (COMMA variableReference)* RARROW FORK SEMICOLON     #invokeFork
+    :   expressionList RARROW workerReference SEMICOLON #invokeWorker
+    |   expressionList RARROW FORK SEMICOLON     #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   variableReference (COMMA variableReference)* LARROW Identifier SEMICOLON
+    :   expressionList LARROW workerReference SEMICOLON
     ;
 
 commentStatement
@@ -411,14 +413,15 @@ commentStatement
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
+    |   variableReference invocation                                            # invocationReference
     ;
 
 field
-    :   DOT Identifier
+    : DOT Identifier
     ;
 
 index
@@ -429,17 +432,20 @@ xmlAttrib
     : AT (LEFT_BRACKET expression RIGHT_BRACKET)?
     ;
 
+functionInvocation
+    : functionReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+invocation
+    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
-functionInvocationStatement
-    :   functionReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
-    ;
-
-actionInvocationStatement
-    :   actionInvocation SEMICOLON
-    |   variableReferenceList ASSIGN actionInvocation SEMICOLON
+expressionStmt
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -470,10 +476,6 @@ retryStatement
     :   RETRY expression SEMICOLON
     ;
 
-actionInvocation
-    :   connectorReference DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
 namespaceDeclarationStatement
     :   namespaceDeclaration
     ;
@@ -494,6 +496,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
@@ -539,6 +542,18 @@ structReference
     :   (packageName COLON)? Identifier
     ;
 
+workerReference
+    :   Identifier
+    ;
+
+codeBlockBody
+    :   statement*
+    ;
+
+codeBlockParameter
+    :   typeName Identifier
+    ;
+
 returnParameters
     : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
     ;
@@ -570,7 +585,16 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   TYPE_XML BacktickStringLiteral
+    :   XMLStart xmlContent? XMLEnd
+    ;
+
+xmlContent
+    :   (XMLExpressionStart expression ExpressionEnd)+ xmlText?
+    |   xmlText
+    ;
+
+xmlText
+    :   XMLText
     ;
 
 stringTemplateLiteral

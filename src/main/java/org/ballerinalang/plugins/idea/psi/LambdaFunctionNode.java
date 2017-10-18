@@ -14,34 +14,26 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi.references;
+package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import com.intellij.psi.PsiNamedElement;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
+public class LambdaFunctionNode extends ANTLRPsiNode implements ParameterContainer {
 
-public class VariableReference extends BallerinaElementReference {
-
-    public VariableReference(@NotNull IdentifierPSINode element) {
-        super(element);
+    public LambdaFunctionNode(@NotNull ASTNode node) {
+        super(node);
     }
 
     @Nullable
     @Override
-    public PsiElement resolve() {
-        return super.resolve();
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        List<LookupElement> results = new LinkedList<>();
-//        results.addAll(BallerinaCompletionUtils.createLambdaFunctionLookupElements(ParenthesisInsertHandler.INSTANCE));
-        return results.toArray(new LookupElement[results.size()]);
+    public PsiElement resolve(PsiNamedElement element) {
+        return null;
     }
 }

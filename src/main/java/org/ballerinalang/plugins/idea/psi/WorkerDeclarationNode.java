@@ -17,13 +17,31 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.navigation.ItemPresentation;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
 
 public class WorkerDeclarationNode extends IdentifierDefSubtree {
 
     public WorkerDeclarationNode(@NotNull ASTNode node) {
         super(node, BallerinaTypes.IDENTIFIER);
+    }
+
+    @Override
+    public ItemPresentation getPresentation() {
+        return new BallerinaItemPresentation(getNameIdentifier()) {
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return BallerinaIcons.WORKER;
+            }
+        };
     }
 }

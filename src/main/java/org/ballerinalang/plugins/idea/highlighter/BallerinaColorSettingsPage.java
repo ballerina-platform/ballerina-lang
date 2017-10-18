@@ -55,24 +55,20 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDemoText() {
-        return "import ballerina.lang.system;\n" +
+        return "import ballerina.lang.messages;\n" +
+                "import ballerina.net.http;\n" +
                 "\n" +
-                "function main (string[] args) {\n" +
-                "    system:println(\"Hello, World!\");\n" +
-                "    int value = 10;\n" +
-                "    system:println(value);\n" +
-                "}\n\n" +
-                "@BasePath (\"/hello\")\n" +
-                "service helloWorld {\n" +
-                "\n" +
-                "    @GET\n" +
-                "    resource sayHello(message m) {\n" +
-                "        // response" +
+                "service<http> helloWorld {\n" +
+                "    \n" +
+                "    resource sayHello (message m) {\n" +
+                "        // Creates an empty message.\n" +
                 "        message response = {};\n" +
-                "        message:setStringPayload(response, \"Hello, World!\");\n" +
+                "        // A util method that can be used to set string payload.\n" +
+                "        messages:setStringPayload(response, \"Hello, World!\");\n" +
+                "        // Reply keyword sends the response back to the client.\n" +
                 "        reply response;\n" +
                 "    }\n" +
-                "}";
+                "}\n";
     }
 
     @Nullable

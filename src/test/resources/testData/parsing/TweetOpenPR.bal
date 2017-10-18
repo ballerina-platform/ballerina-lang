@@ -1,18 +1,17 @@
-import ballerina.lang.arrays;
-import ballerina.lang.jsons;
-import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 function main (string[] args) {
 
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");
 
-    int argumentLength = arrays:length(args);
+    int argumentLength = args.length;
     if (argumentLength < 4) {
         system:println("Incorrect number of arguments");
         system:println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret [repo-name]");
@@ -28,16 +27,16 @@ function main (string[] args) {
             repo = "wso2-synapse";
         }
         string repoPRpath = "/repos/wso2/" + repo + "/pulls";
-        message request = {};
-        message gitHubResponse = http:ClientConnector.get (gitHubEP, repoPRpath, request);
-        json gitHubJsonResponse = messages:getJsonPayload(gitHubResponse);
-        int noOfPRs = jsons:getInt(gitHubJsonResponse, "$.length()");
+        http:Request request = {};
+        http:Response gitHubResponse = gitHubEP.get(repoPRpath, request);
+        json gitHubJsonResponse = response:getJsonPayload(gitHubResponse);
+        int noOfPRs = lengthof gitHubJsonResponse;
         string noOfPRstr = strings:valueOf(noOfPRs);
         string textMsg = "Number of pending pull requests in " + repo + " is " + noOfPRstr;
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
-        messages:setHeader(request, "Authorization", oauthHeader);
+        request:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(textMsg);
-        message response = http:ClientConnector.post (tweeterEP, tweetPath, request);
+        http:Response response = tweeterEP.post(tweetPath, request);
         system:println("Successfully tweeted: '" + textMsg + "'");
     }
 }

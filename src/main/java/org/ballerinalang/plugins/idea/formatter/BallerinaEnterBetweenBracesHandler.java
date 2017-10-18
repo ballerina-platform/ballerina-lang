@@ -61,7 +61,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
 
         if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
-            if (elementType == BallerinaTypes.QUOTED_STRING || elementType == BallerinaTypes.BACKTICKED_STRING) {
+            if (elementType == BallerinaTypes.QUOTED_STRING) {
                 return false;
             }
         }

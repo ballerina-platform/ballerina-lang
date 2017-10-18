@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
 
-    private String constant = "const int /*def*/a;";
+    private String constant = "public const int /*def*/a;";
 
     @Override
     protected String getTestDataPath() {

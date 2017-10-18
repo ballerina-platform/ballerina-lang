@@ -21,11 +21,10 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -37,6 +36,14 @@ public class LanguageInjectorUtils {
 
     }
 
+    /**
+     * Checks whether the provided host is suitable for language injecting.
+     *
+     * @param host          host string to be checked
+     * @param packageNames  valid package names
+     * @param functionNames valid function names
+     * @return {@code true} if suitable for injecting language, {@code false} otherwise.
+     */
     public static boolean isValid(@NotNull PsiLanguageInjectionHost host, @NotNull Set<String> packageNames,
                                   @NotNull Set<String> functionNames) {
         if (!(host instanceof QuotedLiteralString)) {
@@ -50,21 +57,16 @@ public class LanguageInjectorUtils {
         if (firstChild.getChildren().length > 1) {
             return false;
         }
-        VariableReferenceNode variableReferenceNode = PsiTreeUtil.getPrevSiblingOfType(expressionListNode,
-                VariableReferenceNode.class);
-        if (variableReferenceNode == null) {
+        FunctionReferenceNode functionReferenceNode = PsiTreeUtil.getPrevSiblingOfType(expressionListNode,
+                FunctionReferenceNode.class);
+        if (functionReferenceNode == null) {
             return false;
         }
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(variableReferenceNode,
-                NameReferenceNode.class);
-        if (nameReferenceNode == null) {
-            return false;
-        }
-        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(nameReferenceNode, PackageNameNode.class);
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(functionReferenceNode, PackageNameNode.class);
         if (packageNameNode == null) {
             return false;
         }
-        IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(nameReferenceNode, IdentifierPSINode.class);
+        IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(functionReferenceNode, IdentifierPSINode.class);
         if (functionName == null) {
             return false;
         }

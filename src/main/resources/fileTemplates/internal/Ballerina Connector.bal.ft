@@ -17,7 +17,7 @@ connector MyClient (string url) {
     }
 }
 
-function main (string[] args) {
+public function main (string[] args) {
     MyClient myClient = create MyClient("http://example.com");
     message response = myClient.connect("");
     system:println(messages:getStringPayload(response));

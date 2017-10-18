@@ -30,6 +30,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -75,6 +76,12 @@ public class UnresolvedReferenceInspection extends LocalInspectionTool {
             if (packageNameNode == null) {
                 continue;
             }
+
+            AliasNode aliasNode = PsiTreeUtil.getParentOfType(packageNameNode, AliasNode.class);
+            if (aliasNode != null) {
+                continue;
+            }
+
             PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.getParentOfType(packageNameNode,
                     PackageDeclarationNode.class);
             if (packageDeclarationNode != null) {

@@ -70,72 +70,9 @@ public class BallerinaStackFrame extends XStackFrame {
 
     @Nullable
     private VirtualFile findFile() {
-        String relativePath = myFrame.getFileName();
-        Project project = myProcess.getSession().getProject();
-        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
-        VirtualFile file = null;
-        for (VirtualFile contentRoot : contentRoots) {
-            String absolutePath = contentRoot.getPath() + Matcher.quoteReplacement(File.separator) + relativePath;
-            file = LocalFileSystem.getInstance().findFileByPath(absolutePath);
-            if (file != null) {
-                break;
-            }
-        }
-
-        // Todo - Temp fix. Might show the wrong file if more than one file have the same name.
-        //        if (file == null) {
-        // If a file is not found, that can mean the file did not had any package declaration, so it was ran as a
-        // file, not a package.
-        //            GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
-        //            file = getVirtualFile(relativePath, myFrame.getPackageName(), scope);
-        //        }
-        // Todo - Check files in the SDK sources
-        return file;
+        String absolutePath = myFrame.getFileName();
+        return LocalFileSystem.getInstance().findFileByPath(absolutePath);
     }
-
-    //    private VirtualFile getVirtualFile(String relativePath, String packageName, GlobalSearchScope scope) {
-    //        List<VirtualFile> matchingFiles = new LinkedList<>();
-    //        ApplicationManager.getApplication().executeOnPooledThread(
-    //                () -> ApplicationManager.getApplication().runReadAction(
-    //                        () -> {
-    //                            for (VirtualFile virtualFile : FileTypeIndex.getFiles(BallerinaFileType.INSTANCE,
-    // scope)) {
-    //                                if (virtualFile.getName().equals(relativePath)) {
-    //                                    matchingFiles.add(virtualFile);
-    //                                }
-    //                            }
-    //
-    //
-    //                        }
-    //                )
-    //        );
-    //        if (matchingFiles.isEmpty()) {
-    //            return null;
-    //        }
-    //        if (matchingFiles.size() == 1) {
-    //            return matchingFiles.get(0);
-    //        }
-    //        for (VirtualFile matchingFile : matchingFiles) {
-    //
-    //            PsiFile psiFile = PsiManager.getInstance(myProcess.getSession().getProject()).findFile(matchingFile);
-    //            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
-    //                    PackageDeclarationNode.class);
-    //            if (packageDeclarationNode != null) {
-    //                if (".".equals(packageName)) {
-    //                    continue;
-    //                }
-    //
-    //                FullyQualifiedPackageNameNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
-    //                        FullyQualifiedPackageNameNode.class);
-    //                if (packagePathNode != null) {
-    //                    if (packageName.equals(packagePathNode.getText())) {
-    //                        return matchingFile;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        return null;
-    //    }
 
     /**
      * Customizes the stack name in the Frames sub window in Debug window.

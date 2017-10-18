@@ -166,10 +166,11 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("function test () {\n    int a = 10;\n    worker  {\n        \n    }\n}");
     }
 
-    public void testWorkerBeforeStatement() {
-        myFixture.configureByText("test.bal", "function test () {\n    <caret>\n    int a = 10;\n}");
+    public void testWorkerAfterConnectorVarDefStatement() {
+        myFixture.configureByText("test.bal", "function test () {\n    TestConnector t = create TestConnector();\n " +
+                "   <caret>\n}");
         myFixture.type("wor\t");
-        myFixture.checkResult("function test () {\n    worker  {\n        \n    }\n    int a = 10;\n}");
+        myFixture.checkResult("function test () {\n    TestConnector t = create TestConnector();\n    worker  {\n        \n    }\n}");
     }
 
     public void testForkJoinInFunction() {

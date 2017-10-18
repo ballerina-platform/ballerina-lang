@@ -39,14 +39,6 @@ public class BallerinaExitPointHighlightingTest extends BallerinaCodeInsightFixt
         doTest("return \"\";", "return args[0];");
     }
 
-    public void testSingleReply() {
-        doTest("reply response;");
-    }
-
-    public void testMultipleReplies() {
-        doTest("reply response;", "reply response;");
-    }
-
     public void testSingleThrow() {
         doTest("throw err;");
     }
