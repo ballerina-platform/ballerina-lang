@@ -506,31 +506,6 @@ public class Util {
     }
 
     /**
-     * Create an error response message with the given payload when a timeout occurs.
-     *
-     * @param payload Message payload.
-     * @return HTTPCarbonMessage
-     */
-    public static HTTPCarbonMessage createErrorMessage(String payload) {
-        HTTPCarbonMessage response = new HTTPCarbonMessage(
-                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR));
-
-        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
-        response.setEndOfMsgAdded(true);
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-
-        response.setHeader(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
-        response.setHeader(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
-
-        response.setProperty(Constants.HTTP_STATUS_CODE, 504);
-        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        MessagingException messagingException = new MessagingException("read timeout", 101504);
-        response.setMessagingException(messagingException);
-        return response;
-    }
-
-    /**
      * Reset channel attributes.
      *
      * @param ctx Channel handler context

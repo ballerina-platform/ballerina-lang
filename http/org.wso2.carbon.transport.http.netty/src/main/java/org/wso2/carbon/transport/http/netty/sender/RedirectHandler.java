@@ -59,8 +59,8 @@ import javax.net.ssl.SSLEngine;
  * Class responsible for handling redirects for client connector.
  */
 public class RedirectHandler extends ChannelInboundHandlerAdapter {
-
     protected static final Logger LOG = LoggerFactory.getLogger(RedirectHandler.class);
+
     private Map<String, String> redirectState = null;
     private boolean isRedirect = false;
     private boolean isCrossDoamin = true;
@@ -179,11 +179,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Timeout occurred in RedirectHandler. Channel ID : " + ctx.channel().id());
         }
-        String payload =
-                "<errorMessage>" + "ReadTimeoutException occurred while redirecting request " + "</errorMessage>";
         HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
         if (responseFuture != null) {
-            responseFuture.notifyHttpListener(Util.createErrorMessage(payload));
+            responseFuture.notifyHttpListener(new Exception(Constants.ENDPOINT_TIMEOUT_MSG));
             responseFuture.removeHttpListener();
         }
     }

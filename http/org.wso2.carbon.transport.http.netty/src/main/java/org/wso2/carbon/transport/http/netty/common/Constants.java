@@ -183,9 +183,7 @@ public final class Constants {
     public static final String LOCATION = "Location";
 
     public static final String HTTP_GET_METHOD = "GET";
-
     public static final String HTTP_POST_METHOD = "POST";
-
     public static final String HTTP_HEAD_METHOD = "HEAD";
 
     //HTTP server connector creation parameters
@@ -293,6 +291,8 @@ public final class Constants {
     public static final String FORWRD_SLASH = "/";
     public static final String COLON = ":";
     public static final int MAX_REDIRECT_COUNT = 5;
+
+    public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
 
     private Constants() {
     }
