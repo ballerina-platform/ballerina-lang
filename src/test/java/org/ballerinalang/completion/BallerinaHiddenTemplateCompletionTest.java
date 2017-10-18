@@ -16,9 +16,6 @@
 
 package org.ballerinalang.completion;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTestBase {
 
     /**
@@ -45,12 +42,12 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
     }
 
     public void testJoinKeyword() {
-        doCheckResult("test.bal", "function test(){ join<caret> }", "function test(){ join () (message[] ) {\n    \n}" +
+        doCheckResult("test.bal", "function test(){ join<caret> }", "function test(){ join () () {\n    \n}" +
                 " }", null);
     }
 
     public void testTimeoutKeyword() {
-        doCheckResult("test.bal", "function test(){ timeout<caret> }", "function test(){ timeout () (message[] ) " +
+        doCheckResult("test.bal", "function test(){ timeout<caret> }", "function test(){ timeout () () " +
                 "{\n    \n} }", null);
     }
 
@@ -102,7 +99,7 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
     }
 
     public void testContinueKeyword() {
-        doCheckResult("test.bal", "function test(){ continue<caret> }", "function test(){ continue; }", null);
+        doCheckResult("test.bal", "function test(){ next<caret> }", "function test(){ next; }", null);
     }
 
     public void testBreakKeyword() {

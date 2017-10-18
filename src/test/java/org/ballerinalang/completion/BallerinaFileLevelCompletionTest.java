@@ -35,11 +35,11 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFilePackageKeyword() {
-        doTest("p<caret>", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>", "public", "import", "package", "typemapper", "map", "type");
     }
 
     public void testEmptyFileImportKeyword() {
-        doTest("i<caret>", "annotation", "function", "import", "service", "int", "string");
+        doTest("i<caret>", "public", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testEmptyFileWithSpaceBeforeCaret() {
@@ -53,11 +53,11 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpaceBeforeCaretPackageKeyword() {
-        doTest("\np<caret>", "import", "package", "typemapper", "map", "type");
+        doTest("\np<caret>", "public", "import", "package", "typemapper", "map", "type");
     }
 
     public void testEmptyFileWithSpaceBeforeCaretImportKeyword() {
-        doTest("\ni<caret>", "annotation", "function", "import", "service", "int", "string");
+        doTest("\ni<caret>", "public", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testEmptyFileWithSpaceAfterCaret() {
@@ -71,11 +71,11 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpaceAfterCaretPackageKeyword() {
-        doTest("p<caret>\n", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>\n", "public", "import", "package", "typemapper", "map", "type");
     }
 
     public void testEmptyFileWithSpaceAfterCaretImportKeyword() {
-        doTest("i<caret>\n", "annotation", "function", "import", "service", "int", "string");
+        doTest("i<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testEmptyFileWithSpaces() {
@@ -89,11 +89,11 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpacesPackageKeyword() {
-        doTest("\np<caret>\n", "import", "package", "typemapper", "map", "type");
+        doTest("\np<caret>\n", "public", "import", "package", "typemapper", "map", "type");
     }
 
     public void testEmptyFileWithSpacesImportKeyword() {
-        doTest("\ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
+        doTest("\ni<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testImportAfterPackage() {
@@ -102,6 +102,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("public");
         expectedLookups.add("import");
         expectedLookups.add("const");
         expectedLookups.add("service");
@@ -110,11 +111,12 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterPackagePartialIdentifier() {
-        doTest("package test; \ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
+        doTest("package test; \ni<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testImportAfterPackageBeforeFunction() {
@@ -123,6 +125,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("public");
         expectedLookups.add("import");
         expectedLookups.add("const");
         expectedLookups.add("service");
@@ -131,12 +134,13 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterPackageBeforeFunctionPartialIdentifier() {
-        doTest("package test; \ni<caret>\nfunction A(){}", "annotation", "function", "import", "service", "int",
-                "string");
+        doTest("package test; \ni<caret>\nfunction A(){}", "public", "annotation", "function", "import", "service",
+                "int", "string");
     }
 
     public void testPackageBeforeImport() {
@@ -150,7 +154,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testPackageBeforeImportPartialIdentifier() {
-        doTest("p<caret>\nimport test; \nfunction A(){}", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>\nimport test; \nfunction A(){}", "public", "import", "package", "typemapper", "map", "type");
     }
 
     public void testImportBeforeImport() {
@@ -164,8 +168,8 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testImportBeforeImportPartialIdentifier() {
-        doTest("i<caret>\nimport test; \nfunction A(){}", "annotation", "function", "import", "service", "int",
-                "string");
+        doTest("i<caret>\nimport test; \nfunction A(){}", "public", "annotation", "function", "import", "service",
+                "int", "string");
     }
 
     public void testImportAfterImport() {
@@ -174,6 +178,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("public");
         expectedLookups.add("import");
         expectedLookups.add("const");
         expectedLookups.add("service");
@@ -182,13 +187,14 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         expectedLookups.add("test");
         myFixture.addFileToProject("test/file.bal", "string s = \"\";");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterImportPartialIdentifier() {
-        doTest("import test; \ni<caret> \nfunction A(){}", "annotation", "function", "import", "service", "int",
-                "string");
+        doTest("import test; \ni<caret> \nfunction A(){}", "public", "annotation", "function", "import", "service",
+                "int", "string");
     }
 }

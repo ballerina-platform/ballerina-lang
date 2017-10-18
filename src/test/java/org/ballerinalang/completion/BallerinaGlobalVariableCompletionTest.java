@@ -45,12 +45,12 @@ public class BallerinaGlobalVariableCompletionTest extends BallerinaCompletionTe
     }
 
     public void testGlobalVariablePackageValueDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
         doTest("import org.test; string s = test:<caret> ", "getValue");
     }
 
     public void testGlobalVariablePackageValueCompletionDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
         doCheckResult("test.bal", "import org.test; string s = test:g<caret> ",
                 "import org.test; string s = test:getValue() ", null);
     }
@@ -72,7 +72,6 @@ public class BallerinaGlobalVariableCompletionTest extends BallerinaCompletionTe
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("S");
         expectedLookups.add("F");
@@ -87,7 +86,6 @@ public class BallerinaGlobalVariableCompletionTest extends BallerinaCompletionTe
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("S");
         expectedLookups.add("F");

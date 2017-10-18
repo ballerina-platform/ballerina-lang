@@ -112,23 +112,23 @@ public class BallerinaParameterCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testParamAnnotationsFromAPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach parameter {}");
+        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach parameter {}");
         doTest("import org.test; function A(@test:<caret>)", "TEST");
     }
 
     public void testParamAnnotationsFromAPackageAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach parameter {}");
+        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach parameter {}");
         doCheckResult("test.bal", "import org.test; function A(@test:T<caret>)",
                 "import org.test; function A(@test:TEST {})", null);
     }
 
     public void testPackageInvocationInParameter() {
-        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
         doTest("import org.test; function A(test:<caret>)", "test");
     }
 
     public void testPackageInvocationInParameterAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
         doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
                 "import org.test; function A(test:test )", null);
     }

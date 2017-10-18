@@ -51,18 +51,18 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
     }
 
     public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach service {}");
+        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach service {}");
         doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
     }
 
     public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach const {} " +
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {} " +
                 "annotation TEST2 attach resource {}");
         doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null, "TEST");
     }
 
     public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach const {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {}");
         doCheckResult("test.bal", "import org.test; @test:T<caret> const string S=\"\";",
                 "import org.test; @test:TEST {} const string S=\"\";", null);
     }
@@ -108,12 +108,10 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("S");
         expectedLookups.add("F");
-        doTest("const string S=\"\"; function F(){ <caret> }",
-                expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testConstantInSamePackageDifferentFile() {
@@ -124,7 +122,6 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("S");
         expectedLookups.add("F");
@@ -132,7 +129,7 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
     }
 
     public void testConstantInDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "const string S=\"\";");
+        myFixture.addFileToProject("org/test/file.bal", "public const string S=\"\";");
         doTest("import org.test; function F(){ test:<caret> }", "S");
     }
 
