@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { packageDefinition } from '../../designer-defaults';
 import './package-definition.css';
 import ImportDeclaration from './import-node';
@@ -54,9 +55,9 @@ class TopLevelNodes extends React.Component {
      */
     constructor(props) {
         super(props);
+        this.packageDefValue = this.getPackageName(this.props.model);
         this.state = {
             packageDefExpanded: false,
-            packageDefValue: this.getPackageName(this.props.model),
             packageNameEditing: false,
         };
 
@@ -71,6 +72,11 @@ class TopLevelNodes extends React.Component {
         this.getPackageName = this.getPackageName.bind(this);
     }
 
+    componentWillReceiveProps() {
+        const model = this.props.model;
+        this.packageDefValue = this.getPackageName(model);
+    }
+
     /**
      * Called when the package name is clicked when the package definition view is expanded
      */
@@ -82,14 +88,14 @@ class TopLevelNodes extends React.Component {
      * Called focus is removed from the input field for package name
      */
     onPackageInputBlur() {
-        if (!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0) {
+        if (!this.packageDefValue || this.packageDefValue.trim().length === 0) {
             this.setState({
                 packageDefExpanded: false,
                 packageNameEditing: false,
             });
         }
-        if (this.state.packageDefValue) {
-            const pkgName = `package ${this.state.packageDefValue};`;
+        if (this.packageDefValue) {
+            const pkgName = `package ${this.packageDefValue};`;
             const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
             const parsedJson = FragmentUtils.parseFragment(fragment);
             // If there's no packageDeclaration node, then create one
@@ -114,7 +120,8 @@ class TopLevelNodes extends React.Component {
      * @param {Object} event - the input change event
      */
     onPackageInputChange(event) {
-        this.setState({ packageDefValue: event.target.value });
+        this.packageDefValue = event.target.value;
+        this.setState({ packageNameEditing: true });
     }
 
     /**
@@ -135,8 +142,8 @@ class TopLevelNodes extends React.Component {
     getPackageName(model) {
         // model is the compilation level node
         if (model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
-            const pkgDecNode = model.filterTopLevelNodes({ kind: 'PackageDeclaration' });
-            return model.getPackageName(pkgDecNode);
+            const pkgDecNodes = model.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+            return _.isEmpty(pkgDecNodes) ? undefined : model.getPackageName(pkgDecNodes[0]);
         }
         return undefined;
     }
@@ -206,7 +213,7 @@ class TopLevelNodes extends React.Component {
      */
     handlePackageIconClick() {
         this.setState({ packageDefExpanded: true });
-        if (!this.state.packageDefValue) {
+        if (!this.packageDefValue) {
             this.setState({ packageNameEditing: true });
         }
     }
@@ -266,7 +273,8 @@ class TopLevelNodes extends React.Component {
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
             .map(p => ({ name: p.getName() })).sort();
 
-        const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue;
+        const packageDefExpanded = this.state.packageDefExpanded
+            || (this.packageDefValue && (this.packageDefValue !== ''));
 
         if (packageDefExpanded) {
             importsBbox.x += packageDefTextWidth;
@@ -326,7 +334,7 @@ class TopLevelNodes extends React.Component {
                                 this.onPackageInputChange(e);
                             }}
                         >
-                            {this.state.packageDefValue || ''}
+                            {this.packageDefValue || ''}
                         </EditableText>
                     </g> }
                     <image
