@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -51,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.nio.charset.StandardCharsets;
@@ -163,6 +167,8 @@ public class WorkspaceUtils {
         // max depth for the recursive function which search for child directories
         int maxDepth = 15;
         Set<PackageID> packages = packageLoader.listPackages(maxDepth);
+        // load builtin packages - ballerina.builtin and ballerina.builtin.core explicitly
+        loadBuiltInPackage(context);
         packages.stream().forEach(pkg -> {
             Name version = pkg.getPackageVersion();
             BLangIdentifier bLangIdentifier = new BLangIdentifier();
@@ -171,9 +177,14 @@ public class WorkspaceUtils {
             List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
                     .collect(Collectors.<BLangIdentifier>toList());
             try {
-                org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-                        .loadPackage(pkgNameComps, bLangIdentifier);
-                loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
+                // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
+                // packages.
+                if(!"ballerina.builtin".equals(pkg.getName().getValue())
+                        && !"ballerina.builtin.core".equals(pkg.getName().getValue()) ) {
+                    org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
+                            .loadPackage(pkgNameComps, bLangIdentifier);
+                    loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
+                }
             } catch (Exception e) {
                 // Its wrong to catch java.lang.Exception. But this is temporary thing and ideally there shouldn't be
                 // any error while loading packages.
@@ -526,5 +537,26 @@ public class WorkspaceUtils {
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
         return connector;
+    }
+
+    /**
+     * Loading builtin packages.
+     * @param context compiler context
+     */
+    private static void loadBuiltInPackage(CompilerContext context) {
+        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
+        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+        Desugar desugar = Desugar.getInstance(context);
+
+        BLangPackage builtInCorePkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
+                pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+        symbolTable.createErrorTypes();
+        symbolTable.loadOperators();
+        BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
+                pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
+        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
     }
 }
