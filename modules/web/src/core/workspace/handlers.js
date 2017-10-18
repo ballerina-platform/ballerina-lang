@@ -20,8 +20,8 @@ export function getHandlerDefinitions(workspaceManager) {
         },
         {
             cmdID: COMMANDS.OPEN_FILE,
-            handler: ({ filePath, ext }) => {
-                workspaceManager.openFile(filePath, ext);
+            handler: ({ filePath, ext, activate = true }) => {
+                workspaceManager.openFile(filePath, ext, activate);
             },
         },
         {

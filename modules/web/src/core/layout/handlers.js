@@ -4,7 +4,7 @@ import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, EVENTS, REGIONS, HISTORY } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
-import { withViewFeatures } from './components/utils';
+import { withViewFeatures, withDialogContext } from './components/utils';
 
 /**
  * Provides command handler definitions of layout manager plugin.
@@ -74,7 +74,8 @@ export function getHandlerDefinitions(layoutManager) {
                 if (dialogDef) {
                     const container = document.getElementById(layoutManager.config.dialogContainer);
                     const { component, propsProvider } = dialogDef;
-                    const root = React.createElement(component, Object.assign(additionalProps, propsProvider()), null);
+                    const root = React.createElement(withDialogContext(component, layoutManager.appContext),
+                        Object.assign(additionalProps, propsProvider()), null);
                     ReactDOM.unmountComponentAtNode(container);
                     ReactDOM.render(root, container);
                 } else {

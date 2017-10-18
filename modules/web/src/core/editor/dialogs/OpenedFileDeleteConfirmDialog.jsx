@@ -1,13 +1,30 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 
 /**
- * Confirm Dialog when closing dirty files
+ * Confirm Dialog when deleting a file from tree - which is alreay opened in dirty files
  * @extends React.Component
  */
-class DirtyFileCloseConfirmDialog extends React.Component {
+class OpenedFileDeleteConfirmDialog extends React.Component {
 
     /**
      * @inheritdoc
@@ -38,11 +55,11 @@ class DirtyFileCloseConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="File Contains Unsaved Content"
+                title="Please Confirm"
                 actions={
                 [
                     <Button
-                        key='dirty-file-close-confirm-dialog-dont-save'
+                        key='opened-file-delete-confirm-dialog-close-and-delete'
                         onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onConfirm();
@@ -50,48 +67,26 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                             evt.preventDefault();
                         }}
                     >
-                        Don&#39;t Save
-                    </Button>,
-                    <Button
-                        key='dirty-file-close-confirm-dialog-save'
-                        bsStyle="primary"
-                        onClick={(evt) => {
-                            this.onDialogHide();
-                            this.props.onSave();
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                        }}
-                    >
-                        Save
+                        {'Close & Delete'}
                     </Button>,
                 ]}
                 closeAction
                 onHide={this.onDialogHide}
-                onAfterHide={this.props.onAfterHide}
                 error={this.state.error}
             >
-                <h4>
-                    Do you want to save the changes you made to 
-                    {' ' + this.props.file.name + '.' + this.props.file.extension}?
-                </h4>
                 <p>
-                    Your changes will be lost if you don't save them.
+                    {`File ${this.props.file.name}.${this.props.file.extension} is opened in editor.`}
+                    <br />
+                    {'File will be closed & deleted from file system.'}
                 </p>
             </Dialog>
         );
     }
 }
 
-DirtyFileCloseConfirmDialog.propTypes = {
+OpenedFileDeleteConfirmDialog.propTypes = {
     file: PropTypes.objectOf(Object).isRequired,
     onConfirm: PropTypes.func.isRequired,
-    onAfterHide: PropTypes.func,
-    onSave: PropTypes.func.isRequired,
-    editorPlugin: PropTypes.objectOf(Object).isRequired,
 };
 
-DirtyFileCloseConfirmDialog.defaultProps = {
-    onAfterHide: () => {},
-};
-
-export default DirtyFileCloseConfirmDialog;
+export default OpenedFileDeleteConfirmDialog;
