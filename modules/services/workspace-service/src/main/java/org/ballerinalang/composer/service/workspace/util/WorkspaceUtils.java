@@ -33,6 +33,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -67,6 +69,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  * Utility methods for workspace service
  */
 public class WorkspaceUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkspaceUtils.class);
 
     /**
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file
@@ -166,22 +170,16 @@ public class WorkspaceUtils {
 
             List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
                     .collect(Collectors.<BLangIdentifier>toList());
-
-            //TODO Remove this if check once other packages are available to load.
-            if (!"[ballerina, lang, btype]".equals(pkgNameComps.toString())
-                    && !"[ballerina, mock]".equals(pkgNameComps.toString())
-                    && !"[ballerina, test]".equals(pkgNameComps.toString())
-                    && !"[ballerina, lang, messages]".equals(pkgNameComps.toString())
-                    && !"[ballerina, builtin]".equals(pkgNameComps.toString())
-                    && !"[ballerina, builtin, core]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, jms]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, ws]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, uri]".equals(pkgNameComps.toString())
-                    && !"[ballerina, net, http, swagger]".equals(pkgNameComps.toString())
-                    && !pkgNameComps.toString().contains("[org, wso2, ballerina, connectors")) {
+            try {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
                 loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
+            } catch (Exception e) {
+                // Its wrong to catch java.lang.Exception. But this is temporary thing and ideally there shouldn't be
+                // any error while loading packages.
+                String pkgName = pkg.getNameComps().stream().map(name -> name.getValue())
+                        .collect(Collectors.joining("."));
+                logger.warn("Error while loading package " + pkgName);
             }
         });
         return modelPackage;
