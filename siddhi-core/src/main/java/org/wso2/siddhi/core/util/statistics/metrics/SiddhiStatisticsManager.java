@@ -72,13 +72,15 @@ public class SiddhiStatisticsManager implements StatisticsManager {
     }
 
     public void stopReporting() {
-        if (reporter instanceof ScheduledReporter) {
-            ((ScheduledReporter) reporter).stop();
-        } else if (reporter instanceof JmxReporter) {
-            ((JmxReporter) reporter).stop();
-        } else {
-            throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter " +
-                    "type '" + reporter.getClass().getName() + "' is not supported");
+        if (reporter != null) {
+            if (reporter instanceof ScheduledReporter) {
+                ((ScheduledReporter) reporter).stop();
+            } else if (reporter instanceof JmxReporter) {
+                ((JmxReporter) reporter).stop();
+            } else {
+                throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter " +
+                        "type '" + reporter.getClass().getName() + "' is not supported");
+            }
         }
     }
 

@@ -207,7 +207,7 @@ public class SiddhiAppParser {
         defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap());
         for (Window window : siddhiAppRuntimeBuilder.getWindowMap().values()) {
             String metricName =
-                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +

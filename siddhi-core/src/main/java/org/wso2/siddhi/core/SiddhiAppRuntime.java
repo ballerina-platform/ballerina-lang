@@ -104,6 +104,7 @@ public class SiddhiAppRuntime {
     private MemoryUsageTracker memoryUsageTracker;
     private LatencyTracker storeQueryLatencyTracker;
     private SiddhiDebugger siddhiDebugger;
+    private boolean running = false;
 
     public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
                             Map<String, AbstractDefinition> tableDefinitionMap,
@@ -268,7 +269,7 @@ public class SiddhiAppRuntime {
     }
 
     public synchronized void start() {
-        if (siddhiAppContext.isStatsEnabled()) {
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().startReporting();
         }
         for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
@@ -292,6 +293,7 @@ public class SiddhiAppRuntime {
                 source.connectWithRetry();
             }
         }
+        running = true;
     }
 
     public synchronized void shutdown() {
@@ -383,13 +385,11 @@ public class SiddhiAppRuntime {
             siddhiAppRuntimeMap.remove(siddhiAppContext.getName());
         }
 
-        if (siddhiAppContext.isStatsEnabled()) {
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().stopReporting();
-        }
-        if (siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().cleanup();
         }
-
+        running = false;
     }
 
     public synchronized SiddhiDebugger debug() {
@@ -409,6 +409,7 @@ public class SiddhiAppRuntime {
             callback.setSiddhiDebugger(siddhiDebugger);
         }
         start();
+        running = true;
         return siddhiDebugger;
     }
 
@@ -454,7 +455,6 @@ public class SiddhiAppRuntime {
         }
     }
 
-
     public void restoreRevision(String revision) {
         try {
             // first, pause all the event sources
@@ -484,7 +484,7 @@ public class SiddhiAppRuntime {
     private void monitorQueryMemoryUsage() {
         for (Map.Entry entry : queryProcessorMap.entrySet()) {
             memoryUsageTracker.registerObject(entry.getValue(),
-                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                             SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                             SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -496,7 +496,7 @@ public class SiddhiAppRuntime {
                     .getMetaQueryRuntimeMap();
             for (Map.Entry query : queryRuntime.entrySet()) {
                 memoryUsageTracker.registerObject(entry.getValue(),
-                        siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                        siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
                                 SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                                 SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                                 SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -515,21 +515,25 @@ public class SiddhiAppRuntime {
      *
      * @return Boolean value of Siddhi App statistics state
      */
-    public boolean isSiddhiAppStatEnabled() {
+    public boolean isStatsEnabled() {
         return siddhiAppContext.isStatsEnabled();
     }
 
     /**
-     * Get the Siddhi App metric prefix.
-     *
-     * @return Siddhi App metric prefix.
+     * To enable and disable Siddhi App statistics on runtime.
      */
-    public String getSidhhiAppMetricPrefix() {
-        return siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix();
-    }
-
-    public boolean disableSiddhiAppStats() {
-        // TODO: 10/18/17
-        return false;
+    public void enableStats(boolean statsEnabled) {
+        siddhiAppContext.setStatsEnabled(statsEnabled);
+        if (running && siddhiAppContext.getStatisticsManager() != null) {
+            if (siddhiAppContext.isStatsEnabled()) {
+                siddhiAppContext.getStatisticsManager().startReporting();
+                log.debug("Siddhi App '" + getName() + "' statistics reporting started!");
+            } else {
+                siddhiAppContext.getStatisticsManager().stopReporting();
+                log.debug("Siddhi App '" + getName() + "' statistics reporting stopped!");
+            }
+        } else {
+            log.debug("Siddhi App '" + getName() + "' statistics reporting not changed!");
+        }
     }
 }

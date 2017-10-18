@@ -72,7 +72,7 @@ public class StreamJunction {
         this.executorService = executorService;
         this.siddhiAppContext = siddhiAppContext;
         if (siddhiAppContext.getStatisticsManager() != null) {
-            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                     SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +

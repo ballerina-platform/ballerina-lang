@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
  */
 public class StatisticsConfiguration {
 
-    private String matricPrefix = "org.wso2.siddhi";
+    private String metricPrefix = "org.wso2.siddhi";
     private StatisticsTrackerFactory factory;
 
     public StatisticsConfiguration(StatisticsTrackerFactory factory) {
@@ -36,12 +36,12 @@ public class StatisticsConfiguration {
         return factory;
     }
 
-    public String getMatricPrefix() {
-        return matricPrefix;
+    public String getMetricPrefix() {
+        return metricPrefix;
     }
 
-    public void setMatricPrefix(String matricPrefix) {
-        this.matricPrefix = matricPrefix;
+    public void setMetricPrefix(String metricPrefix) {
+        this.metricPrefix = metricPrefix;
     }
 }
 
