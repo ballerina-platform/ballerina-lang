@@ -268,6 +268,11 @@ public class BLangFileRestService {
                 continue;
             }
 
+            if (prop instanceof List && jsonName.equals("types")) {
+                // Currently we don't need any Symbols for the UI. So skipping for now.
+                continue;
+            }
+
             /* Virtual prop */
             // This is since the invocation symbol abstract method has not currently been exposed from the runtime
             // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
@@ -290,7 +295,7 @@ public class BLangFileRestService {
                     if (listPropItem instanceof Node) {
                         listPropJson.add(generateJSON((Node) listPropItem));
                     } else {
-                        logger.error(" " + prop);
+                        logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }
                 }
 
@@ -302,7 +307,7 @@ public class BLangFileRestService {
                     nodeJson.addProperty(StringUtils.lowerCase(flag.toString()), flags.contains(flag));
                 }
             } else if (prop instanceof Set) {
-                // TODO : limit this else if the getTypes
+                // TODO : limit this else if to getInputs getOutputs of transform.
                 Set vars = (Set) prop;
                 JsonArray listVarJson = new JsonArray();
                 nodeJson.add(jsonName, listVarJson);
