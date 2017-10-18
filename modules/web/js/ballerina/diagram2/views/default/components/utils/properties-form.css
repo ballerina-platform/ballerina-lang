@@ -418,3 +418,11 @@ span { cursor: pointer; }
 .propWindowBackIcon{
     font-size: 11px;
 }
+
+.noPropertyPrompt{
+    height: 50px;
+}
+
+.alertMsgForNoProps{
+    padding-top: 13px;
+}

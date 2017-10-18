@@ -362,11 +362,20 @@ class PropertyWindow extends React.Component {
                         </button>
                         <h5 className="form-title file-dialog-title">
                             {this.props.formHeading}</h5>
-                        {this.props.isConnector &&
-                            <ul id="propWindowBreadcrumb">
-                                {breadCrumbContainer}
-                            </ul> }
+                        {this.props.propertiesExist &&
+                        <ul id="propWindowBreadcrumb">
+                            {breadCrumbContainer}
+                        </ul>
+                        }
                     </div>
+                    {!this.props.propertiesExist &&
+                    <div className="form-body noPropertyPrompt">
+                        <span>
+                            <h5 className="alertMsgForNoProps"> No properties to be configured</h5>
+                        </span>
+                    </div>
+                    }
+                    {this.props.propertiesExist &&
                     <div className="form-body formContainer">
                         <div className="container-fluid">
                             <form className='form-horizontal propertyForm'>
@@ -392,6 +401,7 @@ class PropertyWindow extends React.Component {
                             </form>
                         </div>
                     </div>
+                    }
                     <div className="formFooter">
                         {!_.isEmpty(this.previousItems) &&
                             <button
@@ -405,11 +415,13 @@ class PropertyWindow extends React.Component {
                             className="btn btn-primary propWindowCancelBtn"
                             onClick={this.closePropertyWindow}
                         >Close</button>
+                        {this.props.propertiesExist &&
                         <button
                             type="button"
                             className="propWindowApplyBtn btn"
                             onClick={this.handleDismiss}
                         >Apply</button>
+                        }
                     </div>
                 </div>
             </div>);
