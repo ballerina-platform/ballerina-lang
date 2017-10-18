@@ -142,25 +142,6 @@ public class SystemTest {
         }
     }
 
-//    @Test
-//    public void testLog() {
-//        testLogAppender = new TestLogAppender();
-//        rootLogger.addAppender(testLogAppender);
-//        try {
-//            BValueType[] args = {new BLong(100), new BDouble(10.1)};
-//            BLangFunctions.invoke(compileResult, "testLog", args);
-//            // We are not expecting boolean log in event list.
-//            Assert.assertEquals(testLogAppender.getEvents().size(), 5, "Logging events didn't match.");
-//            Assert.assertEquals(testLogAppender.events.get(0).getLevel(), Level.TRACE);
-//            Assert.assertEquals(testLogAppender.events.get(1).getLevel(), Level.DEBUG);
-//            Assert.assertEquals(testLogAppender.events.get(2).getLevel(), Level.INFO);
-//            Assert.assertEquals(testLogAppender.events.get(3).getLevel(), Level.WARN);
-//            Assert.assertEquals(testLogAppender.events.get(4).getLevel(), Level.ERROR);
-//        } finally {
-//            rootLogger.removeAppender(testLogAppender);
-//        }
-//    }
-
     @Test
     public void testFunctionTimes() {
         BValue[] args = {};
@@ -242,35 +223,4 @@ public class SystemTest {
 //            System.setOut(original);
 //        }
 //    }
-
-//    static class TestLogAppender extends AppenderSkeleton {
-//
-//        List<LoggingEvent> events;
-//
-//        public TestLogAppender() {
-//            this.events = new ArrayList<>();
-//        }
-//
-//        List<LoggingEvent> getEvents() {
-//            return events;
-//        }
-//
-//        @Override
-//        protected void append(LoggingEvent loggingEvent) {
-//            if (loggingEvent.getLoggerName().contains("ballerinalang")) {
-//                events.add(loggingEvent);
-//            }
-//        }
-//
-//        @Override
-//        public void close() {
-//            // Do nothing.
-//        }
-//
-//        @Override
-//        public boolean requiresLayout() {
-//            return false;
-//        }
-//    }
-
 }
