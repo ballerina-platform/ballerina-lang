@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.tcp;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.BSocketChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
@@ -88,12 +89,10 @@ public class OpenChannel extends AbstractNativeChannel {
     private void accept(Selector selector, SelectionKey key) throws IOException {
         // For an accept to be pending the channel must be a server socket channel.
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-
         // Accept the connection and make it non-blocking
         SocketChannel socketChannel = serverSocketChannel.accept();
-       // Socket socket = socketChannel.socket();
+        // Socket socket = socketChannel.socket();
         socketChannel.configureBlocking(false);
-
         // Register the new SocketChannel with our Selector, indicating
         // we'd like to be notified when there's data waiting to be read
         socketChannel.register(selector, SelectionKey.OP_READ);
@@ -115,28 +114,19 @@ public class OpenChannel extends AbstractNativeChannel {
         Selector tcpSocketSelector = Selector.open();
         ServerSocketChannel server = ServerSocketChannel.open();
         InetSocketAddress destinationAddress = new InetSocketAddress(address, port);
-
         server.bind(destinationAddress);
-
         server.configureBlocking(false);
-
         server.register(tcpSocketSelector, SelectionKey.OP_ACCEPT);
-
         while (true) {
-
             tcpSocketSelector.select();
-
             // Iterate over the set of keys for which events are available
             Iterator selectedKeys = tcpSocketSelector.selectedKeys().iterator();
-
             while (selectedKeys.hasNext()) {
                 SelectionKey key = (SelectionKey) selectedKeys.next();
                 selectedKeys.remove();
-
                 if (!key.isValid()) {
                     continue;
                 }
-
                 // Check what event is available and deal with it
                 if (key.isAcceptable()) {
                     accept(tcpSocketSelector, key);
@@ -147,31 +137,29 @@ public class OpenChannel extends AbstractNativeChannel {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BByteChannel flow(Context context) throws BallerinaException {
         BByteChannel byteChannel;
-
         try {
             BStruct address = (BStruct) getRefArgument(context, ADDRESS_INDEX);
             String destination = address.getStringField(DESTINATION_INDEX);
             int port = (int) address.getIntField(PORT_INDEX);
             String permission = getStringArgument(context, PERMISSION_INDEX);
             ByteChannel tcpSocket;
-
             if ("r".contains(permission)) {
                 tcpSocket = createTcpSocketForReading(destination, port);
             } else {
                 //We create a socket
                 tcpSocket = createTcpSocketForWriting(destination, port);
             }
-
-            byteChannel = new BSocketChannel(tcpSocket);
-
+            byteChannel = new BSocketChannel(tcpSocket, IOConstants.CHANNEL_BUFFER_SIZE);
         } catch (Throwable e) {
             String message = "Error occurred while opening TCP channel ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
         return byteChannel;
     }
 }

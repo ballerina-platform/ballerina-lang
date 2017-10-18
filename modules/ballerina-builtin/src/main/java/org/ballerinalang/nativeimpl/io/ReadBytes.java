@@ -59,8 +59,9 @@ public class ReadBytes extends AbstractNativeFunction {
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
-     * Reads bytes from a given channel
      * <p>
+     * Reads bytes from a given channel
+     * </p>
      * {@inheritDoc}
      */
     @Override
@@ -69,7 +70,6 @@ public class ReadBytes extends AbstractNativeFunction {
         long numberOfBytes;
         BBlob readByteBlob;
         BInteger numberOfReadBytes;
-
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfBytes = getIntArgument(context, NUMBER_OF_BYTES_INDEX);
@@ -81,7 +81,6 @@ public class ReadBytes extends AbstractNativeFunction {
             String message = "Error occurred while reading bytes. ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
         return getBValues(readByteBlob, numberOfReadBytes);
     }
 }

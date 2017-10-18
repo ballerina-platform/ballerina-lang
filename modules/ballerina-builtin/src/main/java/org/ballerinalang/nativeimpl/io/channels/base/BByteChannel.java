@@ -17,7 +17,7 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
-import org.ballerinalang.nativeimpl.io.Close;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +42,24 @@ public abstract class BByteChannel {
      * Represents the channel for reading bytes
      */
     private ByteChannel channel;
-
     /**
      * Whether the channel has reached to it's end
      */
     private boolean hasReachedToEnd = false;
-
     /**
      * Specifies a fixed buffer size, if multiple reads are done frequently this is recommended
      */
     private int fixedBufferSize = -1;
+
+    /**
+     * Maximum buffer size in bytes (64kb) this will be the maximum size allowed when defining a fixed buffer
+     */
+    private static final int MAX_BUFFER_SIZE = 78905344;
+
+    /**
+     * Minimum buffer size in bytes
+     */
+    private static final int MINIMUM_BUFFER_SIZE = 0;
 
     /**
      * If a fixed buffer is used for reading this will manage the state
@@ -59,18 +67,22 @@ public abstract class BByteChannel {
     private ByteBuffer fixedBuffer;
 
 
-    private static final Logger log = LoggerFactory.getLogger(Close.class);
+    private static final Logger log = LoggerFactory.getLogger(BByteChannel.class);
 
     /**
      * Creates a ballerina channel which will source/sink from I/O resource
      *
      * @param channel the channel which will source/sink
      */
-    public BByteChannel(ByteChannel channel) throws IOException {
+    public BByteChannel(ByteChannel channel) throws BallerinaIOException {
         if (null != channel) {
             this.channel = channel;
+            if (log.isDebugEnabled()) {
+                log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
+            }
         } else {
-            throw new IOException("The provided channel cannot be null");
+            String message = "The provided information is incorrect, the specified channel ";
+            throw new BallerinaIOException(message);
         }
     }
 
@@ -79,11 +91,21 @@ public abstract class BByteChannel {
      *
      * @param channel         the channel to perform I/O operations
      * @param fixedBufferSize the size of the fixed buffer
+     * @throws BallerinaIOException during I/O error
      */
-    public BByteChannel(ByteChannel channel, int fixedBufferSize) {
-        this.channel = channel;
-        this.fixedBufferSize = fixedBufferSize;
-        this.fixedBuffer = ByteBuffer.allocate(fixedBufferSize);
+    public BByteChannel(ByteChannel channel, int fixedBufferSize) throws BallerinaIOException {
+        if (null != channel && (fixedBufferSize > MINIMUM_BUFFER_SIZE && fixedBufferSize < MAX_BUFFER_SIZE)) {
+            this.channel = channel;
+            this.fixedBufferSize = fixedBufferSize;
+            this.fixedBuffer = ByteBuffer.allocate(fixedBufferSize);
+            if (log.isDebugEnabled()) {
+                log.debug("Fixed byte buffer is allocated for channel " + channel.hashCode() + " with a size of " +
+                        fixedBufferSize);
+            }
+        } else {
+            String message = "The specified channel " + channel + " is incorrect or the size " + fixedBufferSize;
+            throw new BallerinaIOException(message);
+        }
     }
 
 
@@ -93,9 +115,9 @@ public abstract class BByteChannel {
      * @param position   starting position of the bytes to be transferred
      * @param count      number of bytes to be transferred
      * @param dstChannel destination channel to transfer
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
+    public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException;
 
     /**
      * Shrinks a given byte getByteArray to the specified length
@@ -108,8 +130,13 @@ public abstract class BByteChannel {
         int srcPos = 0;
         int destPos = 0;
         byte[] destinationArray = new byte[length];
-
+        if (log.isDebugEnabled()) {
+            log.debug("Shrinking the content from a length of " + content.length + " to a length of " + length);
+        }
         System.arraycopy(content, srcPos, destinationArray, destPos, length);
+        if (log.isTraceEnabled()) {
+            log.trace("Content shrunk " + Arrays.toString(content));
+        }
         return destinationArray;
     }
 
@@ -125,18 +152,23 @@ public abstract class BByteChannel {
      * @return the underlying byte getByteArray which contains the read bytes
      */
     private byte[] getByteArray(ByteBuffer origin) {
+        byte[] content;
         int readBytePosition = origin.position();
         int totalBufferSpace = origin.capacity();
-        byte[] content;
-
-        if (readBytePosition < totalBufferSpace) {
-            //This means the required amount of bytes are not available
-            //Hence we will need to shrink the buffer
-            content = shrink(origin.array(), readBytePosition);
-        } else {
-            content = origin.array();
+        byte[] originData = origin.array();
+        //This means the required amount of bytes are not available
+        //Hence we will need to shrink the buffer
+        if (log.isTraceEnabled()) {
+            log.trace("Origin data in buffer [" + Arrays.toString(originData) + "] for channel " + channel.hashCode());
         }
-
+        if (readBytePosition < totalBufferSpace) {
+            content = shrink(originData, readBytePosition);
+        } else {
+            content = originData;
+        }
+        if (log.isTraceEnabled()) {
+            log.trace("Content after sanitation [" + Arrays.toString(content) + "] for channel " + channel.hashCode());
+        }
         return content;
     }
 
@@ -145,28 +177,36 @@ public abstract class BByteChannel {
      *
      * @param numberOfBytes number of bytes required to be read from the channel
      * @return the number of bytes read
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    private ByteBuffer readFromFixedBuffer(int numberOfBytes) throws IOException {
+    private ByteBuffer readFromFixedBuffer(int numberOfBytes) throws BallerinaIOException {
         //We need to allocate a new buffer to produce as the response
         ByteBuffer responseBuffer = ByteBuffer.allocate(numberOfBytes);
         int remainingBytes = fixedBuffer.remaining();
-
         //We dump the remaining bytes to the response
         if (remainingBytes >= numberOfBytes) {
-            //This means the requested amount of bytes are available in the channel
+            if (log.isDebugEnabled()) {
+                log.debug("The required number of bytes " + numberOfBytes + " is available in fixed buffer");
+            }
+            //This means the requested amount of bytes are available in the fixed buffer
             byte[] remainingContent = getBytes(numberOfBytes);
             responseBuffer.put(remainingContent, 0, remainingContent.length);
         } else {
             //We need a refill the buffer with the existing content
             byte[] remainingContent = getBytes(remainingBytes);
+            if (log.isDebugEnabled()) {
+                log.debug("Adding the remaining byte count of " + remainingBytes + " to response buffer");
+            }
             responseBuffer.put(remainingContent, 0, remainingContent.length);
             //Let's request for a re-fill of the remaining
             int numberOfRemainingBytesToBeRead = numberOfBytes - remainingBytes;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Reading " + numberOfRemainingBytesToBeRead + " from channel " + channel.hashCode());
+            }
             int blockCount = (int) Math.ceil((float) numberOfRemainingBytesToBeRead / (float) fixedBufferSize);
             readBlocksFromChannel(responseBuffer, numberOfRemainingBytesToBeRead, blockCount);
         }
-
         return responseBuffer;
     }
 
@@ -176,22 +216,24 @@ public abstract class BByteChannel {
      * @param responseBuffer                 buffer which will holds the final content which will be the response
      * @param numberOfRemainingBytesToBeRead number of bytes which should be read
      * @param blockCount                     the number of iterations to read all the bytes required
-     * @throws IOException I/O error when reading the content
+     * @throws BallerinaIOException I/O error when reading the content
      */
     private void readBlocksFromChannel(ByteBuffer responseBuffer, int numberOfRemainingBytesToBeRead, int blockCount)
-            throws IOException {
-        //We need to retrieve the content into blocks
-        for (int block = 0; block < blockCount; block++) {
+            throws BallerinaIOException {
+        final int readBlockIndex = 0;
+        final int finalBlockIndex = blockCount - 1;
+        for (int block = readBlockIndex; block < blockCount; block++) {
             //We clear the existing buffer
             fixedBuffer.clear();
             fixedBuffer = readFromChannel(fixedBufferSize);
-
+            if (log.isDebugEnabled()) {
+                log.debug("Reading block " + block + "/" + blockCount + " from channel " + channel.hashCode());
+            }
             if (null == fixedBuffer) {
                 //This means the buffer has reached it's end
                 break;
             }
-
-            if (block == (blockCount - 1)) {
+            if (block == finalBlockIndex) {
                 //This means it will be the final lap and only the relevant bytes should be put to the response
                 int finalByteCount = numberOfRemainingBytesToBeRead - (fixedBufferSize * block);
                 //We need to identify the content ready to be read
@@ -206,7 +248,6 @@ public abstract class BByteChannel {
                 fixedBuffer.flip();
                 responseBuffer.put(fixedBuffer);
             }
-
         }
     }
 
@@ -218,9 +259,10 @@ public abstract class BByteChannel {
      */
     private byte[] copyFinalContent(int finalByteCount) {
         byte[] finalContent;
-        if (fixedBuffer.remaining() < finalByteCount) {
+        int remaining = fixedBuffer.remaining();
+        if (remaining < finalByteCount) {
             //If the end of file has reached before acquiring the required bytes
-            finalContent = getBytes(fixedBuffer.remaining());
+            finalContent = getBytes(remaining);
         } else {
             finalContent = getBytes(finalByteCount);
         }
@@ -252,30 +294,43 @@ public abstract class BByteChannel {
      * @param numberOfBytes the number of bytes to read
      * @return the buffer which contains the bytes read
      */
-    private ByteBuffer readFromChannel(int numberOfBytes) throws IOException {
-
+    private ByteBuffer readFromChannel(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer inputBuffer = null;
-
-        if (!hasReachedToEnd) {
-
-            //We will need to allocate a buffer per each call, reusing this will not be an option
-            // a - the size of the buffer would very based on the requested number of bytes
-            // b - the bytes getByteArray should be re-used
-            inputBuffer = ByteBuffer.allocate(numberOfBytes);
-            int numberOfReadBytes = 0;
-            int channelEndOfStreamFlag = -1;
-
-
-            //Fills the inputBuffer with the
-            while (inputBuffer.hasRemaining() && numberOfReadBytes > channelEndOfStreamFlag) {
-                numberOfReadBytes = channel.read(inputBuffer);
+        try {
+            if (!hasReachedToEnd) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Reading " + numberOfBytes + " from channel " + channel.hashCode());
+                }
+                //We will need to allocate a buffer per each call, reusing this will not be an option
+                // a - the size of the buffer would very based on the requested number of bytes
+                // b - the bytes getByteArray should be re-used
+                inputBuffer = ByteBuffer.allocate(numberOfBytes);
+                int numberOfReadBytes = 0;
+                int channelEndOfStreamFlag = -1;
+                //Fills the inputBuffer with the
+                while (inputBuffer.hasRemaining() && numberOfReadBytes > channelEndOfStreamFlag) {
+                    numberOfReadBytes = channel.read(inputBuffer);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Read " + numberOfBytes + " from channel " + channel.hashCode());
+                    }
+                }
+                //If the EoF has reached we do not want to read anymore
+                if (numberOfReadBytes == channelEndOfStreamFlag) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("The channel " + channel.hashCode() + " reached EoF while reading " + numberOfBytes);
+                    }
+                    hasReachedToEnd = true;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("The channel " + channel.hashCode() + " reached EoF hence " + numberOfBytes + " will " +
+                            "not be read from the channel");
+                }
             }
-            //If the EoF has reached we do not want to read anymore
-            if (numberOfReadBytes == channelEndOfStreamFlag) {
-                hasReachedToEnd = true;
-            }
+        } catch (IOException e) {
+            String message = "Error occurred while reading from channel ";
+            throw new BallerinaIOException(message, e);
         }
-
         return inputBuffer;
     }
 
@@ -292,15 +347,13 @@ public abstract class BByteChannel {
      *
      * @param numberOfBytes the number of bytes to read
      * @return the read bytes
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    public byte[] read(int numberOfBytes) throws IOException {
+    public byte[] read(int numberOfBytes) throws BallerinaIOException {
         byte[] bytesRead = new byte[0];
-
         if (shouldNotContinue(numberOfBytes)) {
             return bytesRead;
         }
-
         ByteBuffer readBuffer = getBuffer(numberOfBytes);
         bytesRead = getByteArray(readBuffer);
         return bytesRead;
@@ -311,15 +364,13 @@ public abstract class BByteChannel {
      *
      * @param numberOfBytes the number of bytes read
      * @return the buffer which contains the bytes read
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    ByteBuffer getReadBuffer(int numberOfBytes) throws IOException {
+    ByteBuffer getReadBuffer(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer;
-
         if (shouldNotContinue(numberOfBytes)) {
             return null;
         }
-
         readBuffer = getBuffer(numberOfBytes);
         return readBuffer;
     }
@@ -329,19 +380,17 @@ public abstract class BByteChannel {
      *
      * @param numberOfBytes number of bytes requested to be read
      * @return true if the operations should not be continued
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    private boolean shouldNotContinue(int numberOfBytes) throws IOException {
+    private boolean shouldNotContinue(int numberOfBytes) throws BallerinaIOException {
         if (numberOfBytes < 0) {
             String message = "Illegal number of bytes specified " + numberOfBytes + ", expected a positive integer";
-            throw new IOException(message);
+            throw new BallerinaIOException(message);
         }
-
         if (null != fixedBuffer) {
             //We flip the buffer to read-mode
             fixedBuffer.flip();
         }
-
         return hasReachedToEnd && (fixedBuffer == null || !fixedBuffer.hasRemaining());
     }
 
@@ -357,14 +406,18 @@ public abstract class BByteChannel {
      *
      * @param numberOfBytes number of to be read from the channel
      * @return the Buffer which will hold the read content
-     * @throws IOException during I/O error when reading the buffer
+     * @throws BallerinaIOException during I/O error when reading the buffer
      */
-    private ByteBuffer getBuffer(int numberOfBytes) throws IOException {
+    private ByteBuffer getBuffer(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer;
         if (fixedBufferSize > 0) {
             readBuffer = readFromFixedBuffer(numberOfBytes);
         } else {
             readBuffer = readFromChannel(numberOfBytes);
+        }
+        if (log.isTraceEnabled()) {
+            log.trace("Content read into the buffer [" + Arrays.toString(readBuffer.array()) + "] from channel " +
+                    channel.hashCode());
         }
         return readBuffer;
     }
@@ -376,10 +429,14 @@ public abstract class BByteChannel {
      * @param startOffset the offset the bytes should be written
      * @return the number of bytes written
      */
-    public int write(byte[] content, long startOffset) throws IOException {
+    public int write(byte[] content, long startOffset) throws BallerinaException {
         ByteBuffer outputBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         outputBuffer.position((int) startOffset);
+        if (log.isDebugEnabled()) {
+            log.debug("Writing " + content.length + " for the buffer with offset " + startOffset + " to channel " +
+                    channel.hashCode());
+        }
         return write(outputBuffer);
     }
 
@@ -388,19 +445,28 @@ public abstract class BByteChannel {
      *
      * @param contentBuffer the buffer which holds the content
      * @return the number of bytes written to the channel
-     * @throws IOException during I/O error
+     * @throws BallerinaException during I/O error
      */
-    int write(ByteBuffer contentBuffer) throws IOException {
+    int write(ByteBuffer contentBuffer) throws BallerinaIOException {
         int numberOfBytesWritten;
-
-        //There's no guarantee in a single write all the bytes will be written
-        //Hence we need to check iteratively whether all the bytes in the buffer were written until the EoF is reached
-        while (contentBuffer.hasRemaining()) {
-            channel.write(contentBuffer);
+        try {
+            //There's no guarantee in a single write all the bytes will be written
+            //Hence we need to check iteratively whether all the bytes in the buffer were written until the EoF is
+            // reached
+            while (contentBuffer.hasRemaining()) {
+                int write = channel.write(contentBuffer);
+                if (log.isTraceEnabled()) {
+                    log.trace("Number of bytes " + write + " written to channel " + channel.hashCode());
+                }
+            }
+            numberOfBytesWritten = contentBuffer.position();
+            if (log.isDebugEnabled()) {
+                log.debug("Number of bytes " + numberOfBytesWritten + " to the channel " + channel.hashCode());
+            }
+        } catch (IOException e) {
+            String message = "Error occurred while writing to channel ";
+            throw new BallerinaIOException(message, e);
         }
-
-        numberOfBytesWritten = contentBuffer.position();
-
         return numberOfBytesWritten;
     }
 
@@ -416,7 +482,7 @@ public abstract class BByteChannel {
             }
         } catch (IOException e) {
             String message = "Error occurred while closing the connection. ";
-            throw new BallerinaException(message + e.getMessage());
+            throw new BallerinaIOException(message, e);
         }
     }
 }

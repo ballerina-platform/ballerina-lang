@@ -21,6 +21,7 @@ package org.ballerinalang.nativeimpl.lang.files;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.BFileChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
@@ -105,10 +106,8 @@ public class OpenChannel extends AbstractNativeChannel {
         BByteChannel channel;
         try {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
-
             path = Paths.get(fileStruct.getStringField(PATH_FIELD_INDEX));
             Set<OpenOption> opts = new HashSet<>();
-
             if (accessLC.contains("r")) {
                 if (!Files.exists(path)) {
                     throw new BallerinaException("file not found: " + path);
@@ -118,12 +117,9 @@ public class OpenChannel extends AbstractNativeChannel {
                 }
                 opts.add(StandardOpenOption.READ);
             }
-
             boolean write = accessLC.contains("w");
             boolean append = accessLC.contains("a");
-
             if (write || append) {
-
                 if (Files.exists(path) && !Files.isWritable(path)) {
                     throw new BallerinaException("file is not writable: " + path);
                 }
@@ -135,9 +131,8 @@ public class OpenChannel extends AbstractNativeChannel {
                     opts.add(StandardOpenOption.WRITE);
                 }
             }
-            // ByteChannel channel = FileChannel.open(path,opts);
             FileChannel byteChannel = FileChannel.open(path, opts);
-            channel = new BFileChannel(byteChannel);
+            channel = new BFileChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {

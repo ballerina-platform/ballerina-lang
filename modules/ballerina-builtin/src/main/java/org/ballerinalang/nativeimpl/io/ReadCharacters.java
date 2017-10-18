@@ -56,17 +56,16 @@ public class ReadCharacters extends AbstractNativeFunction {
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
     /**
-     * Reads characters from the channel
      * <p>
+     * Reads characters from the channel
+     * </p>
      * {@inheritDoc}
      */
     @Override
     public BValue[] execute(Context context) {
-
         BStruct channel;
         long numberOfCharacters;
         BString content;
-
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
@@ -74,12 +73,10 @@ public class ReadCharacters extends AbstractNativeFunction {
                     .CHARACTER_CHANNEL_NAME);
             String readBytes = characterChannel.read((int) numberOfCharacters);
             content = new BString(readBytes);
-
         } catch (Throwable e) {
             String message = "Error occurred while reading characters. ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
         return getBValues(content);
     }
 }

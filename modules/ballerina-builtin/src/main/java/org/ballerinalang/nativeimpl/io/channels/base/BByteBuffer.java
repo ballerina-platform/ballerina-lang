@@ -17,10 +17,10 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -40,7 +40,7 @@ public class BByteBuffer {
      */
     private ByteBuffer byteBuffer;
 
-    private static final Logger log = LoggerFactory.getLogger(BByteChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(BByteBuffer.class);
 
     /**
      * <p>
@@ -58,26 +58,20 @@ public class BByteBuffer {
      * @return new ByteBuffer which will contain bytes which will be remaining
      */
     private ByteBuffer getRemainingBytesFromBuffer(int requiredNumberOfBytes) {
-
         ByteBuffer bufferedContent = null;
-
         if (null != byteBuffer) {
             int position = byteBuffer.position();
             int limit = byteBuffer.limit();
             int remainingBytesToBeRead = limit - position;
-
             if (remainingBytesToBeRead == 0) {
                 //Given there's nothing to read from the buffer
                 return null;
             }
-
             if (remainingBytesToBeRead > requiredNumberOfBytes) {
                 //This means there's excess amount of bytes than requested, hence we narrow down the limit
                 limit = requiredNumberOfBytes;
             }
-
             byte[] content = Arrays.copyOfRange(byteBuffer.array(), position, limit);
-
             bufferedContent = ByteBuffer.wrap(content);
             //We need to mark the bytes wrapped as read
             bufferedContent.position(content.length);
@@ -87,7 +81,6 @@ public class BByteBuffer {
                         "requested amount of " + requiredNumberOfBytes + " of bytes");
             }
         }
-
         return bufferedContent;
     }
 
@@ -107,10 +100,10 @@ public class BByteBuffer {
      * @param requiredNumberOfBytes the number of bytes required to be read from the channel
      * @param offset                the number of bytes already present
      * @return ByteBuffer which wraps the bytes read, null if the channel doesn't return any bytes
-     * @throws IOException if an error is encountered when reading bytes from the channel
+     * @throws BallerinaIOException if an error is encountered when reading bytes from the channel
      */
     private ByteBuffer getRemainingBytesFromChannel(int requiredNumberOfBytes, int offset, BByteChannel channel) throws
-            IOException {
+            BallerinaIOException {
         int numberOfBytesRequiredFromChannel = requiredNumberOfBytes - offset;
         return channel.getReadBuffer(numberOfBytesRequiredFromChannel);
     }
@@ -180,23 +173,19 @@ public class BByteBuffer {
      * @param channel                bytes channel which will perform I/O ops necessary for reading
      * @return Buffer which contains the requested amount of bytes
      */
-    public ByteBuffer read(int numberOfBytesRequested, BByteChannel channel) throws IOException {
+    public ByteBuffer read(int numberOfBytesRequested, BByteChannel channel) throws BallerinaIOException {
         ByteBuffer remainingBytesInBuffer = getRemainingBytesFromBuffer(numberOfBytesRequested);
         int numberOfBytesReadFromBuffer = remainingBytesInBuffer != null ? remainingBytesInBuffer.capacity() : 0;
         int numberOfBytesReadFromChannel;
         int consolidatedBufferSize;
-
         if (numberOfBytesReadFromBuffer == numberOfBytesRequested) {
             return remainingBytesInBuffer;
         }
-
         ByteBuffer bytesReadFromChannel = getRemainingBytesFromChannel(numberOfBytesRequested,
                 numberOfBytesReadFromBuffer, channel);
-
         numberOfBytesReadFromChannel = bytesReadFromChannel != null ? bytesReadFromChannel.capacity() : 0;
         consolidatedBufferSize = numberOfBytesReadFromChannel + numberOfBytesReadFromBuffer;
         byteBuffer = consolidate(consolidatedBufferSize, remainingBytesInBuffer, bytesReadFromChannel);
-
         return byteBuffer;
     }
 

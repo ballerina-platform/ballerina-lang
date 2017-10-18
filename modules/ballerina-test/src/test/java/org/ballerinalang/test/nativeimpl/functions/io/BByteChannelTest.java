@@ -17,6 +17,7 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -37,7 +38,7 @@ public class BByteChannelTest extends BByteChannel {
     }
 
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
         throw new NotImplementedException();
     }
 }

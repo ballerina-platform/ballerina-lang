@@ -17,12 +17,14 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -72,7 +74,7 @@ public class BCharacterChannel {
      * </p>
      * <p>
      * Based on https://tools.ietf.org/html/rfc3629, the max number of bytes which could be allocated for a
-     * character would be '6'
+     * character would be '6' the maximum bytes allocated for character in java is '2'
      * </p>
      */
     private static final int MAX_BYTES_PER_CHAR = 2;
@@ -113,7 +115,6 @@ public class BCharacterChannel {
         char[] remainingChars = new char[characterCount];
         charBuffer.get(remainingChars, indexCharacterOffset, characterCount);
         content.append(remainingChars);
-
         if (log.isTraceEnabled()) {
             log.trace("Characters appended to the string," + content);
         }
@@ -141,17 +142,14 @@ public class BCharacterChannel {
             //The length of the string builder
             int numberOfCharsRequired = content.capacity();
             final int minimumCharacterCount = 0;
-
             if (log.isDebugEnabled()) {
                 log.debug("Number of characters requested = " + numberOfCharsRequired + ",characters remaining in " +
                         "buffer= " + numberOfCharactersRemaining);
             }
-
             if (numberOfCharsRequired < numberOfCharactersRemaining) {
                 //If the remaining character count is < we need to reduce the required number of chars
                 numberOfCharactersRemaining = numberOfCharsRequired;
             }
-
             if (numberOfCharactersRemaining > minimumCharacterCount) {
                 if (log.isDebugEnabled()) {
                     log.debug("Appending " + numberOfCharactersRemaining + " to the string.");
@@ -170,51 +168,49 @@ public class BCharacterChannel {
      *
      * @param numberOfCharacters the number of characters which should be read
      * @return the sequence of characters as a string
-     * @throws IOException I/O errors
+     * @throws BallerinaIOException I/O errors
      */
-    public String read(int numberOfCharacters) throws IOException {
-
-        //Will identify the number of characters required
-        int charsRequiredToBeReadFromChannel;
-        StringBuilder content = new StringBuilder(numberOfCharacters);
-        int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
-
-        //First the remaining buffer would be read and the characters remaining in the buffer will be written
-        appendRemainingCharacters(content);
-
-        //Content capacity would give the total size of the string builder (number of chars)
-        //Content length will give the number of characters appended to the builder through the function
-        //call appendRemainingCharacters(..)
-        charsRequiredToBeReadFromChannel = content.capacity() - content.length();
-
-        if (charsRequiredToBeReadFromChannel == 0) {
-            //This means there's no requirement to read the characters from channel
-            return content.toString();
+    public String read(int numberOfCharacters) throws BallerinaIOException {
+        StringBuilder content;
+        try {
+            //Will identify the number of characters required
+            int charsRequiredToBeReadFromChannel;
+            content = new StringBuilder(numberOfCharacters);
+            int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
+            //First the remaining buffer would be read and the characters remaining in the buffer will be written
+            appendRemainingCharacters(content);
+            //Content capacity would give the total size of the string builder (number of chars)
+            //Content length will give the number of characters appended to the builder through the function
+            //call appendRemainingCharacters(..)
+            charsRequiredToBeReadFromChannel = content.capacity() - content.length();
+            if (charsRequiredToBeReadFromChannel == 0) {
+                //This means there's no requirement to read the characters from channel
+                return content.toString();
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Number of chars required to be read from the channel " + charsRequiredToBeReadFromChannel);
+            }
+            ByteBuffer byteBuffer = contentBuffer.read(numberOfBytesRequired, channel);
+            charBuffer = bytesDecoder.decode(byteBuffer);
+            //If there's a discrepancy between the limit and the capacity this could probably mean the required
+            // amount of
+            //bytes have not being read
+            int unmappedByteCount = charBuffer.capacity() - charBuffer.limit();
+            if (unmappedByteCount > 0) {
+                //This means some of the bytes were not read from the buffer
+                //possibly a character representation which has requires more bytes
+                //Hence we reverse the ByteBuffer position
+                contentBuffer.reverse(unmappedByteCount);
+            }
+            //We need to ensure that the required amount of characters are available in the buffer
+            if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
+                //This means the amount of chars required are not available
+                charsRequiredToBeReadFromChannel = charBuffer.limit();
+            }
+            appendCharsToString(content, charsRequiredToBeReadFromChannel);
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
         }
-
-        ByteBuffer byteBuffer = contentBuffer.read(numberOfBytesRequired, channel);
-
-        charBuffer = bytesDecoder.decode(byteBuffer);
-
-        //If there's a discrepancy between the limit and the capacity this could probably mean the required amount of
-        //bytes have not being read
-        int unmappedByteCount = charBuffer.capacity() - charBuffer.limit();
-
-        if (unmappedByteCount > 0) {
-            //This means some of the bytes were not read from the buffer
-            //possibly a character representation which has requires more bytes
-            //Hence we reverse the ByteBuffer position
-            contentBuffer.reverse(unmappedByteCount);
-        }
-
-        //We need to ensure that the required amount of characters are available in the buffer
-        if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
-            //This means the amount of chars required are not available
-            charsRequiredToBeReadFromChannel = charBuffer.limit();
-        }
-
-        appendCharsToString(content, charsRequiredToBeReadFromChannel);
-
         return content.toString();
     }
 
@@ -224,24 +220,25 @@ public class BCharacterChannel {
      * @param content the string content to write
      * @param offset  the offset which should be set when writing
      * @return the number of bytes/characters written
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    public int write(String content, int offset) throws IOException {
-
-        int numberOfBytesWritten = -1;
-
-        if (channel != null) {
-
-            char[] characters = content.toCharArray();
-            CharBuffer characterBuffer = CharBuffer.wrap(characters);
-            characterBuffer.position(offset);
-            ByteBuffer encodedBuffer = byteEncoder.encode(characterBuffer);
-            numberOfBytesWritten = channel.write(encodedBuffer);
-        } else {
-            log.warn("The channel has already being closed");
+    public int write(String content, int offset) throws BallerinaIOException {
+        try {
+            int numberOfBytesWritten = -1;
+            if (channel != null) {
+                char[] characters = content.toCharArray();
+                CharBuffer characterBuffer = CharBuffer.wrap(characters);
+                characterBuffer.position(offset);
+                ByteBuffer encodedBuffer = byteEncoder.encode(characterBuffer);
+                numberOfBytesWritten = channel.write(encodedBuffer);
+            } else {
+                log.warn("The channel has already being closed");
+            }
+            return numberOfBytesWritten;
+        } catch (CharacterCodingException e) {
+            String message = "Error occurred while writing bytes to the channel " + channel.hashCode();
+            throw new BallerinaIOException(message, e);
         }
-
-        return numberOfBytesWritten;
     }
 
     /**

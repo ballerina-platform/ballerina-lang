@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,12 +96,10 @@ public class BTextRecordChannel {
      */
     private void increaseRecordCharacterCount(int numberOfRecordHops) {
         int numberOfCharactersForRecord = numberOfRecordHops * this.recordCharacterCount;
-
         if (log.isDebugEnabled()) {
             log.debug("Character count in the record is increased from " + this.recordCharacterCount + " to " +
                     numberOfCharactersForRecord);
         }
-
         this.recordCharacterCount = numberOfCharactersForRecord;
     }
 
@@ -113,10 +112,9 @@ public class BTextRecordChannel {
      * </p>
      *
      * @return the requested record
-     * @throws IOException during I/O error
+     * @throws BallerinaIOException during I/O error
      */
-    private String readRecord() throws IOException {
-
+    private String readRecord() throws BallerinaIOException {
         String record = null;
         String readCharacters = "";
         int numberOfChannelReads = 0;
@@ -126,44 +124,32 @@ public class BTextRecordChannel {
         final int minimumRemainingLength = 0;
         final int delimitedRemainingIndex = 1;
         final int recordThresholdIncreaseCount = 1;
-
         do {
-
             if (log.isTraceEnabled()) {
                 log.trace("char[] remaining in memory " + persistentCharSequence);
             }
-
             //We need to split the string into 2
             String[] delimitedRecord = persistentCharSequence.toString().split(recordSeparator, numberOfSplits);
-
-
             if (delimitedRecord.length > minimumRecordCount) {
                 record = delimitedRecord[delimitedRecordIndex];
                 persistentCharSequence.setLength(minimumRemainingLength);
                 persistentCharSequence.append(delimitedRecord[delimitedRemainingIndex]);
-
                 if (log.isTraceEnabled()) {
                     log.trace("Record identified from remaining char[] in memory " + record);
                     log.trace("The char[] left after split " + persistentCharSequence);
                 }
 
             } else {
-
                 readCharacters = channel.read(recordCharacterCount);
                 numberOfChannelReads++;
-
-
                 if (log.isTraceEnabled()) {
                     log.trace("char [] read from channel," + channel.hashCode() + "=" + readCharacters);
                 }
-
                 persistentCharSequence.append(readCharacters);
-
                 if (log.isTraceEnabled()) {
                     log.trace("char [] appended to the memory " + persistentCharSequence);
                 }
             }
-
         } while (record == null && !readCharacters.isEmpty());
 
         if (null == record && readCharacters.isEmpty()) {
@@ -180,21 +166,17 @@ public class BTextRecordChannel {
                     log.trace("char [] remaining in memory, will be marked as the last record " + record);
                 }
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("Final record is read from channel " + channel.hashCode() + " number of records read " +
                         "from channel " + (numberOfRecordsReadThroughChannel + 1));
             }
         } else {
-
             if (numberOfChannelReads > recordThresholdIncreaseCount) {
                 //This means a record exceeds the currently specified number of characters per record and we need to
                 // increase it
                 increaseRecordCharacterCount(numberOfChannelReads);
             }
-
         }
-
         return record;
     }
 
@@ -219,38 +201,27 @@ public class BTextRecordChannel {
      *
      * @return the list of fields
      */
-    public String[] read() throws IOException {
-
+    public String[] read() throws BallerinaIOException {
         final int emptyArrayIndex = 0;
-
         String[] fields = new String[emptyArrayIndex];
-
         if (remaining) {
-
             if (log.isDebugEnabled()) {
                 log.debug("Reading record " + numberOfRecordsReadThroughChannel + " from " + channel.hashCode());
             }
-
             String record = readRecord();
-
-
             if (null != record) {
                 fields = getFields(record);
                 numberOfRecordsReadThroughChannel++;
-
                 if (log.isDebugEnabled()) {
                     log.debug("Record " + numberOfRecordsReadThroughChannel + " returned " + fields.length + " from " +
                             "channel " + channel.hashCode());
                 }
-
                 if (log.isTraceEnabled()) {
                     log.trace("The list of fields identified in record " + numberOfRecordsReadThroughChannel + "from " +
                             "channel " + channel.hashCode() + "," + Arrays.toString(fields));
                 }
-
             }
         } else {
-
             //The channel could be null if it's being closed by a different source
             if (null != channel) {
                 log.warn("The final record has already being processed through the channel " + channel.hashCode());
@@ -258,7 +229,6 @@ public class BTextRecordChannel {
                 log.warn("The requested channel has already being closed");
             }
         }
-
         return fields;
     }
 
@@ -274,13 +244,10 @@ public class BTextRecordChannel {
         long numberOfFields = fields.length();
         final int fieldStartIndex = 0;
         final long secondLastFieldIndex = numberOfFields - 1;
-
         if (log.isDebugEnabled()) {
             log.debug("Number of fields to be composed " + numberOfFields);
         }
-
         for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
-
             String currentFieldString = fields.get(fieldCount);
             recordConsolidator.append(currentFieldString);
 
@@ -289,9 +256,7 @@ public class BTextRecordChannel {
                 recordConsolidator.append(fieldSeparator);
             }
         }
-
         finalizedRecord = recordConsolidator.toString();
-
         return finalizedRecord;
     }
 
@@ -303,22 +268,16 @@ public class BTextRecordChannel {
      */
     public void write(BStringArray fields) throws IOException {
         final int writeOffset = 0;
-
         String record = composeRecord(fields);
         record = record + recordSeparator;
-
         if (log.isTraceEnabled()) {
             log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
         }
-
         channel.write(record, writeOffset);
-
         if (log.isDebugEnabled()) {
             log.debug("Record " + numberOfRecordsReadThroughChannel + " written to the channel " + channel.hashCode());
         }
-
         numberOfRecordsWrittenToChannel++;
-
     }
 
     /**

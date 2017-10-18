@@ -17,6 +17,7 @@
 
 package org.ballerinalang.nativeimpl.io.channels;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 
 import java.io.IOException;
@@ -48,7 +49,11 @@ public class BFileChannel extends BByteChannel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
-        channel.transferTo(position, count, dstChannel);
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+        try {
+            channel.transferTo(position, count, dstChannel);
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while transferring file", e);
+        }
     }
 }

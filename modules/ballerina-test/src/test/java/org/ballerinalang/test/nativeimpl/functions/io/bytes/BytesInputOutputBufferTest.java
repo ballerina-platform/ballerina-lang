@@ -125,11 +125,9 @@ public class BytesInputOutputBufferTest {
     public void requestForExcessBytes() throws IOException {
         int requestedLimit = 10;
         int expectedLimit = 6;
-
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
         BByteChannel channel = new BByteChannelTest(byteChannel);
         byte[] readBytes = channel.read(requestedLimit);
-
         channel.close();
         Assert.assertEquals(readBytes.length, expectedLimit);
     }
@@ -141,7 +139,6 @@ public class BytesInputOutputBufferTest {
         BByteChannel channel = new BByteChannelTest(byteChannel);
         byte[] bytes = "hello".getBytes();
         int numberOfBytesWritten = channel.write(bytes, 0);
-
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
 

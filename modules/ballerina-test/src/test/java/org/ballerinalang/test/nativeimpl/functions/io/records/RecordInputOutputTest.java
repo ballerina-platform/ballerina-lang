@@ -98,8 +98,6 @@ public class RecordInputOutputTest {
 
     @Test
     public void writeRecords() throws IOException {
-        int expectedRecordCount = 3;
-
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
         BByteChannel channel = new BByteChannelTest(byteChannel);

@@ -49,7 +49,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         isPublic = true
 )
 public class ToCharacterChannel extends AbstractNativeFunction {
-
     /**
      * Specifies the index of the character channel  in ballerina.io#toCharacterChannel
      */
@@ -94,19 +93,15 @@ public class ToCharacterChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-
         BStruct characterChannelInfo;
         BStruct characterChannel;
         BValue[] bValues;
         String encoding;
-
         try {
             //File which holds access to the channel information
             characterChannelInfo = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             encoding = getStringArgument(context, ENCODING_INDEX);
-
             characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
-
             //Will get the relevant byte channel and will create a character channel
             BByteChannel byteChannel = (BByteChannel) characterChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             BCharacterChannel bCharacterChannel = new BCharacterChannel(byteChannel, encoding);
@@ -116,8 +111,6 @@ public class ToCharacterChannel extends AbstractNativeFunction {
             String message = "Error occurred while converting byte channel to character channel. ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
-
         return bValues;
     }
 }

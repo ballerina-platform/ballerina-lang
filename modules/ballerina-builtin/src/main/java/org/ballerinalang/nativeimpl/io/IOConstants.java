@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.io;
  * Holds the constants related to I/O
  */
 public class IOConstants {
-
     /**
      * The value of the key the channel will be held in the struct
      *
@@ -32,10 +31,15 @@ public class IOConstants {
     /**
      * The value of the character channel which will be derived from the byte channel
      */
-    public static final String CHARACTER_CHANNEL_NAME = "char_channel";
+    static final String CHARACTER_CHANNEL_NAME = "char_channel";
 
     /**
      * The value of the text record channel which will be used for struct registration
      */
-    public static final String TXT_RECORD_CHANNEL_NAME = "txt_record";
+    static final String TXT_RECORD_CHANNEL_NAME = "txt_record";
+
+    /**
+     * The size of the buffer allocated for reading bytes from the channel (15~ KB)
+     */
+    public static final int CHANNEL_BUFFER_SIZE = 16384;
 }

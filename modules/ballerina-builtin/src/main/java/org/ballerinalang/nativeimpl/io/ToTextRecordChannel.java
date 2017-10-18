@@ -101,7 +101,6 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
         BValue[] bValues;
         String recordSeparator;
         String fieldSeparator;
-
         try {
             //File which holds access to the channel information
             textRecordChannelInfo = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
@@ -121,8 +120,6 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
             String message = "Error occurred while converting character channel to textRecord channel. ";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
-
         return bValues;
     }
 }

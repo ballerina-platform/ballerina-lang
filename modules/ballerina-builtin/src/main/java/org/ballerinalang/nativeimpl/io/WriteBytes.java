@@ -73,7 +73,6 @@ public class WriteBytes extends AbstractNativeFunction {
         byte[] content;
         long startOffset;
         int numberOfBytesWritten;
-
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
@@ -82,7 +81,6 @@ public class WriteBytes extends AbstractNativeFunction {
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
 
             numberOfBytesWritten = byteChannel.write(content, startOffset);
-
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes .";
             throw new BallerinaException(message + e.getMessage(), context);

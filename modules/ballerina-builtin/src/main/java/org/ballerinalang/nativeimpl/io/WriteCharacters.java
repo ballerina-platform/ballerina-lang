@@ -45,7 +45,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         isPublic = true
 )
 public class WriteCharacters extends AbstractNativeFunction {
-
     /**
      * Index of the content provided in ballerina.io#writeCharacters
      */
@@ -71,7 +70,6 @@ public class WriteCharacters extends AbstractNativeFunction {
         String content;
         long startOffset;
         int numberOfCharactersWritten;
-
         try {
             channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             content = getStringArgument(context, CONTENT_INDEX);
@@ -81,7 +79,6 @@ public class WriteCharacters extends AbstractNativeFunction {
                     .CHARACTER_CHANNEL_NAME);
 
             numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
-
         } catch (Throwable e) {
             String message = "Error occurred while writing characters .";
             throw new BallerinaException(message + e.getMessage(), context);

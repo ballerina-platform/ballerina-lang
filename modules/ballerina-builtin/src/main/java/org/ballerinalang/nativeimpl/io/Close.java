@@ -53,7 +53,6 @@ public class Close extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
-
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
@@ -62,7 +61,6 @@ public class Close extends AbstractNativeFunction {
             String message = "Failed to close the channel. " + e.getMessage();
             throw new BallerinaException(message, context);
         }
-
         return VOID_RETURN;
     }
 }

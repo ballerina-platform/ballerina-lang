@@ -61,7 +61,6 @@ public class WriteTextRecord extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         BStringArray content;
-
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
@@ -76,7 +75,6 @@ public class WriteTextRecord extends AbstractNativeFunction {
             String message = "Error occurred while writing text record .";
             throw new BallerinaException(message + e.getMessage(), context);
         }
-
         return VOID_RETURN;
     }
 }
