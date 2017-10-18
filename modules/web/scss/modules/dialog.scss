@@ -16,6 +16,14 @@
                     border-top: 1px solid #2C2C2C;
                     width: 92%;
                 }
+                .alert {
+                    &.alert-danger {
+                        background-image: none;
+                        margin-top: 10px;
+                        border: 1px red solid;
+                        background-color: #6D1717;
+                    }
+                }
             }
             .modal-body {
                 margin: 30px;
