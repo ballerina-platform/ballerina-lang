@@ -225,6 +225,7 @@ class ForkJoinNode extends React.Component {
                     title={'Fork'}
                     model={model}
                     body={model}
+                    disableDropzoneMiddleLineOverlay
                 >
                     {
                         this.props.model.workers.map((item) => {
@@ -274,6 +275,7 @@ class ForkJoinNode extends React.Component {
                     parameterEditorOptions={joinParameterEditorOptions}
                     editorOptions={joinConditionEditorOptions}
                     disableButtons={{ delete: true }}
+                    disableDropzoneMiddleLineOverlay
                 />
                 }
 
@@ -309,6 +311,7 @@ class ForkJoinNode extends React.Component {
                     body={model.getTimeoutBody()}
                     parameterEditorOptions={timeoutParameterEditorOptions}
                     editorOptions={timeoutConditionEditorOptions}
+                    disableDropzoneMiddleLineOverlay
                 />
                 }
             </g>
