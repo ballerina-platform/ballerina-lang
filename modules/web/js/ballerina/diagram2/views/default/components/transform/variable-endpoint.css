@@ -7,56 +7,60 @@
 
 .transform-endpoint .variable-icon {
     height: 30px;
+    width: 14px;
+    text-align: center;
     float: left;
-    margin-left: 7px;
     line-height: 30px;
 }
 
 .transform-endpoint .tree-view-icon {
-    width: 20px;
-    display: inline-block;
-    border-right: 2px solid #8a8a8a;
-    height: 15px;
-    margin-left: -7px;
-    float: left;
     position: relative;
+    width: 10px;
+    border-left: 2px solid #8a8a8a;
+    border-bottom: 2px solid #8a8a8a;
+    height: 30px;
+    bottom: 15px;
+    float: left;
+    margin-left: 6px;
 }
 
-.transform-endpoint .tree-view-icon:after {
-    content: " ";
-    width: 7px;
-    position: absolute;
-    height: 17px;
-    border-bottom: 2px solid #8c8c8c;
-    margin-left: 9px;
+.transform-endpoint .tree-view-builder {
+    position: relative;
+    width: 10px;
+    border-left: 2px solid #8a8a8a;
+    height: 30px;
+    bottom: 15px;
+    float: left;
+    margin-left: 6px;
 }
 
-.transform-endpoint-struct .tree-view-icon:after {
-    border-bottom: none;
-}
-.transform-endpoint-struct-folded .tree-view-icon:after {
-    border-bottom: none;
-}
-
-.transform-endpoint .tree-view-icon:before {
-    content: " ";
-    width: 11px;
-    position: absolute;
-    height: 17px;
-    border-right: 2px solid #8c8c8c;
-    margin-top: -17px;
+.transform-endpoint .tree-view-builder.empty {
+    border-left: none;
 }
 
 .transform-endpoint .connect-point> i[class*="jtk-connected"] {
     font-size: 12px;
 }
 
+.transform-endpoint-first .tree-view-icon {
+    height: 25px;
+    bottom: 10px;
+}
+
 .transform-endpoint .folder {
-    position: absolute;
+    position: relative;
+    bottom: 2px;
+    float: left;
     height: 30px;
+    width: 14px;
     line-height: 30px;
     z-index: 1;
     font-size: 17px;
+    text-align: center;
+}
+
+.jtk-connector {
+    z-index: 2;
 }
 
 .transform-endpoint-struct .folder::after {
@@ -67,15 +71,10 @@
     content: '▸';
 }
 
-.transform-endpoint:nth-child(2) .tree-view-icon:before {
-    margin-top: -9px;
-    height: 10px;
-}
-
 .transform-endpoint .connect-point {
     position: absolute;
     background-color: #dedede;
-    z-index: 0;
+    z-index: 1;
     font-size: 8px;
 }
 
@@ -122,13 +121,6 @@
     height: 30px;
     white-space: nowrap;
     float: left;
-}
-
-.tree-view-icon {
-    width: 10px;
-    text-align: center;
-    margin: 0;
-    line-height: 30px;
 }
 
 .transform-endpoint-icon {
