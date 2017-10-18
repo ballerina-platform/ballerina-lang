@@ -127,10 +127,13 @@ class ConnectorPropertiesForm extends React.Component {
         const paramArray = [];
         let map;
         data.forEach((key) => {
+            if ((key.bType === 'string' && key.value === '') || key.value === 0 || key.value === false) {
+                return;
+            }
             if (key.bType === 'string') {
                 key.value = this.addQuotationForStringValues(key.value);
             }
-            // For simple fields
+                // For simple fields
             if (key.fields.length === 0) {
                 paramArray.push(key.value);
             } else if (key.value) {
@@ -162,6 +165,9 @@ class ConnectorPropertiesForm extends React.Component {
             // Remove quotation marks of the identifier
             if (field.identifier.startsWith('"')) {
                 field.identifier = JSON.parse(field.identifier);
+            }
+            if ((field.bType === 'string' && field.value === '') || field.value === 0 || field.value === false) {
+                return;
             }
             // If the btype is string, add quotation marks to the value
             if (field.bType === 'string') {
@@ -215,7 +221,6 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '428px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -224,18 +229,20 @@ class ConnectorPropertiesForm extends React.Component {
             },
         };
         const supportedProps = this.getSupportedProps();
+        let propertiesExist = true;
         if (!supportedProps.length) {
-            return null;
+            propertiesExist = false;
         }
+
         return (
             <PropertyWindow
                 model={props.model}
                 formHeading='Connector Properties'
                 key={`connectorProp/${props.model.id}`}
                 styles={styles}
-                supportedProps={this.getSupportedProps()}
+                supportedProps={supportedProps}
                 addedValues={this.setDataToConnectorInitArgs}
-                isConnector='true'
+                propertiesExist={propertiesExist}
             />);
     }
 }

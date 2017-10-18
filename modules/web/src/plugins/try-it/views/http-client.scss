@@ -17,14 +17,19 @@
  */
 
 .http-client-wrapper {
-   height: 100%;
+    height: 100%;
+    border-top: 1px solid #575757;
+    margin-top: 20px;
+    clear: both;
+
 }
 
-.http-client-request {
-    float: left;
-    padding-right: 20px;
-    border-right: 1px solid rgb(87, 87, 87);
-    height: 100%;
+ .http-client-request {
+     float: left;
+     padding-right: 20px;
+     border-right: 1px solid rgb(87, 87, 87);
+     height: 100%;
+     margin-top: 15px;
 
     h3{
         font-size: 18px;
@@ -35,7 +40,7 @@
     input[type=text].header-input{
         margin-left: 5px;
         border: 0.5px solid #333333;
-        height: 22px;
+        height: 30px;
         background-color: #333333;
         margin-bottom: 3px;
         width: 46%;
@@ -44,7 +49,7 @@
 
     input[type=text]{
         color: #fff;
-        height: 33px;
+        height: 31px;
         padding: 6px;
         background-color: #575757;
         border: none;
@@ -76,13 +81,15 @@
         }
     }
     .http-client-content-type-wrapper{
-        margin-top: 10px;
-        margin-left: 0px;
-        margin-right: 0px;
+        margin: 15px 0 15px 0;
+        .control-label{
+            text-align: left;
+            padding-right: 0;
+        }
         .http-client-content-type {
             margin-left: 5px;
             border: .5px solid rgb(51, 51, 51);
-            height: 22px;
+            height: 30px;
             background-color: #333333;
         }
     }
@@ -90,18 +97,19 @@
 
 .http-client-action-wrapper .input-group-btn .btn, .http-client-action-wrapper .input-group-btn .btn:hover,
 .http-client-action-wrapper .input-group-btn .btn:focus{
-    border-color: rgb(92, 184, 93);
-    border-left: none;
+    border: 0;
+    box-shadow: none;
 }
 
 .http-client-response {
     padding-left: 20px;
+    margin-top: 15px;
 
     input[type=text].header-input{
         margin-left: 5px;
-        border: 0.5px solid #333333;
-        height: 22px;
-        background-color: #333333;
+        border: 0.5px solid #333;
+        height: 30px;
+        background-color: #333;
         margin-bottom: 3px;
         width: 46%;
         margin-right: 2px;
@@ -111,7 +119,7 @@
         color: #fff;
         height: 33px;
         padding: 6px;
-        background-color: #575757;
+        background-color: #333;
         border: none;
     }
 
@@ -158,6 +166,23 @@
         margin-bottom: 30px;
         margin-top: 10px;
     }
+    > .tab-content {
+        padding: 15px;
+        background-color: #282828;
+    }
+    .nav-tabs{
+        border-top:1px solid #3c3c3c;
+        border-bottom: 1px solid #272824;
+        li.active > a{
+            color:#f1f1f1;
+            background-color:#272824;
+            cursor:default;
+            border-left: 3px solid #df7331;
+            border-right:0;
+            border-top:0;
+            border-bottom:0;
+        }
+    }
 }
 
 .http-client-response-attributes span{
@@ -180,16 +205,57 @@ hr{
     border: 1px solid rgba(241, 123, 49, 0.41);
 }
 
-.try-it-message {
-  background: #333333;
+    .try-it-message {
+    background: #333;
+        > .message-warning, p{
+            color: #f0ad4e;
+        }
+        > .message-warning, .icon{
+            margin-top: 0;
+            margin-right: 10px;
+            line-height: 12px;
+            font-size: 13px;
+        }
 }
 
 .http-client-select-service-wrapper {
     padding-left: 15px;
+    background-color: #333;
+    padding:10px;
+    width:auto;
+    margin-left: 5px;
+    float: left;
+    margin-bottom: 15px;
     .selectors {
         float: left;
-        &.resource-selector {
-            padding-left: 50px;
+        .dropdown-toggle{
+            background-color: #3c3c3c;
+            color: #f1f1f1;
+            text-shadow: none;
+            box-shadow: none;
+            border: 1px solid #575757;
+            width: 200px;
+            margin: 5px 10px;
+        }
+        .dropdown-menu {
+            background: #565656;
+            margin:-5px 10px;
+            padding: 9px 0;
+            height: 34px;
+            width: 200px;
+            border: 0;
+             > li > a {
+                 display: block;
+                 padding: -6px 20px;
+                 clear: both;
+                 font-weight: normal;
+                 line-height: 25px;
+                 white-space: nowrap;
+                 height: 33px;
+                 margin-top: -9px;
+                 background: #585858;
+                 color: #f1f1f1;
+            }
         }
     }
     .react-autosuggest__container {
@@ -225,5 +291,31 @@ hr{
         padding: 6px;
         background-color: #575757;
         border: none;
+        width: 187px;
     }
+    input[type=text]::-webkit-input-placeholder{
+        color: #ccc;
+    }
+}
+.http-client-path:focus, .http-client-content-type:focus, .header-input:focus{
+    border: 1px solid #6d6d6d !important;
+    box-shadow: none;
+}
+.response-header-input{
+    margin-left: 5px;
+    height: 30px;
+    background-color: #333;
+    margin-bottom: 3px;
+    width: 48% !important;
+    margin-right: 2px;
+    font-size: 12px;
+}
+.response-header-input:focus{
+    border: none;
+    box-shadow: none;
+    cursor: none;
+}
+.btn-cancel{
+    background-color: #f17b31;
+    border: 1px solid #f17b31;
 }

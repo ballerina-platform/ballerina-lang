@@ -193,12 +193,12 @@
     margin-top: 19px;
 }
 
-.close > span {
+#property-modal .close > span {
      padding-top: 9px;
      float: left;
  }
 
-.close > span:hover {
+#property-modal .close > span:hover {
      color: #333;
      opacity: 1;
  }
@@ -417,4 +417,12 @@ span { cursor: pointer; }
 
 .propWindowBackIcon{
     font-size: 11px;
+}
+
+.noPropertyPrompt{
+    height: 50px;
+}
+
+.alertMsgForNoProps{
+    padding-top: 13px;
 }
