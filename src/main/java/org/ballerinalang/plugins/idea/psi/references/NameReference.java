@@ -213,6 +213,7 @@ public class NameReference extends BallerinaElementReference {
 
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true);
             results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+            return results;
         }
 
         // Try to get fields from an anonymous struct.
