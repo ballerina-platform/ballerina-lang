@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './variable-endpoint.css';
 import VariableTypeDropdown from './variable-type-dropdown.jsx'
 
@@ -162,24 +163,50 @@ export default class VariableEndpoint extends React.Component {
     }
     onComplete() {
         let qoutes = '';
-        let valid = false;
+        let validType = false;
+        const validName = Number.isNaN(Number.parseFloat(this.state.varName.charAt(0))) && this.state.varName !== '';
         if (this.state.varType === 'string') {
             qoutes = '"';
-            valid = true;
+            validType = true;
         } else if (this.state.varType === 'int') {
-            valid = Number.parseFloat(this.state.varVal) % 1 === 0;
+            validType = this.isInt(this.state.varVal);
         } else if (this.state.varType === 'float') {
-            valid = !Number.isNaN(Number.parseFloat(this.state.varVal));
-        } else {
-            valid = true;
+            validType = this.isFloat(this.state.varVal) || this.isInt(this.state.varVal);
+        } else if (this.state.varType !== '') {
+            validType = true;
         }
-        if (valid) {
+        if (validType && validName) {
             const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes
                               + this.state.varVal + qoutes;
             const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
             if (isUpdated) {
                 this.setState({ onEdit: false });
             }
+        } else {
+            if (!validName) {
+                this.context.alert.showError('Invalid variable name');
+            }
+            if (!validType) {
+                this.context.alert.showError('Invalid value for variable selected type');
+            }
         }
     }
+
+    isInt(val) {
+        return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
+    }
+
+    isFloat(val) {
+        return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
+    }
 }
+
+VariableEndpoint.contextTypes = {
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
+    }).isRequired,
+};

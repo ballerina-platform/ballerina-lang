@@ -141,9 +141,8 @@ class DefaultNodeFactory {
     createStruct() {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
-                public struct Person {
-                    string name;
-                    int age;
+                struct struct1 {
+
                 }
             `),
         );
@@ -169,8 +168,7 @@ class DefaultNodeFactory {
     createAnnotation() {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
-                public annotation Annotation1 {
-                    string attrib1;
+                annotation annotation1 {
                 }
             `),
         );
@@ -206,7 +204,7 @@ class DefaultNodeFactory {
 
     createInvocation() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            callFunction(arg1);
+            invokeFunction(arg1);
         `));
     }
 
@@ -280,7 +278,7 @@ class DefaultNodeFactory {
             transaction {
 
             } failed {
-               retry 3;
+
             } aborted {
             
             } committed {
