@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Grid, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -57,12 +57,22 @@ class FileReplaceConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <h4>
-                    {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
-                </h4>
-                <p>
-                    {`The file already exists in "${this.props.parent}". Replacing it will overwrite its contents.`}
-                </p>
+                <Grid fluid>
+                    <Row>
+                        <Col md={2}>
+                            <i className="fw fw-4x fw-warning danger" />
+                        </Col>
+                        <Col md={10}>
+                            <h4 style={{ marginTop: 0 }}>
+                                {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
+                            </h4>
+                            <p>
+                                {`The file already exists in "${this.props.parent}". 
+                                Replacing it will overwrite its contents.`}
+                            </p>
+                        </Col>
+                    </Row>
+                </Grid>
             </Dialog>
         );
     }

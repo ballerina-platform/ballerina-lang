@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Grid, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -57,13 +57,22 @@ class FileDeleteConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <h4>
-                    {`Are you sure you want to delete "${this.props.target}"
-                        ${this.props.isFolder ? ' and its contents' : ''} ?`}
-                </h4>
-                <p>
-                    {`${this.props.isFolder ? 'Folder' : 'File'} will be deleted from file system.`}
-                </p>
+                <Grid fluid>
+                    <Row>
+                        <Col md={2}>
+                            <i className="fw fw-4x fw-warning danger" />
+                        </Col>
+                        <Col md={10}>
+                            <h4 style={{ marginTop: 0 }}>
+                                {`Are you sure you want to delete "${this.props.target}"
+                                    ${this.props.isFolder ? ' and its contents' : ''} ?`}
+                            </h4>
+                            <p>
+                                {`${this.props.isFolder ? 'Folder' : 'File'} will be deleted from file system.`}
+                            </p>
+                        </Col>
+                    </Row>
+                </Grid>
             </Dialog>
         );
     }
@@ -73,7 +82,11 @@ FileDeleteConfirmDialog.propTypes = {
     isFolder: PropTypes.bool.isRequired,
     target: PropTypes.string.isRequired,
     onConfirm: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
+    onCancel: PropTypes.func,
+};
+
+FileDeleteConfirmDialog.defaultProps = {
+    onCancel: () => {},
 };
 
 export default FileDeleteConfirmDialog;

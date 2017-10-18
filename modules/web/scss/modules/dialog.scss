@@ -7,10 +7,15 @@
             color: #fefefe;
             background-color: #222222;
             .modal-header {
+                padding: 10px;
                 border-bottom: none;
                 .close {
                     color: #fefefe;
                     outline: none;
+                    span {
+                        padding-top: 0;
+                        float: right;
+                    }
                 }
                 .modal-body-seperator {
                     border-top: 1px solid #2C2C2C;
@@ -26,9 +31,15 @@
                 }
             }
             .modal-body {
-                margin: 30px;
+                margin: 10px;
+                i {
+                    &.fw.danger {
+                        color: rgb(182, 35, 35);
+                    }
+                }
             }
             .modal-footer {
+                padding: 10px;
                 border-top: none;
             }
             & .btn {
