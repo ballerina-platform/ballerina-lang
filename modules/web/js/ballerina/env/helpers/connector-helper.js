@@ -39,7 +39,7 @@ class ConnectorHelper {
                 defaultValue = false;
                 break;
             case 'map':
-                defaultValue = '{}';
+                defaultValue = '';
                 break;
             default:
                 defaultValue = '';

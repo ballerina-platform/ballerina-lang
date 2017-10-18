@@ -292,7 +292,6 @@ class ServerConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '398px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -301,9 +300,9 @@ class ServerConnectorPropertiesForm extends React.Component {
             },
         };
         const supportedKeys = this.getSupportedKeys();
+        let propertiesExist = true;
         if (!supportedKeys.length) {
-            props.model.viewState.shouldShowConnectorPropertyWindow = false;
-            return null;
+            propertiesExist = false;
         }
         return (
             <PropertyWindow
@@ -313,6 +312,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                 styles={styles}
                 supportedProps={supportedKeys}
                 addedValues={this.getDataFromPropertyForm}
+                propertiesExist={propertiesExist}
             />);
     }
 }
