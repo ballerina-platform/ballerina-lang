@@ -29,7 +29,7 @@ const BASE_TYPES = {
 
 class DropZone extends React.Component {
     render() {
-        const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
+        const { baseComponent, className, connectDropTarget, isOver, isOverCurrent, enableCenterOverlayLine,
             isDragging, dropTarget, dropBefore, canDrop, enableDragBg, renderUponDragStart,
             ...restProps } = this.props;
         // render nothing when drag-drop isn't happening
@@ -41,6 +41,7 @@ class DropZone extends React.Component {
         if (isDragging && enableDragBg && BASE_TYPES.RECT === baseComponent) {
             // only get position info for background rect while dragging
             const positionProps = (({ x, y, width, height }) => ({ x, y, width, height }))(restProps);
+            const { x, y, width, height } = positionProps;
             result = (
                 <g>
                     <Component
@@ -57,6 +58,15 @@ class DropZone extends React.Component {
                             )
                         }
                     />
+                    {enableCenterOverlayLine &&
+                        <line
+                            x1={x + (width / 2)}
+                            y1={y}
+                            x2={x + (width / 2)}
+                            y2={y + height}
+                            className="drop-zone-center-line unhoverable"
+                        />
+                    }
                 </g>
             );
         } else {
@@ -84,6 +94,7 @@ DropZone.propTypes = {
     className: PropTypes.string,
     connectDropTarget: PropTypes.func.isRequired,
     enableDragBg: PropTypes.bool,
+    enableCenterOverlayLine: PropTypes.bool,
     renderUponDragStart: PropTypes.bool,
     isOver: PropTypes.bool,
     isOverCurrent: PropTypes.bool,
@@ -94,6 +105,7 @@ DropZone.propTypes = {
 DropZone.defaultProps = {
     dropBefore: undefined,
     enableDragBg: false,
+    enableCenterOverlayLine: false,
     renderUponDragStart: false,
     className: '',
 };

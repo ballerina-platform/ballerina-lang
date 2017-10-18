@@ -139,6 +139,7 @@ class TransformStatementDecorator extends React.Component {
                     dropTarget={this.props.model.parent}
                     dropBefore={this.props.model}
                     enableDragBg
+                    enableCenterOverlayLine
                 />
                 <rect
                     x={bBox.x}
