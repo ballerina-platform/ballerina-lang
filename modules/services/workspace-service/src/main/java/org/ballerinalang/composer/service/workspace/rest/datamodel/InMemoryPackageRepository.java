@@ -31,7 +31,12 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
     }
 
     private PackageSource lookupPackageSource(PackageID pkgID, byte[] code) {
-        return new InMemoryPackageSource(pkgID, name, code);
+        // This seems a wrong logic. But file name is received with "pkgID.name.value".
+        if (this.name.equals(pkgID.name.value)) {
+            return new InMemoryPackageSource(pkgID, name, code);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -98,7 +103,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
     }
 
     public Set<PackageID> listPackages(int maxDepth) {
-        return  new LinkedHashSet<>();
+        return new LinkedHashSet<>();
     }
 }
 
