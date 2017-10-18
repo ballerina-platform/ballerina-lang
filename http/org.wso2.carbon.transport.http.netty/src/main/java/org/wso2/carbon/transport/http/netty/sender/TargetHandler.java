@@ -180,7 +180,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 }
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 targetChannel.setRequestWritten(false);
-                httpResponseFuture.notifyHttpListener(new Exception("Endpoint timed out"));
+                httpResponseFuture.notifyHttpListener(new Exception(Constants.ENDPOINT_TIMEOUT_MSG));
             }
         }
     }

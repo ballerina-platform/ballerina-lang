@@ -28,15 +28,12 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
