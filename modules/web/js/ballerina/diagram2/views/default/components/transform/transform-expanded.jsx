@@ -20,7 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
-import alerts from 'alerts';
 import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
 import TransformRender from './transform-render';
@@ -236,11 +235,11 @@ class TransformExpanded extends React.Component {
         }
 
         if (_.isUndefined(nodeDef)) {
-            // alerts.error('Definition for "' + nodeName + '" cannot be found');
+            this.context.alert.showError('Definition for "' + nodeName + '" cannot be found');
             return;
         }
         if (nodeDef.parameters.length !== paramExpressions.length) {
-            // alerts.warn('Inputs and mapping count does not match in "' + nodeName + '"');
+            this.context.alert.showWarning('Inputs and mapping count does not match in "' + nodeName + '"');
         }
 
         const returnParams = nodeDef.returnParams;
@@ -304,7 +303,8 @@ class TransformExpanded extends React.Component {
         }
 
         if (nodeDef.returnParams.length !== argumentExpressions.length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            this.context.alert.showWarning('Function inputs and mapping count does not match in "'
+                                            + nodeDef.getName() + '"');
         }
         argumentExpressions.forEach((expression, i) => {
             const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
@@ -372,13 +372,12 @@ class TransformExpanded extends React.Component {
         }
 
         if (_.isUndefined(nodeDef)) {
-            // alerts.error(
-            // 'Function definition for "' + nodeName + '" cannot be found');
+            this.context.alert.showError('Function definition for "' + nodeName + '" cannot be found');
             return;
         }
 
         if (nodeDef.parameters.length !== paramExpressions.length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + nodeName + '"');
+            this.context.alert.showWarning('Function inputs and mapping count does not match in "' + nodeName + '"');
         }
         paramExpressions.forEach((expression, i) => {
             const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
@@ -497,12 +496,13 @@ class TransformExpanded extends React.Component {
             const fieldName = expression.getFieldName();
             const structDef = _.find(this.state.vertices, { name: structName });
             if (_.isUndefined(structDef)) {
-                // alerts.error('Struct definition for variable "' + structName + '" cannot be found');
+                this.context.alert.showError('Struct definition for variable "' + structName + '" cannot be found');
                 return;
             }
             const structField = _.find(structDef.properties, { name: fieldName });
             if (_.isUndefined(structField)) {
-                // alerts.error('Struct field "' + fieldName + '" cannot be found in variable "' + structName + '"');
+                this.context.alert.showError('Struct field "' + fieldName + '" cannot be found in variable "'
+                                              + structName + '"');
                 return;
             }
             const structFieldType = structField.type;
@@ -929,7 +929,7 @@ class TransformExpanded extends React.Component {
                 }
             });
         }).catch((error) => {
-            // alerts.error('Could not initialize transform statement view ' + error);
+            this.context.alert.showError('Could not initialize transform statement view ' + error);
         });
     }
 
@@ -955,7 +955,7 @@ class TransformExpanded extends React.Component {
     isVertexExist(currentSelection) {
         const sourceSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(sourceSelection)) {
-            // alerts.error('Mapping source "' + currentSelection + '" cannot be found');
+            this.context.alert.showError('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;
@@ -1036,8 +1036,8 @@ class TransformExpanded extends React.Component {
         if (TreeUtil.isInvocation(nodeExpression)) {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
             if (_.isUndefined(func)) {
-                // alerts.error('Function definition for "' +
-                //     functionInvocationExpression.getFunctionName() + '" cannot be found');
+                this.context.alert.showError('Function definition for "' +
+                     nodeExpression.getFunctionName() + '" cannot be found');
                 return [];
             }
             nodeExpression.argumentExpressions.forEach((arg) => {
@@ -1086,7 +1086,7 @@ class TransformExpanded extends React.Component {
         const isUpdated = this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
         this.loadVertices();
         if (!isUpdated) {
-            alerts.error('Invalid value for variable ' + varName);
+            this.context.alert.showError('Invalid value for variable ' + varName);
             return false;
         }
         return true;
@@ -1110,7 +1110,7 @@ class TransformExpanded extends React.Component {
             inputNodes.forEach((input) => {
                 const sourceSelection = _.find(vertices, { name: input });
                 if (_.isUndefined(sourceSelection)) {
-                    // alerts.error('Mapping source "' + name + '" cannot be found');
+                    this.context.alert.showError('Mapping source "' + name + '" cannot be found');
                     return;
                 }
                 sourceSelection.endpointKind = 'input';
@@ -1121,7 +1121,7 @@ class TransformExpanded extends React.Component {
             outputNodes.forEach((output) => {
                 const targetSelection = _.find(vertices, { name: output });
                 if (_.isUndefined(targetSelection)) {
-                    // alerts.error('Mapping target "' + name + '" cannot be found');
+                    this.context.alert.showError('Mapping target "' + name + '" cannot be found');
                     return;
                 }
                 targetSelection.endpointKind = 'output';
@@ -1301,6 +1301,13 @@ TransformExpanded.propTypes = {
 TransformExpanded.contextTypes = {
     designView: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
+    }).isRequired,
 };
 
 export default TransformExpanded;
