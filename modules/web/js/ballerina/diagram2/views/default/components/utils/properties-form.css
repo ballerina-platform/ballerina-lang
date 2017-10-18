@@ -10,14 +10,14 @@
     margin-right: 10px;
 }
 
-.property-dialog-label{
+#property-modal .property-dialog-label{
     margin-top: 8px;
     font-weight: 300;
     text-align: right;
     padding-top: 3px;
 }
 
-.property-dialog-form-control{
+#property-modal .property-dialog-form-control{
     width: 100%;
     background-color: #fff;
     padding-left: 10px;
@@ -44,18 +44,18 @@
     font-style: italic;
 }
 
-.property-dialog-form-btn{
+#property-modal .property-dialog-form-btn{
     float: right;
     margin-right: 43px;
 }
 
 /*Tags Input*/
-#ulContainer {
+#property-modal #ulContainer {
     padding: 5px;
     border-radius: 5px;
 }
 
-.tagItems {
+#property-modal .tagItems {
     display: inline-block;
     padding: 2px;
     border: 2px solid #9E9E9E;
@@ -64,14 +64,14 @@
     cursor: pointer;
 }
 
-.tagInput{
+#property-modal .tagInput{
     outline: none;
     border: none;
     color: #232222;
     width: 40%;
 }
 
-.tagLabel{
+#property-modal .tagLabel{
     width: 100%;
     background-color: #fff;
     border: dashed 1px #999;
@@ -80,7 +80,7 @@
     color: #232222;
 }
 
-.toggle {
+#property-modal .toggle {
     -webkit-appearance: none;
     margin-left: 10px;
     appearance: none;
@@ -98,7 +98,7 @@
     border: 1px solid #b5a7a7;
 }
 
-.toggle:before {
+#property-modal .toggle:before {
     content: "True False";
     display: block;
     position: absolute;
@@ -120,22 +120,22 @@
     transition: all cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
 }
 
-.toggle:checked {
+#property-modal .toggle:checked {
     background-color: #4CD964;
 }
 
-.toggle:checked:before {
+#property-modal .toggle:checked:before {
     left: 48px;
 }
 
-.deleteSpan{
+#property-modal .deleteSpan{
     background-color: #a7a0a0;
     margin-left: 9px;
     display: inline-block;
     width: 15px;
 }
 
-.iconDelete{
+#property-modal .iconDelete{
     font-size: 11px;
     margin-left: 2px;
 }
@@ -149,14 +149,14 @@
     box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42);
 }
 
-.formHeader{
+#property-modal .formHeader{
     text-align: left;
     background: #d5d1d1;
     margin: 0;
     padding: 10px;
 }
 
-.formFooter{
+#property-modal .formFooter{
     text-align: center;
     background: #d5d1d1;
     margin: 0;
@@ -165,30 +165,30 @@
     float: right;
 }
 
-.form-body {
+#property-modal .form-body {
     text-align: center;
 }
 
-.properties-checkbox{
+#property-modal .properties-checkbox{
     text-align: left;
 }
 
-#propertyWindowHolder{
+#property-modal #propertyWindowHolder{
     width: 100%;
     height: 100%;
 }
 
-.properties-tags{
+#property-modal .properties-tags{
     text-align: left;
 }
 
-.tagInput::-webkit-input-placeholder {
+#property-modal .tagInput::-webkit-input-placeholder {
     font-weight: normal;
     font-style: italic;
     color: #6f6f6f;
 }
 
-.propertyForm{
+#property-modal .propertyForm{
     text-align: left;
     margin-top: 19px;
 }
@@ -203,16 +203,11 @@
      opacity: 1;
  }
 
-.collapsiblePanelBody {
-    padding-top: 10px;
+#property-modal .propWindowStruct {
     background-color: #efefef;
 }
 
-.propWindowStruct {
-    background-color: #efefef;
-}
-
-#popover-arrow {
+#property-modal #popover-arrow {
     position: absolute;
     top: 0;
     left: 4px;
@@ -223,7 +218,7 @@
     height: 0;
 }
 
-span { cursor: pointer; }
+#property-modal span { cursor: pointer; }
 
 @keyframes slideUp{
     from {
@@ -281,11 +276,11 @@ span { cursor: pointer; }
     fill: #6f7b96;
 }
 
-#dismissBtn {
+#property-modal #dismissBtn {
     padding-right: 10px;
 }
 
-#viewOptionParams{
+#property-modal #viewOptionParams{
     padding-left: -10px;
     height: 25px;
     width: 22px;
@@ -294,11 +289,11 @@ span { cursor: pointer; }
     background-color: #b3acac;
 }
 
-.propWindowStruct input:disabled{
+#property-modal .propWindowStruct input:disabled{
     cursor: not-allowed;
 }
 
-.optionsDiv{
+#property-modal .optionsDiv{
     height: 120px;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -306,19 +301,19 @@ span { cursor: pointer; }
     border: solid 1px;
 }
 
-.formContainer{
+#property-modal .formContainer{
     height: 293px;
     overflow-y: scroll;
 }
 
 /*Breadcrumb*/
-#propWindowBreadcrumb{
+#property-modal #propWindowBreadcrumb{
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-#propWindowBreadcrumb{
+#property-modal #propWindowBreadcrumb{
     background: #eee;
     border-width: 1px;
     border-style: solid;
@@ -330,11 +325,11 @@ span { cursor: pointer; }
     height: 30px;
 }
 
-#propWindowBreadcrumb li{
+#property-modal #propWindowBreadcrumb li{
     float: left;
 }
 
-#propWindowBreadcrumb a{
+#property-modal #propWindowBreadcrumb a{
     padding: 5px;
     float: left;
     text-decoration: none;
@@ -346,17 +341,17 @@ span { cursor: pointer; }
     padding-left: 20px;
 }
 
-#propWindowBreadcrumb li:first-child a{
+#property-modal #propWindowBreadcrumb li:first-child a{
     padding-left: 16px;
     border-radius: 5px 0 0 5px;
 }
 
-#propWindowBreadcrumb a:hover{
+#property-modal #propWindowBreadcrumb a:hover{
     background: #fff;
 }
 
-#propWindowBreadcrumb a::after,
-#propWindowBreadcrumb a::before{
+#property-modal #propWindowBreadcrumb a::after,
+#property-modal #propWindowBreadcrumb a::before{
     content: "";
     position: absolute;
     top: 50%;
@@ -367,39 +362,39 @@ span { cursor: pointer; }
     right: -16px;
 }
 
-#propWindowBreadcrumb a::after{
+#property-modal #propWindowBreadcrumb a::after{
     z-index: 2;
     border-left-color: #ddd;
 }
 
-#propWindowBreadcrumb a::before{
+#property-modal #propWindowBreadcrumb a::before{
     border-left-color: #ccc;
     right: -17.6px;
     z-index: 1;
 }
 
-#propWindowBreadcrumb a:hover::after{
+#property-modal #propWindowBreadcrumb a:hover::after{
     border-left-color: #fff;
 }
 
-#propWindowBreadcrumb .current,
-#propWindowBreadcrumb .current:hover{
+#property-modal #propWindowBreadcrumb .current,
+#property-modal #propWindowBreadcrumb .current:hover{
     font-weight: bold;
     background: none;
 }
 
-#propWindowBreadcrumb .current::after,
-#propWindowBreadcrumb .current::before{
+#property-modal #propWindowBreadcrumb .current::after,
+#property-modal #propWindowBreadcrumb .current::before{
     content: normal;
 }
 
-.propWindowCancelBtn{
+#property-modal .propWindowCancelBtn{
     height: 30px;
     float: right;
     margin-right: 10px;
 }
 
-.propWindowApplyBtn{
+#property-modal .propWindowApplyBtn{
     height: 30px;
     float: right;
     margin-right: 10px;
@@ -408,21 +403,21 @@ span { cursor: pointer; }
     color: #f5f5f5;
 }
 
-.propWindowBackBtn{
+#property-modal .propWindowBackBtn{
     height: 30px;
     float: left;
     margin-left: 10px;
     margin-right: 10px;
 }
 
-.propWindowBackIcon{
+#property-modal .propWindowBackIcon{
     font-size: 11px;
 }
 
-.noPropertyPrompt{
+#property-modal .noPropertyPrompt{
     height: 50px;
 }
 
-.alertMsgForNoProps{
+#property-modal .alertMsgForNoProps{
     padding-top: 13px;
 }
