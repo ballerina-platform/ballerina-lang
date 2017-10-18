@@ -51,7 +51,7 @@ export function getContextMenuItems(node, parentNode, command,
                 onNodeUpdate(node);
             };
             if (editor.isFileOpenedInEditor(node.id)) {
-                const targetEditor = editor.getEditorForFile(node.id);
+                const targetEditor = editor.getEditorByID(node.id);
                 if (targetEditor.isDirty) {
                     let canContinueRename = false;
                     let saveBeforeRename = false;
@@ -108,7 +108,7 @@ export function getContextMenuItems(node, parentNode, command,
                     });
             };
             if (editor.isFileOpenedInEditor(node.id)) {
-                const targetEditor = editor.getEditorForFile(node.id);
+                const targetEditor = editor.getEditorByID(node.id);
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                     id: EDITOR_DIALOGS.OPENED_FILE_DELETE_CONFIRM,
                     additionalProps: {
