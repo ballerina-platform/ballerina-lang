@@ -43,7 +43,8 @@ export function withDropEnabled(DropArea) {
             let validDrop = false;
             // Try to validate drop through node methods
             if (!_.isNil(dropTarget) && _.isFunction(dropTarget.canAcceptDrop)) {
-                validDrop = dropTarget.canAcceptDrop(dragSource);
+                validDrop = dropTarget.canAcceptDrop(dragSource) && (_.isFunction(dragSource.canBeDropped)
+                    ? dragSource.canBeDropped(dropTarget) : true);
             }
             // give priority to validate callback 
             // directly given to DropZone

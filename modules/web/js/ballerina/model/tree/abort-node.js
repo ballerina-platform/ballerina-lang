@@ -18,8 +18,33 @@
 
 import AbstractAbortNode from './abstract-tree/abort-node';
 
+/**
+ * Class for abort node.
+ * @extends AbstractAbortNode
+ * @class AbortNode
+ * */
 class AbortNode extends AbstractAbortNode {
+    /**
+     * check whether this can be dropped on to the drop target.
+     * @param {Node} dropTarget - node that this dragging node to be added to.
+     * @return {boolean} true if can be dropped, false if not.
+     * */
+    canBeDropped(dropTarget) {
+        const transactionNode = this.findTransaction(dropTarget);
+        return transactionNode ? transactionNode.viewState.alias === 'Transaction' : false;
+    }
 
+    /**
+     * Traverse back up the tree and find the transactionBlock.
+     * @param {Node} node - drop target node.
+     * */
+    findTransaction(node) {
+        if (node && node.viewState && node.viewState.alias !== 'Transaction') {
+            return this.findTransaction(node.parent);
+        } else {
+            return node;
+        }
+    }
 }
 
 export default AbortNode;
