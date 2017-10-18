@@ -110,14 +110,10 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <workers>+ }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> }
+   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 FunctionType
