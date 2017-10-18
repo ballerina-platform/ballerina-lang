@@ -13,10 +13,8 @@ Abort
    ;
 
 Action
-   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+                }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>+                }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) {             <body.source> }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    {             <body.source> }
+   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>* <body.source> }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>* <body.source> }
    ;
 
 Annotation
@@ -160,8 +158,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> }
+   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 Retry
