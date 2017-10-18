@@ -15,15 +15,14 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.functions;
+package org.ballerinalang.test.nativeimpl.functions;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,11 +32,11 @@ import org.testng.annotations.Test;
  */
 public class CachingTest {
 
-    private ProgramFile programFile;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/cachingTest.bal");
+        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/cachingTest.bal");
     }
 
     @Test
@@ -49,7 +48,7 @@ public class CachingTest {
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateCache", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testCreateCache", args);
         Assert.assertTrue(returns.length == 3);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(returns[1] instanceof BInteger);
@@ -72,7 +71,7 @@ public class CachingTest {
         args[2] = new BInteger(capacity);
         args[3] = new BString(key);
         args[4] = new BString(value);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testPut", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testPut", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -91,7 +90,7 @@ public class CachingTest {
         args[2] = new BInteger(capacity);
         args[3] = new BString(key);
         args[4] = new BString(value);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGet", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testGet", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);
@@ -112,7 +111,7 @@ public class CachingTest {
         args[2] = new BInteger(capacity);
         args[3] = new BString(key);
         args[4] = new BString(value);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testRemove", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testRemove", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
@@ -126,7 +125,7 @@ public class CachingTest {
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testClear", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testClear", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -141,7 +140,7 @@ public class CachingTest {
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCacheEviction", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testCacheEviction", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BStringArray);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "B");

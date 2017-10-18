@@ -1,7 +1,6 @@
 package ballerina.caching;
 
 import ballerina.doc;
-import ballerina.lang.errors;
 import ballerina.lang.maps;
 import ballerina.lang.system;
 
@@ -10,7 +9,7 @@ import ballerina.lang.system;
 @doc:Field {value:"timeout - timeout of the cache in seconds"}
 @doc:Field {value:"capacity - capacity of the cache"}
 @doc:Field {value:"entries - map which contains the cache entries"}
-struct cache {
+public struct cache {
     string name;
     int timeOut;
     int capacity;
@@ -30,9 +29,9 @@ struct cacheEntry {
 @doc:Param {value:"timeout - timeout of the cache"}
 @doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
 @doc:Return {value:"cache - a new cache"}
-function createCache (string name, int timeOut, int capacity) returns (cache) {
+public function createCache (string name, int timeOut, int capacity) returns (cache) {
     if (capacity <= 0) {
-        errors:Error e = {msg:"Capacity must be greater than 0."};
+        error e = {msg:"Capacity must be greater than 0."};
         throw e;
     }
     cache c = {name:name, timeOut:timeOut, capacity:capacity, entries:{}};
@@ -43,7 +42,7 @@ function createCache (string name, int timeOut, int capacity) returns (cache) {
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - value which should be used as the key"}
 @doc:Param {value:"value - value to be cached"}
-function put (cache c, string key, any value) {
+public function put (cache c, string key, any value) {
     int maxCapacity = c.capacity;
     int currentCapacity = maps:length(c.entries);
     // if the current cache is full,
@@ -60,7 +59,7 @@ function put (cache c, string key, any value) {
 @doc:Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key which is used to retrieve the cached value"}
-function get (cache c, string key) returns (any) {
+public function get (cache c, string key) returns (any) {
     any value = c.entries[key];
     if (value == null) {
         return null;
@@ -76,20 +75,20 @@ function get (cache c, string key) returns (any) {
 @doc:Description {value:"Removes a cached value from a cache."}
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key of the cache entry which needs to be removed"}
-function remove (cache c, string key) {
+public function remove (cache c, string key) {
     maps:remove(c.entries, key);
 }
 
 @doc:Description {value:"Clears a cache."}
 @doc:Param {value:"cache - a cache"}
-function clear (cache c) {
+public function clear (cache c) {
     c.entries = {};
 }
 
 @doc:Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
 @doc:Param {value:"cache - a cache"}
 @doc:Return {value:"string - key of the LRU cache entry"}
-function getLRUCache (cache c) (string cacheKey) {
+public function getLRUCache (cache c) (string cacheKey) {
     map entries = c.entries;
     string[] keys = maps:keys(entries);
     cacheKey = "";
