@@ -166,7 +166,9 @@ class ResourceNode extends AbstractResourceNode {
         // Setting basepath using service node.
         let basePath = this.parent.getBasePathAnnotationValue();
         if (basePath === undefined || basePath.trim() === '') {
-            basePath = this.parent.getName().getValue();
+            basePath = _.trim(this.parent.getName().getValue());
+        } else {
+            basePath = _.trim(basePath, '"/');
         }
 
         url += basePath;
