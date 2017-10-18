@@ -635,11 +635,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 // a variable defined in transform scope is a inner variable
-                if ((variable.expr.getKind() != NodeKind.LITERAL)
-                        && (variable.expr.getKind() != NodeKind.RECORD_LITERAL_EXPR)
-                        && (variable.expr.getKind() != NodeKind.XML_ELEMENT_LITERAL)
-                        && (variable.expr.getKind() != NodeKind.ARRAY_LITERAL_EXPR)
-                        && (variable.expr.getKind() != NodeKind.STRING_TEMPLATE_LITERAL)) {
+                if (isLiteralExpression(variable.expr)) {
                     // a variable defined in transform scope is a inner variable
                     // if the variable does not hold a constant value, it is a temporary variable and hence not an input
                     innerVars.add(varName);
@@ -698,6 +694,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         innerVars.forEach(var -> inputs.remove(var));
+    }
+
+    private boolean isLiteralExpression(BLangExpression expression) {
+        NodeKind expressionKind = expression.getKind();
+        return ((expressionKind != NodeKind.LITERAL) && (expressionKind != NodeKind.RECORD_LITERAL_EXPR)
+               && (expressionKind != NodeKind.XML_ELEMENT_LITERAL) && (expressionKind != NodeKind.ARRAY_LITERAL_EXPR)
+               && (expressionKind != NodeKind.STRING_TEMPLATE_LITERAL));
     }
 
     private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
