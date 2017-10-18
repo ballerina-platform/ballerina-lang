@@ -17,11 +17,10 @@
  */
 
 import 'brace';
-import _ from 'lodash';
 import { invokeTryIt } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
-import { DropdownButton, MenuItem } from 'react-bootstrap'
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 import AutoSuggest from 'ballerina/diagram/views/default/components/utils/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -664,6 +663,7 @@ class HttpClient extends React.Component {
                                     maxLines={Infinity}
                                     minLines={10}
                                     width='auto'
+                                    showPrintMargin={false}
                                 />
                             </div>
                         </div>
@@ -737,6 +737,7 @@ class HttpClient extends React.Component {
                                     minLines={10}
                                     readOnly='true'
                                     width='auto'
+                                    showPrintMargin={false}
                                 />
                             </div>
                         </div>
