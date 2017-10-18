@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './variable-endpoint.css';
 import VariableTypeDropdown from './variable-type-dropdown.jsx'
 
@@ -163,14 +164,14 @@ export default class VariableEndpoint extends React.Component {
     onComplete() {
         let qoutes = '';
         let validType = false;
-        const validName = Number.isNaN(Number.parseFloat(this.state.varName.charAt(0)));
+        const validName = Number.isNaN(Number.parseFloat(this.state.varName.charAt(0))) && this.state.varName !== '';
         if (this.state.varType === 'string') {
             qoutes = '"';
             validType = true;
         } else if (this.state.varType === 'int') {
-            validType = Number.parseFloat(this.state.varVal) % 1 === 0;
+            validType = this.isInt(this.state.varVal);
         } else if (this.state.varType === 'float') {
-            validType = !Number.isNaN(Number.parseFloat(this.state.varVal));
+            validType = this.isFloat(this.state.varVal) || this.isInt(this.state.varVal);
         } else if (this.state.varType !== '') {
             validType = true;
         }
@@ -181,6 +182,31 @@ export default class VariableEndpoint extends React.Component {
             if (isUpdated) {
                 this.setState({ onEdit: false });
             }
+        } else {
+            if (!validName) {
+                this.context.alert.showError('Invalid variable name');
+            }
+            if (!validType) {
+                this.context.alert.showError('Invalid value for variable selected type');
+            }
         }
     }
+
+    isInt(val) {
+        return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
+    }
+
+    isFloat(val) {
+        return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
+    }
 }
+
+VariableEndpoint.contextTypes = {
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
+    }).isRequired,
+};
