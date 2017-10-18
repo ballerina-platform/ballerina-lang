@@ -805,13 +805,20 @@
         background: #f4f4f4;
         padding: 7px;
         overflow: visible;
+        .action-menu-wrapper:hover {
+            .annotation-action-menu-items {
+                display: inline,
+            }
+        }
 
         .action-menu-icon-wrapper .fw {
             font-size: 0.8em;
         }
 
         .annotation-action-menu-items {
+            display: none;
             .fw {
+                font-size: 0.68em;
                 opacity: 0.6;
                 margin-left: 5px;
                 cursor: pointer;
@@ -819,6 +826,22 @@
                     opacity: 1;
                 }
             }
+        }
+
+        .annotations-array-item-prefix {
+            font-size: 0.6em;
+        }
+
+        .attribute-value-annotation {
+            .action-menu-wrapper {
+                > span {
+                    padding-left: 0px;
+                }
+            }
+        }
+        .annotation-attribute-value-wrapper {
+            display: inline-block;
+            min-width: 50px;
         }
     }
     
@@ -3738,10 +3761,6 @@
         border: 1px solid #CCC;
     }
     
-    .annotation-container ul > li {
-        padding-left: 28px;
-    }
-    
     .annotation-add-at-sign {
         padding-right: 4px;
     }
@@ -3790,7 +3809,8 @@
     }
     
     .annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span {
-        padding-right: 7px;
+        margin-right: 5px;
+        margin-left: 5px;
     }
     
     .annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span :hover{
@@ -3798,7 +3818,7 @@
     }
     
     .attribute-value-bvalue .annotation-attribute-key {
-        padding-left: 16px;
+        padding-left: 28px;
     }
     
     .popout-button-wrapper i {

@@ -217,7 +217,7 @@ class BallerinaFileEditor extends React.Component {
             return;
         }
 
-        if (fullPackageName === 'Current Package') {
+        if (fullPackageName === 'Current Package' || fullPackageName === '') {
             return;
         }
 
@@ -283,9 +283,11 @@ class BallerinaFileEditor extends React.Component {
                 let paramString = '';
                 let connector = null;
                 let fullPackageName;
-                for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+                const packages = (BallerinaEnvironment.getPackages()).concat(this.environment.getCurrentPackage());
+                for (const packageDefintion of packages) {
                     fullPackageName = TreeUtils.getFullPackageName(node.getExpression());
-                    if (packageDefintion.getName() === fullPackageName) {
+                    if (packageDefintion.getName() === fullPackageName
+                        || (packageDefintion.getName() === 'Current Package' && fullPackageName === '')) {
                         connector = packageDefintion.getConnectors()[0];
                     }
                 }
@@ -300,8 +302,9 @@ class BallerinaFileEditor extends React.Component {
                     });
                     paramString = connectorParams.join(', ');
                 }
-                const connectorInit = `${packageName}:${connector.getName()} endpoint1
-                = create ${packageName}:${connector.getName()}(${paramString});`;
+                const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
+                const connectorInit = `${pkgStr}${connector.getName()} endpoint1
+                = create ${pkgStr}${connector.getName()}(${paramString});`;
                 const fragment = FragmentUtils.createStatementFragment(connectorInit);
                 const parsedJson = FragmentUtils.parseFragment(fragment);
                 const connectorDeclaration = TreeBuilder.build(parsedJson);

@@ -44,10 +44,9 @@ class DebugManager extends EventChannel {
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
 
         LaunchManager.on('debug-active', () => {
-            this.active = true;
             this.startDebugger(this.endpoint);
         });
-        this.on('execution-ended', () => {
+        this.on('execution-ended session-error', () => {
             this.active = false;
         });
     }
@@ -169,6 +168,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     startDebugger(url) {
+        this.active = true;
         this.connect(url);
     }
 

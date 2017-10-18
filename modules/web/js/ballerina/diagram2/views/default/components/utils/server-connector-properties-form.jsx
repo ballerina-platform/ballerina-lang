@@ -20,8 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ServiceNodeHelper from './../../../../../env/helpers/service-node-helper';
 import './properties-form.css';
-import PropertiesWindow from './property-window';
 import NodeFactory from './../../../../../model/node-factory';
+import PropertyWindow from './property-window';
 
 /**
  * React component for a server connector properties form
@@ -110,18 +110,18 @@ class ServerConnectorPropertiesForm extends React.Component {
         })[0];
 
         // Iterate over the data entered from the property form
-        Object.keys(data).forEach((key) => {
+        data.forEach((key) => {
             // If there are values entered for the attribute
-            if (data[key]) {
+            if (key.value) {
                 let exists = false;
                 // For values
-                if (!this.isArrayTypeConfigurationAttribute(key)) {
-                    const bType = this.getBTypeOfConfigurationAttribute(key);
-                    let value = data[key];
+                if (!this.isArrayTypeConfigurationAttribute(key.identifier)) {
+                    const bType = this.getBTypeOfConfigurationAttribute(key.identifier);
+                    let value = key.value;
                     // For attributes with values
                     annotationAttachments.getAttributes().map((annotation) => {
                         // If the attribute is already added change the value with the new value
-                        if (annotation.name === key) {
+                        if (annotation.name === key.identifier) {
                             exists = true;
                             if (bType === 'string') {
                                 value = this.addQuotationForStringValues(value);
@@ -132,7 +132,8 @@ class ServerConnectorPropertiesForm extends React.Component {
                     // If the value doesnot exists create a new value
                     if (!exists) {
                         // Add a new annotation attachment attribute node
-                        const annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
+                        const annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute(
+                            { name: key.identifier });
 
                         // Create a literal node to add the value
                         if (bType === 'string') {
@@ -156,13 +157,13 @@ class ServerConnectorPropertiesForm extends React.Component {
                     // For the attributes with value arrays
                 } else {
                     annotationAttachments.getAttributes().map((annotation) => {
-                        if (annotation.name === key) {
+                        if (annotation.name === key.identifier) {
                             exists = true;
                             // Get the values from the value array
                             annotation.value.setValueArray([], true);
                             // Check if there are any values to be entered to the array
-                            if (data[key].length > 0) {
-                                annotation = this.addValuesToValueArray(annotation, data[key]);
+                            if (key.value.length > 0) {
+                                annotation = this.addValuesToValueArray(annotation, key.value);
                             } else {
                                 // Remove if there are values
                                 annotationAttachments.removeAttributes(annotation);
@@ -172,8 +173,9 @@ class ServerConnectorPropertiesForm extends React.Component {
                     // If the value doesnot exists create a new value array
                     if (!exists) {
                         // Add a new annotation attachment attribute node
-                        let annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
-                        const attributes = data[key];
+                        let annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute(
+                            { name: key.identifier });
+                        const attributes = key.value;
                         annotationAttachmentAttr = this.addValuesToValueArray(annotationAttachmentAttr, attributes);
                         delete annotationAttachmentAttr.getValue().value;
 
@@ -185,7 +187,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                 }
             } else {
                 annotationAttachments.getAttributes().map((annotation) => {
-                    if (annotation.name === key) {
+                    if (annotation.name === key.identifier) {
                         annotationAttachments.removeAttributes(annotation);
                     }
                 });
@@ -290,7 +292,7 @@ class ServerConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '340px',
+                height: '400px',
                 minWidth: '500px',
             },
             arrowStyle: {
@@ -300,10 +302,11 @@ class ServerConnectorPropertiesForm extends React.Component {
         };
         const supportedKeys = this.getSupportedKeys();
         if (!supportedKeys.length) {
+            props.model.viewState.shouldShowConnectorPropertyWindow = false;
             return null;
         }
         return (
-            <PropertiesWindow
+            <PropertyWindow
                 model={props.model}
                 formHeading={formH}
                 key={`servicedefProp/${props.model.id}`}

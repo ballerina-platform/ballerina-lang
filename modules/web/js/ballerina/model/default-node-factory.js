@@ -50,7 +50,7 @@ class DefaultNodeFactory {
     }
 `,
             ));
-        node.viewState.showOverlayContainer = true;
+        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.http');
         return node;
     }
@@ -72,7 +72,7 @@ class DefaultNodeFactory {
     }
 `,
             ));
-        node.viewState.showOverlayContainer = true;
+        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ws');
         return node;
     }
@@ -336,8 +336,9 @@ class DefaultNodeFactory {
             });
             paramString = connectorParams.join(', ')
         }
-        const connectorInit = `${packageName}:${connector.getName()} endpoint1
-                = create ${packageName}:${connector.getName()}(${paramString});`;
+        const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
+        const connectorInit = `${pkgStr}${connector.getName()} endpoint1
+                = create ${pkgStr}${connector.getName()}(${paramString});`;
         const connectorDeclaration = getNodeForFragment(FragmentUtils.createStatementFragment(connectorInit));
         connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         connectorDeclaration.viewState.showOverlayContainer = true;
@@ -347,10 +348,7 @@ class DefaultNodeFactory {
     createConnectorActionInvocationAssignmentStatement(args) {
         const { action, packageName, fullPackageName } = args;
 
-        let actionInvokeString = '';
-        if (packageName && packageName !== 'Current Package') {
-            actionInvokeString = `endpoint1.`;
-        }
+        let actionInvokeString = `endpoint1.`;
         const actionParams = action.getParameters().map((param) => {
             let defaultValue = Environment.getDefaultValue(param.type);
             if (defaultValue === undefined) {
@@ -358,7 +356,7 @@ class DefaultNodeFactory {
             }
             return defaultValue;
         });
-        const paramString = actionParams.join(', ')
+        const paramString = actionParams.join(', ');
 
         actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString});`;
 

@@ -119,6 +119,7 @@ class AnnotationAttribute extends React.Component {
         literal.setValue(event.target.value);
 
         if (this.props.model.parent === undefined && this.props.parent) {
+            this.props.model.addingEmptyAttribute = false;
             this.props.parent.addAttributes(this.props.model);
         }
     }
@@ -238,18 +239,31 @@ class AnnotationAttribute extends React.Component {
             // Delete button.
             const deleteButton = {
                 key: attributeValue.getID(),
-                icon: 'fw-delete',
+                icon: 'fw-cancel',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(attributeValue);
                 },
             };
             actionMenuItems.push(deleteButton);
+
+            const actionItems = actionMenuItems.map((item) => {
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
+            });
             return (<li key={attributeValue.getID()}>
                 <ul>
                     <li className='action-menu-wrapper'>
-                        <ActionMenu items={actionMenuItems} />
+                        <span className='annotations-array-item-prefix'>
+                            <i className="fw fw-minus" />
+                        </span>
                         <AnnotationAttributeLiteralNode model={attributeValue.getValue()} />
+                        <span className='annotation-action-menu-items'>
+                            {actionItems}
+                        </span>
                     </li>
                 </ul>
             </li>);
@@ -299,7 +313,7 @@ class AnnotationAttribute extends React.Component {
             // Delete button.
             const deleteButton = {
                 key: this.props.model.getID(),
-                icon: 'fw-delete',
+                icon: 'fw-cancel',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
@@ -308,7 +322,11 @@ class AnnotationAttribute extends React.Component {
             actionMenuItems.push(deleteButton);
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
 
             const literalNode = attributeValue.getValue();
@@ -386,7 +404,7 @@ class AnnotationAttribute extends React.Component {
             // Delete button.
             const deleteButton = {
                 key: this.props.model.getID(),
-                icon: 'fw-delete',
+                icon: 'fw-cancel',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
@@ -400,6 +418,7 @@ class AnnotationAttribute extends React.Component {
                     icon: 'fw-add',
                     text: 'Add Attribute',
                     onClick: () => {
+                        this.props.model.addingEmptyAttribute = true;
                         this.setState({
                             addingEmptyAttribute: true,
                         });
@@ -409,7 +428,11 @@ class AnnotationAttribute extends React.Component {
             }
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
 
             const attributes = this.props.model.viewState.collapsed ? [] :
@@ -423,7 +446,6 @@ class AnnotationAttribute extends React.Component {
                     className="attribute-value-annotation"
                 >
                     <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
-                        
                         <CSSTransitionGroup
                             component="span"
                             transitionName="annotation-expand"
@@ -433,7 +455,7 @@ class AnnotationAttribute extends React.Component {
                             <i
                                 className={cn('fw fw-right expand-icon',
                                     { 'fw-rotate-90': !this.props.model.viewState.collapsed },
-                                    { hide: annotationAttachment.getAttributes().length === 0 })}
+                                    { invisible: annotationAttachment.getAttributes().length === 0 })}
                                 onClick={this.toggleCollapse}
                             />
                         </CSSTransitionGroup>
@@ -458,7 +480,7 @@ class AnnotationAttribute extends React.Component {
             // Delete button.
             const deleteButton = {
                 key: this.props.model.getID(),
-                icon: 'fw-delete',
+                icon: 'fw-cancel',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
@@ -477,7 +499,11 @@ class AnnotationAttribute extends React.Component {
             actionMenuItems.push(addNewToArray);
 
             const actionItems = actionMenuItems.map((item) => {
-                return (<i className={'fw ' + item.icon} onClick={item.onClick} />);
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
             });
             const arrayValues = this.props.model.viewState.collapsed ? [] :
                 attributeValue.getValueArray().map((annotationAttributeValue) => {
@@ -497,14 +523,11 @@ class AnnotationAttribute extends React.Component {
                             <i
                                 className={cn('fw fw-right expand-icon',
                                     { 'fw-rotate-90': !this.props.model.viewState.collapsed },
-                                    { hide: attributeValue.getValueArray().length === 0 })}
+                                    { invisible: attributeValue.getValueArray().length === 0 })}
                                 onClick={this.toggleCollapse}
                             />
                         </CSSTransitionGroup>
                         {key}
-                        <span className='annotation-attribute-array-badge'>
-                            [ ]
-                        </span>
                         <span className='annotation-action-menu-items'>
                             {actionItems}
                         </span>

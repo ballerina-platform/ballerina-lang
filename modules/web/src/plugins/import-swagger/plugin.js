@@ -76,46 +76,6 @@ class ImportSwaggerPlugin extends Plugin {
                         ],
                     });
 
-                    const httpRequestImport = NodeFactory.createImport({
-                        alias: NodeFactory.createLiteral({
-                            value: 'request',
-                        }),
-                        packageName: [
-                            NodeFactory.createLiteral({
-                                value: 'ballerina',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'net',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'http',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'request',
-                            }),
-                        ],
-                    });
-
-                    const httpResponseImport = NodeFactory.createImport({
-                        alias: NodeFactory.createLiteral({
-                            value: 'response',
-                        }),
-                        packageName: [
-                            NodeFactory.createLiteral({
-                                value: 'ballerina',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'net',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'http',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'response',
-                            }),
-                        ],
-                    });
-
                     const swaggerImport = NodeFactory.createImport({
                         alias: NodeFactory.createLiteral({
                             value: 'swagger',
@@ -137,11 +97,12 @@ class ImportSwaggerPlugin extends Plugin {
                     });
 
                     rootNode.addImport(httpImport);
-                    rootNode.addImport(httpRequestImport);
-                    rootNode.addImport(httpResponseImport);
                     rootNode.addImport(swaggerImport);
 
                     const serviceNode = DefaultNodeFactory.createHTTPServiceDef();
+                    // Remove default resource.
+                    serviceNode.removeResourcesByIndex(0);
+
                     rootNode.addTopLevelNodes(serviceNode);
 
                     let swaggerParser;

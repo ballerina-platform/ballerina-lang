@@ -26,9 +26,8 @@ export const ExpressionType = {
 };
 
 export const VarPrefix = {
-    TEMP: '__temp',
-    OUTPUT: '__output',
-    NEWVAR: '__newVar',
+    VAR: 'var',
+    NEWVAR: 'newVar',
 };
 
 /**
@@ -42,7 +41,7 @@ export default class TransformUtils {
      * @returns {Expression} temporary var expression
      * @memberof TransformNodeMapper
      */
-    static getNewTempVarName(transformNode, varPrefix = VarPrefix.TEMP) {
+    static getNewTempVarName(transformNode, varPrefix = VarPrefix.VAR) {
         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
         const tempVarSuffixes = [];
 
