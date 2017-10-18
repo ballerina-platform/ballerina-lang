@@ -40,6 +40,8 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.websocket.Session;
 
 /**
@@ -56,6 +58,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
         Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
+            Semaphore semaphore = new Semaphore(0);
+            AtomicBoolean isResourceExeSuccessful = new AtomicBoolean(false);
             // TODO: Resource should be able to run without any parameter.
             BStruct handshakeStruct = wsService.createHandshakeConnectionStruct();
             handshakeStruct.addNativeData(Constants.WEBSOCKET_MESSAGE, webSocketInitMessage);
@@ -71,16 +75,13 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             );
             handshakeStruct.setRefField(0, bUpgradeHeaders);
 
-            // TODO: Need to change Executor.execute to Executor.submit.
             BValue[] bValues = {handshakeStruct};
             ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
                 public void notifySuccess() {
-                    //TODO need to find a way to execute this after resource invocation.
-                    if (!webSocketInitMessage.isCancelled()) {
-                        handleHandshake(webSocketInitMessage, wsService);
-                    }
+                    isResourceExeSuccessful.set(true);
+                    semaphore.release();
                 }
 
                 @Override
@@ -90,8 +91,19 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
                 @Override
                 public void notifyFailure(BallerinaConnectorException ex) {
+                    ErrorHandlerUtils.printError(ex);
+                    semaphore.release();
                 }
             });
+
+            try {
+                semaphore.acquire();
+                if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {
+                    handleHandshake(webSocketInitMessage, wsService);
+                }
+            } catch (InterruptedException e) {
+                throw new BallerinaConnectorException("Connection interrupted during handshake");
+            }
 
         } else {
             handleHandshake(webSocketInitMessage, wsService);

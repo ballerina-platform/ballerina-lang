@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
@@ -126,5 +127,12 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatVal = (BFloat) returns[0];
         Assert.assertEquals(floatVal.floatValue(), 44.3d, "Invalid float value returned.");
+    }
+
+    @Test(description = "Test any type as a struct parameter with boolean value")
+    public void testAnyArrayWithMapArray() {
+        BValue[] returns = BTestUtils.invoke(result, "anyArrayWithMapArray");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BRefValueArray.class);
     }
 }
