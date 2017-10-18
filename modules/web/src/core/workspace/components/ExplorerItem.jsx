@@ -203,7 +203,7 @@ ExplorerItem.contextTypes = {
     }).isRequired,
     editor: PropTypes.shape({
         isFileOpenedInEditor: PropTypes.func,
-        getEditorForFile: PropTypes.func,
+        getEditorByID: PropTypes.func,
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
     }).isRequired,

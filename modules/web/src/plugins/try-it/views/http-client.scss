@@ -185,11 +185,11 @@ hr{
 }
 
 .http-client-select-service-wrapper {
+    padding-left: 15px;
     .selectors {
         float: left;
-        > span {
-            float: left;
-            padding: 7px 10px 0 10px;
+        &.resource-selector {
+            padding-left: 50px;
         }
     }
     .react-autosuggest__container {

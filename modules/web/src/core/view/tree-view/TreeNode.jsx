@@ -188,7 +188,7 @@ class TreeNode extends React.Component {
                             // if the old file was opened in an editor, close it and reopen a new tab
                             const { editor, command: { dispatch } } = this.context;
                             if (editor.isFileOpenedInEditor(node.id)) {
-                                const targetEditor = editor.getEditorForFile(node.id);
+                                const targetEditor = editor.getEditorByID(node.id);
                                 const wasActive = editor.getActiveEditor().id === targetEditor.id;
                                 editor.closeEditor(targetEditor);
                                 dispatch(WORKSPACE_CMDS.OPEN_FILE, {
@@ -427,7 +427,7 @@ TreeNode.contextTypes = {
     }).isRequired,
     editor: PropTypes.shape({
         isFileOpenedInEditor: PropTypes.func,
-        getEditorForFile: PropTypes.func,
+        getEditorByID: PropTypes.func,
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
     }).isRequired,

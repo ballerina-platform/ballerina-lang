@@ -17,10 +17,10 @@
  */
 
 import 'brace';
-import _ from 'lodash';
 import { invokeTryIt } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 import AutoSuggest from 'ballerina/diagram/views/default/components/utils/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -281,40 +281,42 @@ class HttpClient extends React.Component {
 
     /**
      * Event handler when a service is selected.
+     * @param {string} eventKey The selected value.
      * @param {Object} event The select event.
-     * @param {string} suggestionValue The selected value.
      * @memberof HttpClient
      */
-    onServiceSelected(event, { suggestionValue }) {
+    onServiceSelected(eventKey) {
         this.setState({
-            selectedService: suggestionValue,
+            selectedService: eventKey,
         });
     }
 
     /**
      * Event handler when a resource is selected.
+     * @param {string} eventKey The selected value.
      * @param {Object} event The select event.
-     * @param {string} suggestionValue The selected value.
      * @memberof HttpClient
      */
-    onResourceSelected(event, { suggestionValue }) {
-        const appendUrl = this.compileURL(this.state.selectedService, suggestionValue);
+    onResourceSelected(eventKey) {
+        const appendUrl = this.compileURL(this.state.selectedService, eventKey);
         this.setState({
-            selectedResource: suggestionValue,
+            selectedResource: eventKey,
             appendUrl,
-            httpMethods: this.getHttpMethods(this.state.selectedService, suggestionValue),
+            httpMethods: this.getHttpMethods(this.state.selectedService, eventKey),
         });
     }
 
     /**
      * Gets the supported HTTP methods.
+     * @param {string} serviceID The ID of the service.
+     * @param {string} resourceID The ID of the resource.
      * @returns {string[]} Http methods.
      * @memberof HttpClient
      */
-    getHttpMethods(serviceName, resourceName) {
+    getHttpMethods(serviceID, resourceID) {
         return ['GET', 'POST', 'PUT', 'HEAD', 'PATCH'];
-        // if (serviceName !== undefined && resourceName !== undefined) {
-        //     httpMethods = this.getResourceNode(serviceName, resourceName).getHttpMethodValues().map((method) => {
+        // if (serviceID !== undefined && resourceID !== undefined) {
+        //     httpMethods = this.getResourceNode(serviceID, resourceID).getHttpMethodValues().map((method) => {
         //         return _.trim(method, '"');
         //     });
         // }
@@ -340,20 +342,20 @@ class HttpClient extends React.Component {
     }
 
     /**
-     * Finds the matching resource for a given service name and resource name;
-     * @param {string} serviceName The name of the service.
-     * @param {string} resourceName The name of the resource.
+     * Finds the matching resource for a given service ID and resource ID;
+     * @param {string} serviceID The ID of the service.
+     * @param {string} resourceID The ID of the resource.
      * @returns {ResourceNode} The matching resource node.
      * @memberof HttpClient
      */
-    getResourceNode(serviceName, resourceName) {
+    getResourceNode(serviceID, resourceID) {
         const serviceNodes = this.props.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
         const selectedServiceNode = serviceNodes.filter((serviceNode) => {
-            return serviceNode.getName().getValue() === serviceName;
+            return serviceNode.getID() === serviceID;
         })[0];
 
         return selectedServiceNode.getResources().filter((resourceNode) => {
-            return resourceNode.getName().getValue() === resourceName;
+            return resourceNode.getID() === resourceID;
         })[0];
     }
 
@@ -382,15 +384,15 @@ class HttpClient extends React.Component {
 
     /**
      * Gets the url for invoking a resrouce.
-     * @param {string} serviceName The name of the service.
-     * @param {string} resourceName The name of the resource.
+     * @param {string} serviceID The ID of the service.
+     * @param {string} resourceID The ID of the resource.
      * @returns {string} The url.
      * @memberof HttpClient
      */
-    compileURL(serviceName, resourceName) {
+    compileURL(serviceID, resourceID) {
         let url = '/';
-        if (serviceName !== undefined && resourceName !== undefined) {
-            url = this.getResourceNode(serviceName, resourceName).compileURL();
+        if (serviceID !== undefined && resourceID !== undefined) {
+            url = this.getResourceNode(serviceID, resourceID).compileURL();
         }
 
         return url;
@@ -449,45 +451,43 @@ class HttpClient extends React.Component {
     renderSelectServiceComponent() {
         if (this.props.compilationUnit) {
             const serviceNodes = this.props.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
-            const serviceNames = serviceNodes.map((serviceNode) => {
-                return serviceNode.getName().getValue();
+            const serviceItems = serviceNodes.map((serviceNode) => {
+                return (<MenuItem eventKey={serviceNode.getID()}>{serviceNode.getName().getValue()}</MenuItem>);
             });
-            let resourceNames = [];
+            let resourceItems = [];
             if (this.state.selectedService && this.state.selectedService.trim() !== '') {
                 const selectedServiceNode = serviceNodes.filter((serviceNode) => {
-                    return serviceNode.getName().getValue() === this.state.selectedService;
+                    return serviceNode.getID() === this.state.selectedService;
                 });
                 if (selectedServiceNode.length > 0) {
-                    resourceNames = selectedServiceNode[0].getResources().map((resourceNode) => {
-                        return resourceNode.getName().getValue();
+                    resourceItems = selectedServiceNode[0].getResources().map((resourceNode) => {
+                        return (<MenuItem eventKey={resourceNode.getID()}>
+                            {resourceNode.getName().getValue()}
+                        </MenuItem>);
                     });
                 }
             }
             return (<div className='row http-client-select-service-wrapper'>
-                <div className='selectors'>
-                    <span>Select Service:</span>
-                    <AutoSuggest
-                        items={serviceNames}
-                        onSuggestionSelected={this.onServiceSelected}
-                        disableAutoFocus
-                        initialValue={this.state.selectedService}
-                        showAllAtStart
-                        placeholder='Select Service'
-                    />
+                <div className='selectors service-selector'>
+                    <DropdownButton
+                        title='Select Service'
+                        key='try-it-service-dropdown'
+                        onSelect={this.onServiceSelected}
+                    >
+                        {serviceItems}
+                    </DropdownButton>
                 </div>
                 <div
-                    className={cn('selectors',
+                    className={cn('selectors resource-selector',
                         { hide: this.state.selectedService === undefined || this.state.selectedService.trim() === '' })}
                 >
-                    <span>Select Resource:</span>
-                    <AutoSuggest
-                        items={resourceNames}
-                        onSuggestionSelected={this.onResourceSelected}
-                        disableAutoFocus
-                        initialValue={this.state.selectedResource}
-                        showAllAtStart
-                        placeholder='Select Resource'
-                    />
+                    <DropdownButton
+                        title='Select Resource'
+                        key='try-it-resource-dropdown'
+                        onSelect={this.onResourceSelected}
+                    >
+                        {resourceItems}
+                    </DropdownButton>
                 </div>
             </div>);
         } else {
@@ -663,6 +663,7 @@ class HttpClient extends React.Component {
                                     maxLines={Infinity}
                                     minLines={10}
                                     width='auto'
+                                    showPrintMargin={false}
                                 />
                             </div>
                         </div>
@@ -736,6 +737,7 @@ class HttpClient extends React.Component {
                                     minLines={10}
                                     readOnly='true'
                                     width='auto'
+                                    showPrintMargin={false}
                                 />
                             </div>
                         </div>

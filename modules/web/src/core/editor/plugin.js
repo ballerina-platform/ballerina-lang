@@ -114,7 +114,7 @@ class EditorPlugin extends Plugin {
             getActiveEditor: () => {
                 return this.activeEditor;
             },
-            getEditorForFile: this.getEditorForFile.bind(this),
+            getEditorByID: this.getEditorByID.bind(this),
             isFileOpenedInEditor: this.isFileOpenedInEditor.bind(this),
             setActiveEditor: this.setActiveEditor.bind(this),
             closeEditor: this.closeTab.bind(this),
@@ -129,7 +129,7 @@ class EditorPlugin extends Plugin {
      * @returns {Editor|undefined} Editor instance or null
      *
      */
-    getEditorForFile(filePath) {
+    getEditorByID(filePath) {
         return _.find(this.openedEditors, ['id', filePath]);
     }
 
@@ -248,15 +248,6 @@ class EditorPlugin extends Plugin {
             this.reRender();
         });
         this.reRender();
-    }
-
-    /**
-     * Gets any editor associated with given file
-     *
-     * @param {String} filePath Path of the file
-     */
-    getEditorForFile(filePath) {
-        return _.find(this.openedEditors, ['file.fullPath', filePath]);
     }
 
     /**
