@@ -363,7 +363,7 @@ class PropertyWindow extends React.Component {
                         <h5 className="form-title file-dialog-title">
                             {this.props.formHeading}</h5>
                         {this.props.isConnector &&
-                            <ul id="breadcrumbs-one">
+                            <ul id="propWindowBreadcrumb">
                                 {breadCrumbContainer}
                             </ul> }
                     </div>
@@ -391,25 +391,23 @@ class PropertyWindow extends React.Component {
                                 })}
                             </form>
                         </div>
-                        {!_.isEmpty(this.previousItems) &&
-                        <div className='col-sm-3'>
-                            <input
-                                className="backBtn"
-                                type='button'
-                                value='&#xe68a; Back'
-                                onClick={this.goToPreviousView}
-                            />
-                        </div> }
                     </div>
                     <div className="formFooter">
+                        {!_.isEmpty(this.previousItems) &&
+                            <button
+                                className="btn btn-primary propWindowBackBtn"
+                                type='button'
+                                onClick={this.goToPreviousView}
+                            > <i className="fw fw-left propWindowBackIcon" /> Back </button>
+                        }
                         <button
                             type="button"
-                            className="propWindowBtn"
+                            className="btn btn-primary propWindowCancelBtn"
                             onClick={this.closePropertyWindow}
                         >Close</button>
                         <button
                             type="button"
-                            className="propWindowBtn"
+                            className="propWindowApplyBtn btn"
                             onClick={this.handleDismiss}
                         >Apply</button>
                     </div>
