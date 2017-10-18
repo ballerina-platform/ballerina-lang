@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,8 +32,8 @@ class BBooleanType extends BType {
      *
      * @param typeName string name of the type
      */
-    BBooleanType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BBoolean.class);
+    BBooleanType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BBoolean.class);
     }
 
     @SuppressWarnings("unchecked")

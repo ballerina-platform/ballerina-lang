@@ -28,6 +28,7 @@ import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 
+import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
@@ -147,6 +148,8 @@ public class XMLUtils {
             while (docChildItr.hasNext()) {
                 elementsSeq.add(i++, new BXMLItem(docChildItr.next()));
             }
+        } catch (DeferredParsingException e) {
+            throw new BallerinaException(e.getCause().getMessage());
         } catch (Throwable e) {
             throw new BallerinaException("failed to create xml: " + e.getMessage());
         }

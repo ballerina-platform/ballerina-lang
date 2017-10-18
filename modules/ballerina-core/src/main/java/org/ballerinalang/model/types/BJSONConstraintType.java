@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.SymbolScope;
-
 /**
  * {@code BJSONConstraintType} represents a JSON document constrained by a struct definition.
  *
@@ -31,26 +28,12 @@ public class BJSONConstraintType extends BJSONType {
 
     public BJSONConstraintType(BType constraint) {
         super("c-".concat(BTypes.typeJSON.getName()),
-                BTypes.typeJSON.getPackagePath(),
-                BTypes.typeJSON.getSymbolScope());
+                BTypes.typeJSON.getPackagePath());
         this.constraint = constraint;
-    }
-
-    /**
-     * Create a {@code BJSONConstraintType} which represents the boolean type.
-     *
-     * @param typeName string name of the type
-     */
-    BJSONConstraintType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope);
     }
 
     public BType getConstraint() {
         return this.constraint;
-    }
-
-    public void setConstraint(StructDef constraint) {
-        this.constraint = constraint;
     }
 
     @Override

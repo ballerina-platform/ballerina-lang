@@ -10,10 +10,10 @@ function main (string[] args) {
     // Namespace declaration without the prefix, will define a default namespace.
     xmlns "http://ballerina.com/default";
 
-    // Namespaces can be used for xml qualified names.
+    // Namespaces can be used for XML qualified names.
     system:println(ns0:foo);
 
-    // Package level namespaces can be overidden at function level.
+    // Package level namespaces can be overridden at function level.
     xmlns "http://ballerina.com/updated" as ns0;
     system:println(ns0:foo);
 }

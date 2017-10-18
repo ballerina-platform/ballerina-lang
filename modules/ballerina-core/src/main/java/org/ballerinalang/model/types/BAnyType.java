@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -32,8 +31,8 @@ public class BAnyType extends BType {
      *
      * @param typeName string name of the type
      */
-    BAnyType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BValue.class);
+    BAnyType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BValue.class);
     }
 
     @Override

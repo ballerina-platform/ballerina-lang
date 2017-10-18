@@ -21,7 +21,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
-import org.ballerinalang.util.program.BLangPrograms;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,11 +33,6 @@ import java.nio.file.Path;
 public class BLangProgramLoader {
 
     public static ProgramFile read(Path balxFilePath) {
-        // Populate the global scope
-        BLangPrograms.loadBuiltinTypes();
-
-        // Populate the native function/actions
-        BLangPrograms.populateNativeScope();
 
         ProgramFileReader programFileReader = new ProgramFileReader();
         try {

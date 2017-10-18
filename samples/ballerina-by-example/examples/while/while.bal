@@ -22,10 +22,10 @@ function main (string[] args) {
 
     int k = 0;
     while (k < 5) {
-        //Sample usage of the continue statement.
+        //Sample usage of the next statement.
         if (k < 3) {
             k = k + 1;
-            continue;
+            next;
         }
                  
         system:println(k);

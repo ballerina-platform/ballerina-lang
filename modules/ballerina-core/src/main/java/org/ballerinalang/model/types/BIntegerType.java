@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,8 +32,8 @@ class BIntegerType extends BType {
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BInteger.class);
+    BIntegerType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BInteger.class);
     }
 
     @SuppressWarnings("unchecked")

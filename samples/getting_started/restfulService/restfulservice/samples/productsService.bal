@@ -1,6 +1,5 @@
 package restfulservice.samples;
 
-import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.http;
 
@@ -10,32 +9,27 @@ service<http> productmgt {
 
     @http:resourceConfig {
         methods:["GET"],
-        path:"/{id}"
+        path:"/{prodId}"
     }
-    resource product(message m, @http:PathParam{value:"id"} string prodId) {
+    resource product(http:Request req, http:Response res, string prodId) {
         json payload;
         payload, _ = (json) productsMap[prodId];
-        message response = {};
-        messages:setJsonPayload(response, payload);
-        reply response;
-
+        res.setJsonPayload(payload);
+        res.send();
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (message m) {
-        json jsonReq = messages:getJsonPayload(m);
+    resource addProduct (http:Request req, http:Response res) {
+        json jsonReq = req.getJsonPayload();
         var productId,_ = (string) jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
-        message response = {};
-        messages:setJsonPayload(response, payload);
-        reply response;
-
+        res.setJsonPayload(payload);
+        res.send();
     }
-
 }
 
 function populateSampleProducts()(map productsMap) {
@@ -48,5 +42,4 @@ function populateSampleProducts()(map productsMap) {
     productsMap["123002"] = prod_3;
     system:println("Sample products are added.");
     return productsMap;
-
 }

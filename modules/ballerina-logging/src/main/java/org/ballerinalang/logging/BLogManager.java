@@ -49,13 +49,20 @@ public class BLogManager extends LogManager {
     public static final String LOG_DEST_CONSOLE = "__console";
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static final String LOG_CONFIG_FILE = "logging.properties";
+    private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Logger httpTraceLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
-        Properties properties = new Properties();
-        properties.load(ins);
+        Properties properties = getDefaultLogConfiguration();
+
+        // override the default configs if the user has provided a config file
+        if (System.getProperty(SP_LOG_CONFIG_FILE) != null) {
+            properties.load(ins);
+        }
+
         properties.forEach((k, v) -> {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
@@ -128,5 +135,12 @@ public class BLogManager extends LogManager {
                 outputStream.close();
             }
         }
+    }
+
+    private Properties getDefaultLogConfiguration() throws IOException {
+        Properties properties = new Properties();
+        InputStream in = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
+        properties.load(in);
+        return properties;
     }
 }

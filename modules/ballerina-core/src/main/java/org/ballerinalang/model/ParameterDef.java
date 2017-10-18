@@ -18,10 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.SimpleTypeName;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,23 +31,6 @@ import java.util.List;
 public class ParameterDef extends SimpleVariableDef implements Node {
     private List<AnnotationAttachment> annotations;
 
-    public ParameterDef(BType type, SymbolName symbolName) {
-        super(null, null, null, null, null, null);
-        this.type = type;
-        this.symbolName = symbolName;
-        this.annotations = new ArrayList<>();
-    }
-
-    public ParameterDef(NodeLocation location,
-                        WhiteSpaceDescriptor whiteSpaceDescriptor,
-                        Identifier identifier,
-                        SimpleTypeName typeName,
-                        SymbolName symbolName,
-                        SymbolScope symbolScope) {
-        super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
-        this.annotations = new ArrayList<>();
-    }
-    
     /**
      * Get all the Annotations attached to this parameter.
      *
@@ -68,10 +47,5 @@ public class ParameterDef extends SimpleVariableDef implements Node {
      */
     public void addAnnotation(AnnotationAttachment annotation) {
         annotations.add(annotation);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 }
