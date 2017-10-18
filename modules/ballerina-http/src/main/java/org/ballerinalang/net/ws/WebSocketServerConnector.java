@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
@@ -27,6 +28,7 @@ import org.ballerinalang.net.http.HttpUtil;
  *
  * @since 0.94
  */
+@JavaSPIService("org.ballerinalang.connector.api.BallerinaServerConnector")
 public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public String getProtocolPackage() {

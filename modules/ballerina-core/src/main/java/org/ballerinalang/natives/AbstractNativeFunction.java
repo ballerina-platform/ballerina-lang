@@ -25,20 +25,17 @@ import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code {@link AbstractNativeFunction}} represents a Abstract implementation of Native Ballerina Function.
@@ -56,7 +53,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
-    protected SymbolName symbolName;
 
     private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
@@ -314,12 +310,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         return identifier.getName();
     }
 
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
-
-
     // Methods in BLangSymbol interface
 
     @Override
@@ -345,27 +335,5 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public boolean isNative() {
         return true;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    // Methods in NativeCallableUnit interface
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return null;
     }
 }

@@ -18,9 +18,9 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
-import org.ballerinalang.connector.impl.BallerinaWorkerThread;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.threadpool.BallerinaWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
 import java.util.Map;

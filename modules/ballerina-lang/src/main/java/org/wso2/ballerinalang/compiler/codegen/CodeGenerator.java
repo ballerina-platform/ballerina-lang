@@ -1456,6 +1456,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (body != null) {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
             localVarAttrInfo.localVars = new ArrayList<>(localVarAttributeInfo.localVars);
+            workerInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttrInfo);
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;

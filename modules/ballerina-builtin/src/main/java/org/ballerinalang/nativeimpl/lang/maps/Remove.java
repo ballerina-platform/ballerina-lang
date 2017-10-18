@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -39,12 +37,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Removes the specified element from the map") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The map object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
-        value = "The key to be removed") })
 public class Remove extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

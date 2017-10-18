@@ -21,17 +21,12 @@ package org.ballerinalang.util.debugger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Semaphore;
 
 
 /**
@@ -40,10 +35,6 @@ import java.util.concurrent.Semaphore;
  * @since 0.88
  */
 public class VMDebugManager {
-    /**
-     * The Execution sem. used to block debugger till client connects.
-     */
-    private volatile Semaphore executionWaitSem;
 
     private VMDebugServer debugServer;
 
@@ -62,7 +53,6 @@ public class VMDebugManager {
      * Instantiates a new Debug manager.
      */
     private VMDebugManager() {
-        executionWaitSem = new Semaphore(0);
         debugServer = new VMDebugServer();
         debugSession = new VMDebugSession();
     }
@@ -98,18 +88,17 @@ public class VMDebugManager {
         this.debugManagerInitialized = true;
     }
 
-    public synchronized void mainInit(ProgramFile programFile, Context mainThreadContext) {
+    public synchronized void mainInit(Context mainThreadContext) {
         if (this.debugManagerInitialized) {
             throw new BallerinaException("Debugger instance already initialized");
         }
         mainThreadContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
         mainThreadContext.setDebugEnabled(true);
-        DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, mainThreadContext);
-        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         mainThreadContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
-        executor.submit(debuggerExecutor);
         // start the debug server if it is not started yet.
         this.debugServer.startServer();
+        mainThreadContext.getDebugInfoHolder().getDebugSessionObserver().addContext(mainThreadContext);
+        mainThreadContext.getDebugInfoHolder().waitTillDebuggeeResponds();
         this.debugManagerInitialized = true;
     }
 
@@ -191,19 +180,6 @@ public class VMDebugManager {
     }
 
     /**
-     *  Hold on to main thread while debugger finishes execution.
-     */
-    public void holdON() {
-        //suspend the current thread till debugging process finishes
-        try {
-            executionWaitSem.acquire();
-        } catch (InterruptedException e) {
-            // Do nothing probably someone wants to shutdown the thread.
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
      * Add {@link Context} to current execution.
      *
      * @param bContext context to run
@@ -224,10 +200,6 @@ public class VMDebugManager {
 
     public void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
-    }
-
-    public void releaseExecutionLock() {
-        this.executionWaitSem.release();
     }
 
     public boolean isDebugSessionActive() {

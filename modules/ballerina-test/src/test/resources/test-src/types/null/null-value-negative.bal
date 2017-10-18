@@ -31,9 +31,9 @@ function testLogicalOperationOnNull2() (any) {
 }
 
 function testNullForValueType2() {
-    //string s = (string) null;
+    string s = (string) null;
 }
 
 function testNullForValueType3() {
-    //json j = (json) null;
+    json j = (json) null;
 }

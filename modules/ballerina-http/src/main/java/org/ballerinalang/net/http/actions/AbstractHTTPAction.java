@@ -149,6 +149,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
+        } catch (BallerinaConnectorException e) {
+            throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
         }
@@ -179,7 +181,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 ballerinaFuture.notifyReply(response);
             } else {
                 BallerinaConnectorException ex = new BallerinaConnectorException(httpCarbonMessage
-                        .getMessagingException());
+                        .getMessagingException().getMessage(), httpCarbonMessage.getMessagingException());
                 logger.error("non-blocking action invocation validation failed. ", ex);
                 ballerinaFuture.notifyFailure(ex);
             }
