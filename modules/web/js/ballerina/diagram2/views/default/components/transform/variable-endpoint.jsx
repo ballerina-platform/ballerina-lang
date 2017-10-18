@@ -162,18 +162,19 @@ export default class VariableEndpoint extends React.Component {
     }
     onComplete() {
         let qoutes = '';
-        let valid = false;
+        let validType = false;
+        const validName = Number.isNaN(Number.parseFloat(this.state.varName.charAt(0)));
         if (this.state.varType === 'string') {
             qoutes = '"';
-            valid = true;
+            validType = true;
         } else if (this.state.varType === 'int') {
-            valid = Number.parseFloat(this.state.varVal) % 1 === 0;
+            validType = Number.parseFloat(this.state.varVal) % 1 === 0;
         } else if (this.state.varType === 'float') {
-            valid = !Number.isNaN(Number.parseFloat(this.state.varVal));
-        } else {
-            valid = true;
+            validType = !Number.isNaN(Number.parseFloat(this.state.varVal));
+        } else if (this.state.varType !== '') {
+            validType = true;
         }
-        if (valid) {
+        if (validType && validName) {
             const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes
                               + this.state.varVal + qoutes;
             const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
