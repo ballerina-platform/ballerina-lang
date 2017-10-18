@@ -635,7 +635,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 // a variable defined in transform scope is a inner variable
-                if (variable.expr.getKind() != NodeKind.LITERAL) {
+                if ((variable.expr.getKind() != NodeKind.LITERAL)
+                        && (variable.expr.getKind() != NodeKind.RECORD_LITERAL_EXPR)
+                        && (variable.expr.getKind() != NodeKind.XML_ELEMENT_LITERAL)
+                        && (variable.expr.getKind() != NodeKind.ARRAY_LITERAL_EXPR)
+                        && (variable.expr.getKind() != NodeKind.STRING_TEMPLATE_LITERAL)) {
                     // a variable defined in transform scope is a inner variable
                     // if the variable does not hold a constant value, it is a temporary variable and hence not an input
                     innerVars.add(varName);
