@@ -35,6 +35,7 @@ import CustomEditor from './model/CustomEditor';
 import Editor from './model/Editor';
 
 import DirtyFileCloseConfirmDialog from './dialogs/DirtyFileCloseConfirmDialog';
+import OpenedFileDeleteConfirmDialog from './dialogs/OpenedFileDeleteConfirmDialog';
 
 /**
  * Editor Plugin is responsible for providing editors to opening files.
@@ -116,7 +117,7 @@ class EditorPlugin extends Plugin {
             getEditorForFile: this.getEditorForFile.bind(this),
             isFileOpenedInEditor: this.isFileOpenedInEditor.bind(this),
             setActiveEditor: this.setActiveEditor.bind(this),
-            closeEditor: this.onTabClose.bind(this),
+            closeEditor: this.closeTab.bind(this),
         };
     }
 
@@ -334,6 +335,15 @@ class EditorPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
                     component: DirtyFileCloseConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            editorPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.OPENED_FILE_DELETE_CONFIRM,
+                    component: OpenedFileDeleteConfirmDialog,
                     propsProvider: () => {
                         return {
                             editorPlugin: this,

@@ -78,21 +78,37 @@ export function getContextMenuItems(node, parentNode, command,
         icon: 'delete',
         label: 'Delete',
         handler: () => {
-            dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
-                id: WORKSPACE_DIALOGS.DELETE_FILE_CONFIRM,
-                additionalProps: {
-                    filePath: node.id,
-                    onConfirm: () => {
-                        remove(node.id)
-                            .then(() => {
-                                onNodeRefresh(parentNode);
-                            })
-                            .catch((err) => {
-                                log.error(err);
-                            });
+            const { editor } = reactContext;
+            const deleteFile = () => {
+                remove(node.id)
+                    .then(() => {
+                        onNodeRefresh(parentNode);
+                    })
+                    .catch((err) => {
+                        log.error(err);
+                    });
+            };
+            if (editor.isFileOpenedInEditor(node.id)) {
+                const targetEditor = editor.getEditorForFile(node.id);
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id: EDITOR_DIALOGS.OPENED_FILE_DELETE_CONFIRM,
+                    additionalProps: {
+                        file: targetEditor.file,
+                        onConfirm: () => {
+                            editor.closeEditor(targetEditor);
+                            deleteFile();
+                        },
                     },
-                },
-            });
+                });
+            } else {
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id: WORKSPACE_DIALOGS.DELETE_FILE_CONFIRM,
+                    additionalProps: {
+                        filePath: node.id,
+                        onConfirm: deleteFile,
+                    },
+                });
+            }
         },
         isActive: () => {
             return true;
