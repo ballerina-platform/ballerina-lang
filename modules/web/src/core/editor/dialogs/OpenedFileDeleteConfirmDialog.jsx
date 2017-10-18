@@ -52,10 +52,11 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
      * @inheritdoc
      */
     render() {
+        const fileName = `${this.props.file.name}.${this.props.file.extension}`;
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Please Confirm"
+                title="Delete Opened File From Disk"
                 actions={
                 [
                     <Button
@@ -74,10 +75,11 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
+                <h4>
+                    {`Do you want close editor tab and delete "${fileName}" from file system?`}
+                </h4>
                 <p>
-                    {`File ${this.props.file.name}.${this.props.file.extension} is opened in editor.`}
-                    <br />
-                    {'File will be closed & deleted from file system.'}
+                    {`File ${fileName} is already opened in composer${this.props.file.isDirty ? ' & contains unsaved content' : ''}.`}
                 </p>
             </Dialog>
         );

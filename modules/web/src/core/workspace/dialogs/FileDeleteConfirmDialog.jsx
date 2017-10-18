@@ -39,7 +39,7 @@ class FileDeleteConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Deleting File/Folder From Disk"
+                title={`Delete ${this.props.isFolder ? 'Folder' : 'File'} From Disk`}
                 actions={
                 [
                     <Button
@@ -58,10 +58,11 @@ class FileDeleteConfirmDialog extends React.Component {
                 error={this.state.error}
             >
                 <h4>
-                    File {` ${this.props.filePath} `} will be deleted from file system.
+                    {`Are you sure you want to delete "${this.props.target}"
+                        ${this.props.isFolder ? ' and its contents' : ''} ?`}
                 </h4>
                 <p>
-                   Do you want to delete the file from file system?
+                    {`${this.props.isFolder ? 'Folder' : 'File'} will be deleted from file system.`}
                 </p>
             </Dialog>
         );
@@ -69,7 +70,8 @@ class FileDeleteConfirmDialog extends React.Component {
 }
 
 FileDeleteConfirmDialog.propTypes = {
-    filePath: PropTypes.string.isRequired,
+    isFolder: PropTypes.bool.isRequired,
+    target: PropTypes.string.isRequired,
     onConfirm: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
 };

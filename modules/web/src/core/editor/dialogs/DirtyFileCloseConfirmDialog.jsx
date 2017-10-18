@@ -38,7 +38,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="File Contains Unsaved Content"
+                title="Save Unsaved Content"
                 actions={
                 [
                     <Button

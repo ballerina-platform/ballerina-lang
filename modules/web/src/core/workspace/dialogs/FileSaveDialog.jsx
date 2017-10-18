@@ -107,7 +107,8 @@ class FileSaveDialog extends React.Component {
                     dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                         id: DIALOGS.REPLACE_FILE_CONFIRM,
                         additionalProps: {
-                            filePath: derivedFilePath + derivedFileName,
+                            target: derivedFileName,
+                            parent: derivedFilePath,
                             onConfirm: () => {
                                 saveFile();
                             },

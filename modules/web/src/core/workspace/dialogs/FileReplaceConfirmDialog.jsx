@@ -39,7 +39,7 @@ class FileReplaceConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="File Already Exists"
+                title="Replace An Existing File"
                 actions={
                 [
                     <Button
@@ -58,10 +58,10 @@ class FileReplaceConfirmDialog extends React.Component {
                 error={this.state.error}
             >
                 <h4>
-                    File {` ${this.props.filePath} `} alredy exists.
+                    {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
                 </h4>
                 <p>
-                   Do you want to overwrite the file?
+                    {`The file already exists in "${this.props.parent}". Replacing it will overwrite its contents.`}
                 </p>
             </Dialog>
         );
@@ -69,7 +69,8 @@ class FileReplaceConfirmDialog extends React.Component {
 }
 
 FileReplaceConfirmDialog.propTypes = {
-    filePath: PropTypes.string.isRequired,
+    target: PropTypes.string.isRequired,
+    parent: PropTypes.string.isRequired,
     onConfirm: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
 };
