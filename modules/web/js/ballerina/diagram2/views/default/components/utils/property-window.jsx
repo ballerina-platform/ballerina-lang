@@ -91,7 +91,7 @@ class PropertyWindow extends React.Component {
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
         this.props.model.viewState.overlayContainer = {};
-        this.forceUpdate();
+        this.context.editor.update();
     }
 
     /**
