@@ -66,3 +66,13 @@ function test6Ref(string a, function (string, float)(string) b)(string c){
     c = a + b(a , 1.0);
     return;
 }
+
+function testFuncWithArrayParams () (int){
+    string[] s = ["me", "myself"];
+    function (string[]) (int) x = funcWithArrayParams;
+    return x(s);
+}
+
+function funcWithArrayParams (string[] a) (int) {
+    return 0;
+}

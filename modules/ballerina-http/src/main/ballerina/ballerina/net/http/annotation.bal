@@ -1,8 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.ws;
-
-public annotation configuration attach service<>, service<ws> {
+public annotation configuration attach service<> {
     string host;
     int port;
     int httpsPort;
