@@ -113,7 +113,6 @@ class TryItPlugin extends Plugin {
                     },
                     isVisible: () => {
                         const isService = LaunchManager.messages.filter((message) => {
-                            console.log(message);
                             return message.message && message.message.startsWith(CONSTANTS.HTTP_SERVICE_PREFIX);
                         }).length > 0;
                         return LaunchManager.active && isService;
