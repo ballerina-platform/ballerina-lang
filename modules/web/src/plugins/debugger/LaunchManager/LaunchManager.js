@@ -24,20 +24,31 @@ class LaunchManager extends EventChannel {
     constructor() {
         super();
         this.active = false;
+        this._messages = [];
     }
 
     set active(active) {
         this._active = active;
     }
-    
-    get active(){
+
+    get active() {
         return this._active;
     }
+
+    set messages(messages) {
+        this._messages = messages;
+    }
+
+    get messages() {
+        return this._messages;
+    }
+
     init(endpoint) {
         this.endpoint = endpoint;
     }
 
     run(file, debug = false, configs) {
+        this._messages = [];
         let command;
         if (debug) {
             command = 'DEBUG_PROGRAM';
@@ -83,6 +94,7 @@ class LaunchManager extends EventChannel {
      * @memberof LaunchManager
      */
     processMesssage(message) {
+        this._messages.push(message);
         if (message.code === 'OUTPUT') {
             if (_.endsWith(message.message, this.debugPort)) {
                 this.trigger('debug-active', this.debugPort);

@@ -21,11 +21,15 @@ import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Linkify from 'react-linkify';
 import { COMMANDS as TRY_IT_COMMANDS } from 'plugins/try-it/constants';
+import { COMMANDS as TOOLBAR_COMMANDS } from 'core/toolbar/constants';
 import LaunchManager from 'plugins/debugger/LaunchManager';
 
 import './http-service-decorator.scss';
 
 const HttpServiceDecorator = ({ message, command }) => {
+    // TODO : This command dispatch should ideally be invoked when a service type application is running(not main
+    // function). Hence this type of commands should be pluggable for launch manager on commands.
+    command.dispatch(TOOLBAR_COMMANDS.UPDATE_TOOL_BAR);
     return (<div className='console-http-service-decorator'>
         <Linkify>{message.message}</Linkify>
         <Button
