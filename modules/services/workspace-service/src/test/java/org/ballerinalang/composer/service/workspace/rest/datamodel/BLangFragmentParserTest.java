@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
+import com.google.gson.JsonParser;
 import org.apache.commons.io.FilenameUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -33,6 +34,7 @@ public class BLangFragmentParserTest {
 
     public static final ClassLoader CLASS_LOADER = BLangFragmentParserTest.class.getClassLoader();
     public static final String SAMPLES_DIR = "samples/fragments/";
+    private JsonParser jsonParse = new JsonParser();
 
     private static void loadSamples(List<String[]> fragments, String type) throws IOException {
         File samples = new File(CLASS_LOADER
@@ -68,7 +70,7 @@ public class BLangFragmentParserTest {
         fragment.setExpectedNodeType(type);
 
         String result = BLangFragmentParser.parseFragment(fragment);
-        Assert.assertEquals(result, readFromFile(expectedPath),
+        Assert.assertEquals(jsonParse.parse(result), jsonParse.parse(readFromFile(expectedPath)),
                 "Expected json not found while parsing " + type + " fragment " + caseName);
     }
 
