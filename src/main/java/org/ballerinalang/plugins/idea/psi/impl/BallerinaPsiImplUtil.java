@@ -1974,7 +1974,7 @@ public class BallerinaPsiImplUtil {
             List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
                     ParameterNode.class);
 
-            if (index <= -1) {
+            if (index < 0 || index >= parameterNodes.size()) {
                 return null;
             }
             ParameterNode parameterNode = parameterNodes.get(index);
@@ -2201,7 +2201,7 @@ public class BallerinaPsiImplUtil {
         PsiFile containingFile = structDefinitionNode.getContainingFile();
         PsiDirectory containingPackage = containingFile.getParent();
         if (containingPackage != null) {
-            ApplicationManager.getApplication().runReadAction(()->{
+            ApplicationManager.getApplication().runReadAction(() -> {
                 List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
                         false);
                 for (IdentifierPSINode function : functions) {
