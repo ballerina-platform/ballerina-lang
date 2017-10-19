@@ -89,6 +89,7 @@ class WorkerNode extends React.Component {
         return (
             <g>
                 <LifeLine
+                    model={model}
                     title={title}
                     bBox={model.viewState.components.lifeLine}
                     classes={classes}

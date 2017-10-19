@@ -232,7 +232,7 @@ class LifeLine extends React.Component {
                 <ActionBox
                     show={this.state.active}
                     bBox={actionBbox}
-                    onDelete={() => this.props.onDelete()}
+                    onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumptoCodeLine()}
                 />
             }
@@ -241,7 +241,7 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.contextTypes = {
-    model: PropTypes.instanceOf(Object),
+    model: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
