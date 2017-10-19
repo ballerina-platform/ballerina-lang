@@ -91,7 +91,6 @@ class PropertyWindow extends React.Component {
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
         this.props.model.viewState.overlayContainer = {};
-        this.context.editor.update();
     }
 
     /**
@@ -356,7 +355,7 @@ class PropertyWindow extends React.Component {
                             type="button"
                             className="close"
                             aria-label="Close"
-                            onClick={this.handleDismiss}
+                            onClick={this.closePropertyWindow}
                         >
                             <span aria-hidden="true">&times;</span>
                         </button>
