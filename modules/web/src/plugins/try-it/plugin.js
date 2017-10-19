@@ -109,6 +109,7 @@ class TryItPlugin extends Plugin {
                     isVisible: () => {
                         return LaunchManager.active;
                     },
+                    description: 'Try-It',
                 },
             ],
         };
