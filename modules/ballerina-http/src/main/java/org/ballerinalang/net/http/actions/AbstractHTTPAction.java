@@ -105,8 +105,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             Headers headers = (Headers) headerObj;
 
-            if (!headers.contains(Constants.Headers.USER_AGENT)) { // If User-Agent is not already set from program
-                cMsg.setHeader(Constants.Headers.USER_AGENT, BALLERINA_USER_AGENT);
+            if (!headers.contains(Constants.HttpHeader.USER_AGENT)) { // If User-Agent is not already set from program
+                cMsg.setHeader(Constants.HttpHeader.USER_AGENT, BALLERINA_USER_AGENT);
             }
 
         } catch (MalformedURLException e) {

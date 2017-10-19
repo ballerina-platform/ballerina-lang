@@ -135,7 +135,7 @@ public class HTTPSession implements Session, Serializable {
     public void generateSessionHeader(HTTPCarbonMessage message) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
-            message.setHeader(Constants.Headers.RESPONSE_COOKIE, Constants.SESSION_ID + this.getId() + "; "
+            message.setHeader(Constants.HttpHeader.RESPONSE_COOKIE, Constants.SESSION_ID + this.getId() + "; "
                     + Constants.PATH + this.getPath() + ";");
         }
     }

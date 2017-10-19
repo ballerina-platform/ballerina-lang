@@ -40,9 +40,6 @@ public class Constants {
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-    public static final String ALLOW = "Allow";
-    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
@@ -84,7 +81,6 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
 
-    public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
     public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
     public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
@@ -152,15 +148,20 @@ public class Constants {
     }
 
 
-    public static class Headers {
-        private Headers() {
+    /**
+     * Http Headers
+     */
+    public static class HttpHeader {
+        private HttpHeader() {
         }
 
         public static final String USER_AGENT = "User-Agent";
-        public static final String CONTENT_TYPE = "Content-Type";
+        public static final String HTTP_CONTENT_LENGTH = "Content-Length";
         public static final String ACCEPT = "Accept";
         public static final String COOKIE = "Cookie";
         public static final String RESPONSE_COOKIE = "Set-Cookie";
+        public static final String ORIGIN = "Origin";
+        public static final String ALLOW = "Allow";
 
         /**
          * Content type HTTP headers.

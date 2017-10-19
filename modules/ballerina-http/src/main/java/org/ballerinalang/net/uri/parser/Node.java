@@ -250,7 +250,7 @@ public abstract class Node {
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
         if (httpMethod.equals(Constants.HttpMethod.OPTIONS)) {
-            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
+            cMsg.setHeader(Constants.HttpHeader.ALLOW, getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
@@ -272,7 +272,8 @@ public abstract class Node {
 
     public Resource validateConsumes(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isConsumeMatched = false;
-        String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.Headers.CONTENT_TYPE));
+        String contentMediaType =
+                extractContentMediaType(cMsg.getHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE));
         String[] consumesList  = DispatcherUtil.getConsumerList(resource);
 
         if (consumesList != null) {
@@ -305,7 +306,7 @@ public abstract class Node {
 
     public Resource validateProduces(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isProduceMatched = false;
-        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.Headers.ACCEPT));
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.HttpHeader.ACCEPT));
         String[] producesList = DispatcherUtil.getProducesList(resource);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.

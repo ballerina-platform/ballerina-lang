@@ -52,14 +52,14 @@ public class CorsHeaderGenerator {
         Map<String, List<String>> resourceCors;
         if (isSimpleRequest) {
             resourceCors = (Map<String, List<String>>) requestMsg.getProperty(Constants.RESOURCES_CORS);
-            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            String origin = requestMsg.getHeader(Constants.HttpHeader.ORIGIN);
             if (origin != null && resourceCors != null) {
                 if ((responseHeaders = processSimpleRequest(origin, resourceCors)) != null) {
                     isCorsResponseHeadersAvailable = true;
                 }
             }
         } else {
-            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            String origin = requestMsg.getHeader(Constants.HttpHeader.ORIGIN);
             if (origin != null) {
                 if ((responseHeaders = processPreflightRequest(origin, requestMsg)) != null) {
                     isCorsResponseHeadersAvailable = true;
@@ -70,7 +70,7 @@ public class CorsHeaderGenerator {
             responseHeaders.entrySet().stream().forEach(header -> {
                 responseMsg.setHeader(header.getKey(), header.getValue());
             });
-            responseMsg.removeHeader(Constants.ALLOW);
+            responseMsg.removeHeader(Constants.HttpHeader.ALLOW);
         }
     }
 

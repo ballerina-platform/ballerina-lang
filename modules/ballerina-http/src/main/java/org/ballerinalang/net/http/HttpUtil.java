@@ -329,8 +329,8 @@ public class HttpUtil {
         httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
-        httpCarbonMessage.setHeader(Constants.Headers.ContentType.CONTENT_TYPE,
-                                    Constants.Headers.ContentType.APPLICATION_JSON);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.APPLICATION_JSON);
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -361,8 +361,8 @@ public class HttpUtil {
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setMessageDataSource(stringDataSource);
         httpCarbonMessage.setAlreadyRead(true);
-        httpCarbonMessage.setHeader(Constants.Headers.ContentType.CONTENT_TYPE,
-                                    Constants.Headers.ContentType.TEXT_PLAIN);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
@@ -380,8 +380,8 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(Constants.Headers.ContentType.CONTENT_TYPE,
-                                    Constants.Headers.ContentType.APPLICATION_XML);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.APPLICATION_XML);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
         return AbstractNativeFunction.VOID_RETURN;
@@ -394,7 +394,7 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-        String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        String lengthStr = httpCarbonMessage.getHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH);
         try {
             contentLength = Integer.parseInt(lengthStr);
         } catch (NumberFormatException e) {
@@ -410,7 +410,7 @@ public class HttpUtil {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             long contentLength = abstractNativeFunction.getIntArgument(context, 0);
-            httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            httpCarbonMessage.setHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Content-Length");
         }
