@@ -4,7 +4,7 @@ import Tabs, { TabPane } from 'rc-tabs';
 import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
-import { HISTORY } from './../constants';
+import { HISTORY, COMMANDS } from './../constants';
 import { createViewFromViewDef } from './utils';
 
 const panelTitleHeight = 37;
@@ -27,9 +27,18 @@ class BottomPanel extends React.Component {
             maximized: this.props.maximize,
             activeView: context.history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW) || defaultActiveView,
         };
+        this.updateActions = this.updateActions.bind(this);
     }
 
-     /**
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const { on } = this.context.command;
+        on(COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, this.updateActions);
+    }
+
+    /**
      * @inheritdoc
      */
     componentWillReceiveProps(newProps) {
@@ -38,6 +47,14 @@ class BottomPanel extends React.Component {
                 maximized: newProps.maximize,
             });
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        const { off } = this.context.command;
+        off(COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, this.updateActions);
     }
 
     /**
@@ -56,6 +73,13 @@ class BottomPanel extends React.Component {
      */
     onClose() {
         this.props.onClose();
+    }
+
+    /**
+     * Update Actions
+     */
+    updateActions() {
+        this.forceUpdate();
     }
 
     /**
@@ -147,6 +171,10 @@ BottomPanel.contextTypes = {
     history: PropTypes.shape({
         put: PropTypes.func,
         get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
     }).isRequired,
 };
 

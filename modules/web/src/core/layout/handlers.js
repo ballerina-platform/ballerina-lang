@@ -4,7 +4,6 @@ import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, EVENTS, REGIONS, HISTORY } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
-import { COMMANDS as TOOL_BAR_CMDS } from './../toolbar/constants';
 import { withViewFeatures, withDialogContext } from './components/utils';
 
 /**
@@ -59,13 +58,6 @@ export function getHandlerDefinitions(layoutManager) {
             cmdID: COMMANDS.TOGGLE_BOTTOM_PANEL,
             handler: () => {
                 layoutManager.trigger(EVENTS.TOGGLE_BOTTOM_PANLEL);
-            },
-        },
-        {
-            cmdID: COMMANDS.UPDATE_ALL_ACTION_TRIGGERS,
-            handler: () => {
-                const { command: { dispatch } } = layoutManager.appContext;
-                dispatch(TOOL_BAR_CMDS.UPDATE_TOOL_BAR, {});
             },
         },
         {

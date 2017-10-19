@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import ActivityBar from './ActivityBar';
-import { HISTORY } from './../constants';
+import { HISTORY, COMMANDS } from './../constants';
 import { createViewFromViewDef } from './utils';
 
 const activityBarWidth = 42;
@@ -120,6 +120,30 @@ class LeftPanel extends React.Component {
      */
     constructor(props, context) {
         super(props, context);
+        this.updateActions = this.updateActions.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const { on } = this.context.command;
+        on(COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, this.updateActions);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        const { off } = this.context.command;
+        off(COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, this.updateActions);
+    }
+
+    /**
+     * Update Actions
+     */
+    updateActions() {
+        this.forceUpdate();
     }
 
     /**
