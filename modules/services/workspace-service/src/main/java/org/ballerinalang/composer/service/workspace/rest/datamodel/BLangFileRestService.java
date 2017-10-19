@@ -24,7 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,10 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -59,12 +55,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -76,22 +70,6 @@ public class BLangFileRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
     public static final String UNESCAPED_VALUE = "unescapedValue";
-
-    @GET
-    @Path("/model")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws IOException {
-        InputStream stream = null;
-        try {
-            stream = new FileInputStream(new File(location));
-            //String response = parseJsonDataModel(stream, "temp.bal");
-            return Response.ok("", MediaType.APPLICATION_JSON).build();
-        } finally {
-            if (null != stream) {
-                IOUtils.closeQuietly(stream);
-            }
-        }
-    }
 
     @POST
     @Path("/validate")

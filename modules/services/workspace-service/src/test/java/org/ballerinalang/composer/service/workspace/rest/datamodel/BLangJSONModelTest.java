@@ -41,80 +41,13 @@ import javax.ws.rs.HttpMethod;
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
-    //private HashMap<String, Package> packages = new HashMap<String, Package>();
-    private String exptdStrFunc = "";
-
-    public static void main(String[] args) {
-        try {
-            BLangJSONModelTest test = new BLangJSONModelTest();
-            test.setup();
-            test.testBLangJSONModelService();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 
     @BeforeClass
     public void setup() throws Exception {
         microservicesRunner = new MicroservicesRunner(9090);
         microservicesRunner.deploy(new BLangFileRestService()).start();
-        File file = new File(getClass().getClassLoader().getResource("samples/service/expected.json")
-                .getFile());
-        exptdStrFunc = new Scanner(file).useDelimiter("\\Z").next();
-        //HTTPConnector connector = new HTTPConnector();
-        //String connectorName = connector.getSymbolName().getName();
-        //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
-        //Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
-        //GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetHeader());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetHeader());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetQueryParam());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetJsonPayload());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetInt());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new StringValueOf());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new PrintlnString());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetStringPayload());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new ConvertToResponse());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetJsonPayload());
-        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetString());
-        //registerNativeAction(new Get());
-        //registerNativeAction(new Post());
     }
 
-    /*
-    public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
-                function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
-        Symbol symbol = new Symbol(function,
-                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
-        symScope.insert(symbolName, symbol);
-    }
-
-    public void registerNativeAction(AbstractNativeAction action) {
-        Package aPackage = packages
-                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackagePath()));
-        aPackage.getActions().put(action.getName(), action);
-
-        String actionName = action.getSymbolName().getName();
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
-        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
-                action.getReturnTypes());
-
-        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
-
-    } */
-
-    @Test
-    public void testBLangJSONModelService() throws IOException, URISyntaxException {
-        File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
-                .getFile());
-        HttpURLConnection urlConn = request("/ballerina/model?location=" + file.getPath(), HttpMethod.GET);
-        InputStream inputStream = urlConn.getInputStream();
-        String response = StreamUtil.asString(inputStream);
-        Assert.assertEquals(response, exptdStrFunc);
-        IOUtils.closeQuietly(inputStream);
-        urlConn.disconnect();
-    }
 
     @Test
     public void testBLangJSONModelServiceUsingPost() throws IOException, URISyntaxException {
@@ -130,7 +63,11 @@ public class BLangJSONModelTest {
         outputStream.flush();
         InputStream inputStream = urlConn.getInputStream();
         String response = StreamUtil.asString(inputStream);
-        Assert.assertEquals(response, exptdStrFunc);
+
+        File fileExpected = new File(getClass().getClassLoader().getResource("samples/service/expected.json")
+                                       .getFile());
+        String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
+        Assert.assertEquals(response, expectedJsonStr);
         IOUtils.closeQuietly(inputStream);
         urlConn.disconnect();
     }
@@ -139,7 +76,14 @@ public class BLangJSONModelTest {
     public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
         File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
                                        .getFile());
-        HttpURLConnection urlConn = request("/ballerina/model?location=" + file.getPath(), HttpMethod.GET);
+        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
+        urlConn.setRequestProperty("Content-Type", "application/json");
+        OutputStream outputStream = urlConn.getOutputStream();
+        String content = new Scanner(file).useDelimiter("\\Z").next();;
+        JsonObject json = new JsonObject();
+        json.addProperty("content", content);
+        outputStream.write(json.toString().getBytes());
+        outputStream.flush();
         InputStream inputStream = urlConn.getInputStream();
         String response = StreamUtil.asString(inputStream);
 
