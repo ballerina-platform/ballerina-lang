@@ -50,7 +50,7 @@ public class CorsRegistry {
 
     public Map<String, List<String>> getServiceCors(Service service) {
         if (isCorsHeadersAvailable(service.getAnnotation(Constants.HTTP_PACKAGE_PATH
-                , Constants.Annotation.ServiceConfig.ANNOTATION_NAME))) {
+                , Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME))) {
             return populateCorsHeaders(null);
         } else {
             return null;
@@ -59,7 +59,7 @@ public class CorsRegistry {
 
     public void processResourceCors(Resource resource, Map<String, List<String>> serviceCorsMap) {
         if (isCorsHeadersAvailable(resource.getAnnotation(Constants.HTTP_PACKAGE_PATH
-                , Constants.Annotation.ResourceConfig.ANNOTATION_NAME))) {
+                , Constants.HttpAnnotation.ResourceConfig.ANNOTATION_NAME))) {
             resourceCorsHolder.put(createResourceKey(resource), populateCorsHeaders(resource));
         } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
             resourceCorsHolder.put(createResourceKey(resource), serviceCorsMap);

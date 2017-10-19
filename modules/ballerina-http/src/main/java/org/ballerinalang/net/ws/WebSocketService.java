@@ -45,7 +45,8 @@ public class WebSocketService implements Service {
         }
 
         Annotation configAnnotation =
-                service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
+                                      Constants.WsAnnotation.ServiceConfig.ANNOTATION_NAME);
         negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
         idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
     }
@@ -84,34 +85,35 @@ public class WebSocketService implements Service {
 
     public BStruct createHandshakeConnectionStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
-                                           Constants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
+                                           Constants.Struct.Name.HANDSHAKE_CONNECTION);
     }
 
     public BStruct createConnectionStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
-                                    Constants.STRUCT_WEBSOCKET_CONNECTION);
+                                           Constants.Struct.Name.CONNECTION);
     }
 
     public BStruct createTextFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
-                                           Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
+                                           Constants.Struct.Name.TEXT_FRAME);
     }
 
     public BStruct createBinaryFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
-                                           Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
+                                           Constants.Struct.Name.BINARY_FRAME);
     }
 
     public BStruct createCloseFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
-                                           Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
+                                           Constants.Struct.Name.CLOSE_FRAME);
     }
 
     private String[] findNegotiableSubProtocols(Annotation configAnnotation) {
         if (configAnnotation == null) {
             return null;
         }
-        AnnAttrValue annAttrsubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+        AnnAttrValue annAttrsubProtocols =
+                configAnnotation.getAnnAttrValue(Constants.WsAnnotation.ServiceConfig.Attribute.SUB_PROTOCOLS);
         if (annAttrsubProtocols == null) {
             return null;
         }
@@ -128,7 +130,8 @@ public class WebSocketService implements Service {
         if (configAnnotation == null) {
             return 0;
         }
-        AnnAttrValue annAttrIdleTimeout = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_IDLE_TIMEOUT);
+        AnnAttrValue annAttrIdleTimeout =
+                configAnnotation.getAnnAttrValue(Constants.WsAnnotation.ServiceConfig.Attribute.IDLE_TIMEOUT_IN_SECS);
         if (annAttrIdleTimeout == null) {
             return 0;
         }

@@ -550,58 +550,59 @@ public class HttpUtil {
         Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
 
 
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.HOST);
-        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.PORT);
+        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST);
+        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT);
 
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttrValue httpsPortAttrVal;
-        if (configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.HTTPS_PORT) == null) {
-            httpsPortAttrVal = configInfo.getAnnAttrValue(org.ballerinalang.net.ws.Constants.ANN_CONFIG_ATTR_WSS_PORT);
+        if (configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HTTPS_PORT) == null) {
+            httpsPortAttrVal = configInfo.getAnnAttrValue(
+                    org.ballerinalang.net.ws.Constants.WsAnnotation.ServiceConfig.Attribute.WSS_PORT);
         } else {
-            httpsPortAttrVal = configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.HTTPS_PORT);
+            httpsPortAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HTTPS_PORT);
         }
 
         AnnAttrValue keyStoreFileAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.KEY_STORE_FILE);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_FILE);
         AnnAttrValue keyStorePasswordAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.KEY_STORE_PASS);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_PASS);
         AnnAttrValue certPasswordAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.CERT_PASS);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.CERT_PASS);
         AnnAttrValue trustStoreFileAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.TRUST_STORE_FILE);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_FILE);
         AnnAttrValue trustStorePasswordAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.TRUST_STORE_PASS);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_PASS);
         AnnAttrValue sslVerifyClientAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT);
         AnnAttrValue sslEnabledProtocolsAttrVal = configInfo
-                .getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS);
+                .getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS);
         AnnAttrValue ciphersAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.CIPHERS);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.CIPHERS);
         AnnAttrValue sslProtocolAttrVal =
-                configInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.SSL_PROTOCOL);
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_PROTOCOL);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.Annotation.ServiceConfig.Attribute.PORT,
+            httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT,
                             Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.Annotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTP);
+            httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.Annotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
+                httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
             } else {
-                httpPropMap.put(Constants.Annotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
+                httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
             }
             listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
         }
 
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
             Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.PORT,
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT,
                              Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTPS);
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTPS);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
             } else {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
             }
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
@@ -627,35 +628,35 @@ public class HttpUtil {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
 
-            httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.KEY_STORE_FILE,
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_FILE,
                              keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.KEY_STORE_PASS,
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_PASS,
                              keyStorePasswordAttrVal.getStringValue());
-            httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.CERT_PASS,
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.CERT_PASS,
                              certPasswordAttrVal.getStringValue());
             if (sslVerifyClientAttrVal != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT,
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT,
                                  sslVerifyClientAttrVal.getStringValue());
             }
             if (trustStoreFileAttrVal != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.TRUST_STORE_FILE,
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_FILE,
                                  trustStoreFileAttrVal.getStringValue());
             }
             if (trustStorePasswordAttrVal != null) {
                 httpsPropMap
-                        .put(Constants.Annotation.ServiceConfig.Attribute.TRUST_STORE_PASS,
+                        .put(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_PASS,
                              trustStorePasswordAttrVal.getStringValue());
             }
             if (sslEnabledProtocolsAttrVal != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocolsAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS,
+                                 sslEnabledProtocolsAttrVal.getStringValue());
             }
             if (ciphersAttrVal != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.CIPHERS,
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.CIPHERS,
                                  ciphersAttrVal.getStringValue());
             }
             if (sslProtocolAttrVal != null) {
-                httpsPropMap.put(Constants.Annotation.ServiceConfig.Attribute.SSL_PROTOCOL,
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_PROTOCOL,
                                  sslProtocolAttrVal.getStringValue());
             }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
@@ -671,11 +672,11 @@ public class HttpUtil {
      */
     private static String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.Annotation.ServiceConfig.Attribute.SCHEME));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME));
         iName.append("_");
-        iName.append(propMap.get(Constants.Annotation.ServiceConfig.Attribute.HOST));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST));
         iName.append("_");
-        iName.append(propMap.get(Constants.Annotation.ServiceConfig.Attribute.PORT));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT));
         return iName.toString();
     }
 

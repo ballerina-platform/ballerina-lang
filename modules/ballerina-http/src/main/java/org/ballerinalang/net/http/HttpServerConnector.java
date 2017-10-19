@@ -65,8 +65,9 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
             validateResourceSignature(resource);
 
-            Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                    Constants.Annotation.ResourceConfig.ANNOTATION_NAME);
+            Annotation rConfigAnnotation =
+                    resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                           Constants.HttpAnnotation.ResourceConfig.ANNOTATION_NAME);
             String subPathAnnotationVal;
             if (rConfigAnnotation == null) {
                 if (log.isDebugEnabled()) {
@@ -75,7 +76,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
                 subPathAnnotationVal = resource.getName();
             } else {
                 AnnAttrValue pathAttrVal =
-                        rConfigAnnotation.getAnnAttrValue(Constants.Annotation.ResourceConfig.Attribute.PATH);
+                        rConfigAnnotation.getAnnAttrValue(Constants.HttpAnnotation.ResourceConfig.Attribute.PATH);
                 if (pathAttrVal == null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Path not specified in the Resource, using default sub path");

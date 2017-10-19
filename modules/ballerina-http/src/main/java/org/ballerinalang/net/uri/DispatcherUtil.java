@@ -52,14 +52,15 @@ public class DispatcherUtil {
     }
 
     public static String[] getHttpMethods(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.Annotation.ResourceConfig.ANNOTATION_NAME);
+        Annotation rConfigAnnAtchmnt =
+                resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                           Constants.HttpAnnotation.ResourceConfig.ANNOTATION_NAME);
         if (rConfigAnnAtchmnt == null) {
             return null;
         }
 
         AnnAttrValue methodsAttrVal =
-                rConfigAnnAtchmnt.getAnnAttrValue(Constants.Annotation.ResourceConfig.Attribute.METHODS);
+                rConfigAnnAtchmnt.getAnnAttrValue(Constants.HttpAnnotation.ResourceConfig.Attribute.METHODS);
         if (methodsAttrVal == null) {
             return null;
         }
@@ -67,13 +68,14 @@ public class DispatcherUtil {
     }
 
     public static String[] getConsumerList(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.Annotation.ResourceConfig.ANNOTATION_NAME);
+        Annotation rConfigAnnAtchmnt =
+                resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                           Constants.HttpAnnotation.ResourceConfig.ANNOTATION_NAME);
         if (rConfigAnnAtchmnt == null) {
             return null;
         }
         AnnAttrValue consumesAttrVal = rConfigAnnAtchmnt
-                .getAnnAttrValue(Constants.Annotation.ResourceConfig.Attribute.CONSUMES);
+                .getAnnAttrValue(Constants.HttpAnnotation.ResourceConfig.Attribute.CONSUMES);
         if (consumesAttrVal == null) {
             return null;
         }
@@ -81,13 +83,14 @@ public class DispatcherUtil {
     }
 
     public static String[] getProducesList(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.Annotation.ResourceConfig.ANNOTATION_NAME);
+        Annotation rConfigAnnAtchmnt =
+                resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                           Constants.HttpAnnotation.ResourceConfig.ANNOTATION_NAME);
         if (rConfigAnnAtchmnt == null) {
             return null;
         }
         AnnAttrValue producesAttrVal =
-                rConfigAnnAtchmnt.getAnnAttrValue(Constants.Annotation.ResourceConfig.Attribute.PRODUCES);
+                rConfigAnnAtchmnt.getAnnAttrValue(Constants.HttpAnnotation.ResourceConfig.Attribute.PRODUCES);
         if (producesAttrVal == null) {
             return null;
         }
@@ -105,11 +108,11 @@ public class DispatcherUtil {
     public static String getServiceBasePath(Service service) {
         String basePath = service.getName();
         Annotation annotationInfo = service.getAnnotation(Constants
-                .HTTP_PACKAGE_PATH, Constants.Annotation.ServiceConfig.ANNOTATION_NAME);
+                .HTTP_PACKAGE_PATH, Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME);
 
         if (annotationInfo != null) {
             AnnAttrValue annAttributeValue =
-                    annotationInfo.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.BASE_PATH);
+                    annotationInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.BASE_PATH);
             if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
                     !annAttributeValue.getStringValue().trim().isEmpty()) {
                 basePath = annAttributeValue.getStringValue();

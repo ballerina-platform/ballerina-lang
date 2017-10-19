@@ -50,7 +50,7 @@ public class GetNegotiatedSubProtocol extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) wsConnection.getNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION);
         String negotiatedSubProtocol = session.getNegotiatedSubprotocol();
         return getBValues(new BString(negotiatedSubProtocol));
     }

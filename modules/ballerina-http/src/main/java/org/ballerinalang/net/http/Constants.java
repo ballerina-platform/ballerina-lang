@@ -92,7 +92,7 @@ public class Constants {
     /**
      * Http Annotation Constants.
      */
-    public static final class Annotation {
+    public static final class HttpAnnotation {
         /**
          * Service Configuration annotation constants.
          */

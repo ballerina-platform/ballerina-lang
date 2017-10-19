@@ -51,7 +51,7 @@ public class PushText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+            Session session = (Session) wsConnection.getNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION);
             String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {

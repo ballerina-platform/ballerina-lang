@@ -81,7 +81,7 @@ public class HTTPServicesRegistry {
      */
     public void registerService(HttpService service) {
         Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                                                      Constants.Annotation.ServiceConfig.ANNOTATION_NAME);
+                                                      Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME);
 
         String basePath = discoverBasePathFrom(service, annotation);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -110,7 +110,7 @@ public class HTTPServicesRegistry {
      */
     public void unregisterService(Service service) {
         Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                                                      Constants.Annotation.ServiceConfig.ANNOTATION_NAME);
+                                                      Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME);
 
         String basePath = discoverBasePathFrom(service, annotation);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -132,7 +132,7 @@ public class HTTPServicesRegistry {
         String basePath = service.getName();
         if (annotation != null) {
             AnnAttrValue annotationValue =
-                    annotation.getAnnAttrValue(Constants.Annotation.ServiceConfig.Attribute.BASE_PATH);
+                    annotation.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.BASE_PATH);
             if (annotationValue != null && annotationValue.getStringValue() != null) {
                 if (annotationValue.getStringValue().trim().isEmpty()) {
                     basePath = Constants.DEFAULT_BASE_PATH;
