@@ -460,12 +460,11 @@ public class HttpUtil {
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        ErrorHandlerUtils.printErrorMessage("httpConnector: integration point error occurred");
         if (statusCode == 404) {
             handleResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         } else {
-            // TODO If you put just "", then we got a NPE. Need to find why
-            handleResponse(requestMessage, createErrorMessage("  ", statusCode));
+            handleResponse(requestMessage, createErrorMessage("", statusCode));
         }
     }
 
@@ -688,6 +687,13 @@ public class HttpUtil {
             httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
+    }
+
+    public static String sanitizeUri(String uri) {
+        if (uri.startsWith("/")) {
+            return uri;
+        }
+        return "/".concat(uri);
     }
 
     public static void methodInvocationCheck(BStruct bStruct) {

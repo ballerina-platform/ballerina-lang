@@ -36,10 +36,19 @@ import org.testng.annotations.Test;
 public class MapInitializerExprTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeResult;
 
     @BeforeTest
     public void setup() {
         compileResult = BTestUtils.compile("test-src/types/map/map-initializer-expr.bal");
+        negativeResult = BTestUtils.compile("test-src/types/map/map-literal-negative.bal");
+    }
+
+    @Test
+    public void testMapWithUnsupportedKey() {
+        // testMapWithUnsupportedKey
+        BTestUtils.validateError(negativeResult, 0,
+                "invalid field name in map literal. identifier or string literal expected", 2, 15);
     }
 
     @Test(description = "Test map initializer expression")
