@@ -17,8 +17,7 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import ConsoleDecorators from 'plugins/debugger/views/console-decorators';
 import View from 'core/view/view';
 import { VIEWS } from './../constants';
 import './DebugConsole.css';
@@ -75,13 +74,15 @@ class DebuggerConsole extends View {
      * @inheritdoc
      */
     render() {
-        const { width, height } = this.props;
+        const { height } = this.props;
         return (
-            <div id="console" style={{height: height}}>
+            <div id="console" style={{ height }}>
                 {this.state.messages.map((message, i) => {
-                    return (
-                        <div className={message.type} key={i}><pre>{message.message}</pre></div>
-                    );
+                    return (<ConsoleDecorators
+                        message={message}
+                        index={i}
+                        command={this.props.debuggerPlugin.appContext.command}
+                    />);
                 })}
             </div>
         );
