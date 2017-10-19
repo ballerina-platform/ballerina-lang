@@ -65,30 +65,35 @@
     </repositories>
 
    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-	    <dependency>
-	    	<groupId>org.ballerinalang</groupId>
-	    	<artifactId>ballerina-core</artifactId>
-        	<version>${ballerina.version}</version>
-		</dependency>
+       <dependency>
+           <groupId>org.testng</groupId>
+           <artifactId>testng</artifactId>
+           <scope>test</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.ballerinalang</groupId>
+           <artifactId>ballerina-core</artifactId>
+           <version>${ballerina.version}</version>
+       </dependency>
        <dependency>
            <groupId>org.ballerinalang</groupId>
            <artifactId>ballerina-lang</artifactId>
            <version>${ballerina.version}</version>
        </dependency>
        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
-            <version>${ballerina.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-        </dependency>
+           <groupId>org.ballerinalang</groupId>
+           <artifactId>ballerina-launcher</artifactId>
+           <version>${ballerina.version}</version>
+       </dependency>
+       <dependency>
+           <groupId>org.ballerinalang</groupId>
+           <artifactId>ballerina-builtin</artifactId>
+           <version>${ballerina.version}</version>
+       </dependency>
+       <dependency>
+           <groupId>com.beust</groupId>
+           <artifactId>jcommander</artifactId>
+       </dependency>
        <dependency>
            <groupId>com.github.jknack</groupId>
            <artifactId>handlebars</artifactId>
@@ -102,7 +107,7 @@
            <artifactId>slf4j-jdk14</artifactId>
            <scope>test</scope>
        </dependency>
-    </dependencies>
+   </dependencies>
 
     <build>
         <plugins>
