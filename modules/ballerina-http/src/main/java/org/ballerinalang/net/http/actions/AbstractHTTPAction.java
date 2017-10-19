@@ -94,13 +94,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             cMsg.setProperty(Constants.TO, toPath);
 
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
-                if (port != 80 || port != 443) {
-                    cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
-                } else {
-                    cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
-                }
-            }
+            setHostHeader(cMsg, host, port);
+
             //Set User-Agent Header
             Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
 
@@ -216,6 +211,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
         prepareRequest(bConnector, path, requestMsg);
         return requestMsg;
+    }
+
+    protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
+        if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
+            if (port != 80 && port != 443) {
+                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
+            } else {
+                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
+            }
+        }
     }
 
 }
