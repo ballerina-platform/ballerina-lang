@@ -37,7 +37,7 @@ public class ConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/init");
+        result = BTestUtils.compile("test-src", "connectors.init");
     }
 
     @Test(description = "Test Connector int functionality")

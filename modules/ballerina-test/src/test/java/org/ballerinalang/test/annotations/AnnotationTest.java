@@ -36,7 +36,7 @@ public class AnnotationTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src", "lang/annotations/foo");
+        compileResult = BTestUtils.compile("test-src", "lang.annotations.foo");
     }
 
     @Test(description = "Test function annotation")
@@ -206,7 +206,7 @@ public class AnnotationTest {
 
     @Test(description = "Test annotation attachment package valdation")
     public void testValidAnnoatationAttachmentPackage() {
-        Assert.assertNotNull(BTestUtils.compile("test-src", "lang/annotations/pkg/valid").getProgFile());
+        Assert.assertNotNull(BTestUtils.compile("test-src", "lang.annotations.pkg.valid").getProgFile());
     }
 
     @Test(description = "Test constant as annotation attribute value")
@@ -328,7 +328,7 @@ public class AnnotationTest {
     @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
             "for given protocol package")
     public void testInvalidAttachmentInServiceWithDifferentProtocolPkg() {
-        CompileResult resultNegative = BTestUtils.compile("test-src", "lang/annotations/pkg/error1");
+        CompileResult resultNegative = BTestUtils.compile("test-src", "lang.annotations.pkg.error1");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative,
                 0, "annotation 'lang.annotations.pkg.first:Sample' is not allowed in " +
@@ -338,7 +338,7 @@ public class AnnotationTest {
     @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
             "for annotation def protocol package")
     public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
-        CompileResult resultNegative = BTestUtils.compile("test-src", "lang/annotations/pkg/error2");
+        CompileResult resultNegative = BTestUtils.compile("test-src", "lang.annotations.pkg.error2");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative,
                 0, "annotation 'lang.annotations.pkg.first:SampleConfigSecond' is not allowed in " +

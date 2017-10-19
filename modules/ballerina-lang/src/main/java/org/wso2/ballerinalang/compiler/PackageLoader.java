@@ -26,6 +26,7 @@ import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.fs.LocalFSPackageRepository;
 import org.ballerinalang.spi.ExtensionPackageRepositoryProvider;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ public class PackageLoader {
     private Parser parser;
     private SymbolEnter symbolEnter;
     private Names names;
+    private DiagnosticLog dlog;
 
     private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
@@ -81,6 +84,7 @@ public class PackageLoader {
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
+        this.dlog = DiagnosticLog.getInstance(context);
 
         this.packages = new HashMap<>();
         loadPackageRepository(context);
@@ -143,14 +147,29 @@ public class PackageLoader {
             return null;
         }
 
+        String sourceName = null;
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
             pSymbol = symbolEnter.definePackage(pkgNode);
             pkgNode.symbol = pSymbol;
+            sourceName = ((PackageSource) pkgEntity).getPackageSourceEntries().get(0).getEntryName();
         } else {
             // This is a compiled package.
             // TODO Throw an error. Entry package cannot be a compiled package
             throw new RuntimeException("TODO Entry package cannot be a compiled package");
+        }
+
+        if (!isValidPackage(pkgId, pkgNode)) {
+            String expectedPkg = pkgId == PackageID.DEFAULT ? "" : pkgId.name.value;
+            if (pkgNode.pkgDecl == null) {
+                dlog.error(pkgNode.pos, DiagnosticCode.MISSING_PACKAGE_DECLARATION, sourceName, expectedPkg);
+            } else if (pkgId == PackageID.DEFAULT)  {
+                dlog.error(pkgNode.pkgDecl.pos, DiagnosticCode.UNEXPECTED_PACKAGE_DECLARATION,
+                        pkgNode.pkgDecl.getPackageNameStr(), sourceName);
+            } else {
+                dlog.error(pkgNode.pkgDecl.pos, DiagnosticCode.INVALID_PACKAGE_DECLARATION, sourceName, expectedPkg,
+                        pkgNode.pkgDecl.getPackageNameStr());
+            }
         }
 
         packages.put(pkgId, pSymbol);
@@ -198,5 +217,13 @@ public class PackageLoader {
          * created by making the extension repository the parent and returning it.
          * For now, we are only having the extension repository */
         return this.loadExtensionRepository();
+    }
+
+    private boolean isValidPackage(PackageID pkgId, BLangPackage pkgNode) {
+        if (pkgNode.pkgDecl == null) {
+            return pkgId == PackageID.DEFAULT;
+        }
+
+        return pkgId.name.value.equals(pkgNode.pkgDecl.getPackageNameStr());
     }
 }

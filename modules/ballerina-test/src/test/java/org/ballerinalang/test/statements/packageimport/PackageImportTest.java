@@ -29,10 +29,32 @@ public class PackageImportTest {
 
     @Test
     public void testDuplicatePackageImports() {
-        CompileResult result = BTestUtils.compile(
-                "test-src/statements/packageimport/duplicate-import-negative.bal");
+        CompileResult result = BTestUtils.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
         BTestUtils.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
     }
-    
+
+    @Test
+    public void testInvalidPackageDeclr() {
+        CompileResult result = BTestUtils.compile("test-src/statements/package", "a.b");
+        Assert.assertTrue(result.getDiagnostics().length > 0);
+        BTestUtils.validateError(result, 0,
+                "invalid package in 'invalid-package-declr-negative.bal': expected 'a.b', found 'x.y'", 1, 1);
+    }
+
+    @Test
+    public void testMissingPackageDeclr() {
+        CompileResult result = BTestUtils.compile("test-src/statements/package", "c.d");
+        Assert.assertTrue(result.getDiagnostics().length > 0);
+        BTestUtils.validateError(result, 0,
+                "missing package declaration in 'missing-package-declr-negative.bal': expected 'c.d'", 1, 1);
+    }
+
+    @Test
+    public void testExtraneousPackageDeclr() {
+        CompileResult result = BTestUtils.compile("test-src/statements/package/extraneous-package-declr-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length > 0);
+        BTestUtils.validateError(result, 0, "invalid package declaration 'x.y.z' in " + 
+                "'extraneous-package-declr-negative.bal'. no package declaration is needed for default package", 1, 1);
+    }
 }

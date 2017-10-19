@@ -591,7 +591,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-        CompileResult res = BTestUtils.compile("test-src", "expressions/typecast/foo");
+        CompileResult res = BTestUtils.compile("test-src", "expressions.typecast.foo");
         BValue[] returns = BTestUtils.invoke(res, "testCastToStructInDifferentPkg", new BValue[]{});
     }
 
