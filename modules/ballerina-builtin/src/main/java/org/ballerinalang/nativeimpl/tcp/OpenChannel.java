@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.BSocketChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -94,7 +94,7 @@ public class OpenChannel extends AbstractNativeChannel {
         // Socket socket = socketChannel.socket();
         socketChannel.configureBlocking(false);
         // Register the new SocketChannel with our Selector, indicating
-        // we'd like to be notified when there's data waiting to be read
+        // we'd like to be notified when there's data waiting to be get
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
 
@@ -141,8 +141,8 @@ public class OpenChannel extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
-    public BByteChannel flow(Context context) throws BallerinaException {
-        BByteChannel byteChannel;
+    public AbstractChannel flow(Context context) throws BallerinaException {
+        AbstractChannel byteChannel;
         try {
             BStruct address = (BStruct) getRefArgument(context, ADDRESS_INDEX);
             String destination = address.getStringField(DESTINATION_INDEX);

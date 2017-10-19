@@ -71,15 +71,13 @@ public class WriteBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         byte[] content;
-        long startOffset;
+        int startOffset;
         int numberOfBytesWritten;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
-            startOffset = getIntArgument(context, START_OFFSET_INDEX);
-
+            startOffset = (int) getIntArgument(context, START_OFFSET_INDEX);
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-
             numberOfBytesWritten = byteChannel.write(content, startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes .";

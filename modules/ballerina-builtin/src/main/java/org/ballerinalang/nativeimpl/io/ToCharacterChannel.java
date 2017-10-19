@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -74,10 +74,10 @@ public class ToCharacterChannel extends AbstractNativeFunction {
     private static final String STRUCT_TYPE = "CharacterChannel";
 
     /**
-     * Gets the struct related to BByteChannel
+     * Gets the struct related to AbstractChannel
      *
      * @param context invocation context
-     * @return the struct related to BByteChannel
+     * @return the struct related to AbstractChannel
      */
     private StructInfo getCharacterChannelStructInfo(Context context) {
         StructInfo result = characterChannelStructInfo;
@@ -103,7 +103,8 @@ public class ToCharacterChannel extends AbstractNativeFunction {
             encoding = getStringArgument(context, ENCODING_INDEX);
             characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
             //Will get the relevant byte channel and will create a character channel
-            BByteChannel byteChannel = (BByteChannel) characterChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            AbstractChannel byteChannel = (AbstractChannel) characterChannelInfo.getNativeData(IOConstants
+                    .BYTE_CHANNEL_NAME);
             BCharacterChannel bCharacterChannel = new BCharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(characterChannel);

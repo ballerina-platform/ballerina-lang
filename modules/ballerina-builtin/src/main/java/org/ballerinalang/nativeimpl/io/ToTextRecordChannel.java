@@ -80,10 +80,10 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
     private static final String STRUCT_TYPE = "TextRecordChannel";
 
     /**
-     * Gets the struct related to BByteChannel
+     * Gets the struct related to AbstractChannel
      *
      * @param context invocation context
-     * @return the struct related to BByteChannel
+     * @return the struct related to AbstractChannel
      */
     private StructInfo getCharacterChannelStructInfo(Context context) {
         StructInfo result = textRecordChannelStructInfo;

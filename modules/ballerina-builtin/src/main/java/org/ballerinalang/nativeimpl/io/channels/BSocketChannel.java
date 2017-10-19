@@ -21,7 +21,6 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.IOException;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
 
@@ -29,12 +28,9 @@ import java.nio.channels.WritableByteChannel;
  * Represents TCP socket to handle relevant I/O operations
  */
 public class BSocketChannel extends BByteChannel {
-    public BSocketChannel(ByteChannel channel) throws IOException {
-        super(channel);
-    }
 
-    public BSocketChannel(ByteChannel channel, int fixedBufferSize) {
-        super(channel, fixedBufferSize);
+    public BSocketChannel(ByteChannel channel, int size) throws BallerinaIOException {
+        super(channel, size);
     }
 
     @Override

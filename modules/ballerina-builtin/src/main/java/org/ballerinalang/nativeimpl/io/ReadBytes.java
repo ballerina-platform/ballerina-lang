@@ -67,14 +67,14 @@ public class ReadBytes extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
-        long numberOfBytes;
+        int numberOfBytes;
         BBlob readByteBlob;
         BInteger numberOfReadBytes;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            numberOfBytes = getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
             BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byte[] readBytes = byteChannel.read((int) numberOfBytes);
+            byte[] readBytes = byteChannel.read(numberOfBytes);
             readByteBlob = new BBlob(readBytes);
             numberOfReadBytes = new BInteger(readBytes.length);
         } catch (Throwable e) {

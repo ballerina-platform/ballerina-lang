@@ -67,7 +67,7 @@ public class BTextRecordChannel {
     private boolean remaining = true;
 
     /**
-     * Keeps track of the number of records which is being read through the channel
+     * Keeps track of the number of records which is being get through the channel
      */
     private int numberOfRecordsReadThroughChannel = 0;
 
@@ -120,9 +120,6 @@ public class BTextRecordChannel {
         int numberOfChannelReads = 0;
         final int minimumRecordCount = 1;
         final int numberOfSplits = 2;
-        final int delimitedRecordIndex = 0;
-        final int minimumRemainingLength = 0;
-        final int delimitedRemainingIndex = 1;
         final int recordThresholdIncreaseCount = 1;
         do {
             if (log.isTraceEnabled()) {
@@ -131,51 +128,99 @@ public class BTextRecordChannel {
             //We need to split the string into 2
             String[] delimitedRecord = persistentCharSequence.toString().split(recordSeparator, numberOfSplits);
             if (delimitedRecord.length > minimumRecordCount) {
-                record = delimitedRecord[delimitedRecordIndex];
-                persistentCharSequence.setLength(minimumRemainingLength);
-                persistentCharSequence.append(delimitedRecord[delimitedRemainingIndex]);
-                if (log.isTraceEnabled()) {
-                    log.trace("Record identified from remaining char[] in memory " + record);
-                    log.trace("The char[] left after split " + persistentCharSequence);
-                }
-
+                record = processIdentifiedRecord(delimitedRecord);
             } else {
-                readCharacters = channel.read(recordCharacterCount);
                 numberOfChannelReads++;
-                if (log.isTraceEnabled()) {
-                    log.trace("char [] read from channel," + channel.hashCode() + "=" + readCharacters);
-                }
-                persistentCharSequence.append(readCharacters);
-                if (log.isTraceEnabled()) {
-                    log.trace("char [] appended to the memory " + persistentCharSequence);
-                }
+                readCharacters = readRecordFromChannel();
             }
         } while (record == null && !readCharacters.isEmpty());
 
         if (null == record && readCharacters.isEmpty()) {
-            //This means there's no more to be read as records
-            if (log.isDebugEnabled()) {
-                log.debug("The content returned from the channel " + channel.hashCode() + " is <void>");
-            }
-            //This means this will be the last record which could be read
-            this.remaining = false;
-            //If there're any remaining characters left we provide it as the last record
-            if (persistentCharSequence.length() > minimumRemainingLength) {
-                record = persistentCharSequence.toString();
-                if (log.isTraceEnabled()) {
-                    log.trace("char [] remaining in memory, will be marked as the last record " + record);
-                }
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Final record is read from channel " + channel.hashCode() + " number of records read " +
-                        "from channel " + (numberOfRecordsReadThroughChannel + 1));
-            }
+            record = readFinalRecord();
         } else {
             if (numberOfChannelReads > recordThresholdIncreaseCount) {
                 //This means a record exceeds the currently specified number of characters per record and we need to
                 // increase it
                 increaseRecordCharacterCount(numberOfChannelReads);
             }
+        }
+        return record;
+    }
+
+    /**
+     * <p>
+     * Reads the remaining set of characters as the final record
+     * </p>
+     * <p>
+     * This operation is called when there're no more content to be get from the the channel
+     * </p>
+     */
+    private String readFinalRecord() {
+        final int minimumRemainingLength = 0;
+        String record = "";
+        //This means there's no more to be get as records
+        if (log.isDebugEnabled()) {
+            log.debug("The content returned from the channel " + channel.hashCode() + " is <void>");
+        }
+        //This means this will be the last record which could be get
+        this.remaining = false;
+        //If there're any remaining characters left we provide it as the last record
+        if (persistentCharSequence.length() > minimumRemainingLength) {
+            record = persistentCharSequence.toString();
+            if (log.isTraceEnabled()) {
+                log.trace("char [] remaining in memory, will be marked as the last record " + record);
+            }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Final record is get from channel " + channel.hashCode() + " number of records get " +
+                    "from channel " + (numberOfRecordsReadThroughChannel + 1));
+        }
+        return record;
+    }
+
+    /**
+     * <p>
+     * Reads a record from the channel
+     * </p>
+     *
+     * @return the record content
+     */
+    private String readRecordFromChannel() {
+        String readCharacters;
+        readCharacters = channel.read(recordCharacterCount);
+        if (log.isTraceEnabled()) {
+            log.trace("char [] get from channel," + channel.hashCode() + "=" + readCharacters);
+        }
+        persistentCharSequence.append(readCharacters);
+        if (log.isTraceEnabled()) {
+            log.trace("char [] appended to the memory " + persistentCharSequence);
+        }
+        return readCharacters;
+    }
+
+    /**
+     * <p>
+     * Identifies the record from the provided collection
+     * </p>
+     * <p>
+     * <b>Note :</b> This operation would append the remaining content to the string
+     * </p>
+     *
+     * @param delimitedRecords collection of records which are split
+     * @return the record content value
+     */
+    private String processIdentifiedRecord(String[] delimitedRecords) {
+        String record;
+        final int minimumRemainingLength = 0;
+        final int delimitedRecordIndex = 0;
+        final int delimitedRemainingIndex = 1;
+        String recordContent = delimitedRecords[delimitedRemainingIndex];
+        record = delimitedRecords[delimitedRecordIndex];
+        persistentCharSequence.setLength(minimumRemainingLength);
+        persistentCharSequence.append(recordContent);
+        if (log.isTraceEnabled()) {
+            log.trace("Record identified from remaining char[] in memory " + record);
+            log.trace("The char[] left after split " + persistentCharSequence);
         }
         return record;
     }
@@ -196,7 +241,7 @@ public class BTextRecordChannel {
      * </p>
      * <p>
      * An empty list will be returned if all the records have being processed, all records will be marked as
-     * processed if all the content have being read from the provided channel
+     * processed if all the content have being get from the provided channel
      * </p>
      *
      * @return the list of fields
@@ -250,7 +295,6 @@ public class BTextRecordChannel {
         for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
             String currentFieldString = fields.get(fieldCount);
             recordConsolidator.append(currentFieldString);
-
             if (fieldCount < secondLastFieldIndex) {
                 //The idea here is to omit appending the field separator after the final field
                 recordConsolidator.append(fieldSeparator);

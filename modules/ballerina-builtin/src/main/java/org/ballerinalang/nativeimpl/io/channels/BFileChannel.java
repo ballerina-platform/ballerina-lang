@@ -34,13 +34,8 @@ public class BFileChannel extends BByteChannel {
      */
     private FileChannel channel;
 
-    public BFileChannel(FileChannel channel) throws IOException {
-        super(channel);
-        this.channel = channel;
-    }
-
-    public BFileChannel(FileChannel channel, int fixedBufferSize) {
-        super(channel, fixedBufferSize);
+    public BFileChannel(FileChannel channel, int size) throws BallerinaIOException {
+        super(channel, size);
         this.channel = channel;
     }
 

@@ -48,7 +48,7 @@ public class BytesInputOutputBufferTest {
      * Read bytes into multiple iterations, validates whether the state is maintained properly
      * </p>
      * <p>
-     * This test covers varying buffer sizes when the bytes are read into multiple iterations
+     * This test covers varying buffer sizes when the bytes are get into multiple iterations
      * </p>
      *
      * @throws IOException
@@ -59,26 +59,26 @@ public class BytesInputOutputBufferTest {
         int initialReadLimit = 3;
         int secondLapReadLimit = 3;
         int thirdLapReadLimit = 3;
-        //During the 3rd lap all the bytes were read
+        //During the 3rd lap all the bytes were get
         int thirdLapReadLimitExpected = 0;
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         byte[] readBytes = channel.read(initialReadLimit);
 
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, initialReadLimit);
 
         readBytes = channel.read(secondLapReadLimit);
 
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, secondLapReadLimit);
 
         readBytes = channel.read(thirdLapReadLimit);
 
         channel.close();
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
@@ -87,7 +87,7 @@ public class BytesInputOutputBufferTest {
      * Read bytes into multiple iterations, validates whether the state is maintained properly
      * </p>
      * <p>
-     * This test covers varying buffer sizes when the bytes are read into multiple iterations
+     * This test covers varying buffer sizes when the bytes are get into multiple iterations
      * </p>
      *
      * @throws IOException
@@ -98,7 +98,7 @@ public class BytesInputOutputBufferTest {
         int initialReadLimit = 3;
         int secondLapReadLimit = 3;
         int thirdLapReadLimit = 3;
-        //During the 3rd lap all the bytes were read
+        //During the 3rd lap all the bytes were get
         int thirdLapReadLimitExpected = 0;
 
         //Number of characters in this file would be 6
@@ -106,18 +106,18 @@ public class BytesInputOutputBufferTest {
         BByteChannel channel = new BByteChannelTest(byteChannel, 2);
         byte[] readBytes = channel.read(initialReadLimit);
 
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, initialReadLimit);
 
         readBytes = channel.read(secondLapReadLimit);
 
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, secondLapReadLimit);
 
         readBytes = channel.read(thirdLapReadLimit);
 
         channel.close();
-        //This should hold the number of bytes read
+        //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
@@ -126,7 +126,7 @@ public class BytesInputOutputBufferTest {
         int requestedLimit = 10;
         int expectedLimit = 6;
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         byte[] readBytes = channel.read(requestedLimit);
         channel.close();
         Assert.assertEquals(readBytes.length, expectedLimit);
@@ -136,7 +136,7 @@ public class BytesInputOutputBufferTest {
     public void writeBytesToFile() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         byte[] bytes = "hello".getBytes();
         int numberOfBytesWritten = channel.write(bytes, 0);
         Assert.assertEquals(numberOfBytesWritten, bytes.length);

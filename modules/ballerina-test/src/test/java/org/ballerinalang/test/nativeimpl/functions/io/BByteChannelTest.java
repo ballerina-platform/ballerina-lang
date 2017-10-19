@@ -21,7 +21,6 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.IOException;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
 
@@ -29,9 +28,6 @@ import java.nio.channels.WritableByteChannel;
  * Implementation to test ByteChannel
  */
 public class BByteChannelTest extends BByteChannel {
-    public BByteChannelTest(ByteChannel channel) throws IOException {
-        super(channel);
-    }
 
     public BByteChannelTest(ByteChannel channel, int fixedBufferSize) {
         super(channel, fixedBufferSize);

@@ -44,9 +44,9 @@ public class BCharacterChannel {
     private static final Logger log = LoggerFactory.getLogger(BCharacterChannel.class);
 
     /**
-     * Holds the byte channel the characters should be read
+     * Holds the byte channel the characters should be get
      */
-    private BByteChannel channel;
+    private AbstractChannel channel;
 
     /**
      * Decodes the specified bytes when reading, currently decoder supports only unicode charset
@@ -64,7 +64,7 @@ public class BCharacterChannel {
     private CharBuffer charBuffer;
 
     /**
-     * Holds the bytes read from the byte channel
+     * Holds the bytes get from the byte channel
      */
     private BByteBuffer contentBuffer;
 
@@ -79,16 +79,21 @@ public class BCharacterChannel {
      */
     private static final int MAX_BYTES_PER_CHAR = 2;
 
+    /**
+     * Specified the minimum buffer size which should be held in content buffer
+     */
+    private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
 
-    public BCharacterChannel(BByteChannel channel, String encoding) {
+
+    public BCharacterChannel(AbstractChannel channel, String encoding) {
         this.channel = channel;
         bytesDecoder = Charset.forName(encoding).newDecoder();
         byteEncoder = Charset.forName(encoding).newEncoder();
-        contentBuffer = new BByteBuffer();
+        contentBuffer = new BByteBuffer(MINIMUM_BYTE_BUFFER_SIZE);
         //We would be reading a finite number of bytes based on the number of chars * max.byte per char
         //characters in the given sequence may/may-not contain the max.byt required, hence additional bytes which are
         //decoded could contain a fraction of a character which will result in a malformed-input Exception. The bytes
-        //which are on the edge should not be processed, it should be processed when more bytes are read from the
+        //which are on the edge should not be processed, it should be processed when more bytes are get from the
         //channel, hence the malformed input will be ignored and will be continued.
         bytesDecoder.onMalformedInput(CodingErrorAction.IGNORE);
     }
@@ -96,7 +101,7 @@ public class BCharacterChannel {
     /**
      * Gets number of characters left in the character buffer
      *
-     * @return number of characters left to be read
+     * @return number of characters left to be get
      */
     private int getNumberOfCharactersRemaining() {
         int limit = charBuffer.limit();
@@ -166,7 +171,7 @@ public class BCharacterChannel {
     /**
      * Reads specified number of characters from a given channel
      *
-     * @param numberOfCharacters the number of characters which should be read
+     * @param numberOfCharacters the number of characters which should be get
      * @return the sequence of characters as a string
      * @throws BallerinaIOException I/O errors
      */
@@ -177,27 +182,27 @@ public class BCharacterChannel {
             int charsRequiredToBeReadFromChannel;
             content = new StringBuilder(numberOfCharacters);
             int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
-            //First the remaining buffer would be read and the characters remaining in the buffer will be written
+            //First the remaining buffer would be get and the characters remaining in the buffer will be written
             appendRemainingCharacters(content);
             //Content capacity would give the total size of the string builder (number of chars)
             //Content length will give the number of characters appended to the builder through the function
             //call appendRemainingCharacters(..)
             charsRequiredToBeReadFromChannel = content.capacity() - content.length();
             if (charsRequiredToBeReadFromChannel == 0) {
-                //This means there's no requirement to read the characters from channel
+                //This means there's no requirement to get the characters from channel
                 return content.toString();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Number of chars required to be read from the channel " + charsRequiredToBeReadFromChannel);
+                log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
             }
-            ByteBuffer byteBuffer = contentBuffer.read(numberOfBytesRequired, channel);
+            ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
+            byteBuffer.flip();
             charBuffer = bytesDecoder.decode(byteBuffer);
             //If there's a discrepancy between the limit and the capacity this could probably mean the required
-            // amount of
-            //bytes have not being read
+            // amount of bytes have not being get
             int unmappedByteCount = charBuffer.capacity() - charBuffer.limit();
             if (unmappedByteCount > 0) {
-                //This means some of the bytes were not read from the buffer
+                //This means some of the bytes were not get from the buffer
                 //possibly a character representation which has requires more bytes
                 //Hence we reverse the ByteBuffer position
                 contentBuffer.reverse(unmappedByteCount);

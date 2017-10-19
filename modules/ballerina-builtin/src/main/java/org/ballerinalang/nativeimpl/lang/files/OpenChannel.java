@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.BFileChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -99,11 +99,11 @@ public class OpenChannel extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
-    public BByteChannel flow(Context context) throws BallerinaException {
+    public AbstractChannel flow(Context context) throws BallerinaException {
         BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
         String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
         Path path = null;
-        BByteChannel channel;
+        AbstractChannel channel;
         try {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
             path = Paths.get(fileStruct.getStringField(PATH_FIELD_INDEX));

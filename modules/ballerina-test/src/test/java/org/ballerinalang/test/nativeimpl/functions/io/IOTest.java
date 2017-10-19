@@ -84,7 +84,7 @@ public class IOTest {
         readBytes = (BBlob) returns[0];
         Assert.assertEquals(expectedBytes, readBytes.blobValue());
 
-        //Request for a read, the bytes will be empty
+        //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BTestUtils.invoke(bytesInputOutputProgramFile, "readBytes", args);

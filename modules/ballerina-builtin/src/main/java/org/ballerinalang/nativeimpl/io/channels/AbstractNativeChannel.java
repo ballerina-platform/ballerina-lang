@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -51,10 +51,10 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
 
 
     /**
-     * Gets the struct related to BByteChannel
+     * Gets the struct related to AbstractChannel
      *
      * @param context invocation context
-     * @return the struct related to BByteChannel
+     * @return the struct related to AbstractChannel
      */
     private StructInfo getByteChannelStructInfo(Context context) {
         StructInfo result = byteChannelStructInfo;
@@ -71,7 +71,7 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      * @param context holds the context received from Ballerina
      * @return the channel which holds the reference t
      */
-    public abstract BByteChannel flow(Context context) throws BallerinaException;
+    public abstract AbstractChannel flow(Context context) throws BallerinaException;
 
 
     /**
@@ -79,7 +79,7 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BByteChannel channel = flow(context);
+        AbstractChannel channel = flow(context);
         BStruct channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context));
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         return getBValues(channelStruct);

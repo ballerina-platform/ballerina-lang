@@ -59,7 +59,7 @@ public class RecordInputOutputTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -80,7 +80,7 @@ public class RecordInputOutputTest {
     public void readNonIndentedRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -100,7 +100,7 @@ public class RecordInputOutputTest {
     public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel);
+        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
