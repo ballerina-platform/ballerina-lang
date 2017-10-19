@@ -19,6 +19,7 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -41,6 +42,7 @@ import javax.ws.rs.HttpMethod;
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
+    private JsonParser jsonParse = new JsonParser();
 
     @BeforeClass
     public void setup() throws Exception {
@@ -67,7 +69,7 @@ public class BLangJSONModelTest {
         File fileExpected = new File(getClass().getClassLoader().getResource("samples/service/expected.json")
                                        .getFile());
         String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
-        Assert.assertEquals(response, expectedJsonStr);
+        Assert.assertEquals(jsonParse.parse(response), jsonParse.parse(expectedJsonStr));
         IOUtils.closeQuietly(inputStream);
         urlConn.disconnect();
     }
@@ -93,39 +95,10 @@ public class BLangJSONModelTest {
         String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
 
 
-        Assert.assertEquals(response, expectedJsonStr);
+        Assert.assertEquals(jsonParse.parse(response), jsonParse.parse(expectedJsonStr));
         IOUtils.closeQuietly(inputStream);
         urlConn.disconnect();
     }
-
-    /*
-    @Test
-    public void testBLangJSONModelServiceUsingPost2() throws IOException, URISyntaxException {
-        File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
-                .getFile());
-        ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
-        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
-        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.compilationUnit();
-
-        BallerinaFile bFile = modelBuilder.build();
-
-        SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
-        bFile.accept(semanticAnalyzer);
-
-        JsonObject response = new JsonObject();
-        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
-        bFile.accept(jsonModelBuilder);
-
-    } */
 
     @AfterClass
     public void teardown() throws Exception {
