@@ -127,6 +127,13 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-http</artifactId>
+                        <version>${ballerina.runtime.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
