@@ -102,15 +102,19 @@ class TreeNode extends React.Component {
         this.setState({
             inputValue,
         });
-        const { parent, id } = this.props.node;
-        const newFullPath = parent + getPathSeperator() + inputValue;
+        const { parent, id, type } = this.props.node;
+        let derrivedName = inputValue;
+        if (type === NODE_TYPES.FILE && !_.endsWith(derrivedName, EXT)) {
+            derrivedName += EXT;
+        }
+        const newFullPath = parent + getPathSeperator() + derrivedName;
         if (newFullPath !== id && !_.isEmpty(inputValue)) {
             exists(newFullPath)
             .then((resp) => {
                 let editError = '';
                 let editTargetExists = false;
-                if (resp.exists && (this.props.node.label !== inputValue)) {
-                    editError = `A file or folder "${inputValue}" already exists at this location.
+                if (resp.exists && (this.props.node.label !== derrivedName)) {
+                    editError = `A file or folder "${derrivedName}" already exists at this location.
                     Please choose a different name`;
                     editTargetExists = true;
                 }

@@ -175,13 +175,20 @@ class EditorPlugin extends Plugin {
     closeTab(targetEditor) {
         const { openedEditors, appContext: { workspace } } = this;
         const searchByID = editor => editor.id === targetEditor.id;
-        const editorIndex = _.findIndex(openedEditors, searchByID);
-        const newActiveEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
-        const newActiveEditor = !_.isNil(openedEditors[newActiveEditorIndex])
-                                ? openedEditors[newActiveEditorIndex]
-                                : undefined;
-        _.remove(openedEditors, searchByID);
-        this.setActiveEditor(newActiveEditor);
+        // only change active editor when the closing one is the currently active one
+        if (this.activeEditorID === targetEditor.id) {
+            const editorIndex = _.findIndex(openedEditors, searchByID);
+            const newActiveEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
+            const newActiveEditor = !_.isNil(openedEditors[newActiveEditorIndex])
+                                    ? openedEditors[newActiveEditorIndex]
+                                    : undefined;
+            _.remove(openedEditors, searchByID);
+            this.setActiveEditor(newActiveEditor);
+        } else {
+            _.remove(openedEditors, searchByID);
+            this.reRender();
+        }
+
         if (targetEditor instanceof Editor) {
             targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
             targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
