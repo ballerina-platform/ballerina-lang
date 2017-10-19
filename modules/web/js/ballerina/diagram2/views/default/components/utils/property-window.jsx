@@ -124,8 +124,10 @@ class PropertyWindow extends React.Component {
      */
     renderTextInputs(key) {
         let value = key.value;
-        if (value.startsWith('"') && value.endsWith('"')) {
-            value = value.substring(1, value.length - 1);
+        if (value !== null) {
+            if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.substring(1, value.length - 1);
+            }
         }
 
         return (

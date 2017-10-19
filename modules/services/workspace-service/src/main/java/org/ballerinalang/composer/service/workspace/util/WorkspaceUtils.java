@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -500,8 +501,12 @@ public class WorkspaceUtils {
     private static Struct createNewStruct(String name, List<BLangVariable> fields) {
         Struct struct = new Struct(name);
         fields.forEach((field) -> {
+            String defaultValue = null;
+            if (field.getInitialExpression() != null) {
+                defaultValue = ((BLangLiteral)field.getInitialExpression()).getValue().toString();
+            }
             StructField structField = createNewStructField(field.getName().getValue(),
-                    field.getTypeNode().type.toString());
+                    field.getTypeNode().type.toString(), defaultValue);
             struct.addStructField(structField);
         });
         return struct;
@@ -513,8 +518,8 @@ public class WorkspaceUtils {
      * @param type type of the field
      * @return
      */
-    private static StructField createNewStructField(String name, String type) {
-        StructField structField = new StructField(name, type);
+    private static StructField createNewStructField(String name, String type, String defaultValue) {
+        StructField structField = new StructField(name, type, defaultValue);
         return structField;
     }
 

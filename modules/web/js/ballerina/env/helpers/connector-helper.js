@@ -39,7 +39,7 @@ class ConnectorHelper {
                 defaultValue = false;
                 break;
             case 'map':
-                defaultValue = '';
+                defaultValue = null;
                 break;
             default:
                 defaultValue = '';
@@ -75,6 +75,7 @@ class ConnectorHelper {
                                 desc: parameter.name,
                                 fields: structFields,
                                 value: this.getDefaultValuesAccordingToBType(parameter.type),
+                                defaultValue: this.getDefaultValuesAccordingToBType(parameter.type),
                             };
                             connectorParameters.push(keyValuePair);
                         });
@@ -96,15 +97,16 @@ class ConnectorHelper {
                         fieldArray = (this.getStructDataFields(fullPackageName, structDefinitions,
                             innerStructName, fieldArray));
                     } else if (field.getDefaultValue() === undefined) {
-                        field.setDefaultValue(this
-                            .getDefaultValuesAccordingToBType(field.getType()));
+                        field.setDefaultValue(field.defaultValue ? field.defaultValue :
+                            this.getDefaultValuesAccordingToBType(field.getType()));
                     }
                     const keyValuePair = {
                         identifier: field.getName(),
                         bType: field.getType(),
                         desc: field.getName(),
                         fields: fieldArray,
-                        value: this.getDefaultValuesAccordingToBType(field.getType()),
+                        value: field.getDefaultValue(),
+                        defaultValue: field.getDefaultValue(),
                     };
                     structFields.push(keyValuePair);
                 });
