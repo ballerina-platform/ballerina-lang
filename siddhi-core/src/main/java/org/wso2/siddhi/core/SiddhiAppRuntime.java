@@ -227,7 +227,7 @@ public class SiddhiAppRuntime {
 
     private Event[] query(StoreQuery storeQuery, String storeQueryString) {
         try {
-            if (storeQueryLatencyTracker != null) {
+            if (siddhiAppContext.isStatsEnabled() && storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markIn();
             }
             StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
@@ -246,7 +246,7 @@ public class SiddhiAppRuntime {
             }
             throw new StoreQueryCreationException(e.getMessage(), e);
         } finally {
-            if (storeQueryLatencyTracker != null) {
+            if (siddhiAppContext.isStatsEnabled() && storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markOut();
             }
         }

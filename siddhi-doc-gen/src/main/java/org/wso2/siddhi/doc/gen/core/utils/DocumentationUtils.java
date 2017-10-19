@@ -583,7 +583,7 @@ public class DocumentationUtils {
 
                 // Generating metadata and adding the it to the list of relevant extensions
                 addExtensionMetaDataIntoNamespaceList(namespaceMetaDataList, extensionClass, logger);
-            } catch (ClassNotFoundException ignored) {
+            } catch (Throwable ignored) {
                 logger.warn("Ignoring the failed class loading from " + file.getAbsolutePath());
             }
         }

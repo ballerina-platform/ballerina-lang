@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.input;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -49,16 +50,19 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     protected LockWrapper lockWrapper;
     protected ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
     protected boolean batchProcessingAllowed;
+    protected SiddhiAppContext siddhiAppContext;
     private StreamEventConverter streamEventConverter;
     private MetaStreamEvent metaStreamEvent;
     private StreamEventPool streamEventPool;
     private SiddhiDebugger siddhiDebugger;
     private String queryName;
 
-    public ProcessStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName) {
+    public ProcessStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName,
+                                 SiddhiAppContext siddhiAppContext) {
         this.streamId = streamId;
         this.latencyTracker = latencyTracker;
         this.queryName = queryName;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     public ProcessStreamReceiver clone(String key) {
         ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(
-                streamId + key, latencyTracker, queryName);
+                streamId + key, latencyTracker, queryName, siddhiAppContext);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }
@@ -82,7 +86,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
             lockWrapper.lock();
         }
         try {
-            if (latencyTracker != null) {
+            if (siddhiAppContext.isStatsEnabled() && latencyTracker != null) {
                 try {
                     latencyTracker.markIn();
                     processAndClear(streamEventChunk);

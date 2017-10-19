@@ -98,11 +98,11 @@ public class JoinInputStreamParser {
                         leftMetaStreamEvent, leftInputStreamId);
                 setEventType(streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionMap,
                         rightMetaStreamEvent, rightInputStreamId);
-                leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId, latencyTracker, queryName);
+                leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId, latencyTracker, queryName, siddhiAppContext);
                 leftProcessStreamReceiver.setBatchProcessingAllowed(
                         leftMetaStreamEvent.getEventType() == WINDOW);
 
-                rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId, latencyTracker, queryName);
+                rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId, latencyTracker, queryName, siddhiAppContext);
                 rightProcessStreamReceiver.setBatchProcessingAllowed(
                         rightMetaStreamEvent.getEventType() == WINDOW);
 
@@ -126,12 +126,12 @@ public class JoinInputStreamParser {
                     leftMetaStreamEvent.setEventType(WINDOW);
                     rightMetaStreamEvent.setEventType(WINDOW);
                     rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
-                            1, latencyTracker, queryName);
+                            1, latencyTracker, queryName, siddhiAppContext);
                     rightProcessStreamReceiver.setBatchProcessingAllowed(true);
                     leftProcessStreamReceiver = rightProcessStreamReceiver;
                 } else if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
                     rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
-                            2, latencyTracker, queryName);
+                            2, latencyTracker, queryName, siddhiAppContext);
                     leftProcessStreamReceiver = rightProcessStreamReceiver;
                 } else {
                     throw new SiddhiAppCreationException("Input of join is from static source " + leftInputStreamId +

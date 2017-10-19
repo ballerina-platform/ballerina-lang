@@ -26,14 +26,12 @@ import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.AbsentLogicalPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.AbsentLogicalPreStateProcessor;
-import org.wso2.siddhi.core.query.input.stream.state.AbsentPreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.AbsentStreamPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.AbsentStreamPreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.CountPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.CountPreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.LogicalPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.LogicalPreStateProcessor;
-import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
@@ -70,7 +68,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Class to parse {@link StateStreamRuntime}
@@ -100,18 +97,18 @@ public class StateInputStreamParser {
             if (streamCount == 1) {
                 if (stateInputStream.getStateType() == StateInputStream.Type.SEQUENCE) {
                     processStreamReceiverMap.put(streamId, new SequenceSingleProcessStreamReceiver(streamId,
-                            stateStreamRuntime, defaultLockKey, latencyTracker, queryName));
+                            stateStreamRuntime, defaultLockKey, latencyTracker, queryName, siddhiAppContext));
                 } else {
                     processStreamReceiverMap.put(streamId, new PatternSingleProcessStreamReceiver(streamId,
-                            defaultLockKey, latencyTracker, queryName));
+                            defaultLockKey, latencyTracker, queryName, siddhiAppContext));
                 }
             } else {
                 if (stateInputStream.getStateType() == StateInputStream.Type.SEQUENCE) {
                     processStreamReceiverMap.put(streamId, new SequenceMultiProcessStreamReceiver(streamId,
-                            streamCount, stateStreamRuntime, latencyTracker, queryName));
+                            streamCount, stateStreamRuntime, latencyTracker, queryName, siddhiAppContext));
                 } else {
                     processStreamReceiverMap.put(streamId, new PatternMultiProcessStreamReceiver(streamId,
-                            streamCount, latencyTracker, queryName));
+                            streamCount, latencyTracker, queryName, siddhiAppContext));
                 }
             }
         }

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
@@ -32,9 +33,10 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String
-            lockKey, LatencyTracker latencyTracker, String queryName) {
-        super(streamId, lockKey, latencyTracker, queryName);
+    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime,
+                                               String lockKey, LatencyTracker latencyTracker, String queryName,
+                                               SiddhiAppContext siddhiAppContext) {
+        super(streamId, lockKey, latencyTracker, queryName, siddhiAppContext);
         this.stateStreamRuntime = stateStreamRuntime;
     }
 
@@ -43,7 +45,8 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
     }
 
     public SequenceSingleProcessStreamReceiver clone(String key) {
-        return new SequenceSingleProcessStreamReceiver(streamId + key, null, key, latencyTracker, queryName);
+        return new SequenceSingleProcessStreamReceiver(streamId + key, null, key,
+                latencyTracker, queryName, siddhiAppContext);
     }
 
     protected void stabilizeStates() {

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.input.StateMultiProcessStreamReceiver;
@@ -30,9 +31,9 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
  */
 public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {
 
-    public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String
-            queryName) {
-        super(streamId, processCount, latencyTracker, queryName);
+    public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker,
+                                             String queryName, SiddhiAppContext siddhiAppContext) {
+        super(streamId, processCount, latencyTracker, queryName, siddhiAppContext);
         eventSequence = new int[processCount];
         int count = 0;
         for (int i = eventSequence.length - 1; i >= 0; i--) {
@@ -42,7 +43,8 @@ public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamRe
     }
 
     public PatternMultiProcessStreamReceiver clone(String key) {
-        return new PatternMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName);
+        return new PatternMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName,
+                siddhiAppContext);
     }
 
     protected void stabilizeStates() {
