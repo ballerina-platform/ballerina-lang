@@ -56,6 +56,7 @@ class EditorPlugin extends Plugin {
         this.onOpenCustomEditorTab = this.onOpenCustomEditorTab.bind(this);
         this.onTabClose = this.onTabClose.bind(this);
         this.dispatchToolBarUpdate = this.dispatchToolBarUpdate.bind(this);
+        this.onEditorFileUpdated = this.onEditorFileUpdated.bind(this);
     }
 
     /**
@@ -79,6 +80,22 @@ class EditorPlugin extends Plugin {
     }
 
     /**
+     * On Editor File Updated
+     *
+     * @param {File} file Target File
+     */
+    onEditorFileUpdated(file) {
+        // File was the active file and now its persisted for the first time.
+        // its temporary UUID was previously used as the activeEditorID.
+        // Now we need to change it.
+        // @see File#fullPath getter
+        // For unpersisted files, we set fullpath to UUID upon creation.
+        if (this.activeEditorID === file.id && file.isPersisted) {
+            this.activeEditorID = file.fullPath;
+        }
+    }
+
+    /**
      * Open given file using relavant editor.
      *
      * @param {File} file File object
@@ -90,6 +107,7 @@ class EditorPlugin extends Plugin {
             this.onOpenFileInEditor({ file, editorDefinition, activateEditor });
             file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
             file.on(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
+            file.on(WORKSPACE_EVENTS.FILE_UPDATED, this.onEditorFileUpdated);
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
         }
@@ -191,6 +209,7 @@ class EditorPlugin extends Plugin {
         if (targetEditor instanceof Editor) {
             targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
             targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
+            targetEditor.file.off(WORKSPACE_EVENTS.FILE_UPDATED, this.onEditorFileUpdated);
             workspace.closeFile(targetEditor.file);
         }
     }
