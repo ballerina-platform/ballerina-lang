@@ -19,11 +19,9 @@ service<http> contentBasedRouting {
         nameString, _ = (string)jsonMsg["name"];
         if (nameString == "sanFrancisco") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
-            http:Response locationRes = locationEP.post("/v2/594e018c1100002811d6d39a", {});
-            res.setJsonPayload(locationRes.getJsonPayload());
+            res = locationEP.post("/v2/594e018c1100002811d6d39a", {});
         } else {
-            http:Response locationRes = locationEP.post("/v2/594e026c1100004011d6d39c", {});
-            res.setJsonPayload(locationRes.getJsonPayload());
+            res = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
         res.send();
     }
