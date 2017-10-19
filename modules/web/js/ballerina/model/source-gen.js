@@ -604,10 +604,11 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return join(node.textFragments, pretty, l, w, '');
         case 'Xmlns':
             if (node.namespaceURI && node.prefix.value) {
-                return dent() + w() + 'xmlns'
-                 + getSourceOf(node.namespaceURI, pretty, l) + w() + 'as' + w() + node.prefix.value + w() + ';';
+                return dent() + w() + 'xmlns' + b(' ')
+                 + getSourceOf(node.namespaceURI, pretty, l) + w(' ') + 'as' + w(' ') + node.prefix.value + w()
+                 + ';';
             } else if (node.namespaceURI) {
-                return dent() + w() + 'xmlns'
+                return dent() + w() + 'xmlns' + b(' ')
                  + getSourceOf(node.namespaceURI, pretty, l) + w() + ';';
             } else {
                 return getSourceOf(node.namespaceDeclaration, pretty, l);
