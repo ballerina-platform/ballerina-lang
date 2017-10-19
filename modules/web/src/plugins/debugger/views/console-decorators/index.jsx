@@ -28,13 +28,12 @@ const ConsoleDecorator = (props) => {
         decoratedMessage = (<HttpServiceDecorator {...props} />);
     }
 
-    return (<div className={props.message.type} key={props.index}>
+    return (<div className={props.message.type}>
         {decoratedMessage}
     </div>);
 };
 
 ConsoleDecorator.propTypes = {
-    index: PropTypes.number.isRequired,
     message: PropTypes.instanceOf(Object).isRequired,
 };
 
