@@ -61,7 +61,7 @@ class WelcomeTab extends React.Component {
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
                         folderPath: ballerinaHome + sampleFolder,
                     });
-                    this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, WORKSPACE_VIEWS.EXPLORER);
+                    this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
                         filePath: ballerinaHome + sampleFile,
                         ext: 'bal',

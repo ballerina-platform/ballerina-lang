@@ -27,7 +27,6 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, VIEWS as VIEW_IDS, HISTORY, COMMANDS as COMMMAND_IDS,
     EVENTS, TOOLS as TOOL_IDS, DIALOGS as DIALOG_IDS } from './constants';
-import { COMMANDS as TOOL_BAR_COMMANDS } from './../toolbar/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_COMMANDS } from './../workspace/constants';
 
 import EditorTabs from './views/EditorTabs';
@@ -101,7 +100,7 @@ class EditorPlugin extends Plugin {
      */
     dispatchToolBarUpdate() {
         const { command: { dispatch } } = this.appContext;
-        dispatch(TOOL_BAR_COMMANDS.UPDATE_TOOL_BAR, {});
+        dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
     }
 
     /**
@@ -230,11 +229,18 @@ class EditorPlugin extends Plugin {
      * @param {Object} command args
      */
     onOpenCustomEditorTab(args) {
-        const { id, title, icon, component, propsProvider, customTitleClass, activate } = args;
-        const editor = new CustomEditor(id, title, icon, component, propsProvider, customTitleClass);
-        this.openedEditors.push(editor);
-        if (activate || _.isNil(this.activeEditorID)) {
-            this.setActiveEditor(editor);
+        const { id, title, icon, component, propsProvider, additionalProps, customTitleClass, activate } = args;
+        const existingEditor = this.getEditorByID(id);
+        if (!existingEditor) {
+            const editor = new CustomEditor(id, title, icon, component, propsProvider,
+                additionalProps, customTitleClass);
+            this.openedEditors.push(editor);
+            if (activate || _.isNil(this.activeEditorID)) {
+                this.setActiveEditor(editor);
+            }
+        } else if (activate) {
+            existingEditor.additionalProps = additionalProps;
+            this.setActiveEditor(existingEditor);
         }
         this.reRender();
     }
@@ -244,16 +250,20 @@ class EditorPlugin extends Plugin {
      * @param {Object} command args
      */
     onOpenFileInEditor({ activateEditor, file, editorDefinition }) {
-        const editor = new Editor(file, editorDefinition);
-        this.openedEditors.push(editor);
-        if (activateEditor
-            || _.isNil(this.activeEditorID)
-            || this.activeEditorID === editor.id) {
-            this.setActiveEditor(editor);
+        if (!this.getEditorByID(file.fullPath)) {
+            const editor = new Editor(file, editorDefinition);
+            this.openedEditors.push(editor);
+            if (activateEditor
+                || _.isNil(this.activeEditorID)
+                || this.activeEditorID === editor.id) {
+                this.setActiveEditor(editor);
+            }
+            editor.on(EVENTS.UPDATE_TAB_TITLE, () => {
+                this.reRender();
+            });
+        } else if (activateEditor) {
+            this.setActiveEditor(this.getEditorByID(file.fullPath));
         }
-        editor.on(EVENTS.UPDATE_TAB_TITLE, () => {
-            this.reRender();
-        });
         this.reRender();
     }
 

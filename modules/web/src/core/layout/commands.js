@@ -13,6 +13,7 @@ export function getCommandDefinitions() {
             id: COMMANDS.SHOW_VIEW,
             argTypes: {
                 id: PropTypes.string.isRequired,
+                additionalProps: PropTypes.objectOf(Object),
             },
         },
         {
@@ -20,6 +21,9 @@ export function getCommandDefinitions() {
             argTypes: {
                 id: PropTypes.string.isRequired,
             },
+        },
+        {
+            id: COMMANDS.UPDATE_ALL_ACTION_TRIGGERS,
         },
         {
             id: COMMANDS.POPUP_DIALOG,
