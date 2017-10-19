@@ -54,16 +54,15 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     /*This needs to be refactored to hold all the channel properties in a separate bean as there are too many
      arguments here*/
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout,
-            boolean httpTraceLogEnabled, boolean followRedirect, int maxRedirectCount) {
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout
-            , boolean httpTraceLogEnabled, boolean chunkDisabled) {
+            boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect, int maxRedirectCount) {
         this.connectionManager = connectionManager;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
+        this.chunkDisabled = chunkDisabled;
         this.followRedirect = followRedirect;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
+
     }
 
     @Override
@@ -86,7 +85,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager
-                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, followRedirect,
+                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, chunkDisabled, followRedirect,
                             maxRedirectCount);
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override
@@ -106,25 +105,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         notifyErrorState(channelFuture);
                     }
                 }
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
-                                                                                httpTraceLogEnabled, chunkDisabled);
-            targetChannel.getChannelFuture()
-                    .addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                            if (isValidateChannel(channelFuture)) {
-                                targetChannel.setChannel(channelFuture.channel());
-
-                                targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
-                                targetChannel.setEndPointTimeout(socketIdleTimeout);
-                                targetChannel.setCorrelationIdForLogging();
-
-                                targetChannel.setRequestWritten(true);
-                                targetChannel.writeContent(httpCarbonRequest);
-                            } else {
-                                notifyErrorState(channelFuture);
-                            }
-                        }
 
                 private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
                     if (channelFuture.isDone() && channelFuture.isSuccess()) {
