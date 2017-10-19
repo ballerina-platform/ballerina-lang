@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
@@ -91,15 +90,10 @@ public class ArrayTest {
 
     @Test
     public void testXMLArrayLength() {
-        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXML);
-        arrayValue.add(0, new BXMLItem("<t>a</t>"));
-        arrayValue.add(1, new BXMLItem("<t>b</t>"));
-        BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testXMLArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
-                returnVals[1] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
-        Assert.assertEquals(((BInteger) returnVals[1]).intValue(), 3, "Length didn't match");
+        BValue[] returnVals = BTestUtils.invoke(compileResult, "testXMLArrayLength");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Length didn't match");
     }
 
     @Test()

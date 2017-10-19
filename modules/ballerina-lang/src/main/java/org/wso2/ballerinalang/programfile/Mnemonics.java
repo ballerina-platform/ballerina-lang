@@ -184,7 +184,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
-        mnemonics[InstructionCodes.LENGTHOFJSON] = "lengthofjson";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";

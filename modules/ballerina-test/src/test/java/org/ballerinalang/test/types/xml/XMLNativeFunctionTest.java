@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.test.expressions.literals;
+package org.ballerinalang.test.types.xml;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
@@ -48,7 +48,7 @@ public class XMLNativeFunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/literals/xml/xml-native-functions.bal");
+        result = BTestUtils.compile("test-src/types/xml/xml-native-functions.bal");
     }
 
     @Test
@@ -136,7 +136,7 @@ public class XMLNativeFunctionTest {
     @Test
     public void testGetXMLLarge() {
         // Load large xml
-        l1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/message13k.xml");
+        l1 = BTestUtils.readFileAsString("test-src/types/xml/message13k.xml");
         BValue[] args = {new BXMLItem(l1),
                 new BString("/persons/person[160]")};
         BValue[] returns = BTestUtils.invoke(result, "getXML", args);
@@ -172,14 +172,14 @@ public class XMLNativeFunctionTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BTestUtils.readFileAsString("test-src/types/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/")};
         BTestUtils.invoke(result, "getXML", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BTestUtils.readFileAsString("test-src/types/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id")};
         BTestUtils.invoke(result, "getXML", args);
     }
@@ -234,7 +234,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetStringToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageSimple.xml");
+        String a1 = BTestUtils.readFileAsString("test-src/types/xml/messageSimple.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employee/@id"), new BString("0")};
         BValue[] returns = BTestUtils.invoke(result, "setString", args);
 
@@ -316,14 +316,14 @@ public class XMLNativeFunctionTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BTestUtils.readFileAsString("test-src/types/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BXMLItem("<address>wso2</address>")};
         BTestUtils.invoke(result, "addElement", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BTestUtils.readFileAsString("test-src/types/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), 
                 new BXMLItem("<address>wso2</address>")};
         BTestUtils.invoke(result, "addElement", args);
@@ -366,14 +366,14 @@ public class XMLNativeFunctionTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BTestUtils.readFileAsString("test-src/types/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BString("id"), new BString("person123")};
         BTestUtils.invoke(result, "addAttribute", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BTestUtils.readFileAsString("test-src/types/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), new BString("id"),
                 new BString("person123")};
         BTestUtils.invoke(result, "addAttribute", args);

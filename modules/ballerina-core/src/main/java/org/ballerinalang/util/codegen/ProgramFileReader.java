@@ -1333,7 +1333,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
-                case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();

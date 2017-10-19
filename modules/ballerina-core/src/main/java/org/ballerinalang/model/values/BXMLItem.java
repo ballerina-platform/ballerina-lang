@@ -671,7 +671,14 @@ public final class BXMLItem extends BXML<OMNode> {
         if (index != 0) {
             throw new BallerinaException("index out of range: index: " + index + ", size: 1");
         }
-        
+
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int length() {
+        return this.omNode == null ? 0 : 1;
     }
 }

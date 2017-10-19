@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.expressions.literals;
+package org.ballerinalang.test.types.xml;
 
 
 import org.ballerinalang.model.values.BRefValueArray;
@@ -43,10 +43,10 @@ public class XMLLiteralTest {
     
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/literals/xml/xml-literals.bal");
+        result = BTestUtils.compile("test-src/types/xml/xml-literals.bal");
         literalWithNamespacesResult =
-                BTestUtils.compile("test-src/expressions/literals/xml/xml-literals-with-namespaces.bal");
-         negativeResult = BTestUtils.compile("test-src/expressions/literals/xml/xml-literals-negative.bal");
+                BTestUtils.compile("test-src/types/xml/xml-literals-with-namespaces.bal");
+         negativeResult = BTestUtils.compile("test-src/types/xml/xml-literals-negative.bal");
     }
 
     @Test
@@ -97,7 +97,7 @@ public class XMLLiteralTest {
     
     @Test
     public void testCombinedExpressionsAsElementName() {
-        CompileResult negativeResult = BTestUtils.compile("test-src/expressions/literals/xml/xml-invalid-syntax-1.bal");
+        CompileResult negativeResult = BTestUtils.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         BTestUtils.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
     }
@@ -356,7 +356,7 @@ public class XMLLiteralTest {
         BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testComplexXMLLiteral", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),
-                BTestUtils.readFileAsString("test-src/expressions/literals/xml/sampleXML.txt"));
+                BTestUtils.readFileAsString("test-src/types/xml/sampleXML.txt"));
     }
 
     @Test

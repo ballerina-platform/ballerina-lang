@@ -410,4 +410,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public BXML<?> getItem(long index) {
         return (BXML<?>) this.sequence.get(index);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int length() {
+        return this.sequence.size;
+    }
 }

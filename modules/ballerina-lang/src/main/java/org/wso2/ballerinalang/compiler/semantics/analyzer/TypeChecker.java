@@ -369,7 +369,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
-                    // FIXME
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
                     break;
                 }
                 indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.intType)).get(0);
@@ -515,15 +515,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
             } else {
-                BSymbol symbol;
-                // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
-                // This is because the JSON arrays are internally handled as a normal JSON.
-                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)
-                        && types.getElementType(exprType).tag == TypeTags.JSON) {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
-                } else {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
-                }
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);

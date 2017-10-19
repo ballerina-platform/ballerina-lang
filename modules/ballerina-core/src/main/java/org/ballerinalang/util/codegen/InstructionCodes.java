@@ -192,7 +192,6 @@ public interface InstructionCodes {
     int XML2JSON = 156;
     int JSON2XML = 157;
     int LENGTHOF = 158;
-    int LENGTHOFJSON = 159;
 
     // Type cast
     int I2ANY = 160;

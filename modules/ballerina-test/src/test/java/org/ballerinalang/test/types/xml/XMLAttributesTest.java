@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.expressions.literals;
+package org.ballerinalang.test.types.xml;
 
 
 import org.ballerinalang.model.values.BMap;
@@ -41,7 +41,7 @@ public class XMLAttributesTest {
     
     @BeforeClass
     public void setup() {
-        xmlAttrProgFile = BTestUtils.compile("test-src/expressions/literals/xml/xml-attributes.bal");
+        xmlAttrProgFile = BTestUtils.compile("test-src/types/xml/xml-attributes.bal");
     }
 
     @Test
