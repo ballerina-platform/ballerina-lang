@@ -58,11 +58,11 @@ class CanvasDecorator extends React.Component {
                 <CSSTransitionGroup
                     transitionName="propWindow"
                     transitionAppear
-                    transitionAppearTimeout={800}
+                    transitionAppearTimeout={300}
                     transitionEnter
-                    transitionEnterTimeout={800}
+                    transitionEnterTimeout={300}
                     transitionLeave
-                    transitionLeaveTimeout={800}
+                    transitionLeaveTimeout={300}
                 >
                     {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
                     this.props.overlayComponents : null }
