@@ -229,15 +229,18 @@ class EditorPlugin extends Plugin {
      * @param {Object} command args
      */
     onOpenCustomEditorTab(args) {
-        const { id, title, icon, component, propsProvider, customTitleClass, activate } = args;
-        if (!this.getEditorByID(id)) {
-            const editor = new CustomEditor(id, title, icon, component, propsProvider, customTitleClass);
+        const { id, title, icon, component, propsProvider, additionalProps, customTitleClass, activate } = args;
+        const existingEditor = this.getEditorByID(id);
+        if (!existingEditor) {
+            const editor = new CustomEditor(id, title, icon, component, propsProvider,
+                additionalProps, customTitleClass);
             this.openedEditors.push(editor);
             if (activate || _.isNil(this.activeEditorID)) {
                 this.setActiveEditor(editor);
             }
         } else if (activate) {
-            this.setActiveEditor(this.getEditorByID(id));
+            existingEditor.additionalProps = additionalProps;
+            this.setActiveEditor(existingEditor);
         }
         this.reRender();
     }

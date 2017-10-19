@@ -13,15 +13,17 @@ class CustomEditor extends EventChannel {
      * @param {String} icon 
      * @param {Object} component 
      * @param {Function} propsProvider
+     * @param {Function} additionalProps
      * @param {string} customTitleClass
      */
-    constructor(id, title, icon, component, propsProvider, customTitleClass) {
+    constructor(id, title, icon, component, propsProvider, additionalProps, customTitleClass) {
         super();
         this._id = id;
         this._title = title;
         this._icon = icon;
         this._component = component;
         this._propsProvider = propsProvider;
+        this._additionalProps = additionalProps;
         this._customTitleClass = customTitleClass;
     }
 
@@ -43,6 +45,14 @@ class CustomEditor extends EventChannel {
 
     get propsProvider() {
         return this._propsProvider;
+    }
+
+    set additionalProps(additionalProps) {
+        this._additionalProps = additionalProps;
+    }
+
+    get additionalProps() {
+        return this._additionalProps;
     }
 
     get customTitleClass() {

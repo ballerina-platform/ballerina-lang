@@ -31,7 +31,7 @@ export function getHandlerDefinitions(plugin) {
             cmdID: COMMANDS.SHOW_WELCOME,
             handler: () => {
                 const { command } = plugin.appContext;
-                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, VIEWS.WELCOME_TAB_VIEW_ID);
+                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEWS.WELCOME_TAB_VIEW_ID });
             },
         },
     ];

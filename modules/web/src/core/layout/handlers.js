@@ -16,7 +16,7 @@ export function getHandlerDefinitions(layoutManager) {
     return [
         {
             cmdID: COMMANDS.SHOW_VIEW,
-            handler: (id) => {
+            handler: ({ id, additionalProps }) => {
                 const view = _.find(layoutManager.views, ['id', id]);
                 if (!_.isNil(view)) {
                     const { region, component, propsProvider, pluginID,
@@ -31,6 +31,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 customTitleClass,
                                 component: withViewFeatures(component, pluginID),
                                 propsProvider,
+                                additionalProps,
                                 activate: true,
                             });
                             break;

@@ -13,6 +13,7 @@ export function getCommandDefinitions() {
             id: COMMANDS.SHOW_VIEW,
             argTypes: {
                 id: PropTypes.string.isRequired,
+                additionalProps: PropTypes.objectOf(Object),
             },
         },
         {
