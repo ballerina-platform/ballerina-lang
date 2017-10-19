@@ -257,15 +257,16 @@ public class HttpConnectionManager {
             return;
         }
         PrintStream console = System.err;
-        String errMsg = "following host/port configurations are already in use: " +
-                startupSyncer.getExceptions().keySet();
+
+        startupSyncer.getExceptions().forEach((connectorId, e) -> {
+            console.println("ballerina: " + makeFirstLetterLowerCase(e.getMessage()) + ": [" + connectorId + "]");
+        });
 
         if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
             // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
             // connectors have started properly and we can terminate the runtime
-            throw new BallerinaConnectorException(errMsg);
+            throw new BallerinaConnectorException("failed to start the server connectors");
         }
-        console.println("ballerina: " + errMsg);
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
@@ -328,5 +329,14 @@ public class HttpConnectionManager {
             throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+    }
+
+    private String makeFirstLetterLowerCase(String str) {
+        if (str == null) {
+            return null;
+        }
+        char ch[] = str.toCharArray();
+        ch[0] = Character.toLowerCase(ch[0]);
+        return new String(ch);
     }
 }

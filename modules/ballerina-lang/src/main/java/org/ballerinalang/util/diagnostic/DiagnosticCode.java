@@ -124,7 +124,8 @@ public enum DiagnosticCode {
     MISSING_TOKEN("missing.token"),
     EXTRANEOUS_INPUT("extraneous.input"),
     MISMATCHED_INPUT("mismatched.input"),
-    FAILED_PREDICATE("failed.predicate")
+    FAILED_PREDICATE("failed.predicate"),
+    SYNTAX_ERROR("syntax.error"),
     ;
 
     private String value;
