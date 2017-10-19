@@ -230,10 +230,14 @@ class EditorPlugin extends Plugin {
      */
     onOpenCustomEditorTab(args) {
         const { id, title, icon, component, propsProvider, customTitleClass, activate } = args;
-        const editor = new CustomEditor(id, title, icon, component, propsProvider, customTitleClass);
-        this.openedEditors.push(editor);
-        if (activate || _.isNil(this.activeEditorID)) {
-            this.setActiveEditor(editor);
+        if (!this.getEditorByID(id)) {
+            const editor = new CustomEditor(id, title, icon, component, propsProvider, customTitleClass);
+            this.openedEditors.push(editor);
+            if (activate || _.isNil(this.activeEditorID)) {
+                this.setActiveEditor(editor);
+            }
+        } else if (activate) {
+            this.setActiveEditor(this.getEditorByID(id));
         }
         this.reRender();
     }
@@ -243,16 +247,20 @@ class EditorPlugin extends Plugin {
      * @param {Object} command args
      */
     onOpenFileInEditor({ activateEditor, file, editorDefinition }) {
-        const editor = new Editor(file, editorDefinition);
-        this.openedEditors.push(editor);
-        if (activateEditor
-            || _.isNil(this.activeEditorID)
-            || this.activeEditorID === editor.id) {
-            this.setActiveEditor(editor);
+        if (!this.getEditorByID(file.fullPath)) {
+            const editor = new Editor(file, editorDefinition);
+            this.openedEditors.push(editor);
+            if (activateEditor
+                || _.isNil(this.activeEditorID)
+                || this.activeEditorID === editor.id) {
+                this.setActiveEditor(editor);
+            }
+            editor.on(EVENTS.UPDATE_TAB_TITLE, () => {
+                this.reRender();
+            });
+        } else if (activateEditor) {
+            this.setActiveEditor(this.getEditorByID(file.fullPath));
         }
-        editor.on(EVENTS.UPDATE_TAB_TITLE, () => {
-            this.reRender();
-        });
         this.reRender();
     }
 
