@@ -20,8 +20,6 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 
-import { COMMANDS as TOOL_BAR_COMMANDS } from 'core/toolbar/constants';
-
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
@@ -48,12 +46,12 @@ class DebuggerPlugin extends Plugin {
 
         LaunchManager.on('execution-started execution-ended', () => {
             const { command: { dispatch } } = this.appContext;
-            dispatch(TOOL_BAR_COMMANDS.UPDATE_TOOL_BAR, {});
+            dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
         });
 
         DebugManager.on('debugging-started execution-ended', () => {
             const { command: { dispatch } } = this.appContext;
-            dispatch(TOOL_BAR_COMMANDS.UPDATE_TOOL_BAR, {});
+            dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
         });
     }
 

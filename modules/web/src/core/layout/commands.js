@@ -22,6 +22,9 @@ export function getCommandDefinitions() {
             },
         },
         {
+            id: COMMANDS.UPDATE_ALL_ACTION_TRIGGERS,
+        },
+        {
             id: COMMANDS.POPUP_DIALOG,
             argTypes: {
                 id: PropTypes.string.isRequired,

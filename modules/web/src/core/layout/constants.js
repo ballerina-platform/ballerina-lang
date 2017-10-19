@@ -6,6 +6,7 @@ export const COMMANDS = {
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
     SHOW_BOTTOM_PANEL: 'show-bottom-panel',
     RE_RENDER_PLUGIN: 're-render-plugin',
+    UPDATE_ALL_ACTION_TRIGGERS: 'update-all-action-triggers',
 };
 
 export const EVENTS = {

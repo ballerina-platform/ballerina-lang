@@ -27,7 +27,6 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, VIEWS as VIEW_IDS, HISTORY, COMMANDS as COMMMAND_IDS,
     EVENTS, TOOLS as TOOL_IDS, DIALOGS as DIALOG_IDS } from './constants';
-import { COMMANDS as TOOL_BAR_COMMANDS } from './../toolbar/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_COMMANDS } from './../workspace/constants';
 
 import EditorTabs from './views/EditorTabs';
@@ -101,7 +100,7 @@ class EditorPlugin extends Plugin {
      */
     dispatchToolBarUpdate() {
         const { command: { dispatch } } = this.appContext;
-        dispatch(TOOL_BAR_COMMANDS.UPDATE_TOOL_BAR, {});
+        dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
     }
 
     /**
