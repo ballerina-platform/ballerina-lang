@@ -18,8 +18,20 @@
 
 import AbstractRetryNode from './abstract-tree/retry-node';
 
+/**
+ * Class for retry node model
+ * @extends AbstractRetryNode
+ * @class RetryNode
+ * */
 class RetryNode extends AbstractRetryNode {
-
+    /**
+     * check whether this can be dropped on to the drop target.
+     * @param {Node} dropTarget - node that this dragging node to be added to.
+     * @return {boolean} true if can be dropped, false if not.
+     * */
+    canBeDropped(dropTarget) {
+        return dropTarget ? dropTarget.viewState.alias === 'Failed' : false;
+    }
 }
 
 export default RetryNode;
