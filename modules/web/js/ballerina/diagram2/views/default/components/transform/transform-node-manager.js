@@ -387,7 +387,7 @@ class TransformNodeManager {
      */
     getResolvedExpression(expression, statement) {
         const mapExp = this._mapper.getMappableExpression(expression);
-        if (TreeUtil.isSimpleVariableRef(expression)
+        if (TreeUtil.isSimpleVariableRef(mapExp)
             && this._mapper.isTempVariable(mapExp, statement)) {
             return {
                 exp: this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp)),
