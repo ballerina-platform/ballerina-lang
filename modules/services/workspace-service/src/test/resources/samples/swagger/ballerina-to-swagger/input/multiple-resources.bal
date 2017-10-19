@@ -15,7 +15,7 @@ service<http> Service9 {
         path: "/pets/{id}",
         produces: ["application/json"]
     }
-    resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id) {
+    resource Resource1 (http:Request req, http:Response res, string id) {
     }
 
     @http:resourceConfig{
@@ -24,7 +24,7 @@ service<http> Service9 {
         produces: ["application/json"],
         consumes: ["application/json"]
     }
-    resource Resource2 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id) {
+    resource Resource2 (http:Request req, http:Response res, string id) {
     }
 
     @http:resourceConfig{

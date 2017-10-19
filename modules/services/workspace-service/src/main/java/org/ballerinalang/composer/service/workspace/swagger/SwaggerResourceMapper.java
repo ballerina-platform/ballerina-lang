@@ -29,7 +29,6 @@ import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
-import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
@@ -371,97 +370,38 @@ public class SwaggerResourceMapper {
     
         for (int i = 2; i < resource.getParameters().size(); i++) {
             VariableNode parameterDef = resource.getParameters().get(i);
-            AnnotationAttachmentNode parameterAnnotation = parameterDef.getAnnotationAttachments().get(0);
             String typeName = parameterDef.getTypeNode().toString().toLowerCase(Locale.getDefault());
-            // Add query parameter
-            if (null != this.httpAlias && this.httpAlias.equals(parameterAnnotation.getPackageAlias().getValue()) &&
-                parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("QueryParam")) {
-                QueryParameter queryParameter = new QueryParameter();
-                // Set in value.
-                queryParameter.setIn("query");
-                // Set parameter name
-                String parameterName = null;
-                if (parameterAnnotation.getAttributes().size() > 0) {
-                    AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
-                            .getValue();
-                    parameterName = (String) ((LiteralNode) attrValue.getValue()).getValue();
+            PathParameter pathParameter = new PathParameter();
+            // Set in value
+            pathParameter.setIn("path");
+            // Set parameter name
+            String parameterName = parameterDef.getName().getValue();
+            pathParameter.setName(parameterName);
+            // Note: 'description' to be added using annotations, hence skipped here.
+            // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
+            // Set type
+            if (typeName.contains("[]")) {
+                pathParameter.setType("array");
+                switch (typeName.replace("[]", "").trim()) {
+                    case "string":
+                        pathParameter.items(new StringProperty());
+                        break;
+                    case "int":
+                        pathParameter.items(new IntegerProperty());
+                        break;
+                    case "boolean":
+                        pathParameter.items(new BooleanProperty());
+                        break;
+                    default:
+                        break;
                 }
-    
-                if ((parameterName == null) || parameterName.isEmpty()) {
-                    parameterName = parameterDef.getName().getValue();
-                }
-                queryParameter.setName(parameterName);
-                // Note: 'description' to be added using annotations, hence skipped here.
-                // Setting false to required(as per swagger spec). This can be overridden while parsing annotations.
-                queryParameter.required(false);
-                // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
-                // Set type
-                if (typeName.contains("[]")) {
-                    queryParameter.setType("array");
-                    switch (typeName.replace("[]", "").trim()) {
-                        case "string":
-                            queryParameter.items(new StringProperty());
-                            break;
-                        case "int":
-                            queryParameter.items(new IntegerProperty());
-                            break;
-                        case "boolean":
-                            queryParameter.items(new BooleanProperty());
-                            break;
-                        default:
-                            break;
-                    }
-                } else if ("int".equals(typeName)) {
-                    queryParameter.setType("integer");
-                } else {
-                    queryParameter.setType(typeName);
-                }
-                // Note: 'format' to be added using annotations, hence skipped here.
-                operationAdaptor.getOperation().addParameter(queryParameter);
+            } else if ("int".equals(typeName)) {
+                pathParameter.setType("integer");
+            } else {
+                pathParameter.setType(typeName);
             }
-            if (null != this.httpAlias && this.httpAlias.equals(parameterAnnotation.getPackageAlias().getValue()) &&
-                parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("PathParam")) {
-                PathParameter pathParameter = new PathParameter();
-                // Set in value
-                pathParameter.setIn("path");
-                // Set parameter name
-                String parameterName = null;
-                if (parameterAnnotation.getAttributes().size() > 0) {
-                    AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
-                            .getValue();
-                    parameterName = (String) ((LiteralNode) attrValue.getValue()).getValue();
-                }
-                
-                if ((parameterName == null) || parameterName.isEmpty()) {
-                    parameterName = parameterDef.getName().getValue();
-                }
-                pathParameter.setName(parameterName);
-                // Note: 'description' to be added using annotations, hence skipped here.
-                // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
-                // Set type
-                if (typeName.contains("[]")) {
-                    pathParameter.setType("array");
-                    switch (typeName.replace("[]", "").trim()) {
-                        case "string":
-                            pathParameter.items(new StringProperty());
-                            break;
-                        case "int":
-                            pathParameter.items(new IntegerProperty());
-                            break;
-                        case "boolean":
-                            pathParameter.items(new BooleanProperty());
-                            break;
-                        default:
-                            break;
-                    }
-                } else if ("int".equals(typeName)) {
-                    pathParameter.setType("integer");
-                } else {
-                    pathParameter.setType(typeName);
-                }
-                // Note: 'format' to be added using annotations, hence skipped here.
-                operationAdaptor.getOperation().addParameter(pathParameter);
-            }
+            // Note: 'format' to be added using annotations, hence skipped here.
+            operationAdaptor.getOperation().addParameter(pathParameter);
         }
     }
     

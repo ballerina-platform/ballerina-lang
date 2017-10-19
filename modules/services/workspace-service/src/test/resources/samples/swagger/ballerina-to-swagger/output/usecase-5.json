@@ -66,26 +66,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "description": "The limit of the records."
-          },
-          {
-            "name": "isEmpty",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "description": "Allow Empty values."
           }
         ]
       }

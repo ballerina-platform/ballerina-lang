@@ -87,9 +87,6 @@ service<http> Service5 {
             }
         ]
     }
-    resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id,
-                                    @http:QueryParam{value: "tag"} string tag,
-                                    @http:QueryParam{value: "limit"} int limit,
-                                    @http:QueryParam{value: "isEmpty"} boolean isEmpty) {
+    resource Resource1 (http:Request req, http:Response res, string id) {
     }
 }

@@ -35,12 +35,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ]
       }

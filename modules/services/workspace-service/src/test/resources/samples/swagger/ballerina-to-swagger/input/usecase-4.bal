@@ -36,6 +36,6 @@ service<http> Service4 {
     @swagger:ResourceInfo {
         description: "Returns all pets from the system that the user has access to"
     }
-    resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id, @http:QueryParam{value: "tag"} string tag) {
+    resource Resource1 (http:Request req, http:Response res, string id) {
     }
 }
