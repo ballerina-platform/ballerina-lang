@@ -22,31 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractUnaryExprNode extends ExpressionNode {
 
 
-    setOperatorKind(newValue, silent, title) {
-        const oldValue = this.operatorKind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.operatorKind = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'operatorKind',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getOperatorKind() {
-        return this.operatorKind;
-    }
-
-
-
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,6 +45,31 @@ class AbstractUnaryExprNode extends ExpressionNode {
 
     getExpression() {
         return this.expression;
+    }
+
+
+
+    setOperatorKind(newValue, silent, title) {
+        const oldValue = this.operatorKind;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.operatorKind = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'operatorKind',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOperatorKind() {
+        return this.operatorKind;
     }
 
 

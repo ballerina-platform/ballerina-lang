@@ -215,8 +215,8 @@ class AbstractTreeUtil {
         return node.kind === 'Break';
     }
 
-    isContinue(node) {
-        return node.kind === 'Continue';
+    isNext(node) {
+        return node.kind === 'Next';
     }
 
     isExpressionStatement(node) {

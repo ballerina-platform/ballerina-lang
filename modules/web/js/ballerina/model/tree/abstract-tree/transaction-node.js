@@ -49,33 +49,6 @@ class AbstractTransactionNode extends StatementNode {
 
 
 
-    setTransactionBody(newValue, silent, title) {
-        const oldValue = this.transactionBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.transactionBody = newValue;
-
-        this.transactionBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'transactionBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTransactionBody() {
-        return this.transactionBody;
-    }
-
-
-
     setFailedBody(newValue, silent, title) {
         const oldValue = this.failedBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,6 +72,33 @@ class AbstractTransactionNode extends StatementNode {
 
     getFailedBody() {
         return this.failedBody;
+    }
+
+
+
+    setTransactionBody(newValue, silent, title) {
+        const oldValue = this.transactionBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.transactionBody = newValue;
+
+        this.transactionBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'transactionBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTransactionBody() {
+        return this.transactionBody;
     }
 
 

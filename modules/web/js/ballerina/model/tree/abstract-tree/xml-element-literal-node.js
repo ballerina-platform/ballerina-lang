@@ -181,6 +181,7 @@ class AbstractXmlElementLiteralNode extends Node {
     replaceAttributes(oldChild, newChild, silent) {
         const index = this.getIndexOfAttributes(oldChild);
         this.attributes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -196,6 +197,7 @@ class AbstractXmlElementLiteralNode extends Node {
 
     replaceAttributesByIndex(index, newChild, silent) {
         this.attributes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -207,7 +209,7 @@ class AbstractXmlElementLiteralNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAttributes(child) {
         return _.findIndex(this.attributes, ['id', child.id]);
@@ -298,6 +300,7 @@ class AbstractXmlElementLiteralNode extends Node {
     replaceContent(oldChild, newChild, silent) {
         const index = this.getIndexOfContent(oldChild);
         this.content[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -313,6 +316,7 @@ class AbstractXmlElementLiteralNode extends Node {
 
     replaceContentByIndex(index, newChild, silent) {
         this.content[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -324,7 +328,7 @@ class AbstractXmlElementLiteralNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfContent(child) {
         return _.findIndex(this.content, ['id', child.id]);

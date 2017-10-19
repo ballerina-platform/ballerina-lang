@@ -102,6 +102,7 @@ class AbstractXmlPiLiteralNode extends Node {
     replaceDataTextFragments(oldChild, newChild, silent) {
         const index = this.getIndexOfDataTextFragments(oldChild);
         this.dataTextFragments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractXmlPiLiteralNode extends Node {
 
     replaceDataTextFragmentsByIndex(index, newChild, silent) {
         this.dataTextFragments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractXmlPiLiteralNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfDataTextFragments(child) {
         return _.findIndex(this.dataTextFragments, ['id', child.id]);

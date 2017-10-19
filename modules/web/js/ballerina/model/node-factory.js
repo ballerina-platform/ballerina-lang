@@ -67,7 +67,7 @@ import AbortNode from './tree/abort-node';
 import AssignmentNode from './tree/assignment-node';
 import BlockNode from './tree/block-node';
 import BreakNode from './tree/break-node';
-import ContinueNode from './tree/continue-node';
+import NextNode from './tree/next-node';
 import ExpressionStatementNode from './tree/expression-statement-node';
 import ForkJoinNode from './tree/fork-join-node';
 import IfNode from './tree/if-node';
@@ -612,9 +612,9 @@ class NodeFactory {
         return node;
     }
 
-    createContinue(json = {}) {
-        json.kind = 'Continue';
-        let node = new ContinueNode();
+    createNext(json = {}){
+        json.kind = 'Next';
+        let node = new NextNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;

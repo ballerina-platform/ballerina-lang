@@ -49,6 +49,33 @@ class AbstractServiceNode extends Node {
 
 
 
+    setProtocolPackageIdentifier(newValue, silent, title) {
+        const oldValue = this.protocolPackageIdentifier;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.protocolPackageIdentifier = newValue;
+
+        this.protocolPackageIdentifier.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'protocolPackageIdentifier',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getProtocolPackageIdentifier() {
+        return this.protocolPackageIdentifier;
+    }
+
+
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -129,6 +156,7 @@ class AbstractServiceNode extends Node {
     replaceVariables(oldChild, newChild, silent) {
         const index = this.getIndexOfVariables(oldChild);
         this.variables[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +172,7 @@ class AbstractServiceNode extends Node {
 
     replaceVariablesByIndex(index, newChild, silent) {
         this.variables[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +184,7 @@ class AbstractServiceNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfVariables(child) {
         return _.findIndex(this.variables, ['id', child.id]);
@@ -164,33 +193,6 @@ class AbstractServiceNode extends Node {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
-
-
-    setProtocolPackageIdentifier(newValue, silent, title) {
-        const oldValue = this.protocolPackageIdentifier;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.protocolPackageIdentifier = newValue;
-
-        this.protocolPackageIdentifier.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'protocolPackageIdentifier',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
-    }
-
 
 
     setName(newValue, silent, title) {
@@ -300,6 +302,7 @@ class AbstractServiceNode extends Node {
     replaceResources(oldChild, newChild, silent) {
         const index = this.getIndexOfResources(oldChild);
         this.resources[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -315,6 +318,7 @@ class AbstractServiceNode extends Node {
 
     replaceResourcesByIndex(index, newChild, silent) {
         this.resources[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -326,7 +330,7 @@ class AbstractServiceNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfResources(child) {
         return _.findIndex(this.resources, ['id', child.id]);
@@ -335,6 +339,31 @@ class AbstractServiceNode extends Node {
     filterResources(predicateFunction) {
         return _.filter(this.resources, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -445,7 +474,7 @@ class AbstractServiceNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
@@ -454,31 +483,6 @@ class AbstractServiceNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
 }

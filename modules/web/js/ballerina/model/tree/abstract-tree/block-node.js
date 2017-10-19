@@ -102,6 +102,7 @@ class AbstractBlockNode extends StatementNode {
     replaceStatements(oldChild, newChild, silent) {
         const index = this.getIndexOfStatements(oldChild);
         this.statements[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractBlockNode extends StatementNode {
 
     replaceStatementsByIndex(index, newChild, silent) {
         this.statements[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractBlockNode extends StatementNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfStatements(child) {
         return _.findIndex(this.statements, ['id', child.id]);
