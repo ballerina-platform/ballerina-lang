@@ -175,7 +175,11 @@ class EditorTabs extends View {
                             <button
                                 type="button"
                                 className="close close-tab pull-right"
-                                onClick={() => this.onTabClose(editor)}
+                                onClick={(evt) => {
+                                    this.onTabClose(editor);
+                                    evt.stopPropagation();
+                                    evt.preventDefault();
+                                }}
                             >
                                 ×
                             </button>
