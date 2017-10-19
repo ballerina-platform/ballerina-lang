@@ -570,7 +570,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeInputToOutputMapping(sourceName, targetName) {
-        const assignmentStmt = _.find(this._transformStmt.body.getStatements(), (stmt) => {
+        const assignmentStmt = _.find(this.getMappingStatements(), (stmt) => {
             if (TreeUtil.isAssignment(stmt)) {
                 return this.getVariables(stmt).find((varExp) => {
                     const varExpStr = varExp.getSource().trim();
@@ -1027,7 +1027,7 @@ class TransformNodeMapper {
      */
     getAssignedTempVarName(expression) {
         let tempVarName;
-        this._transformStmt.body.getStatements().forEach((stmt) => {
+        this.getMappingStatements().forEach((stmt) => {
             if (this.getExpression(stmt).getSource().trim() === expression.getSource().trim()) {
                 const outputExpressions = this.getOutputExpressions(stmt);
                 // TODO: handle multiple temp returns here
@@ -1359,7 +1359,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getOutputStatement(expression) {
-        return this._transformStmt.body.getStatements().find((stmt) => {
+        return this.getMappingStatements().find((stmt) => {
             return this.getVariables(stmt).find((varExp) => {
                 return expression.getSource().trim() === varExp.getSource().trim();
             });
@@ -1375,7 +1375,7 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     getInputStatements(expression) {
-        return this._transformStmt.body.getStatements().filter((stmt) => {
+        return this.getMappingStatements().filter((stmt) => {
             const matchingInput = this.getVerticesFromExpression(this.getExpression(stmt)).filter((exp) => {
                 return (exp.getSource().trim() === expression.getSource().trim());
             });
@@ -1452,6 +1452,19 @@ class TransformNodeMapper {
             return [stmt.getVariable().getName()];
         }
         return [];
+    }
+
+    /**
+     * Get mapping related statements in transform statement. The only statements that can be mapped are
+     * assignment and variable def statements
+     * @returns {[Statement]} mapping statements
+     * @memberof TransformNodeMapper
+     */
+    getMappingStatements() {
+        const stmts = this._transformStmt.body.getStatements().filter((stmt) => {
+            return (TreeUtil.isAssignment(stmt) || TreeUtil.isVariableDef(stmt));
+        });
+        return stmts;
     }
 }
 
