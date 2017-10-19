@@ -60,7 +60,7 @@ public class StructNegativeTest {
 
         // test struct init with invalid field name
         BTestUtils.validateError(result, 7,
-                "invalid field name in 'struct' literal, identifier or string literal expected", 44, 23);
+                "invalid field name in struct literal. identifier or string literal expected", 44, 23);
 
     }
 
