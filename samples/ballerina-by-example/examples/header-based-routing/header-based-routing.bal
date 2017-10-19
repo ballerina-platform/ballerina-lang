@@ -1,7 +1,5 @@
 import ballerina.net.http;
 import ballerina.doc;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 @doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
 @http:configuration {basePath:"/hbr"}
@@ -18,7 +16,7 @@ service<http> headerBasedRouting {
         locationEP = create http:ClientConnector("http://www.mocky.io", {});
         weatherEP = create http:ClientConnector("http://samples.openweathermap.org", {});
         //Native function getHeader() returns header value of a specified header name.
-        string nameString = request:getHeader(req, "type");
+        string nameString = req.getHeader("type");
 
         if (nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
@@ -26,9 +24,8 @@ service<http> headerBasedRouting {
         } else {
             //"get" action can be used to make http GET call.
             http:Request newRequest = {};
-            res = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
-                                newRequest);
+            res = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
-        response:send(res);
+        res.send();
     }
 }

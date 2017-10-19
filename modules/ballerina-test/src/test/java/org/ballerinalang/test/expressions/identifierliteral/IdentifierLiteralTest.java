@@ -207,9 +207,10 @@ public class IdentifierLiteralTest {
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BTestUtils.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 3);
-        BTestUtils.validateError(resultNeg, 0, "missing token ';' before 'var'", 3, 22);
-        BTestUtils.validateError(resultNeg, 1, "extraneous input 'return'", 4, 5);
-        BTestUtils.validateError(resultNeg, 2, "mismatched input ';'. expecting {'.', ',', '[', '=', '@'}", 4, 25);
+        Assert.assertEquals(resultNeg.getErrorCount(), 4);
+        BTestUtils.validateError(resultNeg, 0, "token recognition error at: '| = \"dfs\";\\n'", 3, 25);
+        BTestUtils.validateError(resultNeg, 1, "missing token ';' before 'var'", 3, 22);
+        BTestUtils.validateError(resultNeg, 2, "extraneous input 'return'", 4, 5);
+        BTestUtils.validateError(resultNeg, 3, "mismatched input ';'. expecting {'.', ',', '[', '=', '@'}", 4, 25);
     }
 }
