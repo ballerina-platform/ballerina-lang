@@ -46,35 +46,6 @@ public class Constants {
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
-    /* Annotations */
-    public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
-    public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
-    public static final String ANN_RESOURCE_ATTR_PATH = "path";
-    public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
-    public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
-    public static final String ANN_NAME_CONFIG = "configuration";
-    public static final String ANN_CONFIG_ATTR_HOST = "host";
-    public static final String ANN_CONFIG_ATTR_PORT = "port";
-    public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
-    public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
-    public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
-    public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
-    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
-    public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
-    public static final String ANN_CONFIG_ATTR_TRUST_STORE_PASS = "trustStorePassword";
-    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPassword";
-    public static final String ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT = "sslVerifyClient";
-    public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
-    public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
-    public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
-    public static final String ANNOTATION_METHOD_GET = HttpMethod.GET;
-    public static final String ANNOTATION_METHOD_POST = HttpMethod.POST;
-    public static final String ANNOTATION_METHOD_PUT = HttpMethod.PUT;
-    public static final String ANNOTATION_METHOD_PATCH = HttpMethod.PATCH;
-    public static final String ANNOTATION_METHOD_DELETE = HttpMethod.DELETE;
-    public static final String ANNOTATION_METHOD_OPTIONS = HttpMethod.OPTIONS;
-
-    public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 
     public static final String SESSION_ID = "BSESSIONID=";
@@ -95,11 +66,6 @@ public class Constants {
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
 
-    /* Annotations */
-    public static final String ANNOTATION_NAME_SOURCE = "Source";
-    public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
-    public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
@@ -123,11 +89,61 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
 
+    /**
+     * Http Annotation Constants.
+     */
+    public static final class Annotation {
+        /**
+         * Service Configuration annotation constants.
+         */
+        public static final class ServiceConfig {
+            public static final String ANNOTATION_NAME = "configuration";
 
-    public static class HttpMethod {
-        private HttpMethod() {
+            /**
+             * Service Configuration annotation attribute constants.
+             */
+            public static final class Attribute {
+                public static final String HOST = "host";
+                public static final String PORT = "port";
+                public static final String HTTPS_PORT = "httpsPort";
+                public static final String BASE_PATH = "basePath";
+                public static final String SCHEME = "scheme";
+                public static final String KEY_STORE_FILE = "keyStoreFile";
+                public static final String KEY_STORE_PASS = "keyStorePassword";
+                public static final String TRUST_STORE_FILE = "trustStoreFile";
+                public static final String TRUST_STORE_PASS = "trustStorePassword";
+                public static final String CERT_PASS = "certPassword";
+                public static final String SSL_VERIFY_CLIENT = "sslVerifyClient";
+                public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+                public static final String CIPHERS = "ciphers";
+                public static final String SSL_PROTOCOL = "sslProtocol";
+            }
         }
 
+        /**
+         * Resource Configuration annotation constants.
+         */
+        public static final class ResourceConfig {
+            public static final String ANNOTATION_NAME = "resourceConfig";
+
+            /**
+             * Service Configuration annotation attribute constants.
+             */
+            public static final class Attribute {
+                public static final String METHODS = "methods";
+                public static final String PATH = "path";
+                public static final String CONSUMES = "consumes";
+                public static final String PRODUCES = "produces";
+            }
+
+        }
+
+    }
+
+    /**
+     * Http Methods.
+     */
+    public static final class HttpMethod {
         public static final String HTTP_METHOD = "HTTP_METHOD";
         public static final String GET = "GET";
         public static final String POST = "POST";
@@ -140,12 +156,9 @@ public class Constants {
 
 
     /**
-     * Http Headers
+     * Http Headers.
      */
-    public static class HttpHeader {
-        private HttpHeader() {
-        }
-
+    public static final class HttpHeader {
         public static final String USER_AGENT = "User-Agent";
         public static final String HTTP_CONTENT_LENGTH = "Content-Length";
         public static final String ACCEPT = "Accept";
@@ -157,10 +170,7 @@ public class Constants {
         /**
          * Content type HTTP headers.
          */
-        public static class ContentType {
-            private ContentType() {
-            }
-
+        public static final class ContentType {
             public static final String CONTENT_TYPE = "Content-Type";
             public static final String APPLICATION_JSON = "application/json";
             public static final String APPLICATION_XML = "application/xml";
@@ -170,12 +180,9 @@ public class Constants {
         }
 
         /**
-         * Access control HTTP Headers
+         * Access control HTTP Headers.
          */
-        public static class AccessControl {
-            private AccessControl() {
-            }
-
+        public static final class AccessControl {
             public static final String REQUEST_METHOD = "Access-Control-Request-Method";
             public static final String REQUEST_HEADERS = "Access-Control-Request-Headers";
             public static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";

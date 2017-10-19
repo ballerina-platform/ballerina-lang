@@ -170,12 +170,12 @@ public class WebSocketServicesRegistry {
         // Find Base path for WebSocket
 
         Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                Constants.ANN_NAME_CONFIG);
+                Constants.ANNOTATION_CONFIGURATION);
         String serviceName = service.getName();
         String basePath;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
-                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+                    (Constants.Annotation.ServiceConfig.Attribute.BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
                 basePath = annotationAttributeBasePathValue.getStringValue();
