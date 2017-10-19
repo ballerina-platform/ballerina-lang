@@ -99,6 +99,15 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testFuncWithArrayParams() {
+        BValue[] returns = BTestUtils.invoke(fpProgram, "testFuncWithArrayParams");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
     public void testGlobalFP() {
         BValue[] returns;
         // testing function pointer.

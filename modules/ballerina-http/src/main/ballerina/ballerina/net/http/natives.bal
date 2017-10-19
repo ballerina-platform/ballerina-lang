@@ -312,7 +312,7 @@ public native function <Session session> getMaxInactiveInterval () (int);
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
 
-struct Ssl {
+struct SSL {
     string trustStoreFile;
     string trustStorePassword;
     string keyStoreFile;
@@ -331,7 +331,7 @@ public struct Options {
     int port;
     int endpointTimeout = 60000;
     FollowRedirects followRedirects;
-    Ssl ssl;
+    SSL ssl;
 }
 
 public connector ClientConnector (string serviceUri, Options connectorOptions) {
