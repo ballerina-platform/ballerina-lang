@@ -204,7 +204,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
+        String path = HttpUtil.refactorUri(getStringArgument(context, 0));
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
