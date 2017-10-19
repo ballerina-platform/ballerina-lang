@@ -27,6 +27,13 @@ class LeftPanelTab extends React.Component {
     /**
      * @inheritdoc
      */
+    shouldComponentUpdate(nextProps) {
+        return nextProps.isActive;
+    }
+
+    /**
+     * @inheritdoc
+     */
     render() {
         const { viewDef, width, height, panelResizeInProgress,
                 viewDef: {
@@ -94,6 +101,7 @@ class LeftPanelTab extends React.Component {
 
 LeftPanelTab.propTypes = {
     viewDef: PropTypes.instanceOf(Object).isRequired,
+    isActive: PropTypes.bool.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
@@ -121,6 +129,7 @@ class LeftPanel extends React.Component {
         const tabs = [];
         const panes = [];
         const { views, onActiveViewChange, ...restProps } = this.props;
+        const activeViewPrev = this.props.activeView || this.context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW);
         views.forEach((viewDef) => {
             const {
                     id,
@@ -137,6 +146,7 @@ class LeftPanel extends React.Component {
             const propsForTab = {
                 viewDef,
                 ...restProps,
+                isActive: activeViewPrev === id,
             };
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
@@ -144,7 +154,6 @@ class LeftPanel extends React.Component {
                 </Tab.Pane>
             ));
         });
-        const activeViewPrev = this.props.activeView || this.context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW);
         return (
             <div className="left-panel">
                 <div>
