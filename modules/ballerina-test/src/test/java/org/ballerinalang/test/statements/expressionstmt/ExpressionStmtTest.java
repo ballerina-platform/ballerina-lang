@@ -35,4 +35,23 @@ public class ExpressionStmtTest {
         BTestUtils.validateError(result, 1, "variable assignment is required", 20, 5);
     }
 
+    @Test
+    public void testInvalidStatements() {
+        CompileResult result = BTestUtils.compile("test-src/statements/expression/expression-stmt-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BTestUtils.validateError(result, 0, "undefined symbol 'continue'", 7, 13);
+        BTestUtils.validateError(result, 1, "undefined symbol 'foo'", 14, 5);
+        BTestUtils.validateError(result, 2, "undefined function 'bar'", 15, 5);
+        BTestUtils.validateError(result, 3, "variable assignment is required", 16, 5);
+    }
+
+    @Test
+    public void testInvalid2Statements() {
+        CompileResult result = BTestUtils.compile("test-src/statements/expression/expression-stmt2-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BTestUtils.validateError(result, 0, "invalid token ';'", 3, 14);
+        BTestUtils.validateError(result, 1, "invalid token ';'", 5, 14);
+        BTestUtils.validateError(result, 2, "invalid token ';'", 7, 24);
+    }
+
 }

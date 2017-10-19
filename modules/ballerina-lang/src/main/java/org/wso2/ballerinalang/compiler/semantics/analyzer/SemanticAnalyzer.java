@@ -582,7 +582,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         List<BType> bTypes = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, new ArrayList<>());
-        if (bTypes.size() > 0) {
+        if (bTypes.size() > 0 && !(bTypes.size() == 1 && bTypes.get(0) == symTable.errType)) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
     }
