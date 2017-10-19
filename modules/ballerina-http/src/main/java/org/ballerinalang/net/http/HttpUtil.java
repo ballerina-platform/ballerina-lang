@@ -685,4 +685,11 @@ public class HttpUtil {
         }
         return httpCarbonMessage;
     }
+
+    public static String sanitizeUri(String uri) {
+        if (uri.startsWith("/")) {
+            return uri;
+        }
+        return "/".concat(uri);
+    }
 }
