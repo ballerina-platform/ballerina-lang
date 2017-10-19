@@ -298,9 +298,18 @@ class PropertyWindow extends React.Component {
      */
     render() {
         const breadCrumbContainer = this.breadCrumbs.map((key, index) => {
-            return (
-                <li><a onClick={() => { this.toggleStructView(index); }}> {key}</a></li>
-            );
+            if (index === this.breadCrumbs.length - 1) {
+                return (
+                    <li><a className="currentBreadcrumbItem"> {key}</a></li>
+                );
+            } else {
+                return (
+                    <li><a className="previousBreadcrumbItem" onClick={() => {
+                        this.toggleStructView(index);
+                    }}
+                    > {key}</a></li>
+                );
+            }
         });
         return (
             <div
