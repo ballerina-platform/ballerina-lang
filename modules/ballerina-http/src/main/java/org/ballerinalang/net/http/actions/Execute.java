@@ -86,9 +86,9 @@ public class Execute extends AbstractHTTPAction {
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {
-            httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+            httpVerb = (String) cMsg.getProperty(Constants.HttpMethod.HTTP_METHOD);
         }
-        cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        cMsg.setProperty(Constants.HttpMethod.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         return cMsg;
     }
 }

@@ -80,7 +80,7 @@ public class ResponseNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -97,7 +97,7 @@ public class ResponseNativeFunctionSuccessTest {
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         cMsg.setMessageDataSource(dataSource);
         cMsg.setAlreadyRead(true);
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, Constants.HttpHeader.ContentType.TEXT_PLAIN);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
         cMsg.setProperty(propertyName, propertyValue);
@@ -109,7 +109,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertEquals(responseMsg.getMessageDataSource().getMessageAsString(), payload);
-        Assert.assertEquals(responseMsg.getHeader(Constants.CONTENT_TYPE), Constants.TEXT_PLAIN);
+        Assert.assertEquals(responseMsg.getHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE),
+                            Constants.HttpHeader.ContentType.TEXT_PLAIN);
         Assert.assertEquals(responseMsg.getProperty(propertyName), propertyValue);
     }
 
@@ -117,7 +118,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceCloneMethod() {
         String value = "ballerina";
         String path = "/hello/cloneMethod/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -152,7 +153,7 @@ public class ResponseNativeFunctionSuccessTest {
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         cMsg.setMessageDataSource(dataSource);
         cMsg.setAlreadyRead(true);
-        cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
+        cMsg.setHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
         BValue[] returnVals = BTestUtils.invoke(result, "testGetContentLength", inputArg);
@@ -166,7 +167,7 @@ public class ResponseNativeFunctionSuccessTest {
         String header = "Content-Length";
         String length = "10";
         String path = "/hello/getContentLength/" + header + "/" + length;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -178,23 +179,24 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetHeader() {
         BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                       Constants.HttpHeader.ContentType.APPLICATION_FORM);
         HttpUtil.addCarbonMsg(response, cMsg);
-        BString key = new BString(Constants.CONTENT_TYPE);
+        BString key = new BString(Constants.HttpHeader.ContentType.CONTENT_TYPE);
 
         BValue[] inputArg = {response, key};
         BValue[] returnVals = BTestUtils.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
+        Assert.assertEquals(returnVals[0].stringValue(), Constants.HttpHeader.ContentType.APPLICATION_FORM);
     }
 
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
-        String header = Constants.CONTENT_TYPE;
+        String header = Constants.HttpHeader.ContentType.CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
         String path = "/hello/getHeader/" + header + "/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -211,7 +213,8 @@ public class ResponseNativeFunctionSuccessTest {
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         cMsg.setMessageDataSource(dataSource);
         cMsg.setAlreadyRead(true);
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                       Constants.HttpHeader.ContentType.APPLICATION_JSON);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
         BValue[] returnVals = BTestUtils.invoke(result, "testGetJsonPayload", inputArg);
@@ -224,7 +227,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/getJsonPayload/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -252,7 +255,7 @@ public class ResponseNativeFunctionSuccessTest {
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
         String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -281,7 +284,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetStringPayload() {
         String value = "ballerina";
         String path = "/hello/GetStringPayload/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -309,7 +312,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetXmlPayload() {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -335,10 +338,10 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
-        String key = Constants.CONTENT_TYPE;
+        String key = Constants.HttpHeader.ContentType.CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
         String path = "/hello/RemoveHeader/" + key + "/" + value;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -368,7 +371,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(description = "Test RemoveAllHeaders function within a service")
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -379,7 +382,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSendMethod() {
         String path = "/hello/11";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -397,13 +400,13 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getHeader(Constants.HTTP_CONTENT_LENGTH), "10");
+        Assert.assertEquals(responseMsg.getHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH), "10");
     }
 
     @Test(description = "Test SetContentLength function within a service")
     public void testServiceSetContentLength() {
         String path = "/hello/setContentLength";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -467,7 +470,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testSetReasonPhase() {
         String phase = "ballerina";
         String path = "/hello/12/" + phase;
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -477,7 +480,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetStatusCode() {
         String path = "/hello/13";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HttpMethod.GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");

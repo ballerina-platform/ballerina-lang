@@ -48,8 +48,8 @@ public class GetMethod extends AbstractNativeFunction {
         BStruct requestStruct = (BStruct) getRefArgument(ctx, 0);
         //TODO checck below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
-        if (httpCarbonMessage.getProperty(Constants.HTTP_METHOD) != null) {
-            httpMethod = httpCarbonMessage.getProperty(Constants.HTTP_METHOD).toString();
+        if (httpCarbonMessage.getProperty(Constants.HttpMethod.HTTP_METHOD) != null) {
+            httpMethod = httpCarbonMessage.getProperty(Constants.HttpMethod.HTTP_METHOD).toString();
         }
         return getBValues(new BString(httpMethod));
     }

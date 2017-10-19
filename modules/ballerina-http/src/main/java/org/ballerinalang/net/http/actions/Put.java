@@ -71,7 +71,7 @@ public class Put extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HttpMethod.PUT);
+        cMsg.setProperty(Constants.HttpMethod.HTTP_METHOD, Constants.HttpMethod.PUT);
         return cMsg;
     }
 

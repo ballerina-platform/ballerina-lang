@@ -37,7 +37,6 @@ public class Constants {
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
     public static final String PROTOCOL_HTTPS = "https";
-    public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String PROTOCOL = "PROTOCOL";
@@ -138,6 +137,7 @@ public class Constants {
         private HttpMethod() {
         }
 
+        public static final String HTTP_METHOD = "HTTP_METHOD";
         public static final String GET = "GET";
         public static final String POST = "POST";
         public static final String PUT = "PUT";

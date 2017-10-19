@@ -124,7 +124,7 @@ public abstract class Node {
     private Resource validateHTTPMethod(List<Resource> resources, HTTPCarbonMessage carbonMessage) {
         Resource resource = null;
         boolean isOptionsRequest = false;
-        String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
+        String httpMethod = (String) carbonMessage.getProperty(Constants.HttpMethod.HTTP_METHOD);
         for (Resource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 resource = resourceInfo;

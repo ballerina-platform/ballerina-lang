@@ -57,7 +57,7 @@ public class HTTPCorsTest {
     public void testSimpleReqServiceResourceCorsOverride() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -71,7 +71,7 @@ public class HTTPCorsTest {
     public void testSimpleReqServiceCors() {
         String path = "/hello1/test2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -85,7 +85,7 @@ public class HTTPCorsTest {
     public void testSimpleReqResourceOnlyCors() {
         String path = "/hello2/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -100,7 +100,7 @@ public class HTTPCorsTest {
     public void testSimpleReqMultipleOrigins() {
         String path = "/hello1/test3";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com http://www.amazon.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com http://www.amazon.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -114,7 +114,7 @@ public class HTTPCorsTest {
     public void testSimpleReqInvalidOrigin() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -128,7 +128,7 @@ public class HTTPCorsTest {
     public void testSimpleReqWithNullOrigin() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -142,7 +142,7 @@ public class HTTPCorsTest {
     public void testSimpleReqwithExtraWS() {
         String path = "/hello2/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.facebook.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.facebook.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -155,8 +155,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqServiceResourceCorsOverride() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -169,7 +169,7 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoOrigin() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -182,7 +182,7 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoMethod() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -195,8 +195,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithUnavailableMethod() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.PUT);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -209,22 +209,22 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithHeadMethod() {
         String path = "/hello1/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_HEAD);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.HEAD);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "CORELATION_ID");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.m3.com", "true"
-                , "CORELATION_ID", Constants.HTTP_METHOD_HEAD, "1");
+                , "CORELATION_ID", Constants.HttpMethod.HEAD, "1");
     }
 
     @Test(description = "Test preflight for invalid headers")
     public void testPreFlightReqwithInvalidHeaders() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "WSO2");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -237,21 +237,21 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoHeaders() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.wso2.com", "true"
-                , null, Constants.HTTP_METHOD_POST, "-1");
+                , null, Constants.HttpMethod.POST, "-1");
     }
 
     @Test(description = "Test preflight with method restriction at service level")
     public void testPreFlightReqwithRestrictedMethodsServiceLevel() {
         String path = "/hello3/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -264,8 +264,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithRestrictedMethodsResourceLevel() {
         String path = "/hello2/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.bbc.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_DELETE);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.bbc.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.DELETE);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -278,8 +278,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithAllowedMethod() {
         String path = "/hello3/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.PUT);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -292,8 +292,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithMissingHeadersAtResourceLevel() {
         String path = "/hello2/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.bbc.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.bbc.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.PUT);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -306,21 +306,21 @@ public class HTTPCorsTest {
     public void testPreFlightReqNoCorsResource() {
         String path = "/echo4/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, null, null
                 , null, null, null);
-        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.ALLOW));
+        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.HttpHeader.ALLOW));
     }
 
     @Test(description = "Test for simple OPTIONS request")
     public void testSimpleOPTIONSReq() {
         String path = "/echo4/info2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -332,8 +332,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithCaseInsensitiveOrigin() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.Wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.Wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -345,8 +345,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithCaseInsensitiveHeader() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HttpMethod.POST);
         cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 

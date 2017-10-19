@@ -45,7 +45,7 @@ public class HTTPResourceDispatcher {
     public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg)
             throws BallerinaConnectorException {
 
-        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+        String method = (String) cMsg.getProperty(Constants.HttpMethod.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();

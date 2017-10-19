@@ -155,7 +155,8 @@ public class ServiceTest {
     public void testGetFormParamsNativeFunction() {
         String path = "/echo/getFormParams";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                       Constants.HttpHeader.ContentType.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -170,7 +171,8 @@ public class ServiceTest {
     public void testGetFormParamsForUndefinedKey() {
         String path = "/echo/getFormParams";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                       Constants.HttpHeader.ContentType.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -183,7 +185,8 @@ public class ServiceTest {
     public void testGetFormParamsEmptyPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                       Constants.HttpHeader.ContentType.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");

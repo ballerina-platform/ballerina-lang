@@ -48,7 +48,7 @@ public class ProducesConsumesAnnotationTest {
     public void testConsumesAnnotation() {
         String path = "/echo66/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "application/xml; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, "application/xml; charset=ISO-8859-4");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -60,7 +60,7 @@ public class ProducesConsumesAnnotationTest {
     public void testIncorrectConsumesAnnotation() {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "compileResult/json");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, "compileResult/json");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -72,7 +72,7 @@ public class ProducesConsumesAnnotationTest {
     public void testBogusConsumesAnnotation() {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, ",:vhjv");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, ",:vhjv");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -84,7 +84,7 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesAnnotation() {
         String path = "/echo66/test2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "text/xml;q=0.3, multipart/*;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "text/xml;q=0.3, multipart/*;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -107,7 +107,7 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesAnnotationWithWildCard() {
         String path = "/echo66/test2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "*/*, text/html;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "*/*, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -119,7 +119,7 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesAnnotationWithSubTypeWildCard() {
         String path = "/echo66/test2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -131,7 +131,7 @@ public class ProducesConsumesAnnotationTest {
     public void testIncorrectProducesAnnotation() {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "multipart/*;q=0.3, text/html;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "multipart/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -143,7 +143,7 @@ public class ProducesConsumesAnnotationTest {
     public void testBogusProducesAnnotation() {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, ":,;,v567br");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, ":,;,v567br");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -155,8 +155,8 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesConsumeAnnotation() {
         String path = "/echo66/test3";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, "text/plain; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -168,8 +168,8 @@ public class ProducesConsumesAnnotationTest {
     public void testIncorrectProducesConsumeAnnotation() {
         String path = "/echo66/test3";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain ; charset=ISO-8859-4");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "compileResult/xml, text/html");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, "text/plain ; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "compileResult/xml, text/html");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -181,8 +181,8 @@ public class ProducesConsumesAnnotationTest {
     public void testWithoutProducesConsumeAnnotation() {
         String path = "/echo67/echo1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
-        cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
+        cMsg.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE, "text/plain; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.HttpHeader.ACCEPT, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");

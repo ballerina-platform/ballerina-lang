@@ -70,7 +70,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BString key = new BString(Constants.CONTENT_TYPE);
+        BString key = new BString(Constants.HttpHeader.ContentType.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
         BValue[] returnVals = BTestUtils.invoke(result, "testGetHeader", inputArg);
         Assert.assertNull(((BString) returnVals[0]).value());
