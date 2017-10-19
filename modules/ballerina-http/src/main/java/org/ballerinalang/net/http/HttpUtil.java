@@ -686,7 +686,7 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static String refactorUri(String uri) {
+    public static String sanitizeUri(String uri) {
         if (uri.startsWith("/")) {
             return uri;
         }
