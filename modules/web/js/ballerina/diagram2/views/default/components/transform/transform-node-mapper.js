@@ -144,7 +144,7 @@ class TransformNodeMapper {
                 operatorNode.setRightExpression(sourceExpression, true);
             }
         } else {
-            const stmt = this.findEnclosingStatement(operatorNode);
+            const stmt = this.getParentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
                                             this._transformStmt.body.getIndexOfStatements(stmt));
             operatorNode.addChild(argumentExpression, index, true);
@@ -171,7 +171,7 @@ class TransformNodeMapper {
         if (compatibility.safe) {
             operatorNode.setExpression(sourceExpression, true);
         } else {
-            const stmt = this.findEnclosingStatement(operatorNode);
+            const stmt = this.getParentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
                                             this._transformStmt.body.getIndexOfStatements(stmt));
             operatorNode.addChild(argumentExpression, index);
@@ -195,7 +195,7 @@ class TransformNodeMapper {
     createFunctionToOutputMapping(targetExpression, source, target, compatibility) {
         this.validateTargetMappings(targetExpression);
 
-        const stmt = this.findEnclosingStatement(source.funcInv);
+        const stmt = this.getParentStatement(source.funcInv);
         if (!stmt) {
             log.error('Cannot find statement containing the function invocation '
                         + source.funcInv.getFunctionName());
@@ -203,6 +203,16 @@ class TransformNodeMapper {
         }
         const rightExpression = this.getCompatibleSourceExpression(
             this.getMappableExpression(source.funcInv), compatibility.type, target.type);
+
+        let compatibleExp = true;
+        const stmtExpr = this.getExpression(stmt);
+
+        if (rightExpression.getSource().trim() !== stmtExpr.getSource().trim()) {
+            // If the current expression is not compatible to the new mapping.
+            // e.g. : the current mapping is b = <boolean> func(5) but the new mapping is s = <string> func(5)
+            // We cannot use the regular flow here. We need to set func(5) to a temporary variable and reuse.
+            compatibleExp = false;
+        }
 
         const outputExpressions = this.getOutputExpressions(stmt);
 
@@ -243,14 +253,28 @@ class TransformNodeMapper {
                 this._transformStmt.body.addStatements(assignmentStmt, -1, true);
             }
         } else if (outputExpressions[source.index].type === ExpressionType.DIRECT) {
-            const tempVarName = this.assignStatementToTempVariable(stmt);
-            const tempVarRefExpr = TransformFactory.createVariableRefExpression(tempVarName);
-            stmt.setExpression(tempVarRefExpr, true);
+            if (!compatibleExp) {
+                const mappingExp = this.getMappableExpression(stmtExpr);
+                const tempVarName = this.assignExpressionToTempVariable(mappingExp,
+                    this._transformStmt.body.getIndexOfStatements(stmt));
+                const tempVarRefExpr = TransformFactory.createVariableRefExpression(tempVarName);
+                stmtExpr.setExpression(tempVarRefExpr, true);
 
-            const newAssignmentStmt = NodeFactory.createAssignment();
-            newAssignmentStmt.addVariables(targetExpression, source.index, true);
-            newAssignmentStmt.setExpression(tempVarRefExpr, true);
-            this._transformStmt.body.addStatements(newAssignmentStmt, -1, true);
+                const newAssignmentStmt = NodeFactory.createAssignment();
+                rightExpression.setExpression(tempVarRefExpr);
+                newAssignmentStmt.setExpression(rightExpression);
+                newAssignmentStmt.replaceVariablesByIndex(source.index, targetExpression, true);
+                this._transformStmt.body.addStatements(newAssignmentStmt, -1, true);
+            } else {
+                const tempVarName = this.assignStatementToTempVariable(stmt);
+                const tempVarRefExpr = TransformFactory.createVariableRefExpression(tempVarName);
+                stmt.setExpression(tempVarRefExpr, true);
+
+                const newAssignmentStmt = NodeFactory.createAssignment();
+                newAssignmentStmt.addVariables(targetExpression, source.index, true);
+                newAssignmentStmt.setExpression(tempVarRefExpr, true);
+                this._transformStmt.body.addStatements(newAssignmentStmt, -1, true);
+            }
         }
 
         this._transformStmt.trigger('tree-modified', {
@@ -272,7 +296,7 @@ class TransformNodeMapper {
     createOperatorToOutputMapping(targetExpression, source, target, compatibility) {
         this.validateTargetMappings(targetExpression);
 
-        const stmt = this.findEnclosingStatement(source.operator);
+        const stmt = this.getParentStatement(source.operator);
         if (!stmt) {
             log.error('Cannot find statement containing the operator '
                         + source.operator.getOperatorKind());
@@ -546,7 +570,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeInputToOutputMapping(sourceName, targetName) {
-        const assignmentStmt = _.find(this._transformStmt.body.getStatements(), (stmt) => {
+        const assignmentStmt = _.find(this.getMappingStatements(), (stmt) => {
             if (TreeUtil.isAssignment(stmt)) {
                 return this.getVariables(stmt).find((varExp) => {
                     const varExpStr = varExp.getSource().trim();
@@ -578,7 +602,7 @@ class TransformNodeMapper {
         const stmtSource = this.getParentStatement(nodeExpression);
         const expression = this.getVariables(stmtSource)[source.index];
 
-        if (expression) {
+        if (expression.getSource().trim() === targetName) {
             this.removeOutputExpressions(stmtSource, targetName);
              // const errExpression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
             //     return (child.getExpressionString().trim() === '_');
@@ -1003,7 +1027,7 @@ class TransformNodeMapper {
      */
     getAssignedTempVarName(expression) {
         let tempVarName;
-        this._transformStmt.body.getStatements().forEach((stmt) => {
+        this.getMappingStatements().forEach((stmt) => {
             if (this.getExpression(stmt).getSource().trim() === expression.getSource().trim()) {
                 const outputExpressions = this.getOutputExpressions(stmt);
                 // TODO: handle multiple temp returns here
@@ -1034,19 +1058,6 @@ class TransformNodeMapper {
         assignment.addVariables(variableExp);
         assignment.setDeclaredWithVar(true);
         return assignment;
-    }
-
-    /**
-     * Get assignment statement containing the given right expression
-     * @param {Expression} expression right expression
-     * @return {Statement} statement enclosing the given expression
-     * @memberof TransformNodeMapper
-     */
-    findEnclosingStatement(expression) {
-        return this._transformStmt.body.getStatements().find((stmt) => {
-            return (this.getMappableExpression(this.getExpression(stmt).getSource().trim()
-                                === expression.getSource().trim()));
-        });
     }
 
     /**
@@ -1348,7 +1359,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getOutputStatement(expression) {
-        return this._transformStmt.body.getStatements().find((stmt) => {
+        return this.getMappingStatements().find((stmt) => {
             return this.getVariables(stmt).find((varExp) => {
                 return expression.getSource().trim() === varExp.getSource().trim();
             });
@@ -1364,7 +1375,7 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     getInputStatements(expression) {
-        return this._transformStmt.body.getStatements().filter((stmt) => {
+        return this.getMappingStatements().filter((stmt) => {
             const matchingInput = this.getVerticesFromExpression(this.getExpression(stmt)).filter((exp) => {
                 return (exp.getSource().trim() === expression.getSource().trim());
             });
@@ -1441,6 +1452,19 @@ class TransformNodeMapper {
             return [stmt.getVariable().getName()];
         }
         return [];
+    }
+
+    /**
+     * Get mapping related statements in transform statement. The only statements that can be mapped are
+     * assignment and variable def statements
+     * @returns {[Statement]} mapping statements
+     * @memberof TransformNodeMapper
+     */
+    getMappingStatements() {
+        const stmts = this._transformStmt.body.getStatements().filter((stmt) => {
+            return (TreeUtil.isAssignment(stmt) || TreeUtil.isVariableDef(stmt));
+        });
+        return stmts;
     }
 }
 
