@@ -115,8 +115,8 @@ public class TargetChannel {
         targetHandler.setTargetChannel(this);
     }
 
-    public void setEndPointTimeout(int socketIdleTimeout) {
-        this.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER,
+    public void setEndPointTimeout(int socketIdleTimeout, boolean followRedirect) {
+        this.getChannel().pipeline().addBefore((followRedirect ? Constants.REDIRECT_HANDLER : Constants.TARGET_HANDLER),
                 Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                         TimeUnit.MILLISECONDS));
     }

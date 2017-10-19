@@ -126,15 +126,16 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from Target handler.");
+        }
         ctx.close();
-        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-        LOG.debug("Target channel closed.");
     }
 
     public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
@@ -159,8 +160,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("Exception occurred in TargetHandler.", cause);
         httpResponseFuture.notifyHttpListener(cause);
         if (ctx != null && ctx.channel().isActive()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(" And Channel ID is : " + ctx.channel().id());
+            }
             ctx.close();
         }
     }
@@ -170,9 +175,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Timeout occurred in Targethandler. Channel ID : " + ctx.channel().id());
+                }
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 targetChannel.setRequestWritten(false);
-                httpResponseFuture.notifyHttpListener(new Exception("Endpoint timed out"));
+                httpResponseFuture.notifyHttpListener(new Exception(Constants.ENDPOINT_TIMEOUT_MSG));
             }
         }
     }
