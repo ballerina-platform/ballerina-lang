@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.lang.math:asin.
  *
- * @since 0.95
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
