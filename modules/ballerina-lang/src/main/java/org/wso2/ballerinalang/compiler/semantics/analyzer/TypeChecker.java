@@ -915,7 +915,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
                 env, actionName, SymTag.ACTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName.value);
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, connectorName);
             resultTypes = actualTypes;
             return;
         }
