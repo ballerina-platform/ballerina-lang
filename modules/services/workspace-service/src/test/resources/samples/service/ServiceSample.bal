@@ -1,13 +1,14 @@
-import ballerina.connectors.twitter;
-import ballerina.connectors.salesforce as sf;
+import ballerina.net.http;
 
-service<http> HelloService {
+@http:configuration {basePath:"/echo"}
+service<http> echo {
 
-  twitter:TwitterConnector t = create twitter:TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
-
-  @POST {}
-  @Path {value:"/tweet"}
-  resource tweet (message m) {
-      twitter:TwitterConnector.tweet(t, messages:getPayload(m));
-  }
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
+    resource echo (message m) {
+        http:convertToResponse(m);
+        response:send(m);
+    }
 }
