@@ -403,7 +403,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
             case TypeTags.CONNECTOR:
-                checkActionInvocationExpr(iExpr);
+                checkActionInvocationExpr(iExpr, (BConnectorType) iExpr.expr.type);
                 break;
             default:
                 // TODO Handle this condition
@@ -899,30 +899,27 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BConnectorType connectorType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) iExpr.expr;
-        Name varName = names.fromIdNode(varRef.variableName);
-        Name pkgAlias = names.fromIdNode(varRef.pkgAlias);
-        BSymbol symbol = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, varName, SymTag.VARIABLE);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.value);
+        Name connectorName = names.fromString(connectorType.toString());
+        BPackageSymbol packageSymbol = (BPackageSymbol) connectorType.tsymbol.owner;
+        BSymbol connectorSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
+                connectorName, SymTag.CONNECTOR);
+        if (connectorSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorName);
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
-        iExpr.expr.symbol = (BVarSymbol) symbol;
 
         Name actionName = names.fromIdNode(iExpr.name);
-        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, symbol.type.tsymbol.scope,
+        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
                 env, actionName, SymTag.ACTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName.value);
             resultTypes = actualTypes;
             return;
         }
-
         iExpr.symbol = actionSym;
-
         checkInvocationParamAndReturnType(iExpr);
     }
 

@@ -432,9 +432,6 @@ public class ProgramFileReader {
             // Set connector type
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
 
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
@@ -501,6 +498,9 @@ public class ProgramFileReader {
                 // Read attributes of the struct info
                 readAttributeInfoEntries(dataInStream, packageInfo, actionInfo);
             }
+
+            // Read attributes of the struct info
+            readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
     }
 

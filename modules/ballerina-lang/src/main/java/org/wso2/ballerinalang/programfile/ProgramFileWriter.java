@@ -306,9 +306,6 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(connectorInfo.nameCPIndex);
         // TODO write property flags  e.g. public
         dataOutStream.writeInt(connectorInfo.signatureCPIndex);
-
-        // Write attribute info entries
-        writeAttributeInfoEntries(dataOutStream, connectorInfo.getAttributeInfoEntries());
     }
 
     private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
@@ -318,6 +315,9 @@ public class ProgramFileWriter {
         for (ActionInfo actionInfo : actionInfoEntries) {
             writeActionInfo(dataOutStream, actionInfo);
         }
+
+        // Write attribute info entries
+        writeAttributeInfoEntries(dataOutStream, connectorInfo.getAttributeInfoEntries());
     }
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,
