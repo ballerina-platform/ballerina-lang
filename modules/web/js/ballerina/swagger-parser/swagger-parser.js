@@ -612,8 +612,7 @@ class SwaggerParser {
             resourceDefinition.getParameters().splice(2);
 
             swaggerParameters.forEach((swaggerParameter) => {
-                if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'path') &&
-                                                                                !_.isNil(swaggerParameter.type)) {
+                if (swaggerParameter.in === 'path' && !_.isNil(swaggerParameter.type)) {
                     const parameterType = NodeFactory.createValueType();
                     if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
                         parameterType.setTypeKind('int');
@@ -625,22 +624,12 @@ class SwaggerParser {
                     const parameterName = NodeFactory.createIdentifier();
                     parameterName.setValue(swaggerParameter.name);
 
-                    // Creating parameter annotation.
-                    let paramAnnotation;
-                    if (swaggerParameter.in === 'query') {
-                        paramAnnotation = SwaggerParser.createAnnotationAttachment(httpAlias, 'QueryParam');
-                    } else if (swaggerParameter.in === 'path') {
-                        paramAnnotation = SwaggerParser.createAnnotationAttachment(httpAlias, 'PathParam');
-                    }
-
                     const nameValue = NodeFactory.createLiteral();
                     nameValue.setValue(`"${swaggerParameter.name}"`);
-                    SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameValue);
 
                     const parameter = NodeFactory.createVariable({
                         typeNode: parameterType,
                         name: parameterName,
-                        annotationAttachments: [paramAnnotation],
                         initialExpression: undefined,
                     });
 

@@ -22,6 +22,6 @@ service<http> Service5 {
         path: "/pets/{id}",
         produces: ["application/json"]
     }
-    resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id) {
+    resource Resource1 (http:Request req, http:Response res, string id) {
     }
 }
