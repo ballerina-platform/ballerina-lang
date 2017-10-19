@@ -127,8 +127,7 @@ class ConnectorPropertiesForm extends React.Component {
         const paramArray = [];
         let map;
         data.forEach((key) => {
-            if (((key.bType === 'string' || key.bType === 'map') && key.value === '') ||
-                key.value === 0 || key.value === false) {
+            if (key.value === key.defaultValue && key.fields.length === 0) {
                 return;
             }
             if (key.bType === 'string') {
@@ -167,8 +166,7 @@ class ConnectorPropertiesForm extends React.Component {
             if (field.identifier.startsWith('"')) {
                 field.identifier = JSON.parse(field.identifier);
             }
-            if (((field.bType === 'string' || field.bType === 'map') && field.value === '') ||
-                field.value === 0 || field.value === false) {
+            if (field.value === field.defaultValue && field.fields.length === 0) {
                 return;
             }
             // If the btype is string, add quotation marks to the value

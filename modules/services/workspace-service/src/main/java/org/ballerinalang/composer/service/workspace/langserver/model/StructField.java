@@ -25,9 +25,10 @@ public class StructField {
     private String defaultValue;
     private String packageName;
 
-    public StructField(String name, String type) {
+    public StructField(String name, String type, String defaultValue) {
         this.name = name;
         this.type = type;
+        this.defaultValue = defaultValue;
     }
 
     public String getName() {
