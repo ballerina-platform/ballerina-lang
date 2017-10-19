@@ -233,11 +233,11 @@ public native function <Response res> clone () (Response);
 @doc:Param { value:"value: The header value" }
 public native function <Response res> setHeader (string key, string value);
 
-@doc:Description { value:"To get the value for a string property in a map type message"}
+@doc:Description { value:"Sends outbound response to the caller."}
 @doc:Param { value:"res: The response message" }
 public native function <Response res> send ();
 
-@doc:Description { value:"To get the value for a string property in a map type message"}
+@doc:Description { value:"Forwards client service response directly to the caller."}
 @doc:Param { value:"res: The response message" }
 @doc:Param { value:"resp: The new instance of the response message" }
 public native function <Response res> forward (Response resp);
