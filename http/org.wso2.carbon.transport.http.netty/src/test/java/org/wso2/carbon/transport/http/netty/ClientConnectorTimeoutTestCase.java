@@ -34,7 +34,6 @@ import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.http2.HTTP2MessageProcessor;
 import org.wso2.carbon.transport.http.netty.https.HTTPSConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
@@ -52,23 +51,24 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Tests for HTTP client connector timeout
  */
-public class ClientConnectorTimeout {
+public class ClientConnectorTimeoutTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HTTP2MessageProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(ClientConnectorTimeoutTestCase.class);
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration =
-                TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTPS_SERVER_PORT, new DumbServerInitializer());
+
+        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
+                        "/simple-test-config" + File.separator + "netty-transports.yml");
         SenderConfiguration senderConfiguration = HTTPConnectorUtil
                 .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 senderConfiguration);
