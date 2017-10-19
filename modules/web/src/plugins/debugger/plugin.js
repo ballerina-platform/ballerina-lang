@@ -215,7 +215,10 @@ class DebuggerPlugin extends Plugin {
                     icon: 'bug',
                     commandID: COMMAND_IDS.RUN_WITH_DEBUG,
                     isVisible: () => {
-                        return !DebugManager.active;
+                        if (LaunchManager.active || DebugManager.active) {
+                            return false;
+                        }
+                        return true;
                     },
                     isActive: () => {
                         const activeEditor = this.appContext.editor.getActiveEditor();
