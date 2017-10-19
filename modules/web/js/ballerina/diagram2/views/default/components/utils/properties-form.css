@@ -421,3 +421,11 @@
 #property-modal .alertMsgForNoProps{
     padding-top: 13px;
 }
+
+#property-modal .currentBreadcrumbItem{
+    cursor: default;
+}
+
+#property-modal .previousBreadcrumbItem{
+    cursor: pointer;
+}
