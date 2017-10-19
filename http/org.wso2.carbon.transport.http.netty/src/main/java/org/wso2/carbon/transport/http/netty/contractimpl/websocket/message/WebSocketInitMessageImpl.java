@@ -49,6 +49,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
     private final ChannelHandlerContext ctx;
     private final HttpRequest httpRequest;
     private final WebSocketSourceHandler webSocketSourceHandler;
+    private boolean isCancelled = false;
 
     public WebSocketInitMessageImpl(ChannelHandlerContext ctx, HttpRequest httpRequest,
                                     WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
@@ -87,16 +88,32 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
 
     @Override
     public void cancelHandShake(int closeCode, String closeReason) {
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        ChannelFuture channelFuture =
-                handshaker.close(ctx.channel(), new CloseWebSocketFrame(closeCode, closeReason));
-        channelFuture.channel().close();
+        try {
+            WebSocketServerHandshakerFactory wsFactory =
+                    new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+            WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+            ChannelFuture channelFuture =
+                    handshaker.close(ctx.channel(), new CloseWebSocketFrame(closeCode, closeReason));
+            channelFuture.channel().close();
+        } finally {
+            isCancelled = true;
+        }
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
     }
 
     private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout) {
         HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
+
+        if (isCancelled) {
+            Throwable e = new IllegalAccessException("Handshake is already cancelled!");
+            handshakeFuture.notifyError(e);
+            return handshakeFuture;
+        }
+
         try {
             ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest);
             handshakeFuture.setChannelFuture(future);

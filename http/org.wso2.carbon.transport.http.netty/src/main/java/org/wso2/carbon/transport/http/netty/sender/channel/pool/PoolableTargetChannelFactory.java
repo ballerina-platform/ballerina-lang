@@ -44,16 +44,21 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private HttpRoute httpRoute;
     private SSLConfig sslConfig;
     private boolean httpTraceLogEnabled;
+    private boolean followRedirect;
+    private int maxRedirectCount;
     private boolean chunkDisabled;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
                                         Class eventLoopClass, SSLConfig sslConfig,
+                                        boolean httpTraceLogEnabled, boolean followRedirect, int maxRedirectCount) {
                                         boolean httpTraceLogEnabled, boolean chunkDisabled) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
         this.sslConfig = sslConfig;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+        this.followRedirect = followRedirect;
+        this.maxRedirectCount = maxRedirectCount;
         this.chunkDisabled = chunkDisabled;
     }
 
@@ -78,8 +83,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public void destroyObject(Object o) throws Exception {
         log.debug("Destroying channel: {}", o);
         if (((TargetChannel) o).getChannel().isOpen()) {
+            if (log.isDebugEnabled()) {
+                log.debug("And channel id is : " + ((TargetChannel) o).getChannel().id());
+            }
             ((TargetChannel) o).getChannel().close();
-
         }
     }
 
@@ -131,6 +138,8 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     private HTTPClientInitializer instantiateAndConfigClientInitializer(Bootstrap clientBootstrap,
             SSLEngine sslEngine) {
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled,
+                followRedirect, maxRedirectCount);
         HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled
                 , chunkDisabled);
         if (log.isDebugEnabled()) {

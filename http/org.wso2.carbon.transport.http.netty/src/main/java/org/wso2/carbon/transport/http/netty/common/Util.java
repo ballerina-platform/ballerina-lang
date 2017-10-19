@@ -15,6 +15,7 @@
 
 package org.wso2.carbon.transport.http.netty.common;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -499,5 +500,18 @@ public class Util {
      */
     public static String createServerConnectorID(String host, int port) {
         return host + ":" + port;
+    }
+
+    /**
+     * Reset channel attributes.
+     *
+     * @param ctx Channel handler context
+     */
+    public static void resetChannelAttributes(ChannelHandlerContext ctx) {
+        ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
+        ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
+        ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
+        ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
+        ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
     }
 }

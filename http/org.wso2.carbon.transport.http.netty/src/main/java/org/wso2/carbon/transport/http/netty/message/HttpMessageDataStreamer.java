@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
+import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BufferFactory;
@@ -57,6 +58,7 @@ public class HttpMessageDataStreamer {
         private boolean chunkFinished = true;
         private int limit;
         private ByteBuffer byteBuffer;
+        private ByteBuf byteBuf;
 
         @Override
         public int read() throws IOException {
@@ -64,7 +66,8 @@ public class HttpMessageDataStreamer {
             if (httpCarbonMessage.isEndOfMsgAdded() && httpCarbonMessage.isEmpty() && chunkFinished) {
                 return -1;
             } else if (chunkFinished) {
-                byteBuffer = httpCarbonMessage.getMessageBody();
+                byteBuf = httpCarbonMessage.getMessageBody();
+                byteBuffer = byteBuf.nioBuffer();
                 count = 0;
                 limit = byteBuffer.limit();
                 if (limit == 0) {
@@ -74,7 +77,12 @@ public class HttpMessageDataStreamer {
             }
             count++;
             if (count == limit) {
+                int value = byteBuffer.get() & 0xff;
                 chunkFinished = true;
+                byteBuffer = null;
+                byteBuf.release();
+
+                return value;
             }
             return byteBuffer.get() & 0xff;
         }

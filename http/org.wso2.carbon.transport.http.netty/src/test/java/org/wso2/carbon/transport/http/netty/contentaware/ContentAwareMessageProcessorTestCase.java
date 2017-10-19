@@ -32,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
+import org.wso2.carbon.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -59,7 +60,7 @@ public class ContentAwareMessageProcessorTestCase {
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
         serverConnectors = TestUtil.startConnectors(
                 configuration, new PassthroughMessageProcessorListener(configuration));
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT);
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, new EchoServerInitializer());
     }
 
     @Test
