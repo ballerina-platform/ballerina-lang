@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.Base64;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -115,5 +116,35 @@ public class FileContentProvider {
         response.addProperty("extension", extension);
         response.addProperty("content", encodedContent);
         return response;
+    }
+
+    @OPTIONS
+    @Path("/docs/api/**")
+    public Response docsOptions() {
+        return Response.ok().header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
+                .header("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/docs/api/**")
+    public Response getDocs(@Context Request request) {
+        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web/public")) {
+            int index = contextRoot.indexOf("/resources/composer/web/public");
+            String home = contextRoot.substring(0, index);
+            String filePath = home + request.getUri().substring(5);
+            File file = new File(filePath);
+            if (file.exists()) {
+                return Response.ok(file).build();
+            }
+
+            File error404 = new File(home + "/resources/composer/web/errors/error404.html");
+            if (error404.exists()) {
+                return Response.status(Response.Status.NOT_FOUND).entity(error404).build();
+            }
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 }

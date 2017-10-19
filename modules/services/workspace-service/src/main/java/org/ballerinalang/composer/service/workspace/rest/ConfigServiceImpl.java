@@ -149,6 +149,9 @@ public class ConfigServiceImpl {
 
         JsonObject imageUtil = new JsonObject();
         imageUtil.addProperty("endpoint", apiPath + "/file/connector/icon");
+
+        JsonObject documentation = new JsonObject();
+        documentation.addProperty("endpoint", apiPath + "/file/docs/api");
         
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
@@ -165,6 +168,7 @@ public class ConfigServiceImpl {
         services.add("typeLattice", typeLattice);
         services.add("tryItService", tryItService);
         services.add("imageutil", imageUtil);
+        services.add("documentation", documentation);
 
         JsonObject config = new JsonObject();
         config.add("services", services);

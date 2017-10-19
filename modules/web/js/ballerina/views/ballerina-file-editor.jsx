@@ -41,6 +41,9 @@ import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import './../utils/react-try-catch-batching-strategy';
 import FragmentUtils from '../utils/fragment-utils';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
+
 /**
  * React component for BallerinaFileEditor.
  *
@@ -454,9 +457,9 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} pkgName
      * @param {string} symbolName
      */
-    openDocumentation(pkgName, symbolName) {
-        this.props.commandProxy
-            .dispatch(OPEN_SYMBOL_DOCS, pkgName, symbolName);
+    openDocumentation(packageName, symbolName) {
+        this.props.commandProxy.dispatch(LAYOUT_COMMANDS.SHOW_VIEW,
+            { id: DOC_VIEW_ID, additionalProps: { packageName, symbolName } } );
     }
 
     /**
