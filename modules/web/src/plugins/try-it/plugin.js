@@ -29,7 +29,8 @@ import { VIEWS as TRY_IT_VIEW,
     TRY_IT_PLUGIN_ID,
     LABELS,
     TOOLS as TRY_IT_TOOLS,
-    COMMANDS as TRY_IT_COMMANDS } from './constants';
+    COMMANDS as TRY_IT_COMMANDS,
+    PLUGIN_CONSTANTS as CONSTANTS } from './constants';
 
 /**
  * Plugin for Try-it
@@ -55,11 +56,15 @@ class TryItPlugin extends Plugin {
         const { command, editor } = this.appContext;
 
         command.on('debugger-run-with-debug-executed', (file) => {
-            this.activeFile = file;
+            if (file) {
+                this.activeFile = file;
+            }
         });
 
         command.on('debugger-run-executed', (file) => {
-            this.activeFile = file;
+            if (file) {
+                this.activeFile = file;
+            }
         });
         command.on('debugger-stop-executed', () => {
             const tryItEditor = editor.getEditorByID(TRY_IT_VIEW.TRY_IT_VIEW_ID);
@@ -104,10 +109,13 @@ class TryItPlugin extends Plugin {
                     icon: 'dgm-try-catch',
                     commandID: TRY_IT_COMMANDS.SHOW_TRY_IT,
                     isActive: () => {
-                        return LaunchManager.active;
+                        return true;
                     },
                     isVisible: () => {
-                        return LaunchManager.active;
+                        const isService = LaunchManager.messages.filter((message) => {
+                            return message.message && message.message.startsWith(CONSTANTS.HTTP_SERVICE_PREFIX);
+                        }).length > 0;
+                        return LaunchManager.active && isService;
                     },
                 },
             ],

@@ -36,4 +36,8 @@ export const TOOLS = {
     SHOW_TRY_IT: 'composer.tool.debugger.tryit',
 };
 
+export const PLUGIN_CONSTANTS = {
+    HTTP_SERVICE_PREFIX: 'ballerina: started HTTP/WS server connector',
+};
+
 export const TRY_IT_PLUGIN_ID = 'composer.tryit.ballerina';
