@@ -264,6 +264,16 @@ class CompoundStatementDecorator extends React.Component {
                     height={statementBBox.h}
                     className="background-empty-rect"
                 />
+                <DropZone
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
+                    height={statementBBox.h}
+                    baseComponent="rect"
+                    dropTarget={this.props.body}
+                    enableDragBg
+                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
+                />
                 <rect
                     x={statementBBox.x}
                     y={statementBBox.y}
@@ -330,16 +340,6 @@ class CompoundStatementDecorator extends React.Component {
                     </g>
                 }
                 { isBreakpoint && this.renderBreakpointIndicator() }
-                <DropZone
-                    x={bodyBBox.x}
-                    y={bodyBBox.y}
-                    width={bodyBBox.w}
-                    height={bodyBBox.h}
-                    baseComponent="rect"
-                    dropTarget={this.props.body}
-                    enableDragBg
-                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
-                />
                 {this.props.children}
                 {body}
                 <ActionBox
