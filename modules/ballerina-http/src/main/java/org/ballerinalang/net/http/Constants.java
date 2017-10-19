@@ -80,15 +80,6 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
 
-    public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
-    public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
-    public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
-    public static final String AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
-    public static final String AC_ALLOW_METHODS = "Access-Control-Allow-Methods";
-    public static final String AC_MAX_AGE = "Access-Control-Max-Age";
-    public static final String AC_ALLOW_HEADERS = "Access-Control-Allow-Headers";
-    public static final String AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
-
     public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";
     public static final String ALLOW_METHODS = "allowMethods";
@@ -177,6 +168,25 @@ public class Constants {
             public static final String OCTET_STREAM = "application/octet-stream";
             public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
         }
+
+        /**
+         * Access control HTTP Headers
+         */
+        public static class AccessControl {
+            private AccessControl() {
+            }
+
+            public static final String REQUEST_METHOD = "Access-Control-Request-Method";
+            public static final String REQUEST_HEADERS = "Access-Control-Request-Headers";
+            public static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+            public static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+            public static final String ALLOW_METHODS = "Access-Control-Allow-Methods";
+            public static final String MAX_AGE = "Access-Control-Max-Age";
+            public static final String ALLOW_HEADERS = "Access-Control-Allow-Headers";
+            public static final String EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+        }
     }
+
+
 
 }
