@@ -350,7 +350,7 @@ public class BLangFileRestService {
             JsonObject error = new JsonObject();
             Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
             if (position != null) {
-                if (!diagnostic.getSource().getCompilationUnitName().equals(bFile.getFileName())) {
+                if (!diagnostic.getSource().getCompilationUnitName().equals(fileName)) {
                     return;
                 }
 
