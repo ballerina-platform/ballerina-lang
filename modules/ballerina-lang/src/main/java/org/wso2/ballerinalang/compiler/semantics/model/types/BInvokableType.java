@@ -67,6 +67,11 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
     public String toString() {
         return getTypeName(typeDescriptor, paramTypes, retTypes);
     }
