@@ -428,11 +428,10 @@ public class BLangVM {
                     } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
                         if (JSONUtils.isJSONArray((BJSON) array)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                            break;
                         } else {
                             sf.longRegs[j] = -1;
-                            break;
                         }
+                        break;
                     }
 
                     BNewArray newArray = (BNewArray) array;

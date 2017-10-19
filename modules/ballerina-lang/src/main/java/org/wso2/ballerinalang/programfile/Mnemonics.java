@@ -248,6 +248,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
         mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
+        mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
     }
 
     public static String getMnem(int opcode) {
