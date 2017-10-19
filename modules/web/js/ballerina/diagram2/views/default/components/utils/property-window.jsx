@@ -39,7 +39,6 @@ class PropertyWindow extends React.Component {
         };
         this.onChange = this.onChange.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
-        this.handleOutsideClick = this.handleOutsideClick.bind(this);
         this.renderNumericInputs = this.renderNumericInputs.bind(this);
         this.renderTextInputs = this.renderTextInputs.bind(this);
         this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
@@ -50,26 +49,6 @@ class PropertyWindow extends React.Component {
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
         this.closePropertyWindow = this.closePropertyWindow.bind(this);
-    }
-
-    componentDidMount() {
-        if (this.props.model.viewState.showOverlayContainer) {
-            document.addEventListener('mouseup', this.handleOutsideClick, false);
-        } else {
-            document.removeEventListener('mouseup', this.handleOutsideClick, false);
-        }
-    }
-
-    componentDidUpdate() {
-        if (this.props.model.viewState.showOverlayContainer) {
-            document.addEventListener('mouseup', this.handleOutsideClick, false);
-        } else {
-            document.removeEventListener('mouseup', this.handleOutsideClick, false);
-        }
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('mouseup', this.handleOutsideClick, false);
     }
 
     /**
@@ -92,18 +71,6 @@ class PropertyWindow extends React.Component {
         this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
         this.props.model.viewState.overlayContainer = {};
         this.context.editor.update();
-    }
-
-    /**
-     * Handles the outside click of the prop window
-     * @param e
-     */
-    handleOutsideClick(e) {
-        if (this.node) {
-            if (!this.node.contains(e.target)) {
-                this.closePropertyWindow();
-            }
-        }
     }
 
     /**
