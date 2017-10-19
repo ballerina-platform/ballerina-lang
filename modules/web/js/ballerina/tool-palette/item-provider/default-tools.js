@@ -159,11 +159,11 @@ const tools = [
         description: 'Provide a way to terminate the immediately enclosing loop',
     },
     {
-        id: 'continue',
-        name: 'Continue',
-        icon: 'continue',
-        title: 'Continue',
-        nodeFactoryMethod: DefaultNodeFactory.createContinue,
+        id: 'next',
+        name: 'Next',
+        icon: 'next',
+        title: 'Next',
+        nodeFactoryMethod: DefaultNodeFactory.createNext,
         description: 'Provide a way to continue with the immediately enclosing loop',
     },
     {

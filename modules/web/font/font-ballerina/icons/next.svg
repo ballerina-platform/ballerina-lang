@@ -16,7 +16,7 @@
  ~   limitations under the License.
 -->
 
-<svg version="1.1" id="continue" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" id="next" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
 <path d="M0.8688866,0v14l8.6419754-7L0.8688866,0z M13.1311131,14H9.5108624V0h3.6202507V14z"/>
 </svg>

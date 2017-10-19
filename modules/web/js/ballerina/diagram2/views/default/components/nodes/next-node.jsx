@@ -21,12 +21,15 @@ import StatementDecorator from '../decorators/statement-decorator';
 import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
- * Continue Statement Decorator.
+ * class to render Next statement.
+ * @extends React.Component
+ * @class NextNode
  * */
-class ContinueNode extends React.Component {
+class NextNode extends React.Component {
 
     /**
-     * Render Function for the continue statement.
+     * Render Function for the Next statement.
+     * @return {React.Component} next node react component.
      * */
     render() {
         const model = this.props.model;
@@ -41,13 +44,13 @@ class ContinueNode extends React.Component {
     }
 }
 
-ContinueNode.propTypes = {
+NextNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-ContinueNode.contextTypes = {
+NextNode.contextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default ContinueNode;
+export default NextNode;
