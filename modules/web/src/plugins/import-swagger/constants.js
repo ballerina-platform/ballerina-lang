@@ -26,7 +26,7 @@ export const MENUS = {
 };
 
 export const LABELS = {
-    IMPORT_SWAGGER_MENU_TITLE: 'Import Swagger',
+    IMPORT_SWAGGER_MENU_TITLE: 'Import Swagger Defintion',
 };
 
 export const DIALOG = {
