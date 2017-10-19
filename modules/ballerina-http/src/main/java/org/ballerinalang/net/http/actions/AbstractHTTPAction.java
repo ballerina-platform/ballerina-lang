@@ -84,7 +84,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 port = 443;
             }
 
-            cMsg.setProperty(Constants.HOST, host);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
             cMsg.setProperty(Constants.PORT, port);
             String toPath = url.getPath();
             String query = url.getQuery();
@@ -94,13 +94,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             cMsg.setProperty(Constants.TO, toPath);
 
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            if (!cMsg.getHeaders().contains(Constants.HOST)) {
+            if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
                 if (port != 80) {
-                    cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
+                    cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
                 } else {
-                    cMsg.getHeaders().set(Constants.HOST, host);
+                    cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
                 }
-
             }
             //Set User-Agent Header
             Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
