@@ -60,4 +60,11 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      * @param closeReason reason for canceling the handshake.
      */
     void cancelHandShake(int closeCode, String closeReason);
+
+    /**
+     * Check whether the handshake is cancelled in someplace or not.
+     *
+     * @return true if the handshake is cancelled.
+     */
+    boolean isCancelled();
 }

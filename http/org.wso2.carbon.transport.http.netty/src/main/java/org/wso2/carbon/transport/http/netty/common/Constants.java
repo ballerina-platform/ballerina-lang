@@ -15,6 +15,11 @@
 
 package org.wso2.carbon.transport.http.netty.common;
 
+import io.netty.util.AttributeKey;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
+
 /**
  * Common Constants used by gate way.
  */
@@ -123,7 +128,7 @@ public final class Constants {
 
     public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
 
-    public static final String HOST = "HOST";
+    public static final String HOST = "Host";
 
     public static final String PORT = "PORT";
 
@@ -174,6 +179,12 @@ public final class Constants {
     public static final String HTTP_SOAP_ACTION = "SOAPAction";
 
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
+
+    public static final String LOCATION = "Location";
+
+    public static final String HTTP_GET_METHOD = "GET";
+    public static final String HTTP_POST_METHOD = "POST";
+    public static final String HTTP_HEAD_METHOD = "HEAD";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
@@ -253,9 +264,35 @@ public final class Constants {
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
+
+    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.<Integer>valueOf
+            ("REDIRECT_COUNT");
+    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf
+            ("ORIGINAL_REQUEST");
+    public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
+            .<HttpResponseFuture>valueOf
+            ("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
+    public static final AttributeKey<Long> ORIGINAL_CHANNEL_START_TIME = AttributeKey
+            .<Long>valueOf
+                    ("ORIGINAL_CHANNEL_START_TIME");
+    public static final AttributeKey<Integer> ORIGINAL_CHANNEL_TIMEOUT = AttributeKey
+            .<Integer>valueOf
+                    ("ORIGINAL_CHANNEL_TIMEOUT");
+    public static final AttributeKey<TargetChannel> TARGET_CHANNEL_REFERENCE = AttributeKey
+            .<TargetChannel>valueOf
+                    ("TARGET_CHANNEL_REFERENCE");
+
+    public static final String UTF8 = "UTF-8";
+    public static final String URL_AUTHORITY = "://";
+    public static final String FORWRD_SLASH = "/";
+    public static final String COLON = ":";
+    public static final int MAX_REDIRECT_COUNT = 5;
+
+    public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
 
     private Constants() {
     }

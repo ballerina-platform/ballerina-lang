@@ -16,16 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.util.server;
+package org.wso2.carbon.transport.http.netty.util.server.initializers;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
@@ -36,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
@@ -45,47 +41,22 @@ import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * HTTP Server Handler
+ * An initializer class for HTTP Server
  */
-public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
+public class EchoServerInitializer extends HTTPServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTTPServerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(EchoServerInitializer.class);
 
-    private String stringContent;
-    private String contentType;
-    private int responseStatusCode = 200;
-    private HttpRequest req;
+    protected void addBusinessLogicHandler(Channel channel) {
+        channel.pipeline().addLast("handler", new EchoServerHandler());
+    }
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    private class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
-        if (stringContent != null) {
-            ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
-            if (msg instanceof HttpRequest) {
-                req = (HttpRequest) msg;
-            } else if (msg instanceof LastHttpContent) {
-                if (is100ContinueExpected(req)) {
-                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
-                }
-                boolean keepAlive = isKeepAlive(req);
-                HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                        HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
-                response.headers().set(CONTENT_TYPE, contentType);
-                response.headers().set(CONTENT_LENGTH, content.readableBytes());
+        private int responseStatusCode = 200;
 
-                if (!keepAlive) {
-                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                    logger.debug("Writing response with data to client-connector");
-                    logger.debug("Closing the client-connector connection");
-                } else {
-                    response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    ctx.writeAndFlush(response);
-                    logger.debug("Writing response with data to client-connector");
-                }
-            }
-
-        } else {
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (msg instanceof HttpRequest) {
                 HttpRequest req = (HttpRequest) msg;
 
@@ -122,16 +93,5 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
-    }
-
-    public void setMessage(String message, String contentType) {
-        if (message != null && contentType != null) {
-            this.contentType = contentType;
-            stringContent = message;
-        }
-    }
-
-    public void setResponseStatusCode(int responseStatusCode) {
-        this.responseStatusCode = responseStatusCode;
     }
 }
