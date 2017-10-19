@@ -61,7 +61,7 @@ public class HTTPResourceDispatcher {
                 cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
             } else {
-                if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+                if (method.equals(Constants.HttpMethod.OPTIONS)) {
                     handleOptionsRequest(cMsg, service);
                 } else {
                     cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);

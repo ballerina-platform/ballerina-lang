@@ -71,7 +71,7 @@ public class Patch extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_PATCH);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HttpMethod.PATCH);
         return cMsg;
     }
 

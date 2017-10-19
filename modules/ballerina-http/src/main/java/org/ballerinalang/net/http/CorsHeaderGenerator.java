@@ -186,11 +186,11 @@ public class CorsHeaderGenerator {
                     }
                 }
             }
-            if (requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
+            if (requestMethod.equals(Constants.HttpMethod.HEAD)) {
                 for (Resource resource : resources) {
                     if (DispatcherUtil.getHttpMethods(resource) != null) {
                         for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                            if (method.equals(Constants.HTTP_METHOD_GET)) {
+                            if (method.equals(Constants.HttpMethod.GET)) {
                                 return CorsRegistry.getInstance().getCorsHeaders(resource);
                             }
                         }

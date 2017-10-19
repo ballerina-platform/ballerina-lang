@@ -70,7 +70,7 @@ public class Post extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HttpMethod.POST);
         return cMsg;
     }
 }

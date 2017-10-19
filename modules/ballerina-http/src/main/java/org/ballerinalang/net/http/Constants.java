@@ -41,9 +41,6 @@ public class Constants {
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-    public static final String USER_AGENT_HEADER = "User-Agent";
-    public static final String CONTENT_TYPE_HEADER = "Content-Type";
-    public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
@@ -52,14 +49,6 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-
-    public static final String HTTP_METHOD_GET = "GET";
-    public static final String HTTP_METHOD_POST = "POST";
-    public static final String HTTP_METHOD_PUT = "PUT";
-    public static final String HTTP_METHOD_PATCH = "PATCH";
-    public static final String HTTP_METHOD_DELETE = "DELETE";
-    public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
-    public static final String HTTP_METHOD_HEAD = "HEAD";
 
     /* Annotations */
     public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
@@ -82,20 +71,18 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
-    public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
-    public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
-    public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
-    public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
-    public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
-    public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
+    public static final String ANNOTATION_METHOD_GET = HttpMethod.GET;
+    public static final String ANNOTATION_METHOD_POST = HttpMethod.POST;
+    public static final String ANNOTATION_METHOD_PUT = HttpMethod.PUT;
+    public static final String ANNOTATION_METHOD_PATCH = HttpMethod.PATCH;
+    public static final String ANNOTATION_METHOD_DELETE = HttpMethod.DELETE;
+    public static final String ANNOTATION_METHOD_OPTIONS = HttpMethod.OPTIONS;
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 
-    public static final String COOKIE_HEADER = "Cookie";
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
-    public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
 
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
@@ -150,34 +137,45 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
 
-    /**
-     * Content type HTTP header.
-     */
-    public static final String CONTENT_TYPE = "Content-Type";
 
-    /**
-     * HTTP content-type application/json.
-     */
-    public static final String APPLICATION_JSON = "application/json";
+    public static class HttpMethod {
+        private HttpMethod() {
+        }
 
-    /**
-     * HTTP content-type application/xml.
-     */
-    public static final String APPLICATION_XML = "application/xml";
+        public static final String GET = "GET";
+        public static final String POST = "POST";
+        public static final String PUT = "PUT";
+        public static final String PATCH = "PATCH";
+        public static final String DELETE = "DELETE";
+        public static final String OPTIONS = "OPTIONS";
+        public static final String HEAD = "HEAD";
+    }
 
-    /**
-     * HTTP content-type text/plain.
-     */
-    public static final String TEXT_PLAIN = "text/plain";
 
-    /**
-     * HTTP content-type application/octet-stream.
-     */
-    public static final String OCTET_STREAM = "application/octet-stream";
+    public static class Headers {
+        private Headers() {
+        }
 
-    /**
-     * HTTP content-type application/x-www-form-urlencoded.
-     */
-    public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
+        public static final String USER_AGENT = "User-Agent";
+        public static final String CONTENT_TYPE = "Content-Type";
+        public static final String ACCEPT = "Accept";
+        public static final String COOKIE = "Cookie";
+        public static final String RESPONSE_COOKIE = "Set-Cookie";
+
+        /**
+         * Content type HTTP headers.
+         */
+        public static class ContentType {
+            private ContentType() {
+            }
+
+            public static final String CONTENT_TYPE = "Content-Type";
+            public static final String APPLICATION_JSON = "application/json";
+            public static final String APPLICATION_XML = "application/xml";
+            public static final String TEXT_PLAIN = "text/plain";
+            public static final String OCTET_STREAM = "application/octet-stream";
+            public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
+        }
+    }
 
 }

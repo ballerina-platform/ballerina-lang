@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
  */
 public class DispatcherUtil {
 
-    private static String[] allMethods = new String[]{Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
-            , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
-            , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
+    private static String[] allMethods = new String[]{Constants.HttpMethod.GET, Constants.HttpMethod.HEAD
+            , Constants.HttpMethod.POST, Constants.HttpMethod.DELETE
+            , Constants.HttpMethod.PUT, Constants.HttpMethod.OPTIONS};
 
     public static boolean isMatchingMethodExist(Resource resourceInfo, String method) {
         String[] rHttpMethods = getHttpMethods(resourceInfo);
@@ -133,10 +133,10 @@ public class DispatcherUtil {
 
     public static List<String> validateAllowMethods(List<String> cachedMethods) {
         if (cachedMethods != null && cachedMethods.size() != 0) {
-            if (cachedMethods.contains(Constants.HTTP_METHOD_GET)) {
-                cachedMethods.add(Constants.HTTP_METHOD_HEAD);
+            if (cachedMethods.contains(Constants.HttpMethod.GET)) {
+                cachedMethods.add(Constants.HttpMethod.HEAD);
             }
-            cachedMethods.add(Constants.HTTP_METHOD_OPTIONS);
+            cachedMethods.add(Constants.HttpMethod.OPTIONS);
             cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
         }
         return cachedMethods;

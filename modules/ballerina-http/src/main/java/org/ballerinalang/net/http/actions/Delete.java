@@ -72,7 +72,7 @@ public class Delete extends AbstractHTTPAction {
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
         HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_DELETE);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HttpMethod.DELETE);
         return cMsg;
     }
 }
