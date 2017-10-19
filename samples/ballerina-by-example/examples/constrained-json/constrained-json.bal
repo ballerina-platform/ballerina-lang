@@ -12,7 +12,7 @@ function main (string[] args) {
     // Create a new json which is constrained by Person struct. Only the fields
     // defined in the Person struct can be accessed. If we try to access a non
     // existing field, it will produce a compilation error.
-    json<Person> person = {name:"jon"};
+    json<Person> person = {name:"Jon"};
 
     // We can access fields defined in the Person struct without any issue.
     person.age = 25;
