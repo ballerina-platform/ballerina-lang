@@ -19,15 +19,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const DefaultDecorator = ({ message, index }) => {
-    return (<div className={message.type} key={index}>
+const DefaultDecorator = ({ message }) => {
+    return (<div className={message.type}>
         <pre>{message.message}</pre>
     </div>);
 };
 
 DefaultDecorator.propTypes = {
     message: PropTypes.instanceOf(Object).isRequired,
-    index: PropTypes.number.isRequired,
 };
 
 export default DefaultDecorator;
