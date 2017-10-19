@@ -346,18 +346,20 @@ public class BLangFileRestService {
         JsonArray errors = new JsonArray();
         final String errorCategoryName = errorCategory.name();
         diagnostics.forEach(diagnostic -> {
-            if (!diagnostic.getSource().getCompilationUnitName().equals(bFile.getFileName())) {
-                return;
-            }
 
             JsonObject error = new JsonObject();
             Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
             if (position != null) {
+                if (!diagnostic.getSource().getCompilationUnitName().equals(bFile.getFileName())) {
+                    return;
+                }
+
                 error.addProperty("row", position.getStartLine());
                 error.addProperty("column", position.startColumn());
                 error.addProperty("type", "error");
                 error.addProperty("category", errorCategoryName);
             } else {
+                // position == null means it's a bug in core side.
                 error.addProperty("category", ErrorCategory.RUNTIME.name());
             }
 
