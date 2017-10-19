@@ -102,6 +102,7 @@ class AbstractXmlCommentLiteralNode extends Node {
     replaceTextFragments(oldChild, newChild, silent) {
         const index = this.getIndexOfTextFragments(oldChild);
         this.textFragments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractXmlCommentLiteralNode extends Node {
 
     replaceTextFragmentsByIndex(index, newChild, silent) {
         this.textFragments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractXmlCommentLiteralNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfTextFragments(child) {
         return _.findIndex(this.textFragments, ['id', child.id]);

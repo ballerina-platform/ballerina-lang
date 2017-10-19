@@ -129,6 +129,7 @@ class AbstractConnectorNode extends Node {
     replaceVariableDefs(oldChild, newChild, silent) {
         const index = this.getIndexOfVariableDefs(oldChild);
         this.variableDefs[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +145,7 @@ class AbstractConnectorNode extends Node {
 
     replaceVariableDefsByIndex(index, newChild, silent) {
         this.variableDefs[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +157,7 @@ class AbstractConnectorNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfVariableDefs(child) {
         return _.findIndex(this.variableDefs, ['id', child.id]);
@@ -327,6 +329,7 @@ class AbstractConnectorNode extends Node {
     replaceActions(oldChild, newChild, silent) {
         const index = this.getIndexOfActions(oldChild);
         this.actions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -342,6 +345,7 @@ class AbstractConnectorNode extends Node {
 
     replaceActionsByIndex(index, newChild, silent) {
         this.actions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -353,7 +357,7 @@ class AbstractConnectorNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfActions(child) {
         return _.findIndex(this.actions, ['id', child.id]);
@@ -444,6 +448,7 @@ class AbstractConnectorNode extends Node {
     replaceParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfParameters(oldChild);
         this.parameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -459,6 +464,7 @@ class AbstractConnectorNode extends Node {
 
     replaceParametersByIndex(index, newChild, silent) {
         this.parameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -470,7 +476,7 @@ class AbstractConnectorNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfParameters(child) {
         return _.findIndex(this.parameters, ['id', child.id]);
@@ -479,6 +485,31 @@ class AbstractConnectorNode extends Node {
     filterParameters(predicateFunction) {
         return _.filter(this.parameters, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -561,6 +592,7 @@ class AbstractConnectorNode extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -576,6 +608,7 @@ class AbstractConnectorNode extends Node {
 
     replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -587,7 +620,7 @@ class AbstractConnectorNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
@@ -596,31 +629,6 @@ class AbstractConnectorNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
 }

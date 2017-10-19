@@ -102,6 +102,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
     replaceExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfExpressions(oldChild);
         this.expressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
 
     replaceExpressionsByIndex(index, newChild, silent) {
         this.expressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);

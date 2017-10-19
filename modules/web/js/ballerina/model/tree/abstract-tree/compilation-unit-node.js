@@ -102,6 +102,7 @@ class AbstractCompilationUnitNode extends Node {
     replaceTopLevelNodes(oldChild, newChild, silent) {
         const index = this.getIndexOfTopLevelNodes(oldChild);
         this.topLevelNodes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractCompilationUnitNode extends Node {
 
     replaceTopLevelNodesByIndex(index, newChild, silent) {
         this.topLevelNodes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractCompilationUnitNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfTopLevelNodes(child) {
         return _.findIndex(this.topLevelNodes, ['id', child.id]);

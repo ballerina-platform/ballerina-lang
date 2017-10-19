@@ -1080,12 +1080,12 @@ class SizingUtil {
     }
 
     /**
-     * Calculate dimention of Continue nodes.
+     * Calculate dimention of Next nodes.
      *
      * @param {object} node
      *
      */
-    sizeContinueNode(node) {
+    sizeNextNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
     }

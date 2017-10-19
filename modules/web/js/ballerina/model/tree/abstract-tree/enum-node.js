@@ -102,6 +102,7 @@ class AbstractEnumNode extends Node {
     replaceEnumFields(oldChild, newChild, silent) {
         const index = this.getIndexOfEnumFields(oldChild);
         this.enumFields[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractEnumNode extends Node {
 
     replaceEnumFieldsByIndex(index, newChild, silent) {
         this.enumFields[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractEnumNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfEnumFields(child) {
         return _.findIndex(this.enumFields, ['id', child.id]);
@@ -162,6 +164,31 @@ class AbstractEnumNode extends Node {
 
     getName() {
         return this.name;
+    }
+
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
     }
 
 
@@ -246,6 +273,7 @@ class AbstractEnumNode extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -261,6 +289,7 @@ class AbstractEnumNode extends Node {
 
     replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -272,7 +301,7 @@ class AbstractEnumNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
@@ -281,31 +310,6 @@ class AbstractEnumNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
 }

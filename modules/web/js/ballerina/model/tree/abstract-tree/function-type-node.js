@@ -102,6 +102,7 @@ class AbstractFunctionTypeNode extends Node {
     replaceParamTypeNode(oldChild, newChild, silent) {
         const index = this.getIndexOfParamTypeNode(oldChild);
         this.paramTypeNode[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractFunctionTypeNode extends Node {
 
     replaceParamTypeNodeByIndex(index, newChild, silent) {
         this.paramTypeNode[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractFunctionTypeNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfParamTypeNode(child) {
         return _.findIndex(this.paramTypeNode, ['id', child.id]);
@@ -219,6 +221,7 @@ class AbstractFunctionTypeNode extends Node {
     replaceReturnParamTypeNode(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParamTypeNode(oldChild);
         this.returnParamTypeNode[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -234,6 +237,7 @@ class AbstractFunctionTypeNode extends Node {
 
     replaceReturnParamTypeNodeByIndex(index, newChild, silent) {
         this.returnParamTypeNode[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -245,7 +249,7 @@ class AbstractFunctionTypeNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfReturnParamTypeNode(child) {
         return _.findIndex(this.returnParamTypeNode, ['id', child.id]);

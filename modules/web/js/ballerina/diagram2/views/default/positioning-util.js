@@ -819,11 +819,11 @@ class PositioningUtil {
 
 
     /**
-     * Calculate position of Continue nodes.
+     * Calculate position of Next nodes.
      *
-     * @param {object} node Continue object
+     * @param {object} node Next object
      */
-    positionContinueNode(node) {
+    positionNextNode(node) {
         this.positionStatementComponents(node);
     }
 

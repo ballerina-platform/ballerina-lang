@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractActionNode extends Node {
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
-
-
     setReturnParameters(newValue, silent, title) {
         const oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -129,6 +102,7 @@ class AbstractActionNode extends Node {
     replaceReturnParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParameters(oldChild);
         this.returnParameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +118,7 @@ class AbstractActionNode extends Node {
 
     replaceReturnParametersByIndex(index, newChild, silent) {
         this.returnParameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +130,7 @@ class AbstractActionNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfReturnParameters(child) {
         return _.findIndex(this.returnParameters, ['id', child.id]);
@@ -164,6 +139,33 @@ class AbstractActionNode extends Node {
     filterReturnParameters(predicateFunction) {
         return _.filter(this.returnParameters, predicateFunction);
     }
+
+
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.body = newValue;
+
+        this.body.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBody() {
+        return this.body;
+    }
+
 
 
     setWorkers(newValue, silent, title) {
@@ -246,6 +248,7 @@ class AbstractActionNode extends Node {
     replaceWorkers(oldChild, newChild, silent) {
         const index = this.getIndexOfWorkers(oldChild);
         this.workers[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -261,6 +264,7 @@ class AbstractActionNode extends Node {
 
     replaceWorkersByIndex(index, newChild, silent) {
         this.workers[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -272,7 +276,7 @@ class AbstractActionNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfWorkers(child) {
         return _.findIndex(this.workers, ['id', child.id]);
@@ -390,6 +394,7 @@ class AbstractActionNode extends Node {
     replaceParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfParameters(oldChild);
         this.parameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -405,6 +410,7 @@ class AbstractActionNode extends Node {
 
     replaceParametersByIndex(index, newChild, silent) {
         this.parameters[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -416,7 +422,7 @@ class AbstractActionNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfParameters(child) {
         return _.findIndex(this.parameters, ['id', child.id]);
@@ -425,6 +431,31 @@ class AbstractActionNode extends Node {
     filterParameters(predicateFunction) {
         return _.filter(this.parameters, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -507,6 +538,7 @@ class AbstractActionNode extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -522,6 +554,7 @@ class AbstractActionNode extends Node {
 
     replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
         this.annotationAttachments[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -533,7 +566,7 @@ class AbstractActionNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
@@ -542,31 +575,6 @@ class AbstractActionNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
 }

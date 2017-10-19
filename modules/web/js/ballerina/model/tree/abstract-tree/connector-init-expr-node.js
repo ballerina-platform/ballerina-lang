@@ -102,6 +102,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     replaceExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfExpressions(oldChild);
         this.expressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
 
     replaceExpressionsByIndex(index, newChild, silent) {
         this.expressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);
@@ -137,6 +139,33 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     filterExpressions(predicateFunction) {
         return _.filter(this.expressions, predicateFunction);
     }
+
+
+    setConnectorType(newValue, silent, title) {
+        const oldValue = this.connectorType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.connectorType = newValue;
+
+        this.connectorType.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'connectorType',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getConnectorType() {
+        return this.connectorType;
+    }
+
 
 
     setFilterConnectos(newValue, silent, title) {
@@ -219,6 +248,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     replaceFilterConnectos(oldChild, newChild, silent) {
         const index = this.getIndexOfFilterConnectos(oldChild);
         this.filterConnectos[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -234,6 +264,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
 
     replaceFilterConnectosByIndex(index, newChild, silent) {
         this.filterConnectos[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -245,7 +276,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfFilterConnectos(child) {
         return _.findIndex(this.filterConnectos, ['id', child.id]);
@@ -254,33 +285,6 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     filterFilterConnectos(predicateFunction) {
         return _.filter(this.filterConnectos, predicateFunction);
     }
-
-
-    setConnectorType(newValue, silent, title) {
-        const oldValue = this.connectorType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.connectorType = newValue;
-
-        this.connectorType.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'connectorType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getConnectorType() {
-        return this.connectorType;
-    }
-
 
 
 }

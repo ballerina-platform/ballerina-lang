@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractContinueNode from './abstract-tree/continue-node';
+import AbstractNextNode from './abstract-tree/next-node';
 
-class ContinueNode extends AbstractContinueNode {
+class NextNode extends AbstractNextNode {
 
 }
 
-export default ContinueNode;
+export default NextNode;
