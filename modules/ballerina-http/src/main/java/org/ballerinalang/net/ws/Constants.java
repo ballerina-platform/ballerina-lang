@@ -36,16 +36,6 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
-    public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
-    public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
-    public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
-    public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
-    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "onPingMessage";
-    public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
-    public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
-    public static final String RESOURCE_NAME_ON_ERROR = "onError";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
-
     public static final String CONNECTION = "Connection";
     public static final String UPGRADE = "Upgrade";
     public static final String WEBSOCKET_UPGRADE = "websocket";
@@ -53,6 +43,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
+    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
 
     public static final String STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION = "HandshakeConnection";
     public static final String STRUCT_WEBSOCKET_CONNECTION = "Connection";
@@ -64,4 +55,18 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
     public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
+
+    /**
+     * WebSocket Resource Names
+     */
+    public static final class ResourceName {
+        public static final String ON_HANDSHAKE = "onHandshake";
+        public static final String ON_OPEN = "onOpen";
+        public static final String ON_TEXT_MESSAGE = "onTextMessage";
+        public static final String ON_BINARY_MESSAGE = "onBinaryMessage";
+        public static final String ON_PING_MESSAGE = "onPingMessage";
+        public static final String ON_CLOSE = "onClose";
+        public static final String ON_IDLE_TIMEOUT = "onIdleTimeout";
+        public static final String ON_ERROR = "onError";
+    }
 }

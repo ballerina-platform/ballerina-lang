@@ -73,7 +73,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchTextMessage(WebSocketService wsService, WebSocketTextMessage textMessage) {
-        Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
+        Resource onTextMessageResource = wsService.getResourceByName(Constants.ResourceName.ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
             return;
         }
@@ -92,7 +92,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchBinaryMessage(WebSocketService wsService, WebSocketBinaryMessage binaryMessage) {
-        Resource onBinaryMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
+        Resource onBinaryMessageResource = wsService.getResourceByName(Constants.ResourceName.ON_BINARY_MESSAGE);
         if (onBinaryMessageResource == null) {
             return;
         }
@@ -111,7 +111,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchCloseMessage(WebSocketService wsService, WebSocketCloseMessage closeMessage) {
-        Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
+        Resource onCloseResource = wsService.getResourceByName(Constants.ResourceName.ON_CLOSE);
         if (onCloseResource == null) {
             return;
         }
@@ -126,7 +126,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchIdleTimeout(WebSocketService wsService, WebSocketControlMessage controlMessage) {
-        Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+        Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.ResourceName.ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             return;
         }

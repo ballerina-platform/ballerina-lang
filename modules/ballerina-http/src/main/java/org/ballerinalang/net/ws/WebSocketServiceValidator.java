@@ -55,17 +55,17 @@ public class WebSocketServiceValidator {
     private static boolean validateResources(Resource[] resources) {
         for (Resource resource : resources) {
             String resourceName = resource.getName();
-            if (resourceName.equals(Constants.RESOURCE_NAME_ON_HANDSHAKE)) {
+            if (resourceName.equals(Constants.ResourceName.ON_HANDSHAKE)) {
                 validateOnHandshakeResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_OPEN)) {
+            } else if (resourceName.equals(Constants.ResourceName.ON_OPEN)) {
                 validateOnOpenResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE)) {
+            } else if (resourceName.equals(Constants.ResourceName.ON_TEXT_MESSAGE)) {
                 validateOnTextMessageResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE)) {
+            } else if (resourceName.equals(Constants.ResourceName.ON_BINARY_MESSAGE)) {
                 validateOnBinaryMessageResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT)) {
+            } else if (resourceName.equals(Constants.ResourceName.ON_IDLE_TIMEOUT)) {
                 validateOnIdleTimeoutResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_CLOSE)) {
+            } else if (resourceName.equals(Constants.ResourceName.ON_CLOSE)) {
                 validateOnCloseResource(resource);
             } else {
                 throw new BallerinaException(String.format("Invalid resource name %s", resourceName));

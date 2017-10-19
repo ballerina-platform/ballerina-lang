@@ -56,7 +56,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
-        Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
+        Resource onHandshakeResource = wsService.getResourceByName(Constants.ResourceName.ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             Semaphore semaphore = new Semaphore(0);
             AtomicBoolean isResourceExeSuccessful = new AtomicBoolean(false);
@@ -159,7 +159,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
 
-                Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
+                Resource onOpenResource = wsService.getResourceByName(Constants.ResourceName.ON_OPEN);
                 BValue[] bValues = {wsConnection};
                 if (onOpenResource == null) {
                     return;
