@@ -165,5 +165,26 @@ public class TransformStmtTest {
                 "input and output variables cannot be interchanged in transform statement", 21, 9);
         BTestUtils.validateError(resultNegative, 1,
                                  "input and output variables cannot be interchanged in transform statement", 34, 9);
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-literals-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        BTestUtils.validateError(resultNegative, 0,
+                                "input and output variables cannot be interchanged in transform statement", 25, 9);
+        BTestUtils.validateError(resultNegative, 1,
+                                 "input and output variables cannot be interchanged in transform statement", 26, 9);
+        BTestUtils.validateError(resultNegative, 2,
+                                 "input and output variables cannot be interchanged in transform statement", 27, 9);
+        BTestUtils.validateError(resultNegative, 3,
+                                 "input and output variables cannot be interchanged in transform statement", 28, 9);
+        BTestUtils.validateError(resultNegative, 4,
+                                 "input and output variables cannot be interchanged in transform statement", 29, 9);
+        BTestUtils.validateError(resultNegative, 5,
+                                 "input and output variables cannot be interchanged in transform statement", 30, 9);
+        BTestUtils.validateError(resultNegative, 6,
+                                 "input and output variables cannot be interchanged in transform statement", 31, 9);
+        BTestUtils.validateError(resultNegative, 7,
+                                 "input and output variables cannot be interchanged in transform statement", 32, 9);
+
     }
 }
