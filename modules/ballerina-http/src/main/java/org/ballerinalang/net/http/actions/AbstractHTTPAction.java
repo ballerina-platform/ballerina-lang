@@ -95,7 +95,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
             if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
-                if (port != 80) {
+                if (port != 80 || port != 443) {
                     cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
                 } else {
                     cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
