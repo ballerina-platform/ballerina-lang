@@ -107,4 +107,11 @@ public class InvalidSyntaxParserTest {
         BTestUtils.validateError(result, 0, "invalid token 'reply'", 9, 5);
     }
 
+    // token recognition.
+
+    public void testTokenRecognition() {
+        CompileResult result = BTestUtils.compile("test-src/parser/resource-with-empty-reply-negative.bal");
+        BTestUtils.validateError(result, 0, "token recognition error at: '\\'", 3, 5);
+        BTestUtils.validateError(result, 0, "token recognition error at: '*'", 4, 15);
+    }
 }
