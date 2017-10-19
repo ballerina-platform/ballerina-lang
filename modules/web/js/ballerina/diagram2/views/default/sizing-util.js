@@ -773,7 +773,7 @@ class SizingUtil {
      *
      */
     sizeXmlnsNode(node) {
-        // Not implemented.
+        this.sizeStatement(node.getSource(), node.viewState);
     }
 
 

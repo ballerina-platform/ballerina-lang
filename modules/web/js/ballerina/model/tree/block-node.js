@@ -29,7 +29,7 @@ class BlockNode extends AbstractBlockNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return node.isStatement && !TreeUtil.isConnectorDeclaration(node);
+        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node)) || TreeUtil.isXmlns(node);
     }
 
     /**

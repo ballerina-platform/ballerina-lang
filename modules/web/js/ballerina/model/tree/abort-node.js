@@ -37,6 +37,7 @@ class AbortNode extends AbstractAbortNode {
     /**
      * Traverse back up the tree and find the transactionBlock.
      * @param {Node} node - drop target node.
+     * @return {Node} Transaction block or undefined.
      * */
     findTransaction(node) {
         if (node && node.viewState && node.viewState.alias !== 'Transaction') {

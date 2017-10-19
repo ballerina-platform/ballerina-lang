@@ -247,7 +247,7 @@ const tools = [
         name: 'Namespace',
         icon: 'namespace',
         title: 'Namespace',
-        nodeFactoryMethod: DefaultNodeFactory.createXmlQname,
+        nodeFactoryMethod: DefaultNodeFactory.createXmlns,
         description: 'Can be used for xml qualified names',
     },
 ];

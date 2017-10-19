@@ -317,7 +317,7 @@ class DefaultNodeFactory {
         `));
     }
 
-    createXmlQname() {
+    createXmlns() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             xmlns "namespace.uri" as xn;
         `));

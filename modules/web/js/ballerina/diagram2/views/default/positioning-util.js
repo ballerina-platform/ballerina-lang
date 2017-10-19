@@ -535,7 +535,7 @@ class PositioningUtil {
      * @param {object} node Xmlns object
      */
     positionXmlnsNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
