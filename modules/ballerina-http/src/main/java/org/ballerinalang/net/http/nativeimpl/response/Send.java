@@ -19,21 +19,19 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to add given header to carbon message.
- * ballerina.model.messages:addHeader
+ * Native function to send response back to the caller.
+ *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
@@ -49,9 +47,8 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        if (responseStruct.getNativeData(Constants.RESPONSE_STATUS) == null) {
-            throw new BallerinaException("Failed to send response: Incompatible response");
-        }
+        HttpUtil.methodInvocationCheck(responseStruct);
+        HttpUtil.operationNotAllowedCheck(responseStruct);
         context.getConnectorFuture().notifyReply(responseStruct);
         return VOID_RETURN;
     }

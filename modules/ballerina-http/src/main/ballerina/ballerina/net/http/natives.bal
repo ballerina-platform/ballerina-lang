@@ -80,9 +80,8 @@ public native function <Request req> addHeader (string key, string value);
 
 @doc:Description { value:"Gets transport headers from the message"}
 @doc:Param { value:"req: A request message" }
-@doc:Param { value:"headerName: The header name" }
 @doc:Return { value:"string[]: The header values" }
-public native function <Request req> getHeaders (string headerName) (string[]);
+public native function <Request req> getHeaders () (string[]);
 
 @doc:Description { value:"Sets the message payload using a JSON object"}
 @doc:Param { value:"req: A request message" }
@@ -195,9 +194,8 @@ public native function <Response res> addHeader (string key, string value);
 
 @doc:Description { value:"Gets transport headers from the message"}
 @doc:Param { value:"res: The response message" }
-@doc:Param { value:"headerName: The header name" }
 @doc:Return { value:"string[]: The header values" }
-public native function <Response res> getHeaders (string headerName) (string[]);
+public native function <Response res> getHeaders () (string[]);
 
 @doc:Description { value:"Sets the message payload using a JSON object"}
 @doc:Param { value:"req: The response message" }
@@ -239,8 +237,10 @@ public native function <Response res> setHeader (string key, string value);
 @doc:Param { value:"res: The response message" }
 public native function <Response res> send ();
 
-
-
+@doc:Description { value:"To get the value for a string property in a map type message"}
+@doc:Param { value:"res: The response message" }
+@doc:Param { value:"resp: The new instance of the response message" }
+public native function <Response res> forward (Response resp);
 
 public struct Session {
 }

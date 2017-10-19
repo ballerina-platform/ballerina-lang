@@ -70,6 +70,7 @@ public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String TRANSPORT_MESSAGE = "transport_message";
+    private static final String METHOD_ACCESSED = "isMethodAccessed";
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -688,4 +689,18 @@ public class HttpUtil {
         }
         return httpCarbonMessage;
     }
+
+    public static void methodInvocationCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
+            throw new BallerinaException("illegal function invocation");
+        }
+        bStruct.addNativeData(METHOD_ACCESSED, true);
+    }
+
+    public static void operationNotAllowedCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(Constants.RESPONSE_STATUS) == null) {
+            throw new BallerinaException("operation not allowed");
+        }
+    }
+
 }
