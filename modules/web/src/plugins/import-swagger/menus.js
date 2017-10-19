@@ -35,6 +35,7 @@ export function getMenuDefinitions(plugin) {
             isActive: (appContext) => {
                 return true;
             },
+            icon: 'swagger',
             command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },

@@ -27,7 +27,7 @@ import './http-service-decorator.scss';
 
 const HttpServiceDecorator = ({ message, command }) => {
     return (<div className='console-http-service-decorator'>
-        <Linkify>{message.message}</Linkify>
+        <Linkify properties={{ target: '_blank' }}>{message.message}</Linkify>
         <Button
             bsStyle='primary'
             disabled={!LaunchManager.active}

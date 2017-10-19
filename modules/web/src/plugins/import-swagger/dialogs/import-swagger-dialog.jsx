@@ -132,14 +132,14 @@ class ImportSwaggerDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Open File"
+                title="Import Swagger Definition"
                 actions={
                     <Button
                         bsStyle="primary"
                         onClick={this.onFileOpen}
-                        disabled={this.state.filePath === ''}
+                        disabled={!this.props.extensions.includes(this.state.filePath.split('.').pop().toLowerCase())}
                     >
-                        Open
+                        Import
                     </Button>
                 }
                 closeAction
