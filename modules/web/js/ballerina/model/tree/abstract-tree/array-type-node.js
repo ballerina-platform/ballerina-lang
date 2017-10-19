@@ -22,6 +22,31 @@ import Node from '../node';
 class AbstractArrayTypeNode extends Node {
 
 
+    setDimensions(newValue, silent, title) {
+        const oldValue = this.dimensions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.dimensions = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'dimensions',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDimensions() {
+        return this.dimensions;
+    }
+
+
+
     setElementType(newValue, silent, title) {
         const oldValue = this.elementType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -45,31 +70,6 @@ class AbstractArrayTypeNode extends Node {
 
     getElementType() {
         return this.elementType;
-    }
-
-
-
-    setDimensions(newValue, silent, title) {
-        const oldValue = this.dimensions;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.dimensions = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'dimensions',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDimensions() {
-        return this.dimensions;
     }
 
 

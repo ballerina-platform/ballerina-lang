@@ -16,10 +16,8 @@
  * under the License.
  */
 
-import AbstractContinueNode from './abstract-tree/continue-node';
+const Constants = {
+    HTTP_SERVICE_PREFIX: 'ballerina: started HTTP/WS server connector',
+};
 
-class ContinueNode extends AbstractContinueNode {
-
-}
-
-export default ContinueNode;
+export default Constants;

@@ -129,6 +129,7 @@ class AbstractPackageDeclarationNode extends Node {
     replacePackageName(oldChild, newChild, silent) {
         const index = this.getIndexOfPackageName(oldChild);
         this.packageName[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +145,7 @@ class AbstractPackageDeclarationNode extends Node {
 
     replacePackageNameByIndex(index, newChild, silent) {
         this.packageName[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +157,7 @@ class AbstractPackageDeclarationNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfPackageName(child) {
         return _.findIndex(this.packageName, ['id', child.id]);

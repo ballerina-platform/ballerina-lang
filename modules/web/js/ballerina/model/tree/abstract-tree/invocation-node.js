@@ -49,6 +49,33 @@ class AbstractInvocationNode extends Node {
 
 
 
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setArgumentExpressions(newValue, silent, title) {
         const oldValue = this.argumentExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -129,6 +156,7 @@ class AbstractInvocationNode extends Node {
     replaceArgumentExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfArgumentExpressions(oldChild);
         this.argumentExpressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +172,7 @@ class AbstractInvocationNode extends Node {
 
     replaceArgumentExpressionsByIndex(index, newChild, silent) {
         this.argumentExpressions[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +184,7 @@ class AbstractInvocationNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfArgumentExpressions(child) {
         return _.findIndex(this.argumentExpressions, ['id', child.id]);
@@ -164,33 +193,6 @@ class AbstractInvocationNode extends Node {
     filterArgumentExpressions(predicateFunction) {
         return _.filter(this.argumentExpressions, predicateFunction);
     }
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
     setName(newValue, silent, title) {

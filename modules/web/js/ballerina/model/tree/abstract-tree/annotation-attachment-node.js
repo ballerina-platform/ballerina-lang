@@ -156,6 +156,7 @@ class AbstractAnnotationAttachmentNode extends Node {
     replaceAttributes(oldChild, newChild, silent) {
         const index = this.getIndexOfAttributes(oldChild);
         this.attributes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -171,6 +172,7 @@ class AbstractAnnotationAttachmentNode extends Node {
 
     replaceAttributesByIndex(index, newChild, silent) {
         this.attributes[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -182,7 +184,7 @@ class AbstractAnnotationAttachmentNode extends Node {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfAttributes(child) {
         return _.findIndex(this.attributes, ['id', child.id]);

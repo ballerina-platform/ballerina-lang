@@ -102,6 +102,7 @@ class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
     replaceValueArray(oldChild, newChild, silent) {
         const index = this.getIndexOfValueArray(oldChild);
         this.valueArray[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
     replaceValueArrayByIndex(index, newChild, silent) {
         this.valueArray[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfValueArray(child) {
         return _.findIndex(this.valueArray, ['id', child.id]);

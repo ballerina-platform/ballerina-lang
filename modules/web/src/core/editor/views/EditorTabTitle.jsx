@@ -75,7 +75,11 @@ class EditorTabTitle extends React.Component {
                 <button
                     type="button"
                     className="close close-tab pull-right"
-                    onClick={() => onTabClose(editor)}
+                    onClick={(evt) => {
+                        onTabClose(editor);
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                    }}
                 >
                     ×
                 </button>

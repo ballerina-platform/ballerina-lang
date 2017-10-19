@@ -102,6 +102,7 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
     replaceKeyValuePairs(oldChild, newChild, silent) {
         const index = this.getIndexOfKeyValuePairs(oldChild);
         this.keyValuePairs[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
 
     replaceKeyValuePairsByIndex(index, newChild, silent) {
         this.keyValuePairs[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfKeyValuePairs(child) {
         return _.findIndex(this.keyValuePairs, ['id', child.id]);

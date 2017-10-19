@@ -73,15 +73,15 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             log.debug(errorString);
             return;
         }
-
-        let index = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isImport));
-        const pkgDecl = this.filterTopLevelNodes(TreeUtils.isPackageDeclaration);
-
-        // If there are no imports index is -1. Then we need to add the first import after the package
-        // definition which is the first child of the ast root
-        index = ((index !== -1) ? (index + 1) : ((pkgDecl.length === 0) ? 0 : 1));
-
-        this.addTopLevelNodes(importNode, index, silent);
+        const pkgDeclIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isPackageDeclaration(node));
+        const lastImportIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isImport(node));
+        let targetIndex = 0; // If there is no a pck node or any import, we'll add it to 0
+        if (lastImportIndex !== -1) {
+            targetIndex = lastImportIndex + 1;
+        } else if (pkgDeclIndex !== -1) {
+            targetIndex = pkgDeclIndex + 1;
+        }
+        this.addTopLevelNodes(importNode, targetIndex, silent);
     }
 
     getImports() {
@@ -99,18 +99,18 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             // only constants and global variables can be added at global level
             return;
         }
-        // Get index of the last global variable
-        let index = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isVariable));
-        // Filter the package declarations from the top level nodes
-        const pkgDecl = this.filterTopLevelNodes(TreeUtils.isPackageDeclaration);
-        // Get the last index of the imports from the top level nodes
-        const lastImportIndex = _.findLastIndex(this.filterTopLevelNodes(TreeUtils.isImport));
-        // If there are no variables index is -1. Then we need to add the first variable after the first import
-        // which is the first child of the ast root
-
-        index = ((index !== -1) ? (index + 1) : ((lastImportIndex !== -1) ? (lastImportIndex + 1) :
-            ((pkgDecl.length === 0) ? 0 : 1)));
-        this.addTopLevelNodes(globalNode, index, silent);
+        const lastGlobalIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isVariable(node));
+        const pkgDeclIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isPackageDeclaration(node));
+        const lastImportIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isImport(node));
+        let targetIndex = 0; // If there is no a pck node or any import/any global, we'll add it to 0
+        if (lastGlobalIndex !== -1) {
+            targetIndex = lastGlobalIndex + 1;
+        } else if (lastImportIndex !== -1) {
+            targetIndex = lastImportIndex + 1;
+        } else if (pkgDeclIndex !== -1) {
+            targetIndex = pkgDeclIndex + 1;
+        }
+        this.addTopLevelNodes(globalNode, targetIndex, silent);
     }
 
     /**

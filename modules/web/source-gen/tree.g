@@ -13,10 +13,8 @@ Abort
    ;
 
 Action
-   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+                }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>+                }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) {             <body.source> }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    {             <body.source> }
+   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>* <body.source> }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>* <body.source> }
    ;
 
 Annotation
@@ -110,14 +108,10 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <workers>+ }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>+ }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> }
+   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 FunctionType
@@ -164,8 +158,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <workers>+ }
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> }
+   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 Retry

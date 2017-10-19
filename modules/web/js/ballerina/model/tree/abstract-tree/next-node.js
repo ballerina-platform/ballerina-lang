@@ -19,9 +19,9 @@
 import _ from 'lodash';
 import StatementNode from '../statement-node';
 
-class AbstractContinueNode extends StatementNode {
+class AbstractNextNode extends StatementNode {
 
 
 }
 
-export default AbstractContinueNode;
+export default AbstractNextNode;

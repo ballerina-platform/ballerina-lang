@@ -102,6 +102,7 @@ class AbstractAssignmentNode extends StatementNode {
     replaceVariables(oldChild, newChild, silent) {
         const index = this.getIndexOfVariables(oldChild);
         this.variables[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -117,6 +118,7 @@ class AbstractAssignmentNode extends StatementNode {
 
     replaceVariablesByIndex(index, newChild, silent) {
         this.variables[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -128,7 +130,7 @@ class AbstractAssignmentNode extends StatementNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfVariables(child) {
         return _.findIndex(this.variables, ['id', child.id]);

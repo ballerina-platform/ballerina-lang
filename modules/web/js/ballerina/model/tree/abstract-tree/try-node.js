@@ -129,6 +129,7 @@ class AbstractTryNode extends StatementNode {
     replaceCatchBlocks(oldChild, newChild, silent) {
         const index = this.getIndexOfCatchBlocks(oldChild);
         this.catchBlocks[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -144,6 +145,7 @@ class AbstractTryNode extends StatementNode {
 
     replaceCatchBlocksByIndex(index, newChild, silent) {
         this.catchBlocks[index] = newChild;
+        newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -155,7 +157,7 @@ class AbstractTryNode extends StatementNode {
                 },
             });
         }
-    }    
+    }
 
     getIndexOfCatchBlocks(child) {
         return _.findIndex(this.catchBlocks, ['id', child.id]);
