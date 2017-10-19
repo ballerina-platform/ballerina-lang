@@ -35,6 +35,22 @@ public class PackageImportTest {
     }
 
     @Test
+    public void testImportSamePkgWithDifferentAlias() {
+        CompileResult result =
+                BTestUtils.compile("test-src/statements/packageimport/import-same-pkg-with-different-alias.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testImportDifferentPkgsWithSameAlias() {
+        CompileResult result = BTestUtils
+                .compile("test-src/statements/packageimport/import-different-pkgs-with-same-alias-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BTestUtils.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
+        BTestUtils.validateError(result, 1, "undefined function 'pow'", 6, 5);
+    }
+
+    @Test
     public void testInvalidPackageDeclr() {
         CompileResult result = BTestUtils.compile("test-src/statements/package", "a.b");
         Assert.assertTrue(result.getDiagnostics().length > 0);
