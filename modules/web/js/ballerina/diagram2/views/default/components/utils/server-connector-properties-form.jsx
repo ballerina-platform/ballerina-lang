@@ -76,7 +76,7 @@ class ServerConnectorPropertiesForm extends React.Component {
             if (index === -1) {
                 index = 0;
             }
-            annotationAttachmentAttr.getValue().addValueArray(annotationAttachmentAttrValue, index + 1);
+            annotationAttachmentAttr.getValue().addValueArray(annotationAttachmentAttrValue, index + 1, true);
         });
         return annotationAttachmentAttr;
     }
@@ -94,14 +94,14 @@ class ServerConnectorPropertiesForm extends React.Component {
                     model.addAnnotationAttachments(NodeFactory.createAnnotationAttachment(
                         { packageAlias: this.createIdentifierNode(model.getProtocolPackageIdentifier().value),
                             annotationName: this.createIdentifierNode('configuration') }),
-                        model.getAnnotationAttachments().length - 1);
+                        model.getAnnotationAttachments().length - 1, true);
                 }
             });
         } else {
             model.addAnnotationAttachments(NodeFactory.createAnnotationAttachment(
                 { packageAlias: this.createIdentifierNode(model.getProtocolPackageIdentifier().value),
                     annotationName: this.createIdentifierNode('configuration') }),
-                model.getAnnotationAttachments().length - 1);
+                model.getAnnotationAttachments().length - 1, true);
         }
 
         // Get the configuration annotation attachment node of the service node
@@ -152,7 +152,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                         // Add the annotation attachment attribute to the annotation attachment node
                         // Calculate the index to be added
                         const index = annotationAttachments.getAttributes().length - 1;
-                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1);
+                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1, true);
                     }
                     // For the attributes with value arrays
                 } else {
@@ -166,7 +166,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                                 annotation = this.addValuesToValueArray(annotation, key.value);
                             } else {
                                 // Remove if there are values
-                                annotationAttachments.removeAttributes(annotation);
+                                annotationAttachments.removeAttributes(annotation, true);
                             }
                         }
                     });
@@ -182,17 +182,18 @@ class ServerConnectorPropertiesForm extends React.Component {
                         // Add the annotation attachment attribute to the annotation attachment node
                         // Calculate the index to be added
                         const index = annotationAttachments.getAttributes().length - 1;
-                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1);
+                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1, true);
                     }
                 }
             } else {
                 annotationAttachments.getAttributes().map((annotation) => {
                     if (annotation.name === key.identifier) {
-                        annotationAttachments.removeAttributes(annotation);
+                        annotationAttachments.removeAttributes(annotation, true);
                     }
                 });
             }
         });
+        this.forceUpdate();
     }
 
     /**
