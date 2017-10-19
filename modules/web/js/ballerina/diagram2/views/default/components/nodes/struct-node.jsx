@@ -70,8 +70,17 @@ class StructNode extends React.Component {
      * @param {any} defaultValue - Default value of the new identifier
      */
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
+        const structSuggestions = this.context.environment.getTypes().map(name => ({ name }));
         if (!bType) {
             const errorString = 'Struct Type Cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
+        const bTypeExists = _.findIndex(structSuggestions, (type) => {
+            return type.name === bType;
+        }) !== -1;
+        if (!bTypeExists) {
+            const errorString = `Invalid bType ${bType} provided`;
             Alerts.error(errorString);
             throw errorString;
         }
@@ -237,7 +246,6 @@ class StructNode extends React.Component {
             height: h - DesignerDefaults.structDefinition.panelPadding * 2,
         };
         const { environment } = this.context;
-        // Environment does not load the types
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
