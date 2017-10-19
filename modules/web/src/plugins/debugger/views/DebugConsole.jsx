@@ -80,8 +80,8 @@ class DebuggerConsole extends View {
                 {this.state.messages.map((message, i) => {
                     return (<ConsoleDecorators
                         message={message}
-                        index={i}
                         command={this.props.debuggerPlugin.appContext.command}
+                        key={i}
                     />);
                 })}
             </div>
