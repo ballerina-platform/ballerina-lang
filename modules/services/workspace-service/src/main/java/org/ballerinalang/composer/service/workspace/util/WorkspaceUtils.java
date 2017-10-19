@@ -179,8 +179,8 @@ public class WorkspaceUtils {
             try {
                 // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
                 // packages.
-                if(!"ballerina.builtin".equals(pkg.getName().getValue())
-                        && !"ballerina.builtin.core".equals(pkg.getName().getValue()) ) {
+                if (!"ballerina.builtin".equals(pkg.getName().getValue())
+                        && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
                     org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                             .loadPackage(pkgNameComps, bLangIdentifier);
                     loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
