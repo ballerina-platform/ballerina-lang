@@ -117,6 +117,7 @@ class TryItPlugin extends Plugin {
                         }).length > 0;
                         return LaunchManager.active && isService;
                     },
+                    description: 'Try-It',
                 },
             ],
         };
