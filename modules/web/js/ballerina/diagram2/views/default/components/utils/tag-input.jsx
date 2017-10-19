@@ -75,7 +75,7 @@ class TagInput extends React.Component {
     }
 
     handleRemoveItem(index) {
-           this.props.removeTagsAdded(this.props.id, index);
+        this.props.removeTagsAdded(this.props.taggedElements, index);
     }
 }
 export default TagInput;
