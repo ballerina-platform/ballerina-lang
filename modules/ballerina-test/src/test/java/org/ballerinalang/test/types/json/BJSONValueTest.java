@@ -55,6 +55,13 @@ public class BJSONValueTest {
         BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'datatable'", 9, 39);
     }
 
+    @Test
+    public void testJSONWithUnsupportedKey() {
+        // testJSONWithUnsupportedKey
+        BTestUtils.validateError(negativeResult, 2,
+                "invalid field name in json literal. identifier or string literal expected", 14, 16);
+    }
+
     @Test(description = "Test initializing json with a string")
     public void testStringAsJsonVal() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testStringAsJsonVal");
@@ -447,9 +454,4 @@ public class BJSONValueTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
-    
-    // TODO: fix the following test cases
-    /*
-
-     */
 }

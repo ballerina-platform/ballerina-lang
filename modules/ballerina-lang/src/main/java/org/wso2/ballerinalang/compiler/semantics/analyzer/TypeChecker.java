@@ -971,10 +971,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.MAP:
-                fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
+                fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.MAP);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.JSON);
 
                 // If the field is again a struct, treat that literal expression as another constraint JSON.
                 if (fieldType.tag == TypeTags.STRUCT) {
