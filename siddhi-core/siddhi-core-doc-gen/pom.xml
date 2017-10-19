@@ -63,6 +63,7 @@
                         <extensionRepository>siddhi-execution-stats</extensionRepository>
                         <extensionRepository>siddhi-execution-geo</extensionRepository>
                         <extensionRepository>siddhi-execution-kalmanfilter</extensionRepository>
+                        <extensionRepository>siddhi-execution-approximate</extensionRepository>
                         <extensionRepository>siddhi-io-http</extensionRepository>
                         <extensionRepository>siddhi-io-kafka</extensionRepository>
                         <extensionRepository>siddhi-io-tcp</extensionRepository>
@@ -81,6 +82,7 @@
                         <extensionRepository>siddhi-store-rdbms</extensionRepository>
                         <extensionRepository>siddhi-store-solr</extensionRepository>
                         <extensionRepository>siddhi-store-mongodb</extensionRepository>
+                        <extensionRepository>siddhi-store-hbase</extensionRepository>
                         <extensionRepository>siddhi-script-js</extensionRepository>
                         <extensionRepository>siddhi-script-scala</extensionRepository>
 
