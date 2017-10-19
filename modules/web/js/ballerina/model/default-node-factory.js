@@ -234,9 +234,9 @@ class DefaultNodeFactory {
         `));
     }
 
-    createContinue() {
+    createNext() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            continue;
+            next;
         `));
     }
 
