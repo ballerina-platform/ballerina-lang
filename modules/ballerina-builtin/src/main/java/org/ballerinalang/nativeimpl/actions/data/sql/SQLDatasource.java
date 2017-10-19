@@ -212,20 +212,12 @@ public class SQLDatasource implements BValue {
                 }
                 dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
             }
-            if (dataSourceConfigMap.get(Constants.USER) == null) {
-                dataSourceConfigMap.put(Constants.USER, new BString(username));
-            }
-            if (dataSourceConfigMap.get(Constants.PASSWORD) == null) {
-                dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
-            }
         } else {
             dataSourceConfigMap = new BMap<>();
             if (jdbcurl.isEmpty()) {
                 jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
             }
             dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
-            dataSourceConfigMap.put(Constants.USER, new BString(username));
-            dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
         }
         return dataSourceConfigMap;
     }
