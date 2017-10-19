@@ -19,22 +19,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './../../../../diagram-util';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 import './try-node.css';
 
+/**
+ * Class for catch node.
+ * @extends React.Component
+ * @class CatchNode
+ * */
 class CatchNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
+        this.setCatchCondition = this.setCatchCondition.bind(this);
+        this.getCatchCondition = this.getCatchCondition.bind(this);
+
         this.editorOptions = {
             propertyType: 'text',
             key: 'Catch condition',
             model: props.model,
-            getterMethod: props.model.getConditionString,
-            setterMethod: props.model.setConditionFromString,
+            getterMethod: this.getCatchCondition,
+            setterMethod: this.setCatchCondition,
         };
-        this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
     }
 
     /**
@@ -50,6 +59,25 @@ class CatchNode extends React.Component {
         }
     }
 
+    /**
+     * Set catch condition.
+     * @param {String} newCondition - new condition to be applied to catch block.
+     * */
+    setCatchCondition(newCondition) {
+        const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
+        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
+        const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
+        this.props.model.setParameter(newNode);
+    }
+
+    /**
+     * Get catch condition
+     * @return {string} parameter source.
+     * */
+    getCatchCondition() {
+        return this.props.model.getParameter().getSource();
+    }
+
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
@@ -58,6 +86,9 @@ class CatchNode extends React.Component {
         // check whether catch block is the final catch block to attach the add finally block button.
         const isFinalCatchBlock = (model.parent.getIndexOfCatchBlocks(model) ===
             (model.parent.getCatchBlocks().length - 1));
+
+        const disableDelete = isFinalCatchBlock && (model.parent.getCatchBlocks().length === 1)
+            && !model.parent.finallyBody;
 
         return (
             <g>
@@ -68,11 +99,12 @@ class CatchNode extends React.Component {
                     editorOptions={this.editorOptions}
                     model={model}
                     body={model.body}
-                >
-                </CompoundStatementDecorator>
+                    disableButtons={{ delete: disableDelete }}
+                />
 
                 {!model.parent.getFinallyBody() && isFinalCatchBlock &&
                 <g onClick={this.onAddFinallyClick}>
+                    <title>Add Finally</title>
                     <rect
                         x={model.viewState.components['statement-box'].x
                         + model.viewState.components['statement-box'].w
@@ -105,12 +137,11 @@ class CatchNode extends React.Component {
 }
 
 CatchNode.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.shape({
+        getParameter: PropTypes.func.isRequired,
+        setParameter: PropTypes.func.isRequired,
+        parent: PropTypes.shape().isRequired,
+    }).isRequired,
 };
 
 CatchNode.contextTypes = {
