@@ -18,7 +18,6 @@ package org.ballerinalang.plugins.idea.debugger;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
@@ -34,12 +33,10 @@ import org.ballerinalang.plugins.idea.debugger.dto.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 public class BallerinaStackFrame extends XStackFrame {
 
@@ -70,8 +67,33 @@ public class BallerinaStackFrame extends XStackFrame {
 
     @Nullable
     private VirtualFile findFile() {
-        String absolutePath = myFrame.getFileName();
-        return LocalFileSystem.getInstance().findFileByPath(absolutePath);
+        String fileName = myFrame.getFileName();
+        // First try to find the matching file locally.
+        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(fileName);
+        if (file != null) {
+            return file;
+        }
+        // If the file is not available locally, we use package path and file path to find the matching file in the
+        // project.
+        String packageName = myFrame.getPackageName();
+        Project project = myProcess.getSession().getProject();
+        String projectBasePath = project.getBaseDir().getPath();
+        // if the package path is ".", full path of the file will be sent as the file name.
+        if (".".equals(packageName) && fileName.contains("/")) {
+            String filePath = constructFilePath(projectBasePath, "", fileName.substring(fileName.lastIndexOf("/")));
+            return LocalFileSystem.getInstance().findFileByPath(filePath);
+        } else {
+            String filePath = constructFilePath(projectBasePath, myFrame.getPackageName(), fileName);
+            return LocalFileSystem.getInstance().findFileByPath(filePath);
+        }
+    }
+
+    private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
+                                     @NotNull String fileName) {
+        StringBuilder stringBuilder = new StringBuilder(projectBasePath).append("/");
+        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", "/")).append("/");
+        stringBuilder = stringBuilder.append(fileName);
+        return stringBuilder.toString();
     }
 
     /**
