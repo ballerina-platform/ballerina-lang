@@ -193,7 +193,6 @@ class ServerConnectorPropertiesForm extends React.Component {
                 });
             }
         });
-        this.forceUpdate();
     }
 
     /**
