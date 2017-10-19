@@ -1083,13 +1083,13 @@ class TransformExpanded extends React.Component {
     }
 
     updateVariable(varName, statementString, type) {
-        const isUpdated = this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
-        this.loadVertices();
-        if (!isUpdated) {
-            this.context.alert.showError('Invalid value for variable ' + varName);
+        if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type)) {
+            this.loadVertices();
+            return true;
+        } else {
+            this.context.alert.showError('Invalid value for variable');
             return false;
         }
-        return true;
     }
 
     markConnectedEndpoints() {
