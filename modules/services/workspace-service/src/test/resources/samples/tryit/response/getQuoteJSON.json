@@ -1,11 +1,11 @@
 {
   "responseCode": "200",
-  "responseBody": "{\"symbol\":\"BAR\",\"name\":\"Bar Inc.\",\"last\":149.62,\"low\":150.78,\"high\":149.18}",
+  "responseBody": "{\"symbol\":\"IBM\",\"name\":\"International Business Machines\",\"last\":149.62,\"low\":150.78,\"high\":149.18}",
   "responseHeaders": {
     "Connection": "keep-alive",
+    "Set-Cookie": "symbol=IBM",
     "Content-Type": "application/json",
-    "transfer-encoding": "chunked",
-    "Set-Cookie":"symbol=BAR"
+    "transfer-encoding": "chunked"
   },
   "returnedRequestHeaders": {
     "Content-Type": "application/json",
@@ -14,5 +14,5 @@
     "User-Agent": "Ballerina Composer",
     "Accept-Encoding": "gzip,deflate"
   },
-  "requestUrl": "http://localhost:9595/stockquote/BAR"
+  "requestUrl": "http://localhost:9595/stockquote/IBM"
 }
