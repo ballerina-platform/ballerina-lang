@@ -1,1 +1,3527 @@
-{"model":{"ws":[{"ws":"","i":327,"text":"<EOF>","static":true}],"name":"untitled","topLevelNodes":[{"ws":[{"ws":"","i":0,"text":"struct","static":true},{"ws":" ","i":2,"text":"Person","static":false},{"ws":" ","i":4,"text":"{","static":true},{"ws":"","i":10,"text":";","static":true},{"ws":"","i":16,"text":";","static":true},{"ws":"","i":22,"text":";","static":true},{"ws":"","i":28,"text":";","static":true},{"ws":"\n","i":30,"text":"}","static":true}],"position":{"startColumn":1,"startLine":1,"endColumn":1,"endLine":6},"annotationAttachments":[],"kind":"Struct","name":{"literal":false,"value":"Person","kind":"Identifier"},"fields":[{"ws":[{"ws":" ","i":9,"text":"first_name","static":false}],"position":{"startColumn":5,"startLine":2,"endColumn":22,"endLine":2},"typeNode":{"ws":[{"ws":"\n    ","i":7,"text":"string","static":true}],"position":{"startColumn":5,"startLine":2,"endColumn":5,"endLine":2},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"first_name","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":" ","i":15,"text":"last_name","static":false}],"position":{"startColumn":5,"startLine":3,"endColumn":21,"endLine":3},"typeNode":{"ws":[{"ws":"\n    ","i":13,"text":"string","static":true}],"position":{"startColumn":5,"startLine":3,"endColumn":5,"endLine":3},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"last_name","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":" ","i":21,"text":"age","static":false}],"position":{"startColumn":5,"startLine":4,"endColumn":12,"endLine":4},"typeNode":{"ws":[{"ws":"\n    ","i":19,"text":"int","static":true}],"position":{"startColumn":5,"startLine":4,"endColumn":5,"endLine":4},"typeKind":"int","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"age","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":" ","i":27,"text":"city","static":false}],"position":{"startColumn":5,"startLine":5,"endColumn":16,"endLine":5},"typeNode":{"ws":[{"ws":"\n    ","i":25,"text":"string","static":true}],"position":{"startColumn":5,"startLine":5,"endColumn":5,"endLine":5},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"city","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":"\n\n","i":32,"text":"struct","static":true},{"ws":" ","i":34,"text":"Employee","static":false},{"ws":" ","i":36,"text":"{","static":true},{"ws":"","i":42,"text":";","static":true},{"ws":"","i":48,"text":";","static":true},{"ws":"","i":54,"text":";","static":true},{"ws":"\n","i":56,"text":"}","static":true}],"position":{"startColumn":1,"startLine":8,"endColumn":1,"endLine":12},"annotationAttachments":[],"kind":"Struct","name":{"literal":false,"value":"Employee","kind":"Identifier"},"fields":[{"ws":[{"ws":" ","i":41,"text":"name","static":false}],"position":{"startColumn":5,"startLine":9,"endColumn":16,"endLine":9},"typeNode":{"ws":[{"ws":"\n    ","i":39,"text":"string","static":true}],"position":{"startColumn":5,"startLine":9,"endColumn":5,"endLine":9},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"name","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":" ","i":47,"text":"age","static":false}],"position":{"startColumn":5,"startLine":10,"endColumn":12,"endLine":10},"typeNode":{"ws":[{"ws":"\n    ","i":45,"text":"int","static":true}],"position":{"startColumn":5,"startLine":10,"endColumn":5,"endLine":10},"typeKind":"int","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"age","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":" ","i":53,"text":"address","static":false}],"position":{"startColumn":5,"startLine":11,"endColumn":19,"endLine":11},"typeNode":{"ws":[{"ws":"\n    ","i":51,"text":"string","static":true}],"position":{"startColumn":5,"startLine":11,"endColumn":5,"endLine":11},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"address","kind":"Identifier"},"kind":"Variable","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":"\n\n","i":58,"text":"function","static":true},{"ws":" ","i":60,"text":"oneToOneTransform","static":false},{"ws":"","i":61,"text":"(","static":true},{"ws":"","i":62,"text":")","static":true},{"ws":" ","i":64,"text":"(","static":true},{"ws":"","i":66,"text":",","static":true},{"ws":"","i":69,"text":",","static":true},{"ws":"","i":72,"text":")","static":true},{"ws":"","i":73,"text":"{","static":true},{"ws":"\n","i":177,"text":"}","static":true}],"position":{"startColumn":1,"startLine":14,"endColumn":1,"endLine":23},"workers":[],"name":{"literal":false,"value":"oneToOneTransform","kind":"Identifier"},"annotationAttachments":[],"body":{"statements":[{"ws":[{"ws":"","i":102,"text":";","static":true}],"position":{"startColumn":5,"startLine":15,"endColumn":75,"endLine":15},"variable":{"ws":[{"ws":" ","i":78,"text":"p","static":false},{"ws":" ","i":80,"text":"=","static":true}],"position":{"startColumn":5,"startLine":15,"endColumn":75,"endLine":15},"typeNode":{"ws":[{"ws":"\n    ","i":76,"text":"Person","static":false}],"position":{"startColumn":5,"startLine":15,"endColumn":5,"endLine":15},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"typeName":{"literal":false,"value":"Person","kind":"Identifier"},"kind":"UserDefinedType"},"annotationAttachments":[],"name":{"literal":false,"value":"p","kind":"Identifier"},"initialExpression":{"ws":[{"ws":" ","i":82,"text":"{","static":true},{"ws":"","i":86,"text":",","static":true},{"ws":"","i":91,"text":",","static":true},{"ws":"","i":96,"text":",","static":true},{"ws":"","i":101,"text":"}","static":true}],"position":{"startColumn":16,"startLine":15,"endColumn":74,"endLine":15},"keyValuePairs":[{"ws":[{"ws":"","i":84,"text":":","static":true}],"value":{"ws":[{"ws":"","i":85,"text":"\"John\"","static":false}],"position":{"startColumn":28,"startLine":15,"endColumn":28,"endLine":15},"value":"\"John\"","unescapedValue":"John","kind":"Literal"},"key":{"ws":[{"ws":"","i":83,"text":"first_name","static":false}],"position":{"startColumn":17,"startLine":15,"endColumn":17,"endLine":15},"variableName":{"literal":false,"value":"first_name","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":89,"text":":","static":true}],"value":{"ws":[{"ws":"","i":90,"text":"\"Doe\"","static":false}],"position":{"startColumn":46,"startLine":15,"endColumn":46,"endLine":15},"value":"\"Doe\"","unescapedValue":"Doe","kind":"Literal"},"key":{"ws":[{"ws":" ","i":88,"text":"last_name","static":false}],"position":{"startColumn":36,"startLine":15,"endColumn":36,"endLine":15},"variableName":{"literal":false,"value":"last_name","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":94,"text":":","static":true}],"value":{"ws":[{"ws":"","i":95,"text":"30","static":false}],"position":{"startColumn":57,"startLine":15,"endColumn":57,"endLine":15},"value":"30","kind":"Literal"},"key":{"ws":[{"ws":" ","i":93,"text":"age","static":false}],"position":{"startColumn":53,"startLine":15,"endColumn":53,"endLine":15},"variableName":{"literal":false,"value":"age","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":99,"text":":","static":true}],"value":{"ws":[{"ws":"","i":100,"text":"\"London\"","static":false}],"position":{"startColumn":66,"startLine":15,"endColumn":66,"endLine":15},"value":"\"London\"","unescapedValue":"London","kind":"Literal"},"key":{"ws":[{"ws":" ","i":98,"text":"city","static":false}],"position":{"startColumn":61,"startLine":15,"endColumn":61,"endLine":15},"variableName":{"literal":false,"value":"city","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"}],"kind":"RecordLiteralExpr"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},"kind":"VariableDef"},{"ws":[{"ws":"","i":113,"text":";","static":true}],"position":{"startColumn":5,"startLine":16,"endColumn":20,"endLine":16},"variable":{"ws":[{"ws":" ","i":107,"text":"e","static":false},{"ws":" ","i":109,"text":"=","static":true}],"position":{"startColumn":5,"startLine":16,"endColumn":20,"endLine":16},"typeNode":{"ws":[{"ws":"\n    ","i":105,"text":"Employee","static":false}],"position":{"startColumn":5,"startLine":16,"endColumn":5,"endLine":16},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"typeName":{"literal":false,"value":"Employee","kind":"Identifier"},"kind":"UserDefinedType"},"annotationAttachments":[],"name":{"literal":false,"value":"e","kind":"Identifier"},"initialExpression":{"ws":[{"ws":" ","i":111,"text":"{","static":true},{"ws":"","i":112,"text":"}","static":true}],"position":{"startColumn":18,"startLine":16,"endColumn":19,"endLine":16},"keyValuePairs":[],"kind":"RecordLiteralExpr"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},"kind":"VariableDef"},{"position":{"startColumn":5,"startLine":17,"endColumn":5,"endLine":21},"inputs":["p"],"outputs":["e"],"body":{"position":{"startColumn":5,"startLine":17,"endColumn":5,"endLine":21},"statements":[{"ws":[{"ws":" ","i":125,"text":"=","static":true},{"ws":"","i":130,"text":";","static":true}],"position":{"startColumn":8,"startLine":18,"endColumn":26,"endLine":18},"variables":[{"ws":[{"ws":"","i":122,"text":".","static":true},{"ws":"","i":123,"text":"address","static":false}],"position":{"startColumn":8,"startLine":18,"endColumn":10,"endLine":18},"fieldName":{"literal":false,"value":"address","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":121,"text":"e","static":false}],"position":{"startColumn":8,"startLine":18,"endColumn":8,"endLine":18},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":"","i":128,"text":".","static":true},{"ws":"","i":129,"text":"city","static":false}],"position":{"startColumn":20,"startLine":18,"endColumn":22,"endLine":18},"fieldName":{"literal":false,"value":"city","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":127,"text":"p","static":false}],"position":{"startColumn":20,"startLine":18,"endColumn":20,"endLine":18},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},"declaredWithVar":false,"kind":"Assignment"},{"ws":[{"ws":" ","i":137,"text":"=","static":true},{"ws":"","i":142,"text":";","static":true}],"position":{"startColumn":8,"startLine":19,"endColumn":29,"endLine":19},"variables":[{"ws":[{"ws":"","i":134,"text":".","static":true},{"ws":"","i":135,"text":"name","static":false}],"position":{"startColumn":8,"startLine":19,"endColumn":10,"endLine":19},"fieldName":{"literal":false,"value":"name","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":133,"text":"e","static":false}],"position":{"startColumn":8,"startLine":19,"endColumn":8,"endLine":19},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":"","i":140,"text":".","static":true},{"ws":"","i":141,"text":"first_name","static":false}],"position":{"startColumn":17,"startLine":19,"endColumn":19,"endLine":19},"fieldName":{"literal":false,"value":"first_name","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":139,"text":"p","static":false}],"position":{"startColumn":17,"startLine":19,"endColumn":17,"endLine":19},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},"declaredWithVar":false,"kind":"Assignment"},{"ws":[{"ws":" ","i":149,"text":"=","static":true},{"ws":"","i":154,"text":";","static":true}],"position":{"startColumn":8,"startLine":20,"endColumn":21,"endLine":20},"variables":[{"ws":[{"ws":"","i":146,"text":".","static":true},{"ws":"","i":147,"text":"age","static":false}],"position":{"startColumn":8,"startLine":20,"endColumn":10,"endLine":20},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":145,"text":"e","static":false}],"position":{"startColumn":8,"startLine":20,"endColumn":8,"endLine":20},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":"","i":152,"text":".","static":true},{"ws":"","i":153,"text":"age","static":false}],"position":{"startColumn":16,"startLine":20,"endColumn":18,"endLine":20},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":151,"text":"p","static":false}],"position":{"startColumn":16,"startLine":20,"endColumn":16,"endLine":20},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},"declaredWithVar":false,"kind":"Assignment"}],"kind":"Block"},"kind":"Transform"},{"ws":[{"ws":"\n    ","i":160,"text":"return","static":true},{"ws":"","i":165,"text":",","static":true},{"ws":"","i":170,"text":",","static":true},{"ws":"","i":175,"text":";","static":true}],"position":{"startColumn":5,"startLine":22,"endColumn":36,"endLine":22},"expressions":[{"ws":[{"ws":"","i":163,"text":".","static":true},{"ws":"","i":164,"text":"name","static":false}],"position":{"startColumn":12,"startLine":22,"endColumn":14,"endLine":22},"fieldName":{"literal":false,"value":"name","kind":"Identifier"},"expression":{"ws":[{"ws":"\n    ","i":116,"text":"transform","static":true},{"ws":" ","i":118,"text":"{","static":true},{"ws":"\n    ","i":157,"text":"}","static":true},{"ws":" ","i":162,"text":"e","static":false}],"position":{"startColumn":12,"startLine":22,"endColumn":12,"endLine":22},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},{"ws":[{"ws":"","i":168,"text":".","static":true},{"ws":"","i":169,"text":"age","static":false}],"position":{"startColumn":20,"startLine":22,"endColumn":22,"endLine":22},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":167,"text":"e","static":false}],"position":{"startColumn":20,"startLine":22,"endColumn":20,"endLine":22},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},{"ws":[{"ws":"","i":173,"text":".","static":true},{"ws":"","i":174,"text":"address","static":false}],"position":{"startColumn":27,"startLine":22,"endColumn":29,"endLine":22},"fieldName":{"literal":false,"value":"address","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":172,"text":"e","static":false}],"position":{"startColumn":27,"startLine":22,"endColumn":27,"endLine":22},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"kind":"Return"}],"kind":"Block"},"returnParameters":[{"typeNode":{"ws":[{"ws":"","i":65,"text":"string","static":true}],"position":{"startColumn":31,"startLine":14,"endColumn":31,"endLine":14},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"typeNode":{"ws":[{"ws":" ","i":68,"text":"int","static":true}],"position":{"startColumn":39,"startLine":14,"endColumn":39,"endLine":14},"typeKind":"int","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"typeNode":{"ws":[{"ws":" ","i":71,"text":"string","static":true}],"position":{"startColumn":44,"startLine":14,"endColumn":44,"endLine":14},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"parameters":[],"kind":"Function","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":"\n\n","i":179,"text":"function","static":true},{"ws":" ","i":181,"text":"functionsInTransform","static":false},{"ws":"","i":182,"text":"(","static":true},{"ws":"","i":183,"text":")","static":true},{"ws":" ","i":185,"text":"(","static":true},{"ws":"","i":187,"text":",","static":true},{"ws":"","i":190,"text":",","static":true},{"ws":"","i":193,"text":")","static":true},{"ws":"","i":194,"text":"{","static":true},{"ws":"\n","i":301,"text":"}","static":true}],"position":{"startColumn":1,"startLine":25,"endColumn":1,"endLine":34},"workers":[],"name":{"literal":false,"value":"functionsInTransform","kind":"Identifier"},"annotationAttachments":[],"body":{"statements":[{"ws":[{"ws":"","i":223,"text":";","static":true}],"position":{"startColumn":5,"startLine":26,"endColumn":75,"endLine":26},"variable":{"ws":[{"ws":" ","i":199,"text":"p","static":false},{"ws":" ","i":201,"text":"=","static":true}],"position":{"startColumn":5,"startLine":26,"endColumn":75,"endLine":26},"typeNode":{"ws":[{"ws":"\n    ","i":197,"text":"Person","static":false}],"position":{"startColumn":5,"startLine":26,"endColumn":5,"endLine":26},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"typeName":{"literal":false,"value":"Person","kind":"Identifier"},"kind":"UserDefinedType"},"annotationAttachments":[],"name":{"literal":false,"value":"p","kind":"Identifier"},"initialExpression":{"ws":[{"ws":" ","i":203,"text":"{","static":true},{"ws":"","i":207,"text":",","static":true},{"ws":"","i":212,"text":",","static":true},{"ws":"","i":217,"text":",","static":true},{"ws":"","i":222,"text":"}","static":true}],"position":{"startColumn":16,"startLine":26,"endColumn":74,"endLine":26},"keyValuePairs":[{"ws":[{"ws":"","i":205,"text":":","static":true}],"value":{"ws":[{"ws":"","i":206,"text":"\"John\"","static":false}],"position":{"startColumn":28,"startLine":26,"endColumn":28,"endLine":26},"value":"\"John\"","unescapedValue":"John","kind":"Literal"},"key":{"ws":[{"ws":"","i":204,"text":"first_name","static":false}],"position":{"startColumn":17,"startLine":26,"endColumn":17,"endLine":26},"variableName":{"literal":false,"value":"first_name","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":210,"text":":","static":true}],"value":{"ws":[{"ws":"","i":211,"text":"\"Doe\"","static":false}],"position":{"startColumn":46,"startLine":26,"endColumn":46,"endLine":26},"value":"\"Doe\"","unescapedValue":"Doe","kind":"Literal"},"key":{"ws":[{"ws":" ","i":209,"text":"last_name","static":false}],"position":{"startColumn":36,"startLine":26,"endColumn":36,"endLine":26},"variableName":{"literal":false,"value":"last_name","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":215,"text":":","static":true}],"value":{"ws":[{"ws":"","i":216,"text":"30","static":false}],"position":{"startColumn":57,"startLine":26,"endColumn":57,"endLine":26},"value":"30","kind":"Literal"},"key":{"ws":[{"ws":" ","i":214,"text":"age","static":false}],"position":{"startColumn":53,"startLine":26,"endColumn":53,"endLine":26},"variableName":{"literal":false,"value":"age","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"},{"ws":[{"ws":"","i":220,"text":":","static":true}],"value":{"ws":[{"ws":"","i":221,"text":"\"London\"","static":false}],"position":{"startColumn":66,"startLine":26,"endColumn":66,"endLine":26},"value":"\"London\"","unescapedValue":"London","kind":"Literal"},"key":{"ws":[{"ws":" ","i":219,"text":"city","static":false}],"position":{"startColumn":61,"startLine":26,"endColumn":61,"endLine":26},"variableName":{"literal":false,"value":"city","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"RecordLiteralKeyValue"}],"kind":"RecordLiteralExpr"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},"kind":"VariableDef"},{"ws":[{"ws":"","i":234,"text":";","static":true}],"position":{"startColumn":5,"startLine":27,"endColumn":20,"endLine":27},"variable":{"ws":[{"ws":" ","i":228,"text":"e","static":false},{"ws":" ","i":230,"text":"=","static":true}],"position":{"startColumn":5,"startLine":27,"endColumn":20,"endLine":27},"typeNode":{"ws":[{"ws":"\n    ","i":226,"text":"Employee","static":false}],"position":{"startColumn":5,"startLine":27,"endColumn":5,"endLine":27},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"typeName":{"literal":false,"value":"Employee","kind":"Identifier"},"kind":"UserDefinedType"},"annotationAttachments":[],"name":{"literal":false,"value":"e","kind":"Identifier"},"initialExpression":{"ws":[{"ws":" ","i":232,"text":"{","static":true},{"ws":"","i":233,"text":"}","static":true}],"position":{"startColumn":18,"startLine":27,"endColumn":19,"endLine":27},"keyValuePairs":[],"kind":"RecordLiteralExpr"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},"kind":"VariableDef"},{"position":{"startColumn":5,"startLine":28,"endColumn":5,"endLine":32},"inputs":["p"],"outputs":["e"],"body":{"position":{"startColumn":5,"startLine":28,"endColumn":5,"endLine":32},"statements":[{"ws":[{"ws":" ","i":246,"text":"=","static":true},{"ws":"","i":251,"text":";","static":true}],"position":{"startColumn":8,"startLine":29,"endColumn":26,"endLine":29},"variables":[{"ws":[{"ws":"","i":243,"text":".","static":true},{"ws":"","i":244,"text":"address","static":false}],"position":{"startColumn":8,"startLine":29,"endColumn":10,"endLine":29},"fieldName":{"literal":false,"value":"address","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":242,"text":"e","static":false}],"position":{"startColumn":8,"startLine":29,"endColumn":8,"endLine":29},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":"","i":249,"text":".","static":true},{"ws":"","i":250,"text":"city","static":false}],"position":{"startColumn":20,"startLine":29,"endColumn":22,"endLine":29},"fieldName":{"literal":false,"value":"city","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":248,"text":"p","static":false}],"position":{"startColumn":20,"startLine":29,"endColumn":20,"endLine":29},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},"declaredWithVar":false,"kind":"Assignment"},{"ws":[{"ws":" ","i":258,"text":"=","static":true},{"ws":"","i":266,"text":";","static":true}],"position":{"startColumn":8,"startLine":30,"endColumn":46,"endLine":30},"variables":[{"ws":[{"ws":"","i":255,"text":".","static":true},{"ws":"","i":256,"text":"name","static":false}],"position":{"startColumn":8,"startLine":30,"endColumn":10,"endLine":30},"fieldName":{"literal":false,"value":"name","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":254,"text":"e","static":false}],"position":{"startColumn":8,"startLine":30,"endColumn":8,"endLine":30},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":" ","i":260,"text":"getPrefixedName","static":false},{"ws":"","i":261,"text":"(","static":true},{"ws":"","i":265,"text":")","static":true}],"position":{"startColumn":17,"startLine":30,"endColumn":45,"endLine":30},"invocationType":"FUNCTION","argumentExpressions":[{"ws":[{"ws":"","i":263,"text":".","static":true},{"ws":"","i":264,"text":"first_name","static":false}],"position":{"startColumn":33,"startLine":30,"endColumn":35,"endLine":30},"fieldName":{"literal":false,"value":"first_name","kind":"Identifier"},"expression":{"ws":[{"ws":"","i":262,"text":"p","static":false}],"position":{"startColumn":33,"startLine":30,"endColumn":33,"endLine":30},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"name":{"literal":false,"value":"getPrefixedName","kind":"Identifier"},"kind":"Invocation"},"declaredWithVar":false,"kind":"Assignment"},{"ws":[{"ws":" ","i":273,"text":"=","static":true},{"ws":"","i":278,"text":";","static":true}],"position":{"startColumn":8,"startLine":31,"endColumn":21,"endLine":31},"variables":[{"ws":[{"ws":"","i":270,"text":".","static":true},{"ws":"","i":271,"text":"age","static":false}],"position":{"startColumn":8,"startLine":31,"endColumn":10,"endLine":31},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":"\n       ","i":269,"text":"e","static":false}],"position":{"startColumn":8,"startLine":31,"endColumn":8,"endLine":31},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"expression":{"ws":[{"ws":"","i":276,"text":".","static":true},{"ws":"","i":277,"text":"age","static":false}],"position":{"startColumn":16,"startLine":31,"endColumn":18,"endLine":31},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":275,"text":"p","static":false}],"position":{"startColumn":16,"startLine":31,"endColumn":16,"endLine":31},"variableName":{"literal":false,"value":"p","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},"declaredWithVar":false,"kind":"Assignment"}],"kind":"Block"},"kind":"Transform"},{"ws":[{"ws":"\n    ","i":284,"text":"return","static":true},{"ws":"","i":289,"text":",","static":true},{"ws":"","i":294,"text":",","static":true},{"ws":"","i":299,"text":";","static":true}],"position":{"startColumn":5,"startLine":33,"endColumn":36,"endLine":33},"expressions":[{"ws":[{"ws":"","i":287,"text":".","static":true},{"ws":"","i":288,"text":"name","static":false}],"position":{"startColumn":12,"startLine":33,"endColumn":14,"endLine":33},"fieldName":{"literal":false,"value":"name","kind":"Identifier"},"expression":{"ws":[{"ws":"\n    ","i":237,"text":"transform","static":true},{"ws":" ","i":239,"text":"{","static":true},{"ws":"\n    ","i":281,"text":"}","static":true},{"ws":" ","i":286,"text":"e","static":false}],"position":{"startColumn":12,"startLine":33,"endColumn":12,"endLine":33},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},{"ws":[{"ws":"","i":292,"text":".","static":true},{"ws":"","i":293,"text":"age","static":false}],"position":{"startColumn":20,"startLine":33,"endColumn":22,"endLine":33},"fieldName":{"literal":false,"value":"age","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":291,"text":"e","static":false}],"position":{"startColumn":20,"startLine":33,"endColumn":20,"endLine":33},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"},{"ws":[{"ws":"","i":297,"text":".","static":true},{"ws":"","i":298,"text":"address","static":false}],"position":{"startColumn":27,"startLine":33,"endColumn":29,"endLine":33},"fieldName":{"literal":false,"value":"address","kind":"Identifier"},"expression":{"ws":[{"ws":" ","i":296,"text":"e","static":false}],"position":{"startColumn":27,"startLine":33,"endColumn":27,"endLine":33},"variableName":{"literal":false,"value":"e","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"kind":"FieldBasedAccessExpr"}],"kind":"Return"}],"kind":"Block"},"returnParameters":[{"typeNode":{"ws":[{"ws":"","i":186,"text":"string","static":true}],"position":{"startColumn":34,"startLine":25,"endColumn":34,"endLine":25},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"typeNode":{"ws":[{"ws":" ","i":189,"text":"int","static":true}],"position":{"startColumn":42,"startLine":25,"endColumn":42,"endLine":25},"typeKind":"int","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"typeNode":{"ws":[{"ws":" ","i":192,"text":"string","static":true}],"position":{"startColumn":47,"startLine":25,"endColumn":47,"endLine":25},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"parameters":[],"kind":"Function","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},{"ws":[{"ws":"\n\n","i":303,"text":"function","static":true},{"ws":" ","i":305,"text":"getPrefixedName","static":false},{"ws":"","i":306,"text":"(","static":true},{"ws":"","i":310,"text":")","static":true},{"ws":"","i":311,"text":"(","static":true},{"ws":"","i":313,"text":")","static":true},{"ws":"","i":314,"text":"{","static":true},{"ws":"\n","i":326,"text":"}","static":true}],"position":{"startColumn":1,"startLine":36,"endColumn":1,"endLine":38},"workers":[],"name":{"literal":false,"value":"getPrefixedName","kind":"Identifier"},"annotationAttachments":[],"body":{"statements":[{"ws":[{"ws":"\n    ","i":317,"text":"return","static":true},{"ws":"","i":324,"text":";","static":true}],"position":{"startColumn":5,"startLine":37,"endColumn":24,"endLine":37},"expressions":[{"ws":[{"ws":" ","i":321,"text":"+","static":true}],"position":{"startColumn":12,"startLine":37,"endColumn":20,"endLine":37},"rightExpression":{"ws":[{"ws":" ","i":323,"text":"name","static":false}],"position":{"startColumn":20,"startLine":37,"endColumn":20,"endLine":37},"variableName":{"literal":false,"value":"name","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"},"operatorKind":"+","kind":"BinaryExpr","leftExpression":{"ws":[{"ws":" ","i":319,"text":"\"Mr.\"","static":false}],"position":{"startColumn":12,"startLine":37,"endColumn":12,"endLine":37},"value":"\"Mr.\"","unescapedValue":"Mr.","kind":"Literal"}}],"kind":"Return"}],"kind":"Block"},"returnParameters":[{"typeNode":{"ws":[{"ws":"","i":312,"text":"string","static":true}],"position":{"startColumn":39,"startLine":36,"endColumn":39,"endLine":36},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"parameters":[{"ws":[{"ws":" ","i":309,"text":"name","static":false}],"position":{"startColumn":26,"startLine":36,"endColumn":33,"endLine":36},"typeNode":{"ws":[{"ws":"","i":307,"text":"string","static":true}],"position":{"startColumn":26,"startLine":36,"endColumn":26,"endLine":36},"typeKind":"string","kind":"ValueType"},"annotationAttachments":[],"name":{"literal":false,"value":"name","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"kind":"Function","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"kind":"CompilationUnit"},"diagnostics":[],"packageInfo":{"name":"Current Package","connectors":[],"functions":[{"name":"oneToOneTransform","annotations":[],"parameters":[],"returnParams":[{"name":"","type":"string"},{"name":"","type":"int"},{"name":"","type":"string"}]},{"name":"functionsInTransform","annotations":[],"parameters":[],"returnParams":[{"name":"","type":"string"},{"name":"","type":"int"},{"name":"","type":"string"}]},{"name":"getPrefixedName","annotations":[],"parameters":[{"name":"name","type":"string"}],"returnParams":[{"name":"","type":"string"}]}],"structs":[{"name":"Person","structFields":[{"name":"first_name","type":"string"},{"name":"last_name","type":"string"},{"name":"age","type":"int"},{"name":"city","type":"string"}]},{"name":"Employee","structFields":[{"name":"name","type":"string"},{"name":"age","type":"int"},{"name":"address","type":"string"}]}],"annotations":[]}}
+{
+  "model": {
+    "ws": [
+      {
+        "ws": "",
+        "i": 327,
+        "text": "\u003cEOF\u003e",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 1,
+      "startLine": 1,
+      "endColumn": 1,
+      "endLine": 1
+    },
+    "name": "untitled",
+    "topLevelNodes": [
+      {
+        "ws": [
+          {
+            "ws": "",
+            "i": 0,
+            "text": "struct",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 2,
+            "text": "Person",
+            "static": false
+          },
+          {
+            "ws": " ",
+            "i": 4,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 10,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 16,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 22,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 28,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 30,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 1,
+          "endColumn": 1,
+          "endLine": 6
+        },
+        "annotationAttachments": [],
+        "kind": "Struct",
+        "name": {
+          "literal": false,
+          "value": "Person",
+          "kind": "Identifier"
+        },
+        "fields": [
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 9,
+                "text": "first_name",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 2,
+              "endColumn": 22,
+              "endLine": 2
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 7,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 2,
+                "endColumn": 5,
+                "endLine": 2
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "first_name",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 15,
+                "text": "last_name",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 3,
+              "endColumn": 21,
+              "endLine": 3
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 13,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 3,
+                "endColumn": 5,
+                "endLine": 3
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "last_name",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 21,
+                "text": "age",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 4,
+              "endColumn": 12,
+              "endLine": 4
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 19,
+                  "text": "int",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 4,
+                "endColumn": 5,
+                "endLine": 4
+              },
+              "typeKind": "int",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "age",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 27,
+                "text": "city",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 5,
+              "endColumn": 16,
+              "endLine": 5
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 25,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 5,
+                "endColumn": 5,
+                "endLine": 5
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "city",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "public": false,
+        "native": false,
+        "const": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false
+      },
+      {
+        "ws": [
+          {
+            "ws": "\n\n",
+            "i": 32,
+            "text": "struct",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 34,
+            "text": "Employee",
+            "static": false
+          },
+          {
+            "ws": " ",
+            "i": 36,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 42,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 48,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 54,
+            "text": ";",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 56,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 8,
+          "endColumn": 1,
+          "endLine": 12
+        },
+        "annotationAttachments": [],
+        "kind": "Struct",
+        "name": {
+          "literal": false,
+          "value": "Employee",
+          "kind": "Identifier"
+        },
+        "fields": [
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 41,
+                "text": "name",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 9,
+              "endColumn": 16,
+              "endLine": 9
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 39,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 9,
+                "endColumn": 5,
+                "endLine": 9
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "name",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 47,
+                "text": "age",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 10,
+              "endColumn": 12,
+              "endLine": 10
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 45,
+                  "text": "int",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 10,
+                "endColumn": 5,
+                "endLine": 10
+              },
+              "typeKind": "int",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "age",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 53,
+                "text": "address",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 11,
+              "endColumn": 19,
+              "endLine": 11
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 51,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 11,
+                "endColumn": 5,
+                "endLine": 11
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "address",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "public": false,
+        "native": false,
+        "const": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false
+      },
+      {
+        "ws": [
+          {
+            "ws": "\n\n",
+            "i": 58,
+            "text": "function",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 60,
+            "text": "oneToOneTransform",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 61,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 62,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 64,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 66,
+            "text": ",",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 69,
+            "text": ",",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 72,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 73,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 177,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 14,
+          "endColumn": 1,
+          "endLine": 23
+        },
+        "workers": [],
+        "name": {
+          "literal": false,
+          "value": "oneToOneTransform",
+          "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "body": {
+          "statements": [
+            {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 102,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 15,
+                "endColumn": 75,
+                "endLine": 15
+              },
+              "variable": {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 78,
+                    "text": "p",
+                    "static": false
+                  },
+                  {
+                    "ws": " ",
+                    "i": 80,
+                    "text": "\u003d",
+                    "static": true
+                  }
+                ],
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 15,
+                  "endColumn": 75,
+                  "endLine": 15
+                },
+                "typeNode": {
+                  "ws": [
+                    {
+                      "ws": "\n    ",
+                      "i": 76,
+                      "text": "Person",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 5,
+                    "startLine": 15,
+                    "endColumn": 5,
+                    "endLine": 15
+                  },
+                  "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                  },
+                  "typeName": {
+                    "literal": false,
+                    "value": "Person",
+                    "kind": "Identifier"
+                  },
+                  "kind": "UserDefinedType"
+                },
+                "annotationAttachments": [],
+                "name": {
+                  "literal": false,
+                  "value": "p",
+                  "kind": "Identifier"
+                },
+                "initialExpression": {
+                  "ws": [
+                    {
+                      "ws": " ",
+                      "i": 82,
+                      "text": "{",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 86,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 91,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 96,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 101,
+                      "text": "}",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 16,
+                    "startLine": 15,
+                    "endColumn": 74,
+                    "endLine": 15
+                  },
+                  "keyValuePairs": [
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 84,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 85,
+                            "text": "\"John\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 28,
+                          "startLine": 15,
+                          "endColumn": 28,
+                          "endLine": 15
+                        },
+                        "value": "\"John\"",
+                        "unescapedValue": "John",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 83,
+                            "text": "first_name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 17,
+                          "startLine": 15,
+                          "endColumn": 17,
+                          "endLine": 15
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "first_name",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 89,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 90,
+                            "text": "\"Doe\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 46,
+                          "startLine": 15,
+                          "endColumn": 46,
+                          "endLine": 15
+                        },
+                        "value": "\"Doe\"",
+                        "unescapedValue": "Doe",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 88,
+                            "text": "last_name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 36,
+                          "startLine": 15,
+                          "endColumn": 36,
+                          "endLine": 15
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "last_name",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 94,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 95,
+                            "text": "30",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 57,
+                          "startLine": 15,
+                          "endColumn": 57,
+                          "endLine": 15
+                        },
+                        "value": "30",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 93,
+                            "text": "age",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 53,
+                          "startLine": 15,
+                          "endColumn": 53,
+                          "endLine": 15
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "age",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 99,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 100,
+                            "text": "\"London\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 66,
+                          "startLine": 15,
+                          "endColumn": 66,
+                          "endLine": 15
+                        },
+                        "value": "\"London\"",
+                        "unescapedValue": "London",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 98,
+                            "text": "city",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 61,
+                          "startLine": 15,
+                          "endColumn": 61,
+                          "endLine": 15
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "city",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    }
+                  ],
+                  "kind": "RecordLiteralExpr"
+                },
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "const": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false
+              },
+              "kind": "VariableDef"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 113,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 16,
+                "endColumn": 20,
+                "endLine": 16
+              },
+              "variable": {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 107,
+                    "text": "e",
+                    "static": false
+                  },
+                  {
+                    "ws": " ",
+                    "i": 109,
+                    "text": "\u003d",
+                    "static": true
+                  }
+                ],
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 16,
+                  "endColumn": 20,
+                  "endLine": 16
+                },
+                "typeNode": {
+                  "ws": [
+                    {
+                      "ws": "\n    ",
+                      "i": 105,
+                      "text": "Employee",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 5,
+                    "startLine": 16,
+                    "endColumn": 5,
+                    "endLine": 16
+                  },
+                  "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                  },
+                  "typeName": {
+                    "literal": false,
+                    "value": "Employee",
+                    "kind": "Identifier"
+                  },
+                  "kind": "UserDefinedType"
+                },
+                "annotationAttachments": [],
+                "name": {
+                  "literal": false,
+                  "value": "e",
+                  "kind": "Identifier"
+                },
+                "initialExpression": {
+                  "ws": [
+                    {
+                      "ws": " ",
+                      "i": 111,
+                      "text": "{",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 112,
+                      "text": "}",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 18,
+                    "startLine": 16,
+                    "endColumn": 19,
+                    "endLine": 16
+                  },
+                  "keyValuePairs": [],
+                  "kind": "RecordLiteralExpr"
+                },
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "const": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false
+              },
+              "kind": "VariableDef"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 116,
+                  "text": "transform",
+                  "static": true
+                },
+                {
+                  "ws": " ",
+                  "i": 118,
+                  "text": "{",
+                  "static": true
+                },
+                {
+                  "ws": "\n    ",
+                  "i": 157,
+                  "text": "}",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 17,
+                "endColumn": 5,
+                "endLine": 21
+              },
+              "inputs": [
+                "p"
+              ],
+              "outputs": [
+                "e"
+              ],
+              "body": {
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 17,
+                  "endColumn": 5,
+                  "endLine": 21
+                },
+                "statements": [
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 125,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 130,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 18,
+                      "endColumn": 26,
+                      "endLine": 18
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 122,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 123,
+                            "text": "address",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 18,
+                          "endColumn": 10,
+                          "endLine": 18
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "address",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 121,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 18,
+                            "endColumn": 8,
+                            "endLine": 18
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 128,
+                          "text": ".",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 129,
+                          "text": "city",
+                          "static": false
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 20,
+                        "startLine": 18,
+                        "endColumn": 22,
+                        "endLine": 18
+                      },
+                      "fieldName": {
+                        "literal": false,
+                        "value": "city",
+                        "kind": "Identifier"
+                      },
+                      "expression": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 127,
+                            "text": "p",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 20,
+                          "startLine": 18,
+                          "endColumn": 20,
+                          "endLine": 18
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "p",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "FieldBasedAccessExpr"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  },
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 137,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 142,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 19,
+                      "endColumn": 29,
+                      "endLine": 19
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 134,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 135,
+                            "text": "name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 19,
+                          "endColumn": 10,
+                          "endLine": 19
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "name",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 133,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 19,
+                            "endColumn": 8,
+                            "endLine": 19
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 140,
+                          "text": ".",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 141,
+                          "text": "first_name",
+                          "static": false
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 17,
+                        "startLine": 19,
+                        "endColumn": 19,
+                        "endLine": 19
+                      },
+                      "fieldName": {
+                        "literal": false,
+                        "value": "first_name",
+                        "kind": "Identifier"
+                      },
+                      "expression": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 139,
+                            "text": "p",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 17,
+                          "startLine": 19,
+                          "endColumn": 17,
+                          "endLine": 19
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "p",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "FieldBasedAccessExpr"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  },
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 149,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 154,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 20,
+                      "endColumn": 21,
+                      "endLine": 20
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 146,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 147,
+                            "text": "age",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 20,
+                          "endColumn": 10,
+                          "endLine": 20
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "age",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 145,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 20,
+                            "endColumn": 8,
+                            "endLine": 20
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 152,
+                          "text": ".",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 153,
+                          "text": "age",
+                          "static": false
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 16,
+                        "startLine": 20,
+                        "endColumn": 18,
+                        "endLine": 20
+                      },
+                      "fieldName": {
+                        "literal": false,
+                        "value": "age",
+                        "kind": "Identifier"
+                      },
+                      "expression": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 151,
+                            "text": "p",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 16,
+                          "startLine": 20,
+                          "endColumn": 16,
+                          "endLine": 20
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "p",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "FieldBasedAccessExpr"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  }
+                ],
+                "kind": "Block"
+              },
+              "kind": "Transform"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 160,
+                  "text": "return",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 165,
+                  "text": ",",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 170,
+                  "text": ",",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 175,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 22,
+                "endColumn": 36,
+                "endLine": 22
+              },
+              "expressions": [
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 163,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 164,
+                      "text": "name",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 12,
+                    "startLine": 22,
+                    "endColumn": 14,
+                    "endLine": 22
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "name",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 162,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 12,
+                      "startLine": 22,
+                      "endColumn": 12,
+                      "endLine": 22
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                },
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 168,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 169,
+                      "text": "age",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 20,
+                    "startLine": 22,
+                    "endColumn": 22,
+                    "endLine": 22
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "age",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 167,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 20,
+                      "startLine": 22,
+                      "endColumn": 20,
+                      "endLine": 22
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                },
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 173,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 174,
+                      "text": "address",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 27,
+                    "startLine": 22,
+                    "endColumn": 29,
+                    "endLine": 22
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "address",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 172,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 27,
+                      "startLine": 22,
+                      "endColumn": 27,
+                      "endLine": 22
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                }
+              ],
+              "kind": "Return"
+            }
+          ],
+          "kind": "Block"
+        },
+        "returnParameters": [
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 65,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 31,
+                "startLine": 14,
+                "endColumn": 31,
+                "endLine": 14
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 68,
+                  "text": "int",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 39,
+                "startLine": 14,
+                "endColumn": 39,
+                "endLine": 14
+              },
+              "typeKind": "int",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 71,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 44,
+                "startLine": 14,
+                "endColumn": 44,
+                "endLine": 14
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "const": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false
+      },
+      {
+        "ws": [
+          {
+            "ws": "\n\n",
+            "i": 179,
+            "text": "function",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 181,
+            "text": "functionsInTransform",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 182,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 183,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 185,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 187,
+            "text": ",",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 190,
+            "text": ",",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 193,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 194,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 301,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 25,
+          "endColumn": 1,
+          "endLine": 34
+        },
+        "workers": [],
+        "name": {
+          "literal": false,
+          "value": "functionsInTransform",
+          "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "body": {
+          "statements": [
+            {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 223,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 26,
+                "endColumn": 75,
+                "endLine": 26
+              },
+              "variable": {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 199,
+                    "text": "p",
+                    "static": false
+                  },
+                  {
+                    "ws": " ",
+                    "i": 201,
+                    "text": "\u003d",
+                    "static": true
+                  }
+                ],
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 26,
+                  "endColumn": 75,
+                  "endLine": 26
+                },
+                "typeNode": {
+                  "ws": [
+                    {
+                      "ws": "\n    ",
+                      "i": 197,
+                      "text": "Person",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 5,
+                    "startLine": 26,
+                    "endColumn": 5,
+                    "endLine": 26
+                  },
+                  "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                  },
+                  "typeName": {
+                    "literal": false,
+                    "value": "Person",
+                    "kind": "Identifier"
+                  },
+                  "kind": "UserDefinedType"
+                },
+                "annotationAttachments": [],
+                "name": {
+                  "literal": false,
+                  "value": "p",
+                  "kind": "Identifier"
+                },
+                "initialExpression": {
+                  "ws": [
+                    {
+                      "ws": " ",
+                      "i": 203,
+                      "text": "{",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 207,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 212,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 217,
+                      "text": ",",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 222,
+                      "text": "}",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 16,
+                    "startLine": 26,
+                    "endColumn": 74,
+                    "endLine": 26
+                  },
+                  "keyValuePairs": [
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 205,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 206,
+                            "text": "\"John\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 28,
+                          "startLine": 26,
+                          "endColumn": 28,
+                          "endLine": 26
+                        },
+                        "value": "\"John\"",
+                        "unescapedValue": "John",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 204,
+                            "text": "first_name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 17,
+                          "startLine": 26,
+                          "endColumn": 17,
+                          "endLine": 26
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "first_name",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 210,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 211,
+                            "text": "\"Doe\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 46,
+                          "startLine": 26,
+                          "endColumn": 46,
+                          "endLine": 26
+                        },
+                        "value": "\"Doe\"",
+                        "unescapedValue": "Doe",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 209,
+                            "text": "last_name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 36,
+                          "startLine": 26,
+                          "endColumn": 36,
+                          "endLine": 26
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "last_name",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 215,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 216,
+                            "text": "30",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 57,
+                          "startLine": 26,
+                          "endColumn": 57,
+                          "endLine": 26
+                        },
+                        "value": "30",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 214,
+                            "text": "age",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 53,
+                          "startLine": 26,
+                          "endColumn": 53,
+                          "endLine": 26
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "age",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    },
+                    {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 220,
+                          "text": ":",
+                          "static": true
+                        }
+                      ],
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 221,
+                            "text": "\"London\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 66,
+                          "startLine": 26,
+                          "endColumn": 66,
+                          "endLine": 26
+                        },
+                        "value": "\"London\"",
+                        "unescapedValue": "London",
+                        "kind": "Literal"
+                      },
+                      "key": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 219,
+                            "text": "city",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 61,
+                          "startLine": 26,
+                          "endColumn": 61,
+                          "endLine": 26
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "city",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "RecordLiteralKeyValue"
+                    }
+                  ],
+                  "kind": "RecordLiteralExpr"
+                },
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "const": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false
+              },
+              "kind": "VariableDef"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 234,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 27,
+                "endColumn": 20,
+                "endLine": 27
+              },
+              "variable": {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 228,
+                    "text": "e",
+                    "static": false
+                  },
+                  {
+                    "ws": " ",
+                    "i": 230,
+                    "text": "\u003d",
+                    "static": true
+                  }
+                ],
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 27,
+                  "endColumn": 20,
+                  "endLine": 27
+                },
+                "typeNode": {
+                  "ws": [
+                    {
+                      "ws": "\n    ",
+                      "i": 226,
+                      "text": "Employee",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 5,
+                    "startLine": 27,
+                    "endColumn": 5,
+                    "endLine": 27
+                  },
+                  "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                  },
+                  "typeName": {
+                    "literal": false,
+                    "value": "Employee",
+                    "kind": "Identifier"
+                  },
+                  "kind": "UserDefinedType"
+                },
+                "annotationAttachments": [],
+                "name": {
+                  "literal": false,
+                  "value": "e",
+                  "kind": "Identifier"
+                },
+                "initialExpression": {
+                  "ws": [
+                    {
+                      "ws": " ",
+                      "i": 232,
+                      "text": "{",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 233,
+                      "text": "}",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 18,
+                    "startLine": 27,
+                    "endColumn": 19,
+                    "endLine": 27
+                  },
+                  "keyValuePairs": [],
+                  "kind": "RecordLiteralExpr"
+                },
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "const": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false
+              },
+              "kind": "VariableDef"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 237,
+                  "text": "transform",
+                  "static": true
+                },
+                {
+                  "ws": " ",
+                  "i": 239,
+                  "text": "{",
+                  "static": true
+                },
+                {
+                  "ws": "\n    ",
+                  "i": 281,
+                  "text": "}",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 28,
+                "endColumn": 5,
+                "endLine": 32
+              },
+              "inputs": [
+                "p"
+              ],
+              "outputs": [
+                "e"
+              ],
+              "body": {
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 28,
+                  "endColumn": 5,
+                  "endLine": 32
+                },
+                "statements": [
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 246,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 251,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 29,
+                      "endColumn": 26,
+                      "endLine": 29
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 243,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 244,
+                            "text": "address",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 29,
+                          "endColumn": 10,
+                          "endLine": 29
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "address",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 242,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 29,
+                            "endColumn": 8,
+                            "endLine": 29
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 249,
+                          "text": ".",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 250,
+                          "text": "city",
+                          "static": false
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 20,
+                        "startLine": 29,
+                        "endColumn": 22,
+                        "endLine": 29
+                      },
+                      "fieldName": {
+                        "literal": false,
+                        "value": "city",
+                        "kind": "Identifier"
+                      },
+                      "expression": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 248,
+                            "text": "p",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 20,
+                          "startLine": 29,
+                          "endColumn": 20,
+                          "endLine": 29
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "p",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "FieldBasedAccessExpr"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  },
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 258,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 266,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 30,
+                      "endColumn": 46,
+                      "endLine": 30
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 255,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 256,
+                            "text": "name",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 30,
+                          "endColumn": 10,
+                          "endLine": 30
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "name",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 254,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 30,
+                            "endColumn": 8,
+                            "endLine": 30
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": " ",
+                          "i": 260,
+                          "text": "getPrefixedName",
+                          "static": false
+                        },
+                        {
+                          "ws": "",
+                          "i": 261,
+                          "text": "(",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 265,
+                          "text": ")",
+                          "static": true
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 17,
+                        "startLine": 30,
+                        "endColumn": 45,
+                        "endLine": 30
+                      },
+                      "invocationType": "FUNCTION",
+                      "argumentExpressions": [
+                        {
+                          "ws": [
+                            {
+                              "ws": "",
+                              "i": 263,
+                              "text": ".",
+                              "static": true
+                            },
+                            {
+                              "ws": "",
+                              "i": 264,
+                              "text": "first_name",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 33,
+                            "startLine": 30,
+                            "endColumn": 35,
+                            "endLine": 30
+                          },
+                          "fieldName": {
+                            "literal": false,
+                            "value": "first_name",
+                            "kind": "Identifier"
+                          },
+                          "expression": {
+                            "ws": [
+                              {
+                                "ws": "",
+                                "i": 262,
+                                "text": "p",
+                                "static": false
+                              }
+                            ],
+                            "position": {
+                              "startColumn": 33,
+                              "startLine": 30,
+                              "endColumn": 33,
+                              "endLine": 30
+                            },
+                            "variableName": {
+                              "literal": false,
+                              "value": "p",
+                              "kind": "Identifier"
+                            },
+                            "packageAlias": {
+                              "literal": false,
+                              "value": "",
+                              "kind": "Identifier"
+                            },
+                            "kind": "SimpleVariableRef"
+                          },
+                          "kind": "FieldBasedAccessExpr"
+                        }
+                      ],
+                      "packageAlias": {
+                        "literal": false,
+                        "value": "",
+                        "kind": "Identifier"
+                      },
+                      "name": {
+                        "literal": false,
+                        "value": "getPrefixedName",
+                        "kind": "Identifier"
+                      },
+                      "kind": "Invocation"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  },
+                  {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 273,
+                        "text": "\u003d",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 278,
+                        "text": ";",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 8,
+                      "startLine": 31,
+                      "endColumn": 21,
+                      "endLine": 31
+                    },
+                    "variables": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 270,
+                            "text": ".",
+                            "static": true
+                          },
+                          {
+                            "ws": "",
+                            "i": 271,
+                            "text": "age",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 8,
+                          "startLine": 31,
+                          "endColumn": 10,
+                          "endLine": 31
+                        },
+                        "fieldName": {
+                          "literal": false,
+                          "value": "age",
+                          "kind": "Identifier"
+                        },
+                        "expression": {
+                          "ws": [
+                            {
+                              "ws": "\n       ",
+                              "i": 269,
+                              "text": "e",
+                              "static": false
+                            }
+                          ],
+                          "position": {
+                            "startColumn": 8,
+                            "startLine": 31,
+                            "endColumn": 8,
+                            "endLine": 31
+                          },
+                          "variableName": {
+                            "literal": false,
+                            "value": "e",
+                            "kind": "Identifier"
+                          },
+                          "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                          },
+                          "kind": "SimpleVariableRef"
+                        },
+                        "kind": "FieldBasedAccessExpr"
+                      }
+                    ],
+                    "expression": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 276,
+                          "text": ".",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 277,
+                          "text": "age",
+                          "static": false
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 16,
+                        "startLine": 31,
+                        "endColumn": 18,
+                        "endLine": 31
+                      },
+                      "fieldName": {
+                        "literal": false,
+                        "value": "age",
+                        "kind": "Identifier"
+                      },
+                      "expression": {
+                        "ws": [
+                          {
+                            "ws": " ",
+                            "i": 275,
+                            "text": "p",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 16,
+                          "startLine": 31,
+                          "endColumn": 16,
+                          "endLine": 31
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "p",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      },
+                      "kind": "FieldBasedAccessExpr"
+                    },
+                    "declaredWithVar": false,
+                    "kind": "Assignment"
+                  }
+                ],
+                "kind": "Block"
+              },
+              "kind": "Transform"
+            },
+            {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 284,
+                  "text": "return",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 289,
+                  "text": ",",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 294,
+                  "text": ",",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 299,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 33,
+                "endColumn": 36,
+                "endLine": 33
+              },
+              "expressions": [
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 287,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 288,
+                      "text": "name",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 12,
+                    "startLine": 33,
+                    "endColumn": 14,
+                    "endLine": 33
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "name",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 286,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 12,
+                      "startLine": 33,
+                      "endColumn": 12,
+                      "endLine": 33
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                },
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 292,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 293,
+                      "text": "age",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 20,
+                    "startLine": 33,
+                    "endColumn": 22,
+                    "endLine": 33
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "age",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 291,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 20,
+                      "startLine": 33,
+                      "endColumn": 20,
+                      "endLine": 33
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                },
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 297,
+                      "text": ".",
+                      "static": true
+                    },
+                    {
+                      "ws": "",
+                      "i": 298,
+                      "text": "address",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 27,
+                    "startLine": 33,
+                    "endColumn": 29,
+                    "endLine": 33
+                  },
+                  "fieldName": {
+                    "literal": false,
+                    "value": "address",
+                    "kind": "Identifier"
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 296,
+                        "text": "e",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 27,
+                      "startLine": 33,
+                      "endColumn": 27,
+                      "endLine": 33
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "e",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "kind": "FieldBasedAccessExpr"
+                }
+              ],
+              "kind": "Return"
+            }
+          ],
+          "kind": "Block"
+        },
+        "returnParameters": [
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 186,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 34,
+                "startLine": 25,
+                "endColumn": 34,
+                "endLine": 25
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 189,
+                  "text": "int",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 42,
+                "startLine": 25,
+                "endColumn": 42,
+                "endLine": 25
+              },
+              "typeKind": "int",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          },
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 192,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 47,
+                "startLine": 25,
+                "endColumn": 47,
+                "endLine": 25
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "const": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false
+      },
+      {
+        "ws": [
+          {
+            "ws": "\n\n",
+            "i": 303,
+            "text": "function",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 305,
+            "text": "getPrefixedName",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 306,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 310,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 311,
+            "text": "(",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 313,
+            "text": ")",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 314,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 326,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 36,
+          "endColumn": 1,
+          "endLine": 38
+        },
+        "workers": [],
+        "name": {
+          "literal": false,
+          "value": "getPrefixedName",
+          "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "body": {
+          "statements": [
+            {
+              "ws": [
+                {
+                  "ws": "\n    ",
+                  "i": 317,
+                  "text": "return",
+                  "static": true
+                },
+                {
+                  "ws": "",
+                  "i": 324,
+                  "text": ";",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 5,
+                "startLine": 37,
+                "endColumn": 24,
+                "endLine": 37
+              },
+              "expressions": [
+                {
+                  "ws": [
+                    {
+                      "ws": " ",
+                      "i": 321,
+                      "text": "+",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 12,
+                    "startLine": 37,
+                    "endColumn": 20,
+                    "endLine": 37
+                  },
+                  "rightExpression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 323,
+                        "text": "name",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 20,
+                      "startLine": 37,
+                      "endColumn": 20,
+                      "endLine": 37
+                    },
+                    "variableName": {
+                      "literal": false,
+                      "value": "name",
+                      "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "",
+                      "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                  },
+                  "operatorKind": "+",
+                  "kind": "BinaryExpr",
+                  "leftExpression": {
+                    "ws": [
+                      {
+                        "ws": " ",
+                        "i": 319,
+                        "text": "\"Mr.\"",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 12,
+                      "startLine": 37,
+                      "endColumn": 12,
+                      "endLine": 37
+                    },
+                    "value": "\"Mr.\"",
+                    "unescapedValue": "Mr.",
+                    "kind": "Literal"
+                  }
+                }
+              ],
+              "kind": "Return"
+            }
+          ],
+          "kind": "Block"
+        },
+        "returnParameters": [
+          {
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 312,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 39,
+                "startLine": 36,
+                "endColumn": 39,
+                "endLine": 36
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "parameters": [
+          {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 309,
+                "text": "name",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 26,
+              "startLine": 36,
+              "endColumn": 33,
+              "endLine": 36
+            },
+            "typeNode": {
+              "ws": [
+                {
+                  "ws": "",
+                  "i": 307,
+                  "text": "string",
+                  "static": true
+                }
+              ],
+              "position": {
+                "startColumn": 26,
+                "startLine": 36,
+                "endColumn": 26,
+                "endLine": 36
+              },
+              "typeKind": "string",
+              "kind": "ValueType"
+            },
+            "annotationAttachments": [],
+            "name": {
+              "literal": false,
+              "value": "name",
+              "kind": "Identifier"
+            },
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "const": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false
+      }
+    ],
+    "kind": "CompilationUnit"
+  },
+  "diagnostics": [
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 1,
+        "eLine": 1,
+        "sCol": 1,
+        "eCol": 1
+      },
+      "msg": "missing package declaration: expected \u0027untitled\u0027",
+      "code": "MISSING_PACKAGE_DECLARATION"
+    }
+  ],
+  "packageInfo": {
+    "name": "Current Package",
+    "connectors": [],
+    "functions": [
+      {
+        "name": "oneToOneTransform",
+        "annotations": [],
+        "parameters": [],
+        "returnParams": [
+          {
+            "name": "",
+            "type": "string"
+          },
+          {
+            "name": "",
+            "type": "int"
+          },
+          {
+            "name": "",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "functionsInTransform",
+        "annotations": [],
+        "parameters": [],
+        "returnParams": [
+          {
+            "name": "",
+            "type": "string"
+          },
+          {
+            "name": "",
+            "type": "int"
+          },
+          {
+            "name": "",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "getPrefixedName",
+        "annotations": [],
+        "parameters": [
+          {
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "returnParams": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "structs": [
+      {
+        "name": "Person",
+        "structFields": [
+          {
+            "name": "first_name",
+            "type": "string"
+          },
+          {
+            "name": "last_name",
+            "type": "string"
+          },
+          {
+            "name": "age",
+            "type": "int"
+          },
+          {
+            "name": "city",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "Employee",
+        "structFields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "age",
+            "type": "int"
+          },
+          {
+            "name": "address",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "annotations": []
+  }
+}

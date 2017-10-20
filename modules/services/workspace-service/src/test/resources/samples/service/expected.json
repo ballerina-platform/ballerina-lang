@@ -1,1 +1,1041 @@
-{"model":{"ws":[{"ws":"","i":88,"text":"<EOF>","static":true}],"name":"untitled","topLevelNodes":[{"ws":[{"ws":"","i":0,"text":"import","static":true},{"ws":" ","i":2,"text":"ballerina","static":false},{"ws":"","i":3,"text":".","static":true},{"ws":"","i":4,"text":"net","static":false},{"ws":"","i":5,"text":".","static":true},{"ws":"","i":6,"text":"http","static":false},{"ws":"","i":7,"text":";","static":true}],"position":{"startColumn":1,"startLine":1,"endColumn":26,"endLine":1},"alias":{"literal":false,"value":"http","kind":"Identifier"},"packageName":[{"literal":false,"value":"ballerina","kind":"Identifier"},{"literal":false,"value":"net","kind":"Identifier"},{"literal":false,"value":"http","kind":"Identifier"}],"kind":"Import","packageVersion":{"literal":false,"value":"","kind":"Identifier"}},{"ws":[{"ws":"\n","i":20,"text":"service","static":true},{"ws":"","i":21,"text":"<","static":true},{"ws":"","i":22,"text":"http","static":false},{"ws":"","i":23,"text":">","static":true},{"ws":" ","i":25,"text":"echo","static":false},{"ws":" ","i":27,"text":"{","static":true},{"ws":"\n","i":87,"text":"}","static":true}],"position":{"startColumn":1,"startLine":4,"endColumn":1,"endLine":14},"resources":[{"ws":[{"ws":"\n    ","i":54,"text":"resource","static":true},{"ws":" ","i":56,"text":"echo","static":false},{"ws":" ","i":58,"text":"(","static":true},{"ws":"","i":62,"text":")","static":true},{"ws":" ","i":64,"text":"{","static":true},{"ws":"\n    ","i":85,"text":"}","static":true}],"position":{"startColumn":5,"startLine":6,"endColumn":5,"endLine":13},"workers":[],"name":{"literal":false,"value":"echo","kind":"Identifier"},"annotationAttachments":[{"ws":[{"ws":"\n\n    ","i":30,"text":"@","static":true},{"ws":"","i":31,"text":"http","static":false},{"ws":"","i":32,"text":":","static":true},{"ws":"","i":33,"text":"resourceConfig","static":false},{"ws":" ","i":35,"text":"{","static":true},{"ws":"","i":43,"text":",","static":true},{"ws":"\n    ","i":51,"text":"}","static":true}],"position":{"startColumn":5,"startLine":6,"endColumn":-1,"endLine":-1},"attributes":[{"ws":[{"ws":"\n        ","i":38,"text":"methods","static":false},{"ws":"","i":39,"text":":","static":true}],"name":"methods","value":{"ws":[{"ws":"","i":40,"text":"[","static":true},{"ws":"","i":42,"text":"]","static":true}],"position":{"startColumn":17,"startLine":7,"endColumn":24,"endLine":7},"valueArray":[{"position":{"startColumn":18,"startLine":7,"endColumn":18,"endLine":7},"value":{"ws":[{"ws":"","i":41,"text":"\"POST\"","static":false}],"position":{"startColumn":18,"startLine":7,"endColumn":18,"endLine":7},"value":"\"POST\"","unescapedValue":"POST","kind":"Literal"},"valueArray":[],"kind":"AnnotationAttachmentAttributeValue"}],"kind":"AnnotationAttachmentAttributeValue"},"kind":"AnnotationAttachmentAttribute"},{"ws":[{"ws":"\n        ","i":46,"text":"path","static":false},{"ws":"","i":47,"text":":","static":true}],"name":"path","value":{"position":{"startColumn":14,"startLine":8,"endColumn":14,"endLine":8},"value":{"ws":[{"ws":"","i":48,"text":"\"/\"","static":false}],"position":{"startColumn":14,"startLine":8,"endColumn":14,"endLine":8},"value":"\"/\"","unescapedValue":"/","kind":"Literal"},"valueArray":[],"kind":"AnnotationAttachmentAttributeValue"},"kind":"AnnotationAttachmentAttribute"}],"annotationName":{"literal":false,"value":"resourceConfig","kind":"Identifier"},"packageAlias":{"literal":false,"value":"http","kind":"Identifier"},"kind":"AnnotationAttachment"}],"body":{"statements":[{"ws":[{"ws":"","i":73,"text":";","static":true}],"position":{"startColumn":9,"startLine":11,"endColumn":34,"endLine":11},"expression":{"ws":[{"ws":"\n        ","i":67,"text":"http","static":false},{"ws":"","i":68,"text":":","static":true},{"ws":"","i":69,"text":"convertToResponse","static":false},{"ws":"","i":70,"text":"(","static":true},{"ws":"","i":72,"text":")","static":true}],"position":{"startColumn":9,"startLine":11,"endColumn":33,"endLine":11},"argumentExpressions":[{"ws":[{"ws":"","i":71,"text":"m","static":false}],"position":{"startColumn":32,"startLine":11,"endColumn":32,"endLine":11},"variableName":{"literal":false,"value":"m","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"}],"packageAlias":{"literal":false,"value":"http","kind":"Identifier"},"name":{"literal":false,"value":"convertToResponse","kind":"Identifier"},"kind":"Invocation"},"kind":"ExpressionStatement"},{"ws":[{"ws":"","i":82,"text":";","static":true}],"position":{"startColumn":9,"startLine":12,"endColumn":25,"endLine":12},"expression":{"ws":[{"ws":"\n        ","i":76,"text":"response","static":false},{"ws":"","i":77,"text":":","static":true},{"ws":"","i":78,"text":"send","static":false},{"ws":"","i":79,"text":"(","static":true},{"ws":"","i":81,"text":")","static":true}],"position":{"startColumn":9,"startLine":12,"endColumn":24,"endLine":12},"argumentExpressions":[{"ws":[{"ws":"","i":80,"text":"m","static":false}],"position":{"startColumn":23,"startLine":12,"endColumn":23,"endLine":12},"variableName":{"literal":false,"value":"m","kind":"Identifier"},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"kind":"SimpleVariableRef"}],"packageAlias":{"literal":false,"value":"response","kind":"Identifier"},"name":{"literal":false,"value":"send","kind":"Identifier"},"kind":"Invocation"},"kind":"ExpressionStatement"}],"kind":"Block"},"returnParameters":[],"parameters":[{"ws":[{"ws":" ","i":61,"text":"m","static":false}],"position":{"startColumn":20,"startLine":10,"endColumn":28,"endLine":10},"typeNode":{"ws":[{"ws":"","i":59,"text":"message","static":false}],"position":{"startColumn":20,"startLine":10,"endColumn":20,"endLine":10},"packageAlias":{"literal":false,"value":"","kind":"Identifier"},"typeName":{"literal":false,"value":"message","kind":"Identifier"},"kind":"UserDefinedType"},"annotationAttachments":[],"name":{"literal":false,"value":"m","kind":"Identifier"},"kind":"Variable","public":false,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"kind":"Resource","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false}],"annotationAttachments":[{"ws":[{"ws":"\n\n","i":9,"text":"@","static":true},{"ws":"","i":10,"text":"http","static":false},{"ws":"","i":11,"text":":","static":true},{"ws":"","i":12,"text":"configuration","static":false},{"ws":" ","i":14,"text":"{","static":true},{"ws":"","i":18,"text":"}","static":true}],"position":{"startColumn":1,"startLine":3,"endColumn":-1,"endLine":-1},"attributes":[{"ws":[{"ws":"","i":15,"text":"basePath","static":false},{"ws":"","i":16,"text":":","static":true}],"name":"basePath","value":{"position":{"startColumn":31,"startLine":3,"endColumn":31,"endLine":3},"value":{"ws":[{"ws":"","i":17,"text":"\"/echo\"","static":false}],"position":{"startColumn":31,"startLine":3,"endColumn":31,"endLine":3},"value":"\"/echo\"","unescapedValue":"/echo","kind":"Literal"},"valueArray":[],"kind":"AnnotationAttachmentAttributeValue"},"kind":"AnnotationAttachmentAttribute"}],"annotationName":{"literal":false,"value":"configuration","kind":"Identifier"},"packageAlias":{"literal":false,"value":"http","kind":"Identifier"},"kind":"AnnotationAttachment"}],"initFunction":{"position":{"startColumn":1,"startLine":4,"endColumn":1,"endLine":14},"workers":[],"name":{"literal":false,"value":"echo.<init>","kind":"Identifier"},"annotationAttachments":[],"body":{"position":{"startColumn":1,"startLine":4,"endColumn":1,"endLine":14},"statements":[{"position":{"startColumn":1,"startLine":4,"endColumn":1,"endLine":14},"expressions":[],"kind":"Return"}],"kind":"Block"},"returnParameters":[],"parameters":[],"kind":"Function","public":true,"native":false,"const":false,"lambda":false,"parallel":false,"connector":false},"name":{"literal":false,"value":"echo","kind":"Identifier"},"protocolPackageIdentifier":{"literal":false,"value":"http","kind":"Identifier"},"variables":[],"kind":"Service"}],"kind":"CompilationUnit"},"diagnostics":[{"kind":"ERROR","source":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"pos":{"src":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"sLine":10,"eLine":10,"sCol":20,"eCol":20},"msg":"unknown type 'message'","code":"UNKNOWN_TYPE"},{"kind":"ERROR","source":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"pos":{"src":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"sLine":11,"eLine":11,"sCol":9,"eCol":33},"msg":"undefined function 'convertToResponse'","code":"UNDEFINED_FUNCTION"},{"kind":"ERROR","source":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"pos":{"src":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"sLine":12,"eLine":12,"sCol":9,"eCol":24},"msg":"undefined package 'response'","code":"UNDEFINED_PACKAGE"},{"kind":"ERROR","source":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"pos":{"src":{"pkgID":{"nameComps":[{"value":"."}],"name":{"value":"."},"version":{"value":"0.0.0"}},"cUnitName":"untitled"},"sLine":12,"eLine":12,"sCol":9,"eCol":24},"msg":"undefined function 'send'","code":"UNDEFINED_FUNCTION"}]}
+{
+  "model": {
+    "ws": [
+      {
+        "ws": "",
+        "i": 88,
+        "text": "\u003cEOF\u003e",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 1,
+      "startLine": 1,
+      "endColumn": 1,
+      "endLine": 1
+    },
+    "name": "untitled",
+    "topLevelNodes": [
+      {
+        "ws": [
+          {
+            "ws": "",
+            "i": 0,
+            "text": "import",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 2,
+            "text": "ballerina",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 3,
+            "text": ".",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 4,
+            "text": "net",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 5,
+            "text": ".",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 6,
+            "text": "http",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 7,
+            "text": ";",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 1,
+          "endColumn": 26,
+          "endLine": 1
+        },
+        "alias": {
+          "literal": false,
+          "value": "http",
+          "kind": "Identifier"
+        },
+        "packageName": [
+          {
+            "literal": false,
+            "value": "ballerina",
+            "kind": "Identifier"
+          },
+          {
+            "literal": false,
+            "value": "net",
+            "kind": "Identifier"
+          },
+          {
+            "literal": false,
+            "value": "http",
+            "kind": "Identifier"
+          }
+        ],
+        "kind": "Import",
+        "packageVersion": {
+          "literal": false,
+          "value": "",
+          "kind": "Identifier"
+        }
+      },
+      {
+        "ws": [
+          {
+            "ws": "\n",
+            "i": 20,
+            "text": "service",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 21,
+            "text": "\u003c",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 22,
+            "text": "http",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 23,
+            "text": "\u003e",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 25,
+            "text": "echo",
+            "static": false
+          },
+          {
+            "ws": " ",
+            "i": 27,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n",
+            "i": 87,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 1,
+          "startLine": 4,
+          "endColumn": 1,
+          "endLine": 14
+        },
+        "resources": [
+          {
+            "ws": [
+              {
+                "ws": "\n    ",
+                "i": 54,
+                "text": "resource",
+                "static": true
+              },
+              {
+                "ws": " ",
+                "i": 56,
+                "text": "echo",
+                "static": false
+              },
+              {
+                "ws": " ",
+                "i": 58,
+                "text": "(",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 62,
+                "text": ")",
+                "static": true
+              },
+              {
+                "ws": " ",
+                "i": 64,
+                "text": "{",
+                "static": true
+              },
+              {
+                "ws": "\n    ",
+                "i": 85,
+                "text": "}",
+                "static": true
+              }
+            ],
+            "position": {
+              "startColumn": 5,
+              "startLine": 6,
+              "endColumn": 5,
+              "endLine": 13
+            },
+            "workers": [],
+            "name": {
+              "literal": false,
+              "value": "echo",
+              "kind": "Identifier"
+            },
+            "annotationAttachments": [
+              {
+                "ws": [
+                  {
+                    "ws": "\n\n    ",
+                    "i": 30,
+                    "text": "@",
+                    "static": true
+                  },
+                  {
+                    "ws": "",
+                    "i": 31,
+                    "text": "http",
+                    "static": false
+                  },
+                  {
+                    "ws": "",
+                    "i": 32,
+                    "text": ":",
+                    "static": true
+                  },
+                  {
+                    "ws": "",
+                    "i": 33,
+                    "text": "resourceConfig",
+                    "static": false
+                  },
+                  {
+                    "ws": " ",
+                    "i": 35,
+                    "text": "{",
+                    "static": true
+                  },
+                  {
+                    "ws": "",
+                    "i": 43,
+                    "text": ",",
+                    "static": true
+                  },
+                  {
+                    "ws": "\n    ",
+                    "i": 51,
+                    "text": "}",
+                    "static": true
+                  }
+                ],
+                "position": {
+                  "startColumn": 5,
+                  "startLine": 6,
+                  "endColumn": -1,
+                  "endLine": -1
+                },
+                "attributes": [
+                  {
+                    "ws": [
+                      {
+                        "ws": "\n        ",
+                        "i": 38,
+                        "text": "methods",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 39,
+                        "text": ":",
+                        "static": true
+                      }
+                    ],
+                    "name": "methods",
+                    "value": {
+                      "ws": [
+                        {
+                          "ws": "",
+                          "i": 40,
+                          "text": "[",
+                          "static": true
+                        },
+                        {
+                          "ws": "",
+                          "i": 42,
+                          "text": "]",
+                          "static": true
+                        }
+                      ],
+                      "position": {
+                        "startColumn": 17,
+                        "startLine": 7,
+                        "endColumn": 24,
+                        "endLine": 7
+                      },
+                      "valueArray": [
+                        {
+                          "position": {
+                            "startColumn": 18,
+                            "startLine": 7,
+                            "endColumn": 18,
+                            "endLine": 7
+                          },
+                          "value": {
+                            "ws": [
+                              {
+                                "ws": "",
+                                "i": 41,
+                                "text": "\"POST\"",
+                                "static": false
+                              }
+                            ],
+                            "position": {
+                              "startColumn": 18,
+                              "startLine": 7,
+                              "endColumn": 18,
+                              "endLine": 7
+                            },
+                            "value": "\"POST\"",
+                            "unescapedValue": "POST",
+                            "kind": "Literal"
+                          },
+                          "valueArray": [],
+                          "kind": "AnnotationAttachmentAttributeValue"
+                        }
+                      ],
+                      "kind": "AnnotationAttachmentAttributeValue"
+                    },
+                    "kind": "AnnotationAttachmentAttribute"
+                  },
+                  {
+                    "ws": [
+                      {
+                        "ws": "\n        ",
+                        "i": 46,
+                        "text": "path",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 47,
+                        "text": ":",
+                        "static": true
+                      }
+                    ],
+                    "name": "path",
+                    "value": {
+                      "position": {
+                        "startColumn": 14,
+                        "startLine": 8,
+                        "endColumn": 14,
+                        "endLine": 8
+                      },
+                      "value": {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 48,
+                            "text": "\"/\"",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 14,
+                          "startLine": 8,
+                          "endColumn": 14,
+                          "endLine": 8
+                        },
+                        "value": "\"/\"",
+                        "unescapedValue": "/",
+                        "kind": "Literal"
+                      },
+                      "valueArray": [],
+                      "kind": "AnnotationAttachmentAttributeValue"
+                    },
+                    "kind": "AnnotationAttachmentAttribute"
+                  }
+                ],
+                "annotationName": {
+                  "literal": false,
+                  "value": "resourceConfig",
+                  "kind": "Identifier"
+                },
+                "packageAlias": {
+                  "literal": false,
+                  "value": "http",
+                  "kind": "Identifier"
+                },
+                "kind": "AnnotationAttachment"
+              }
+            ],
+            "body": {
+              "statements": [
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 73,
+                      "text": ";",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 9,
+                    "startLine": 11,
+                    "endColumn": 34,
+                    "endLine": 11
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": "\n        ",
+                        "i": 67,
+                        "text": "http",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 68,
+                        "text": ":",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 69,
+                        "text": "convertToResponse",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 70,
+                        "text": "(",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 72,
+                        "text": ")",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 9,
+                      "startLine": 11,
+                      "endColumn": 33,
+                      "endLine": 11
+                    },
+                    "argumentExpressions": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 71,
+                            "text": "m",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 32,
+                          "startLine": 11,
+                          "endColumn": 32,
+                          "endLine": 11
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "m",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      }
+                    ],
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "http",
+                      "kind": "Identifier"
+                    },
+                    "name": {
+                      "literal": false,
+                      "value": "convertToResponse",
+                      "kind": "Identifier"
+                    },
+                    "kind": "Invocation"
+                  },
+                  "kind": "ExpressionStatement"
+                },
+                {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 82,
+                      "text": ";",
+                      "static": true
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 9,
+                    "startLine": 12,
+                    "endColumn": 25,
+                    "endLine": 12
+                  },
+                  "expression": {
+                    "ws": [
+                      {
+                        "ws": "\n        ",
+                        "i": 76,
+                        "text": "response",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 77,
+                        "text": ":",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 78,
+                        "text": "send",
+                        "static": false
+                      },
+                      {
+                        "ws": "",
+                        "i": 79,
+                        "text": "(",
+                        "static": true
+                      },
+                      {
+                        "ws": "",
+                        "i": 81,
+                        "text": ")",
+                        "static": true
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 9,
+                      "startLine": 12,
+                      "endColumn": 24,
+                      "endLine": 12
+                    },
+                    "argumentExpressions": [
+                      {
+                        "ws": [
+                          {
+                            "ws": "",
+                            "i": 80,
+                            "text": "m",
+                            "static": false
+                          }
+                        ],
+                        "position": {
+                          "startColumn": 23,
+                          "startLine": 12,
+                          "endColumn": 23,
+                          "endLine": 12
+                        },
+                        "variableName": {
+                          "literal": false,
+                          "value": "m",
+                          "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                          "literal": false,
+                          "value": "",
+                          "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                      }
+                    ],
+                    "packageAlias": {
+                      "literal": false,
+                      "value": "response",
+                      "kind": "Identifier"
+                    },
+                    "name": {
+                      "literal": false,
+                      "value": "send",
+                      "kind": "Identifier"
+                    },
+                    "kind": "Invocation"
+                  },
+                  "kind": "ExpressionStatement"
+                }
+              ],
+              "kind": "Block"
+            },
+            "returnParameters": [],
+            "parameters": [
+              {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 61,
+                    "text": "m",
+                    "static": false
+                  }
+                ],
+                "position": {
+                  "startColumn": 20,
+                  "startLine": 10,
+                  "endColumn": 28,
+                  "endLine": 10
+                },
+                "typeNode": {
+                  "ws": [
+                    {
+                      "ws": "",
+                      "i": 59,
+                      "text": "message",
+                      "static": false
+                    }
+                  ],
+                  "position": {
+                    "startColumn": 20,
+                    "startLine": 10,
+                    "endColumn": 20,
+                    "endLine": 10
+                  },
+                  "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                  },
+                  "typeName": {
+                    "literal": false,
+                    "value": "message",
+                    "kind": "Identifier"
+                  },
+                  "kind": "UserDefinedType"
+                },
+                "annotationAttachments": [],
+                "name": {
+                  "literal": false,
+                  "value": "m",
+                  "kind": "Identifier"
+                },
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "const": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false
+              }
+            ],
+            "kind": "Resource",
+            "public": true,
+            "native": false,
+            "const": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false
+          }
+        ],
+        "annotationAttachments": [
+          {
+            "ws": [
+              {
+                "ws": "\n\n",
+                "i": 9,
+                "text": "@",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 10,
+                "text": "http",
+                "static": false
+              },
+              {
+                "ws": "",
+                "i": 11,
+                "text": ":",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 12,
+                "text": "configuration",
+                "static": false
+              },
+              {
+                "ws": " ",
+                "i": 14,
+                "text": "{",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 18,
+                "text": "}",
+                "static": true
+              }
+            ],
+            "position": {
+              "startColumn": 1,
+              "startLine": 3,
+              "endColumn": -1,
+              "endLine": -1
+            },
+            "attributes": [
+              {
+                "ws": [
+                  {
+                    "ws": "",
+                    "i": 15,
+                    "text": "basePath",
+                    "static": false
+                  },
+                  {
+                    "ws": "",
+                    "i": 16,
+                    "text": ":",
+                    "static": true
+                  }
+                ],
+                "name": "basePath",
+                "value": {
+                  "position": {
+                    "startColumn": 31,
+                    "startLine": 3,
+                    "endColumn": 31,
+                    "endLine": 3
+                  },
+                  "value": {
+                    "ws": [
+                      {
+                        "ws": "",
+                        "i": 17,
+                        "text": "\"/echo\"",
+                        "static": false
+                      }
+                    ],
+                    "position": {
+                      "startColumn": 31,
+                      "startLine": 3,
+                      "endColumn": 31,
+                      "endLine": 3
+                    },
+                    "value": "\"/echo\"",
+                    "unescapedValue": "/echo",
+                    "kind": "Literal"
+                  },
+                  "valueArray": [],
+                  "kind": "AnnotationAttachmentAttributeValue"
+                },
+                "kind": "AnnotationAttachmentAttribute"
+              }
+            ],
+            "annotationName": {
+              "literal": false,
+              "value": "configuration",
+              "kind": "Identifier"
+            },
+            "packageAlias": {
+              "literal": false,
+              "value": "http",
+              "kind": "Identifier"
+            },
+            "kind": "AnnotationAttachment"
+          }
+        ],
+        "initFunction": {
+          "position": {
+            "startColumn": 1,
+            "startLine": 4,
+            "endColumn": 1,
+            "endLine": 14
+          },
+          "workers": [],
+          "name": {
+            "literal": false,
+            "value": "echo.\u003cinit\u003e",
+            "kind": "Identifier"
+          },
+          "annotationAttachments": [],
+          "body": {
+            "position": {
+              "startColumn": 1,
+              "startLine": 4,
+              "endColumn": 1,
+              "endLine": 14
+            },
+            "statements": [
+              {
+                "position": {
+                  "startColumn": 1,
+                  "startLine": 4,
+                  "endColumn": 1,
+                  "endLine": 14
+                },
+                "expressions": [],
+                "kind": "Return"
+              }
+            ],
+            "kind": "Block"
+          },
+          "returnParameters": [],
+          "parameters": [],
+          "kind": "Function",
+          "public": true,
+          "native": false,
+          "const": false,
+          "lambda": false,
+          "parallel": false,
+          "connector": false
+        },
+        "protocolPackageIdentifier": {
+          "literal": false,
+          "value": "http",
+          "kind": "Identifier"
+        },
+        "variables": [],
+        "name": {
+          "literal": false,
+          "value": "echo",
+          "kind": "Identifier"
+        },
+        "kind": "Service"
+      }
+    ],
+    "kind": "CompilationUnit"
+  },
+  "diagnostics": [
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 1,
+        "eLine": 1,
+        "sCol": 1,
+        "eCol": 1
+      },
+      "msg": "missing package declaration: expected \u0027untitled\u0027",
+      "code": "MISSING_PACKAGE_DECLARATION"
+    },
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 10,
+        "eLine": 10,
+        "sCol": 20,
+        "eCol": 20
+      },
+      "msg": "unknown type \u0027message\u0027",
+      "code": "UNKNOWN_TYPE"
+    },
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 11,
+        "eLine": 11,
+        "sCol": 9,
+        "eCol": 33
+      },
+      "msg": "undefined function \u0027convertToResponse\u0027",
+      "code": "UNDEFINED_FUNCTION"
+    },
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 12,
+        "eLine": 12,
+        "sCol": 9,
+        "eCol": 24
+      },
+      "msg": "undefined package \u0027response\u0027",
+      "code": "UNDEFINED_PACKAGE"
+    },
+    {
+      "kind": "ERROR",
+      "source": {
+        "pkgID": {
+          "nameComps": [
+            {
+              "value": "."
+            }
+          ],
+          "name": {
+            "value": "."
+          },
+          "version": {
+            "value": "0.0.0"
+          }
+        },
+        "cUnitName": "untitled"
+      },
+      "pos": {
+        "src": {
+          "pkgID": {
+            "nameComps": [
+              {
+                "value": "."
+              }
+            ],
+            "name": {
+              "value": "."
+            },
+            "version": {
+              "value": "0.0.0"
+            }
+          },
+          "cUnitName": "untitled"
+        },
+        "sLine": 12,
+        "eLine": 12,
+        "sCol": 9,
+        "eCol": 24
+      },
+      "msg": "undefined function \u0027send\u0027",
+      "code": "UNDEFINED_FUNCTION"
+    }
+  ]
+}
