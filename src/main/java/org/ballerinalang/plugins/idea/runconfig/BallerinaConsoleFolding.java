@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.runconfig;
 
 import com.intellij.execution.ConsoleFolding;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,18 +26,18 @@ import java.util.regex.Pattern;
 
 public class BallerinaConsoleFolding extends ConsoleFolding {
 
-    private static final String REGEX = "ballerina(.bat)? (run|build) (main|service) .+";
+    private static final String REGEX = "ballerina(.bat)? (run|build) .+";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     @Override
-    public boolean shouldFoldLine(String line) {
+    public boolean shouldFoldLine(@NotNull String line) {
         Matcher matcher = PATTERN.matcher(line);
         return matcher.find();
     }
 
     @Nullable
     @Override
-    public String getPlaceholderText(List<String> lines) {
+    public String getPlaceholderText(@NotNull List<String> lines) {
         return "<...>";
     }
 }
