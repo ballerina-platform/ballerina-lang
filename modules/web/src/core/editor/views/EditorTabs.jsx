@@ -168,6 +168,13 @@ class EditorTabs extends View {
                 width: this.props.width, // custom tabs doesn't support split view hence full width
                 height: this.props.height - tabTitleHeight,
             };
+            const finalProps = {
+                ...propsProvider(),
+                ...additionalProps,
+                ...customTabDimensions,
+                isActive: activeEditorID === id,
+                panelResizeInProgress: this.props.panelResizeInProgress || this.state.panelResizeInProgress,
+            };
             return (
                 <TabPane
                     tab={
@@ -184,7 +191,7 @@ class EditorTabs extends View {
                                 ×
                             </button>
                             <i className={`fw fw-${icon} tab-icon`} />
-                            {title}
+                            {_.isFunction(title) ? title(finalProps) : title}
                         </div>
                     }
                     data-extra="tabpane"
@@ -196,11 +203,7 @@ class EditorTabs extends View {
                         autoHideTimeout={1000}
                     >
                         <editor.component
-                            isActive={activeEditorID === id}
-                            {...propsProvider()}
-                            {...additionalProps}
-                            {...customTabDimensions}
-                            panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
+                            {...finalProps}
                         />
                     </Scrollbars>
                 </TabPane>

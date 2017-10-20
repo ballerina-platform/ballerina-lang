@@ -115,7 +115,8 @@ class BallerinaPlugin extends Plugin {
                     },
                     region: REGIONS.EDITOR_TABS,
                     regionOptions: {
-                        tabTitle: 'docs',
+                        tabTitle: ({ packageName }) => `${packageName} docs`,
+                        customTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     },
                     displayOnLoad: false,
                 },
