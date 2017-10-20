@@ -54,23 +54,31 @@ public class PackageImportTest {
     public void testInvalidPackageDeclr() {
         CompileResult result = BTestUtils.compile("test-src/statements/package", "a.b");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0,
-                "invalid package in 'invalid-package-declr-negative.bal': expected 'a.b', found 'x.y'", 1, 1);
+        BTestUtils.validateError(result, 0, "invalid package declaration: expected 'a.b', found 'x.y'", 1, 1);
     }
 
     @Test
     public void testMissingPackageDeclr() {
         CompileResult result = BTestUtils.compile("test-src/statements/package", "c.d");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0,
-                "missing package declaration in 'missing-package-declr-negative.bal': expected 'c.d'", 1, 1);
+        BTestUtils.validateError(result, 0, "missing package declaration: expected 'c.d'", 1, 1);
     }
 
     @Test
     public void testExtraneousPackageDeclr() {
         CompileResult result = BTestUtils.compile("test-src/statements/package/extraneous-package-declr-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0, "invalid package declaration 'x.y.z' in " + 
-                "'extraneous-package-declr-negative.bal'. no package declaration is needed for default package", 1, 1);
+        BTestUtils.validateError(result, 0, "invalid package declaration 'x.y.z': no package declaration is needed " +
+                "for default package", 1, 1);
+    }
+    
+    @Test
+    public void testInalidPackageDeclrInMultipleSources() {
+        CompileResult result = BTestUtils.compile("test-src/statements/package/", "p.q");
+        Assert.assertEquals(result.getDiagnostics().length, 4);
+        BTestUtils.validateError(result, 0, "invalid package declaration: expected 'p.q', found 'p.q.r'", 1, 1);
+        BTestUtils.validateError(result, 1, "missing package declaration: expected 'p.q'", 1, 1);
+        BTestUtils.validateError(result, 2, "invalid package declaration: expected 'x.y', found 'x.y.z'", 1, 1);
+        BTestUtils.validateError(result, 3, "missing package declaration: expected 'x.y'", 1, 1);
     }
 }
