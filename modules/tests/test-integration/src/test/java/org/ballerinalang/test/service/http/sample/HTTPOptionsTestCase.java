@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test class for content encoding.
+ * Test class for HTTP options request's content length and payload handling behavior.
  */
-public class ContentEncodingTestCase {
+public class HTTPOptionsTestCase {
     private ServerInstance ballerinaServer;
 
     @BeforeClass
