@@ -460,7 +460,7 @@ public class HttpUtil {
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
-        ErrorHandlerUtils.printErrorMessage("httpConnector: integration point error occurred");
+        ErrorHandlerUtils.printError(ex);
         if (statusCode == 404) {
             handleResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         } else {
