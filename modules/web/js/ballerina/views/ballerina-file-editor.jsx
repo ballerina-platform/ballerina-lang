@@ -419,8 +419,8 @@ class BallerinaFileEditor extends React.Component {
             const { position, type } = node;
             // If node has position info
             if (position) {
-                const { startLine, startOffset } = position;
-                this.jumpToSourcePosition(startLine - 1, startOffset);
+                const { startLine, startColumn } = position;
+                this.jumpToSourcePosition(startLine - 1, startColumn - 1);
             } else {
                 log.error(`Unable to find location info from ${type} node.`);
             }
