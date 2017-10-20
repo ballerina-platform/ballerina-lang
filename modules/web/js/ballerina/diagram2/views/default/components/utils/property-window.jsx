@@ -59,7 +59,7 @@ class PropertyWindow extends React.Component {
     onChange(event, key) {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
         key.value = value;
-        this.context.editor.update();
+        this.forceUpdate();
     }
 
     /**

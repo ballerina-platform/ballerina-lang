@@ -55,18 +55,8 @@ class CanvasDecorator extends React.Component {
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
-                <CSSTransitionGroup
-                    transitionName="propWindow"
-                    transitionAppear
-                    transitionAppearTimeout={300}
-                    transitionEnter
-                    transitionEnterTimeout={300}
-                    transitionLeave
-                    transitionLeaveTimeout={300}
-                >
-                    {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
+                {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
                     this.props.overlayComponents : null }
-                </CSSTransitionGroup>
                 <svg className="svg-container" width={this.props.bBox.w} height={this.props.bBox.h}>
                     <DropZone
                         x="0"
