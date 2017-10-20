@@ -18,13 +18,13 @@
 
 package org.ballerinalang.test.services.cors;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ public class HTTPCorsTest {
 
     @BeforeClass
     public void setup() {
-        complieResult = EnvironmentInitializer.setupProgramFile("test-src/services/cors/corsTest.bal");
+        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/corsTest.bal");
     }
 
     public void assertEqualsCorsResponse(HTTPCarbonMessage response, int statusCode, String origin, String credentials
@@ -313,7 +313,7 @@ public class HTTPCorsTest {
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, null, null
                 , null, null, null);
-        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.ALLOW));
+        Assert.assertEquals(response.getHeader(Constants.ALLOW), "POST, OPTIONS");
     }
 
     @Test(description = "Test for simple OPTIONS request")
@@ -357,7 +357,7 @@ public class HTTPCorsTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(complieResult);
+        BServiceUtil.cleanup(complieResult);
     }
 
 }

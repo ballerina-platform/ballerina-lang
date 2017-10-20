@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.lang.xmls;
 
 function testAddHeader (http:Request req, string key, string value) (http:Request) {
     req.addHeader(key, value);
@@ -117,6 +118,165 @@ service<http> helloServer {
     resource echo3 (http:Request req, http:Response res) {
         string url = req.getRequestURL();
         res.setStringPayload(url);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addheader/{key}/{value}"
+    }
+    resource addheader (http:Request req, http:Response res, string key, string value) {
+        req.addHeader(key, value);
+        string result = req.getHeader(key);
+        res.setJsonPayload({lang:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/cloneMethod"
+    }
+    resource CloneMethod (http:Request req, http:Response res) {
+        http:Request newReq = req.clone();
+        json value = newReq.getJsonPayload();
+        res.setJsonPayload(value);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getContentLength"
+    }
+    resource GetContentLength (http:Request req, http:Response res) {
+        int length = req.getContentLength();
+        res.setJsonPayload({value:length});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getHeader"
+    }
+    resource getHeader (http:Request req, http:Response res) {
+        string header = req.getHeader("Content-Type");
+        res.setJsonPayload({value:header});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getJsonPayload"
+    }
+    resource GetJsonPayload(http:Request req, http:Response res) {
+        json value = req.getJsonPayload();
+        json lang = value.lang;
+        res.setJsonPayload(lang);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetProperty"
+    }
+    resource GetProperty (http:Request req, http:Response res) {
+        string property = req.getProperty("wso2");
+        res.setJsonPayload({value:property});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetStringPayload"
+    }
+    resource GetStringPayload(http:Request req, http:Response res) {
+        string value = req.getStringPayload();
+        res.setStringPayload(value);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetXmlPayload"
+    }
+    resource GetXmlPayload(http:Request req, http:Response res) {
+        xml value = req.getXmlPayload();
+        string name = xmls:getTextValue(value);
+        res.setStringPayload(name);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/RemoveHeader"
+    }
+    resource RemoveHeader (http:Request req, http:Response res) {
+        req.removeHeader("Content-Type");
+        string header = req.getHeader("Content-Type");
+        res.setJsonPayload({value:header});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/RemoveAllHeaders"
+    }
+    resource RemoveAllHeaders (http:Request req, http:Response res) {
+        req.removeAllHeaders();
+        string header = req.getHeader("Range");
+        res.setJsonPayload({value:header});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/setContentLength"
+    }
+    resource SetContentLength (http:Request req, http:Response res) {
+        req.setContentLength(100);
+        int length = req.getContentLength();
+        res.setJsonPayload({value:length});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/setHeader/{key}/{value}"
+    }
+    resource setHeader (http:Request req, http:Response res, string key, string value) {
+        req.setHeader(key, value);
+        string result = req.getHeader(key);
+        res.setJsonPayload({value:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/SetJsonPayload/{value}"
+    }
+    resource SetJsonPayload (http:Request req, http:Response res, string value) {
+        json jsonStr = {lang:value};
+        req.setJsonPayload(jsonStr);
+        json result = req.getJsonPayload();
+        res.setJsonPayload(result);
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/SetProperty/{key}/{value}"
+    }
+    resource SetProperty (http:Request req, http:Response res, string key, string value) {
+        req.setProperty(key, value);
+        string result = req.getProperty(key);
+        res.setJsonPayload({value:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/SetStringPayload/{value}"
+    }
+    resource SetStringPayload (http:Request req, http:Response res, string value) {
+        req.setStringPayload(value);
+        string result = req.getStringPayload();
+        res.setJsonPayload({lang:result});
+        res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/SetXmlPayload"
+    }
+    resource SetXmlPayload (http:Request req, http:Response res) {
+        xml xmlStr = xml `<name>Ballerina</name>`;
+        req.setXmlPayload(xmlStr);
+        xml value = req.getXmlPayload();
+        string name = xmls:getTextValue(value);
+        res.setJsonPayload({lang:name});
         res.send();
     }
 }

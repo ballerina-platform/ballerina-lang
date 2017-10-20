@@ -17,44 +17,72 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
+
+import java.util.List;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
  *
  * @since 0.94
  */
-public class HttpService implements Service {
-    private Service service;
+public class HttpService {
+    private Service balService;
+    private List<HttpResource> resources;
+    private List<String> allAllowMethods;
+    private String basePath;
+    private CorsHeaders corsHeaders;
     private URITemplate uriTemplate;
 
     public HttpService(Service service) {
-        this.service = service;
+        this.balService = service;
     }
 
-    @Override
     public String getName() {
-        return service.getName();
+        return balService.getName();
     }
 
-    @Override
     public String getPackage() {
-        return service.getPackage();
+        return balService.getPackage();
     }
 
-    @Override
-    public Annotation getAnnotation(String pkgPath, String name) {
-        return service.getAnnotation(pkgPath, name);
+    public Service getBalService() {
+        return balService;
     }
 
-    @Override
-    public Resource[] getResources() {
-        return service.getResources();
+    public List<HttpResource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<HttpResource> resources) {
+        this.resources = resources;
+    }
+
+    public List<String> getAllAllowMethods() {
+        return allAllowMethods;
+    }
+
+    public void setAllAllowMethods(List<String> allAllowMethods) {
+        this.allAllowMethods = allAllowMethods;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
+    public CorsHeaders getCorsHeaders() {
+        return corsHeaders;
+    }
+
+    public void setCorsHeaders(CorsHeaders corsHeaders) {
+        this.corsHeaders = corsHeaders;
     }
 
     public URITemplate getUriTemplate() throws URITemplateException {

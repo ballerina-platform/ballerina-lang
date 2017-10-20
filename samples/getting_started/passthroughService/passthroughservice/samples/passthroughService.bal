@@ -9,9 +9,9 @@ service<http> passthrough {
         methods:["GET"],
         path:"/"
     }
-    resource passthrough (http:Request req, http:Response res) {
+    resource passthrough (http:Request req, http:Response resp) {
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090", {});
-        res = nyseEP.get("/nyseStock/stocks", req);
-        res.send();
+        http:Response clientResponse = nyseEP.get("/nyseStock/stocks", req);
+        resp.forward(clientResponse);
     }
 }

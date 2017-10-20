@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,41 +34,41 @@ public class StructNegativeTest {
     
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/structs/structs-negative.bal");
+        result = BCompileUtil.compile("test-src/structs/structs-negative.bal");
     }
 
     @Test
     public void testStructNegative() {
         // test duplicate struct definitions
-        BTestUtils.validateError(result, 0, "redeclared symbol 'Department'", 6, 1);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 6, 1);
 
         // test struct with duplicate fields
-        BTestUtils.validateError(result, 1, "redeclared symbol 'id'", 14, 5);
+        BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 14, 5);
 
         // test undeclared struct init
-        BTestUtils.validateError(result, 2, "unknown type 'Department123'", 18, 5);
+        BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 18, 5);
 
         // test undeclared struct access
-        BTestUtils.validateError(result, 3, "undefined symbol 'dpt1'", 23, 5);
+        BAssertUtil.validateError(result, 3, "undefined symbol 'dpt1'", 23, 5);
 
         // test undeclared struct-field access
-        BTestUtils.validateError(result, 4, "undefined field 'id' in struct 'Department'", 29, 5);
+        BAssertUtil.validateError(result, 4, "undefined field 'id' in struct 'Department'", 29, 5);
 
         // test undeclared field init
-        BTestUtils.validateError(result, 5, "undefined field 'age' in struct 'Department'", 34, 37);
+        BAssertUtil.validateError(result, 5, "undefined field 'age' in struct 'Department'", 34, 37);
 
         // test field init with mismatching type
-        BTestUtils.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
+        BAssertUtil.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
 
         // test struct init with invalid field name
-        BTestUtils.validateError(result, 7,
-                "invalid field name in 'struct' literal, identifier or string literal expected", 44, 23);
+        BAssertUtil.validateError(result, 7,
+                "invalid field name in struct literal. identifier or string literal expected", 44, 23);
 
     }
 
     @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs", "constants");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs", "constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
@@ -77,50 +79,50 @@ public class StructNegativeTest {
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitField() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BTestUtils.invoke(compileResult, "testGetNonInitAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitArrayField() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BTestUtils.invoke(compileResult, "testGetNonInitArrayAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitLastField() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BTestUtils.invoke(compileResult, "testGetNonInitLastAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitField() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BTestUtils.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
+        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitLastField() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BTestUtils.invoke(compileResult, "testSetFieldOfNonInitStruct");
+        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }
 
 }

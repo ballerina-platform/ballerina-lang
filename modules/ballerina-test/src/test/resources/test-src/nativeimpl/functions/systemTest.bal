@@ -24,30 +24,6 @@ function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     // output is equal to v1\nv2
 }
 
-function testLog(int l, float d) {
-    int i;
-    //long l; // Related to issue #679
-    float f;
-    //double d; // Related to issue #679
-    string s;
-    boolean b;
-
-    i = 10;
-    //l = 100; // Related to issue #679
-    f = 10.1f;
-    //d = 10.1; // Related to issue #679
-    s = "hello";
-    b = false;
-
-    system:log(1, i);
-    //system:log(2, l);
-    system:log(3, f);
-    //system:log(4, d);
-    system:log(5, s);
-    // should not log.
-    system:log(6, b);
-}
-
 function testTimeFunctions()(int, int, int) {
 
     int currentTime;

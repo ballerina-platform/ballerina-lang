@@ -1,3 +1,3 @@
 $ ballerina run passthrough.bal
 ballerina: deploying service(s) in 'passthrough.bal'
-ballerina: started server connector http-9090
+ballerina: started HTTP/WS server connector 0.0.0.0:9090

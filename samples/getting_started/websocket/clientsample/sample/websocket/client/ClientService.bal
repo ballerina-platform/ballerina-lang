@@ -7,7 +7,7 @@ import ballerina.net.ws;
 service<ws> ClientService {
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        system:println("Received text from remote server: " + frame.text);
+        system:println("Receive messsage from remote server: " + frame.text);
     }
 
 }

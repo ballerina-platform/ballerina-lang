@@ -16,11 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,15 +34,15 @@ public class SubtractOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/subtract-operation.bal");
-        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/subtract-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/subtract-operation.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/binaryoperations/subtract-operation-negative.bal");
     }
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
         BValue[] args = { new BInteger(100), new BInteger(200)};
 
-        BValue[]  returns = BTestUtils.invoke(result, "intSubtract", args);
+        BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -52,7 +54,7 @@ public class SubtractOperationTest {
     public void testFloatAddExpr() {
         BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
 
-        BValue[] returns = BTestUtils.invoke(result, "floatSubtract", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -68,7 +70,7 @@ public class SubtractOperationTest {
         BValue[] args = {new BInteger(a), new BInteger(b)};
         // Subtract
         long expectedResult = a - b;
-        BValue[] returns = BTestUtils.invoke(result, "intSubtract", args);
+        BValue[] returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actualResult = ((BInteger) returns[0]).intValue();
@@ -81,7 +83,7 @@ public class SubtractOperationTest {
         float b = 1.5f;
         BValue[] args = { new BInteger(a), new BFloat(b)};
 
-        BValue[] returns = BTestUtils.invoke(result, "intFloatSubtract", args);
+        BValue[] returns = BRunUtil.invoke(result, "intFloatSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -95,7 +97,7 @@ public class SubtractOperationTest {
         int b = 1;
         BValue[] args = { new BFloat(a), new BInteger(b)};
 
-        BValue[] returns = BTestUtils.invoke(result, "floatIntSubtract", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatIntSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -107,7 +109,7 @@ public class SubtractOperationTest {
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
-        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
+        BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
+        BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
     }
 }

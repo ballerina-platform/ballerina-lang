@@ -87,8 +87,9 @@ public class MessageUtils {
             payload.setOutputStream(new HttpMessageDataStreamer(carbonMessage).getOutputStream());
             carbonMessage.setMessageDataSource(payload);
             carbonMessage.setAlreadyRead(true);
+        } else {
+            carbonMessage.setEndOfMsgAdded(true);
         }
-
         return carbonMessage;
     }
 

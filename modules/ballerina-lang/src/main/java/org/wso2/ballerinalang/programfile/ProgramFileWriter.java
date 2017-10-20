@@ -208,6 +208,10 @@ public class ProgramFileWriter {
             writeConnectorInfo(dataOutStream, connectorInfo);
         }
 
+        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
+            writeConnectorActionInfo(dataOutStream, connectorInfo);
+        }
+
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
@@ -302,7 +306,10 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(connectorInfo.nameCPIndex);
         // TODO write property flags  e.g. public
         dataOutStream.writeInt(connectorInfo.signatureCPIndex);
+    }
 
+    private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
+                                           ConnectorInfo connectorInfo) throws IOException {
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
         for (ActionInfo actionInfo : actionInfoEntries) {

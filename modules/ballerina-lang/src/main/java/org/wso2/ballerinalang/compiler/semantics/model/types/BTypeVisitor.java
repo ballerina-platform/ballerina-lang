@@ -40,5 +40,7 @@ public interface BTypeVisitor<R> {
 
     R visit(BEnumType t, BType s);
 
+    R visit(BInvokableType t, BType s);
+
     R visit(BErrorType t, BType s);
 }

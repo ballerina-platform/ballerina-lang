@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.test.services.dispatching;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,8 +41,8 @@ public class UriTemplateDispatcherTest {
 
     @BeforeClass()
     public void setup() {
-        application = EnvironmentInitializer
-                .setupProgramFile("test-src/services/dispatching/uri-template.bal");
+        application = BServiceUtil
+                .setupProgramFile(this, "test-src/services/dispatching/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
@@ -324,11 +324,10 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
-
-        Assert.assertNull(response.getHeader(Constants.ALLOW));
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+                "no matching resource found for path : /noResource , method : OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request with wildcard")
@@ -346,6 +345,6 @@ public class UriTemplateDispatcherTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        BServiceUtil.cleanup(application);
     }
 }

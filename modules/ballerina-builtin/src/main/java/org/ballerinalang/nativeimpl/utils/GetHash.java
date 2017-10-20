@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,14 +44,6 @@ import java.security.NoSuchAlgorithmException;
                  @Argument(name = "algorithm", type = TypeKind.STRING) },
         returnType = { @ReturnType(type = TypeKind.STRING) },
         isPublic = true)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a hash of a given string using the SHA-256 algorithm ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "baseString",
-        value = "The string to be hashed") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "algorithm",
-        value = "The hashing algorithm to be used") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The hashed string") })
 public class GetHash extends AbstractNativeFunction {
 
     /**

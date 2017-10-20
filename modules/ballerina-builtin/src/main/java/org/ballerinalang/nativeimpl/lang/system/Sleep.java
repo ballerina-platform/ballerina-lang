@@ -22,8 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -36,10 +34,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "t", type = TypeKind.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sleep the running thread for the specified time period")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "t",
-        value = "sleep time in milliseconds")})
 public class Sleep extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

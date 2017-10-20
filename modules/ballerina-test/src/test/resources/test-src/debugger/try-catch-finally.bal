@@ -19,11 +19,11 @@ struct testInputError {
 }
 
 function main(string[] args) {
-    testTryCatch(11);
-    testTryCatch(-1);
-    testTryCatch(5);
-    testFunctionThrow(6);
-    testMethodCallInFinally();
+    _ = testTryCatch(11);
+    _ = testTryCatch(-1);
+    _ = testTryCatch(5);
+    _, _ = testFunctionThrow(6);
+    _ = testMethodCallInFinally();
 }
 
 function testTryCatch(int value)(string){

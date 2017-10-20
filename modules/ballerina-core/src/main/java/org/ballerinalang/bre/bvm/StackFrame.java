@@ -247,4 +247,11 @@ public class StackFrame {
         this.errorThrown = errorThrown;
     }
 
+    public boolean tryReturn() {
+        return this.workerReturned.compareAndSet(false, true);
+    }
+
+    public void markedAsReturned() {
+        this.workerReturned.set(true);
+    }
 }

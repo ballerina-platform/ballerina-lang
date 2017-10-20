@@ -18,28 +18,18 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BType;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * {@code Parameter} represent a Parameter in various signatures.
  * <p>
- * This can be a part of {@link Function}, {@link Resource}
+ * This can be a part of {@link Function}, {@link org.wso2.ballerinalang.compiler.tree.BLangResource}
  * or {@link Action} signature
  *
  * @since 0.8.0
  */
 public class ParameterDef extends SimpleVariableDef implements Node {
     private List<AnnotationAttachment> annotations;
-
-    public ParameterDef(BType type, SymbolName symbolName) {
-        super(null, null, null, null, null);
-        this.type = type;
-        this.symbolName = symbolName;
-        this.annotations = new ArrayList<>();
-    }
 
     /**
      * Get all the Annotations attached to this parameter.

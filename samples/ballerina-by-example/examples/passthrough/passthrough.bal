@@ -1,7 +1,5 @@
 import ballerina.net.http;
 import ballerina.doc;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 service<http> passthrough {
     @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
@@ -10,12 +8,14 @@ service<http> passthrough {
     }
     resource passthrough (http:Request req, http:Response res) {
         http:ClientConnector endPoint = create http:ClientConnector
-                                            ("http://localhost:9090/echo", {});
-        //Extract request method from message.
-        string method = request:getMethod(req);
-        //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
-        res = endPoint.execute(method, "/", req);
-        response:send(res);
+                                        ("http://localhost:9090/echo", {});
+        //Extract HTTP method from the inbound request.
+        string method = req.getMethod();
+        http:Response clientResponse = {};
+        //Action execute() does a backend client call and returns the response. It includes endPoint, HTTP method, resource path and request as parameters.
+        clientResponse = endPoint.execute(method, "/", req);
+        //Native function "forward" sends back the clientResponse to the caller.
+        res.forward(clientResponse);
     }
 }
 
@@ -27,8 +27,7 @@ service<http> echo {
         path:"/"
     }
     resource echoResource (http:Request req, http:Response res) {
-        response:setStringPayload(res, "Resource is invoked");
-        response:send(res);
+        res.setStringPayload("Resource is invoked");
+        res.send();
     }
 }
-

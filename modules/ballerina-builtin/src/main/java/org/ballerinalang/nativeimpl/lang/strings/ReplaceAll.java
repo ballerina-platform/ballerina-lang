@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -43,16 +41,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Replaces all instances of the replacePattern with the replaceWith string and returns the result") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
-        value = "The original string argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "replacePattern",
-        value = "The pattern to search for ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "replaceWith",
-        value = "The replacement string") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The derived string") })
 public class ReplaceAll extends AbstractNativeFunction {
 
     @Override

@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +37,7 @@ public class ArrayIndexTooLargeTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/arrays/array-index-too-large.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-index-too-large.bal");
     }
 
     @Test(description = "Test adding too large index to an array",
@@ -44,7 +45,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void addTooLargeIndex() {
         BValue[] args = {new BInteger(2147483648L), new BInteger(7)};
-        BTestUtils.invoke(compileResult, "addTooLargeIndex", args);
+        BRunUtil.invoke(compileResult, "addTooLargeIndex", args);
     }
 
     @Test(description = "Test accessing too large index from an array",
@@ -52,7 +53,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void accessTooLargeIndex() {
         BValue[] args = {new BInteger(2147483648L)};
-        BValue[] returns =  BTestUtils.invoke(compileResult, "accessTooLargeIndex", args);
+        BValue[] returns =  BRunUtil.invoke(compileResult, "accessTooLargeIndex", args);
     }
 
     @Test(description = "Test adding minus index to an array",
@@ -60,7 +61,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void addMinusIndex() {
         BValue[] args = {new BInteger(-4), new BInteger(7)};
-        BTestUtils.invoke(compileResult, "addMinusIndex", args);
+        BRunUtil.invoke(compileResult, "addMinusIndex", args);
     }
 
     @Test(description = "Test accessing minus index from an array",
@@ -68,6 +69,6 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void accessMinusIndex() {
         BValue[] args = {new BInteger(-4)};
-        BValue[] returns =  BTestUtils.invoke(compileResult, "accessMinusIndex", args);
+        BValue[] returns =  BRunUtil.invoke(compileResult, "accessMinusIndex", args);
     }
 }

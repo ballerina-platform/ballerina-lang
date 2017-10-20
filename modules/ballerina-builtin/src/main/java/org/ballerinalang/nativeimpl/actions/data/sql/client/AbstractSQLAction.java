@@ -227,7 +227,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (BatchUpdateException e) {
             updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+            throw new BallerinaException("execute batch update failed: " + e.getMessage(), e);
         } finally {
             setConnectionAutoCommit(conn, true);
             SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);

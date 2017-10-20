@@ -84,7 +84,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 port = 443;
             }
 
-            cMsg.setProperty(Constants.HOST, host);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
             cMsg.setProperty(Constants.PORT, port);
             String toPath = url.getPath();
             String query = url.getQuery();
@@ -94,11 +94,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             cMsg.setProperty(Constants.TO, toPath);
 
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            if (port != 80) {
-                cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
-            } else {
-                cMsg.getHeaders().set(Constants.HOST, host);
-            }
+            setHostHeader(cMsg, host, port);
 
             //Set User-Agent Header
             Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
@@ -149,6 +145,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
+        } catch (BallerinaConnectorException e) {
+            throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
         }
@@ -179,7 +177,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 ballerinaFuture.notifyReply(response);
             } else {
                 BallerinaConnectorException ex = new BallerinaConnectorException(httpCarbonMessage
-                        .getMessagingException());
+                        .getMessagingException().getMessage(), httpCarbonMessage.getMessagingException());
                 logger.error("non-blocking action invocation validation failed. ", ex);
                 ballerinaFuture.notifyFailure(ex);
             }
@@ -187,7 +185,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BallerinaConnectorException ex = new BallerinaConnectorException(throwable);
+            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
             ballerinaFuture.notifyFailure(ex);
         }
 
@@ -206,7 +204,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
+        String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
@@ -215,4 +213,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return requestMsg;
     }
 
+    protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
+        if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
+            if (port == 80 || port == 443) {
+                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
+            } else {
+                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
+            }
+        }
+    }
 }

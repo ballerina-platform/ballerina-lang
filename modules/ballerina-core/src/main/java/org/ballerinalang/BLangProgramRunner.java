@@ -131,13 +131,14 @@ public class BLangProgramRunner {
         if (ModeResolver.getInstance().isDebugEnabled()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             // This will start the websocket server.
-            debugManager.mainInit(programFile, bContext);
-            debugManager.holdON();
-        } else {
-            BLangVM bLangVM = new BLangVM(programFile);
-            bLangVM.run(bContext);
+            debugManager.mainInit(bContext);
         }
+        BLangVM bLangVM = new BLangVM(programFile);
+        bLangVM.run(bContext);
         bContext.await();
+        if (bContext.isDebugEnabled()) {
+            bContext.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
+        }
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

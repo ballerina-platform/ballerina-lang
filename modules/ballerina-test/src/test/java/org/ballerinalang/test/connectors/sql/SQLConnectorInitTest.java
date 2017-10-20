@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.connectors.sql;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -35,14 +36,14 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/sql/sql-connector-init.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql-connector-init.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
     @Test
     public void testConnectorWithDefaultPropertiesForListedDB() {
-         BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDefaultPropertiesForListedDB");
+         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDefaultPropertiesForListedDB");
          BString retValue = (BString) returns[0];
          final String expected = "Peter";
          Assert.assertEquals(retValue.stringValue(), expected);
@@ -50,7 +51,7 @@ public class SQLConnectorInitTest {
 
     @Test
     public void testConnectorWithDirectUrl() {
-        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDirectUrl");
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDirectUrl");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -58,7 +59,7 @@ public class SQLConnectorInitTest {
 
     @Test
     public void testConnectorWithDataSourceClass() {
-        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClass");
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClass");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -66,7 +67,7 @@ public class SQLConnectorInitTest {
 
     @Test
     public void testConnectorWithDataSourceClassWithoutURL() {
-        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClassWithoutURL");
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassWithoutURL");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -74,7 +75,7 @@ public class SQLConnectorInitTest {
 
     @Test
     public void testConnectorWithDataSourceClassURLPriority() {
-        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClassURLPriority");
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassURLPriority");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -83,7 +84,7 @@ public class SQLConnectorInitTest {
     @Test
     public void testConnectionPoolProperties() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testConnectionPoolProperties", args);
+        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties", args);
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -94,7 +95,7 @@ public class SQLConnectorInitTest {
                   ".*error in sql connector configuration: cannot generate url for unknown database type : TESTDB.*")
     public void testInvalidDBType() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testInvalidDBType", args);
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidDBType", args);
     }
 
 
