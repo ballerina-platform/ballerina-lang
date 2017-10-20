@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -42,11 +42,11 @@ public class URITemplate {
         return null;
     }
 
-    public Resource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
+    public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
         return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
     }
 
-    public void parse(String uriTemplate, Resource resource) throws URITemplateException {
+    public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
         URITemplateParser parser = new URITemplateParser(syntaxTree);
@@ -55,17 +55,17 @@ public class URITemplate {
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
         String uri = template;
-        if (!uri.equals("/")) {
-            if (uri.startsWith("*")) {
-                throw new URITemplateException("Invalid path literal");
-            }
-            if (!"/".equals(uri) && uri.endsWith("/")) {
-                uri = uri.substring(0, uri.length() - 1);
-            }
-            if (uri.startsWith("/")) {
-                uri = uri.substring(1);
-            }
+        if ("/".equals(uri)) {
             return uri;
+        }
+        if (uri.startsWith("*")) {
+            throw new URITemplateException("Invalid path literal");
+        }
+        if (!"/".equals(uri) && uri.endsWith("/")) {
+            uri = uri.substring(0, uri.length() - 1);
+        }
+        if (uri.startsWith("/")) {
+            uri = uri.substring(1);
         }
         return uri;
     }
