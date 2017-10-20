@@ -6,6 +6,14 @@ struct ResultCustomers {
     string FIRSTNAME;
 }
 
+struct ResultIntType {
+    int INT_TYPE;
+}
+
+struct ResultBlob {
+    blob BLOB_TYPE;
+}
+
 struct ResultDataType {
     int INT_TYPE;
     int LONG_TYPE;
@@ -428,6 +436,16 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     return updateCount, count;
 }
 
+function testBatchUpdateWithNullParam () (int[]) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    int[] updateCount;
+    updateCount = testDB.batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values ('Alex','Smith',20,3400.5,'Colombo')", null);
+    testDB.close();
+    return updateCount;
+}
+
 function testDateTimeInParameters () (int[]) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
@@ -562,12 +580,16 @@ function testArrayofQueryParameters () (string firstName) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    int[] dataArray = [1,4343];
-    sql:Parameter para0 = {sqlType:"varchar", value:"John", direction:0};
-    sql:Parameter para1 = {sqlType:"integer", value:dataArray, direction:0};
-    sql:Parameter[] parameters = [para0,para1];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or registrationID in(?)",
-                                  parameters);
+    int[] intDataArray = [1,4343];
+    string[] stringDataArray = ["A", "B"];
+    float[] doubleArray = [233.4, 433.4];
+    sql:Parameter para0 = {sqlType:"varchar", value:"Johhhn", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:intDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:stringDataArray, direction:0};
+    sql:Parameter para3 = {sqlType:"double", value:doubleArray, direction:0};
+    sql:Parameter[] parameters = [para0,para1, para2, para3];
+    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
+                    lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -578,6 +600,43 @@ function testArrayofQueryParameters () (string firstName) {
     testDB.close ();
     return;
 }
+
+function testBoolArrayofQueryParameters () (int value ) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    boolean accepted1 = false;
+    boolean accepted2 = false;
+    boolean accepted3 = true;
+    boolean[] boolDataArray = [accepted1,accepted2,accepted3];
+
+
+    datatable dt1 = testDB.select("SELECT blob_type from DataTypeTable where row_id = 1", null);
+    blob blobData;
+    while (datatables:hasNext(dt1)) {
+        any dataStruct = datatables:getNext(dt1);
+        var rs, err = (ResultBlob)dataStruct;
+        blobData = rs.BLOB_TYPE;
+    }
+    blob[] blobDataArray = [blobData];
+
+    sql:Parameter para0 = {sqlType:"integer", value:1, direction:0};
+    sql:Parameter para1 = {sqlType:"boolean", value:boolDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:"blob", value:blobDataArray, direction:0};
+    sql:Parameter[] parameters = [para0,para1,para2];
+    datatable dt = testDB.select ("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
+                                                            blob_type in (?)",
+                                  parameters);
+    TypeCastError err;
+    ResultIntType rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:getNext(dt);
+        rs, err = (ResultIntType) dataStruct;
+        value = rs.INT_TYPE;
+    }
+    testDB.close ();
+    return;
+}
+
 
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
                                    map boolean_arr, map float_arr) {
