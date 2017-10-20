@@ -32,7 +32,10 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -292,6 +295,22 @@ public class DatatableTest {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testBlobInsert", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(groups = "DatatablesTest", description = "Check whether printing of datatable variables is handled properly.")
+    public void testDatatablePrintAndPrintln() throws IOException {
+        PrintStream original = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BTestUtils.invoke(result, "testPrintandPrintlnDatatable");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
     }
 
     @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.")

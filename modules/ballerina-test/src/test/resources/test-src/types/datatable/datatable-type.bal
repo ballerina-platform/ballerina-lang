@@ -3,6 +3,7 @@ import ballerina.data.sql;
 import ballerina.lang.xmls;
 import ballerina.lang.jsons;
 import ballerina.lang.blobs;
+import ballerina.lang.system;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -416,4 +417,16 @@ function testCloseConnectionPool () (int count) {
     }
     testDB.close();
     return;
+}
+
+function testPrintandPrintlnDatatable() {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    sql:Parameter[] parameters = [];
+    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+    boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+
+    system:println(dt);
+    system:print(dt);
+    testDB.close();
 }

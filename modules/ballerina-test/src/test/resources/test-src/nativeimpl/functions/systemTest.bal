@@ -24,6 +24,19 @@ function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     // output is equal to v1\nv2
 }
 
+function testPrintAndPrintlnConnector() {
+    Foo f1 = create Foo();
+    Foo f2 = create Foo();
+    system:println(f1);
+    system:print(f2);
+}
+
+function testPrintAndPrintlnFunctionPointer() {
+    function (int, int) returns (int) addFunction = func1;
+    system:println(addFunction);
+    system:print(addFunction);
+}
+
 function testTimeFunctions()(int, int, int) {
 
     int currentTime;
@@ -56,4 +69,15 @@ function testSleep(int timeoutv) {
 function getEnvVar(string varName) {
     string pathValue = system:getEnv(varName);
     system:print(pathValue);
+}
+
+function func1 (int a, int b) (int c) {
+    c = a + b;
+    return;
+}
+
+connector Foo() {
+    action bar() (int) {
+        return 5;
+    }
 }
