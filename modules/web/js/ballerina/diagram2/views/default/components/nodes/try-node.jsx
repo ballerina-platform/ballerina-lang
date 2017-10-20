@@ -23,23 +23,22 @@ import { getComponentForNodeArray } from './../../../../diagram-util';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
-import TreeBuilder from './../../../../../model/tree-builder';
-import FragmentUtils from './../../../../../utils/fragment-utils';
 import './try-node.css';
 
+/**
+ * Class for try node
+ * @extends React.Component
+ * @class TryNode
+ * */
 class TryNode extends React.Component {
 
+    /**
+     * Constructor for TryNode class
+     * @param {Object} props - properties passed in to the class at creation.
+     * */
     constructor(props) {
         super(props);
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'Try condition',
-            model: props.model,
-            getterMethod: props.model.getConditionString,
-            setterMethod: props.model.setConditionFromString,
-        };
         this.onAddCatchClick = this.onAddCatchClick.bind(this);
-        this.setCatchCondition = this.setCatchCondition.bind(this);
     }
 
     /**
@@ -54,24 +53,13 @@ class TryNode extends React.Component {
         }
     }
 
-    /**
-     * Set catch condition.
-     * @param {String} newCondition - new condition to be applied to catch block.
-     * @param {Node} catchBlock - catch block node.
-     * */
-    setCatchCondition(newCondition, catchBlock) {
-        const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
-        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
-        const newNode = TreeBuilder.build(parsedJson, catchBlock, 'Catch');
-        catchBlock.setParameter(newNode);
-    }
-
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const expression = model.viewState.components.expression;
         const catchViews = getComponentForNodeArray(model.catchBlocks);
         const dropZone = model.viewState.components['drop-zone'];
+        const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
+
         return (
             <g>
                 <DropZone
@@ -91,13 +79,12 @@ class TryNode extends React.Component {
                     dropTarget={model}
                     bBox={bBox}
                     title={'Try'}
-                    expression={expression}
-                    editorOptions={this.editorOptions}
                     model={model}
                     body={model.body}
                 />
 
                 <g onClick={this.onAddCatchClick}>
+                    <title>Add a Catch</title>
                     <rect
                         x={model.viewState.components['statement-box'].x
                         + model.viewState.components['statement-box'].w
@@ -123,37 +110,14 @@ class TryNode extends React.Component {
                         +
                     </text>
                 </g>
-                <g>
-                {model.catchBlocks.map((catchBlock) => {
-                    const editorOptions = {
-                        propertyType: 'text',
-                        key: 'Catch condition',
-                        model: catchBlock,
-                        getterMethod: () => { return catchBlock.getParameter().getSource(); },
-                        setterMethod: (newValue) => { this.setCatchCondition(newValue, catchBlock); },
-                    };
-
-                    const expressiona = catchBlock.getParameter().getSource();
-
-                    return (
-                        <CompoundStatementDecorator
-                            bBox={bBox}
-                            title={'Catch'}
-                            expression={expressiona}
-                            model={catchBlock}
-                            body={catchBlock.body}
-                            editorOptions={editorOptions}
-                        />
-                    );
-                })}
-                    </g>
+                {catchViews}
                 {model.finallyBody &&
                 <CompoundStatementDecorator
                     bBox={bBox}
                     title={'Finally'}
-                    expression={expression}
                     model={model.finallyBody}
                     body={model.finallyBody}
+                    disableButtons={{ delete: disableDeleteForFinally }}
                 />
                 }
             </g>
@@ -163,12 +127,6 @@ class TryNode extends React.Component {
 
 TryNode.propTypes = {
     model: PropTypes.instanceOf(TryNodeModel).isRequired,
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
 };
 
 TryNode.contextTypes = {

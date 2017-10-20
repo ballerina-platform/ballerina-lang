@@ -81,6 +81,7 @@ class IfNode extends React.Component {
         if (isElseIfNode && this.isLastElseIf(model) && !elseExist) {
             return (
                 <g onClick={this.onAddElseClick}>
+                    <title>Add Else</title>
                     <rect
                         x={model.viewState.components['statement-box'].x
                         + model.viewState.components['statement-box'].w
@@ -110,6 +111,7 @@ class IfNode extends React.Component {
         } else if (!isElseIfNode) {
             return (
                 <g onClick={this.onAddElseIfClick}>
+                    <title>Add a Else If</title>
                     <rect
                         x={model.viewState.components['statement-box'].x
                         + model.viewState.components['statement-box'].w
@@ -141,6 +143,11 @@ class IfNode extends React.Component {
         return '';
     }
 
+    /**
+     * Check whether this is the last else if node.
+     * @param {Node} node - else if node.
+     * @return {boolean} true if this is the last else if, else false.
+     * */
     isLastElseIf(node) {
         const elseStatement = node.elseStatement ? node.elseStatement : false;
         if (TreeUtil.isIf(node.parent) && TreeUtil.isIf(node) && TreeUtil.isIf(elseStatement)) {
@@ -175,7 +182,7 @@ class IfNode extends React.Component {
         return (
             <g>
                 {!isElseIfNode &&
-                    <g>
+                <g>
                     <DropZone
                         x={dropZone.x}
                         y={dropZone.y}
@@ -185,10 +192,10 @@ class IfNode extends React.Component {
                         dropTarget={model.parent}
                         dropBefore={model}
                         renderUponDragStart
-                            enableDragBg
-                            enableCenterOverlayLine
+                        enableDragBg
+                        enableCenterOverlayLine
                     />
-                    </g>
+                </g>
                 }
                 <CompoundStatementDecorator
                     dropTarget={model}
@@ -202,17 +209,17 @@ class IfNode extends React.Component {
                 {this.getAddBlockButton(isElseIfNode)}
 
                 {elseComp && TreeUtil.isIf(elseComp) &&
-                    <IfNode model={elseComp} />
+                <IfNode model={elseComp} />
                 }
 
                 {elseComp && TreeUtil.isBlock(elseComp) &&
-                    <CompoundStatementDecorator
-                        dropTarget={model}
-                        bBox={elseComp.viewState.bBox}
-                        title={'Else'}
-                        model={elseComp}
-                        body={elseComp}
-                    />
+                <CompoundStatementDecorator
+                    dropTarget={model}
+                    bBox={elseComp.viewState.bBox}
+                    title={'Else'}
+                    model={elseComp}
+                    body={elseComp}
+                />
                 }
             </g>
         );
@@ -221,12 +228,6 @@ class IfNode extends React.Component {
 
 IfNode.propTypes = {
     model: PropTypes.instanceOf(IfNodeModel).isRequired,
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
 };
 
 IfNode.contextTypes = {

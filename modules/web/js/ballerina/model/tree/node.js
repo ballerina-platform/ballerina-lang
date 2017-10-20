@@ -312,23 +312,28 @@ class Node extends EventChannel {
                     }
                 }
             } else if (_.isArray(prop) && prop.length > 0 && prop[0] instanceof Node) {
+                let propFound = false;
                 let i = 0;
                 for (const propI of prop) {
                     if (propI.getID() === this.getID()) {
+                        propFound = true;
                         break;
                     }
                     i += 1;
                 }
-                prop.splice(i, 1);
-                parent.trigger('tree-modified', {
-                    origin: this,
-                    type: 'child-removed',
-                    title: `Removed ${this.kind}`,
-                    data: {
-                        node: this,
-                    },
-                });
-                return;
+
+                if (propFound) {
+                    prop.splice(i, 1);
+                    parent.trigger('tree-modified', {
+                        origin: this,
+                        type: 'child-removed',
+                        title: `Removed ${this.kind}`,
+                        data: {
+                            node: this,
+                        },
+                    });
+                    return;
+                }
             }
         }
     }
