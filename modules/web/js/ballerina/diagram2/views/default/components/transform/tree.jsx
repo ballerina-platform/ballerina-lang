@@ -22,25 +22,32 @@ import _ from 'lodash';
 import './tree.css';
 
 export default class Tree extends React.Component {
-    renderStruct(endpoint, level) {
+    renderStruct(endpoint, level, info) {
         const { foldedEndpoints, foldEndpoint } = this.props;
+        const noOfProperties = endpoint.properties.length;
         return (<div key={endpoint.name}>
             {
                 this.renderEndpoint(endpoint, (endpoint.isField ? 'property' : 'struct-head'),
-                    level, foldEndpoint, Boolean(foldedEndpoints[endpoint.name]))
+                    level, info, foldEndpoint, Boolean(foldedEndpoints[endpoint.name]))
             }
             {
-                !foldedEndpoints[endpoint.name] && endpoint.properties.map((property) => {
-                    if (property.type === 'struct') {
-                        return this.renderStruct(property, level + 1);
+                !foldedEndpoints[endpoint.name] && endpoint.properties.map((property, index) => {
+                    const currentInfo = {
+                        isFirst: index === 0,
+                        isLast: index === noOfProperties -1,
+                        parentInfo: info
                     }
-                    return this.renderEndpoint(property, 'property', level + 1);
+
+                    if (property.type === 'struct') {
+                        return this.renderStruct(property, level + 1, currentInfo);
+                    }
+                    return this.renderEndpoint(property, 'property', level + 1, currentInfo);
                 })
             }
         </div>);
     }
 
-    renderEndpoint(endpoint, kind, level, onClick, isFolded) {
+    renderEndpoint(endpoint, kind, level, info, onClick, isFolded) {
         const {
             endpoints,
             type,
@@ -67,6 +74,7 @@ export default class Tree extends React.Component {
                 isFolded={isFolded}
                 onConnectPointMouseEnter={this.props.onConnectPointMouseEnter}
                 onConnectPointMouseLeave={this.props.onConnectPointMouseLeave}
+                info={info}
             />
         );
     }
@@ -83,7 +91,7 @@ export default class Tree extends React.Component {
                             <div className='transform-endpoint-details'>
                                 {
                                     endpoint.type === 'struct' ?
-                                    this.renderStruct(endpoint, 0) : this.renderEndpoint(endpoint, 'variable', 0)
+                                    this.renderStruct(endpoint, 0, {}) : this.renderEndpoint(endpoint, 'variable', 0, {})
                                 }
                                 {
                                     (type === 'source' || type === 'target') &&

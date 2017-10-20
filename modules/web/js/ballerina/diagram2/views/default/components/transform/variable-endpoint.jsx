@@ -54,7 +54,7 @@ export default class VariableEndpoint extends React.Component {
 
     render() {
         const { variable, makeConnectPoint, level, id, removeTypeCallbackFunc, onClick, onRemove,
-            updateVariable, isFolded, onConnectPointMouseEnter } = this.props;
+            updateVariable, isFolded, onConnectPointMouseEnter, info } = this.props;
         let iconType = 'fw-variable';
         let className = 'transform-endpoint variable';
 
@@ -67,23 +67,39 @@ export default class VariableEndpoint extends React.Component {
             }
         }
 
-        let folderLeft = (level * 13) + 2;
-
-        const variableRoot = variable.root || variable;
-        if (variableRoot.endpointKind === 'output') {
-            folderLeft += 30;
+        if (info.isFirst) {
+            className += ' transform-endpoint-first'
+        }
+        
+        if (info.isLast) {
+            className += ' transform-endpoint-last'
         }
 
+        const variableRoot = variable.root || variable;
+
+        let currentInfo = info.parentInfo;
+        const treebuilders = [];
+        while (currentInfo) {
+            let className = 'tree-view-builder';
+            if (currentInfo.isLast) {
+                className += ' empty'
+            }
+            treebuilders.push(<span className={className} />);
+            currentInfo = currentInfo.parentInfo;
+        }
+        treebuilders.pop();
+        treebuilders.reverse();
+
         return (
-            <div className={className} style={{ paddingLeft: level > 0 ? ((level - 1) * 13) + 7 : 7 }}>
+            <div className={className}>
                 <span >
-                    {(variable.type === 'struct' || variable.isField) &&
+                    { treebuilders }
+                    {(level > 0 ) && <span className='tree-view-icon' />}
+                    {(variable.type === 'struct') &&
                     <span
                         className='folder'
-                        style={{ left: folderLeft }}
                         onClick={(e) => { onClick && onClick(variable.name); }}
                     />}
-                    {(level > 0) && <span className='tree-view-icon' />}
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
