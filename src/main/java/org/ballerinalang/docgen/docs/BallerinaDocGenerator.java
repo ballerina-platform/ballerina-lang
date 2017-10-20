@@ -38,8 +38,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -203,7 +205,7 @@ public class BallerinaDocGenerator {
 
             // compile
             Compiler compiler = Compiler.getInstance(context);
-            compiler.compile(path.toString());
+            compiler.compile(getPackageNameFromPath(path));
 
             BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
 
@@ -262,5 +264,14 @@ public class BallerinaDocGenerator {
         public List<Path> getSubPackages() {
             return subPackages;
         }
+    }
+
+    private static String getPackageNameFromPath(Path path) {
+        StringJoiner sj = new StringJoiner(".");
+        Iterator<Path> pathItr = path.iterator();
+        while (pathItr.hasNext()) {
+            sj.add(pathItr.next().toString());
+        }
+        return sj.toString();
     }
 }
