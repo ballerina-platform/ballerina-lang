@@ -301,7 +301,9 @@ public class Types {
     }
 
     public BSymbol getCastOperator(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.tag == TypeTags.ERROR || targetType.tag == TypeTags.ERROR) {
+            return createCastOperatorSymbol(sourceType, targetType, false, InstructionCodes.NOP);
+        } else if (sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
@@ -309,6 +311,12 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.ERROR || targetType.tag == TypeTags.ERROR) {
+            return createConversionOperatorSymbol(sourceType, targetType, false, InstructionCodes.NOP);
+        } else if (sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
         return targetType.accept(conversionVisitor, sourceType);
     }
 

@@ -96,7 +96,8 @@ public class PackageLoader {
         if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
             pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         } else {
-            String[] pkgParts = sourcePkg.split("\\.");
+            // split from '.', '\' and '/'
+            String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
             List<Name> pkgNameComps = Arrays.stream(pkgParts)
                     .map(part -> names.fromString(part))
                     .collect(Collectors.toList());
@@ -141,12 +142,12 @@ public class PackageLoader {
 
         // TODO Handle pkgEntity 
         if (pkgEntity == null) {
-            return null;
+            throw new RuntimeException("cannot find package '" + pkgId + "'");
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
-            pSymbol = symbolEnter.definePackage(pkgNode);
+            pSymbol = symbolEnter.definePackage(pkgNode, pkgId);
             pkgNode.symbol = pSymbol;
         } else {
             // This is a compiled package.
@@ -159,6 +160,10 @@ public class PackageLoader {
     }
 
     private BLangPackage sourceCompile(PackageSource pkgSource) {
+        if (pkgSource.getEntryNames().isEmpty()) {
+            throw new RuntimeException("cannot find any entry in package '" + pkgSource.getPackageId() + "'");
+        }
+
         BLangPackage pkgNode = this.parser.parse(pkgSource);
         return pkgNode;
     }

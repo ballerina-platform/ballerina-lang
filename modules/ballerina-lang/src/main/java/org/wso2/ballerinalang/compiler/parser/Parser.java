@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -81,11 +82,13 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) {
         try {
-            String entryName = sourceEntry.getEntryName();
-            CompilationUnitNode compUnit = TreeBuilder.createCompilationUnit();
-            compUnit.setName(sourceEntry.getEntryName());
-
+            int prevErrCount = dlog.errorCount;
             BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry);
+            String entryName = sourceEntry.getEntryName();
+
+            BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
+            compUnit.setName(sourceEntry.getEntryName());
+            compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
 
             ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
             ais.name = entryName;
@@ -98,7 +101,7 @@ public class Parser {
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
 
-            if (dlog.errorCount > 0) {
+            if (dlog.errorCount > prevErrCount) {
                 throw new BLangParserException("syntax errors in: " + entryName);
             }
 
