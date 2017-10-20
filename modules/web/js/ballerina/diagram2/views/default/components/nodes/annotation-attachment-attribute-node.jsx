@@ -26,6 +26,7 @@ import AnnotationAttachmentTreeNode from 'ballerina/model/tree/annotation-attach
 import { addAttribute, deleteNode, getArrayValue } from '../decorators/annotation-button-events';
 import AnnotationAttachmentNode from './annotation-attachment-node';
 import AnnotationAttributeLiteralNode from './annotation-attachment-attribute-literal-node';
+import AnnotationAttributeVariableRefNode from './annotation-attachment-attribute-variable-ref-node';
 import AnnotationAttributeKey from '../decorators/annotation-attribute-key';
 import ActionMenu from '../decorators/action-menu';
 import { util } from '../../sizing-util_bk';
@@ -270,6 +271,39 @@ class AnnotationAttribute extends React.Component {
         } else if (attributeValue.isValueAnnotationAttachment()) {
             return (<li key={attributeValue.getID()}>
                 <AnnotationAttachmentNode model={attributeValue.getValue()} isNestedAnnotation />
+            </li>);
+        } else if (attributeValue.isValueVariableRef()) {
+            const actionMenuItems = [];
+            // Delete button.
+            const deleteButton = {
+                key: attributeValue.getID(),
+                icon: 'fw-cancel',
+                text: 'Delete',
+                onClick: () => {
+                    deleteNode(attributeValue);
+                },
+            };
+            actionMenuItems.push(deleteButton);
+
+            const actionItems = actionMenuItems.map((item) => {
+                return (<i
+                    key={`${item.key}-action-menu-item-${item.text.toLowerCase().replace(/\s/g, '')}`}
+                    className={'fw ' + item.icon}
+                    onClick={item.onClick}
+                />);
+            });
+            return (<li key={attributeValue.getID()}>
+                <ul>
+                    <li className='action-menu-wrapper'>
+                        <span className='annotations-array-item-prefix'>
+                            <i className="fw fw-minus" />
+                        </span>
+                        <AnnotationAttributeVariableRefNode model={attributeValue.getValue()} />
+                        <span className='annotation-action-menu-items'>
+                            {actionItems}
+                        </span>
+                    </li>
+                </ul>
             </li>);
         }
         // TODO: Implement for arrays ?

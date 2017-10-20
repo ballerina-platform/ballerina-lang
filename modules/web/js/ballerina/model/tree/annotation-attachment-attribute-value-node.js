@@ -26,6 +26,10 @@ class AnnotationAttachmentAttributeValueNode extends AbstractAnnotationAttachmen
         return this.getValue() && TreeUtil.isLiteral(this.getValue());
     }
 
+    isValueVariableRef() {
+        return this.getValue() && TreeUtil.isSimpleVariableRef(this.getValue());
+    }
+
     isValueAnnotationAttachment() {
         return this.getValue() && TreeUtil.isAnnotationAttachment(this.getValue());
     }
