@@ -16,8 +16,9 @@
  */
 package org.ballerinalang.test.statements.block;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,8 +30,8 @@ public class BlockStmtTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/block/block-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/block/block-stmt-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/block/block-stmt.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/block/block-stmt-negative.bal");
     }
 
     @Test
@@ -42,24 +43,24 @@ public class BlockStmtTest {
     public void testBlockStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
         //testUnreachableStmtInIfFunction1
-        BTestUtils.validateError(resultNegative, 0, "unreachable code", 9, 5);
+        BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
-        BTestUtils.validateError(resultNegative, 1, "unreachable code", 25, 5);
+        BAssertUtil.validateError(resultNegative, 1, "unreachable code", 25, 5);
         //testUnreachableStmtInIfBlock
-        BTestUtils.validateError(resultNegative, 2, "unreachable code", 33, 9);
+        BAssertUtil.validateError(resultNegative, 2, "unreachable code", 33, 9);
         //testUnreachableStmtInWhileBlock
-        BTestUtils.validateError(resultNegative, 3, "unreachable code", 46, 13);
+        BAssertUtil.validateError(resultNegative, 3, "unreachable code", 46, 13);
         //testCommentAfterReturnStmt
-        BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 5);
+        BAssertUtil.validateError(resultNegative, 4, "unreachable code", 62, 5);
         //testUnreachableTryCatch
-        BTestUtils.validateError(resultNegative, 5, "unreachable code", 73, 5);
+        BAssertUtil.validateError(resultNegative, 5, "unreachable code", 73, 5);
         //testUnreachableNext
-        BTestUtils.validateError(resultNegative, 6, "unreachable code", 84, 9);
+        BAssertUtil.validateError(resultNegative, 6, "unreachable code", 84, 9);
         //testUnreachableBreak
-        BTestUtils.validateError(resultNegative, 7, "unreachable code", 92, 9);
-        BTestUtils.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
+        BAssertUtil.validateError(resultNegative, 7, "unreachable code", 92, 9);
+        BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
         //testUnreachableThrow
-        BTestUtils.validateError(resultNegative, 9, "unreachable code", 108, 9);
+        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 108, 9);
 
     }
 }

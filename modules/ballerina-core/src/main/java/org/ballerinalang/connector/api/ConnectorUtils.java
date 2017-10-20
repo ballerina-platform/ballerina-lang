@@ -51,7 +51,7 @@ public class ConnectorUtils extends StructHelper {
      * @param packagePath of the struct.
      * @param structName of the struct.
      * @return created struct.
-     * @throws BallerinaConnectorException
+     * @throws BallerinaConnectorException if an error occurs
      */
     public static BStruct createAndGetStruct(Context context, String packagePath, String structName)
             throws BallerinaConnectorException {

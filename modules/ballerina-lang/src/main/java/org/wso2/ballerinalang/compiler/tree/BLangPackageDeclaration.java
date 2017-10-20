@@ -56,16 +56,12 @@ public class BLangPackageDeclaration extends BLangNode implements PackageDeclara
 
     @Override
     public String toString() {
-        String pkgName = String.join(".", pkgNameComps.stream()
-                .map(id -> id.value)
-                .collect(Collectors.toList()));
-
         String versionStr = (this.version.value != null) ? this.version.value : "";
         if (!versionStr.isEmpty()) {
             versionStr = " version " + versionStr;
         }
 
-        return "package " + pkgName + versionStr;
+        return "package " + getPackageNameStr() + versionStr;
     }
 
     @Override
@@ -76,5 +72,9 @@ public class BLangPackageDeclaration extends BLangNode implements PackageDeclara
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+    
+    public String getPackageNameStr() {
+        return String.join(".", pkgNameComps.stream().map(id -> id.value).collect(Collectors.toList()));
     }
 }

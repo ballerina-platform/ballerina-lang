@@ -439,7 +439,7 @@ expressionList
     ;
 
 expressionStmt
-    :   expression SEMICOLON
+    :   variableReference SEMICOLON
     ;
 
 transactionStatement
