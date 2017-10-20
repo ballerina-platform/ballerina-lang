@@ -9,8 +9,8 @@ $ ballerina run xml-literal.bal
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>
-<newBook xmlns="http://ballerina.com/" xmlns:ns0="http://ballerina.com/aa">
+<ns0:newBook xmlns:ns0="http://ballerina.com/aa" xmlns="http://ballerina.com/">
                     <name>Sherlock Holmes</name>
                     <author>(Sir) Arthur Conan Doyle</author>
                     <!--Price: $ 12-->
-                  </newBook>
+                  </ns0:newBook>

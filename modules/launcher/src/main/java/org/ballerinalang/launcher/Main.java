@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.ballerinalang.launcher;
 
 import com.beust.jcommander.JCommander;
@@ -5,6 +23,7 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -192,6 +211,10 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
+        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
+        @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
+        private boolean httpTraceLogEnabled;
+
         public void execute() {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
@@ -201,6 +224,10 @@ public class Main {
 
             if (argList == null || argList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina program given");
+            }
+
+            if (httpTraceLogEnabled) {
+                System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
             // Enable remote debugging

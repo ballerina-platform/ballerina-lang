@@ -21,6 +21,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The {@code BConnector} represents a Connector in Ballerina.
@@ -39,6 +41,8 @@ public final class BConnector implements BRefType, StructureType {
     private BConnectorType connectorType;
     private boolean isFilterConnector;
     //private BType connectorType;
+
+    private final Map<String, Object> nativeData = new HashMap<>();
 
 
     public BConnector(BConnectorType connectorType) {
@@ -63,6 +67,14 @@ public final class BConnector implements BRefType, StructureType {
 
     public void setFilterConnector(boolean filterConnector) {
         isFilterConnector = filterConnector;
+    }
+
+    public void setNativeData(String key, Object value) {
+        nativeData.put(key, value);
+    }
+
+    public Object getnativeData(String key) {
+        return nativeData.get(key);
     }
 
     @Override

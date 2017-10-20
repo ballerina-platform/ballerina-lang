@@ -69,7 +69,6 @@ public enum SemanticErrors {
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package", "SEMANTIC_0044"),
     UNSUPPORTED_OPERATOR("unsupported.operator", "SEMANTIC_0045"),
     ACTION_INVOCATION_NOT_ALLOWED_HERE("action.invocation.not.allowed.here", "SEMANTIC_0046"),
-    REF_TYPE_MESSAGE_ALLOWED("ref.type.message.allowed", "SEMANTIC_0047"),
     UNDEFINED_PACKAGE_NAME("undefined.package.name", "SEMANTIC_0048"),
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
@@ -131,6 +130,10 @@ public enum SemanticErrors {
     CONNECTOR_TYPES_NOT_EQUIVALENT("connector.types.not.equivalent", "SEMANTIC_0106"),
     FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0107"),
     UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
+    RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0109"),
+    INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0110"),
+    INVALID_RETRY_STMT_LOCATION("invalid.retry.stmt.location", "SEMANTIC_0111"),
+    ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0109")
     ;
 
     private String errorMsgKey;

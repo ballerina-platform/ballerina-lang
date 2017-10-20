@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import java.util.HashMap;
@@ -33,7 +34,6 @@ import java.util.StringJoiner;
  */
 public final class BStruct implements BRefType, StructureType {
 
-    private BStruct stackTrace;
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
@@ -96,7 +96,7 @@ public final class BStruct implements BRefType, StructureType {
                 fieldVal = intFields[intIndex++] == 1;
             } else if (fieldType == BTypes.typeBlob) {
                 byte[] blob = byteFields[byteIndex++];
-                fieldVal = blob == null ? null : new String(blob);
+                fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
             } else {
                 BValue val = refFields[refValIndex++];
                 fieldVal = val == null ? null : val.stringValue();
@@ -109,14 +109,6 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public BStructType getType() {
         return structType;
-    }
-
-    public BStruct getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(BStruct stackTrace) {
-        this.stackTrace = stackTrace;
     }
 
     @Override

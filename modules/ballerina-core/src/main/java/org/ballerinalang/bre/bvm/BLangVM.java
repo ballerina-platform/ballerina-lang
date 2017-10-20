@@ -24,9 +24,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -48,7 +51,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -62,13 +64,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.DefaultBalCallback;
-import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.dispatchers.session.Session;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -108,23 +104,21 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -133,12 +127,12 @@ import java.util.concurrent.TimeoutException;
  */
 public class BLangVM {
 
+    private static final String JOIN_TYPE_SOME = "some";
     private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
     private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
-    private boolean isForkJoinTimedOut;
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
@@ -158,18 +152,18 @@ public class BLangVM {
         }
     }
 
-    public void run(Context context) {
-        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+    public void run(Context ctx) {
+        StackFrame currentFrame = ctx.getControlStackNew().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
-        this.context = context;
+        this.context = ctx;
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
 
         if (context.getError() != null) {
             handleError();
-        } else if (context.actionInfo != null) {
+        } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
@@ -187,10 +181,6 @@ public class BLangVM {
 
         try {
             exec();
-            if (context.isDebugEnabled()) {
-                context.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
-                VMDebugManager.getInstance().releaseExecutionLock();
-            }
         } catch (Throwable e) {
             String message;
             if (e.getMessage() == null) {
@@ -200,6 +190,12 @@ public class BLangVM {
             }
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
+        } finally {
+            if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
+                // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
+                // Doesn't count non-blocking action invocation.
+                ctx.endTrackWorker();
+            }
         }
     }
 
@@ -222,31 +218,11 @@ public class BLangVM {
         int i;
         int j;
         int k;
-        int lvIndex; // Index of the local variable
         int cpIndex; // Index of the constant pool
-        int fieldIndex;
-        int localNameIndex;
-        int uriIndex;
-        int prefixIndex;
-
-        BIntArray bIntArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
-        BBlobArray bBlobArray;
-        BRefValueArray bArray;
-        StructureType structureType;
-        BMap<String, BRefType> bMap;
-        BJSON jsonVal;
-        BXML<?> xmlVal;
-        BXMLAttributes xmlAttrs;
-        BXMLQName xmlQName;
-        
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
-
         FunctionInfo functionInfo;
         ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
@@ -348,672 +324,95 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.ILOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.longRegs[i] = sf.longLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.FLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.doubleRegs[i] = sf.doubleLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.SLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.BLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.intRegs[i] = sf.intLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.LLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.byteRegs[i] = sf.byteLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.RLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.refRegs[i] = sf.refLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.IALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bIntArray = (BIntArray) sf.refRegs[i];
-                    if (bIntArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.FALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bFloatArray = (BFloatArray) sf.refRegs[i];
-                    if (bFloatArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.SALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bStringArray = (BStringArray) sf.refRegs[i];
-                    if (bStringArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.BALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bBooleanArray = (BBooleanArray) sf.refRegs[i];
-                    if (bBooleanArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.LALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bBlobArray = (BBlobArray) sf.refRegs[i];
-                    if (bBlobArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.RALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bArray = (BRefValueArray) sf.refRegs[i];
-                    if (bArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.refRegs[k] = bArray.get(sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.JSONALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.IGLOAD:
-                    // Global variable index
-                    i = operands[0];
-                    // Stack registry index
-                    j = operands[1];
-                    sf.longRegs[j] = globalMemBlock.getIntField(i);
-                    break;
                 case InstructionCodes.FGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.doubleRegs[j] = globalMemBlock.getFloatField(i);
-                    break;
                 case InstructionCodes.SGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.stringRegs[j] = globalMemBlock.getStringField(i);
-                    break;
                 case InstructionCodes.BGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.intRegs[j] = globalMemBlock.getBooleanField(i);
-                    break;
                 case InstructionCodes.LGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.byteRegs[j] = globalMemBlock.getBlobField(i);
-                    break;
                 case InstructionCodes.RGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = globalMemBlock.getRefField(i);
+                case InstructionCodes.IFIELDLOAD:
+                case InstructionCodes.FFIELDLOAD:
+                case InstructionCodes.SFIELDLOAD:
+                case InstructionCodes.BFIELDLOAD:
+                case InstructionCodes.LFIELDLOAD:
+                case InstructionCodes.RFIELDLOAD:
+                case InstructionCodes.MAPLOAD:
+                case InstructionCodes.JSONLOAD:
+                    execLoadOpcodes(sf, opcode, operands);
                     break;
 
                 case InstructionCodes.ISTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.longLocalVars[lvIndex] = sf.longRegs[i];
-                    break;
                 case InstructionCodes.FSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.doubleLocalVars[lvIndex] = sf.doubleRegs[i];
-                    break;
                 case InstructionCodes.SSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
-                    break;
                 case InstructionCodes.BSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.intLocalVars[lvIndex] = sf.intRegs[i];
-                    break;
                 case InstructionCodes.LSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.byteLocalVars[lvIndex] = sf.byteRegs[i];
-                    break;
                 case InstructionCodes.RSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.refLocalVars[lvIndex] = sf.refRegs[i];
-                    break;
                 case InstructionCodes.IASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bIntArray = (BIntArray) sf.refRegs[i];
-                    if (bIntArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.FASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bFloatArray = (BFloatArray) sf.refRegs[i];
-                    if (bFloatArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.SASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bStringArray = (BStringArray) sf.refRegs[i];
-                    if (bStringArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.BASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bBooleanArray = (BBooleanArray) sf.refRegs[i];
-                    if (bBooleanArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.LASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bBlobArray = (BBlobArray) sf.refRegs[i];
-                    if (bBlobArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.RASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bArray = (BRefValueArray) sf.refRegs[i];
-                    if (bArray == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        bArray.add(sf.longRegs[j], sf.refRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.JSONASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    try {
-                        JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
-                    } catch (Exception e) {
-                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
-                        handleError();
-                    }
-                    break;
                 case InstructionCodes.IGSTORE:
-                    // Stack reg index
-                    i = operands[0];
-                    // Global var index
-                    j = operands[1];
-                    globalMemBlock.setIntField(j, sf.longRegs[i]);
-                    break;
                 case InstructionCodes.FGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setFloatField(j, sf.doubleRegs[i]);
-                    break;
                 case InstructionCodes.SGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setStringField(j, sf.stringRegs[i]);
-                    break;
                 case InstructionCodes.BGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setBooleanField(j, sf.intRegs[i]);
-                    break;
                 case InstructionCodes.LGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setBlobField(j, sf.byteRegs[i]);
-                    break;
                 case InstructionCodes.RGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setRefField(j, sf.refRegs[i]);
-                    break;
-
-                case InstructionCodes.IFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.longRegs[j] = structureType.getIntField(fieldIndex);
-                    break;
-                case InstructionCodes.FFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.doubleRegs[j] = structureType.getFloatField(fieldIndex);
-                    break;
-                case InstructionCodes.SFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.stringRegs[j] = structureType.getStringField(fieldIndex);
-                    break;
-                case InstructionCodes.BFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
-                    break;
-                case InstructionCodes.LFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.byteRegs[j] = structureType.getBlobField(fieldIndex);
-                    break;
-                case InstructionCodes.RFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.refRegs[j] = structureType.getRefField(fieldIndex);
-                    break;
                 case InstructionCodes.IFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setIntField(fieldIndex, sf.longRegs[j]);
-                    break;
                 case InstructionCodes.FFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setFloatField(fieldIndex, sf.doubleRegs[j]);
-                    break;
                 case InstructionCodes.SFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setStringField(fieldIndex, sf.stringRegs[j]);
-                    break;
                 case InstructionCodes.BFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
-                    break;
                 case InstructionCodes.LFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setBlobField(fieldIndex, sf.byteRegs[j]);
-                    break;
                 case InstructionCodes.RFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    if (structureType == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    structureType.setRefField(fieldIndex, sf.refRegs[j]);
-                    break;
-
-                case InstructionCodes.MAPLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                    if (bMap == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
-                    break;
                 case InstructionCodes.MAPSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                    if (bMap == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                    break;
-
-                case InstructionCodes.JSONLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
-                    break;
                 case InstructionCodes.JSONSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
+                    execStoreOpcodes(sf, opcode, operands);
                     break;
 
                 case InstructionCodes.IADD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.longRegs[k] = sf.longRegs[i] + sf.longRegs[j];
-                    break;
                 case InstructionCodes.FADD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.doubleRegs[k] = sf.doubleRegs[i] + sf.doubleRegs[j];
-                    break;
                 case InstructionCodes.SADD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
-                    break;
                 case InstructionCodes.XMLADD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    BXML lhsXMLVal = (BXML) sf.refRegs[i];
-                    BXML rhsXMLVal = (BXML) sf.refRegs[j];
-                    if (lhsXMLVal == null || rhsXMLVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    // Here it is assumed that a refType addition can only be a xml-concat.
-                    sf.refRegs[k] = XMLUtils.concatenate(lhsXMLVal, rhsXMLVal);
-                    break;
                 case InstructionCodes.ISUB:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.longRegs[k] = sf.longRegs[i] - sf.longRegs[j];
-                    break;
                 case InstructionCodes.FSUB:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.doubleRegs[k] = sf.doubleRegs[i] - sf.doubleRegs[j];
-                    break;
                 case InstructionCodes.IMUL:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.longRegs[k] = sf.longRegs[i] * sf.longRegs[j];
-                    break;
                 case InstructionCodes.FMUL:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.doubleRegs[k] = sf.doubleRegs[i] * sf.doubleRegs[j];
-                    break;
                 case InstructionCodes.IDIV:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
-                        handleError();
-                        break;
-                    }
-
-                    sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
-                    break;
                 case InstructionCodes.FDIV:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
-                        handleError();
-                        break;
-                    }
-
-                    sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
-                    break;
                 case InstructionCodes.IMOD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
-                        handleError();
-                        break;
-                    }
-
-                    sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
-                    break;
                 case InstructionCodes.FMOD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
-                        handleError();
-                        break;
-                    }
-
-                    sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
-                    break;
                 case InstructionCodes.INEG:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.longRegs[j] = -sf.longRegs[i];
+                case InstructionCodes.FNEG:
+                case InstructionCodes.BNOT:
+                case InstructionCodes.IEQ:
+                case InstructionCodes.FEQ:
+                case InstructionCodes.SEQ:
+                case InstructionCodes.BEQ:
+                case InstructionCodes.REQ:
+                case InstructionCodes.TEQ:
+                case InstructionCodes.INE:
+                case InstructionCodes.FNE:
+                case InstructionCodes.SNE:
+                case InstructionCodes.BNE:
+                case InstructionCodes.RNE:
+                case InstructionCodes.TNE:
+                    execBinaryOpCodes(sf, opcode, operands);
                     break;
+
                 case InstructionCodes.LENGTHOF:
                     i = operands[0];
                     j = operands[1];
@@ -1055,185 +454,27 @@ public class BLangVM {
                     sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
                     break;
 
-                case InstructionCodes.FNEG:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.doubleRegs[j] = -sf.doubleRegs[i];
-                    break;
-                case InstructionCodes.BNOT:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
-                    break;
-
-                case InstructionCodes.IEQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] == sf.longRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.FEQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] == sf.doubleRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.SEQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
-                    break;
-                case InstructionCodes.BEQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.REQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.TEQ:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
-                        handleNullRefError();
-                    }
-                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
-                    break;
-
-                case InstructionCodes.INE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.FNE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] != sf.doubleRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.SNE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
-                    break;
-                case InstructionCodes.BNE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.RNE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
-                    break;
-                case InstructionCodes.TNE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
-                        handleNullRefError();
-                    }
-                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
-                    break;
-
                 case InstructionCodes.IGT:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] > sf.longRegs[j] ? 1 : 0;
-                    break;
                 case InstructionCodes.FGT:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
-                    break;
-
                 case InstructionCodes.IGE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] >= sf.longRegs[j] ? 1 : 0;
-                    break;
                 case InstructionCodes.FGE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
-                    break;
-
                 case InstructionCodes.ILT:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] < sf.longRegs[j] ? 1 : 0;
-                    break;
                 case InstructionCodes.FLT:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
-                    break;
-
                 case InstructionCodes.ILE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.longRegs[i] <= sf.longRegs[j] ? 1 : 0;
-                    break;
                 case InstructionCodes.FLE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
-                    break;
-
                 case InstructionCodes.REQ_NULL:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        ip = j;
-                    }
-                    break;
                 case InstructionCodes.RNE_NULL:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] != null) {
-                        ip = j;
-                    }
-                    break;
-
                 case InstructionCodes.BR_TRUE:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] == 1) {
-                        ip = j;
-                    }
-                    break;
                 case InstructionCodes.BR_FALSE:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] == 0) {
-                        ip = j;
-                    }
+                case InstructionCodes.GOTO:
+                case InstructionCodes.HALT:
+                    execCmpAndBranchOpcodes(sf, opcode, operands);
                     break;
 
-                case InstructionCodes.GOTO:
+                case InstructionCodes.TR_RETRY:
                     i = operands[0];
-                    ip = i;
-                    break;
-                case InstructionCodes.HALT:
-                    ip = -1;
+                    j = operands[1];
+                    retryTransaction(i, j);
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
@@ -1244,11 +485,14 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.TRBGN:
-                    beginTransaction();
+                case InstructionCodes.TR_BEGIN:
+                    i = operands[0];
+                    j = operands[1];
+                    beginTransaction(i, j);
                     break;
-                case InstructionCodes.TREND:
-                    endTransaction(operands);
+                case InstructionCodes.TR_END:
+                    i = operands[0];
+                    endTransaction(i);
                     break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
@@ -1274,6 +518,12 @@ public class BLangVM {
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
                     break;
+                case InstructionCodes.WRKSTART:
+                    startWorkers();
+                    break;
+                case InstructionCodes.WRKRETURN:
+                    handleWorkerReturn();
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -1290,7 +540,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -1329,8 +579,7 @@ public class BLangVM {
                     }
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
                         invokeNativeFunction(functionInfo, funcCallCPEntry);
@@ -1341,7 +590,8 @@ public class BLangVM {
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
                     j = operands[1];
-                    sf.refRegs[j] = new BFunctionPointer(i);
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
+                    sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -1357,7 +607,6 @@ public class BLangVM {
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2MSG:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
@@ -1467,16 +716,9 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BJSON("{}");
                     break;
-                case InstructionCodes.NEWMESSAGE:
-                    i = operands[0];
-                    sf.refRegs[i] = new BMessage();
-                    break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
-                    break;
-                case InstructionCodes.REP:
-                    handleReply(operands, sf);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -1530,98 +772,1038 @@ public class BLangVM {
                     handleReturn();
                     break;
                 case InstructionCodes.XMLATTRSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    xmlVal = (BXML) sf.refRegs[i];
-                    if (xmlVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    xmlQName = (BXMLQName) sf.refRegs[j];
-                    if (xmlQName == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
-                            sf.stringRegs[k]);
-                    break;
                 case InstructionCodes.XMLATTRLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    xmlVal = (BXML) sf.refRegs[i];
-                    if (xmlVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    xmlQName = (BXMLQName) sf.refRegs[j];
-                    if (xmlQName == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
-                            xmlQName.getPrefix());
-                    break;
                 case InstructionCodes.XML2XMLATTRS:
-                    i = operands[0];
-                    j = operands[1];
-
-                    xmlVal = (BXML) sf.refRegs[i];
-                    if (xmlVal == null) {
-                        sf.refRegs[j] = null;
-                        break;
-                    }
-
-                    sf.refRegs[j] = new BXMLAttributes(xmlVal);
-                    break;
                 case InstructionCodes.S2QNAME:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    String qNameStr = sf.stringRegs[i];
-                    int parenEndIndex = qNameStr.indexOf('}');
-
-                    if (qNameStr.startsWith("{") && parenEndIndex > 0) {
-                        sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
-                        sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
-                    } else {
-                        sf.stringRegs[j] = qNameStr;
-                        sf.stringRegs[k] = "";
-                    }
-
-                    break;
                 case InstructionCodes.NEWQNAME:
-                    localNameIndex = operands[0];
-                    uriIndex = operands[1];
-                    prefixIndex = operands[2];
-                    i = operands[3];
-
-                    String localname = sf.stringRegs[localNameIndex];
-                    localname = StringEscapeUtils.escapeXml11(localname);
-
-                    String prefix = sf.stringRegs[prefixIndex];
-                    prefix = StringEscapeUtils.escapeXml11(prefix);
-
-                    sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
-                    break;
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
-                    execXMLCreationOpcodes(sf, opcode, operands);
+                    execXMLOpcodes(sf, opcode, operands);
                     break;
                 default:
                     throw new UnsupportedOperationException();
             }
+        }
+    }
+
+    private void execCmpAndBranchOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        switch (opcode) {
+            case InstructionCodes.IGT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] > sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FGT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
+                break;
+
+            case InstructionCodes.IGE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] >= sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FGE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
+                break;
+
+            case InstructionCodes.ILT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] < sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FLT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
+                break;
+
+            case InstructionCodes.ILE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] <= sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FLE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
+                break;
+
+            case InstructionCodes.REQ_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.refRegs[i] == null) {
+                    ip = j;
+                }
+                break;
+            case InstructionCodes.RNE_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.refRegs[i] != null) {
+                    ip = j;
+                }
+                break;
+
+            case InstructionCodes.BR_TRUE:
+                i = operands[0];
+                j = operands[1];
+                if (sf.intRegs[i] == 1) {
+                    ip = j;
+                }
+                break;
+            case InstructionCodes.BR_FALSE:
+                i = operands[0];
+                j = operands[1];
+                if (sf.intRegs[i] == 0) {
+                    ip = j;
+                }
+                break;
+            case InstructionCodes.GOTO:
+                i = operands[0];
+                ip = i;
+                break;
+            case InstructionCodes.HALT:
+                ip = -1;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execLoadOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int lvIndex; // Index of the local variable
+        int fieldIndex;
+
+        BIntArray bIntArray;
+        BFloatArray bFloatArray;
+        BStringArray bStringArray;
+        BBooleanArray bBooleanArray;
+        BBlobArray bBlobArray;
+        BRefValueArray bArray;
+        StructureType structureType;
+        BMap<String, BRefType> bMap;
+        BJSON jsonVal;
+        switch (opcode) {
+            case InstructionCodes.ILOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.longRegs[i] = sf.longLocalVars[lvIndex];
+                break;
+            case InstructionCodes.FLOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.doubleRegs[i] = sf.doubleLocalVars[lvIndex];
+                break;
+            case InstructionCodes.SLOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
+                break;
+            case InstructionCodes.BLOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.intRegs[i] = sf.intLocalVars[lvIndex];
+                break;
+            case InstructionCodes.LLOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.byteRegs[i] = sf.byteLocalVars[lvIndex];
+                break;
+            case InstructionCodes.RLOAD:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.refRegs[i] = sf.refLocalVars[lvIndex];
+                break;
+            case InstructionCodes.IALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bIntArray = (BIntArray) sf.refRegs[i];
+                if (bIntArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.FALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bFloatArray = (BFloatArray) sf.refRegs[i];
+                if (bFloatArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.SALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bStringArray = (BStringArray) sf.refRegs[i];
+                if (bStringArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.BALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bBooleanArray = (BBooleanArray) sf.refRegs[i];
+                if (bBooleanArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.LALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bBlobArray = (BBlobArray) sf.refRegs[i];
+                if (bBlobArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.RALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bArray = (BRefValueArray) sf.refRegs[i];
+                if (bArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.JSONALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                jsonVal = (BJSON) sf.refRegs[i];
+                if (jsonVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.IGLOAD:
+                // Global variable index
+                i = operands[0];
+                // Stack registry index
+                j = operands[1];
+                sf.longRegs[j] = globalMemBlock.getIntField(i);
+                break;
+            case InstructionCodes.FGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = globalMemBlock.getFloatField(i);
+                break;
+            case InstructionCodes.SGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = globalMemBlock.getStringField(i);
+                break;
+            case InstructionCodes.BGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = globalMemBlock.getBooleanField(i);
+                break;
+            case InstructionCodes.LGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.byteRegs[j] = globalMemBlock.getBlobField(i);
+                break;
+            case InstructionCodes.RGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = globalMemBlock.getRefField(i);
+                break;
+
+            case InstructionCodes.IFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.longRegs[j] = structureType.getIntField(fieldIndex);
+                break;
+            case InstructionCodes.FFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.doubleRegs[j] = structureType.getFloatField(fieldIndex);
+                break;
+            case InstructionCodes.SFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.stringRegs[j] = structureType.getStringField(fieldIndex);
+                break;
+            case InstructionCodes.BFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
+                break;
+            case InstructionCodes.LFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.byteRegs[j] = structureType.getBlobField(fieldIndex);
+                break;
+            case InstructionCodes.RFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.refRegs[j] = structureType.getRefField(fieldIndex);
+                break;
+
+            case InstructionCodes.MAPLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bMap = (BMap<String, BRefType>) sf.refRegs[i];
+                if (bMap == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                break;
+
+            case InstructionCodes.JSONLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                jsonVal = (BJSON) sf.refRegs[i];
+                if (jsonVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execStoreOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int lvIndex; // Index of the local variable
+        int fieldIndex;
+
+        BIntArray bIntArray;
+        BFloatArray bFloatArray;
+        BStringArray bStringArray;
+        BBooleanArray bBooleanArray;
+        BBlobArray bBlobArray;
+        BRefValueArray bArray;
+        StructureType structureType;
+        BMap<String, BRefType> bMap;
+        BJSON jsonVal;
+        switch (opcode) {
+            case InstructionCodes.ISTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.longLocalVars[lvIndex] = sf.longRegs[i];
+                break;
+            case InstructionCodes.FSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.doubleLocalVars[lvIndex] = sf.doubleRegs[i];
+                break;
+            case InstructionCodes.SSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
+                break;
+            case InstructionCodes.BSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.intLocalVars[lvIndex] = sf.intRegs[i];
+                break;
+            case InstructionCodes.LSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.byteLocalVars[lvIndex] = sf.byteRegs[i];
+                break;
+            case InstructionCodes.RSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.refLocalVars[lvIndex] = sf.refRegs[i];
+                break;
+            case InstructionCodes.IASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bIntArray = (BIntArray) sf.refRegs[i];
+                if (bIntArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.FASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bFloatArray = (BFloatArray) sf.refRegs[i];
+                if (bFloatArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.SASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bStringArray = (BStringArray) sf.refRegs[i];
+                if (bStringArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.BASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bBooleanArray = (BBooleanArray) sf.refRegs[i];
+                if (bBooleanArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.LASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bBlobArray = (BBlobArray) sf.refRegs[i];
+                if (bBlobArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.RASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bArray = (BRefValueArray) sf.refRegs[i];
+                if (bArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.JSONASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                jsonVal = (BJSON) sf.refRegs[i];
+                if (jsonVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.IGSTORE:
+                // Stack reg index
+                i = operands[0];
+                // Global var index
+                j = operands[1];
+                globalMemBlock.setIntField(j, sf.longRegs[i]);
+                break;
+            case InstructionCodes.FGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setFloatField(j, sf.doubleRegs[i]);
+                break;
+            case InstructionCodes.SGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setStringField(j, sf.stringRegs[i]);
+                break;
+            case InstructionCodes.BGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setBooleanField(j, sf.intRegs[i]);
+                break;
+            case InstructionCodes.LGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setBlobField(j, sf.byteRegs[i]);
+                break;
+            case InstructionCodes.RGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setRefField(j, sf.refRegs[i]);
+                break;
+
+            case InstructionCodes.IFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setIntField(fieldIndex, sf.longRegs[j]);
+                break;
+            case InstructionCodes.FFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setFloatField(fieldIndex, sf.doubleRegs[j]);
+                break;
+            case InstructionCodes.SFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setStringField(fieldIndex, sf.stringRegs[j]);
+                break;
+            case InstructionCodes.BFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
+                break;
+            case InstructionCodes.LFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setBlobField(fieldIndex, sf.byteRegs[j]);
+                break;
+            case InstructionCodes.RFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setRefField(fieldIndex, sf.refRegs[j]);
+                break;
+
+
+            case InstructionCodes.MAPSTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bMap = (BMap<String, BRefType>) sf.refRegs[i];
+                if (bMap == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                break;
+
+
+            case InstructionCodes.JSONSTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                jsonVal = (BJSON) sf.refRegs[i];
+                if (jsonVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+                JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execBinaryOpCodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        switch (opcode) {
+            case InstructionCodes.IADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] + sf.longRegs[j];
+                break;
+            case InstructionCodes.FADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.doubleRegs[k] = sf.doubleRegs[i] + sf.doubleRegs[j];
+                break;
+            case InstructionCodes.SADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
+                break;
+            case InstructionCodes.XMLADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                BXML lhsXMLVal = (BXML) sf.refRegs[i];
+                BXML rhsXMLVal = (BXML) sf.refRegs[j];
+                if (lhsXMLVal == null || rhsXMLVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                // Here it is assumed that a refType addition can only be a xml-concat.
+                sf.refRegs[k] = XMLUtils.concatenate(lhsXMLVal, rhsXMLVal);
+                break;
+            case InstructionCodes.ISUB:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] - sf.longRegs[j];
+                break;
+            case InstructionCodes.FSUB:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.doubleRegs[k] = sf.doubleRegs[i] - sf.doubleRegs[j];
+                break;
+            case InstructionCodes.IMUL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] * sf.longRegs[j];
+                break;
+            case InstructionCodes.FMUL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.doubleRegs[k] = sf.doubleRegs[i] * sf.doubleRegs[j];
+                break;
+            case InstructionCodes.IDIV:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.longRegs[j] == 0) {
+                    context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                    handleError();
+                    break;
+                }
+
+                sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
+                break;
+            case InstructionCodes.FDIV:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.doubleRegs[j] == 0) {
+                    context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                    handleError();
+                    break;
+                }
+
+                sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
+                break;
+            case InstructionCodes.IMOD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.longRegs[j] == 0) {
+                    context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                    handleError();
+                    break;
+                }
+
+                sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
+                break;
+            case InstructionCodes.FMOD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.doubleRegs[j] == 0) {
+                    context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                    handleError();
+                    break;
+                }
+
+                sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
+                break;
+            case InstructionCodes.INEG:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = -sf.longRegs[i];
+                break;
+            case InstructionCodes.FNEG:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = -sf.doubleRegs[i];
+                break;
+            case InstructionCodes.BNOT:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
+                break;
+            case InstructionCodes.IEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] == sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] == sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.SEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
+                break;
+            case InstructionCodes.BEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.REQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.TEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                    handleNullRefError();
+                }
+                sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                break;
+
+            case InstructionCodes.INE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.FNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.doubleRegs[i] != sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.SNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
+                break;
+            case InstructionCodes.BNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.RNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.TNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                    handleNullRefError();
+                }
+                sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execXMLOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int localNameIndex;
+        int uriIndex;
+        int prefixIndex;
+
+        BXML<?> xmlVal;
+        BXMLQName xmlQName;
+
+        switch (opcode) {
+            case InstructionCodes.XMLATTRSTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                xmlQName = (BXMLQName) sf.refRegs[j];
+                if (xmlQName == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
+                        sf.stringRegs[k]);
+                break;
+            case InstructionCodes.XMLATTRLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                xmlQName = (BXMLQName) sf.refRegs[j];
+                if (xmlQName == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
+                        xmlQName.getPrefix());
+                break;
+            case InstructionCodes.XML2XMLATTRS:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                break;
+            case InstructionCodes.S2QNAME:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                String qNameStr = sf.stringRegs[i];
+                int parenEndIndex = qNameStr.indexOf('}');
+
+                if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+                    sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+                    sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
+                } else {
+                    sf.stringRegs[j] = qNameStr;
+                    sf.stringRegs[k] = "";
+                }
+
+                break;
+            case InstructionCodes.NEWQNAME:
+                localNameIndex = operands[0];
+                uriIndex = operands[1];
+                prefixIndex = operands[2];
+                i = operands[3];
+
+                String localname = sf.stringRegs[localNameIndex];
+                localname = StringEscapeUtils.escapeXml11(localname);
+
+                String prefix = sf.stringRegs[prefixIndex];
+                prefix = StringEscapeUtils.escapeXml11(prefix);
+
+                sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                break;
+            case InstructionCodes.NEWXMLELEMENT:
+            case InstructionCodes.NEWXMLCOMMENT:
+            case InstructionCodes.NEWXMLTEXT:
+            case InstructionCodes.NEWXMLPI:
+            case InstructionCodes.XMLSTORE:
+                execXMLCreationOpcodes(sf, opcode, operands);
+                break;
+            default:
+                throw new UnsupportedOperationException();
         }
     }
 
@@ -1753,9 +1935,6 @@ public class BLangVM {
                 break;
             case InstructionCodes.ANY2MAP:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMap);
-                break;
-            case InstructionCodes.ANY2MSG:
-                handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
                 break;
             case InstructionCodes.ANY2TYPE:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
@@ -2014,7 +2193,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                
+
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
@@ -2097,7 +2276,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
@@ -2105,7 +2284,7 @@ public class BLangVM {
     /**
      * Method to calculate and detect debug points when the instruction point is given.
      *
-     * @param cp        Current instruction point.
+     * @param cp Current instruction point.
      */
     public void debugging(int cp) {
         DebugInfoHolder holder = context.getDebugInfoHolder();
@@ -2116,6 +2295,7 @@ public class BLangVM {
 
         switch (holder.getCurrentCommand()) {
             case RESUME:
+                holder.setLastLine(null);
                 break;
             case STEP_IN:
                 debugHit(currentExecLine, holder);
@@ -2151,8 +2331,9 @@ public class BLangVM {
 
     /**
      * Inter mediate debug check to avoid switch case falling through.
-     * @param currentExecLine   Current execution line.
-     * @param holder            Debug info holder.
+     *
+     * @param currentExecLine Current execution line.
+     * @param holder          Debug info holder.
      */
     private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
         if (controlStack.fp != holder.getFp()) {
@@ -2165,9 +2346,9 @@ public class BLangVM {
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
-     * @param currentExecLine   Current execution line.
-     * @param holder            Debug info holder.
-     * @return                  Boolean true if it's a debug point, false otherwise.
+     * @param currentExecLine Current execution line.
+     * @param holder          Debug info holder.
+     * @return Boolean true if it's a debug point, false otherwise.
      */
     private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
         if (!currentExecLine.isDebugPoint()) {
@@ -2181,8 +2362,8 @@ public class BLangVM {
      * Helper method to set required details when a debug point hits.
      * And also to notify the debugger.
      *
-     * @param currentExecLine   Current execution line.
-     * @param holder            Debug info holder.
+     * @param currentExecLine Current execution line.
+     * @param holder          Debug info holder.
      */
     private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
         holder.setLastLine(currentExecLine);
@@ -2289,29 +2470,12 @@ public class BLangVM {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private void handleReply(int[] operands, StackFrame sf) {
-        int i;
-        i = operands[0];
-        BMessage message = null;
-        if (i >= 0) {
-            message = (BMessage) sf.refRegs[i];
-        }
-        handleSessionCookieHeaders(message);
-        context.setError(null);
-        if (context.getBalCallback() != null &&
-                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
-            context.getBalCallback().done(message.value());
-        }
-        ip = -1;
-    }
-
     private void createNewConnector(int[] operands, StackFrame sf) {
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
         BConnector bConnector = new BConnector(connectorInfo.getType());
-        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
     }
 
@@ -2321,81 +2485,91 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         BStruct bStruct = new BStruct(structInfo.getType());
+
+        // Populate default values
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            DefaultValueAttributeInfo defaultValueInfo =
+                    (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            switch (fieldInfo.getFieldType().getTag()) {
+                case TypeTags.INT_TAG:
+                    longRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
+                    }
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    doubleRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
+                    }
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
+                    }
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    booleanRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setBooleanField(booleanRegIndex,
+                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
+                    }
+                    break;
+            }
+        }
+
         sf.refRegs[i] = bStruct;
     }
 
-    private void endTransaction(int[] operands) {
-        int i;
-        i = operands[0];
+    private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (i == 0) {
+            if (status == 0) { //Transaction success
                 ballerinaTransactionManager.commitTransactionBlock();
-            } else {
+            } else if (status == -1) { //Transaction failed
                 ballerinaTransactionManager.setTransactionError(true);
                 ballerinaTransactionManager.rollbackTransactionBlock();
-            }
-            ballerinaTransactionManager.endTransactionBlock();
-            if (ballerinaTransactionManager.isOuterTransaction()) {
-                context.setBallerinaTransactionManager(null);
+            } else { //status = 1 Transaction end
+                ballerinaTransactionManager.endTransactionBlock();
+                if (ballerinaTransactionManager.isOuterTransaction()) {
+                    context.setBallerinaTransactionManager(null);
+                }
             }
         }
     }
 
-    private void beginTransaction() {
+    private void beginTransaction(int transactionId, int retryCountAvailable) {
+        //Transaction is attempted three times by default to improve resiliency
+        int retryCount = 3;
+        if (retryCountAvailable == 1) {
+            retryCount = (int) controlStack.getCurrentFrame().getLongRegs()[0];
+            if (retryCount < 0) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+            }
+        }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
             ballerinaTransactionManager = new BallerinaTransactionManager();
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
-        ballerinaTransactionManager.beginTransactionBlock();
+        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
     }
 
-    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-        //BType connectorType = paramTypes[0];
-        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
+    private void retryTransaction(int transactionId, int startOfAbortIP) {
+        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
+        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
+        if (currentRetryCount >= allowedRetryCount) {
+            if (currentRetryCount != 0) {
+                ip = startOfAbortIP;
             }
         }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        }
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
+        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
@@ -2414,9 +2588,6 @@ public class BLangVM {
         this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
 
     }
 
@@ -2437,132 +2608,107 @@ public class BLangVM {
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
         ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
-        List<WorkerResult> resultMsgs = new ArrayList<>();
-        //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
-        //BRefValueArray resultInvokeAny = null;
-        long timeout = 60; // Default timeout value is 60 seconds
+        long timeout = Long.MAX_VALUE;
         if (forkjoinInfo.isTimeoutAvailable()) {
-            timeout = controlStack.getCurrentFrame().getLongRegs()[0];
+            timeout = this.controlStack.getCurrentFrame().getLongRegs()[0];
         }
-
-        Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
+        Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
+        Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
-            workerContext.setBalCallback(workerCallback);
-
-            StackFrame callerSF = controlStack.getCurrentFrame();
+            Context workerContext = new Context(this.programFile);
+            StackFrame callerSF = this.controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
-
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
+            StackFrame calleeSF = new StackFrame(this.controlStack.getCurrentFrame().getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
-
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
-
-
-            // Copy arg values from the current StackFrame to the new StackFrame
-            // TODO fix this. Move the copyArgValues method to another util function
-            // BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-            BLangVM bLangVM = new BLangVM(programFile);
-            //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+            BLangVM bLangVM = new BLangVM(this.programFile);
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    workerContext, workerInfo);
+                    workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
-            triggeredWorkers.put(workerInfo.getWorkerName(), workerRunner);
+            workers.put(workerInfo.getWorkerName(), workerRunner);
         }
-
-        if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for any of all the workers
-                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
-                //resultMsgs.add(res);
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
-                //resultMsgs.add(res);
-            }
-        } else {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for all of all the workers
-                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
-            }
+        Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
+        if (joinWorkerNames.isEmpty()) {
+            /* if no join workers are specified, that means, all should be considered */
+            joinWorkerNames.addAll(workers.keySet());
         }
-
-        if (isForkJoinTimedOut) {
-            ip = forkjoinInfo.getTimeoutIp();
-            // Execute the timeout block
-            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
-            BMap<String, BRefValueArray> mbMap = new BMap<>();
-            for (WorkerResult workerResult : resultMsgs) {
-                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
-            }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
-
-            isForkJoinTimedOut = false;
-
+        int workerCount;
+        if (forkjoinInfo.getJoinType().equalsIgnoreCase(JOIN_TYPE_SOME)) {
+            workerCount = forkjoinInfo.getWorkerCount();
         } else {
-            ip = forkjoinInfo.getJoinIp();
-            // Assign values to join block message arrays
+            workerCount = joinWorkerNames.size();
+        }
+        boolean success = this.invokeJoinWorkers(workers, joinWorkerNames, workerCount, timeout);
+        if (success) {
+            this.ip = forkjoinInfo.getJoinIp();
+            /* assign values to join block message arrays */
             int offsetJoin = forkjoinInfo.getJoinMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+        } else {
+            /* timed out */
+            this.ip = forkjoinInfo.getTimeoutIp();
+            /* execute the timeout block */
+            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
+            }
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+        }     
+    }
+    
+    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
+            Set<String> joinWorkerNames, int joinCount, long timeout) {
+        ExecutorService exec = ThreadPoolFactory.getInstance().getWorkerExecutor();
+        Semaphore resultCounter = new Semaphore(-joinCount + 1);
+        workers.forEach((k, v) -> {
+            if (joinWorkerNames.contains(k)) {
+                v.setResultCounterSemaphore(resultCounter);
+            }
+            exec.submit(v);
+        });
+        try {
+            return resultCounter.tryAcquire(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException ignore) {
+            return false;
         }
     }
 
-    private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
-        ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        WorkerResult result;
-        try {
-            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            return null;
-        } catch (TimeoutException e) {
-            isForkJoinTimedOut = true;
-            return null;
-        }
-        return result;
+    private void startWorkers() {
+        CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
+        ip = -1;
     }
 
-    private List<WorkerResult> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList,
-                                                long timeout) {
-        ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<WorkerResult> result = new ArrayList<>();
-        try {
-            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
-                try {
-                    return bMessageFuture.get();
-                } catch (CancellationException e) {
-                    // This means task has been timedout and cancelled by system.
-                    isForkJoinTimedOut = true;
-                    return null;
-                } catch (Exception e) {
-                    return null;
-                }
+    private void handleWorkerReturn() {
+        WorkerContext workerContext = (WorkerContext) this.context;
+        if (workerContext.parentSF.workerReturned.compareAndSet(false, true)) {
+            StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
+            workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            }).forEach((WorkerResult b) -> {
-                result.add(b);
-            });
-        } catch (InterruptedException e) {
-            return result;
+            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
+            StackFrame parentSF = workerContext.parentSF;
+            StackFrame parentCallersSF = parentControlStack.getStack()[parentControlStack.fp - 1];
+
+            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            // Switch to parent context
+            this.context = workerContext.parent;
+            this.controlStack = this.context.getControlStackNew();
+            controlStack.popFrame();
+            this.constPool = this.controlStack.getCurrentFrame().packageInfo.getConstPoolEntries();
+            this.code = this.controlStack.getCurrentFrame().packageInfo.getInstructions();
+            ip = parentSF.retAddrs;
+        } else {
+            String msg = workerContext.parentSF.returnedWorker + " already returned.";
+            context.setError(BLangVMErrors.createIllegalStateException(context, ip, msg));
+            handleError();
         }
-        return result;
     }
 
     public void replyWorker(WorkerDataChannelInfo workerDataChannel,
@@ -2593,6 +2739,9 @@ public class BLangVM {
                     boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
                     arguments[i] = new BBoolean(temp);
                     break;
+                case TypeTags.BLOB_TAG:
+                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
+                    break;
                 default:
                     arguments[i] = callerSF.refRegs[argReg];
             }
@@ -2605,6 +2754,7 @@ public class BLangVM {
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
+        int blobRegIndex = -1;
         int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
@@ -2621,6 +2771,9 @@ public class BLangVM {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.getByteRegs()[++blobRegIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
@@ -2653,11 +2806,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            if (callerSF.getRefLocalVars()[i] instanceof BMessage) {
-                calleeSF.getRefLocalVars()[i] = ((BMessage) callerSF.getRefLocalVars()[i]).clone();
-            } else {
-                calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
-            }
+            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
@@ -2667,42 +2816,13 @@ public class BLangVM {
 
     }
 
-    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
-                                           int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
-                    break;
-                default:
-                    if (callerSF.refRegs[argReg] instanceof BMessage) {
-                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
-                    } else {
-                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
-                    }
-            }
-        }
+    public static void copyValues(StackFrame parent, StackFrame workerSF) {
+        System.arraycopy(parent.longLocalVars, 0, workerSF.longLocalVars, 0, parent.longLocalVars.length);
+        System.arraycopy(parent.doubleLocalVars, 0, workerSF.doubleLocalVars, 0, parent.doubleLocalVars.length);
+        System.arraycopy(parent.intLocalVars, 0, workerSF.intLocalVars, 0, parent.intLocalVars.length);
+        System.arraycopy(parent.stringLocalVars, 0, workerSF.stringLocalVars, 0, parent.stringLocalVars.length);
+        System.arraycopy(parent.byteLocalVars, 0, workerSF.byteLocalVars, 0, parent.byteLocalVars.length);
+        System.arraycopy(parent.refLocalVars, 0, workerSF.refLocalVars, 0, parent.refLocalVars.length);
     }
 
 
@@ -2748,6 +2868,41 @@ public class BLangVM {
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
+    }
+
+    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+        int callersRetRegIndex;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            callersRetRegIndex = parentsSF.retRegIndexes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    parentCallersSF.longRegs[callersRetRegIndex] = workerCallerSF.longRegs[longRegCount++];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    parentCallersSF.doubleRegs[callersRetRegIndex] = workerCallerSF.doubleRegs[doubleRegCount++];
+                    break;
+                case TypeTags.STRING_TAG:
+                    parentCallersSF.stringRegs[callersRetRegIndex] = workerCallerSF.stringRegs[stringRegCount++];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    parentCallersSF.intRegs[callersRetRegIndex] = workerCallerSF.intRegs[intRegCount++];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
+                    break;
+                default:
+                    parentCallersSF.refRegs[callersRetRegIndex] = workerCallerSF.refRegs[refRegCount++];
+                    break;
+            }
+        }
     }
 
     private String getOperandsLine(int[] operands) {
@@ -2798,80 +2953,72 @@ public class BLangVM {
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
 
-        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = actionInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
-            }
-        }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            actionInfo = newActionInfo;
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-        }
-
+        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
 
-        if (nativeAction != null) {
-            // TODO : Remove once we handle this properly for return values
-            BType[] retTypes = actionInfo.getRetParamTypes();
-            BValue[] returnValues = new BValue[retTypes.length];
+        if (nativeAction == null) {
+            return;
+        }
 
-            StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
-            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                    actionInfo.getParamTypes());
+        // TODO : Remove once we handle this properly for return values
+        BType[] retTypes = actionInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+
+        StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                actionInfo.getParamTypes());
 
 
-            controlStack.pushFrame(caleeSF);
+        controlStack.pushFrame(caleeSF);
 
-            try {
-                if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
-                    // Enable non-blocking.
-                    context.setStartIP(ip);
-                    // TODO : Temporary solution to make non-blocking working.
-                    if (caleeSF.packageInfo == null) {
-                        caleeSF.packageInfo = actionInfo.getPackageInfo();
-                    }
-                    context.programFile = programFile;
-                    context.funcCallCPEntry = funcCallCPEntry;
-                    context.actionInfo = actionInfo;
-                    BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
-                    connectorCallback.setNativeAction(nativeAction);
-                    nativeAction.execute(context, connectorCallback);
-                    ip = -1;
-                    return;
-                    // release thread.
-                } else {
-                    nativeAction.execute(context);
-                    // Copy return values to the callers stack
-                    controlStack.popFrame();
-                    handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
+        try {
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
+            if (nonBlocking) {
+                // Enable non-blocking.
+                context.setStartIP(ip);
+                // TODO : Temporary solution to make non-blocking working.
+                if (caleeSF.packageInfo == null) {
+                    caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
-            } catch (Throwable e) {
-                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-                handleError();
+                context.programFile = programFile;
+                context.funcCallCPEntry = funcCallCPEntry;
+                context.actionInfo = actionInfo;
+
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+
+                ip = -1;
                 return;
+            } else {
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+                //default nonBlocking timeout 5 mins
+                long timeout = 300000;
+                boolean res = listener.sync(timeout);
+                if (!res) {
+                    //non blocking execution timed out.
+                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
+                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
+                }
+                if (context.getError() != null) {
+                    handleError();
+                }
+                // Copy return values to the callers stack
+                controlStack.popFrame();
+                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
             }
-        } else {
-            // Ballerina Action in case of ballerina based filter connector
-            invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            handleError();
+            return;
         }
     }
 
@@ -2998,7 +3145,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+            if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
                     tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
                 continue;
             }
@@ -3006,6 +3153,55 @@ public class BLangVM {
         }
 
         return true;
+    }
+
+    private static boolean isAssignable(BType actualType, BType expType) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return true;
+        }
+
+        // If the both type tags are equal, then perform following checks.
+        if (actualType.getTag() == expType.getTag() && isValueType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() &&
+                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayEquivalent(actualType, expType);
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) actualType, (BStructType) expType)) {
+            // If both types are structs then check for their equivalency
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isValueType(BType type) {
+        return type.getTag() <= TypeTags.BLOB_TAG;
+    }
+
+    private static boolean isUserDefinedType(BType type) {
+        return type.getTag() == TypeTags.STRUCT_TAG || type.getTag() == TypeTags.CONNECTOR_TAG ||
+                type.getTag() == TypeTags.ENUM_TAG || type.getTag() == TypeTags.ARRAY_TAG;
+    }
+
+    private static boolean isConstrainedType(BType type) {
+        return type.getTag() == TypeTags.JSON_TAG;
+    }
+
+    private static boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
     }
 
     private void convertJSONToInt(int[] operands, StackFrame sf) {
@@ -3319,7 +3515,7 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(), 
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
                     sf.packageInfo);
         } catch (Exception e) {
             sf.refRegs[j] = null;
@@ -3358,21 +3554,16 @@ public class BLangVM {
         if (controlStack.getCurrentFrame() == null) {
             // root level error handling.
             ip = -1;
-            if (context.getServiceInfo() != null) {
-                // Invoke ServiceConnector error handler.
-                CarbonMessage carbonMessage = context.getCarbonMessage();
-                if (carbonMessage != null) {
-                    Object protocol = carbonMessage.getProperty("PROTOCOL");
-                    Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
-                            .getServerConnectorErrorHandler((String) protocol);
-                    try {
-                        optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
-                                new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
-                                context.getCarbonMessage(), context.getBalCallback());
-                    } catch (Exception e) {
-                        logger.error("cannot handle error using the error handler for: " + protocol, e);
-                    }
-                }
+            if (context.getServiceInfo() == null) {
+                return;
+            }
+
+            BServerConnectorFuture connectorFuture = context.getConnectorFuture();
+            try {
+                connectorFuture.notifyFailure(new BallerinaException(BLangVMErrors
+                        .getPrintableStackTrace(context.getError())));
+            } catch (Exception e) {
+                logger.error("cannot handle error using the error handler: " + e.getMessage(), e);
             }
             return;
         }
@@ -3390,14 +3581,6 @@ public class BLangVM {
         logger.error("fatal error. incorrect error table entry.");
     }
 
-    private void handleSessionCookieHeaders(BMessage message) {
-        //check session cookie header
-        Session session = context.getCurrentSession();
-        if (session != null) {
-            session.generateSessionHeader(message);
-        }
-    }
-    
     private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
         for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {
             if (attributeInfo.getKind() == attrInfoKind) {
@@ -3405,5 +3588,9 @@ public class BLangVM {
             }
         }
         return null;
+    }
+
+    private boolean isWaitingOnNonBlockingAction() {
+        return context.actionInfo != null;
     }
 }

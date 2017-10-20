@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,19 +42,55 @@ import java.util.regex.Pattern;
 public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
+    public static final PrintStream STD_OUT = System.out;
+
+    // Trace log related constants
+    public static final String HTTP_TRACE_LOGGER = "tracelog.http";
+    public static final String LOG_DEST_CONSOLE = "__console";
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static final String LOG_CONFIG_FILE = "logging.properties";
+    private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
+
+    private Logger httpTraceLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
-        Properties properties = new Properties();
-        properties.load(ins);
+        Properties properties = getDefaultLogConfiguration();
+
+        // override the default configs if the user has provided a config file
+        if (System.getProperty(SP_LOG_CONFIG_FILE) != null) {
+            properties.load(ins);
+        }
+
         properties.forEach((k, v) -> {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
+    }
+
+    public void setHttpTraceLogHandler() throws IOException {
+        Handler handler = new ConsoleHandler();
+        handler.setFormatter(new HTTPTraceLogFormatter());
+        handler.setLevel(Level.FINE);
+
+        if (httpTraceLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOGGER);
+        }
+
+        removeHandlers(httpTraceLogger);
+        httpTraceLogger.addHandler(handler);
+        httpTraceLogger.setLevel(Level.FINE);
+    }
+
+    private static void removeHandlers(Logger logger) {
+        Handler[] handlers = logger.getHandlers();
+        for (Handler handler : handlers) {
+            logger.removeHandler(handler);
+        }
     }
 
     private String substituteVariables(String value) {
@@ -92,5 +135,12 @@ public class BLogManager extends LogManager {
                 outputStream.close();
             }
         }
+    }
+
+    private Properties getDefaultLogConfiguration() throws IOException {
+        Properties properties = new Properties();
+        InputStream in = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
+        properties.load(in);
+        return properties;
     }
 }

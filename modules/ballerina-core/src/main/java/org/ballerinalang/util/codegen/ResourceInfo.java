@@ -73,4 +73,5 @@ public class ResourceInfo extends CallableUnitInfo {
     public void setParamNames(String[] paramNames) {
         this.paramNames = paramNames;
     }
+
 }

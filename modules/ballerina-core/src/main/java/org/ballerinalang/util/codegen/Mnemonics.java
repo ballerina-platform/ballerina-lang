@@ -148,6 +148,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.HALT] = "halt";
+        mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
@@ -196,7 +197,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2L] = "any2l";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2XML] = "any2xml";
-        mnemonics[InstructionCodes.ANY2MSG] = "any2msg";
         mnemonics[InstructionCodes.ANY2TYPE] = "any2type";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
@@ -206,12 +206,14 @@ public class Mnemonics {
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
 
         // Transactions
-        mnemonics[InstructionCodes.TRBGN] = "trbgn";
-        mnemonics[InstructionCodes.TREND] = "trend";
+        mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
+        mnemonics[InstructionCodes.TR_END] = "tr_end";
 
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
+        mnemonics[InstructionCodes.WRKSTART] = "wrkstart";
+        mnemonics[InstructionCodes.WRKRETURN] = "wrkreturn";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -226,11 +228,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
-        mnemonics[InstructionCodes.NEWMESSAGE] = "newmessage";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
 
 
-        mnemonics[InstructionCodes.REP] = "rep";
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";
         mnemonics[InstructionCodes.SRET] = "sret";

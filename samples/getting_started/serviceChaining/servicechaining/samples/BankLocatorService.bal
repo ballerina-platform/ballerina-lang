@@ -1,15 +1,15 @@
 package servicechaining.samples;
 
-import ballerina.lang.messages;
 import ballerina.net.http;
 
 @http:configuration {basePath:"/branchlocator"}
 service<http> Banklocator {
-    
-    @http:POST{}
-    resource product (message m) {
-        message response = {};
-        json jsonRequest = messages:getJsonPayload(m);
+
+    @http:resourceConfig {
+        methods:["POST"]
+    }
+    resource product (http:Request req, http:Response res) {
+        json jsonRequest = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string) jsonRequest.BranchLocator.ZipCode;
         json payload = {};
@@ -21,7 +21,7 @@ service<http> Banklocator {
             payload = {"ABCBank": {"BranchCode":"-1"}};
             
         }
-        messages:setJsonPayload(response, payload);
-        reply response;
+        res.setJsonPayload(payload);
+        res.send();
     }
 }

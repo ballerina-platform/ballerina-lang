@@ -28,17 +28,19 @@ import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 
+import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -86,11 +88,14 @@ import javax.xml.transform.stax.StAXSource;
  */
 public class XMLUtils {
     
-    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     private static final String XML_ROOT = "root";
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
+    private static final String XML_DCLR_START = "<?xml";
+
+    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     /**
      * Create a XML item from string literal.
      *
@@ -104,9 +109,15 @@ public class XMLUtils {
                 return new BXMLItem(new TextImpl());
             }
 
+            // If this is an XML document, parse it and return an element type XML.
+            if (xmlStr.trim().startsWith(XML_DCLR_START)) {
+                OMElement omElement = AXIOMUtil.stringToOM(xmlStr);
+                return new BXMLItem(omElement);
+            }
+
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
             // This is to overcome the issue of axiom not allowing to parse xml-comments,
-            // xml-text nodes, and pi nodes, without having a xml-element node.
+            // xml-text nodes, and pi nodes, without having an enclosing xml-element node.
             OMElement omElement = AXIOMUtil.stringToOM("<root>" + xmlStr + "</root>");
             Iterator<OMNode> children = omElement.getChildren();
             OMNode omNode = null;
@@ -126,6 +137,9 @@ public class XMLUtils {
             return new BXMLItem(omNode);
         } catch (BallerinaException e) {
             throw e;
+        } catch (OMException | XMLStreamException e) {
+            Throwable cause = e.getCause() == null ? e : e.getCause();
+            throw new BallerinaException(cause.getMessage());
         } catch (Throwable e) {
             throw new BallerinaException("failed to parse xml: " + e.getMessage());
         }
@@ -141,12 +155,14 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = new StAXOMBuilder(xmlStream).getDocument();
+            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
                 elementsSeq.add(i++, new BXMLItem(docChildItr.next()));
             }
+        } catch (DeferredParsingException e) {
+            throw new BallerinaException(e.getCause().getMessage());
         } catch (Throwable e) {
             throw new BallerinaException("failed to create xml: " + e.getMessage());
         }

@@ -9,6 +9,7 @@ function main (string[] args) {
     var s, castErr = (string)a;
     if(castErr != null) {
         system:println("error: " + castErr.msg);
-    }
-    system:println(s);
+    } else {
+        system:println(s);
+    }    
 }

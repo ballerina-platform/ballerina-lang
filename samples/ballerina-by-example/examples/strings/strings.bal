@@ -65,16 +65,16 @@ function main (string[] args) {
     string s9 = strings:unescape(statement);
     system:println("Unescape: " + s9);
 
-    //Splits the string with the given regular expression to produce a string array
+    //Splits the string with the given regular expression to produce a string array.
     string[] array = strings:split(statement, " ");
     system:println("Split: " + array[0]);
     system:println("Split: " + array[1]);
     system:println("Split: " + array[2]);
 
-    //Converts string to a BLOB
+    //Converts string to a BLOB.
     blob blobValue = strings:toBlob(statement, "UTF-8");
     
-    //Converts the BLOB to the string
+    //Converts the BLOB to the string.
     string s10 = blobs:toString(blobValue, "UTF-8");
     system:println("Blob: " + s10);
 }

@@ -23,7 +23,7 @@ function main (string[] args) {
     system:println(x2);
 
     // XML interpolated with expressions, using '{{}}' notation. Expression can be a previously defined variable, arithmetic expressions or even a function call. These expressions get evaluated during runtime.
-    string rootTag = "newBook";
+    string rootTag = "{http://ballerina.com/aa}newBook";
     string title = "(Sir)";
 
     xml x3 = xml `<{{rootTag}}>

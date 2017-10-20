@@ -18,7 +18,7 @@ function |combine names| (string |first name|,
     return |first name| + " " + |last name|;
 }
 
-@doc:Description {value:"Struct defined using identifier literals"}
+@doc:Description {value:"Struct defined using identifier literals."}
 struct |person record| {
     string |first name|;
     string |last name|;

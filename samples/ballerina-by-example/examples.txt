@@ -37,8 +37,9 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
-Datatables
+Fork/Join Variable Access
 SQL Connector
+Datatables
 Transactions
 Transform Structs
 Transform JSON
@@ -46,6 +47,7 @@ Strings
 Blob Type
 Date Time
 File API
+Throw
 Try/Catch/Finally
 Base Path and Path
 Query and Path Param
@@ -53,15 +55,12 @@ Content Based Routing
 Header Based Routing
 Produces/Consumes
 HTTP Sessions
-File System Server Connector
-FTP Client Connector
-FTP Server Connector
+HTTP Client Connector
 Log API
 Function Pointers
 Lambda
-WebSocket Basic Endpoint
-WebSocket Basic Functions
-WebSocket Connection Store
-WebSocket Connection Groups
-WebSocket Client Connector
+WebSocket Basic Sample
+WebSocket Chat Application
+WebSocket Proxy Server
 Passthrough
+Mutual SSL

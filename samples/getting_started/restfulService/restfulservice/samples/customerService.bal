@@ -1,29 +1,24 @@
 package restfulservice.samples;
 
-import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
 
 @http:configuration{basePath:"/customerservice"}
 service<http> CustomerMgtService {
 
-    @http:GET{}
-    @http:POST{}
-    resource customers (message m) {
+    @http:resourceConfig {
+        methods:["GET", "POST"]
+    }
+    resource customers (http:Request req, http:Response res) {
         json payload = {};
-        string httpMethod = http:getMethod(m);
+        string httpMethod = req.getMethod();
         if (strings:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Customer": {"ID": "987654", "Name": "ABC PQR","Description": "Sample Customer."}};
-
         }
         else {
             payload = {"Status":"Customer is successfully added."};
-
         }
-        message response = {};
-        messages:setJsonPayload(response, payload);
-        reply response;
-
+        res.setJsonPayload(payload);
+        res.send();
     }
-
 }

@@ -1,3 +1,0 @@
-function structTest() {
-    int struct = {};
-}

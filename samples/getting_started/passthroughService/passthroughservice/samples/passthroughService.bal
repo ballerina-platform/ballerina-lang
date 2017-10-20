@@ -5,13 +5,13 @@ import ballerina.net.http;
 @http:configuration {basePath:"/passthrough"}
 service<http> passthrough {
 
-    @http:GET{}
-    @http:Path {value:"/"}
-    resource passthrough (message m) {
-        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
-        message response = nyseEP.get("/nyseStock/stocks", m);
-        reply response;
-
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/"
     }
-
+    resource passthrough (http:Request req, http:Response resp) {
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090", {});
+        http:Response clientResponse = nyseEP.get("/nyseStock/stocks", req);
+        resp.forward(clientResponse);
+    }
 }
