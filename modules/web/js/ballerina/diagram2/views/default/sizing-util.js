@@ -1541,7 +1541,7 @@ class SizingUtil {
      *
      * @memberof SizingUtil
      */
-    _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 17.33) {
+    _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 18) {
         let height = defaultHeight;
         if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
             TreeUtil.isFunction(node) || TreeUtil.isConnector(node) ||
