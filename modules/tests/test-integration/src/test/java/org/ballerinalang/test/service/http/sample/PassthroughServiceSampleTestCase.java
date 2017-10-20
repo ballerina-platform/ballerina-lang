@@ -49,7 +49,7 @@ public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(balFile);
     }
 
-    @Test(description = "Test Passthrough sample test case invoking base path", enabled = false)
+    @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                 .getServiceURLHttp("passthrough"));
