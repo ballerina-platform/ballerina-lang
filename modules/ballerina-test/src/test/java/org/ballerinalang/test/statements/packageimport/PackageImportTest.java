@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,25 +30,25 @@ public class PackageImportTest {
 
     @Test
     public void testDuplicatePackageImports() {
-        CompileResult result = BTestUtils.compile(
+        CompileResult result = BCompileUtil.compile(
                 "test-src/statements/packageimport/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
+        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
     }
 
     @Test
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
-                BTestUtils.compile("test-src/statements/packageimport/import-same-pkg-with-different-alias.bal");
+                BCompileUtil.compile("test-src/statements/packageimport/import-same-pkg-with-different-alias.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testImportDifferentPkgsWithSameAlias() {
-        CompileResult result = BTestUtils
+        CompileResult result = BCompileUtil
                 .compile("test-src/statements/packageimport/import-different-pkgs-with-same-alias-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BTestUtils.validateError(result, 0, "redeclared symbol 'x'", 4, 1);
-        BTestUtils.validateError(result, 1, "undefined function 'pow'", 8, 5);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 4, 1);
+        BAssertUtil.validateError(result, 1, "undefined function 'pow'", 8, 5);
     }
 }

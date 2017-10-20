@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.connectors.sql;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -35,35 +36,35 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/sql/sql-transactions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql-transactions.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
     @Test
     public void testLocalTransacton() {
-        BValue[] returns = BTestUtils.invoke(result, "testLocalTransacton");
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransacton");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test
     public void testTransactonRollback() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonRollback");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test
     public void testTransactonAbort() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonAbort");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonAbort");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test
     public void testTransactonThrow() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonErrorThrow");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonErrorThrow");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
@@ -71,7 +72,7 @@ public class SQLTransactionsTest {
 
     @Test
     public void testTransactonThrowAndCatch() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactionErrorThrowAndCatch");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactionErrorThrowAndCatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
@@ -79,14 +80,14 @@ public class SQLTransactionsTest {
 
     @Test
     public void testTransactonCommitted() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonCommitted");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonCommitted");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test
     public void testTransactonHandlerOrder() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonHandlerOrder");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonHandlerOrder");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
@@ -94,13 +95,13 @@ public class SQLTransactionsTest {
 
     @Test
     public void testTransactonWithoutHandlers() {
-        BValue[] returns = BTestUtils.invoke(result, "testTransactonWithoutHandlers");
+        BValue[] returns = BRunUtil.invoke(result, "testTransactonWithoutHandlers");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test
     public void testLocalTransactonFailed() {
-        BValue[] returns = BTestUtils.invoke(result, "testLocalTransactionFailed");
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld inAbrt "
                 + "inCatch afterTrx");
@@ -109,7 +110,7 @@ public class SQLTransactionsTest {
 
     @Test
     public void testLocalTransactonSuccessWithFailed() {
-        BValue[] returns = BTestUtils.invoke(result, "testLocalTransactonSuccessWithFailed");
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inCmt afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);

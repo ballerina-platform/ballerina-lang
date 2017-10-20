@@ -16,31 +16,29 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.testutils;
+package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 /**
- * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
+ * {@code BServiceRunHelper} is responsible for initializing an environment for a particular ballerina file.
  */
-public class EnvironmentInitializer {
+public class BServiceUtil {
 
-    public static CompileResult setupProgramFile(String sourcePath, String pkgPath) {
+    public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
         try {
             CompileResult compileResult;
             if (pkgPath == null) {
-                compileResult = BTestUtils.compile(sourcePath);
+                compileResult = BCompileUtil.compile(sourcePath);
             } else {
-                compileResult = BTestUtils.compile(sourcePath, pkgPath);
+                compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
             }
             ProgramFile programFile = compileResult.getProgFile();
             BLangProgramRunner.runService(programFile);
@@ -50,8 +48,8 @@ public class EnvironmentInitializer {
         }
     }
 
-    public static CompileResult setupProgramFile(String sourcePath) {
-        return setupProgramFile(sourcePath, null);
+    public static CompileResult setupProgramFile(Object obj, String sourcePath) {
+        return setupProgramFile(obj, sourcePath, null);
     }
 
     public static void cleanup(CompileResult compileResult) {

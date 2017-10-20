@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,9 +35,9 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join All")
     public void testForkJoinAll() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-in-all.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-in-all.bal");
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testForkJoinAll", args);
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinAll", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BIntArray);
         Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
@@ -46,9 +47,9 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-some.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-some.bal");
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testForkJoinAny", args);
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinAny", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BStringArray);
         Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
@@ -56,9 +57,9 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join All of specific")
     public void testForkJoinAllOfSpecific() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-all-specific.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-all-specific.bal");
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testForkJoinAllOfSpecific", args);
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinAllOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BStringArray);
         Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
@@ -66,9 +67,9 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-any-specific.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-any-specific.bal");
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testForkJoinAnyOfSpecific", args);
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BStringArray);
         Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
@@ -76,8 +77,8 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join Without Timeout Expression")
     public void testForkJoinWithoutTimeoutExpression() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-without-timeout.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testForkJoinWithoutTimeoutExpression");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-without-timeout.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinWithoutTimeoutExpression");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertTrue(returns[1] instanceof BFloat);
@@ -86,7 +87,7 @@ public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join With Workers in same function")
     public void testForkJoinWithWorkersInSameFunction() {
-        CompileResult result = BTestUtils.compile("test-src/workers/fork-join-and-workers-under-same-funtion.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-and-workers-under-same-funtion.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 }

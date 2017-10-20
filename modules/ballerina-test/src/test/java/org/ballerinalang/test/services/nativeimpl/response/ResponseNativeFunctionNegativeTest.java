@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.test.services.nativeimpl.response;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -25,8 +29,6 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,20 +48,20 @@ public class ResponseNativeFunctionNegativeTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile(filePath);
-        resultNegative = BTestUtils.compile(filePathNeg);
+        result = BCompileUtil.compile(filePath);
+        resultNegative = BCompileUtil.compile(filePathNeg);
     }
 
     @Test(description = "Test when the content length header is not set")
     public void testGetContentLength() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
         String error = null;
         try {
-            BTestUtils.invoke(result, "testGetContentLength", inputArg);
+            BRunUtil.invoke(result, "testGetContentLength", inputArg);
         } catch (Throwable e) {
             error = e.getMessage();
         }
@@ -68,26 +70,26 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetHeader() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertNull(((BString) returnVals[0]).value());
     }
 
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
         String error = null;
         try {
-            BTestUtils.invoke(result, "testGetJsonPayload", inputArg);
+            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         } catch (Throwable e) {
             error = e.getMessage();
         }
@@ -97,7 +99,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -109,7 +111,7 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = {request};
         String error = null;
         try {
-            BTestUtils.invoke(result, "testGetJsonPayload", inputArg);
+            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         } catch (Throwable e) {
             error = e.getMessage();
         }
@@ -119,13 +121,13 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetProperty() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BString propertyName = new BString("wso2");
         BValue[] inputArg = {request, propertyName};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetProperty", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BString) returnVals[0]).value(), "");
@@ -133,12 +135,12 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), "");
@@ -146,7 +148,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
@@ -156,7 +158,7 @@ public class ResponseNativeFunctionNegativeTest {
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
@@ -164,14 +166,14 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetXmlPayloadNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
         String error = null;
         try {
-            BTestUtils.invoke(result, "testGetXmlPayload", inputArg);
+            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         } catch (Throwable e) {
             error = e.getMessage();
         }
@@ -181,7 +183,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveHeaderNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
@@ -189,7 +191,7 @@ public class ResponseNativeFunctionNegativeTest {
 
         BString key = new BString("Range");
         BValue[] inputArg = {request, key};
-        BValue[] returnVals = BTestUtils.invoke(result, "testRemoveHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -199,12 +201,12 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveAllHeadersNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
-        BValue[] returnVals = BTestUtils.invoke(result, "testRemoveAllHeaders", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -221,11 +223,11 @@ public class ResponseNativeFunctionNegativeTest {
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         //testResponseSetStatusCodeWithString
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
         //testResponseGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
+        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
         //testResponseGetMethod
-        BTestUtils.validateError(resultNegative, 2,
+        BAssertUtil.validateError(resultNegative, 2,
                                  "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 14, 21);
 
     }

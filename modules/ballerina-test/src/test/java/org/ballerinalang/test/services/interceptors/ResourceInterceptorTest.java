@@ -19,18 +19,20 @@ package org.ballerinalang.test.services.interceptors;
 
 //import org.ballerinalang.runtime.config.BLangConfigurationManager;
 //import org.ballerinalang.runtime.config.ConfigConstants;
+
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
-//import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
-//import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+
+//import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
+//import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 
 //import java.nio.file.NoSuchFileException;
 

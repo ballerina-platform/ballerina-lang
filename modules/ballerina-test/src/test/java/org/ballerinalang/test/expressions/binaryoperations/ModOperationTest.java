@@ -16,11 +16,12 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ public class ModOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/mod-operation.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/mod-operation.bal");
     }
 
     @Test(description = "Test two int mod expression")
@@ -68,7 +69,7 @@ public class ModOperationTest {
 
     private void intMod(int val1, int val2, long expected) {
         BValue[] args = { new BInteger(val1), new BInteger(val2) };
-        BValue[] returns = BTestUtils.invoke(result, "intMod", args);
+        BValue[] returns = BRunUtil.invoke(result, "intMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -79,7 +80,7 @@ public class ModOperationTest {
 
     private void floatMod(float val1, float val2, double expected) {
         BValue[] args = { new BFloat(val1), new BFloat(val2) };
-        BValue[] returns = BTestUtils.invoke(result, "floatMod", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -90,7 +91,7 @@ public class ModOperationTest {
 
     private void intFloatMod(int val1, float val2, double expected) {
         BValue[] args = { new BInteger(val1), new BFloat(val2) };
-        BValue[] returns = BTestUtils.invoke(result, "intFloatMod", args);
+        BValue[] returns = BRunUtil.invoke(result, "intFloatMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -101,7 +102,7 @@ public class ModOperationTest {
 
     private void floatIntMod(float val1, int val2, double expected) {
         BValue[] args = { new BFloat(val1), new BInteger(val2) };
-        BValue[] returns = BTestUtils.invoke(result, "floatIntMod", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatIntMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);

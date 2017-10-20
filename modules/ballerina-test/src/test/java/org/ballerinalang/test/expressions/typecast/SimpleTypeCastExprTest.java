@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +37,7 @@ public class SimpleTypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/typecast/simple-type-cast.bal");
+        result = BCompileUtil.compile("test-src/expressions/typecast/simple-type-cast.bal");
     }
 
     @Test
@@ -81,7 +82,7 @@ public class SimpleTypeCastExprTest {
 
     private void testBooleanToIntCast(Boolean input, long excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
-        BValue[] returns = BTestUtils.invoke(result, functionName, args);
+        BValue[] returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), excepted);
@@ -89,7 +90,7 @@ public class SimpleTypeCastExprTest {
 
     private void testBooleanToFloatCast(Boolean input, double excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
-        BValue[] returns = BTestUtils.invoke(result, functionName, args);
+        BValue[] returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), excepted);
@@ -97,7 +98,7 @@ public class SimpleTypeCastExprTest {
 
     private void testIntToBooleanCast(int input, boolean excepted) {
         BValue[] args = { new BInteger(input) };
-        BValue[] returns = BTestUtils.invoke(result, "intToBooleanExplicit", args);
+        BValue[] returns = BRunUtil.invoke(result, "intToBooleanExplicit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), excepted);
@@ -105,7 +106,7 @@ public class SimpleTypeCastExprTest {
 
     private void testFloatToBooleanCast(float input, boolean excepted) {
         BValue[] args = { new BFloat(input) };
-        BValue[] returns = BTestUtils.invoke(result, "floatToBooleanExplicit", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatToBooleanExplicit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), excepted);
