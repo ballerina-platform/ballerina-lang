@@ -30,6 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code MapType} represents a map.
@@ -42,6 +45,9 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @SuppressWarnings("unchecked")
     private LinkedHashMap<K, V> map;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -67,7 +73,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param value value related to the key
      */
     public void put(K key, V value) {
-        map.put(key, value);
+        writeLock.lock();
+        try {
+            map.put(key, value);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -167,5 +178,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
     }
+
 }
 
