@@ -53,7 +53,7 @@ function testCallProcedure () (string firstName) {
         testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-        testDB.call("{call InsertPersonDataInfo(100,'James')}", null);
+        _ = testDB.call("{call InsertPersonDataInfo(100,'James')}", null);
         datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null);
         TypeCastError err;
         ResultCustomers rs;
