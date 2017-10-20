@@ -18,7 +18,7 @@
 
 import TransformFactory from '../../model/transform-factory';
 
-const operatorStatementCreator = TransformFactory.createOperatorAssignmentStatement
+const operatorStatementCreator = TransformFactory.createOperatorAssignmentStatement;
 
 const getSeperator = id => ({
     id,
@@ -248,4 +248,19 @@ export const unaryOpTools = [
     notOpTool,
     lengthOfOpTool,
     typeOfOpTool,
+];
+
+const ternaryOpTool = {
+    id: 'ternary',
+    name: 'Ternary',
+    icon: 'ternary',
+    title: 'Ternary',
+    factoryArgs: {
+        defaultExpression: 'true ? 0 : 1',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+export const ternaryOpTools = [
+    ternaryOpTool,
 ];

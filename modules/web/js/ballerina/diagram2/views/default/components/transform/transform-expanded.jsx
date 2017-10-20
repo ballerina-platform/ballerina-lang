@@ -198,9 +198,8 @@ class TransformExpanded extends React.Component {
                 this.drawConnection(sourceId, targetId, folded);
             });
         }
-        if (TreeUtil.isInvocation(expression)
-                || TreeUtil.isBinaryExpr(expression)
-                || TreeUtil.isUnaryExpr(expression)) {
+        if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
+            || TreeUtil.isUnaryExpr(expression) || TreeUtil.isTernaryExpr(expression)) {
             this.drawIntermediateNode(variables, expression, statement, isTemp);
         }
     }
@@ -223,6 +222,12 @@ class TransformExpanded extends React.Component {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
             paramExpressions = nodeExpression.argumentExpressions;
+        } else if (TreeUtil.isTernaryExpr(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperatorKind();
+            paramExpressions.push(nodeExpression.getCondition());
+            paramExpressions.push(nodeExpression.getThenExpression());
+            paramExpressions.push(nodeExpression.getElseExpression());
         } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
@@ -1051,10 +1056,26 @@ class TransformExpanded extends React.Component {
                 funcInv: nodeExpression,
             });
             return intermediateNodes;
+        } else if (TreeUtil.isTernaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getCondition(), statement,
+                                            intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getThenExpression(), statement,
+                                            intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getElseExpression(), statement,
+                                            intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
         } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
             this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
-                                                            intermediateNodes, nodeExpression);
+                                                intermediateNodes, nodeExpression);
             this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
                                                 intermediateNodes, nodeExpression);
             intermediateNodes.push({
@@ -1141,7 +1162,8 @@ class TransformExpanded extends React.Component {
 
                 const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, stmt);
 
-                if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression) || TreeUtil.isUnaryExpr(expression)) {
+                if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression) || TreeUtil.isTernaryExpr(expression)) {
                     if (!isTemp) {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
@@ -1196,7 +1218,7 @@ class TransformExpanded extends React.Component {
                 >
                     <div className="middle-content-frame" />
                     <Scrollbars
-                        ref={ scroll => {this.scroll = scroll;} }
+                        ref={(scroll) => { this.scroll = scroll; }}
                         onScroll={this.onConnectionsScroll}
                     >
                         <div

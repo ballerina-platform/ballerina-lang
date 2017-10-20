@@ -305,6 +305,23 @@ class TransformNodeManager {
             };
         }
 
+        if (TreeUtil.isTernaryExpr(operatorExpression)) {
+            parameters[1] = {
+                name: operatorExpression.getID() + ':1',
+                displayName: '',
+                type: 'var',
+                operator: operatorExpression,
+                index: 1,
+            };
+            parameters[2] = {
+                name: operatorExpression.getID() + ':2',
+                displayName: '',
+                type: 'var',
+                operator: operatorExpression,
+                index: 2,
+            };
+        }
+
         returnParams.push({
             name: operatorExpression.getID() + ':0:return',
             displayName: '',

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {unaryOpTools, binaryOpTools} from "../../../../../tool-palette/item-provider/operator-tools";
+import { unaryOpTools, binaryOpTools, ternaryOpTools } from '../../../../../tool-palette/item-provider/operator-tools';
 
 const toolIdOperatorMap = {
     add: '+',
@@ -38,12 +38,13 @@ const toolIdOperatorMap = {
     not: '!',
     lengthof: 'lengthof',
     typeof: 'typeof',
-}
+    ternary: '?:',
+};
 
 const opClassMap = {};
 
-[...unaryOpTools, ...binaryOpTools].forEach(tool => {
+[...unaryOpTools, ...binaryOpTools, ...ternaryOpTools].forEach((tool) => {
     opClassMap[toolIdOperatorMap[tool.id]] = tool.icon;
-})
+});
 
 export default opClassMap;

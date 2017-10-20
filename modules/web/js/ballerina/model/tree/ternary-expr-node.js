@@ -20,6 +20,14 @@ import AbstractTernaryExprNode from './abstract-tree/ternary-expr-node';
 
 class TernaryExprNode extends AbstractTernaryExprNode {
 
+    /**
+     * Get operator kind of ternary expression
+     * @returns {string} operator kind
+     * @memberof TernaryExprNode
+     */
+    getOperatorKind() {
+        return '?:';
+    }
 }
 
 export default TernaryExprNode;
