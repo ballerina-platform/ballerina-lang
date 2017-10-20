@@ -70,17 +70,6 @@ const multiplyOpTool = {
     nodeFactoryMethod: operatorStatementCreator,
 };
 
-const powerOpTool = {
-    id: 'power',
-    name: 'Power',
-    icon: 'power',
-    title: 'Power',
-    factoryArgs: {
-        defaultExpression: '1 ^ 1',
-    },
-    nodeFactoryMethod: operatorStatementCreator,
-};
-
 const modulusOpTool = {
     id: 'modulus',
     name: 'Modulus',
@@ -185,7 +174,6 @@ export const binaryOpTools = [
     subtractOpTool,
     divideOpTool,
     multiplyOpTool,
-    powerOpTool,
     modulusOpTool,
     getSeperator('sep-numeric'),
     lessThanOpTool,
