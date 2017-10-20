@@ -31,7 +31,7 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
+import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION, FORMAT } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
@@ -72,6 +72,20 @@ class BallerinaFileEditor extends React.Component {
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
+
+        // create debounced model update callbacks
+        // we will use this to gracefull update design
+        // view during source view (split mode) changes or redo/undo 
+        const updateUponSourceChange = _.debounce(() => {
+            this.state.isASTInvalid = true;
+            this.update(true);
+        }, 500);
+        const updateUponUndoRedo = _.debounce(() => {
+            this.state.isASTInvalid = true;
+            this.update(true);
+        }, 100);
+
+
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             const originEvtType = evt.originEvt.type;
@@ -95,9 +109,12 @@ class BallerinaFileEditor extends React.Component {
                         this.setState(state);
                     })
                     .catch(error => log.error(error));
+            } else if(originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+                updateUponSourceChange();
+            } else if(originEvtType === UNDO_EVENT || originEvtType === REDO_EVENT) {
+                updateUponUndoRedo();
             } else {
-                // Source was changed due to a source editor
-                // change or undo/redo
+                // upon code format
                 this.state.isASTInvalid = true;
                 this.update(true);
             }
@@ -112,20 +129,12 @@ class BallerinaFileEditor extends React.Component {
         }, this);
         // Format the source code.
         props.commandProxy.on(FORMAT, () => {
-            this.skipLoadingOverlay = true;
-            // we need to fetch a new tree if there are updated content.
-            this.validateAndParseFile()
-                .then((state) => {
-                    this.skipLoadingOverlay = false;
-                    this.setState(state);
-                    const newContent = this.state.model.getSource(true);
-                    // set the underlaying file.
-                    this.props.file.setContent(newContent, {
-                        type: CHANGE_EVT_TYPES.CODE_FORMAT,
-                    });
-                })
-                .catch(error => log.error(error)); // if error we need to display a message.
-        }, this);
+            const newContent = this.state.model.getSource(true);
+            // set the underlaying file.
+            this.props.file.setContent(newContent, {
+                type: CHANGE_EVT_TYPES.CODE_FORMAT,
+            });
+        });
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
     }
@@ -386,14 +395,14 @@ class BallerinaFileEditor extends React.Component {
         const newBreakpoints = syncBreakpoints.getBreakpoints();
         this.updateBreakpoints(newBreakpoints, newAST);
     }
-    
+
     /**
      * Update environment object with updated current package info
      * @param {PackageScopedEnvironment} environment Package scoped environment
      * @param {Object} currentPackageInfo Updated current package information
      */
     updateEnvironment(environment, currentPackageInfo) {
-        if (currentPackageInfo){
+        if (currentPackageInfo) {
             const pkg = BallerinaEnvFactory.createPackage();
             pkg.initFromJson(currentPackageInfo);
             environment.setCurrentPackage(pkg);
@@ -459,7 +468,8 @@ class BallerinaFileEditor extends React.Component {
      */
     openDocumentation(packageName, symbolName) {
         this.props.commandProxy.dispatch(LAYOUT_COMMANDS.SHOW_VIEW,
-            { id: DOC_VIEW_ID,
+            {
+                id: DOC_VIEW_ID,
                 additionalProps: {
                     packageName, symbolName,
                 },
