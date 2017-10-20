@@ -122,7 +122,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolEnv env;
     public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
 
-    private BLangPackageDeclaration currentPkgDecl = null;;
+    private BLangPackageDeclaration currentPkgDecl = null;
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -501,14 +501,12 @@ public class SymbolEnter extends BLangNodeVisitor {
      * @param compUnit current compilation unit
      */
     private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit, PackageID pkgId) {
-        // TODO Check whether package in 'compUnit' is equal to the package in 'pkgNode'
-
         // TODO If the pkgID is null, then assign an unnamed package/default package.
-        compUnit.getTopLevelNodes().forEach(node -> addTopLevelNode(pkgNode, node, pkgId));
+        compUnit.getTopLevelNodes().forEach(node -> addTopLevelNode(pkgNode, node));
         validatePackageDecl(pkgId, pkgNode, compUnit);
     }
 
-    private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node, PackageID pkgId) {
+    private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node) {
         NodeKind kind = node.getKind();
 
         // Here we keep all the top-level nodes of a compilation unit (aka file) in exact same
@@ -866,8 +864,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     /**
-     * Validate the package declaration of the current compilation unit. Update the package declaration
-     * of the package node Only if the current package declaration is a valid one.
+     * Validate the package declaration of the current compilation unit. Updates the package declaration
+     * of the package node only if the current package declaration is a valid one.
      * 
      * @param pkgId Current package ID
      * @param pkgNode Current package node

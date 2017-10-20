@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,7 +61,6 @@ public class PackageLoader {
     private Parser parser;
     private SymbolEnter symbolEnter;
     private Names names;
-    private DiagnosticLog dlog;
 
     private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
@@ -83,7 +81,6 @@ public class PackageLoader {
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
 
         this.packages = new HashMap<>();
         loadPackageRepository(context);
