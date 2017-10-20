@@ -844,7 +844,7 @@ class TransformExpanded extends React.Component {
      * Load vertices of the transform graph.
      * @memberof TransformExpanded
      */
-    loadVertices() {
+    loadVertices(callback) {
         getLangServerClientInstance().then((langServerClient) => {
             const vertices = [];
 
@@ -931,6 +931,9 @@ class TransformExpanded extends React.Component {
                 // set state with new vertices
                 if (!_.isEqual(vertices, this.state.vertices)) {
                     this.setState({ vertices });
+                }
+                if (callback) {
+                    callback();
                 }
             });
         }).catch((error) => {
@@ -1105,7 +1108,8 @@ class TransformExpanded extends React.Component {
 
     updateVariable(varName, statementString, type) {
         if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type)) {
-            this.loadVertices();
+            this.isUpdatingVertices = true;
+            this.loadVertices(() => { this.isUpdatingVertices = false; });
             return true;
         } else {
             this.context.alert.showError('Invalid value for variable');
@@ -1130,7 +1134,7 @@ class TransformExpanded extends React.Component {
         if (this.state.vertices.length > 0) {
             inputNodes.forEach((input) => {
                 const sourceSelection = _.find(vertices, { name: input });
-                if (_.isUndefined(sourceSelection)) {
+                if (_.isUndefined(sourceSelection) && !this.isUpdatingVertices) {
                     this.context.alert.showError('Mapping source "' + name + '" cannot be found');
                     return;
                 }
