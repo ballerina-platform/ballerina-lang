@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.test.statements.expressionstmt;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,29 +31,29 @@ public class ExpressionStmtTest {
 
     @Test
     public void testIgnoredAssignment() {
-        CompileResult result = BTestUtils.compile("test-src/statements/expression/ignore-values-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/expression/ignore-values-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BTestUtils.validateError(result, 0, "variable assignment is required", 19, 5);
-        BTestUtils.validateError(result, 1, "variable assignment is required", 20, 5);
+        BAssertUtil.validateError(result, 0, "variable assignment is required", 19, 5);
+        BAssertUtil.validateError(result, 1, "variable assignment is required", 20, 5);
     }
 
     @Test
     public void testInvalidStatements() {
-        CompileResult result = BTestUtils.compile("test-src/statements/expression/expression-stmt-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
-        BTestUtils.validateError(result, 0, "undefined symbol 'continue'", 7, 13);
-        BTestUtils.validateError(result, 1, "undefined symbol 'foo'", 14, 5);
-        BTestUtils.validateError(result, 2, "undefined function 'bar'", 15, 5);
-        BTestUtils.validateError(result, 3, "variable assignment is required", 16, 5);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'continue'", 7, 13);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'foo'", 14, 5);
+        BAssertUtil.validateError(result, 2, "undefined function 'bar'", 15, 5);
+        BAssertUtil.validateError(result, 3, "variable assignment is required", 16, 5);
     }
 
     @Test
     public void testInvalid2Statements() {
-        CompileResult result = BTestUtils.compile("test-src/statements/expression/expression-stmt2-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt2-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BTestUtils.validateError(result, 0, "invalid token ';'", 3, 14);
-        BTestUtils.validateError(result, 1, "invalid token ';'", 5, 14);
-        BTestUtils.validateError(result, 2, "invalid token ';'", 7, 24);
+        BAssertUtil.validateError(result, 0, "invalid token ';'", 3, 14);
+        BAssertUtil.validateError(result, 1, "invalid token ';'", 5, 14);
+        BAssertUtil.validateError(result, 2, "invalid token ';'", 7, 24);
     }
 
 }
