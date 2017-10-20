@@ -1,5 +1,4 @@
-.hidden-indicator {
-    font-size: 25px;
+.hidden-code {
     cursor: pointer;
-    fill: #0070af;
+    fill: #AAA;
 }

@@ -50,15 +50,14 @@ class Hidden extends React.Component {
         return (
             <g>
                 <g className="statement-body">
-                    <text x={textX} y={textY} className="hidden-indicator">
-                        &#8801;
+                    <rect x={textX - 30} y={textY - 15} width="80" height="15" style={{ fill: '#FFF', strokeWidth: 0 }} />
+                    <text x={textX - 30} y={textY - 3} className="hidden-code">
+                        Hidden Code
                     </text>
                 </g>
             </g>);
     }
 
 }
-
-
 
 export default Hidden;
