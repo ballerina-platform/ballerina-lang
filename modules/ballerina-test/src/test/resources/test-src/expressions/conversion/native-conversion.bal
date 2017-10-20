@@ -636,3 +636,10 @@ function testEmptyMaptoStructWithoutDefaults () (StructWithoutDefaults) {
 
     return testStruct;
 }
+
+function testSameTypeConversion() (int) {
+    float f = 10.05;
+    var i= <int> f;
+    i = <int>i;
+    return i;
+}
