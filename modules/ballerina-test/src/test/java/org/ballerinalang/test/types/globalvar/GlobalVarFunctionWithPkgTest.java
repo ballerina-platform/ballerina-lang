@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.types.globalvar;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,12 +38,12 @@ public class GlobalVarFunctionWithPkgTest {
     
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variabledef", "globalvar.pkg.main");
+        result = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalvar.pkg.main");
     }
 
     @Test(description = "Test accessing global variables defined in other packages")
     public void testAccessingGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(result, "getGlobalVars", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVars", new BValue[0]);
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -57,15 +58,16 @@ public class GlobalVarFunctionWithPkgTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         BValue[] args = {new BInteger(88)};
-        BValue[] returns = BTestUtils.invoke(result, "changeGlobalVar", args);
+        BValue[] returns = BRunUtil.invoke(result, "changeGlobalVar", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
-        CompileResult resultGlobalVar = BTestUtils.compile("test-src/statements/variabledef", "globalvar.pkg.main");
-        BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar", new BValue[0]);
+        CompileResult resultGlobalVar = BCompileUtil.compile(this, "test-src/statements/variabledef",
+                "globalvar.pkg.main");
+        BValue[] returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new BValue[0]);
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
@@ -75,7 +77,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning global variable to another global variable in different package")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(result, "getAssignedGlobalVarFloat", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "getAssignedGlobalVarFloat", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -86,7 +88,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning function invocation to global variable")
     public void testAssignFuncInvocationToGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(result, "getGlobalVarInt", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarInt", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -98,8 +100,8 @@ public class GlobalVarFunctionWithPkgTest {
     @Test(description = "Test retrieving variable from different package when that package is already initialized " +
             "within another package")
     public void testRetrievingVarFromDifferentPkg() {
-        CompileResult result = BTestUtils.compile("test-src/statements/variabledef", "globalvar.pkg.abc");
-        BValue[] returns = BTestUtils.invoke(result, "getStringInPkg", new BValue[0]);
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalvar.pkg.abc");
+        BValue[] returns = BRunUtil.invoke(result, "getStringInPkg", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

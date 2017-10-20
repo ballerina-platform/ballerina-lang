@@ -17,13 +17,15 @@
 */
 package org.ballerinalang.test.statements.trycatch;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,14 +41,14 @@ public class TryCatchThrowStmtTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/trycatch/try-catch-stmt.bal");
-        compileResultNegative = BTestUtils.compile("test-src/statements/trycatch/try-catch-finally-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/trycatch/try-catch-stmt.bal");
+        compileResultNegative = BCompileUtil.compile("test-src/statements/trycatch/try-catch-finally-negative.bal");
     }
 
     @Test(description = "Test try block execution.")
     public void testTryCatchStmt() {
         BValue[] args = {new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -58,7 +60,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution.")
     public void testTryCatchWithThrow() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -70,7 +72,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution, where thrown exception is caught using equivalent catch block ")
     public void testTryCatchEquivalentCatch() {
         BValue[] args = {new BInteger(-1)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -82,7 +84,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test throw statement in a function.")
     public void testTryCatch() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testFunctionThrow", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFunctionThrow", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -95,13 +97,13 @@ public class TryCatchThrowStmtTest {
             "error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
-        BTestUtils.invoke(compileResult, "testUncaughtException", args);
+        BRunUtil.invoke(compileResult, "testUncaughtException", args);
     }
 
     @Test(description = "Test getStack trace of an error in a function.")
     public void testGetStackTrace() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testStackTrace", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStackTrace", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -117,7 +119,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test scope issue when using try catch inside while loop")
     public void testScopeIssueInTryCatch() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "scopeIssueTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "scopeIssueTest", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -129,7 +131,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test try statement within while block")
     public void testIssueWhenTryWithinWhile() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTryWithinWhile", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTryWithinWhile", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -143,27 +145,29 @@ public class TryCatchThrowStmtTest {
             expectedExceptionsMessageRegExp = ".*error: error, message: test.*")
     public void testMethodCallInFinally() {
         BValue[] args = {};
-        BTestUtils.invoke(compileResult, "testMethodCallInFinally", args);
+        BRunUtil.invoke(compileResult, "testMethodCallInFinally", args);
     }
 
     @Test()
     public void testDuplicateExceptionVariable() {
-        BTestUtils.validateError(compileResultNegative, 0, "redeclared symbol 'e'", 5, 9);
+        BAssertUtil.validateError(compileResultNegative, 0, "redeclared symbol 'e'", 5, 9);
     }
 
     @Test()
     public void testInvalidThrow() {
-        BTestUtils.validateError(compileResultNegative, 1, "incompatible types: expected 'error', found 'int'", 12, 11);
+        BAssertUtil.validateError(compileResultNegative, 1, "incompatible types: expected 'error', found 'int'",
+                12, 11);
     }
 
     @Test()
     public void testInvalidFunctionThrow() {
-        BTestUtils.validateError(compileResultNegative, 2, "incompatible types: expected 'error', found 'int'", 16, 11);
+        BAssertUtil.validateError(compileResultNegative, 2, "incompatible types: expected 'error', found 'int'",
+                16, 11);
     }
 
     @Test()
     public void testDuplicateCatchBlock() {
-        BTestUtils.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 39, 14);
+        BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 39, 14);
     }
 
 }

@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +52,7 @@ public class SystemTest {
     public void setup() {
 //        rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         original = System.out;
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/systemTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/systemTest.bal");
 //        rootLogger.().getLogger("org.ballerinalang.nativeimpl.model.system")
 //                .setLevel(Level.ALL);
     }
@@ -71,7 +72,7 @@ public class SystemTest {
             final String expected = s1 + "\n" + s2;
 
             BValueType[] args = {new BString(s1), new BString(s2)};
-            BTestUtils.invoke(compileResult, printFuncName + "String", args);
+            BRunUtil.invoke(compileResult, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -83,7 +84,7 @@ public class SystemTest {
     public void testSleep() {
         BValueType[] args = {new BInteger(5000)};
         long start = System.currentTimeMillis();
-        BTestUtils.invoke(compileResult, "testSleep", args);
+        BRunUtil.invoke(compileResult, "testSleep", args);
         long end = System.currentTimeMillis();
         Assert.assertTrue(end - start >= 5000);
     }
@@ -98,7 +99,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BInteger(v1), new BInteger(v2)};
-            BTestUtils.invoke(compileResult, printFuncName + "Int", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -116,7 +117,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BFloat(v1), new BFloat(v2)};
-            BTestUtils.invoke(compileResult, printFuncName + "Float", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -134,7 +135,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BBoolean(v1), new BBoolean(v2)};
-            BTestUtils.invoke(compileResult, printFuncName + "Boolean", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -145,7 +146,7 @@ public class SystemTest {
     @Test
     public void testFunctionTimes() {
         BValue[] args = {};
-        BValue[] bValues = BTestUtils.invoke(compileResult, "testTimeFunctions", args);
+        BValue[] bValues = BRunUtil.invoke(compileResult, "testTimeFunctions", args);
         // We are not expecting boolean log in event list.
         Assert.assertEquals(bValues.length, 3, "Return values didn't match.");
         Assert.assertTrue(bValues[0] != null);
@@ -156,7 +157,7 @@ public class SystemTest {
     @Test
     public void testFunctionDate() {
         BValue[] args = {};
-        BValue[] bValues = BTestUtils.invoke(compileResult, "testDateFunction", args);
+        BValue[] bValues = BRunUtil.invoke(compileResult, "testDateFunction", args);
         // We are not expecting boolean log in event list.
         Assert.assertEquals(bValues.length, 1, "Return values didn't match.");
         Assert.assertTrue(bValues[0] != null);
@@ -170,7 +171,7 @@ public class SystemTest {
             out = new ByteArrayOutputStream();
             System.setOut(new PrintStream(out));
             BValue[] args = {};
-            BTestUtils.invoke(compileResult, "printNewline", args);
+            BRunUtil.invoke(compileResult, "printNewline", args);
             String outPut = out.toString();
             Assert.assertNotNull(outPut, "string is not printed");
             //getting the last new line character
@@ -193,7 +194,7 @@ public class SystemTest {
             System.setOut(new PrintStream(outContent));
             final String pathValue = System.getenv("PATH");
             BValueType[] args = {new BString("PATH")};
-            BTestUtils.invoke(compileResult, "getEnvVar", args);
+            BRunUtil.invoke(compileResult, "getEnvVar", args);
             Assert.assertEquals(outContent.toString(), pathValue);
         } finally {
             System.setOut(original);

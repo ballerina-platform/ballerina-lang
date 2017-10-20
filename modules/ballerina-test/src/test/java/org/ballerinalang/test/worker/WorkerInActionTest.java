@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,19 +33,19 @@ public class WorkerInActionTest {
 
     @BeforeClass()
     public void setup() {
-        this.result = BTestUtils.compile("test-src/workers/worker-in-action.bal");
+        this.result = BCompileUtil.compile("test-src/workers/worker-in-action.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction1");
+        BValue[] returns = BRunUtil.invoke(result, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "result from sampleWorker");
     }
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction2");
+        BValue[] returns = BRunUtil.invoke(result, "testAction2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "request");
     }

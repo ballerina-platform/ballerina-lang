@@ -16,8 +16,9 @@
  */
 package org.ballerinalang.test.statements.vardeclr;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,9 +31,9 @@ public class VarDeclrSemanticTest {
 
     @Test
     public void varDeclrTest() {
-        CompileResult result = BTestUtils.compile("test-src/statements/vardeclr/varDef-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/varDef-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(result.getWarnCount(), 0);
-        BTestUtils.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);
     }
 }

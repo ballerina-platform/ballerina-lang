@@ -16,11 +16,12 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,51 +35,51 @@ public class BasicWorkerTest {
     
     @BeforeClass
     public void setup() {
-        this.result = BTestUtils.compile("test-src/workers/basic-worker-actions.bal");
+        this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
     
     @Test
     public void workerDeclTest() {
-        BTestUtils.invoke(result, "workerDeclTest", new BValue[0]);
+        BRunUtil.invoke(result, "workerDeclTest", new BValue[0]);
     }
     
     @Test
     public void simpleWorkerMessagePassingTest() {
-        BTestUtils.invoke(result, "simpleWorkerMessagePassingTest", new BValue[0]);
+        BRunUtil.invoke(result, "simpleWorkerMessagePassingTest", new BValue[0]);
     }
     
     @Test
     public void basicForkJoinTest() {
-        BValue[] vals = BTestUtils.invoke(result, "basicForkJoinTest", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "basicForkJoinTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
     }
     
     @Test
     public void forkJoinWithMessageParsingTest() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMessageParsingTest", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMessageParsingTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
     @Test
     public void forkJoinWithSingleForkMessages() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSingleForkMessages", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSingleForkMessages", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
     @Test
     public void forkJoinWithMultipleForkMessages() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMultipleForkMessages", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMultipleForkMessages", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
     @Test
     public void forkJoinWithSomeJoin() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeJoin", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeJoin", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -87,7 +88,7 @@ public class BasicWorkerTest {
     
     @Test
     public void workerReturnTest() {
-        BValue[] vals = BTestUtils.invoke(result, "workerReturnTest", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 50);
