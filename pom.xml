@@ -132,6 +132,7 @@
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <!--Exclude generated sources-->
                             <excludes>**/util/parser/*</excludes>
+                            <excludes>org/ballerinalang/testerina/generated/providers/*</excludes>
                         </configuration>
                         <goals>
                             <goal>check</goal>
