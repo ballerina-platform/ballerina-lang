@@ -20,6 +20,8 @@ export const PLUGIN_ID = 'composer.plugin.lang.ballerina';
 
 export const EDITOR_ID = 'composer.editor.ballerina';
 
+export const DOC_VIEW_ID = 'composer.view.ballerina.docs';
+
 export const COMMANDS = {
     DIAGRAM_MODE_CHANGE: 'diagram-mode-change',
 };

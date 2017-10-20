@@ -18,10 +18,12 @@
 
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { REGIONS } from 'core/layout/constants';
 import SourceEditor from 'ballerina/views/source-editor';
 import { CLASSES } from 'ballerina/views/constants';
 import Editor from './editor/Editor';
-import { PLUGIN_ID, EDITOR_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
+import Document from 'docerina/document.jsx';
+import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
 
 /**
  * Plugin for Ballerina Lang
@@ -40,7 +42,7 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS, TOOLS } = CONTRIBUTIONS;
+        const { EDITORS, TOOLS, VIEWS } = CONTRIBUTIONS;
         return {
             [EDITORS]: [
                 {
@@ -104,6 +106,20 @@ class BallerinaPlugin extends Plugin {
                     description: 'Compact View',
                 },
             ],
+            [VIEWS]: [
+                {
+                    id: DOC_VIEW_ID,
+                    component: Document,
+                    propsProvider: () => {
+                        return {}
+                    },
+                    region: REGIONS.EDITOR_TABS,
+                    regionOptions: {
+                        tabTitle: 'docs',
+                    },
+                    displayOnLoad: false,
+                },
+            ]
         };
     }
 

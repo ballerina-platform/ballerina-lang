@@ -16,6 +16,8 @@
  * under the License.
  */
 import React from 'react';
+import './document.css';
+import { getServiceEndpoint } from 'api-client/api-client';
 
 /**
  * Document for the given package or package related functions.
@@ -29,8 +31,8 @@ class Document extends React.Component {
      * @return {object} documentation for the given package.
      * */
     render() {
-        let source = "/docs/api/" + this.props.packageName + ".html" +
-            (this.props.functionName ? '#' + this.props.functionName : '');
+        let source = `${getServiceEndpoint('documentation')}/${this.props.packageName}.html` +
+            (this.props.symbolName ? '#' + this.props.symbolName : '');
 
         return (<div className='initial-doc-background-container'>
             <iframe className='docerina-page'
