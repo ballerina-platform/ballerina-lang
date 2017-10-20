@@ -79,9 +79,9 @@ public class PackageImportTest {
     public void testInalidPackageDeclrInMultipleSources() {
         CompileResult result = BCompileUtil.compile(this, "test-src/statements/package/", "p.q");
         Assert.assertEquals(result.getDiagnostics().length, 4);
-        BAssertUtil.validateError(result, 0, "invalid package declaration: expected 'p.q', found 'p.q.r'", 1, 1);
-        BAssertUtil.validateError(result, 1, "missing package declaration: expected 'p.q'", 1, 1);
-        BAssertUtil.validateError(result, 2, "invalid package declaration: expected 'x.y', found 'x.y.z'", 1, 1);
-        BAssertUtil.validateError(result, 3, "missing package declaration: expected 'x.y'", 1, 1);
+        BAssertUtil.validateError(result, 0, "missing package declaration: expected 'p.q'", 1, 1);
+        BAssertUtil.validateError(result, 1, "invalid package declaration: expected 'p.r', found 'p.q.r'", 1, 1);
+        BAssertUtil.validateError(result, 2, "missing package declaration: expected 'x.y'", 1, 1);
+        BAssertUtil.validateError(result, 3, "invalid package declaration: expected 'x.z', found 'x.y.z'", 1, 1);
     }
 }
