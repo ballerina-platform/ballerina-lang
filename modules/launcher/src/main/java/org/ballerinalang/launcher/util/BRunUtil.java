@@ -25,6 +25,8 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Utility methods for run Ballerina functions.
+ *
+ * @since 0.94
  */
 public class BRunUtil {
     /**

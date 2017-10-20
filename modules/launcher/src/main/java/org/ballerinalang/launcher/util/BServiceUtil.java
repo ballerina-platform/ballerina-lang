@@ -25,10 +25,20 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 /**
- * {@code BServiceRunHelper} is responsible for initializing an environment for a particular ballerina file.
+ * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.
+ *
+ * @since 0.94
  */
 public class BServiceUtil {
 
+    /**
+     * Helper method to setup program file for tests.
+     *
+     * @param obj to find the source location of the original caller.
+     * @param sourcePath source file path.
+     * @param pkgPath package path.
+     * @return compileResult of the compilation.
+     */
     public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
@@ -48,6 +58,13 @@ public class BServiceUtil {
         }
     }
 
+    /**
+     * Helper method to setup a Ballerina file for test.
+     *
+     * @param obj to find the source location of the original caller.
+     * @param sourcePath of the file.
+     * @return compileResult of the compilation.
+     */
     public static CompileResult setupProgramFile(Object obj, String sourcePath) {
         return setupProgramFile(obj, sourcePath, null);
     }

@@ -22,6 +22,8 @@ import org.testng.Assert;
 
 /**
  * Utility methods for do result validations.
+ *
+ * @since 0.94
  */
 public class BAssertUtil {
     /**

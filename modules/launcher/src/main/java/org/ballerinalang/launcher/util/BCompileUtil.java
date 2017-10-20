@@ -70,6 +70,7 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the source packages
      * @param packageName name of the package to compile
      * @return Semantic errors
