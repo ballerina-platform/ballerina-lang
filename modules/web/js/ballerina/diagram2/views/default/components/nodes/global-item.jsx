@@ -77,12 +77,15 @@ export default class GlobalDefinitionItem extends React.Component {
 
     setEditedSource(value) {
         const oldNode = this;
+        // Remove the semicolon if its already there
+        if (value.endsWith(';')) {
+            value = value.replace(';', '');
+        }
         value += ';\n';
         parseContent(value)
             .then((jsonTree) => {
                 if (jsonTree.model.topLevelNodes[0]) {
-                    this.parent.removeTopLevelNodes(oldNode);
-                    this.parent.addTopLevelNodes(
+                    this.parent.replaceTopLevelNodes(oldNode,
                         TreeBuilder.build(jsonTree.model.topLevelNodes[0], this.parent, this.parent.kind));
                 }
             })
