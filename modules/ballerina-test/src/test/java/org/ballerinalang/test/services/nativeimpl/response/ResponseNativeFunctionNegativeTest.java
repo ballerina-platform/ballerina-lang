@@ -26,7 +26,6 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.utils.BTestUtils;
@@ -263,10 +262,10 @@ public class ResponseNativeFunctionNegativeTest {
                 .contains("failed to forward: empty response parameter"));
     }
 
-    @Test(description = "test declaration of two response method. Error is shown in the console")
+    @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
     public void testRedeclarationOfTwoResponseMethods() {
         String path = "/hello/15";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
