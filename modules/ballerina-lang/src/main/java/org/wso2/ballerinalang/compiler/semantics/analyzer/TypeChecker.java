@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -534,32 +533,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(castExpr.typeNode, env);
         BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        if (sourceType == symTable.errType || targetType == symTable.errType) {
-            resultTypes = Lists.of(symTable.errType);
-            return;
-        }
-        BSymbol symbol;
-        if (targetType == sourceType) {
-            List<BType> paramTypes = Lists.of(sourceType, targetType);
-            List<BType> retTypes = Lists.of(targetType, this.symTable.errTypeCastType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-            BCastOperatorSymbol opSymbol = new BCastOperatorSymbol(this.symTable.rootPkgSymbol.pkgID,
-                    opType, this.symTable.rootPkgSymbol,
-                    false, true, InstructionCodes.NOP);
-            opSymbol.kind = SymbolKind.CAST_OPERATOR;
-            symbol = opSymbol;
-        } else {
-            // Lookup type explicit cast operator symbol
-            symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
-        }
-
+        // Lookup type explicit cast operator symbol
+        BSymbol symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
             BSymbol conversionSymbol = symResolver.resolveConversionOperator(sourceType, targetType);
             if (conversionSymbol == symTable.notFoundSymbol) {
                 dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
             } else {
                 dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION,
-                           sourceType, targetType);
+                        sourceType, targetType);
             }
         } else {
             BCastOperatorSymbol castSym = (BCastOperatorSymbol) symbol;
@@ -577,20 +559,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        BSymbol symbol;
-        if (sourceType == targetType) {
-            List<BType> paramTypes = Lists.of(sourceType, targetType);
-            List<BType> retTypes = Lists.of(targetType, this.symTable.errTypeConversionType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-            BConversionOperatorSymbol opSymbol = new BConversionOperatorSymbol(this.symTable.rootPkgSymbol.pkgID,
-                    opType, this.symTable.rootPkgSymbol, true, InstructionCodes.NOP);
-            opSymbol.kind = SymbolKind.CONVERSION_OPERATOR;
-            symbol = opSymbol;
-        } else {
-            // Lookup type conversion operator symbol
-            symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-        }
-
+        // Lookup type conversion operator symbol
+        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
             BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
             if (castSymbol == symTable.notFoundSymbol) {
@@ -690,7 +660,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Visit the tag names
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
-        
+
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
@@ -764,7 +734,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void setExprType(BLangExpression expr, List<BType> expTypes) {
         int expected = expTypes.size();
-        if (expr.isMultiReturnExpr()) {
+        if (expr instanceof MultiReturnExpr) {
             MultiReturnExpr multiReturnExpr = (MultiReturnExpr) expr;
             multiReturnExpr.setTypes(resultTypes);
         } else {
@@ -822,6 +792,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes = getListWithErrorTypes(expected);
         if (conversionSymbol.safe && expected == 1) {
             actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
+
         } else if (!conversionSymbol.safe && expected == 1) {
             dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
 
@@ -1146,7 +1117,7 @@ public class TypeChecker extends BLangNodeVisitor {
     /**
      * Concatenate the consecutive text type nodes, and get the reduced set of children.
      *
-     * @param exprs Child nodes
+     * @param exprs         Child nodes
      * @param xmlElementEnv
      * @return Reduced set of children
      */

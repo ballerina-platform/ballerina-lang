@@ -536,3 +536,10 @@ function testAnyNullToStringWithErrors()(string, TypeCastError) {
 
     return s, err;
 }
+
+function testSameTypeCast() (int) {
+    int a = 10;
+
+    int b = (int) a;
+    return b;
+}
