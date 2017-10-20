@@ -25,12 +25,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to add given header to carbon message.
- * ballerina.model.messages:addHeader
+ * Native function to send response back to the caller.
+ *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
@@ -46,6 +47,8 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
+        HttpUtil.methodInvocationCheck(responseStruct);
+        HttpUtil.operationNotAllowedCheck(responseStruct);
         context.getConnectorFuture().notifyReply(responseStruct);
         return VOID_RETURN;
     }

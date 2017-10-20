@@ -519,6 +519,17 @@ public class ResponseNativeFunctionSuccessTest {
                 , "Payload is not set properly");
     }
 
+    @Test
+    public void testForwardMethod() {
+        String path = "/hello/14";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "hello"
+                , "Payload is not set properly");
+    }
+
     @AfterClass
     public void tearDown() {
         BServiceUtil.cleanup(serviceResult);

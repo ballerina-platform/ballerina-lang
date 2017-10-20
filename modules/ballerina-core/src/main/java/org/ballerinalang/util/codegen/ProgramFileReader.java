@@ -338,6 +338,9 @@ public class ProgramFileReader {
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
+        // Read connector info entries
+        readConnectorActionInfoEntries(dataInStream, packageInfo);
+
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
@@ -429,7 +432,25 @@ public class ProgramFileReader {
             // Set connector type
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
+        }
 
+        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
+            switch (cpEntry.getEntryType()) {
+                case CP_ENTRY_TYPE_REF:
+                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
+                    String typeSig = typeRefCPEntry.getTypeSig();
+                    BType bType = getBTypeFromDescriptor(typeSig);
+                    typeRefCPEntry.setType(bType);
+                    break;
+            default:
+                break;
+            }
+        }
+    }
+
+    private void readConnectorActionInfoEntries(DataInputStream dataInStream,
+                                          PackageInfo packageInfo) throws IOException {
+        for (ConnectorInfo connectorInfo : packageInfo.getConnectorInfoEntries()) {
             // Read action info entries
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -480,19 +501,6 @@ public class ProgramFileReader {
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
-        }
-
-        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
-            switch (cpEntry.getEntryType()) {
-                case CP_ENTRY_TYPE_REF:
-                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
-                    String typeSig = typeRefCPEntry.getTypeSig();
-                    BType bType = getBTypeFromDescriptor(typeSig);
-                    typeRefCPEntry.setType(bType);
-                    break;
-            default:
-                break;
-            }
         }
     }
 

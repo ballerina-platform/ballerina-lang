@@ -324,11 +324,10 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
-
-        Assert.assertNull(response.getHeader(Constants.ALLOW));
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+                "no matching resource found for path : /noResource , method : OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request with wildcard")

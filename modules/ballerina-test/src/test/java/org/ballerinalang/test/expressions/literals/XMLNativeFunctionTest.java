@@ -1687,4 +1687,17 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
+
+    @Test
+    public void testParseXMLElementWithXMLDeclrEntity() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseXMLElementWithXMLDeclrEntity");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root>hello world</root>");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: failed to parse xml: Unexpected EOF in prolog.*")
+    public void testParseXMLCommentWithXMLDeclrEntity() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
+    }
 }
