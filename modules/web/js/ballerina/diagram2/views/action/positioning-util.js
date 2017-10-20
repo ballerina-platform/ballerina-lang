@@ -18,10 +18,72 @@
 
 import _ from 'lodash';
 import DefaultPositioningUtil from '../default/positioning-util';
+import TreeUtil from './../../../model/tree-util';
 
 class PositioningUtil extends DefaultPositioningUtil {
 
+    /**
+     * Calculate position of Break nodes.
+     *
+     * @param {object} node Break object
+     */
+    positionBreakNode(node) {
+        // do nothing.
+    }
 
+    /**
+     * Calculate position of Next nodes.
+     *
+     * @param {object} node
+     *
+     */
+    positionNextNode(node) {
+        // do nothing
+    }
+
+    /**
+     * Calculate position of ExpressionStatement nodes.
+     *
+     * @param {object} node
+     *
+     */
+    positionExpressionStatementNode(node) {
+        if (TreeUtil.statementIsInvocation(node)) {
+            super.positionExpressionStatementNode(node);
+        }
+    }
+
+    /**
+     * Calculate position of Return nodes.
+     *
+     * @param {object} node
+     *
+     */
+    positionReturnNode(node) {
+        // do nothing
+    }
+
+    /**
+     * Calculate position of Throw nodes.
+     *
+     * @param {object} node
+     *
+     */
+    positionThrowNode(node) {
+        // do nothing
+    }
+
+    /**
+     * Calculate position of VariableDef nodes.
+     *
+     * @param {object} node
+     *
+     */
+    positionVariableDefNode(node) {
+        if (TreeUtil.statementIsInvocation(node)) {
+            super.positionVariableDefNode(node);
+        }
+    }
 }
 
 export default PositioningUtil;

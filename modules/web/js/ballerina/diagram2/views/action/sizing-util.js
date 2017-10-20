@@ -18,9 +18,89 @@
 
 import _ from 'lodash';
 import DefaultSizingUtil from '../default/sizing-util';
+import TreeUtil from './../../../model/tree-util';
 
 class SizingUtil extends DefaultSizingUtil {
 
+    hideStatement(node) {
+        if (!TreeUtil.statementIsInvocation(node)) {
+            const viewState = node.viewState;
+            viewState.hidden = true;
+            viewState.bBox.h = 0;
+            viewState.components = {};
+        }
+    }
+
+    /**
+     * Calculate dimention
+     *  of Break nodes.
+     *
+     * @param {object} node
+     */
+    sizeBreakNode(node) {
+        super.sizeBreakNode(node);
+        this.hideStatement(node);
+    }
+
+    /**
+     * Calculate dimention of Next nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeNextNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+        this.hideStatement(node);
+    }
+
+    /**
+     * Calculate dimention of ExpressionStatement nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeExpressionStatementNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+        this.hideStatement(node);
+    }
+
+    /**
+     * Calculate dimention of Return nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeReturnNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+        this.hideStatement(node);
+    }
+
+    /**
+     * Calculate dimention of Throw nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeThrowNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+        this.hideStatement(node);
+    }
+
+    /**
+     * Calculate dimention of VariableDef nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeVariableDefNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+        this.hideStatement(node);
+    }
 
 }
 
