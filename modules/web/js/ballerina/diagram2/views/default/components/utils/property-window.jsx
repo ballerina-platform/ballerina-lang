@@ -287,7 +287,7 @@ class PropertyWindow extends React.Component {
         if (key.value.length && event.keyCode === 8) {
             this.removeTagsAdded(key.value, key.value.length - 1);
         }
-        this.context.editor.update();
+        this.forceUpdate();
     }
 
     /**
@@ -297,7 +297,7 @@ class PropertyWindow extends React.Component {
      */
     removeTagsAdded(values, index) {
         values.splice(index, 1);
-        this.context.editor.update();
+        this.forceUpdate();
     }
     /**
      * Renders the view for a property window
@@ -401,7 +401,7 @@ class PropertyWindow extends React.Component {
                             type="button"
                             className="btn btn-primary propWindowCancelBtn"
                             onClick={this.closePropertyWindow}
-                        >Close</button>
+                        >Cancel</button>
                         {this.props.propertiesExist &&
                         <button
                             type="button"
