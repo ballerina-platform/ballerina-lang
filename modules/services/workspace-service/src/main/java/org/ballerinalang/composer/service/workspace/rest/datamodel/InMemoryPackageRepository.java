@@ -72,6 +72,11 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
                     .collect(Collectors.toList());
         }
 
+        @Override
+        public List<String> getEntryNames() {
+            return Stream.of(name).collect(Collectors.toList());
+        }
+
         /**
          * InMemorySourceEntry
          */
