@@ -51,7 +51,7 @@ public class SetStatusCode extends AbstractNativeFunction {
             BStruct responseStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
+                    .getCarbonMsg(responseStruct, false);
             long statusCode = getIntArgument(context, 0);
             if (statusCode != (int) statusCode) {
                 throw BLangExceptionHelper

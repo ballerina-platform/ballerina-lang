@@ -32,7 +32,7 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
     @Override
     public void notifyReply(BValue response) {
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg((BStruct) response, HttpUtil.createHttpCarbonMessage(false));
+                .getCarbonMsg((BStruct) response, false);
         Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
         if (session != null) {
             session.generateSessionHeader(responseMessage);

@@ -72,7 +72,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getHeader(headerName), headerValue);
     }
 
@@ -108,7 +108,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), payload);
         Assert.assertEquals(response.getHeader(Constants.CONTENT_TYPE), Constants.TEXT_PLAIN);
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
@@ -339,7 +339,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertNull(response.getHeader(expect));
     }
 
@@ -369,7 +369,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertNull(response.getHeader(expect));
         Assert.assertNull(response.getHeader(range));
     }
@@ -400,7 +400,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "10");
     }
 
@@ -435,7 +435,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getHeader(range), rangeValue);
     }
 
@@ -463,7 +463,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
@@ -494,7 +494,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getProperty(propertyName), propertyValue);
     }
 
@@ -522,7 +522,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "Ballerina"
                 , "Payload is not set properly");
     }
@@ -550,7 +550,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         BXMLItem xmlValue = (BXMLItem) response.getMessageDataSource();
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina"
                 , "Payload is not set properly");

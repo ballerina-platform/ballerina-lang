@@ -75,7 +75,7 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = abstractNativeFunction.getStringArgument(context, 1);
@@ -96,7 +96,7 @@ public class HttpUtil {
         }
         BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         BStruct clonedRequestStruct = new BStruct(requestStruct.getType());
         HTTPCarbonMessage clonedHttpRequest = createHttpCarbonMessage(httpCarbonMessage);
@@ -110,7 +110,7 @@ public class HttpUtil {
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(requestStruct, isRequest);
 
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
@@ -130,7 +130,7 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = httpCarbonMessage.getHeader(headerName);
@@ -149,7 +149,7 @@ public class HttpUtil {
             // Accessing First Parameter Value.
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(requestStruct, isRequest);
 
             if (httpCarbonMessage.isAlreadyRead()) {
                 MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
@@ -176,7 +176,7 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
 
         Object propertyValue = httpCarbonMessage.getProperty(propertyName);
@@ -198,7 +198,7 @@ public class HttpUtil {
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(requestStruct, isRequest);
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
@@ -226,7 +226,7 @@ public class HttpUtil {
         try {
             BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(struct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(struct, isRequest);
 
             if (httpCarbonMessage.isAlreadyRead()) {
                 MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
@@ -281,7 +281,7 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
         httpCarbonMessage.getHeaders().clear();
         return AbstractNativeFunction.VOID_RETURN;
     }
@@ -292,7 +292,7 @@ public class HttpUtil {
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
         httpCarbonMessage.removeHeader(headerName);
         if (log.isDebugEnabled()) {
             log.debug("Remove header:" + headerName);
@@ -307,7 +307,7 @@ public class HttpUtil {
         String headerValue = abstractNativeFunction.getStringArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
         httpCarbonMessage.setHeader(headerName, headerValue);
 
         if (log.isDebugEnabled()) {
@@ -322,7 +322,7 @@ public class HttpUtil {
         BJSON payload = (BJSON) abstractNativeFunction.getRefArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
@@ -341,7 +341,7 @@ public class HttpUtil {
 
         if (propertyName != null && propertyValue != null) {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(requestStruct, isRequest);
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
         return AbstractNativeFunction.VOID_RETURN;
@@ -351,7 +351,7 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
@@ -373,7 +373,7 @@ public class HttpUtil {
         BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
@@ -389,7 +389,7 @@ public class HttpUtil {
         int contentLength = -1;
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(requestStruct, isRequest);
 
         String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
         try {
@@ -405,7 +405,7 @@ public class HttpUtil {
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(requestStruct, isRequest);
             long contentLength = abstractNativeFunction.getIntArgument(context, 0);
             httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
@@ -490,14 +490,40 @@ public class HttpUtil {
         return response;
     }
 
-    public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(TRANSPORT_MESSAGE);
+    /**
+     * Get HTTP carbon message associated with the BStruct.
+     * <b>Please note that if it is pretty sure that there should be a carbon message available in the struct
+     * please use {@link #getCarbonMsg(BStruct)} since this is creating a carbon message for BStruct if
+     * message is not available.</b>
+     *
+     * @param struct BStruct to find the carbon message.
+     * @param isRequest check whether the carbon message is a request in case if message is not available it is created
+     *                  here.
+     * @return Carbon message associated with the struct.
+     */
+    public static HTTPCarbonMessage getCarbonMsg(BStruct struct, boolean isRequest) {
+        HTTPCarbonMessage httpCarbonMessage = getCarbonMsg(struct);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
+        HTTPCarbonMessage defaultMsg = HttpUtil.createHttpCarbonMessage(isRequest);
         addCarbonMsg(struct, defaultMsg);
         return defaultMsg;
+    }
+
+    /**
+     * Get HTTP carbon message associated with the BStruct.
+     * <b>Please note that if it is not sure that there is a carbon message available in the struct
+     * please use {@link #getCarbonMsg(BStruct, boolean)} since this will return null if the struct is
+     * not available.</b>
+     *
+     * @param struct BStruct to find the carbon message.
+     * @return Carbon message associated with the struct.
+     */
+    public static HTTPCarbonMessage getCarbonMsg(BStruct struct) {
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
+                .getNativeData(TRANSPORT_MESSAGE);
+        return httpCarbonMessage;
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {

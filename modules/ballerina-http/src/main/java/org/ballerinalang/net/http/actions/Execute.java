@@ -81,7 +81,7 @@ public class Execute extends AbstractHTTPAction {
         String path = getStringArgument(context, 1);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, null);
+        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, true);
         prepareRequest(bConnector, path, cMsg);
 
         // If the verb is not specified, use the verb in incoming message

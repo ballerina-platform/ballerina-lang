@@ -67,7 +67,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+                    .getCarbonMsg(requestStruct, true);
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
             Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);

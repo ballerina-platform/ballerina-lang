@@ -208,7 +208,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+                .getCarbonMsg(requestStruct, true);
         prepareRequest(bConnector, path, requestMsg);
         return requestMsg;
     }

@@ -48,7 +48,7 @@ public class SetReasonPhrase extends AbstractNativeFunction {
         BStruct responseStruct  = ((BStruct) getRefArgument(context, 0));
         //TODO check below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
+                .getCarbonMsg(responseStruct, false);
         String reasonPhrase = getStringArgument(context, 0);
         httpCarbonMessage.setProperty(Constants.HTTP_REASON_PHRASE, reasonPhrase);
         return VOID_RETURN;

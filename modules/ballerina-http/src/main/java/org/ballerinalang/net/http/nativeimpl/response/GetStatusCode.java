@@ -48,7 +48,7 @@ public class GetStatusCode extends AbstractNativeFunction {
         int statusCode = -1;
         BStruct responseStruct  = ((BStruct) getRefArgument(ctx, 0));
         //TODO check below line
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(responseStruct, null);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(responseStruct);
         String statusCodeStr = String.valueOf(httpCarbonMessage.getProperty(Constants.HTTP_STATUS_CODE));
 
         try {

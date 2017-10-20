@@ -61,7 +61,7 @@ public class GetSession extends AbstractNativeFunction {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct);
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
             Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);

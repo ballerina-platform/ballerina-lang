@@ -193,7 +193,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertNotNull(response.getHeader(expect));
     }
 
@@ -208,7 +208,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0]);
         Assert.assertNull(response.getHeader("Expect"));
     }
 
