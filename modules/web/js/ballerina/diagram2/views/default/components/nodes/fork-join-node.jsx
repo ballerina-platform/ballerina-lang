@@ -207,7 +207,8 @@ class ForkJoinNode extends React.Component {
             const firstJoinChild = joinChildren[0].viewState;
             joinLifeLineY1 = firstJoinChild.bBox.y + firstJoinChild.bBox.h;
             const lastJoinChild = joinChildren[joinChildren.length - 1].viewState;
-            joinLifeLineY2 = lastJoinChild.bBox.y + lastJoinChild.components['drop-zone'].h;
+            joinLifeLineY2 = lastJoinChild.bBox.y
+                + (lastJoinChild.components['drop-zone'] ? lastJoinChild.components['drop-zone'].h : 0);
         }
 
         // Get timeout block life line y1 and y2.
@@ -218,7 +219,8 @@ class ForkJoinNode extends React.Component {
             const firstChild = children[0].viewState;
             timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
             const lastChild = children[children.length - 1].viewState;
-            timeoutLifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
+            timeoutLifeLineY2 = lastChild.bBox.y
+            + lastChild.components['drop-zone'] ? lastChild.components['drop-zone'].h : 0;
         }
 
         return (

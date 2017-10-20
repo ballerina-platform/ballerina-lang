@@ -32,7 +32,7 @@ class ConnectorNode extends AbstractConnectorNode {
             return undefined;
         }
 
-        const actionDefaultName = 'echo';
+        const actionDefaultName = 'action';
         const actionNodes = parent.getActions();
         const names = {};
         for (let i = 0; i < actionNodes.length; i++) {
@@ -41,9 +41,9 @@ class ConnectorNode extends AbstractConnectorNode {
         }
 
         if (actionNodes.length > 0) {
-            for (let i = 1; i <= actionNodes.length + 1; i++) {
-                if (!names[`${actionDefaultName}${i}`]) {
-                    node.getName().setValue(`${actionDefaultName}${i}`, true);
+            for (let j = 1; j <= actionNodes.length; j++) {
+                if (!names[`${actionDefaultName}${j}`]) {
+                    node.getName().setValue(`${actionDefaultName}${j}`, true);
                     node.setName(node.getName(), false);
                     break;
                 }
@@ -91,6 +91,7 @@ class ConnectorNode extends AbstractConnectorNode {
         } else if (TreeUtil.isAction(node)) {
             const index = !_.isNil(dropBefore) ? this.getIndexOfActions(dropBefore) : -1;
             this.addActions(node, index);
+            this.generateDefaultName(this, node);
         }
     }
 
