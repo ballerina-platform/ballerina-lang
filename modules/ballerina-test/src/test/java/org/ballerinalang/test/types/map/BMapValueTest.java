@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.map;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -228,6 +227,6 @@ public class BMapValueTest {
     @Test(dependsOnMethods = "testGrammar")
     public void testMapSynchronization() {
         BValue[] returnVals = BRunUtil.invoke(programFile, "testMapSynchronization", new BValue[0]);
-        Assert.assertEquals(((BInteger)returnVals[0]).intValue(), 2000);
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2000);
         }
 }

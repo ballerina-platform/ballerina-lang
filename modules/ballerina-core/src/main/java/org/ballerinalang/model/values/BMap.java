@@ -64,7 +64,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return value
      */
     public V get(K key) {
-        return map.get(key);
+        readLock.lock();
+        try {
+            return map.get(key);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
