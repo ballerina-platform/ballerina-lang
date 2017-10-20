@@ -22,7 +22,13 @@ import CompoundStatementDecorator from './compound-statement-decorator';
 import TreeBuilder from './../../../../../model/tree-builder';
 import DropZone from './../../../../../drag-drop/DropZone';
 import FragmentUtils from './../../../../../utils/fragment-utils';
+import DefaultNodeFactory from './../../../../../model/default-node-factory';
 
+/**
+ * Class for fork join statement.
+ * @abstract React.Component
+ * @class ForkJoinNode
+ * */
 class ForkJoinNode extends React.Component {
     constructor(props) {
         super(props);
@@ -34,11 +40,13 @@ class ForkJoinNode extends React.Component {
             active: 'hidden',
         };
 
+        // Bind this context to following functions.
         this.handleSetTimeoutCondition = this.handleSetTimeoutCondition.bind(this);
         this.handleSetTimeoutParameter = this.handleSetTimeoutParameter.bind(this);
         this.handleSetJoinParameter = this.handleSetJoinParameter.bind(this);
         this.handleGetJoinCondition = this.handleGetJoinCondition.bind(this);
         this.handleSetJoinCondition = this.handleSetJoinCondition.bind(this);
+        this.addTimeoutBody = this.addTimeoutBody.bind(this);
     }
 
     /**
@@ -122,15 +130,28 @@ class ForkJoinNode extends React.Component {
         return null;
     }
 
+    /**
+     * Add new timeout body.
+     * */
+    addTimeoutBody() {
+        const parent = this.props.model;
+        const newForkJoinNode = DefaultNodeFactory.createForkJoin();
+        parent.setTimeOutVariable(newForkJoinNode.getTimeOutVariable(), true, 'Set timeout variable');
+        parent.setTimeOutExpression(newForkJoinNode.getTimeOutExpression(), true, 'Set timeout expression');
+        parent.setTimeoutBody(newForkJoinNode.getTimeoutBody(), false, 'Set timeout body');
+    }
+
+    /**
+     * Render the fork join node.
+     * @return {XML} react component for fork join.
+     * */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const dropZone = model.viewState.components['drop-zone'];
-
         const forkLineHiderBottom = model.getJoinBody() ? model.getJoinBody().viewState.bBox.y :
             (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : (bBox.y +
                 (model.viewState.components['statement-box'].h - model.viewState.components['block-header'].h)));
-
         const joinLineHiderBottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y :
             (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
         const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
@@ -267,16 +288,50 @@ class ForkJoinNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model.getJoinBody()}
                     bBox={model.getJoinBody().viewState.bBox}
-                    expression={{ text: model.getJoinBody().viewState.components.expression.text }}
+                    expression={{
+                        text: model.getJoinBody().viewState.components.expression.text,
+                    }}
                     title={'Join'}
                     model={model.getJoinBody()}
                     body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
                     parameterEditorOptions={joinParameterEditorOptions}
                     editorOptions={joinConditionEditorOptions}
-                    disableButtons={{ delete: true }}
+                    disableButtons={{
+                        delete: true,
+                    }}
                     disableDropzoneMiddleLineOverlay
                 />
+                }
+
+                {model.joinBody && !model.timeoutBody &&
+                <g onClick={this.addTimeoutBody}>
+                    <title>Add Timeout</title>
+                    <rect
+                        x={model.joinBody.viewState.components['statement-box'].x
+                        + model.joinBody.viewState.components['statement-box'].w
+                        + model.joinBody.viewState.bBox.expansionW - 10}
+                        y={model.joinBody.viewState.components['statement-box'].y
+                        + model.joinBody.viewState.components['statement-box'].h - 25}
+                        width={20}
+                        height={20}
+                        rx={10}
+                        ry={10}
+                        className="add-catch-button"
+                    />
+                    <text
+                        x={model.joinBody.viewState.components['statement-box'].x
+                        + model.joinBody.viewState.components['statement-box'].w
+                        + model.joinBody.viewState.bBox.expansionW - 4}
+                        y={model.joinBody.viewState.components['statement-box'].y
+                        + model.joinBody.viewState.components['statement-box'].h - 15}
+                        width={20}
+                        height={20}
+                        className="add-catch-button-label"
+                    >
+                        +
+                    </text>
+                </g>
                 }
 
                 {model.timeoutBody &&
@@ -305,7 +360,9 @@ class ForkJoinNode extends React.Component {
                     dropTarget={model.getTimeoutBody()}
                     bBox={model.getTimeoutBody().viewState.bBox}
                     parameterBbox={model.getTimeoutBody().viewState.components.param}
-                    expression={{ text: model.getTimeOutExpression().getSource() }}
+                    expression={{
+                        text: model.getTimeOutExpression().getSource(),
+                    }}
                     title={'Timeout'}
                     model={model.getTimeoutBody()}
                     body={model.getTimeoutBody()}
@@ -320,14 +377,9 @@ class ForkJoinNode extends React.Component {
 }
 
 ForkJoinNode.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }).isRequired,
     model: PropTypes.shape({
         getJoinConditionString: PropTypes.func.isRequired,
+        workers: PropTypes.array.isRequired,
     }).isRequired,
 };
 
