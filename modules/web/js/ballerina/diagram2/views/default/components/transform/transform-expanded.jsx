@@ -224,7 +224,7 @@ class TransformExpanded extends React.Component {
             paramExpressions = nodeExpression.argumentExpressions;
         } else if (TreeUtil.isTernaryExpr(nodeExpression)) {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            nodeName = '?:';
+            nodeName = nodeExpression.getOperatorKind();
             paramExpressions.push(nodeExpression.getCondition());
             paramExpressions.push(nodeExpression.getThenExpression());
             paramExpressions.push(nodeExpression.getElseExpression());
@@ -1218,7 +1218,7 @@ class TransformExpanded extends React.Component {
                 >
                     <div className="middle-content-frame" />
                     <Scrollbars
-                        ref={ scroll => {this.scroll = scroll;} }
+                        ref={(scroll) => { this.scroll = scroll; }}
                         onScroll={this.onConnectionsScroll}
                     >
                         <div

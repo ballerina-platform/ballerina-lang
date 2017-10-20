@@ -25,7 +25,7 @@ import opClassMap from './op-class-map';
 
 export default class Operator extends React.Component {
     render() {
-        let targetPoints = [];
+        const targetPoints = [];
 
         const {
             operator, opExp, recordSourceElement, recordTargetElement, viewId, isCollapsed,

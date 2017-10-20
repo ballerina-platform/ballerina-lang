@@ -256,7 +256,7 @@ const ternaryOpTool = {
     icon: 'ternary',
     title: 'Ternary',
     factoryArgs: {
-        defaultExpression: 'true ? 0 : 1;',
+        defaultExpression: 'true ? 0 : 1',
     },
     nodeFactoryMethod: operatorStatementCreator,
 };

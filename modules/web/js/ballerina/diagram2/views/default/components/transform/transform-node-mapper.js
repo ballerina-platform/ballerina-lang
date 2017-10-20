@@ -1469,10 +1469,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getMappingStatements() {
-        const stmts = this._transformStmt.body.getStatements().filter((stmt) => {
-            return (TreeUtil.isAssignment(stmt) || TreeUtil.isVariableDef(stmt));
-        });
-        return stmts;
+        return this._transformStmt.body.filterStatements(_.negate(TreeUtil.isComment));
     }
 }
 
