@@ -14,6 +14,7 @@ export function getCommandDefinitions() {
             argTypes: {
                 id: PropTypes.string.isRequired,
                 additionalProps: PropTypes.objectOf(Object),
+                options: PropTypes.objectOf(Object),
             },
         },
         {

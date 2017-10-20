@@ -459,7 +459,15 @@ class BallerinaFileEditor extends React.Component {
      */
     openDocumentation(packageName, symbolName) {
         this.props.commandProxy.dispatch(LAYOUT_COMMANDS.SHOW_VIEW,
-            { id: DOC_VIEW_ID, additionalProps: { packageName, symbolName } } );
+            { id: DOC_VIEW_ID,
+                additionalProps: {
+                    packageName, symbolName,
+                },
+                options: {
+                    clone: true,
+                    key: `${DOC_VIEW_ID}&${packageName}&${symbolName}`,
+                },
+            });
     }
 
     /**
