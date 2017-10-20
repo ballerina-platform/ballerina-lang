@@ -85,6 +85,7 @@ public class SwaggerConverterUtils {
      * ballerina definition selectively to prevent data loss
      *
      * @param ballerinaSource ballerina definition to be process as ballerina definition
+     * @param serviceName service name
      * @return String representation of converted ballerina source
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */

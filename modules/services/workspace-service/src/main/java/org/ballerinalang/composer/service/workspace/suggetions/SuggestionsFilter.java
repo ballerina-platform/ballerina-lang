@@ -39,6 +39,7 @@ public class SuggestionsFilter {
      *
      * @param dataModel - Suggestion filter data model
      * @param symbols   - Symbols list
+     * @return Completion item list
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {

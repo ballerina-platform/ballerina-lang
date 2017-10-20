@@ -49,6 +49,7 @@ public class HttpTryItClient extends TryItClient {
     /**
      * Initializes the client
      * @param serviceUrl The service url. Example: hostname:port.
+     * @param clientArgs client args
      */
     public HttpTryItClient(String serviceUrl, String clientArgs) {
         super(serviceUrl, clientArgs);

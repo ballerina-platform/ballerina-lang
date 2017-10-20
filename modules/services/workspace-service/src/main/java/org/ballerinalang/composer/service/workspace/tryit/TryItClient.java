@@ -33,6 +33,7 @@ public abstract class TryItClient {
      * Initializes a try it client.
      *
      * @param serviceUrl The service url. Example hostname:port.
+     * @param clientArgs client args
      */
     protected TryItClient(String serviceUrl, String clientArgs) {
         this.parser = new JsonParser();

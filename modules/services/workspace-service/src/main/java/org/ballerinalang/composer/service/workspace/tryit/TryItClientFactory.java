@@ -28,6 +28,7 @@ public class TryItClientFactory {
      *
      * @param protocol   The protocol. {@link TryItConstants}.
      * @param serviceUrl The service url. Example: hostname:port.
+     * @param clientArgs client args
      * @return The client.
      */
     public TryItClient getClient(String protocol, String serviceUrl, String clientArgs) {
