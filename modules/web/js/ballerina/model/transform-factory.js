@@ -84,19 +84,23 @@ class TransformFactory {
     static createDefaultOperatorExpression(operator, index) {
         const operatorLattice = Environment.getOperatorLattice();
         const operatorKind = operator.getOperatorKind();
+
+        let defaultValue = Environment.getDefaultValue('string');
+
         let compatibility;
-        if (TreeUtil.isBinaryExpr(operator)) {
+        if (TreeUtil.isTernaryExpr(operator)) {
+            compatibility = operatorLattice.getCompatibleTernaryTypes(operatorKind);
+        } else if (TreeUtil.isBinaryExpr(operator)) {
             compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
         } else if (TreeUtil.isUnaryExpr(operator)) {
-            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
-        } else {
-            return;
+            compatibility = operatorLattice.getCompatibleUnaryTypes(operatorKind);
         }
-        const defaultValue = Environment.getDefaultValue('string');
-        let fragment = FragmentUtils.createExpressionFragment('null');
-        if (defaultValue !== undefined) {
-            fragment = FragmentUtils.createExpressionFragment(defaultValue);
+
+        if (compatibility) {
+            defaultValue = Environment.getDefaultValue(compatibility);
         }
+
+        const fragment = FragmentUtils.createExpressionFragment(defaultValue);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
         exp.clearWS();

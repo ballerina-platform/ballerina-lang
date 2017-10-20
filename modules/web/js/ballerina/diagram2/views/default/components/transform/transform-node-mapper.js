@@ -119,11 +119,46 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
-        if (TreeUtil.isBinaryExpr(target.operator)) {
+        if (TreeUtil.isTernaryExpr(target.operator)) {
+            this.createInputToTernaryOperatorMapping(sourceExpression, target, compatibility);
+        } else if (TreeUtil.isBinaryExpr(target.operator)) {
             this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
         } else if (TreeUtil.isUnaryExpr(target.operator)) {
             this.createInputToUnaryOperatorMapping(sourceExpression, target, compatibility);
         }
+    }
+
+    /**
+     * Create direct input variable to a ternary operator node mapping.
+     * @param {Expression} sourceExpression source expression
+     * @param {any} target target operator node definition
+     * @param {any} compatibility compatibility of the mapping
+     * @memberof TransformNodeMapper
+     */
+    createInputToTernaryOperatorMapping(sourceExpression, target, compatibility) {
+        const operatorNode = target.operator;
+        const index = target.index;
+
+        if (compatibility.safe) {
+            if (index === 0) {
+                operatorNode.setCondition(sourceExpression, true);
+            } else if (index === 1) {
+                operatorNode.setThenExpression(sourceExpression, true);
+            } else {
+                operatorNode.setElseExpression(sourceExpression, true);
+            }
+        } else {
+            const stmt = this.getParentStatement(operatorNode);
+            const argumentExpression = this.getTempVertexExpression(sourceExpression,
+                                            this._transformStmt.body.getIndexOfStatements(stmt));
+            operatorNode.addChild(argumentExpression, index, true);
+        }
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping ${sourceExpression.getSource()} to operator ${operatorNode.getOperatorKind()}`,
+            data: {},
+        });
     }
 
     /**
@@ -671,11 +706,22 @@ class TransformNodeMapper {
 
         if (TreeUtil.isUnaryExpr(operatorExp) && target.index === 0) {
             operatorExp.setExpression(defaultExp, true);
-        } else if (TreeUtil.isBinaryExpr(operatorExp) && target.index === 0) {
-            operatorExp.setLeftExpression(defaultExp, true);
-        } else if (TreeUtil.isBinaryExpr(operatorExp) && target.index === 1) {
-            operatorExp.setRightExpression(defaultExp, true);
+        } else if (TreeUtil.isBinaryExpr(operatorExp)) {
+            if (target.index === 0) {
+                operatorExp.setLeftExpression(defaultExp, true);
+            } else if (target.index === 1) {
+                operatorExp.setRightExpression(defaultExp, true);
+            }
+        } else if (TreeUtil.isTernaryExpr(operatorExp)) {
+            if (target.index === 0) {
+                operatorExp.setCondition(defaultExp, true);
+            } else if (target.index === 1) {
+                operatorExp.setThenExpression(defaultExp, true);
+            } else if (target.index === 2) {
+                operatorExp.setElseExpression(defaultExp, true);
+            }
         } else {
+            log.error('Unknown operator type for mapping');
             return;
         }
 

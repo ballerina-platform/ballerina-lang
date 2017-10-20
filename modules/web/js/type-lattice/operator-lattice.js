@@ -29,15 +29,36 @@ class OperatorLattice {
     constructor() {
         this._unaryLattice = [];
         this._binaryLattice = [];
+        this._ternaryLattice = [];
         this._unaryOperators = [];
         this._binaryOperators = [];
+        this._ternaryOperators = [];
     }
 
+    /**
+     * Get unary operators
+     * @returns [{string}] unary operators
+     * @memberof OperatorLattice
+     */
     getUnaryOperators() {
         return this._unaryOperators;
     }
 
+    /**
+     * Get binary operators
+     * @returns [{string}] binary operators
+     * @memberof OperatorLattice
+     */
     getBinaryOperators() {
+        return this._binaryOperators;
+    }
+
+    /**
+     * Get ternary operators
+     * @returns [{string}] ternary operators
+     * @memberof OperatorLattice
+     */
+    getTernaryOperators() {
         return this._binaryOperators;
     }
 
@@ -49,19 +70,25 @@ class OperatorLattice {
     initFromJson(operatorLatticeJson) {
         this._unaryLattice = [];
         this._binaryLattice = [];
+        this._ternaryLattice = [];
         this._unaryOperators = [];
         this._binaryOperators = [];
+        this._ternaryOperators = [];
 
         Object.keys(operatorLatticeJson).forEach((operator) => {
             const operatorLatticeList = operatorLatticeJson[operator];
             const unaryLatticeJson = operatorLatticeList.filter(edge => edge.type === 'unary');
             const binaryLatticeJson = operatorLatticeList.filter(edge => edge.type === 'binary');
+            const ternaryLatticeJson = operatorLatticeList.filter(edge => edge.type === 'ternary');
 
             if (unaryLatticeJson.length > 0) {
                 this._unaryOperators.push(operator);
             }
             if (binaryLatticeJson.length > 0) {
                 this._binaryOperators.push(operator);
+            }
+            if (ternaryLatticeJson.length > 0) {
+                this._ternaryLattice.push(operator);
             }
 
             unaryLatticeJson.forEach((edge) => {
@@ -77,7 +104,7 @@ class OperatorLattice {
                     }
                 }
             });
-    
+
             binaryLatticeJson.forEach((edge) => {
                 if (!edge.visited) {
                     this._binaryLattice[operator] = {};
@@ -90,6 +117,12 @@ class OperatorLattice {
                             targetEdge.visited = true;
                         }
                     });
+                }
+            });
+
+            ternaryLatticeJson.forEach((edge) => {
+                if (!edge.visited) {
+                    this._ternaryLattice[operator] = edge;
                 }
             });
         });
@@ -138,6 +171,20 @@ class OperatorLattice {
         } else {
             return this._unaryLattice[operator];
         }
+    }
+
+    /**
+     * Get operator compatibility for given types
+     * @param {string} operator operator
+     * @param {string} index index of the operand
+     * @returns {[string]} compatible types
+     * @memberof OperatorLattice
+     */
+    getCompatibleTernaryTypes(operator, index) {
+        if (index === 0) {
+            return this._ternaryLattice[operator].conType;
+        }
+        return this._ternaryLattice[operator].conType;
     }
 }
 

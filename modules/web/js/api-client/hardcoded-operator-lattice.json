@@ -433,5 +433,12 @@
 		"lhType": "int",
 		"rhType": "int",
 		"retType": "boolean"
+	}],
+	"?:": [{
+		"type": "ternary",
+		"conType": "boolean",
+		"thenType": "other",
+		"elseType": "other",
+		"retType": "other"
 	}]
 }
