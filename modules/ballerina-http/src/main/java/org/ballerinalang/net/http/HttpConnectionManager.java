@@ -180,13 +180,6 @@ public class HttpConnectionManager {
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
         }
-        BStruct options = (BStruct) bConnector.getRefField(0);
-        int followRedirect = options.getBooleanField(0);
-        Long maxRedirectCount = options.getIntField(0);
-        int chunkDisabled = options.getBooleanField(1);
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
-        senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
 
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
@@ -333,6 +326,8 @@ public class HttpConnectionManager {
         }
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
+        int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
+        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {

@@ -42,6 +42,8 @@ public class Constants {
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
     public static final String USER_AGENT_HEADER = "User-Agent";
+    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
+    public static final String CHUNKED = "chunked";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
@@ -138,6 +140,7 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
+    public static final int CHUNK_DISABLED_STRUCT_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
