@@ -64,7 +64,7 @@ public class AnnotationAttributeDef {
     }
     
     /**
-     * Converts a {@link org.ballerinalang.model.AnnotationAttributeDef} to {@link AnnotationAttributeDef}.
+     * Converts a {@link org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute} to {@link AnnotationAttributeDef}.
      *
      * @param annotationAttributeDef The model to be converted.
      * @return Converted model.

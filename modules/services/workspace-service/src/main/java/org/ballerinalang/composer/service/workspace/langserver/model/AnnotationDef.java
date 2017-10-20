@@ -39,7 +39,7 @@ public class AnnotationDef {
     private List<AnnotationAttachment> annotationAttachments = new ArrayList<>();
 
     /**
-     * Converts a {@link org.ballerinalang.model.AnnotationDef} to {@link AnnotationDef}.
+     * Converts a {@link org.wso2.ballerinalang.compiler.tree.BLangAnnotation} to {@link AnnotationDef}.
      * @param annotationDef The model to be converted.
      * @return Converted model.
      */
