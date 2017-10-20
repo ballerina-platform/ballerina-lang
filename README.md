@@ -1,6 +1,6 @@
 # Ballerina Composer
 [![Build Status](https://wso2.org/jenkins/job/ballerinalang/job/composer/badge/icon)](https://wso2.org/jenkins/job/ballerinalang/job/composer/)  
-The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view to define services by writing Swagger definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create your programs in the way that you like to work.
+The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view of a Service and writing Swagger definitions. You can switch seamlessly between the Design view, Source view and create your programs in the way that you like to work.
 
 **You can create your integration in Design view:**
 
@@ -10,9 +10,31 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 ![alt text](./docs/images/SourceView.png?raw=true "Source view")
 
-**You can also go to Swagger view to edit the Swagger definition that's generated:**
+**View the Design View and the Source View at the same time:**
+
+![alt text](./docs/images/SplitView.png?raw=true "Split view")
+
+**You can also go to Swagger view through the heading of a Service's Design View to edit the Swagger definition that's generated:**
 
 ![alt text](./docs/images/SwaggerView.png?raw=true "Swagger view")
+
+## Running the Composer
+
+The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
+
+For Windows
+```
+composer.bat
+```
+
+For Unix/Linux
+```
+./composer
+```
+
+The command line will display the URL you can use to access the Composer in your browser.
+
+For complete instructions on creating your integrations and using the Composer, see the [Ballerina documentation](http://ballerinalang.org/docs/user-guide/0.8/quick-tour/#run-the-composer).
 
 ## How to build
 The build process of the composer works on Maven and Node Package Manager(npm).
@@ -40,21 +62,3 @@ For now the Composer supports only following browsers.
 
 *   Google Chrome ( v49 and above )
 *   Mozilla Firefox ( v50 and above )
-
-## Running the Composer
-
-The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
-
-For Windows
-```
-composer.bat
-```
-
-For Unix/Linux
-```
-./composer
-```
-
-The command line will display the URL you can use to access the Composer in your browser.
-
-For complete instructions on creating your integrations and using the Composer, see the [Ballerina documentation](http://ballerinalang.org/docs/user-guide/0.8/quick-tour/#run-the-composer).
