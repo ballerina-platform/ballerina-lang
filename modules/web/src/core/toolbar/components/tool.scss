@@ -2,6 +2,9 @@
     .tool-bar-group {
         .tool-bar-tool {
             opacity: 0.3;
+            & i{
+                vertical-align: text-top;
+            }
             &.active {
                 cursor: pointer;
                 opacity: 0.6;
