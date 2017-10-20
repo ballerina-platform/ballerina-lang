@@ -503,7 +503,7 @@ public class WorkspaceUtils {
         fields.forEach((field) -> {
             String defaultValue = null;
             if (field.getInitialExpression() != null) {
-                defaultValue = ((BLangLiteral)field.getInitialExpression()).getValue().toString();
+                defaultValue = ((BLangLiteral) field.getInitialExpression()).getValue().toString();
             }
             StructField structField = createNewStructField(field.getName().getValue(),
                     field.getTypeNode().type.toString(), defaultValue);
