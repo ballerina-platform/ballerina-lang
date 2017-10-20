@@ -9,18 +9,19 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/"
     }
-    resource hbrResource (http:Request req, http:Response res) {
+    resource hbrResource (http:Request req, http:Response resp) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks", {});
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks", {});
         string nyseString = "nyse";
         string nameString = req.getHeader("name");
+        http:Response clientResponse = {};
         if (nameString == nyseString) {
-            res = nyseEP.post("/stocks", req);
+            clientResponse = nyseEP.post("/stocks", req);
         }
         else {
-            res = nasdaqEP.post("/stocks", req);
+            clientResponse = nasdaqEP.post("/stocks", req);
         }
-        res.send();
+        resp.forward(clientResponse);
         
     }
     

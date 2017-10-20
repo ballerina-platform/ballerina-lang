@@ -7,10 +7,10 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Request req, http:Response res) {
+    resource echo (http:Request req, http:Response resp) {
         string payload = req.getStringPayload();
-        res.setStringPayload(payload);
-        res.send();
+        resp.setStringPayload(payload);
+        resp.send();
     }
     
 }

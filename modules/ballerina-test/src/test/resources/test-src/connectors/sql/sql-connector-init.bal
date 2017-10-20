@@ -8,7 +8,7 @@ struct ResultCustomers {
 function testConnectionPoolProperties () (string firstName) {
     sql:ClientConnector testDB;
     sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              driverClassName:"org.hsqldb.jdbcDriver", maximumPoolSize:1,
+                                              driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
                                               idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
                                               minimumIdle:1, poolName:"testHSQLPool", isolateInternalQueries:false,
                                               allowPoolSuspension:false, readOnly:false, validationTimeout:5000, leakDetectionThreshold:0,
