@@ -22,13 +22,17 @@
         float: right;
         margin: 8.5px 10px 0 0;
         & i.fw {
-            margin-left: 15px;
             opacity: 0.3;
+            color: #6D6D6D;
+            padding:10px;
+            font-size: 11px;
+            margin-top: -10px;
             &.active {
                 opacity: 0.6;
                 &:hover {
                     opacity: 1;
                     cursor: pointer;
+                    background-color: #222;
                 }
             }
         }
