@@ -180,7 +180,7 @@
                         </replacement>
                         <replacement>
                             <token>className="version"&gt;v(.*?)&lt;</token>
-                            <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.qualifier}&lt;</value>
+                            <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
                         </replacement>
                     </replacements>
                 </configuration>

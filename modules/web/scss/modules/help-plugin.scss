@@ -1,7 +1,10 @@
 .modal-about {
 
     .modal-header {
-        float: right;
+        margin-left: 15px;
+        .version {
+            font-size: 12px;
+        }
     }
 
     .logo {
