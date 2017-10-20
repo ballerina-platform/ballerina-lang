@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -43,11 +44,13 @@ public class SQLActionsTest {
 
     private static final double DELTA = 0.01;
     CompileResult result;
+    CompileResult resultNegative;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/connectors/sql/sql-actions.bal");
+        resultNegative = BTestUtils.compile("test-src/connectors/sql/sql-actions-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
@@ -164,6 +167,13 @@ public class SQLActionsTest {
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testBoolArrayofQueryParameters() {
+        BValue[] returns = BTestUtils.invoke(result, "testBoolArrayofQueryParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 10);
     }
 
     @Test(groups = "ConnectorTest")
@@ -369,6 +379,14 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithNullParam() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "testBatchUpdateWithNullParam", args);
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTimeData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testDateTimeInParameters", args);
@@ -425,6 +443,42 @@ public class SQLActionsTest {
         BValue[] returns = BTestUtils.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(description = "Test failed select query",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*message: execute query failed: .*")
+    public void testFailedSelect() {
+        BTestUtils.invoke(resultNegative, "testSelectData");
+    }
+
+    @Test(description = "Test failed update with generated id action",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*message: execute update with generated keys failed:.*")
+    public void testFailedGeneratedKeyOnInsert() {
+        BTestUtils.invoke(resultNegative, "testGeneratedKeyOnInsert");
+    }
+
+    @Test(description = "Test failed call procedure",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*message: execute stored procedure failed:.*")
+    public void testFailedCallProcedure() {
+        BTestUtils.invoke(resultNegative, "testCallProcedure");
+    }
+
+    @Test(description = "Test failed batch update",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*message: execute batch update failed:.*")
+    public void testFailedBatchUpdate() {
+        BTestUtils.invoke(resultNegative, "testBatchUpdate");
+    }
+
+    @Test(description = "Test failed batch update",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*message: execute query failed: unsupported array type for parameter "
+                  + "index 0.*")
+    public void testInvalidArrayofQueryParameters() {
+        BTestUtils.invoke(resultNegative, "testInvalidArrayofQueryParameters");
     }
 
     @AfterSuite
