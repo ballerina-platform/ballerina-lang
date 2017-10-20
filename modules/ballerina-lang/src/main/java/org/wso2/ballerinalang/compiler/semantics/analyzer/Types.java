@@ -103,7 +103,7 @@ public class Types {
                                   List<BType> expTypes) {
         List<BType> resTypes = new ArrayList<>();
         for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.get(i)));
+            resTypes.add(checkType(node, actualTypes.get(i), expTypes.size() > i ? expTypes.get(i) : symTable.noType));
         }
         return resTypes;
     }

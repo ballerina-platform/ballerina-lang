@@ -154,9 +154,11 @@ public class AssignStmtTest {
         //testIncompatibleTypeAssign
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 9);
         //testAssignCountMismatch1
-        BAssertUtil.validateError(resultNegative, 1, "assignment count mismatch: 2 != 3", 11, 15);
+        BAssertUtil.validateError(resultNegative, 1, "assignment count mismatch: expected 2 values, but found 3", 11,
+                15);
         //testAssignCountMismatch2
-        BAssertUtil.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 21);
+        BAssertUtil.validateError(resultNegative, 2, "assignment count mismatch: expected 4 values, but found 3", 21,
+                21);
         //testAssignTypeMismatch1
         BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 18);
         BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 12);

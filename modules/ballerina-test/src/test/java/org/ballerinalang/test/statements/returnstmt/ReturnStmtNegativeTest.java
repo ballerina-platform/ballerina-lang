@@ -47,7 +47,7 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "assignment count mismatch: 2 != 1", 2, 12);
+        BAssertUtil.validateError(result, 0, "assignment count mismatch: expected 2 values, but found 1", 2, 12);
     }
 
     @Test(description = "Test not enough arguments to return")
