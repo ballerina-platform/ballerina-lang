@@ -51,7 +51,10 @@ class PositioningUtil {
             } else if (TreeUtil.isAssignment(node) || TreeUtil.isExpressionStatement(node)) {
                 variableRefName = node.expression.expression.variableName.value;
             }
-            const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
+            const allVisibleConnectorDeclarations = TreeUtil.getAllVisibleConnectorDeclarations(node.parent);
+            const connectorDeclaration = _.find(allVisibleConnectorDeclarations, (varDef) => {
+                return varDef.variable.name.value === variableRefName;
+            });
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
             arrowStartBBox.y = viewState.components['statement-box'].y + 10;
 
