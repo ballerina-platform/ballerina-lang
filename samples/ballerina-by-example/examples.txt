@@ -64,3 +64,5 @@ WebSocket Chat Application
 WebSocket Proxy Server
 Passthrough
 Mutual SSL
+Twitter Client Connector
+Salesforce Client Connector
