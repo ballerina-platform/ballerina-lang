@@ -83,7 +83,7 @@ class ConnectorDeclarationDecorator extends React.Component {
      * */
     render() {
         // create lifelines for connector declarations.
-        const connectorInitExpression = TreeUtils.getConnectorInitFromStatement(this.props.model);
+        const packageAlias = this.props.model.variable.typeNode.packageAlias.value;
         const connectorClasses = {
             lineClass: 'connector-life-line',
             polygonClass: 'connector-life-line-polygon',
@@ -104,7 +104,7 @@ class ConnectorDeclarationDecorator extends React.Component {
                     title={this.props.title}
                     bBox={this.props.bBox}
                     classes={connectorClasses}
-                    icon={ImageUtil.getConnectorIcon(connectorInitExpression.connectorType.packageAlias.value)}
+                    icon={ImageUtil.getConnectorIcon(packageAlias)}
                     editorOptions={this.editorOptions}
                     iconColor='#1a8278'
                     onDelete={this.onDelete}

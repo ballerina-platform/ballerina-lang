@@ -165,8 +165,39 @@ class TreeUtil extends AbstractTreeUtil {
      * @memberof TreeUtil
      */
     isConnectorDeclaration(node) {
-        const expression = _.get(node, 'variable.initialExpression');
-        return (expression && this.isConnectorInitExpr(expression));
+        if (node && this.isVariableDef(node)) {
+            const expression = _.get(node, 'variable.initialExpression');
+            return _.get(node, 'variable.typeNode.connector') || (expression && this.isConnectorInitExpr(expression));
+        }
+        return false;
+    }
+
+    /**
+     * Get the connector init for the variable definition
+     * @param {object} node - variable node
+     * @param {object} parent - node's parent
+     * @return {*} connector init expression node
+     */
+    getConnectorInitForVariableDefinition(node, parent) {
+        if (_.get(node, 'variable.initialExpression')) {
+            return _.get(node, 'variable.initialExpression');
+        } else if (this.isConnectorDeclaration(node)) {
+            const variableName = _.get(node, 'variable.name.value');
+            const parentAssignmentStatements = _.filter(parent.statements, (stmt) => {
+                return this.isAssignment(stmt);
+            });
+
+            for (let itr = 0; itr < parentAssignmentStatements.length; itr++) {
+                const stmt = parentAssignmentStatements[itr];
+                if (_.get(stmt, 'expression')
+                    && this.isConnectorInitExpr(_.get(stmt, 'expression'))
+                    && stmt.variables[0].variableName.value === variableName) {
+                    return _.get(stmt, 'expression');
+                }
+            }
+        }
+
+        return undefined;
     }
 
     /**
@@ -204,15 +235,15 @@ class TreeUtil extends AbstractTreeUtil {
     /**
      * Get the connector init expression from the statement
      * @param {object} node - statement node
-     * @return {boolean} - true | false
+     * @return {object} - connector init expression
      */
     getConnectorInitFromStatement(node) {
         if (this.isAssignment(node)) {
             return _.get(node, 'expression');
         } else if (this.isVariableDef(node)) {
-            return _.get(node, 'variable.initialExpression');
+            return this.getConnectorInitForVariableDefinition(node, node.parent);
         }
-        return false;
+        return undefined;
     }
 
     /**

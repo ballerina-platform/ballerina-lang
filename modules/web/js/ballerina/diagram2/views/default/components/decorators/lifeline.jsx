@@ -80,13 +80,20 @@ class LifeLine extends React.Component {
     }
 
     handleConnectorProps() {
-        // Check if the model is a connector declaration
+        const model = this.props.model;
+        // Check if the model is a connector declaration;
         if (TreeUtils.isConnectorDeclaration(this.props.model)) {
-            // this.props.model.viewState.overlayContainer = this.props.connectorProps;
-            const node = this.props.model;
-            node.viewState.showOverlayContainer = true;
-            OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
-            this.context.editor.update();
+            let initialExpression = _.get(model, 'variable.InitialExpression');
+            if (!initialExpression || !TreeUtils.isConnectorInitExpr(initialExpression)) {
+                initialExpression = TreeUtils.getConnectorInitFromStatement(model);
+            }
+
+            if (initialExpression) {
+                const node = this.props.model;
+                node.viewState.showOverlayContainer = true;
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
+                this.context.editor.update();
+            }
         }
     }
     render() {
