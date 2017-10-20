@@ -175,4 +175,30 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
         BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
     }
+
+    @Test(description = "Test negative assignment statement with cast and conversion with var.")
+    public void testCastAndConversionWithVar() {
+        CompileResult result = BTestUtils.compile("test-src/statements/assign/var-negative.bal");
+        BTestUtils.validateError(result, 0, "unknown type 'Foo'", 4, 17);
+        BTestUtils.validateError(result, 1, "undefined symbol 'bar'", 4, 22);
+        BTestUtils.validateError(result, 2, "operator '+' not defined for 'TypeCastError' and 'error'", 6, 22);
+        BTestUtils.validateError(result, 3, "unknown type 'Float'", 11, 17);
+        BTestUtils.validateError(result, 4, "operator '+' not defined for 'TypeCastError' and 'error'", 13, 22);
+        BTestUtils.validateError(result, 5, "undefined symbol 'foo'", 17, 25);
+        BTestUtils.validateError(result, 6, "operator '+' not defined for 'string' and 'error'", 18, 22);
+        BTestUtils.validateError(result, 7, "operator '+' not defined for 'TypeCastError' and 'error'", 19, 22);
+        BTestUtils.validateError(result, 8, "unknown type 'Foo'", 23, 17);
+        BTestUtils.validateError(result, 9, "undefined symbol 'bar'", 23, 22);
+        BTestUtils.validateError(result, 10, "operator '+' not defined for 'TypeConversionError' and 'error'", 25, 22);
+        BTestUtils.validateError(result, 11, "unknown type 'Float'", 30, 17);
+        BTestUtils.validateError(result, 12, "operator '+' not defined for 'TypeConversionError' and 'error'", 32, 22);
+        BTestUtils.validateError(result, 13, "undefined symbol 'foo'", 36, 25);
+        BTestUtils.validateError(result, 14, "operator '+' not defined for 'string' and 'error'", 37, 22);
+        BTestUtils.validateError(result, 15, "operator '+' not defined for 'TypeConversionError' and 'error'", 38, 22);
+        BTestUtils.validateError(result, 16, "unknown type 'Float'", 42, 20);
+        BTestUtils.validateError(result, 17, "undefined symbol 'fooo'", 42, 27);
+        BTestUtils.validateError(result, 18, "assignment count mismatch: 3 != 2", 42, 19);
+        BTestUtils.validateError(result, 19, "operator '+' not defined for 'TypeCastError' and 'error'", 43, 13);
+        BTestUtils.validateError(result, 20, "assignment count mismatch: 3 != 2", 47, 19);
+    }
 }

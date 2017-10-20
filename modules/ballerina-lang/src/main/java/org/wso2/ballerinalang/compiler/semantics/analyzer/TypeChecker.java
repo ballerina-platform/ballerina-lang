@@ -534,8 +534,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(castExpr.typeNode, env);
         BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        if (sourceType == symTable.errType || targetType == symTable.errType) {
-            resultTypes = Lists.of(symTable.errType);
+        if (targetType.tag == TypeTags.ERROR) {
+            resultTypes = Lists.of(symTable.errType, symTable.errTypeCastType);
+            return;
+        } else if (sourceType.tag == TypeTags.ERROR) {
+            resultTypes = Lists.of(targetType, symTable.errTypeCastType);
             return;
         }
         BSymbol symbol;
@@ -577,6 +580,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
+        if (targetType.tag == TypeTags.ERROR) {
+            resultTypes = Lists.of(symTable.errType, symTable.errTypeConversionType);
+            return;
+        } else if (sourceType.tag == TypeTags.ERROR) {
+            resultTypes = Lists.of(targetType, symTable.errTypeConversionType);
+            return;
+        }
         BSymbol symbol;
         if (sourceType == targetType) {
             List<BType> paramTypes = Lists.of(sourceType, targetType);
@@ -767,10 +777,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expr.isMultiReturnExpr()) {
             MultiReturnExpr multiReturnExpr = (MultiReturnExpr) expr;
             multiReturnExpr.setTypes(resultTypes);
-        } else {
-            if (expected > 1) {
-                dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 1);
-                resultTypes = getListWithErrorTypes(expected);
+        }
+        if (expected > resultTypes.size()) {
+            dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, resultTypes.size());
+            for (int i = resultTypes.size(); i < expTypes.size(); i++) {
+                resultTypes.add(symTable.errType);
             }
         }
 
