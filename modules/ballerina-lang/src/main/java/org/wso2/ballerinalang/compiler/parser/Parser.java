@@ -27,6 +27,7 @@ import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -89,6 +90,8 @@ public class Parser {
             ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
             ais.name = entryName;
             BallerinaLexer lexer = new BallerinaLexer(ais);
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new BallerinaParserErrorListener(context, diagnosticSrc));
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));

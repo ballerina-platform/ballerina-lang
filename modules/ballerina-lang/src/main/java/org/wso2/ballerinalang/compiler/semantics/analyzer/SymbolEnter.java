@@ -242,6 +242,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
+        Name pkgAlias = names.fromIdNode(importPkgNode.alias);
+        if (symResolver.lookupSymbol(env, pkgAlias, SymTag.IMPORT) != symTable.notFoundSymbol) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+            return;
+        }
+
         // Create import package symbol
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
@@ -259,7 +265,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         importPkgNode.symbol = pkgSymbol;
-        this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
+        this.env.scope.define(pkgAlias, pkgSymbol);
     }
 
     @Override

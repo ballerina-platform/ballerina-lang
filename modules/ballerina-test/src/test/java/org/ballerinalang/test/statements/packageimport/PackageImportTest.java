@@ -34,5 +34,20 @@ public class PackageImportTest {
         Assert.assertTrue(result.getDiagnostics().length > 0);
         BTestUtils.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
     }
-    
+
+    @Test
+    public void testImportSamePkgWithDifferentAlias() {
+        CompileResult result =
+                BTestUtils.compile("test-src/statements/packageimport/import-same-pkg-with-different-alias.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testImportDifferentPkgsWithSameAlias() {
+        CompileResult result = BTestUtils
+                .compile("test-src/statements/packageimport/import-different-pkgs-with-same-alias-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BTestUtils.validateError(result, 0, "redeclared symbol 'x'", 4, 1);
+        BTestUtils.validateError(result, 1, "undefined function 'pow'", 8, 5);
+    }
 }
