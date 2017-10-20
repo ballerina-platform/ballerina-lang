@@ -188,5 +188,13 @@ public class TransformStmtTest {
         BAssertUtil.validateError(resNegative, 7,
                                  "input and output variables cannot be interchanged in transform statement", 32, 9);
 
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-operators-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.validateError(resultNegative, 0,
+                                 "input and output variables cannot be interchanged in transform statement", 21, 9);
+        BTestUtils.validateError(resultNegative, 1,
+                                 "input and output variables cannot be interchanged in transform statement", 23, 9);
     }
 }
