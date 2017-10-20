@@ -25,6 +25,7 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -60,12 +61,17 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
         ProgramFile programFile;
+//        } else if (Files.isDirectory(sourcePath)) {
 
         String srcPathStr = sourcePath.toString();
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else {
+        } else if (Files.isDirectory(sourcePath) || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             programFile = compile(sourceRootPath, sourcePath);
+        } else {
+            System.out.println(" RAN");
+//            System.exit(99);
+            throw new BallerinaException("ERROR ERROR ERROR");
         }
 
         // If there is no main or service entry point, throw an error
