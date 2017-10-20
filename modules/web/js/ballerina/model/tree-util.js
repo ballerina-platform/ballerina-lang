@@ -427,7 +427,7 @@ class TreeUtil extends AbstractTreeUtil {
         } else {
             const parent = node.parent;
             if (parent.filterParameters instanceof Function
-                && parent.filterParameters(param => (param.id === node.id))) {
+                && (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing argument parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
                 const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
@@ -436,7 +436,7 @@ class TreeUtil extends AbstractTreeUtil {
                 // Replace the old parameter with the newly created parameter node.
                 parent.replaceParameters(node, newParameterNode, false);
             } else if (parent.filterReturnParameters instanceof Function
-                && parent.filterReturnParameters(returnParam => (returnParam.id === node.id))) {
+                && (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing return parameter.
                 const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
                 const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);

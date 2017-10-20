@@ -6,11 +6,14 @@
             & .actions {
                 padding: 8px;
                 & i {
-                    margin-left: 20px;
                     color: #6D6D6D;
+                    padding:10px;
+                    font-size: 11px;
+                    margin-top: -10px;
                     &:hover{
                         cursor: pointer;
                         color: #bebebe;
+                        background-color: #222;
                     }
                 }
             }

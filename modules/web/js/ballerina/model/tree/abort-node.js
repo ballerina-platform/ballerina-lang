@@ -27,9 +27,10 @@ class AbortNode extends AbstractAbortNode {
     /**
      * check whether this can be dropped on to the drop target.
      * @param {Node} dropTarget - node that this dragging node to be added to.
+     * @param {Node} dropBefore - drop before node
      * @return {boolean} true if can be dropped, false if not.
      * */
-    canBeDropped(dropTarget) {
+    canBeDropped(dropTarget, dropBefore) {
         const transactionNode = this.findTransaction(dropTarget);
         return transactionNode ? transactionNode.viewState.alias === 'Transaction' : false;
     }

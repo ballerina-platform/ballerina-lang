@@ -373,7 +373,7 @@ class StructNode extends React.Component {
 
         const coDimensions = {
             x: bBox.x + DesignerDefaults.panel.body.padding.left,
-            y: bBox.y + (DesignerDefaults.panel.body.padding.top * 2),
+            y: bBox.y + (DesignerDefaults.panel.body.padding.top * 2) + model.viewState.components.annotation.h,
             w: DesignerDefaults.contentOperations.width,
             h: DesignerDefaults.contentOperations.height,
         };
