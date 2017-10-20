@@ -1443,9 +1443,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (defaultWorker) {
-                if (invokableNode.workers.size() > 0) {
-                    this.emit(InstructionCodes.WRKSTART);
+            if (defaultWorker && invokableNode.workers.size() > 0) {
+                this.emit(InstructionCodes.WRKSTART);
+                if (invokableNode.retParams.size() == 0) {
+                    this.emit(InstructionCodes.RET);
+                } else {
+                    this.emit(InstructionCodes.HALT);
                 }
             }
         }
