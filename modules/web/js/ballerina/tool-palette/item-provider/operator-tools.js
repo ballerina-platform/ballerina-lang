@@ -253,7 +253,7 @@ export const unaryOpTools = [
 const ternaryOpTool = {
     id: 'ternary',
     name: 'Ternary',
-    icon: 'question',
+    icon: 'ternary',
     title: 'Ternary',
     factoryArgs: {
         defaultExpression: 'true ? 0 : 1;',

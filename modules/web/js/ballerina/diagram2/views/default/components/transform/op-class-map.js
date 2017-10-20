@@ -38,7 +38,7 @@ const toolIdOperatorMap = {
     not: '!',
     lengthof: 'lengthof',
     typeof: 'typeof',
-    question: '?:',
+    ternary: '?:',
 };
 
 const opClassMap = {};
