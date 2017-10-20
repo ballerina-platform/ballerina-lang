@@ -18,13 +18,15 @@
 
 package org.ballerinalang.test.statements.variabledef;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,12 +41,12 @@ public class VariableDefinitionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variabledef/variable-definition-stmt.bal");
+        result = BCompileUtil.compile("test-src/statements/variabledef/variable-definition-stmt.bal");
     }
 
     @Test
     public void testVariableDefaultValue() {
-        BValue[] returns = BTestUtils.invoke(result, "variableDefaultValue", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "variableDefaultValue", new BValue[0]);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -66,7 +68,7 @@ public class VariableDefinitionTest {
 
     @Test
     public void testInlineVarInit() {
-        BValue[] returns = BTestUtils.invoke(result, "inlineVarInit", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "inlineVarInit", new BValue[0]);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -97,7 +99,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BTestUtils.invoke(result, "updateVarValue", args);
+        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -128,7 +130,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BTestUtils.invoke(result, "updateVarValue", args);
+        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -150,48 +152,48 @@ public class VariableDefinitionTest {
 
     @Test(description = "Test variable definition negative test cases with errors")
     public void testUnsupportedTypeVariable() {
-        resultNegative = BTestUtils
+        resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-unsupported-variables-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "unknown type 'Foo'", 2, 5);
+        BAssertUtil.validateError(resultNegative, 0, "unknown type 'Foo'", 2, 5);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")
     public void testDuplicateConstVariables() {
-        resultNegative = BTestUtils
+        resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-duplicate-constant-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 1);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 1);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")
     public void testDuplicateVariables() {
-        resultNegative = BTestUtils
+        resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-duplicate-variables-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 5, 5);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 5, 5);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")
     public void testUndeclaredVariables() {
-        resultNegative = BTestUtils
+        resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-undeclared-variables-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'a'", 2, 12);
+        BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'a'", 2, 12);
     }
 
     @Test(description = "Test defining a constant from an arrays type")
     public void testArrayTypeConstant() {
-        resultNegative = BTestUtils
+        resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-array-constants-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BTestUtils.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
+        BAssertUtil.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
 
-        BTestUtils.validateError(resultNegative, 1, "mismatched input '='. expecting {'[', Identifier}", 1, 15);
+        BAssertUtil.validateError(resultNegative, 1, "mismatched input '='. expecting {'[', Identifier}", 1, 15);
 
-        BTestUtils.validateError(resultNegative, 2, "mismatched input '('. expecting ';'", 3, 14);
+        BAssertUtil.validateError(resultNegative, 2, "mismatched input '('. expecting ';'", 3, 14);
 
-        BTestUtils.validateError(resultNegative, 3, "mismatched input ')'. expecting ';'", 3, 25);
+        BAssertUtil.validateError(resultNegative, 3, "mismatched input ')'. expecting ';'", 3, 25);
 
     }
 }

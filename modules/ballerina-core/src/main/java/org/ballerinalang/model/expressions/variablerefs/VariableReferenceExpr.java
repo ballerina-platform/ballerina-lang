@@ -23,8 +23,6 @@ import org.ballerinalang.model.expressions.Expression;
  * {@code VariableReferenceExpr} represents variable reference expression.
  *
  * @see SimpleVarRefExpr
- * @see IndexBasedVarRefExpr
- * @see FieldBasedVarRefExpr
  * @since 0.89
  */
 public interface VariableReferenceExpr extends Expression {

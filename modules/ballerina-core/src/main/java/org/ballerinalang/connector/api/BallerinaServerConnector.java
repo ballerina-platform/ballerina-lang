@@ -28,7 +28,7 @@ public interface BallerinaServerConnector {
     /**
      * This should return relevant protocol package path.
      *
-     * @return
+     * @return relevant protocol package path.
      */
     String getProtocolPackage();
 
@@ -36,7 +36,7 @@ public interface BallerinaServerConnector {
      * This will fire a service registration event to the server connector implementation.
      *
      * @param service to be registered.
-     * @throws BallerinaConnectorException
+     * @throws BallerinaConnectorException if an error occurs
      */
     void serviceRegistered(Service service) throws BallerinaConnectorException;
 
@@ -44,14 +44,14 @@ public interface BallerinaServerConnector {
      * This will fire a service un-registration event to the server connector implementation.
      *
      * @param service to be un-registered
-     * @throws BallerinaConnectorException
+     * @throws BallerinaConnectorException if an error occurs
      */
     void serviceUnregistered(Service service) throws BallerinaConnectorException;
 
     /**
      * This will fire a deployment complete event so to the server connector implementation.
      *
-     * @throws BallerinaConnectorException
+     * @throws BallerinaConnectorException if an error occurs
      */
     void deploymentComplete() throws BallerinaConnectorException;
 

@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.test.types.string;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -26,8 +29,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -44,13 +45,13 @@ public class StringTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/string/string-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-test.bal");
     }
 
     @Test
     public void testBooleanValueOf() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BTestUtils.invoke(result, "booleanValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "booleanValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -61,7 +62,7 @@ public class StringTest {
     @Test
     public void testContains() {
         BValue[] args = {new BString(s1), new BString("WSO2")};
-        BValue[] returns = BTestUtils.invoke(result, "contains", args);
+        BValue[] returns = BRunUtil.invoke(result, "contains", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -72,7 +73,7 @@ public class StringTest {
     @Test
     public void testEqualsIgnoreCase() {
         BValue[] args = {new BString("WSO2"), new BString("wso2")};
-        BValue[] returns = BTestUtils.invoke(result, "equalsIgnoreCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "equalsIgnoreCase", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -83,7 +84,7 @@ public class StringTest {
     @Test
     public void testFloatValueOf() {
         BValue[] args = {new BFloat(1.345f)};
-        BValue[] returns = BTestUtils.invoke(result, "floatValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -94,7 +95,7 @@ public class StringTest {
     @Test
     public void testHasPrefix() {
         BValue[] args = {new BString("Expendables"), new BString("Ex")};
-        BValue[] returns = BTestUtils.invoke(result, "hasPrefix", args);
+        BValue[] returns = BRunUtil.invoke(result, "hasPrefix", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -105,7 +106,7 @@ public class StringTest {
     @Test
     public void testHasSuffix() {
         BValue[] args = {new BString("One Two"), new BString("Two")};
-        BValue[] returns = BTestUtils.invoke(result, "hasSuffix", args);
+        BValue[] returns = BRunUtil.invoke(result, "hasSuffix", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -116,7 +117,7 @@ public class StringTest {
     @Test
     public void testIndexOf() {
         BValue[] args = {new BString("Lion in the town"), new BString("in")};
-        BValue[] returns = BTestUtils.invoke(result, "indexOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "indexOf", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -127,7 +128,7 @@ public class StringTest {
     @Test
     public void testIntValueOf() {
         BValue[] args = {new BInteger(25)};
-        BValue[] returns = BTestUtils.invoke(result, "intValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "intValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -138,7 +139,7 @@ public class StringTest {
     @Test
     public void testJsonValueOf() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BTestUtils.invoke(result, "jsonValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "jsonValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -149,7 +150,7 @@ public class StringTest {
     @Test
     public void testLastIndexOf() {
         BValue[] args = {new BString("test x value x is x 18"), new BString("x")};
-        BValue[] returns = BTestUtils.invoke(result, "lastIndexOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "lastIndexOf", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -160,7 +161,7 @@ public class StringTest {
     @Test
     public void testLength() {
         BValue[] args = {new BString("Bandwagon")};
-        BValue[] returns = BTestUtils.invoke(result, "length", args);
+        BValue[] returns = BRunUtil.invoke(result, "length", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -171,7 +172,7 @@ public class StringTest {
     @Test
     public void testReplace() {
         BValue[] args = {new BString("Best Company is Google"), new BString("Google"), new BString("WSO2")};
-        BValue[] returns = BTestUtils.invoke(result, "replace", args);
+        BValue[] returns = BRunUtil.invoke(result, "replace", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -182,7 +183,7 @@ public class StringTest {
     @Test
     public void testReplaceAll() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString("xyz")};
-        BValue[] returns = BTestUtils.invoke(result, "replaceAll", args);
+        BValue[] returns = BRunUtil.invoke(result, "replaceAll", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -193,7 +194,7 @@ public class StringTest {
     @Test
     public void testReplaceFirst() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString("xyz")};
-        BValue[] returns = BTestUtils.invoke(result, "replaceFirst", args);
+        BValue[] returns = BRunUtil.invoke(result, "replaceFirst", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -204,7 +205,7 @@ public class StringTest {
     @Test
     public void testStringValueOf() {
         BValue[] args = {new BString("This is a String")};
-        BValue[] returns = BTestUtils.invoke(result, "stringValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -215,7 +216,7 @@ public class StringTest {
     @Test
     public void testSubString() {
         BValue[] args = {new BString("testValues"), new BInteger(0), new BInteger(9)};
-        BValue[] returns = BTestUtils.invoke(result, "subString", args);
+        BValue[] returns = BRunUtil.invoke(result, "subString", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -226,7 +227,7 @@ public class StringTest {
     @Test
     public void testToLowerCase() {
         BValue[] args = {new BString("COMPANY")};
-        BValue[] returns = BTestUtils.invoke(result, "toLowerCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "toLowerCase", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -237,7 +238,7 @@ public class StringTest {
     @Test
     public void testToUpperCase() {
         BValue[] args = {new BString("company")};
-        BValue[] returns = BTestUtils.invoke(result, "toUpperCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "toUpperCase", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -248,7 +249,7 @@ public class StringTest {
     @Test
     public void testTrim() {
         BValue[] args = {new BString(" This is a String ")};
-        BValue[] returns = BTestUtils.invoke(result, "trim", args);
+        BValue[] returns = BRunUtil.invoke(result, "trim", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -259,7 +260,7 @@ public class StringTest {
     @Test
     public void testUnescape() {
         BValue[] args = {new BString("This \\is an escaped \\String")};
-        BValue[] returns = BTestUtils.invoke(result, "unescape", args);
+        BValue[] returns = BRunUtil.invoke(result, "unescape", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -270,7 +271,7 @@ public class StringTest {
     @Test
     public void testXmlValueOf() {
         BValue[] args = {new BXMLItem("<test>name</test>")};
-        BValue[] returns = BTestUtils.invoke(result, "xmlValueOf", args);
+        BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -281,13 +282,13 @@ public class StringTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXMLItem("<test>name<test>")};
-        BTestUtils.invoke(result, "xmlValueOf", args);
+        BRunUtil.invoke(result, "xmlValueOf", args);
     }
 
     @Test
     public void testSplit() {
         BValue[] args = {new BString("name1 name2 name3"), new BString(" ")};
-        BValue[] returns = BTestUtils.invoke(result, "split", args);
+        BValue[] returns = BRunUtil.invoke(result, "split", args);
 
         Assert.assertTrue(returns[0] instanceof BStringArray);
 
@@ -302,7 +303,7 @@ public class StringTest {
 
         String content = "Sample Content";
         BValue[] args = { new BString(content), new BString("UTF-8") };
-        BValue[] returns = BTestUtils.invoke(result, "toBlob", args);
+        BValue[] returns = BRunUtil.invoke(result, "toBlob", args);
 
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
                 "Produced Blob value is wrong");

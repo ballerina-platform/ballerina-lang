@@ -17,12 +17,14 @@
  */
 package org.ballerinalang.test.connectors;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,8 +44,8 @@ public class FilterConnectorTest {
 
     @Test(description = "Test TestConnector action1", enabled = false)
     public void testConnectorAction1() {
-        result = BTestUtils.compile("test-src/connectors/filter-connector-test-workers.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testAction1");
+        result = BCompileUtil.compile("test-src/connectors/filter-connector-test-workers.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testAction1");
         Assert.assertEquals(returns.length, 1);
         BJSON actionReturned = (BJSON) returns[0];
         String expected = "{\"name\":\"chanaka\"}";
@@ -52,9 +54,9 @@ public class FilterConnectorTest {
 
     @Test(description = "Test passing arguments for filter connectors", enabled = false)
     public void testFilterConnectorArgumentPassing() {
-        result = BTestUtils.compile("test-src/connectors/filter-connector-ap-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/filter-connector-ap-test.bal");
         BValue[] args = {new BString("WSO2")};
-        BValue[] returns = BTestUtils.invoke(result, "testArgumentPassing", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArgumentPassing", args);
         Assert.assertEquals(returns.length, 1);
         BInteger actionReturned = (BInteger) returns[0];
         int expected = 500;
@@ -63,9 +65,9 @@ public class FilterConnectorTest {
 
     @Test(description = "Test multiple filters", enabled = false)
     public void testMultipleFilterConnector() {
-        result = BTestUtils.compile("test-src/connectors/filter-connector-multiple-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/filter-connector-multiple-test.bal");
         BValue[] args = {new BString("WSO2")};
-        BValue[] returns = BTestUtils.invoke(result, "testArgumentPassing", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArgumentPassing", args);
         Assert.assertEquals(returns.length, 1);
         BInteger actionReturned = (BInteger) returns[0];
         int expected = 500;
@@ -75,21 +77,21 @@ public class FilterConnectorTest {
     @Test(description = "Test filter connectors negative syntax when filter base type is not compatible"
             , enabled = false)
     public void testFilterConnectorNegativeIncompatibleFilterType() {
-        CompileResult resultNegative = BTestUtils
+        CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/filter-connector-negative-incompatible-filter.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0
+        BAssertUtil.validateError(resultNegative, 0
                 , "connector types 'FilterConnector' and 'TestConnector' are not equivalent", 13, 32);
     }
 
     @Test(description = "Test filter connectors negative syntax when filter base type is not defined")
     public void testFilterConnectorNegativeFilterBaseTypeNotDefined() {
-        CompileResult resultNegative = BTestUtils
+        CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/filter-connector-negative-base-type-undefined.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
-        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'TestConnector2'", 6, 23);
-        BTestUtils.validateError(resultNegative, 1, "unknown type 'TestConnector'", 17, 5);
-        BTestUtils.validateError(resultNegative, 2, "undefined connector 'TestConnector'", 17, 35);
+        BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'TestConnector2'", 6, 23);
+        BAssertUtil.validateError(resultNegative, 1, "unknown type 'TestConnector'", 17, 5);
+        BAssertUtil.validateError(resultNegative, 2, "undefined connector 'TestConnector'", 17, 35);
     }
 
     @Test(description = "Test filter connectors negative syntax when filter connector input types are incompatible",
@@ -97,9 +99,9 @@ public class FilterConnectorTest {
             expectedExceptionsMessageRegExp = ".*message: connector input types are not equivalent in " +
                     "connectors 'TestConnector2' and 'TestConnector'.*", enabled = false)
     public void testFilterConnectorNegativeInputTypesIncompatible() {
-        result = BTestUtils.compile("test-src/connectors/filter-connector-negative-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/filter-connector-negative-test.bal");
         BValue[] args = {new BString("WSO2")};
-        BTestUtils.invoke(result, "testArgumentPassing", args);
+        BRunUtil.invoke(result, "testArgumentPassing", args);
     }
 
 }

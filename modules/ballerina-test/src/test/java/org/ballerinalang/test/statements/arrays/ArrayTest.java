@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
@@ -28,8 +31,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +45,7 @@ public class ArrayTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/arrays/arrayTest.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/arrayTest.bal");
     }
 
     @Test
@@ -55,7 +56,7 @@ public class ArrayTest {
         arrayValue.add(2, 12.2f);
 
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testFloatArrayLength", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testFloatArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Length didn't match");
@@ -69,7 +70,7 @@ public class ArrayTest {
         arrayValue.add(1, 11);
         arrayValue.add(2, 12);
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testIntArrayLength", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testIntArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Length didn't match");
@@ -82,7 +83,7 @@ public class ArrayTest {
         arrayValue.add(0, "Hello");
         arrayValue.add(1, "World");
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testStringArrayLength", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testStringArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -95,7 +96,7 @@ public class ArrayTest {
         arrayValue.add(0, new BXMLItem("<t>a</t>"));
         arrayValue.add(1, new BXMLItem("<t>b</t>"));
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testXMLArrayLength", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testXMLArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -104,7 +105,7 @@ public class ArrayTest {
 
     @Test()
     public void testJSONArrayLength() {
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayLength");
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testJSONArrayLength");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -121,7 +122,7 @@ public class ArrayTest {
         arrayValue.add(1, v2);
 
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testFloatArrayCopy", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testFloatArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BFloatArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -137,7 +138,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testIntArrayCopy", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testIntArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BIntArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -153,7 +154,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testStringArrayCopy", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testStringArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BStringArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -169,7 +170,7 @@ public class ArrayTest {
         arrayValue.add(0,  new BXMLItem(v1));
         arrayValue.add(1,  new BXMLItem(v2));
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testXMLArrayCopy", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testXMLArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -180,7 +181,7 @@ public class ArrayTest {
     @Test
     public void testJSONArrayCopyOf() {
 
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayCopy");
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testJSONArrayCopy");
         
         Assert.assertTrue(returnVals[0] instanceof BJSON);
         BJSON copiedJson = (BJSON) returnVals[0];
@@ -206,7 +207,7 @@ public class ArrayTest {
         arrayValue.add(3, v4);
 
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testFloatArrayCopyRange", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testFloatArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BFloatArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -225,7 +226,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testFloatArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testFloatArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -238,7 +239,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testFloatArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testFloatArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -254,7 +255,7 @@ public class ArrayTest {
         arrayValue.add(2, v3);
         arrayValue.add(3, v4);
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testIntArrayCopyRange", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testIntArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BIntArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -272,7 +273,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testIntArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testIntArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -285,7 +286,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testIntArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testIntArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -301,7 +302,7 @@ public class ArrayTest {
         arrayValue.add(2, v3);
         arrayValue.add(3, v4);
         BValue[] args = {arrayValue, new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testStringArrayCopyRange", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testStringArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BStringArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -319,7 +320,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testStringArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testStringArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -332,7 +333,7 @@ public class ArrayTest {
         arrayValue.add(0, v1);
         arrayValue.add(1, v2);
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testStringArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testStringArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -348,7 +349,7 @@ public class ArrayTest {
         arrayValue.add(2, new BXMLItem(v3));
         arrayValue.add(3, new BXMLItem(v4));
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testXMLArrayCopyRange", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testXMLArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
@@ -366,7 +367,7 @@ public class ArrayTest {
         arrayValue.add(0, new BXMLItem(v1));
         arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testXMLArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -379,7 +380,7 @@ public class ArrayTest {
         arrayValue.add(0, new BXMLItem(v1));
         arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testXMLArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -392,7 +393,7 @@ public class ArrayTest {
         BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + ", " + v3 + ", " + v4 + "]");
         
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayCopyRange", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testJSONArrayCopyRange", args);
         
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -412,7 +413,7 @@ public class ArrayTest {
         final String v2 = "{ \"json\" : \"2\"}";
         BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testJSONArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -423,7 +424,7 @@ public class ArrayTest {
         final String v2 = "{ \"json\" : \"2\"}";
         BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
-        BTestUtils.invoke(compileResult, "testJSONArrayCopyRange", args);
+        BRunUtil.invoke(compileResult, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -437,7 +438,7 @@ public class ArrayTest {
         arrayValue.add(1, v2);
         arrayValue.add(2, v3);
         BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testStringArraySort", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testStringArraySort", args);
         Assert.assertEquals(((BStringArray) returnVals[0]).get(0), "country");
         Assert.assertEquals(((BStringArray) returnVals[0]).get(1), "currency");
         Assert.assertEquals(((BStringArray) returnVals[0]).get(2), "states");

@@ -17,10 +17,12 @@
 */
 package org.ballerinalang.test.statements.continuestatement;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,14 +39,14 @@ public class NextStmtTest {
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BTestUtils.compile("test-src/statements/nextstatement/next-stmt.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/statements/nextstatement/next-stmt-negative.bal");
+        positiveCompileResult = BCompileUtil.compile("test-src/statements/nextstatement/next-stmt.bal");
+        negativeCompileResult = BCompileUtil.compile("test-src/statements/nextstatement/next-stmt-negative.bal");
     }
 
     @Test(description = "Test continue statement in a while loop.")
     public void testNextStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -57,7 +59,7 @@ public class NextStmtTest {
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
     public void testNextStmtConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -70,7 +72,7 @@ public class NextStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testNextStmtInNestedWhileConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedNextStmt", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -83,7 +85,7 @@ public class NextStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testNextStmtInNestedWhileConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedNextStmt", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -96,7 +98,7 @@ public class NextStmtTest {
     @Test(description = "Check invalid continue statement location.")
     public void testNegative() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
-        BTestUtils.validateError(negativeCompileResult, 0, "continue cannot be used outside of a loop", 14, 5);
-        BTestUtils.validateError(negativeCompileResult, 1, "unreachable code", 29, 13);
+        BAssertUtil.validateError(negativeCompileResult, 0, "continue cannot be used outside of a loop", 14, 5);
+        BAssertUtil.validateError(negativeCompileResult, 1, "unreachable code", 29, 13);
     }
 }

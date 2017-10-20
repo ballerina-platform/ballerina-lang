@@ -18,10 +18,11 @@
 package org.ballerinalang.test.expressions.invocations;
 
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,12 +38,12 @@ public class PackageInitInvocationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src", "expressions/invocations/pkg/c");
+        result = BCompileUtil.compile(this, "test-src", "expressions/invocations/pkg/c");
     }
 
     @Test
     public void invokeFunctionWithParams() {
-        BValue[] values = BTestUtils.invoke(result, "testInitInvocation");
+        BValue[] values = BRunUtil.invoke(result, "testInitInvocation");
         Assert.assertEquals(values.length, 1);
         Assert.assertTrue(values[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) values[0]).intValue(), 19);

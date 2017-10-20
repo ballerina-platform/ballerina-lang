@@ -28,7 +28,7 @@ function changeGlobalVar(int addVal) (float) {
 }
 
 function getGlobalFloatVar() (float) {
-    changeGlobalVar(3);
+    _ = changeGlobalVar(3);
     return glbVarFloatChange;
 }
 

@@ -23,10 +23,11 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -127,7 +128,7 @@ public class VMDebuggerUtil {
                       BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
 
-            result = BTestUtils.compile(sourceFilePath);
+            result = BCompileUtil.compile(sourceFilePath);
 
             bContext = new Context(result.getProgFile());
             bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
@@ -148,7 +149,7 @@ public class VMDebuggerUtil {
             }
 
             // Invoke package init function
-            BTestUtils.invoke(result, mainPkgInfo.getInitFunctionInfo(), bContext);
+            BRunUtil.invoke(result, mainPkgInfo.getInitFunctionInfo(), bContext);
 
             // Prepare main function arguments
             BStringArray arrayArgs = new BStringArray();
