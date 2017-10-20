@@ -7,9 +7,9 @@ service<http> helloWorld {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Request req, http:Response res) {
-        res.setStringPayload("Hello, World!");
-        res.send();
+    resource sayHello (http:Request req, http:Response resp) {
+        resp.setStringPayload("Hello, World!");
+        resp.send();
     }
     
 }

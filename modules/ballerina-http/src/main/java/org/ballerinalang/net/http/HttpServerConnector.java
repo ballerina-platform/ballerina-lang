@@ -33,9 +33,11 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * {@code HttpServerConnector} This is the http implementation for the {@code BallerinaServerConnector} API.
@@ -60,51 +62,33 @@ public class HttpServerConnector implements BallerinaServerConnector {
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
         HttpService httpService = new HttpService(service);
         HTTPServicesRegistry.getInstance().registerService(httpService);
-        Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(httpService);
-        for (Resource resource : httpService.getResources()) {
-
-            validateResourceSignature(resource);
-
-            Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                    Constants.ANN_NAME_RESOURCE_CONFIG);
-            String subPathAnnotationVal;
-            if (rConfigAnnotation == null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("resourceConfig not specified in the Resource, using default sub path");
-                }
-                subPathAnnotationVal = resource.getName();
-            } else {
-                AnnAttrValue pathAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PATH);
-                if (pathAttrVal == null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Path not specified in the Resource, using default sub path");
-                    }
-                    subPathAnnotationVal = resource.getName();
-                } else if (pathAttrVal.getStringValue().trim().isEmpty()) {
-                    subPathAnnotationVal = Constants.DEFAULT_BASE_PATH;
-                } else {
-                    subPathAnnotationVal = pathAttrVal.getStringValue();
-                }
-            }
-
+        CorsPopulator.populateServiceCors(httpService);
+        List<HttpResource> resources = new ArrayList<>();
+        for (Resource resource : service.getResources()) {
+            HttpResource httpResource = buildHttpResource(resource);
+            validateResourceSignature(httpResource);
             try {
-                httpService.getUriTemplate().parse(subPathAnnotationVal, resource);
+                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource);
             } catch (URITemplateException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }
-            CorsRegistry.getInstance().processResourceCors(resource, serviceCorsMap);
+            CorsPopulator.processResourceCors(httpResource, httpService);
+            resources.add(httpResource);
         }
-        String basePath = DispatcherUtil.getServiceBasePath(httpService);
-        sortedServiceURIs.add(basePath);
+        httpService.setResources(resources);
+        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
+        //basePath will get cached after registering service
+        sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
     }
 
     @Override
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
-        HTTPServicesRegistry.getInstance().unregisterService(service);
+        HttpService httpService = new HttpService(service);
+        HTTPServicesRegistry.getInstance().unregisterService(httpService);
 
-        String basePath = DispatcherUtil.getServiceBasePath(service);
-        sortedServiceURIs.remove(basePath);
+        //basePath will get cached after unregistering the service
+        sortedServiceURIs.remove(httpService.getBasePath());
     }
 
     @Override
@@ -181,7 +165,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
         return null;
     }
 
-    private void validateResourceSignature(Resource resource) {
+    private void validateResourceSignature(HttpResource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
 
         if (paramDetails.size() < 2) {
@@ -219,5 +203,53 @@ public class HttpServerConnector implements BallerinaServerConnector {
                 throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
         }
+    }
+
+    private HttpResource buildHttpResource(Resource resource) {
+        HttpResource httpResource = new HttpResource(resource);
+        Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANN_NAME_RESOURCE_CONFIG);
+        if (rConfigAnnotation == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("resourceConfig not specified in the Resource, using default sub path");
+            }
+            httpResource.setPath(resource.getName());
+            return httpResource;
+        }
+        String subPath;
+        AnnAttrValue pathAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PATH);
+        if (pathAttrVal == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Path not specified in the Resource, using default sub path");
+            }
+            subPath = resource.getName();
+        } else {
+            subPath = pathAttrVal.getStringValue().trim();
+        }
+        if (subPath.isEmpty()) {
+            subPath = Constants.DEFAULT_BASE_PATH;
+        }
+        httpResource.setPath(subPath);
+
+        AnnAttrValue methodsAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        if (methodsAttrVal != null) {
+            httpResource.setMethods(DispatcherUtil.getValueList(methodsAttrVal, null));
+        }
+        AnnAttrValue consumesAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
+        if (consumesAttrVal != null) {
+            httpResource.setConsumes(DispatcherUtil.getValueList(consumesAttrVal, null));
+        }
+        AnnAttrValue producesAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
+        if (producesAttrVal != null) {
+            httpResource.setProduces(DispatcherUtil.getValueList(producesAttrVal, null));
+        }
+        if (httpResource.getProduces() != null) {
+            List<String> subAttributeValues = httpResource.getProduces().stream()
+                    .map(mediaType -> mediaType.trim()
+                            .substring(0, mediaType.indexOf("/")))
+                    .distinct().collect(Collectors.toList());
+            httpResource.setProducesSubTypes(subAttributeValues);
+        }
+        return httpResource;
     }
 }

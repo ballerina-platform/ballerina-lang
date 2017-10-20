@@ -9,7 +9,7 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Request req, http:Response res) {
+    resource locator (http:Request req, http:Response resp) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product", {});
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product", {});
         
@@ -21,17 +21,20 @@ service<http> ATMLocator {
         json branchLocatorReq = {"BranchLocator": {"ZipCode":""}};
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         backendServiceReq.setJsonPayload(branchLocatorReq);
-        
-        res = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = res.getJsonPayload();
+
+        http:Response locatorResponse = {};
+        locatorResponse = branchLocatorService.post("", backendServiceReq);
+        json branchLocatorRes = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string) branchLocatorRes.ABCBank.BranchCode;
         system:println("Branch Code " + branchCode);
         json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         backendServiceReq.setJsonPayload(bankInfoReq);
-        res = bankInfoService.post("", backendServiceReq);
-        res.send();
+
+        http:Response infoResponse = {};
+        infoResponse = bankInfoService.post("", backendServiceReq);
+        resp.forward(infoResponse);
     
     }    
 }
