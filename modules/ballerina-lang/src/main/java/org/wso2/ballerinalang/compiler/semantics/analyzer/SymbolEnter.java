@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -241,6 +242,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
+        Name pkgAlias = names.fromIdNode(importPkgNode.alias);
+        if (symResolver.lookupSymbol(env, pkgAlias, SymTag.IMPORT) != symTable.notFoundSymbol) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+            return;
+        }
+
         // Create import package symbol
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
@@ -258,7 +265,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         importPkgNode.symbol = pkgSymbol;
-        this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
+        this.env.scope.define(pkgAlias, pkgSymbol);
     }
 
     @Override
@@ -351,6 +358,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
+        ((BInvokableType) funcSymbol.type).typeDescriptor = TypeDescriptor.SIG_FUNCTION;
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
@@ -365,7 +373,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             defineNode(funcNode.receiver, invokableEnv);
             funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-            ((BInvokableType) funcSymbol.type).receiverType = funcNode.receiver.symbol.type;
+            ((BInvokableType) funcSymbol.type).setReceiverType(funcNode.receiver.symbol.type);
         }
     }
 
@@ -383,7 +391,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 env.enclPkg.symbol.pkgID, actionSymbol.owner.type, invokableEnv.scope.owner);
 
         actionSymbol.receiverSymbol = varSymbol;
-        ((BInvokableType) actionSymbol.type).receiverType = varSymbol.type;
+        ((BInvokableType) actionSymbol.type).setReceiverType(varSymbol.type);
     }
 
     @Override

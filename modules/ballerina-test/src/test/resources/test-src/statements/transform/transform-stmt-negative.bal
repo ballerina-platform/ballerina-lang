@@ -22,13 +22,6 @@ function oneToOneTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function emptyTransform() {
-    Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
-    Employee e = {};
-    transform {
-    }
-}
-
 
 
 

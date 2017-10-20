@@ -1,3 +1,0 @@
-function stringTest() {
-    string string = "";
-}

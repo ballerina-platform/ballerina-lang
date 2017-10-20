@@ -62,6 +62,7 @@ public enum TypeKind {
     ANNOTATION("annotation"),
     ARRAY("[]"),
     VOID(""),
+    NULL("null"),
     NONE(""),
     OTHER("other"),
     MESSAGE("message"),

@@ -1,4 +1,3 @@
-import ballerina.lang.errors;
 import ballerina.lang.system;
 import ballerina.doc;
 
@@ -10,7 +9,7 @@ struct Record {
 @doc:Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
 function readRecord (Record value) {
     if (value == null) {
-        errors:NullReferenceError err = {msg:"Record is null"};
+        error err = {msg:"Record is null"};
         throw err;
     }
     system:println("Record ID: " + value.id + ", value: " + value.name);

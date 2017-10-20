@@ -6,8 +6,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -26,16 +24,6 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a new string that is the substring of the specified string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
-        value = "The original string argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "from",
-        value = "The starting index") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "to",
-        value = "The ending index") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The derived sub string") })
 public class SubString extends AbstractNativeFunction {
 
     @Override

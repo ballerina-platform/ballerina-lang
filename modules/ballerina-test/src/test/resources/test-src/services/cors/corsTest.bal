@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 @http:configuration {
     basePath:"/hello1",
@@ -20,8 +19,8 @@ service<http> echo1 {
     }
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"resCors"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -30,8 +29,8 @@ service<http> echo1 {
     }
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"serCors"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -42,8 +41,8 @@ service<http> echo1 {
     }
     resource info3 (http:Request req, http:Response res) {
         json responseJson = {"echo":"moreOrigins"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -57,8 +56,8 @@ service<http> hello2 {
     }
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"resOnlyCors"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -70,8 +69,8 @@ service<http> hello2 {
     }
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"optionsOnly"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -90,8 +89,8 @@ service<http> echo3 {
     }
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"cors"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }
 
@@ -101,8 +100,8 @@ service<http> echo4 {
     }
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"noCors"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 
     @http:resourceConfig {
@@ -110,7 +109,7 @@ service<http> echo4 {
     }
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"noCorsOPTIONS"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        res.setJsonPayload(responseJson);
+        res.send();
     }
 }

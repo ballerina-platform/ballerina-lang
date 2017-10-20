@@ -51,11 +51,16 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     @Override
     public String toString() {
-        return this.elemtype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
+        return getTypeName() + String.join("", Collections.nCopies(dimensions, "[]"));
     }
 
     @Override
     public NodeKind getKind() {
         return NodeKind.ARRAY_TYPE;
+    }
+
+    private String getTypeName() {
+        return (elemtype instanceof BLangUserDefinedType ?
+                ((BLangUserDefinedType) elemtype).typeName.value : elemtype.toString());
     }
 }

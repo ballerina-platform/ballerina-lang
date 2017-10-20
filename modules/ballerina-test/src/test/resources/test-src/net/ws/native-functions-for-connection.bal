@@ -1,41 +1,41 @@
 import ballerina.net.ws;
 
 function testGetID(ws:Connection conn) (string) {
-    return ws:getID(conn);
+    return conn.getID();
 }
 
 function testGetNegotiatedSubProtocols(ws:Connection conn) (string)  {
-    return ws:getNegotiatedSubProtocol(conn);
+    return conn.getNegotiatedSubProtocol();
 }
 
 function testIsSecure(ws:Connection conn) (boolean) {
-    return ws:isSecure(conn);
+    return conn.isSecure();
 }
 
 function testIsOpen(ws:Connection conn) (boolean) {
-    return ws:isOpen(conn);
+    return conn.isOpen();
 }
 
 function testGetUpgradeHeader(ws:Connection conn, string key) (string) {
-    return ws:getUpgradeHeader(conn, key);
+    return conn.getUpgradeHeader(key);
 }
 
 function testGetUpgradeHeaders (ws:Connection  conn) (map) {
-    return ws:getUpgradeHeaders(conn);
+    return conn.getUpgradeHeaders();
 }
 
 function testGetParentConnection(ws:Connection conn) (ws:Connection) {
-    return ws:getParentConnection(conn);
+    return conn.getParentConnection();
 }
 
 function testPushText(ws:Connection conn, string text) {
-    ws:pushText(conn, text);
+    conn.pushText(text);
 }
 
 function testPushBinary(ws:Connection conn, blob data) {
-    ws:pushBinary(conn, data);
+    conn.pushBinary(data);
 }
 
 function testCloseConnection(ws:Connection conn, int statusCode, string reason) {
-    ws:closeConnection(conn, statusCode, reason);
+    conn.closeConnection(statusCode, reason);
 }

@@ -21,8 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,10 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
                                   structPackage = "ballerina.lang.time")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Create a Time struct with given string and the matching pattern information.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
-        value = "The Time struct")})
 public class Parse extends  AbstractTimeFunction {
 
     @Override

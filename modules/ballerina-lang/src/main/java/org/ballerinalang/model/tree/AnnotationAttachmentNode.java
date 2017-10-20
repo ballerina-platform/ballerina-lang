@@ -18,7 +18,6 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 
 import java.util.List;
 
@@ -37,5 +36,5 @@ public interface AnnotationAttachmentNode extends Node {
 
     List<? extends AnnotationAttachmentAttributeNode> getAttributes();
 
-    void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value);
+    void addAttribute(AnnotationAttachmentAttributeNode attribute);
 }

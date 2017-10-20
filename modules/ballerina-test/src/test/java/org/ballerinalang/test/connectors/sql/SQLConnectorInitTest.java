@@ -35,21 +35,52 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/sql-connector-init.bal");
+        result = BTestUtils.compile("test-src/connectors/sql/sql-connector-init.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
-    public void testConnectorWithDataSource() {
-        BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSource", args);
+    @Test
+    public void testConnectorWithDefaultPropertiesForListedDB() {
+         BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDefaultPropertiesForListedDB");
+         BString retValue = (BString) returns[0];
+         final String expected = "Peter";
+         Assert.assertEquals(retValue.stringValue(), expected);
+     }
+
+    @Test
+    public void testConnectorWithDirectUrl() {
+        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDirectUrl");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest" , enabled = false)
+    @Test
+    public void testConnectorWithDataSourceClass() {
+        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClass");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectorWithDataSourceClassWithoutURL() {
+        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClassWithoutURL");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectorWithDataSourceClassURLPriority() {
+        BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSourceClassURLPriority");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
     public void testConnectionPoolProperties() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testConnectionPoolProperties", args);
@@ -57,6 +88,15 @@ public class SQLConnectorInitTest {
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
+
+    @Test(expectedExceptions = RuntimeException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*error in sql connector configuration: cannot generate url for unknown database type : TESTDB.*")
+    public void testInvalidDBType() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "testInvalidDBType", args);
+    }
+
 
     @AfterSuite
     public void cleanup() {

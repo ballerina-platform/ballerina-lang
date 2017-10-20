@@ -48,8 +48,9 @@ public interface PackageRepository {
     
     /**
      * Lists all the packages that are available in this repository.
+     * @param maxDepth the maximum depth of directories to search in
      * @return the list of packages
      */
-    Set<PackageID> listPackages();
+    Set<PackageID> listPackages(int maxDepth);
     
 }

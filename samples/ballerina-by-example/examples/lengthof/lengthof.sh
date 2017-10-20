@@ -1,3 +1,3 @@
 $ ballerina run lengthof.bal
 Integer array size : 3
-Json array size : 2
+JSON array size : 2

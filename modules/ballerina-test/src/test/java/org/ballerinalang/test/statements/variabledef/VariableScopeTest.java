@@ -66,12 +66,12 @@ public class VariableScopeTest {
     public void testVariableScopeNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
         //testVariableIfScope
-        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'k'", 15, 12);
+        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'k'", 14, 12);
         //testVariableElseScope
-        BTestUtils.validateError(resultNegative, 1, "undefined symbol 'b'", 26, 12);
+        BTestUtils.validateError(resultNegative, 1, "undefined symbol 'b'", 25, 12);
         //testVariableWhileScope
-        BTestUtils.validateError(resultNegative, 2, "undefined symbol 'b'", 35, 15);
+        BTestUtils.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
         //testVariableResourceScope
-        BTestUtils.validateError(resultNegative, 3, "undefined symbol 'b'", 47, 17);
+        BTestUtils.validateError(resultNegative, 3, "undefined symbol 'b'", 46, 17);
     }
 }

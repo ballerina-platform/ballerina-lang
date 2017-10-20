@@ -39,7 +39,7 @@ function successfulIntCasting()(int) {
   floatVal, _ = (float)abc;
   //Int to float is a conversion now
   int intVal;
-  intVal, _ = <int>floatVal;
+  intVal = <int>floatVal;
   return intVal;
 }
 
@@ -81,4 +81,10 @@ function assignmentTest()(any a) {
     any val;
     val = 44.3;
     return val;
+}
+
+function anyArrayWithMapArray()(any[] a) {
+    map[] ma = [];
+    a = ma;
+    return;
 }

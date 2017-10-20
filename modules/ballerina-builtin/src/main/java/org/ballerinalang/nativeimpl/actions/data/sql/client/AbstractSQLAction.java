@@ -20,12 +20,20 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -35,12 +43,13 @@ import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.Array;
+import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -56,6 +65,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -79,6 +89,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     }
 
+    @Override
+    public BValue getRefArgument(Context context, int index) {
+        if (index > -1) {
+            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -86,13 +104,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
-            stmt = getPreparedStatement(conn, datasource, query);
+            String processedQuery = createProcessedQueryString(query, parameters);
+            stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                     getColumnDefinitions(rs));
             context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
@@ -104,7 +123,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
-            stmt = conn.prepareStatement(query);
+            String processedQuery = createProcessedQueryString(query, parameters);
+            stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
@@ -124,6 +144,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
+            String processedQuery = createProcessedQueryString(query, parameters);
             int keyColumnCount = 0;
             if (keyColumns != null) {
                 keyColumnCount = (int) keyColumns.size();
@@ -133,9 +154,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 for (int i = 0; i < keyColumnCount; i++) {
                     columnArray[i] = keyColumns.get(i);
                 }
-                stmt = conn.prepareStatement(query, columnArray);
+                stmt = conn.prepareStatement(processedQuery, columnArray);
             } else {
-                stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             }
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
@@ -174,7 +195,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
@@ -184,30 +205,115 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                                       String query, BRefValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
+        int[] updatedCount;
+        int paramArrayCount = 0;
         try {
             conn = datasource.getSQLConnection();
             stmt = conn.prepareStatement(query);
             setConnectionAutoCommit(conn, false);
-            int paramArrayCount = (int) parameters.size();
-            for (int index = 0; index < paramArrayCount; index++) {
-                BRefValueArray params = (BRefValueArray) parameters.get(index);
-                createProcessedStatement(conn, stmt, params);
+            if (parameters != null) {
+                paramArrayCount = (int) parameters.size();
+                for (int index = 0; index < paramArrayCount; index++) {
+                    BRefValueArray params = (BRefValueArray) parameters.get(index);
+                    createProcessedStatement(conn, stmt, params);
+                    stmt.addBatch();
+                }
+            } else {
+                createProcessedStatement(conn, stmt, null);
                 stmt.addBatch();
             }
-            int[] updatedCount = stmt.executeBatch();
+            updatedCount = stmt.executeBatch();
             conn.commit();
-            BIntArray countArray = new BIntArray();
-            int iSize = updatedCount.length;
-            for (int i = 0; i < iSize; ++i) {
-                countArray.add(i, updatedCount[i]);
-            }
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+        } catch (BatchUpdateException e) {
+            updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             setConnectionAutoCommit(conn, true);
             SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);
         }
+        //After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the driver
+        // may or may not continue to process the remaining commands in the batch. If the driver does not continue
+        // processing after a failure, the array returned by the method will have -3 (EXECUTE_FAILED) for those updates.
+        long[] returnedCount = new long[paramArrayCount];
+        Arrays.fill(returnedCount, Statement.EXECUTE_FAILED);
+        BIntArray countArray = new BIntArray(returnedCount);
+        if (updatedCount != null) {
+            int iSize = updatedCount.length;
+            for (int i = 0; i < iSize; ++i) {
+                countArray.add(i, updatedCount[i]);
+            }
+        }
+        context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+    }
+
+    /**
+     * If there are any arrays of parameter for types other than sql array, the given query is expanded by adding "?" s
+     * to match with the array size.
+     */
+    private String createProcessedQueryString(String query, BRefValueArray parameters) {
+        String currentQuery = query;
+        if (parameters != null) {
+            int start = 0;
+            Object[] vals;
+            int count;
+            int paramCount = (int) parameters.size();
+            for (int i = 0; i < paramCount; i++) {
+                BStruct paramValue = (BStruct) parameters.get(i);
+                if (paramValue != null) {
+                    BValue value = paramValue.getRefField(0);
+                    String sqlType = paramValue.getStringField(0);
+                    if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG &&
+                            !Constants.SQLDataTypes.ARRAY.equalsIgnoreCase(sqlType)) {
+                        count = (int) ((BNewArray) value).size();
+                    } else {
+                        count = 1;
+                    }
+                    vals = this.expandQuery(start, count, currentQuery);
+                    start = (Integer) vals[0];
+                    currentQuery = (String) vals[1];
+                }
+            }
+        }
+        return currentQuery;
+    }
+
+    /**
+     * Search for the first occurrence of "?" from the given starting point and replace it with given number of "?"'s.
+     */
+    private Object[] expandQuery(int start, int count, String query) {
+        StringBuilder result = new StringBuilder();
+        int n = query.length();
+        boolean doubleQuoteExists = false;
+        boolean singleQuoteExists = false;
+        int end = n;
+        for (int i = start; i < n; i++) {
+            if (query.charAt(i) == '\'') {
+                singleQuoteExists = !singleQuoteExists;
+            } else if (query.charAt(i) == '\"') {
+                doubleQuoteExists = !doubleQuoteExists;
+            } else if (query.charAt(i) == '?' && !(doubleQuoteExists || singleQuoteExists)) {
+                result.append(query.substring(0, i));
+                result.append(this.generateQuestionMarks(count));
+                end = result.length() + 1;
+                if (i + 1 < n) {
+                    result.append(query.substring(i + 1));
+                }
+                break;
+            }
+        }
+        return new Object[] { end, result.toString() };
+    }
+
+    private String generateQuestionMarks(int n) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            builder.append(Constants.QUESTION_MARK);
+            if (i + 1 < n) {
+                builder.append(",");
+            }
+        }
+        return builder.toString();
     }
 
     private void setConnectionAutoCommit(Connection conn, boolean status) {
@@ -252,7 +358,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
                statements that have output parameters */
-            if (!hasOutParams(parameters)) {
+            if (parameters != null && !hasOutParams(parameters)) {
                 stmt.setFetchSize(Integer.MIN_VALUE);
             }
         } else {
@@ -321,19 +427,59 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params) {
+        if (params == null) {
+            return;
+        }
         int paramCount = (int) params.size();
+        int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
-            BStruct paramValue = (BStruct) params.get(index);
-            String sqlType = paramValue.getStringField(0);
-            BValue value = paramValue.getRefField(0);
-            int direction = (int) paramValue.getIntField(0);
-            String structuredSQLType = paramValue.getStringField(1);
-            setParameter(conn, stmt, sqlType, value, direction, index, structuredSQLType);
+            BStruct paramStruct = (BStruct) params.get(index);
+            if (paramStruct != null) {
+                String sqlType = paramStruct.getStringField(0);
+                BValue value = paramStruct.getRefField(0);
+                int direction = (int) paramStruct.getIntField(0);
+                //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
+                if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                        .equalsIgnoreCase(sqlType)) {
+                    int arrayLength = (int) ((BNewArray) value).size();
+                    int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+                    for (int i = 0; i < arrayLength; i++) {
+                        BValue paramValue;
+                        switch (typeTag) {
+                        case TypeTags.INT_TAG:
+                            paramValue = new BInteger(((BIntArray) value).get(i));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            paramValue = new BFloat(((BFloatArray) value).get(i));
+                            break;
+                        case TypeTags.STRING_TAG:
+                            paramValue = new BString(((BStringArray) value).get(i));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            paramValue = new BBlob(((BBlobArray) value).get(i));
+                            break;
+                        default:
+                            throw new BallerinaException("unsupported array type for parameter index " + index);
+                        }
+                        setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
+                        currentOrdinal++;
+                    }
+                } else {
+                    setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
+                    currentOrdinal++;
+                }
+            } else {
+                SQLDatasourceUtils.setNullObject(stmt, index);
+                currentOrdinal++;
+            }
         }
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
-            int index, String structuredSQLType) {
+            int index) {
         if (sqlType == null || sqlType.isEmpty()) {
             SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -413,11 +559,11 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLDatasourceUtils.setNClobValue(stmt, value, index, direction, Types.NCLOB);
                 break;
             case Constants.SQLDataTypes.ARRAY:
-                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);
+                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY);
                 break;
             case Constants.SQLDataTypes.STRUCT:
                 SQLDatasourceUtils
-                        .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT, structuredSQLType);
+                        .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT);
                 break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
@@ -426,13 +572,21 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private void setOutParameters(CallableStatement stmt, BRefValueArray params) {
+        if (params == null) {
+            return;
+        }
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            String sqlType = paramValue.getStringField(0);
-            int direction = (int) paramValue.getIntField(0);
-            if (direction == Constants.QueryParamDirection.INOUT || direction == Constants.QueryParamDirection.OUT) {
-                setOutParameterValue(stmt, sqlType, index, paramValue);
+            if (paramValue != null) {
+                String sqlType = paramValue.getStringField(0);
+                int direction = (int) paramValue.getIntField(0);
+                if (direction == Constants.QueryParamDirection.INOUT
+                        || direction == Constants.QueryParamDirection.OUT) {
+                    setOutParameterValue(stmt, sqlType, index, paramValue);
+                }
+            } else {
+                throw new BallerinaException("out value cannot set for null parameter with index: " + index);
             }
         }
     }
@@ -587,19 +741,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
             throws SQLException {
-        Connection conn;
+        Connection conn = null;
         if (!isInTransaction) {
             conn = datasource.getSQLConnection();
             return conn;
         }
-        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
-        Object[] connInfo = createDatabaseConnection(datasource, ballerinaTxManager);
-        conn = (Connection) connInfo[0];
-        boolean newConnection = (Boolean) connInfo[1];
+        String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        if (newConnection) {
+        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
+        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
+        if (txContext == null) {
             if (isXAConnection) {
-                /* Atomikos transaction manager initialize only distributed transaction is present.*/
                 if (!ballerinaTxManager.hasXATransactionManager()) {
                     TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
                             .getTransactionManager();
@@ -615,35 +767,22 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                         XAResource xaResource = xaConn.getXAResource();
                         tx.enlistResource(xaResource);
                         conn = xaConn.getConnection();
+                        txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                        ballerinaTxManager.registerTransactionContext(connectorId, txContext);
                     }
-                } catch (SystemException | RollbackException e) {
+                } catch (SystemException | RollbackException | IllegalStateException e) {
                     throw new BallerinaException(
-                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(),
-                            e);
+                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
                 }
             } else {
-                if (conn != null) {
-                    conn.setAutoCommit(false);
-                }
+                conn = datasource.getSQLConnection();
+                conn.setAutoCommit(false);
+                txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
-        }
-        return conn;
-    }
-
-    private Object[] createDatabaseConnection(SQLDatasource datasource, BallerinaTransactionManager ballerinaTxManager)
-            throws SQLException {
-        Connection conn;
-        boolean newConnection = false;
-        String connectorId = datasource.getConnectorId();
-        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
-        if (txContext == null) {
-            conn = datasource.getSQLConnection();
-            txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
-            ballerinaTxManager.registerTransactionContext(connectorId, txContext);
-            newConnection = true;
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
-        return new Object[] { conn, newConnection };
+        return conn;
     }
 }

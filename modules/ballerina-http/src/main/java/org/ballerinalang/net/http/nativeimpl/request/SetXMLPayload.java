@@ -22,17 +22,18 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Set the payload of the Message as a XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.request",
+        packageName = "ballerina.net.http",
         functionName = "setXmlPayload",
-        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "payload", type = TypeKind.XML)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "payload", type = TypeKind.XML)},
         isPublic = true
 )
 public class SetXMLPayload extends AbstractNativeFunction {

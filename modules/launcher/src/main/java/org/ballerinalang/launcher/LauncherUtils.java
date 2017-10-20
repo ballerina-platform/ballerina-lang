@@ -21,20 +21,14 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -90,9 +84,6 @@ public class LauncherUtils {
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
-        // Load Client Connectors
-        BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
-
         BLangProgramRunner.runMain(programFile, args);
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
@@ -106,25 +97,12 @@ public class LauncherUtils {
     public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
 
-        // TODO : Fix this properly.
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BLangRuntimeRegistry.getInstance().initialize();
-
         ServerConnectorRegistry.getInstance().initServerConnectors();
 
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
-        try {
-            List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
-                    .startPendingConnectors();
-            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                    serverConnector));
-
-            ServerConnectorRegistry.getInstance().deploymentComplete();
-        } catch (ServerConnectorException e) {
-            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
-        }
+        ServerConnectorRegistry.getInstance().deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {
@@ -257,12 +235,6 @@ public class LauncherUtils {
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {
             ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
 
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());

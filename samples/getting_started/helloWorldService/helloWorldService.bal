@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/hello"}
 service<http> helloWorld {
@@ -9,8 +8,8 @@ service<http> helloWorld {
         path:"/"
     }
     resource sayHello (http:Request req, http:Response res) {
-        response:setStringPayload(res, "Hello, World!");
-        response:send(res);
+        res.setStringPayload("Hello, World!");
+        res.send();
     }
     
 }

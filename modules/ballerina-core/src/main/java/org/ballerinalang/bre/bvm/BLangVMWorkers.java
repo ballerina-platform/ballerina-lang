@@ -69,6 +69,7 @@ public class BLangVMWorkers {
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
                     new ConcurrentLinkedQueue<>());
+            workerContext.startTrackWorker();
             executor.submit(workerRunner);
         }
 

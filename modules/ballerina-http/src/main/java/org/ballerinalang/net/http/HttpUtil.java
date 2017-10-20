@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -56,13 +55,11 @@ import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -227,8 +224,6 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BXML result = null;
         try {
-            // Accessing First Parameter Value.
-//            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
             BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(struct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -243,9 +238,6 @@ public class HttpUtil {
                     result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                if (httpCarbonMessage.isEmpty()) {
-                    throw new BallerinaException("empty content");
-                }
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
                 result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
@@ -266,6 +258,7 @@ public class HttpUtil {
             clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithOutData();
             clonedHttpCarbonMessage.setMessageDataSource(((BallerinaMessageDataSource) httpCarbonMessage
                     .getMessageDataSource()).clone());
+            clonedHttpCarbonMessage.setAlreadyRead(httpCarbonMessage.isAlreadyRead());
         } else {
             clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithData();
         }
@@ -330,6 +323,9 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
@@ -357,6 +353,8 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         String payload = abstractNativeFunction.getStringArgument(context, 0);
         StringDataSource stringDataSource = new StringDataSource(payload
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
@@ -376,8 +374,13 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
         httpCarbonMessage.setMessageDataSource(payload);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+        httpCarbonMessage.setAlreadyRead(true);
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -437,11 +440,7 @@ public class HttpUtil {
     public static void startPendingHttpConnectors() throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            PrintStream outStream = System.out;
-            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
-                    .startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
-                    "server connector " + serverConnector));
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
@@ -460,12 +459,11 @@ public class HttpUtil {
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        ErrorHandlerUtils.printErrorMessage("httpConnector: integration point error occurred");
         if (statusCode == 404) {
             handleResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         } else {
-            // TODO If you put just "", then we got a NPE. Need to find why
-            handleResponse(requestMessage, createErrorMessage("  ", statusCode));
+            handleResponse(requestMessage, createErrorMessage("", statusCode));
         }
     }
 
@@ -503,7 +501,6 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        httpCarbonMessage.setEndOfMsgAdded(true);
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
@@ -567,6 +564,10 @@ public class HttpUtil {
         AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
         AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
         AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+        AnnAttrValue sslEnabledProtocolsAttrVal = configInfo
+                .getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
+        AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
+        AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
@@ -626,6 +627,16 @@ public class HttpUtil {
                 httpsPropMap
                         .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
             }
+            if (sslEnabledProtocolsAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                        sslEnabledProtocolsAttrVal.getStringValue());
+            }
+            if (ciphersAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+            }
+            if (sslProtocolAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL, sslProtocolAttrVal.getStringValue());
+            }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
         return listenerConfMap;
@@ -665,10 +676,19 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
+    }
+
+    public static String sanitizeUri(String uri) {
+        if (uri.startsWith("/")) {
+            return uri;
+        }
+        return "/".concat(uri);
     }
 }

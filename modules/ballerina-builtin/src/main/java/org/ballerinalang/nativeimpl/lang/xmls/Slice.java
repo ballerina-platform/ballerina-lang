@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,16 +43,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Slice and return a subsequence of the given XML sequence.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "startIndex",
-        value = "Start index, inclusive") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "endIndex",
-        value = "End index, exclusive") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "seq",
-        value = "sliced sequence") })
 public class Slice extends AbstractNativeFunction {
 
     private static final String OPERATION = "slice xml";

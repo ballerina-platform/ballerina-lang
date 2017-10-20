@@ -75,10 +75,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -126,12 +126,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private int loopCount;
     private int transactionCount;
-    private int failedBlockCount;
     private boolean statementReturns;
+    private boolean lastStatement;
+    private int forkJoinCount;
+    private int workerCount;
     private SymbolEnter symbolEnter;
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
+    private Stack<Boolean> retryStmtCheckStack = new Stack<>();
+    private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -155,7 +159,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void resetStatementReturns() {
         this.statementReturns = false;
     }
-    
+
+    private void resetLastStatement() {
+        this.lastStatement = false;
+    }
+
     public BLangPackage analyze(BLangPackage pkgNode) {
         pkgNode.accept(this);
         return pkgNode;
@@ -211,16 +219,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        this.forkJoinCount++;
         this.initNewWorkerActionSystem();
-        this.checkUnreachableCode(forkJoin);
+        this.checkStatementExecutionValidity(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
         forkJoin.joinedBody.accept(this);
         if (forkJoin.timeoutBody != null) {
-            forkJoin.timeoutBody.accept(this);
+            boolean joinReturns = this.statementReturns;
             this.resetStatementReturns();
+            forkJoin.timeoutBody.accept(this);
+            this.statementReturns = joinReturns && this.statementReturns;
         }
         this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
+        this.forkJoinCount--;
+    }
+
+    private boolean inForkJoin() {
+        return this.forkJoinCount > 0;
     }
     
     private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
@@ -235,50 +251,74 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
     
+    private boolean inWorker() {
+        return this.workerCount > 0;
+    }
+
     @Override
     public void visit(BLangWorker worker) {
+        this.workerCount++;
         this.workerActionSystemStack.peek().startWorkerActionStateMachine(worker.name.value, worker.pos);
         worker.body.accept(this);
         this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+        this.workerCount--;
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
+        this.loopWithintransactionCheckStack.push(false);
+        this.retryStmtCheckStack.push(false);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
+        this.resetLastStatement();
         if (transactionNode.failedBody != null) {
-            this.failedBlockCount++;
+            this.retryStmtCheckStack.push(true);
             transactionNode.failedBody.accept(this);
-            this.failedBlockCount--;
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            this.retryStmtCheckStack.pop();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
+            this.resetStatementReturns();
         }
         if (transactionNode.abortedBody != null) {
             transactionNode.abortedBody.accept(this);
+            this.resetStatementReturns();
         }
+        this.loopWithintransactionCheckStack.pop();
+        this.retryStmtCheckStack.pop();
     }
 
     @Override
     public void visit(BLangAbort abortNode) {
         if (this.transactionCount == 0) {
             this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            return;
         }
+        this.lastStatement = true;
     }
 
     @Override
-    public void visit(BLangRetry abortNode) {
-        if (this.failedBlockCount == 0) {
-            this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+    public void visit(BLangRetry retryNode) {
+        boolean valid = !this.retryStmtCheckStack.isEmpty() && this.retryStmtCheckStack.peek();
+        if (!valid) {
+            this.dlog.error(retryNode.pos, DiagnosticCode.INVALID_RETRY_POSITION);
+            return;
         }
+        this.lastStatement = true;
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetStatementReturns();
+        }
+        if (lastStatement) {
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.resetLastStatement();
         }
     }
     
@@ -291,15 +331,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
+        this.resetLastStatement();
     }
     
     @Override
     public void visit(BLangReturn returnStmt) {
+        this.checkStatementExecutionValidity(returnStmt);
+        if (this.inForkJoin() && this.inWorker()) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
+            return;
+        }
         this.statementReturns = true;
     }
     
     @Override
     public void visit(BLangIf ifStmt) {
+        this.retryStmtCheckStack.push(false);
         this.checkStatementExecutionValidity(ifStmt);
         ifStmt.body.accept(this);
         boolean ifStmtReturns = this.statementReturns;
@@ -308,28 +355,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
+        this.retryStmtCheckStack.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
+        this.retryStmtCheckStack.push(false);
+        this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
         whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
+        this.resetLastStatement();
+        this.loopWithintransactionCheckStack.pop();
+        this.retryStmtCheckStack.pop();
     }
     
     @Override
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangNext continueNode) {
+        this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            return;
         }
+        if (checkNextBreakValidityInTransaction()) {
+            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
+        this.lastStatement = true;
     }
 
     @Override
     public void visit(BLangTransform transformNode) {
-        if (transformNode.body.getStatements().size() == 0) {
-            this.dlog.error(transformNode.pos, DiagnosticCode.TRANSFORM_STATEMENT_EMPTY_BODY);
-        }
         this.checkStatementExecutionValidity(transformNode);
         Set<String> inputs = new HashSet<>();
         Set<String> outputs = new HashSet<>();
@@ -417,11 +474,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(breakNode);
+        if (this.loopCount == 0) {
+            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
+            return;
+        }
+        if (checkNextBreakValidityInTransaction()) {
+            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
+        this.lastStatement = true;
     }
 
     public void visit(BLangThrow throwNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(throwNode);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -437,6 +503,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        this.checkStatementExecutionValidity(tryNode);
+        this.retryStmtCheckStack.push(false);
+        tryNode.tryBody.accept(this);
+        this.resetStatementReturns();
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             if (caughtTypes.contains(bLangCatch.getParameter().type)) {
@@ -444,8 +514,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         bLangCatch.getParameter().type);
             }
             caughtTypes.add(bLangCatch.getParameter().type);
+            bLangCatch.body.accept(this);
+            this.resetStatementReturns();
         }
-
+        if (tryNode.finallyBody != null) {
+            tryNode.finallyBody.accept(this);
+            this.resetStatementReturns();
+        }
+        this.retryStmtCheckStack.pop();
     }
 
     public void visit(BLangCatch catchNode) {
@@ -533,11 +609,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
+        if (!this.inWorker()) {
+            return;
+        }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (!this.inWorker()) {
+            return;
+        }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
     }
 
@@ -587,7 +669,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                if (variable.expr.getKind() != NodeKind.LITERAL) {
+                // a variable defined in transform scope is a inner variable
+                if (isLiteralExpression(variable.expr)) {
+                    // a variable defined in transform scope is a inner variable
                     // if the variable does not hold a constant value, it is a temporary variable and hence not an input
                     innerVars.add(varName);
                 }
@@ -595,6 +679,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 //if variable has not been used as an output before
                 inputs.add(varName);
 
+                BLangExpression expr = variableDefStmt.var.expr;
+                BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(expr);
+                for (BLangExpression exp : varRefExpressions) {
+                    String expVarName = ((BLangSimpleVarRef) exp).variableName.getValue();
+                    if (outputs.contains(expVarName)) {
+                        this.dlog.error(((BLangSimpleVarRef) exp).pos,
+                                        DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                        continue;
+                    }
+                    //if variable has not been used as an output before
+                    inputs.add(expVarName);
+                }
                 continue;
             }
             if (statement.getKind() == NodeKind.ASSIGNMENT) {
@@ -633,6 +729,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         innerVars.forEach(var -> inputs.remove(var));
+    }
+
+    private boolean isLiteralExpression(BLangExpression expression) {
+        NodeKind expressionKind = expression.getKind();
+        return ((expressionKind != NodeKind.LITERAL) && (expressionKind != NodeKind.RECORD_LITERAL_EXPR)
+               && (expressionKind != NodeKind.XML_ELEMENT_LITERAL) && (expressionKind != NodeKind.ARRAY_LITERAL_EXPR)
+               && (expressionKind != NodeKind.STRING_TEMPLATE_LITERAL));
     }
 
     private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
@@ -746,6 +849,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < typeList.size(); i++) {
             this.typeChecker.checkExpr(send.exprs.get(i), send.env, Arrays.asList(typeList.get(i)));
         }
+    }
+
+    private boolean checkNextBreakValidityInTransaction() {
+        return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
     }
 
     /**

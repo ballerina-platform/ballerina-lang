@@ -48,7 +48,7 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
 
     public abstract PackageEntity lookupPackage(PackageID pkgId, String entryName);
     
-    public abstract Set<PackageID> lookupPackageIDs();
+    public abstract Set<PackageID> lookupPackageIDs(int maxDepth);
 
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
@@ -83,13 +83,13 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     }
     
     @Override
-    public Set<PackageID> listPackages() {
+    public Set<PackageID> listPackages(int maxDepth) {
         if (this.cachedPackageIds == null) {
-            this.cachedPackageIds = new LinkedHashSet<>(this.systemRepo.listPackages());
+            this.cachedPackageIds = new LinkedHashSet<>(this.systemRepo.listPackages(maxDepth));
             if (this.parentRepo != null) {
-                this.cachedPackageIds.addAll(this.parentRepo.listPackages());
+                this.cachedPackageIds.addAll(this.parentRepo.listPackages(maxDepth));
             }
-            this.cachedPackageIds.addAll(this.lookupPackageIDs());
+            this.cachedPackageIds.addAll(this.lookupPackageIDs(maxDepth));
         }
         return this.cachedPackageIds;
     }

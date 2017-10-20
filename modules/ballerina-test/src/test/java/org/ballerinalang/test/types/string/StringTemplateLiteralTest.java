@@ -221,8 +221,7 @@ public class StringTemplateLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
     }
 
-    //TODO fix this empty stack issue.
-    @Test(enabled = false)
+    @Test
     public void testEmptyStringTemplate() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "emptyStringTemplate", args);

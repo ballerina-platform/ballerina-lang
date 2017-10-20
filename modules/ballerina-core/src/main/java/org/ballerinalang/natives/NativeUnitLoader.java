@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.natives;
 
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.natives.NativeElementRepository.NativeFunctionDef;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.spi.NativeElementProvider;
 
 import java.util.HashMap;

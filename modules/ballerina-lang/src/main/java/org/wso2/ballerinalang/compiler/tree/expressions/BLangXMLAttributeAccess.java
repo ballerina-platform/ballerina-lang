@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -43,6 +44,11 @@ public class BLangXMLAttributeAccess extends BLangIndexBasedAccess implements In
         }
 
         return String.valueOf(expr) + "@[" + String.valueOf(indexExpr) + "]";
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.XML_ATTRIBUTE_ACCESS_EXPR;
     }
 
     @Override

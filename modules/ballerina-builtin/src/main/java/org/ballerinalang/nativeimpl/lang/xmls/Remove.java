@@ -28,8 +28,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
@@ -47,12 +45,6 @@ import java.util.List;
                 @Argument(name = "xPath", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Removes the element(s) that match the given XPath.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
-        value = "An XPath") })
 public class Remove extends AbstractNativeFunction {
     
     private static final String OPERATION = "remove element from xml";

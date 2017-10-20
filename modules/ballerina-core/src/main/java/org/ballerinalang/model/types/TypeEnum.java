@@ -35,7 +35,6 @@ import static org.ballerinalang.model.types.TypeConstants.INT_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.INT_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.JSON_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.MAP_TNAME;
-import static org.ballerinalang.model.types.TypeConstants.MESSAGE_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.REFTYPE_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.STRING_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.STRING_TSIG;
@@ -56,7 +55,6 @@ public enum TypeEnum {
     STRING(STRING_TNAME, STRING_TSIG),
     BOOLEAN(BOOLEAN_TNAME, BOOLEAN_TSIG),
     BLOB(BLOB_TNAME, BLOB_TSIG),
-    MESSAGE(MESSAGE_TNAME, REFTYPE_TSIG),
     XML(XML_TNAME, REFTYPE_TSIG),
     JSON(JSON_TNAME, REFTYPE_TSIG),
     CJSON(C_JSON_TNAME, REFTYPE_TSIG),

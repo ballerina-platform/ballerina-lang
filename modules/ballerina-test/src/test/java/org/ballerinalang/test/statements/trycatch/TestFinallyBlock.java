@@ -35,7 +35,7 @@ public class TestFinallyBlock {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/trycatch/test_finally.bal");
+        compileResult = BTestUtils.compile("test-src/statements/trycatch/finally-stmt.bal");
     }
 
     @Test
@@ -134,10 +134,10 @@ public class TestFinallyBlock {
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3");
     }
 
-    @Test(description = "check continue with finally ")
-    public void testContinueWithFinallyBlock() {
+    @Test(description = "check next with finally ")
+    public void testNextWithFinallyBlock() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testContinue1", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testNext1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3 t-f4 t-f5");

@@ -124,7 +124,12 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private NativeElementCodeDef functionToDef(BallerinaFunction func, Element element) {
         NativeFunctionCodeDef def = new NativeFunctionCodeDef();
         def.pkg = func.packageName();
-        def.name = func.functionName();
+        if (func.receiver().type() == TypeKind.STRUCT) {
+            def.name = func.receiver().structPackage() + ":"
+                    + func.receiver().structType() + "." + func.functionName();
+        } else {
+            def.name = func.functionName();
+        }
         def.className = this.extractClassName(element);
         Arrays.stream(func.args()).forEach(e -> def.argTypes.add(e.type()));
         Arrays.stream(func.returnType()).forEach(e -> def.retTypes.add(e.type()));

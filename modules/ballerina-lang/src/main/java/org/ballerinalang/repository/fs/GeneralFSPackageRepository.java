@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -44,6 +45,8 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class GeneralFSPackageRepository implements PackageRepository {
+    
+    private static final String BAL_SOURCE_EXT = ".bal";
 
     protected Path basePath;
 
@@ -92,30 +95,39 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
         return name;
     }
+    
+    private boolean isBALFile(Path path) {
+        return !Files.isDirectory(path) && path.getFileName().toString().endsWith(BAL_SOURCE_EXT);
+    }
 
     @Override
-    public Set<PackageID> listPackages() {
+    public Set<PackageID> listPackages(int maxDepth) {
+        if (maxDepth <= 0) {
+            throw new IllegalArgumentException("maxDepth must be greater than zero");
+        }
         Set<PackageID> result = new LinkedHashSet<>();
         int baseNameCount = this.basePath.getNameCount();
         String separator = this.basePath.getFileSystem().getSeparator();
         try {
             Files.walkFileTree(this.basePath, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
-                    if (e == null) {
-                        List<Name> nameComps = new ArrayList<>();
-                        if (Files.list(dir).filter(f -> !Files.isDirectory(f)).count() > 0) {
-                            int dirNameCount = dir.getNameCount();
-                            if (dirNameCount > baseNameCount) {
-                                dir.subpath(baseNameCount, dirNameCount).forEach(
-                                        f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
-                                result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
-                            }
-                        }
-                        return FileVisitResult.CONTINUE;
-                    } else {
-                        throw e;
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    if (Files.isHidden(dir)) {
+                        return FileVisitResult.SKIP_SUBTREE;
                     }
+                    List<Name> nameComps = new ArrayList<>();
+                    if (Files.list(dir).filter(f -> isBALFile(f)).count() > 0) {
+                        int dirNameCount = dir.getNameCount();
+                        if (dirNameCount > baseNameCount) {
+                            dir.subpath(baseNameCount, dirNameCount).forEach(
+                                    f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
+                            result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                        }
+                    }
+                    if ((dir.getNameCount() + 1) - baseNameCount > maxDepth) {
+                        return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {
@@ -138,8 +150,6 @@ public class GeneralFSPackageRepository implements PackageRepository {
      * @since 0.94
      */
     public class FSPackageSource implements PackageSource {
-
-        private static final String BAL_SOURCE_EXT = ".bal";
 
         private PackageID pkgID;
 

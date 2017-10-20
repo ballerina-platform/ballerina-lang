@@ -41,7 +41,7 @@ public class BLangBuiltInRefTypeNode extends BLangType implements BuiltInReferen
 
     @Override
     public String toString() {
-        return "BLangBuiltInRefTypeNode: " + (this.typeKind != null ? this.typeKind.name() : "");
+        return this.typeKind != null ? this.typeKind.typeName() : "";
     }
 
     @Override

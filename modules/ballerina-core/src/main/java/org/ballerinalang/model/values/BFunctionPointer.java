@@ -19,23 +19,24 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 /**
  * {@code {@link BFunctionPointer}} represents a function pointer reference value in Ballerina.
  *
  * @since 0.90
  */
-public class BFunctionPointer implements BRefType<Integer> {
+public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
-    int funcRefCPEntryIndex;
+    FunctionRefCPEntry funcRefCPEntry;
 
-    public BFunctionPointer(int funcRefCPEntryIndex) {
-        this.funcRefCPEntryIndex = funcRefCPEntryIndex;
+    public BFunctionPointer(FunctionRefCPEntry funcRefCPEntryIndex) {
+        this.funcRefCPEntry = funcRefCPEntryIndex;
     }
 
     @Override
-    public Integer value() {
-        return funcRefCPEntryIndex;
+    public FunctionRefCPEntry value() {
+        return funcRefCPEntry;
     }
 
     @Override
@@ -50,6 +51,6 @@ public class BFunctionPointer implements BRefType<Integer> {
 
     @Override
     public BValue copy() {
-        return new BFunctionPointer(funcRefCPEntryIndex);
+        return new BFunctionPointer(funcRefCPEntry);
     }
 }

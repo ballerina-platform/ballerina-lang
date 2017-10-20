@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
@@ -37,9 +38,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "cancelHandshake",
-        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "HandshakeConnection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "statusCode", type = TypeKind.INT),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "HandshakeConnection",
+                             structPackage = "ballerina.net.ws"),
+        args = {@Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )

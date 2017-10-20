@@ -47,7 +47,7 @@ IF          : 'if' ;
 ELSE        : 'else' ;
 ITERATE     : 'iterate' ;
 WHILE       : 'while' ;
-CONTINUE    : 'continue' ;
+NEXT        : 'next' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;

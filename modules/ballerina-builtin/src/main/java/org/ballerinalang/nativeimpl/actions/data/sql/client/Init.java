@@ -29,11 +29,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.osgi.service.component.annotations.Component;
 
 /**
  * {@code Init} is the Init action implementation of the SQL Connector.
@@ -49,14 +45,6 @@ import org.osgi.service.component.annotations.Component;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "The init action implementation for SQL connector.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-        value = "Connector")})
-@Component(
-        name = "action.data.sql.init",
-        immediate = true,
-        service = AbstractNativeAction.class)
 public class Init extends AbstractSQLAction {
 
     @Override

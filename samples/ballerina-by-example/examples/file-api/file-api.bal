@@ -13,14 +13,14 @@ function main (string[] args) {
     files:write(content, target);
     system:println("file written: /tmp/result.txt");
 
-    //Close the file once done
+    //Close the file once done.
     files:close(target);
 
     //Check whether the file exists.
     boolean b = files:exists(target);
     system:println("file existence: " + b);
 
-    //Open file in read mode. Returns the content as blob and the number of bytes read
+    //Open file in read mode. Returns the content as blob and the number of bytes read.
     files:open(target, "r");
     var content, n = files:read(target, 100000);
     string s = blobs:toString(content, "utf-8");
@@ -37,7 +37,7 @@ function main (string[] args) {
     files:delete(destination);
     system:println("file deleted: /tmp/copy.txt");
 
-    //Move source file to destination
+    //Move source file to destination.
     destination = {path:"/tmp/move.txt"};
     files:move(source, destination);
     system:println("file moved: /tmp/result.txt to /tmp/move.txt");

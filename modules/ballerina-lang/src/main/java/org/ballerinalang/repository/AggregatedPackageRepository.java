@@ -69,8 +69,8 @@ public class AggregatedPackageRepository implements PackageRepository {
     }
 
     @Override
-    public Set<PackageID> listPackages() {
-        return this.repos.stream().flatMap(e -> e.listPackages().stream()).collect(
+    public Set<PackageID> listPackages(int maxDepth) {
+        return this.repos.stream().flatMap(e -> e.listPackages(maxDepth).stream()).collect(
                 Collectors.toCollection(LinkedHashSet::new));
     }
 

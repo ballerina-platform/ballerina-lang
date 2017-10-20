@@ -182,7 +182,8 @@ public class VariableDefinitionTest {
 
     @Test(description = "Test defining a constant from an arrays type")
     public void testArrayTypeConstant() {
-        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-def-array-type-constants.bal");
+        resultNegative = BTestUtils
+                .compile("test-src/statements/variabledef/variable-def-array-constants-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
         BTestUtils.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
 

@@ -1,8 +1,8 @@
 import ballerina.lang.system;
-import ballerina.doc;
 import ballerina.lang.maps;
 import ballerina.lang.blobs;
 import ballerina.net.ws;
+import ballerina.doc;
 
 
 @doc:Description {value:"This example gives you the basic idea of WebSocket endpoint"}
@@ -11,7 +11,11 @@ import ballerina.net.ws;
     subProtocols: ["xml", "json"],
     idleTimeoutInSeconds: 120,
     host: "0.0.0.0",
-    port: 9090
+    port: 9090,
+    wssPort: 9095,
+    keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks",
+    keyStorePassword: "wso2carbon",
+    certPassword: "wso2carbon"
 }
 service<ws> SimpleSecureServer {
 
@@ -28,13 +32,13 @@ service<ws> SimpleSecureServer {
     @doc:Description {value:"This resource is triggered after a successful client connection."}
     resource onOpen(ws:Connection conn) {
         system:println("\nNew client connected");
-        system:println("Connection ID: " + ws:getID(conn));
-        system:println("Negotiated Sub protocol: " + ws:getNegotiatedSubProtocol(conn));
-        system:println("Is connection open: " + ws:isOpen(conn));
-        system:println("Is connection secured: " + ws:isSecure(conn));
-        system:println("Connection header value: " + ws:getUpgradeHeader(conn, "Connection"));
+        system:println("Connection ID: " + conn.getID());
+        system:println("Negotiated Sub protocol: " + conn.getNegotiatedSubProtocol());
+        system:println("Is connection open: " + conn.isOpen());
+        system:println("Is connection secured: " + conn.isSecure());
+        system:println("Connection header value: " + conn.getUpgradeHeader("Connection"));
         system:println("Upgrade headers -> " );
-        printHeaders(ws:getUpgradeHeaders(conn));
+        printHeaders(conn.getUpgradeHeaders());
     }
 
     @doc:Description {value:"This resource is triggered when a new text frame is received from a client"}
@@ -42,9 +46,9 @@ service<ws> SimpleSecureServer {
         system:println("\ntext message: " + frame.text + " & is final fragment: " + frame.isFinalFragment);
         string text = frame.text;
         if (text == "closeMe") {
-            ws:closeConnection(conn, 1001, "You asked me to close connection");
+            conn.closeConnection(1001, "You asked me to close connection");
         } else {
-            ws:pushText(conn, "You said: " + frame.text);
+            conn.pushText("You said: " + frame.text);
         }
     }
 
@@ -53,15 +57,15 @@ service<ws> SimpleSecureServer {
         system:println("\nNew binary message received");
         blob b = frame.data;
         system:println("UTF-8 decoded binary message: " + blobs:toString(b, "UTF-8"));
-        ws:pushBinary(conn, b);
+        conn.pushBinary(b);
     }
 
     @doc:Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation"}
     resource onIdleTimeout(ws:Connection conn) {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         system:println("\nReached idle timeout");
-        system:println("Closing connection " + ws:getID(conn));
-        ws:closeConnection(conn, 1001, "Connection timeout");
+        system:println("Closing connection " + conn.getID());
+        conn.closeConnection(1001, "Connection timeout");
     }
 
     @doc:Description {value:"This resource is triggered when a client connection is closed from the client side"}
@@ -72,11 +76,11 @@ service<ws> SimpleSecureServer {
 
 function printHeaders(map headers) {
     string [] headerKeys = maps:keys(headers);
-    int len = headerKeys.length;
+    int len = lengthof headerKeys;
     int i = 0;
     while (i < len) {
-        var key, e = (string) headerKeys[i];
-        var value, e = (string) headers[key];
+        string key = headerKeys[i];
+        var value, _ = (string) headers[key];
         system:println(key + ": " + value);
         i = i + 1;
     }

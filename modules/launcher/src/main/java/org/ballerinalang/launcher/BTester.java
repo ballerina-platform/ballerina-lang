@@ -5,7 +5,6 @@ import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -32,8 +31,8 @@ public class BTester {
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
-//        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(SOURCE_ROOT, "./");
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+//        options.put(SOURCE_ROOT, "./");
         options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -53,10 +52,9 @@ public class BTester {
 
         if (programFile != null) {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
-            traceCode(executableProgram.getEntryPackage());
-            BValue[] returnVals = BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
-                                                           "main", new BValue[0]);
-            System.out.printf("");
+//            traceCode(executableProgram.getEntryPackage());
+            BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
+                                                           "main", new BValue[1]);
         }
     }
 
@@ -92,12 +90,6 @@ public class BTester {
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {
             ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
 
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());

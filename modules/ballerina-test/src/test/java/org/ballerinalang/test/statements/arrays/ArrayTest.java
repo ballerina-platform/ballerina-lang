@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -35,8 +34,6 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
  * Test cases for ballerina.model.arrays.
@@ -180,37 +177,19 @@ public class ArrayTest {
         Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJSONArrayCopyOf() {
-        final String v1 = "{ \"json\" : \"1\"}";
-        final String v2 = "{ \"json\" : \"2\"}";
-        BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
-        BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayCopy", args);
+
+        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayCopy");
         
         Assert.assertTrue(returnVals[0] instanceof BJSON);
         BJSON copiedJson = (BJSON) returnVals[0];
         
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(copiedJson.value().size(), arrayValue.value().size(), 
-                "Found Same size arrays.");
-        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 0), v1, "Found same value");
-        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 1), v2, "Found same value");
-    }
-
-    @Test(enabled = false)
-    public void testMessageArrayCopyOf() {
-        final CarbonMessage v1 = new DefaultCarbonMessage();
-        final CarbonMessage v2 = new DefaultCarbonMessage();
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0,  new BMessage(v1));
-        arrayValue.add(1,  new BMessage(v2));
-        BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testMessageArrayCopy", args);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(copiedJson.value().size(), 2, "Found Same size arrays.");
+        Assert.assertNotEquals(copiedJson.value().get(0).toString(), "{ \"json\" : \"1\"}", "Found same value");
+        Assert.assertNotEquals(copiedJson.value().get(1).toString(), "{ \"json\" : \"2\"}", "Found same value");
     }
 
     @Test
@@ -404,7 +383,7 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJSONArrayCopyOfRange() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -427,7 +406,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*array index out of range.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangeNegative() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -438,7 +417,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*array index out of range.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";

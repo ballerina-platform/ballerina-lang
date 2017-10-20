@@ -38,10 +38,10 @@ public class GlobalVarFunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/globalvar/global-var-function.bal");
+        result = BTestUtils.compile("test-src/statements/variabledef/global-var-function.bal");
     }
 
-    @Test(description = "Test Defining global variables", enabled = false)
+    @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
         BValue[] args = new BValue[0];
         BValue[] returns = BTestUtils.invoke(result, "getGlobalVars", args);
@@ -56,7 +56,7 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 88343);
     }
 
-    @Test(description = "Test access global variable within function", enabled = false)
+    @Test(description = "Test access global variable within function")
     public void testAccessGlobalVarWithinFunctions() {
         BValue[] returns = BTestUtils.invoke(result, "accessGlobalVar");
         Assert.assertEquals(returns.length, 1);
@@ -64,7 +64,7 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89143);
     }
 
-    @Test(description = "Test change global var within functions", enabled = false)
+    @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         BValue[] args = {new BInteger(88)};
         BValue[] returns = BTestUtils.invoke(result, "changeGlobalVar", args);
@@ -76,7 +76,7 @@ public class GlobalVarFunctionTest {
 
 
         CompileResult resultGlobalVar = BTestUtils
-                .compile("test-src/types/globalvar/global-var-function.bal");
+                .compile("test-src/statements/variabledef/global-var-function.bal");
 
         BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar");
 
@@ -86,7 +86,7 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BFloat) returnsChanged[0]).floatValue(), 80.0);
     }
 
-    @Test(description = "Test assigning global variable to another global variable", enabled = false)
+    @Test(description = "Test assigning global variable to another global variable")
     public void testAssignGlobalVarToAnotherGlobalVar() {
         BValue[] returns = BTestUtils.invoke(result, "getGlobalVarFloat1");
 
@@ -96,7 +96,7 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 99.34323);
     }
 
-    @Test(description = "Test assigning global var within a function", enabled = false)
+    @Test(description = "Test assigning global var within a function")
     public void testInitializingGlobalVarWithinFunction() {
         BValue[] returns = BTestUtils.invoke(result, "initializeGlobalVarSeparately");
 

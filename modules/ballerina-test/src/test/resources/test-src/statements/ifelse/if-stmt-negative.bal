@@ -15,3 +15,18 @@ function foo() returns (string) {
     return "returning from else";
   }
 }
+
+function testIfStmtWithIncompatibleType1() (boolean) {
+    if (false) {
+        return false;
+    } else if ("foo") {
+        return true;
+    }
+}
+
+function testIfStmtWithIncompatibleType2() {
+    if ("foo") {
+        int a = 5;
+    }
+    return;
+}

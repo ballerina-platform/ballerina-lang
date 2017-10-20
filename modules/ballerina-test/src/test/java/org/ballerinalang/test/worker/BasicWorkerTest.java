@@ -85,4 +85,12 @@ public class BasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 15);
     }
     
+    @Test
+    public void workerReturnTest() {
+        BValue[] vals = BTestUtils.invoke(result, "workerReturnTest", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        BInteger ret = (BInteger) vals[0];
+        Assert.assertEquals(ret.intValue(), 50);
+    }
+    
 }

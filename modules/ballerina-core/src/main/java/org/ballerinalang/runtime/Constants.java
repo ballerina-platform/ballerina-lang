@@ -23,8 +23,6 @@ package org.ballerinalang.runtime;
  */
 public class Constants {
 
-    public static final String SYS_PROP_ENABLE_NONBLOCKING = "enable.nonblocking";
-
     // Intermediate headers added to the ballerina message
     public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
 
@@ -34,11 +32,6 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
-    // logger names.
-    public static final String BAL_LINKED_INTERPRETER_LOGGER = "BLinkedInterpreter";
-
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "ballerina.debug";
-
-    public static final String SRC_HANDLER = "SRC_HANDLER";
 }

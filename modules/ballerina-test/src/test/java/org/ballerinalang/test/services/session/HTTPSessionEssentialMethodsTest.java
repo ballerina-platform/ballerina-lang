@@ -293,7 +293,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(stringDataSource.getValue(), "chamil");
     }
 
-    @Test(description = "Test for string attribute", enabled = false)
+    @Test(description = "Test for struct attribute")
     public void testSessionForStructAttribute() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "wso2");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);

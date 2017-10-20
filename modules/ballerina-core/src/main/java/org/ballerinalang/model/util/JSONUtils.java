@@ -290,6 +290,9 @@ public class JSONUtils {
                     case TypeTags.BOOLEAN_TAG:
                         jsonNode.put(key, struct.getBooleanField(++booleanRegIndex) == 1);
                         break;
+                    case TypeTags.BLOB_TAG:
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                BTypes.typeJSON, BTypes.typeBlob);
                     default:
                         BValue value = struct.getRefField(++refRegIndex);
                         if (value == null) {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
@@ -31,11 +32,11 @@ import org.ballerinalang.net.http.HttpUtil;
  * ballerina.model.messages:addHeader
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.response",
+        packageName = "ballerina.net.http",
         functionName = "addHeader",
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                          structPackage = "ballerina.net.http"),
-                @Argument(name = "key", type = TypeKind.STRING),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "key", type = TypeKind.STRING),
                 @Argument(name = "value", type = TypeKind.STRING)},
         isPublic = true
 )

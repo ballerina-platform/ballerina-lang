@@ -71,7 +71,7 @@ public class TestErrorReturn {
 
     @Test(description = "validate ignored error struct type.")
     public void testValidateErrorReturn() {
-        CompileResult compileResult = BTestUtils.compile("test-src/types/errors/error_return.bal");
+        CompileResult compileResult = BTestUtils.compile("test-src/types/errors/error-return.bal");
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(compileResult, "testReturnError", args);
         Assert.assertNotNull(returns);

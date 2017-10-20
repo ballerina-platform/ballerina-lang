@@ -121,7 +121,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
      */
     public static class BFunctionPointerInvocation extends BLangInvocation {
 
-        public BFunctionPointerInvocation(BLangInvocation parent, BLangSimpleVarRef varRef) {
+        public BFunctionPointerInvocation(BLangInvocation parent, BLangVariableReference varRef) {
             this.pos = parent.pos;
             this.name = parent.name;
             this.argExprs = parent.argExprs;
@@ -129,6 +129,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.regIndexes = parent.regIndexes;
             this.symbol = parent.symbol;
             this.expr = varRef;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
         }
 
         @Override

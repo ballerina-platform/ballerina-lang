@@ -22,24 +22,15 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.Function;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -51,8 +42,6 @@ import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Arrays;
-
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -230,20 +219,12 @@ public class BLangFunctions {
 
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
+        context.startTrackWorker();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
-        ControlStackNew stack = context.getControlStackNew();
-        int count = 0;
-        while (stack.fp > 1 && !stack.getStack()[stack.fp - 1].isWorkerReturned()) {
-            if (count++ > timeOut) {
-                throw new BLangRuntimeException("error: workers timed out.!");
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignore.
-            }
+        if (!context.await(timeOut)) {
+            throw new BLangRuntimeException("error: workers timed out.!");
         }
 
         if (context.getError() != null) {
@@ -292,8 +273,11 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
+        context.startTrackWorker();
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
+        context.await();
+        context.resetWorkerContextFlow();
     }
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
@@ -332,117 +316,5 @@ public class BLangFunctions {
             }
         });
         programFile.setUnresolvedAnnAttrValues(null);
-    }
-
-    /**
-     * Util method to get Given function.
-     *
-     * @param bLangProgram Ballerina program .
-     * @param functionName name of the function.
-     * @return Function instance or null if function doesn't exist.
-     */
-    public static Function getFunction(BLangProgram bLangProgram, String functionName) {
-        return getFunction(bLangProgram.getEntryPackage().getFunctions(), functionName, null);
-    }
-
-    private static Function getFunction(Function[] functions, String funcName, BValue[] args) {
-
-        Function firstMatch = null;
-        int count = 0;
-
-        for (Function function : functions) {
-            if (function.getName().equals(funcName)) {
-                firstMatch = function;
-                count++;
-            }
-        }
-
-        // If there are no overloading functions, return the first match
-        if (count == 1) {
-            return firstMatch;
-        }
-
-        for (Function function : functions) {
-            if (function.getName().equals(funcName) && matchArgTypes(function.getArgumentTypes(), args)) {
-                return function;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Compare argument types matches with the provided types.
-     *
-     * @param argTypes  List of {@link BType} that are accepted as arguments
-     * @param argValues List of {@link BValue} that are provided as arguments
-     * @return True if a matching type if found for each
-     */
-    private static boolean matchArgTypes(BType[] argTypes, BValue[] argValues) {
-        boolean matching = false;
-
-        if (argTypes.length == argValues.length) {
-            matching = true;
-            for (int i = 0; i < argTypes.length; i++) {
-                BType resolvedType = resolveBType(argValues[i]);
-
-                if (resolvedType == null || !argTypes[i].equals(resolvedType)) {
-                    matching = false;
-                    break;
-                }
-            }
-        }
-
-        return matching;
-    }
-
-    /**
-     * Resolve the {@link BType} of a  given {@link BValue} for built in types.
-     *
-     * @param bValue The {@link BValue} to resolve
-     * @return The {@link BType} corresponding to the {@link BValue}
-     */
-    private static BType resolveBType(BValue bValue) {
-        BType bType = null;
-
-        if (bValue instanceof BInteger) {
-            bType = BTypes.typeInt;
-        } else if (bValue instanceof BFloat) {
-            bType = BTypes.typeFloat;
-        } else if (bValue instanceof BString) {
-            bType = BTypes.typeString;
-        } else if (bValue instanceof BBoolean) {
-            bType = BTypes.typeBoolean;
-        } else if (bValue instanceof BBlob) {
-            bType = BTypes.typeBlob;
-        } else if (bValue instanceof BXML) {
-            bType = BTypes.typeXML;
-        } else if (bValue instanceof BJSON) {
-            bType = BTypes.typeXML;
-        } else if (bValue instanceof BMessage) {
-            bType = BTypes.typeMessage;
-        } else if (bValue instanceof BMap) {
-            bType = BTypes.typeMap;
-        } else if (bValue instanceof BDataTable) {
-            bType = BTypes.typeDatatable;
-        }
-
-        return bType;
-
-    }
-
-    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
-        if (mainFuncInfo == null) {
-            return null;
-        }
-
-        BType[] paramTypes = mainFuncInfo.getParamTypes();
-        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
-        BArrayType argsType = new BArrayType(BTypes.typeString);
-        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
-            return null;
-        }
-
-        return mainFuncInfo;
     }
 }

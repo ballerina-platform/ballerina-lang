@@ -50,7 +50,7 @@ public class DatatableTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testGetPrimitiveTypes() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testGetPrimitiveTypes", args);
@@ -110,9 +110,7 @@ public class DatatableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
-    @Test(groups = "DatatableTest",
-          description = "Check getObjectAsStringByName methods for complex types.",
-          enabled = false)
+    @Test(groups = "DatatableTest",  description = "Check getObjectAsStringByName methods for complex types.")
     public void testGetComplexTypes() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testGetComplexTypes", args);
@@ -123,7 +121,7 @@ public class DatatableTest {
         Assert.assertEquals((returns[2]).stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getXXXArray methods for complex types.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check getXXXArray methods for complex types.")
     public void testArrayData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testArrayData", args);
@@ -163,7 +161,7 @@ public class DatatableTest {
         Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
     }
 
-    @Test(groups = "DatatableTest", description = "Check date time operation", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check date time operation")
     public void testDateTime() {
         BValue[] args = new BValue[3];
         Calendar cal = Calendar.getInstance();
@@ -266,7 +264,7 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "DatatableTest", description = "Check blob data support.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check blob data support.")
     public void testBlobData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result,  "testBlobData", args);
@@ -274,7 +272,7 @@ public class DatatableTest {
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testColumnAlias() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testColumnAlias", args);
@@ -289,14 +287,14 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testBlobInsert() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testBlobInsert", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.")
     public void testDatatableAutoClose() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testDatatableAutoClose", args);
@@ -307,7 +305,7 @@ public class DatatableTest {
                 + "\"STRING_TYPE\":\"Hello\"}]");
     }
 
-    @Test(groups = "DatatableTest", description = "Check manual close resources in datatable.", enabled = false)
+    @Test(groups = "DatatableTest", description = "Check manual close resources in datatable.")
     public void testDatatableManualClose() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testDatatableManualClose", args);
@@ -315,9 +313,7 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(dependsOnGroups = "DatatableTest",
-          description = "Check all sql connectors are closed properly.",
-          enabled = false)
+    @Test(dependsOnGroups = "DatatableTest", description = "Check all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testCloseConnectionPool", args);

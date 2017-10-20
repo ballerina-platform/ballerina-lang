@@ -24,27 +24,18 @@ import org.ballerinalang.model.Function;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.statements.BlockStmt;
-import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 
 /**
  * {@code {@link AbstractNativeFunction}} represents a Abstract implementation of Native Ballerina Function.
@@ -62,7 +53,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
-    protected SymbolName symbolName;
 
     private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
@@ -77,8 +67,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * Initialize a native function.
      */
     public AbstractNativeFunction() {
-        parameterDefs = new ArrayList<>();
-        returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
     }
 
@@ -257,11 +245,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
-    public BlockStmt getCallableUnitBody() {
-        return null;
-    }
-
-    @Override
     public ParameterDef[] getReturnParameters() {
         return returnParams.toArray(new ParameterDef[returnParams.size()]);
     }
@@ -310,10 +293,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         this.parameterTypes = parameterTypes;
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-    }
-
     // Methods in Node interface
 
     @Override
@@ -330,12 +309,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public String getName() {
         return identifier.getName();
     }
-
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
-
 
     // Methods in BLangSymbol interface
 
@@ -362,52 +335,5 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public boolean isNative() {
         return true;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    // Methods in NativeCallableUnit interface
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return null;
-    }
-
-    /**
-     * Get worker interaction statements related to a callable unit.
-     *
-     * @return Queue of worker interactions
-     */
-    @Override
-    public Queue<Statement> getWorkerInteractionStatements() {
-        return null;
-    }
-
-    /**
-     * Get the workers defined within a callable unit.
-     *
-     * @return Array of workers
-     */
-    @Override
-    public Worker[] getWorkers() {
-        return new Worker[0];
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return null;
     }
 }

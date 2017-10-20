@@ -1,6 +1,4 @@
 import ballerina.net.http;
-import ballerina.net.http.response;
-import ballerina.net.http.request;
 
 @http:configuration {basePath:"/echo"}
 service<http> echo {
@@ -10,9 +8,9 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Request req, http:Response res) {
-        string payload = request:getStringPayload(req);
-        response:setStringPayload(res, payload);
-        response:send(res);
+        string payload = req.getStringPayload();
+        res.setStringPayload(payload);
+        res.send();
     }
     
 }

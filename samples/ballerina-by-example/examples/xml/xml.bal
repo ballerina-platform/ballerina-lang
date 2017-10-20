@@ -6,11 +6,11 @@ function main (string[] args) {
     xml x1 = xml `<book>The Lost World</book>`;
     system:println(x1);
 
-    // XML text
+    // XML text.
     xml x2 = xml `Hello, world!`;
     system:println(x2);
 
-    // XML comment
+    // XML comment.
     xml x3 = xml `<!--I am a comment-->`;
     system:println(x3);
 

@@ -29,4 +29,9 @@ public class BErrorType extends BType implements ErrorType {
     public BErrorType(BTypeSymbol tSymbol) {
         super(TypeTags.ERROR, tSymbol);
     }
+
+    @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
 }

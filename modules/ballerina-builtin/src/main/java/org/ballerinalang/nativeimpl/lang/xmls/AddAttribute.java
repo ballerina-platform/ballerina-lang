@@ -31,8 +31,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
@@ -55,18 +53,6 @@ import java.util.List;
                 @Argument(name = "value", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Adds an attribute to the XML element that matches the given XPath."
-                + " If the XPath matches the text value of an existing element, "
-                + "or if the XPath does not match an existing element, this operation will have no effect.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
-        value = "An XPath") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "name",
-        value = "Name of the attribute to be added") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-        value = "Attribute value") })
 public class AddAttribute extends AbstractNativeFunction {
     
     private static final String OPERATION = "add attribute to xml";

@@ -4,16 +4,14 @@ import ballerina.lang.system;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 connector Twitter(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
-    action tweet(Twitter t, string msg)(message ) {
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
+    action tweet(string msg)(http:Response) {
         http:Request request = {};
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(msg);
-        request:setHeader(request, "Authorization", oauthHeader);
+        request.setHeader("Authorization", oauthHeader);
         http:Response response = tweeterEP.post(tweetPath, request);
         return response;
     
@@ -33,7 +31,7 @@ function constructOAuthHeader(string consumerKey, string consumerSecret, string 
 }
 function main(string[] args) {
     Twitter twitterConnector = create Twitter(args[0], args[1], args[2], args[3]);
-    http:Response tweetResponse = Twitter.tweet(twitterConnector, args[4]);
-    json tweetJSONResponse = response:getJsonPayload(tweetResponse);
+    http:Response tweetResponse = twitterConnector.tweet(args[4]);
+    json tweetJSONResponse = tweetResponse.getJsonPayload();
     system:println(jsons:toString(tweetJSONResponse));
 }

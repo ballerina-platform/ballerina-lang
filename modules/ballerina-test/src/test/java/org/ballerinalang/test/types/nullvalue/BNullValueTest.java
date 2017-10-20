@@ -19,8 +19,8 @@ package org.ballerinalang.test.types.nullvalue;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -38,12 +38,12 @@ import org.testng.annotations.Test;
 public class BNullValueTest {
 
     private CompileResult positiveCompileResult;
-    private CompileResult negativeCompileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         positiveCompileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
+        negativeResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
     }
 
     @Test(description = "Test null value of a xml")
@@ -70,8 +70,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(7));
     }
 
-    // Todo - Fix issue in comparing
-    @Test(description = "Test null value of a connector", enabled = false)
+    @Test(description = "Test null value of a connector")
     public void testConnectorNull() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testConnectorNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -79,13 +78,24 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(8));
     }
 
-    // Todo - Fix issue in comparing
-    @Test(description = "Test null value of a array", enabled = false)
+    @Test(description = "Test null value of a connector")
+    public void testConnectorNotNull() {
+        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testConnectorNotNull", new BValue[] {});
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 8);
+    }
+
+    @Test(description = "Test null value of a array")
     public void testArrayNull() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testArrayNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(9));
+    }
+
+    @Test(description = "Test null value of a array")
+    public void testArrayNotNull() {
+        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testArrayNotNull", new BValue[]{});
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 9);
     }
 
     @Test(description = "Test null value of a map")
@@ -112,12 +122,18 @@ public class BNullValueTest {
         Assert.assertEquals(vals[0], null);
     }
 
-    // Todo - Fix issue in comparing
-    @Test(description = "Test comparing null vs null", enabled = false)
+    @Test(description = "Test comparing null vs null")
     public void testNullLiteralComparison() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullLiteralComparison", new BValue[]{});
         Assert.assertTrue(vals[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) vals[0]).booleanValue(), true);
+    }
+
+    @Test(description = "Test comparing null vs null")
+    public void testNullLiteralNotEqualComparison() {
+        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullLiteralNotEqualComparison", new BValue[]{});
+        Assert.assertTrue(vals[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) vals[0]).booleanValue(), false);
     }
 
     @Test(description = "Test returning a null literal")
@@ -126,20 +142,19 @@ public class BNullValueTest {
         Assert.assertEquals(vals[0], null);
     }
 
-    // Todo
-    @Test(description = "Test null in worker", enabled = false)
+
+    @Test(description = "Test null in worker")
     public void testNullInWorker() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    // Todo - Fix after casting issue is fixed in fork-join
-    @Test(description = "Test null in fork-join", enabled = false)
+    @Test(description = "Test null in fork-join")
     public void testNullInForkJoin() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
-        Assert.assertTrue(vals[1] instanceof BMessage);
-        Assert.assertEquals(((BMessage) vals[1]).stringValue(), "");
+        Assert.assertTrue(vals[1] instanceof BJSON);
+        Assert.assertEquals(((BJSON) vals[1]).stringValue(), "{}");
     }
 
     @Test(description = "Test array of null values")
@@ -156,6 +171,7 @@ public class BNullValueTest {
     @Test(description = "Test map of null values")
     public void testMapOfNulls() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testMapOfNulls", new BValue[]{});
+        @SuppressWarnings("unchecked")
         BMap<String, BValue> nullMap = (BMap<String, BValue>) vals[0];
         Assert.assertEquals(nullMap.get("x2"), null);
         Assert.assertEquals(nullMap.get("x3"), null);
@@ -181,9 +197,15 @@ public class BNullValueTest {
         BTestUtils.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
 
-    @Test(description = "Test negative test cases", enabled = false)
+    @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        // Todo - Update errors
-        BTestUtils.validateError(negativeCompileResult, 0, "", 0, 0);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        BTestUtils.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
+        BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
+        BTestUtils.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
+        BTestUtils.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
+        BTestUtils.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
+        BTestUtils.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
+        BTestUtils.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
     }
 }

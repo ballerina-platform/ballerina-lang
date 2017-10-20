@@ -48,8 +48,8 @@ public class CompositePackageRepository extends HierarchicalPackageRepository {
     }
 
     @Override
-    public Set<PackageID> lookupPackageIDs() {
-        return this.myRepo.listPackages();
+    public Set<PackageID> lookupPackageIDs(int maxDepth) {
+        return this.myRepo.listPackages(maxDepth);
     }
 
 }

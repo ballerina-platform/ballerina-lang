@@ -36,4 +36,9 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType {
     public BType getConstraint() {
         return constraint;
     }
+
+    @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
 }

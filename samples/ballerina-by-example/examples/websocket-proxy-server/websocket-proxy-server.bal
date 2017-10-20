@@ -1,5 +1,4 @@
 import ballerina.lang.maps;
-import ballerina.lang.errors;
 import ballerina.doc;
 import ballerina.net.ws;
 
@@ -15,35 +14,28 @@ service<ws> SimpleProxyServer {
     @doc:Description {value:"when new client connects to this service endpoint"}
     resource onHandshake(ws:HandshakeConnection con) {
         ws:ClientConnector c = create ws:ClientConnector("wss://echo.websocket.org", "ClientService");
-        ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
         try {
-            ws:Connection clientConn = c.connect(clientConnectorConfig);
+            ws:Connection clientConn = c.connect({parentConnectionID:con.connectionID});
             clientConnMap[con.connectionID] = clientConn;
-        } catch (errors:Error err) {
-            ws:cancelHandshake(con, 1001, "Cannot connect to remote server");
+        } catch (error err) {
+            con.cancelHandshake(1001, "Cannot connect to remote server");
         }
     }
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        var clientCon, e = (ws:Connection)clientConnMap[ws:getID(conn)];
-        if (clientCon != null) {
-            ws:pushText(clientCon, frame.text);
-        }
+        var clientCon, _ = (ws:Connection)clientConnMap[conn.getID()];
+        clientCon.pushText(frame.text);
     }
 
     resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
-        var clientConn, e = (ws:Connection)clientConnMap[ws:getID(conn)];
-        if (clientConn != null) {
-            ws:pushBinary(clientConn, frame.data);
-        }
+        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
+        clientConn.pushBinary(frame.data);
     }
 
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        var clientConn, e = (ws:Connection)clientConnMap[ws:getID(conn)];
-        if (clientConn != null) {
-            ws:closeConnection(clientConn, frame.statusCode, frame.reason);
-        }
-        maps:remove(clientConnMap, ws:getID(conn));
+        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
+        clientConn.closeConnection(frame.statusCode, frame.reason);
+        maps:remove(clientConnMap, conn.getID());
     }
 }
 
@@ -52,18 +44,18 @@ service<ws> SimpleProxyServer {
 service<ws> ClientService {
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        ws:Connection parentConn = ws:getParentConnection(conn);
-        ws:pushText(parentConn, frame.text);
+        ws:Connection parentConn = conn.getParentConnection();
+        parentConn.pushText(frame.text);
     }
 
     resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
-        ws:Connection parentConn = ws:getParentConnection(conn);
-        ws:pushBinary(parentConn, frame.data);
+        ws:Connection parentConn = conn.getParentConnection();
+        parentConn.pushBinary(frame.data);
     }
 
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        ws:Connection parentConn = ws:getParentConnection(conn);
-        ws:closeConnection(parentConn, frame.statusCode, frame.reason);
+        ws:Connection parentConn = conn.getParentConnection();
+        parentConn.closeConnection(frame.statusCode, frame.reason);
     }
 
 }

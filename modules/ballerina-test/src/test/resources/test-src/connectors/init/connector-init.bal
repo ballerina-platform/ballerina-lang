@@ -1,4 +1,4 @@
-package lang.connectors.init;
+package connectors.init;
 
 connector Foo (string name, int age) {
 
@@ -41,9 +41,10 @@ connector Bar(any name, json age) {
 }
  
 function testConnectorInitWithImplicitCastableTypes() (string, int){
+    Bar bar;
     string arg1 = "John";
     int arg2 = 40;
-    Bar bar = create Bar(arg1, arg2);
+    bar = create Bar(arg1, arg2);
     var a, j = bar.getNameAndAge(arg1, arg2);
     
     var s, _ = (string) a;

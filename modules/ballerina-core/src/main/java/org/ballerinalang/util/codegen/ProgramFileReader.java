@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -27,7 +28,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -1263,7 +1263,6 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWMESSAGE:
                 case InstructionCodes.NEWDATATABLE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1416,7 +1415,6 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2MSG:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:

@@ -20,6 +20,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,8 +32,8 @@ public class LengthOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/unaryoperations/lengthof-operation.bal");
-        resultNegative = BTestUtils.compile("test-src/expressions/unaryoperations/lengthof-operation-negative.bal");
+        result = BTestUtils.compile("test-src", "expressions/unaryoperations/lengthof-operation.bal");
+        resultNegative = BTestUtils.compile("test-src", "expressions/unaryoperations/lengthof-operation-negative.bal");
     }
 
     @Test(description = "Test lengthof unary expression")
@@ -134,7 +135,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actualThird, expectedThird);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Type cast expression.", enabled = false)
+    @Test(description = "Test lengthof unary expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
@@ -213,25 +214,20 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    /*@Test(description = "Test lengthof unary expression when array is null.",
-          expectedExceptions = {BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+    @Test(description = "Test lengthof unary expression when array is null.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessNullArrayCase", args);
+        BTestUtils.invoke(resultNegative, "arrayLengthAccessNullArrayCase", args);
     }
-
 
     @Test(description = "Test lengthof unary expression when reference point to json null.",
-          expectedExceptions = {BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
-    }*/
-
-    //@Test(description = "Test lengthof statement with errors")
-    public void testLengthofNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.invoke(resultNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
     }
+
 }

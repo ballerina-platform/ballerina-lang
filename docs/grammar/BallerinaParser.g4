@@ -63,7 +63,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION  callableUnitSignature SEMICOLON
+    :   (PUBLIC)? NATIVE FUNCTION (LT parameter GT)? callableUnitSignature SEMICOLON
     |   (PUBLIC)? FUNCTION (LT parameter GT)? callableUnitSignature callableUnitBody
     ;
 
@@ -147,8 +147,7 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 workerDefinition
@@ -232,7 +231,7 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
-    |   continueStatement
+    |   nextStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -333,8 +332,8 @@ whileStatement
     :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-continueStatement
-    :   CONTINUE SEMICOLON
+nextStatement
+    :   NEXT SEMICOLON
     ;
 
 breakStatement

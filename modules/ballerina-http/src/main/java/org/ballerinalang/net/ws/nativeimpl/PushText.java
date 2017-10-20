@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -39,9 +40,9 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "pushText",
-        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "text", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+                             structPackage = "ballerina.net.ws"),
+        args = {@Argument(name = "text", type = TypeKind.STRING)},
         isPublic = true
 )
 public class PushText extends AbstractNativeFunction {

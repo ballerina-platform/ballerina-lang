@@ -35,6 +35,9 @@ public class BLangAnnotAttachmentAttribute extends BLangExpression implements An
         this.value = value;
     }
 
+    public BLangAnnotAttachmentAttribute() {
+    }
+
     @Override
     public String getName() {
         return name;

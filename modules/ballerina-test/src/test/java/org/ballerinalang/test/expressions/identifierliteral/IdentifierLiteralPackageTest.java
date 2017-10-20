@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class IdentifierLiteralPackageTest {
 
-    @Test(description = "Test accessing variable in other packages defined with identifier literal", enabled = false)
+    @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
         CompileResult result = BTestUtils.compile("test-src/expressions/identifierliteral", "pkg.main");
         BValue[] returns = BTestUtils.invoke(result, "pkg.main", "getVarsInOtherPkg");

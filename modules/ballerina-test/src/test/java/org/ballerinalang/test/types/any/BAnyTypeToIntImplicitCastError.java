@@ -29,7 +29,7 @@ public class BAnyTypeToIntImplicitCastError {
 
     @Test
     public void testAnyToIntImplicitCast() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-to-int-implicit-cast.bal");
+        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-to-int-implicit-cast-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
     }

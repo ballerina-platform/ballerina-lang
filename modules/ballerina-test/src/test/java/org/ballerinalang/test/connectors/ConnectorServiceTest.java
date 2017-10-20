@@ -18,95 +18,93 @@
 
 package org.ballerinalang.test.connectors;
 
-//import org.ballerinalang.model.BLangProgram;
-//import org.ballerinalang.runtime.message.StringDataSource;
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
-//import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Test class for Connector service.
  */
 public class ConnectorServiceTest {
 
-//    BLangProgram bLangProgram;
-//
-//    @BeforeClass()
-//    public void setup() {
-//        bLangProgram = BTestUtils.parseBalFile("lang/connectors/connector-in-service.bal");
-//    }
-//
-//    @Test(description = "Test action3Resource")
-//    public void testAction3Resource() {
-//
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action3", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//
-//        Assert.assertEquals(stringDataSource.getValue(), "MyParam1");
-//    }
-//
-//    @Test(description = "Test action1Resource")
-//    public void testAction1Resource() {
-//
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//
-//        Assert.assertEquals(stringDataSource.getValue(), "false");
-//    }
-//
-//    @Test(description = "Test action1Resource after calling action2Resource")
-//    public void testAction2Resource() {
-//        CarbonMessage action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
-//        Services.invoke(action2Req);
-//
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//
-//        Assert.assertEquals(stringDataSource.getValue(), "true");
-//    }
-//
-//    @Test(description = "Test action5Resource")
-//    public void testAction5Resource() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//
-//        Assert.assertEquals(stringDataSource.getValue(), "MyParam1, MyParam1");
-//    }
-//
-//    @Test(description = "Test action6Resource")
-//    public void testAction6Resource() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//
-//        //action level connector declaration not supported yet
-//        //Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
-//    }
-//
-//    @AfterClass
-//    public void tearDown() {
-////        EnvironmentInitializer.cleanup(bLangProgram);
-//    }
+
+    private CompileResult result;
+
+    @BeforeClass()
+    public void setup() {
+        result = EnvironmentInitializer.setupProgramFile("test-src/connectors/connector-in-service.bal");
+    }
+
+    @Test(description = "Test action3Resource")
+    public void testAction3Resource() {
+
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action3", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "MyParam1");
+    }
+
+    @Test(description = "Test action1Resource", priority = 1)
+    public void testAction1Resource() {
+
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "false");
+    }
+
+    @Test(description = "Test action1Resource after calling action2Resource", priority = 2)
+    public void testAction2Resource() {
+        HTTPCarbonMessage action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
+        Services.invokeNew(action2Req);
+
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "true");
+    }
+
+    @Test(description = "Test action5Resource")
+    public void testAction5Resource() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "MyParam1, MyParam1");
+    }
+
+    @Test(description = "Test action6Resource")
+    public void testAction6Resource() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(result);
+    }
 
 }

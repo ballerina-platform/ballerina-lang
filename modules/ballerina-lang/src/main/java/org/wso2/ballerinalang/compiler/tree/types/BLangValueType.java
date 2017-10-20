@@ -41,7 +41,7 @@ public class BLangValueType extends BLangType implements ValueTypeNode {
 
     @Override
     public String toString() {
-        return this.typeKind.name();
+        return this.typeKind.typeName();
     }
 
     @Override
