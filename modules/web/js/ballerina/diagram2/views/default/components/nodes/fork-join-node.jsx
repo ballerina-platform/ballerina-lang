@@ -220,7 +220,7 @@ class ForkJoinNode extends React.Component {
             timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
             const lastChild = children[children.length - 1].viewState;
             timeoutLifeLineY2 = lastChild.bBox.y
-            + lastChild.components['drop-zone'] ? lastChild.components['drop-zone'].h : 0;
+            + (lastChild.components['drop-zone'] ? lastChild.components['drop-zone'].h : 0);
         }
 
         return (
