@@ -39,9 +39,9 @@ class ForkJoinNode extends AbstractForkJoinNode {
         }
 
         if (workerNodes.length > 0) {
-            for (let i = 1; i <= workerNodes.length + 1; i++) {
-                if (!names[`${workerDefaultName}${i}`]) {
-                    node.getName().setValue(`${workerDefaultName}${i}`, true);
+            for (let j = 1; j <= workerNodes.length; j++) {
+                if (!names[`${workerDefaultName}${j}`]) {
+                    node.getName().setValue(`${workerDefaultName}${j}`, true);
                     node.setName(node.getName(), false);
                     break;
                 }
