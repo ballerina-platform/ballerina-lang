@@ -506,7 +506,7 @@ public class HttpUtil {
     }
 
     public static void addResponseFlag(BStruct response) {
-        response.addNativeData(Constants.RESPONSE_STATUS, true);
+        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
     }
 
     /**
@@ -698,13 +698,13 @@ public class HttpUtil {
 
     public static void methodInvocationCheck(BStruct bStruct) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
-            throw new BallerinaException("illegal function invocation");
+            throw new IllegalStateException("illegal function invocation");
         }
         bStruct.addNativeData(METHOD_ACCESSED, true);
     }
 
     public static void operationNotAllowedCheck(BStruct bStruct) {
-        if (bStruct.getNativeData(Constants.RESPONSE_STATUS) == null) {
+        if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
         }
     }
