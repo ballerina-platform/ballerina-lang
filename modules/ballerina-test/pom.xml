@@ -117,7 +117,9 @@
                             <goal>report-aggregate</goal>
                         </goals>
                         <configuration>
-                            <dataFileIncludes>**/coverage-reports/jacoco.exec</dataFileIncludes>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/coverage-reports/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
                             <excludes>
                                 <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
                             </excludes>
