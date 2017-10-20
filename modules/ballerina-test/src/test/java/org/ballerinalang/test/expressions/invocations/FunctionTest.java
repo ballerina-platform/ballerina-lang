@@ -17,9 +17,10 @@
 */
 package org.ballerinalang.test.expressions.invocations;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,30 +34,30 @@ public class FunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/invocations/function-stmt.bal");
+        result = BCompileUtil.compile("test-src/expressions/invocations/function-stmt.bal");
     }
 
     @Test(description = "Test empty function scenario")
     public void testEmptyFunction() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "emptyFunction", args);
+        BValue[] returns = BRunUtil.invoke(result, "emptyFunction", args);
         Assert.assertEquals(returns.length, 0);
     }
 
     @Test(description = "Test function with empty default worker")
     public void testFunctionWithEmptyDefaultWorker() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "funcEmptyDefaultWorker", args);
+        BValue[] returns = BRunUtil.invoke(result, "funcEmptyDefaultWorker", args);
         Assert.assertEquals(returns.length, 0);
     }
 
     @Test
     public void testNoReturnFunctions() {
         BValue[] args = {};
-        BTestUtils.invoke(result, "test1", args);
-        BTestUtils.invoke(result, "test2", args);
-        BTestUtils.invoke(result, "test3", args);
-        BTestUtils.invoke(result, "test4", args);
-        BTestUtils.invoke(result, "test5", args);
+        BRunUtil.invoke(result, "test1", args);
+        BRunUtil.invoke(result, "test2", args);
+        BRunUtil.invoke(result, "test3", args);
+        BRunUtil.invoke(result, "test4", args);
+        BRunUtil.invoke(result, "test5", args);
     }
 }

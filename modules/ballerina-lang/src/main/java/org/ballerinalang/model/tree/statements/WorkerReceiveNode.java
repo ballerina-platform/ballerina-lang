@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import java.util.List;
 
 /**
- * q,e <- w1
+ * q,e &lt;- w1
  * @since 0.94
  */
 public interface WorkerReceiveNode extends StatementNode {

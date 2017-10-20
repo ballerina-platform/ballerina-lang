@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.test.types.any;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,12 +41,12 @@ public class BAnyTypeSuccessScenariosTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/any/any-type-success.bal");
+        result = BCompileUtil.compile("test-src/types/any/any-type-success.bal");
     }
 
     @Test(description = "Test any type as a return value with actual json returning")
     public void testAnyReturnWithJson() {
-        BValue[] returns = BTestUtils.invoke(result, "jsonReturnTest", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "jsonReturnTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         BJSON json = (BJSON) returns[0];
@@ -65,7 +66,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyAsStructParam() {
-        BValue[] returns = BTestUtils.invoke(result, "anyInStructTest", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "anyInStructTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         BBoolean bBoolean = (BBoolean) returns[0];
@@ -74,7 +75,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test float value in any type get casted to int in two steps")
     public void testFloatInAnyCastToInt() {
-        BValue[] returns = BTestUtils.invoke(result, "successfulIntCasting", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "successfulIntCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intVal = (BInteger) returns[0];
@@ -83,7 +84,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any to any explicit cast")
     public void testAnyToAnyCast() {
-        BValue[] returns = BTestUtils.invoke(result, "anyToAnyExplicitCasting", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "anyToAnyExplicitCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         BJSON json = (BJSON) returns[0];
@@ -92,7 +93,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test Multiple returns with any")
     public void testMultipleReturnWithAny() {
-        BValue[] returns = BTestUtils.invoke(result, "multipleReturnWithAny", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "multipleReturnWithAny", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -104,7 +105,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test multiple params with any")
     public void testMultipleParamWithAny() {
-        BValue[] returns = BTestUtils.invoke(result, "multipleParamWithAny", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "multipleParamWithAny", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intVal = (BInteger) returns[0];
@@ -113,7 +114,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test variable init with any")
     public void variableDefTest() {
-        BValue[] returns = BTestUtils.invoke(result, "variableDefTest", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "variableDefTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intVal = (BInteger) returns[0];
@@ -122,7 +123,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any variable assignment with float")
     public void assignmentTest() {
-        BValue[] returns = BTestUtils.invoke(result, "assignmentTest", new BValue[0]);
+        BValue[] returns = BRunUtil.invoke(result, "assignmentTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatVal = (BFloat) returns[0];
@@ -131,7 +132,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyArrayWithMapArray() {
-        BValue[] returns = BTestUtils.invoke(result, "anyArrayWithMapArray");
+        BValue[] returns = BRunUtil.invoke(result, "anyArrayWithMapArray");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BRefValueArray.class);
     }
