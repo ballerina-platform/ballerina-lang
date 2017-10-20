@@ -66,7 +66,8 @@ public class WebSocketServicesRegistry {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
                 String upgradePath = findFullWebSocketUpgradePath(service);
                 Annotation configAnnotation =
-                        service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                        service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
+                                              Constants.WsAnnotation.ServiceConfig.ANNOTATION_NAME);
                 Set<ListenerConfiguration> listenerConfigurationSet =
                         HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
 
@@ -170,12 +171,12 @@ public class WebSocketServicesRegistry {
         // Find Base path for WebSocket
 
         Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                Constants.ANN_NAME_CONFIG);
+                Constants.WsAnnotation.ServiceConfig.ANNOTATION_NAME);
         String serviceName = service.getName();
         String basePath;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
-                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+                    (org.ballerinalang.net.http.Constants.HttpAnnotation.ServiceConfig.Attribute.BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
                 basePath = annotationAttributeBasePathValue.getStringValue();

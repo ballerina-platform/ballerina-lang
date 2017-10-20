@@ -46,14 +46,14 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
         //gather package details from natives
         PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
         StructInfo wsConnectionStructInfo =
-                wsConnectionPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_CONNECTION);
+                wsConnectionPackageInfo.getStructInfo(Constants.Struct.Name.CONNECTION);
 
         //create session struct
         BStructType structType = wsConnectionStructInfo.getType();
         BStruct wsConnection = new BStruct(structType);
 
-        wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
+        wsConnection.addNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION, session);
+        wsConnection.addNativeData(Constants.Struct.NativeData.PARENT_CONNECTION_ID, parentConnectionID);
         return wsConnection;
     }
 

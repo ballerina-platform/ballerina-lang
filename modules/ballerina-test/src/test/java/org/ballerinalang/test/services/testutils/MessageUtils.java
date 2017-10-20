@@ -72,7 +72,7 @@ public class MessageUtils {
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
 
         // Set method
-        carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
+        carbonMessage.setProperty(Constants.HttpMethod.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
 
         // Set Headers
         HttpHeaders httpHeaders = carbonMessage.getHeaders();

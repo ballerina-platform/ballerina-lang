@@ -52,14 +52,14 @@ public class CorsHeaderGenerator {
         Map<String, List<String>> resourceCors;
         if (isSimpleRequest) {
             resourceCors = (Map<String, List<String>>) requestMsg.getProperty(Constants.RESOURCES_CORS);
-            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            String origin = requestMsg.getHeader(Constants.HttpHeader.ORIGIN);
             if (origin != null && resourceCors != null) {
                 if ((responseHeaders = processSimpleRequest(origin, resourceCors)) != null) {
                     isCorsResponseHeadersAvailable = true;
                 }
             }
         } else {
-            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            String origin = requestMsg.getHeader(Constants.HttpHeader.ORIGIN);
             if (origin != null) {
                 if ((responseHeaders = processPreflightRequest(origin, requestMsg)) != null) {
                     isCorsResponseHeadersAvailable = true;
@@ -70,7 +70,7 @@ public class CorsHeaderGenerator {
             responseHeaders.entrySet().stream().forEach(header -> {
                 responseMsg.setHeader(header.getKey(), header.getValue());
             });
-            responseMsg.removeHeader(Constants.ALLOW);
+            responseMsg.removeHeader(Constants.HttpHeader.ALLOW);
         }
     }
 
@@ -104,7 +104,7 @@ public class CorsHeaderGenerator {
         }
         String origin = requestOrigins.get(0);
         //6.2.3 - request must have access-control-request-method, must be single-valued
-        List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHOD, cMsg);
+        List<String> requestMethods = getHeaderValues(Constants.HttpHeader.AccessControl.REQUEST_METHOD, cMsg);
         if (requestMethods == null || requestMethods.size() != 1) {
             bLog.info(action + "not allowed request methods");
             return null;
@@ -125,7 +125,7 @@ public class CorsHeaderGenerator {
             return null;
         }
         //6.2.4 - get list of request headers.
-        List<String> requestHeaders = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
+        List<String> requestHeaders = getHeaderValues(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, cMsg);
         if (!isEffectiveHeader(requestHeaders, resourceCors.get(Constants.ALLOW_HEADERS))) {
             bLog.info(action + "header field parsing failed");
             return null;
@@ -133,13 +133,14 @@ public class CorsHeaderGenerator {
         //6.2.7 - set origin and credentials
         setAllowOriginAndCredentials(Arrays.asList(origin), resourceCors, responseHeaders);
         //6.2.9 - set allow-methods
-        responseHeaders.put(Constants.AC_ALLOW_METHODS, requestMethod);
+        responseHeaders.put(Constants.HttpHeader.AccessControl.ALLOW_METHODS, requestMethod);
         //6.2.10 - set allow-headers
         if (requestHeaders != null) {
-            responseHeaders.put(Constants.AC_ALLOW_HEADERS, DispatcherUtil.concatValues(requestHeaders, false));
+            responseHeaders.put(Constants.HttpHeader.AccessControl.ALLOW_HEADERS,
+                                DispatcherUtil.concatValues(requestHeaders, false));
         }
         //6.2.8 - set max-age
-        responseHeaders.put(Constants.AC_MAX_AGE, resourceCors.get(Constants.MAX_AGE).get(0));
+        responseHeaders.put(Constants.HttpHeader.AccessControl.MAX_AGE, resourceCors.get(Constants.MAX_AGE).get(0));
         return responseHeaders;
     }
 
@@ -186,11 +187,11 @@ public class CorsHeaderGenerator {
                     }
                 }
             }
-            if (requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
+            if (requestMethod.equals(Constants.HttpMethod.HEAD)) {
                 for (Resource resource : resources) {
                     if (DispatcherUtil.getHttpMethods(resource) != null) {
                         for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                            if (method.equals(Constants.HTTP_METHOD_GET)) {
+                            if (method.equals(Constants.HttpMethod.GET)) {
                                 return CorsRegistry.getInstance().getCorsHeaders(resource);
                             }
                         }
@@ -214,7 +215,7 @@ public class CorsHeaderGenerator {
         List<String> exposeHeaders = resCors.get(Constants.EXPOSE_HEADERS);
         String exposeHeaderResponse = DispatcherUtil.concatValues(exposeHeaders, false);
         if (!exposeHeaderResponse.isEmpty()) {
-            respHeaders.put(Constants.AC_EXPOSE_HEADERS, exposeHeaderResponse);
+            respHeaders.put(Constants.HttpHeader.AccessControl.EXPOSE_HEADERS, exposeHeaderResponse);
         }
     }
 
@@ -222,9 +223,10 @@ public class CorsHeaderGenerator {
             , Map<String, String> responseHeaders) {
         String allowCreds = resCors.get(Constants.ALLOW_CREDENTIALS).get(0);
         if (allowCreds.equals("true")) {
-            responseHeaders.put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
+            responseHeaders.put(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS, allowCreds);
         }
-        responseHeaders.put(Constants.AC_ALLOW_ORIGIN, DispatcherUtil.concatValues(effectiveOrigins, true));
+        responseHeaders.put(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN,
+                            DispatcherUtil.concatValues(effectiveOrigins, true));
     }
 
     private static List<String> getOriginValues(String originValue) {

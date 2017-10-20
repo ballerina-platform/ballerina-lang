@@ -330,7 +330,8 @@ public class HttpUtil {
         httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.APPLICATION_JSON);
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -361,7 +362,8 @@ public class HttpUtil {
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setMessageDataSource(stringDataSource);
         httpCarbonMessage.setAlreadyRead(true);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
@@ -379,7 +381,8 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        httpCarbonMessage.setHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE,
+                                    Constants.HttpHeader.ContentType.APPLICATION_XML);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
         return AbstractNativeFunction.VOID_RETURN;
@@ -392,7 +395,7 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-        String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        String lengthStr = httpCarbonMessage.getHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH);
         try {
             contentLength = Integer.parseInt(lengthStr);
         } catch (NumberFormatException e) {
@@ -408,7 +411,7 @@ public class HttpUtil {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             long contentLength = abstractNativeFunction.getIntArgument(context, 0);
-            httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            httpCarbonMessage.setHeader(Constants.HttpHeader.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Content-Length");
         }
@@ -550,49 +553,59 @@ public class HttpUtil {
         Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
 
 
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
+        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST);
+        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT);
 
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttrValue httpsPortAttrVal;
-        if (configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
-            httpsPortAttrVal =
-                    configInfo.getAnnAttrValue(org.ballerinalang.net.ws.Constants.ANN_CONFIG_ATTR_WSS_PORT);
+        if (configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HTTPS_PORT) == null) {
+            httpsPortAttrVal = configInfo.getAnnAttrValue(
+                    org.ballerinalang.net.ws.Constants.WsAnnotation.ServiceConfig.Attribute.WSS_PORT);
         } else {
-            httpsPortAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
+            httpsPortAttrVal = configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.HTTPS_PORT);
         }
 
-        AnnAttrValue keyStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttrValue keyStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttrValue certPasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
-        AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
-        AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
-        AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+        AnnAttrValue keyStoreFileAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_FILE);
+        AnnAttrValue keyStorePasswordAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_PASS);
+        AnnAttrValue certPasswordAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.CERT_PASS);
+        AnnAttrValue trustStoreFileAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_FILE);
+        AnnAttrValue trustStorePasswordAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_PASS);
+        AnnAttrValue sslVerifyClientAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT);
         AnnAttrValue sslEnabledProtocolsAttrVal = configInfo
-                .getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
-        AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
-        AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
+                .getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS);
+        AnnAttrValue ciphersAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.CIPHERS);
+        AnnAttrValue sslProtocolAttrVal =
+                configInfo.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_PROTOCOL);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
+            httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT,
+                            Long.toString(portAttrVal.getIntValue()));
+            httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+                httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
             } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+                httpPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
             }
             listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
         }
 
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
             Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT,
+                             Long.toString(httpsPortAttrVal.getIntValue()));
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME, Constants.PROTOCOL_HTTPS);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, hostAttrVal.getStringValue());
             } else {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST, Constants.HTTP_DEFAULT_HOST);
             }
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
@@ -618,28 +631,36 @@ public class HttpUtil {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
 
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePasswordAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPasswordAttrVal.getStringValue());
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_FILE,
+                             keyStoreFileAttrVal.getStringValue());
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.KEY_STORE_PASS,
+                             keyStorePasswordAttrVal.getStringValue());
+            httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.CERT_PASS,
+                             certPasswordAttrVal.getStringValue());
             if (sslVerifyClientAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT, sslVerifyClientAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_VERIFY_CLIENT,
+                                 sslVerifyClientAttrVal.getStringValue());
             }
             if (trustStoreFileAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE, trustStoreFileAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_FILE,
+                                 trustStoreFileAttrVal.getStringValue());
             }
             if (trustStorePasswordAttrVal != null) {
                 httpsPropMap
-                        .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
+                        .put(Constants.HttpAnnotation.ServiceConfig.Attribute.TRUST_STORE_PASS,
+                             trustStorePasswordAttrVal.getStringValue());
             }
             if (sslEnabledProtocolsAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocolsAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_ENABLED_PROTOCOLS,
+                                 sslEnabledProtocolsAttrVal.getStringValue());
             }
             if (ciphersAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.CIPHERS,
+                                 ciphersAttrVal.getStringValue());
             }
             if (sslProtocolAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL, sslProtocolAttrVal.getStringValue());
+                httpsPropMap.put(Constants.HttpAnnotation.ServiceConfig.Attribute.SSL_PROTOCOL,
+                                 sslProtocolAttrVal.getStringValue());
             }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
@@ -654,11 +675,11 @@ public class HttpUtil {
      */
     private static String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.SCHEME));
         iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.HOST));
         iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
+        iName.append(propMap.get(Constants.HttpAnnotation.ServiceConfig.Attribute.PORT));
         return iName.toString();
     }
 

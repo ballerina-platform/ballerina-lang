@@ -52,7 +52,7 @@ public class CancelHandshake extends AbstractNativeFunction {
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
         WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) handshakeConnection.getNativeData(Constants.WEBSOCKET_MESSAGE);
+                (WebSocketInitMessage) handshakeConnection.getNativeData(Constants.Struct.NativeData.WEBSOCKET_MESSAGE);
         initMessage.cancelHandShake(statusCode, reason);
         return VOID_RETURN;
     }

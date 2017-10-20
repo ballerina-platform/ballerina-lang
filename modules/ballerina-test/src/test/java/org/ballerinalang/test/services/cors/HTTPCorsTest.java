@@ -46,118 +46,123 @@ public class HTTPCorsTest {
     public void assertEqualsCorsResponse(HTTPCarbonMessage response, int statusCode, String origin, String credentials
             , String headers, String methods, String maxAge) {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), statusCode);
-        Assert.assertEquals(response.getHeader(Constants.AC_ALLOW_ORIGIN), origin);
-        Assert.assertEquals(response.getHeader(Constants.AC_ALLOW_CREDENTIALS), credentials);
-        Assert.assertEquals(response.getHeader(Constants.AC_ALLOW_HEADERS), headers);
-        Assert.assertEquals(response.getHeader(Constants.AC_ALLOW_METHODS), methods);
-        Assert.assertEquals(response.getHeader(Constants.AC_MAX_AGE), maxAge);
+        Assert.assertEquals(response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN), origin);
+        Assert.assertEquals(response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS), credentials);
+        Assert.assertEquals(response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_HEADERS), headers);
+        Assert.assertEquals(response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_METHODS), methods);
+        Assert.assertEquals(response.getHeader(Constants.HttpHeader.AccessControl.MAX_AGE), maxAge);
     }
 
     @Test(description = "Test for CORS override at two levels for simple requests")
     public void testSimpleReqServiceResourceCorsOverride() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
-        Assert.assertEquals("http://www.wso2.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertEquals("true", response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals("http://www.wso2.com", response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertEquals("true", response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
     }
 
     @Test(description = "Test for simple request service CORS")
     public void testSimpleReqServiceCors() {
         String path = "/hello1/test2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "serCors");
-        Assert.assertEquals("http://www.hello.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertEquals("true", response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals("http://www.hello.com",
+                            response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertEquals("true", response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
     }
 
     @Test(description = "Test for resource only CORS declaration")
     public void testSimpleReqResourceOnlyCors() {
         String path = "/hello2/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
-        Assert.assertEquals("http://www.hello.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
-        Assert.assertEquals("X-PINGOTHER, X-Content-Type-Options", response.getHeader(Constants.AC_EXPOSE_HEADERS));
+        Assert.assertEquals("http://www.hello.com",
+                            response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertEquals(null, response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
+        Assert.assertEquals("X-PINGOTHER, X-Content-Type-Options",
+                            response.getHeader(Constants.HttpHeader.AccessControl.EXPOSE_HEADERS));
     }
 
     @Test(description = "Test simple request with multiple origins")
     public void testSimpleReqMultipleOrigins() {
         String path = "/hello1/test3";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com http://www.amazon.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com http://www.amazon.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "moreOrigins");
-        Assert.assertEquals("http://www.wso2.com http://www.amazon.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertEquals("true", response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals("http://www.wso2.com http://www.amazon.com",
+                            response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertEquals("true", response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
     }
 
     @Test(description = "Test simple request for invalid origins")
     public void testSimpleReqInvalidOrigin() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
-        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertNull(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertNull(null, response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
     }
 
     @Test(description = "Test simple request for null origins")
     public void testSimpleReqWithNullOrigin() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
-        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
-        Assert.assertNull(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
+        Assert.assertNull(null, response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_CREDENTIALS));
     }
 
     @Test(description = "Test for values with extra white spaces")
     public void testSimpleReqwithExtraWS() {
         String path = "/hello2/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.facebook.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.facebook.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
-        Assert.assertEquals("http://www.facebook.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals("http://www.facebook.com",
+                            response.getHeader(Constants.HttpHeader.AccessControl.ALLOW_ORIGIN));
     }
 
     @Test(description = "Test for CORS override at two levels with preflight")
     public void testPreFlightReqServiceResourceCorsOverride() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -169,8 +174,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoOrigin() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -182,8 +187,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoMethod() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -195,9 +200,9 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithUnavailableMethod() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.PUT);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -209,23 +214,23 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithHeadMethod() {
         String path = "/hello1/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_HEAD);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "CORELATION_ID");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.HEAD);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "CORELATION_ID");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.m3.com", "true"
-                , "CORELATION_ID", Constants.HTTP_METHOD_HEAD, "1");
+                , "CORELATION_ID", Constants.HttpMethod.HEAD, "1");
     }
 
     @Test(description = "Test preflight for invalid headers")
     public void testPreFlightReqwithInvalidHeaders() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "WSO2");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "WSO2");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -237,22 +242,22 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithNoHeaders() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.wso2.com", "true"
-                , null, Constants.HTTP_METHOD_POST, "-1");
+                , null, Constants.HttpMethod.POST, "-1");
     }
 
     @Test(description = "Test preflight with method restriction at service level")
     public void testPreFlightReqwithRestrictedMethodsServiceLevel() {
         String path = "/hello3/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -264,9 +269,9 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithRestrictedMethodsResourceLevel() {
         String path = "/hello2/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.bbc.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_DELETE);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.bbc.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.DELETE);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -278,9 +283,9 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithAllowedMethod() {
         String path = "/hello3/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.PUT);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -292,9 +297,9 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithMissingHeadersAtResourceLevel() {
         String path = "/hello2/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.bbc.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_PUT);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.bbc.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.PUT);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -306,21 +311,21 @@ public class HTTPCorsTest {
     public void testPreFlightReqNoCorsResource() {
         String path = "/echo4/info1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, null, null
                 , null, null, null);
-        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.ALLOW));
+        Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.HttpHeader.ALLOW));
     }
 
     @Test(description = "Test for simple OPTIONS request")
     public void testSimpleOPTIONSReq() {
         String path = "/echo4/info2";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -332,8 +337,8 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithCaseInsensitiveOrigin() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.Wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.Wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -345,9 +350,9 @@ public class HTTPCorsTest {
     public void testPreFlightReqwithCaseInsensitiveHeader() {
         String path = "/hello1/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
-        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_POST);
-        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        cMsg.setHeader(Constants.HttpHeader.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_METHOD, Constants.HttpMethod.POST);
+        cMsg.setHeader(Constants.HttpHeader.AccessControl.REQUEST_HEADERS, "X-PINGOTHER");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);

@@ -45,7 +45,7 @@ public class HTTPResourceDispatcher {
     public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg)
             throws BallerinaConnectorException {
 
-        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+        String method = (String) cMsg.getProperty(Constants.HttpMethod.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
@@ -61,7 +61,7 @@ public class HTTPResourceDispatcher {
                 cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
             } else {
-                if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+                if (method.equals(Constants.HttpMethod.OPTIONS)) {
                     handleOptionsRequest(cMsg, service);
                 } else {
                     cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
@@ -88,11 +88,12 @@ public class HTTPResourceDispatcher {
     private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service)
             throws URITemplateException {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-        if (cMsg.getHeader(Constants.ALLOW) != null) {
-            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
+        if (cMsg.getHeader(Constants.HttpHeader.ALLOW) != null) {
+            response.setHeader(Constants.HttpHeader.ALLOW, cMsg.getHeader(Constants.HttpHeader.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
             if (!getAllResourceMethods(service).isEmpty()) {
-                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
+                response.setHeader(Constants.HttpHeader.ALLOW,
+                                   DispatcherUtil.concatValues(getAllResourceMethods(service), false));
             }
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);

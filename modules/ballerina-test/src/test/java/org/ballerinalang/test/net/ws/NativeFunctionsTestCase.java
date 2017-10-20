@@ -83,9 +83,9 @@ public class NativeFunctionsTestCase {
         upgradeHeaders.put(header2Key, header2Value);
 
         wsConnection = BTestUtils.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
-                                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, upgradeHeaders);
+                                                     Constants.Struct.Name.CONNECTION);
+        wsConnection.addNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION, session);
+        wsConnection.addNativeData(Constants.Struct.NativeData.UPGRADE_HEADERS, upgradeHeaders);
     }
 
     @Test
@@ -164,9 +164,9 @@ public class NativeFunctionsTestCase {
         String testSessionID = "test_session_id";
         MockWebSocketSession testSession = new MockWebSocketSession(testSessionID);
         BStruct testParentWsConnection = BTestUtils.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
-                                                                       Constants.STRUCT_WEBSOCKET_CONNECTION);
-        testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
+                                                                       Constants.Struct.Name.CONNECTION);
+        testParentWsConnection.addNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION, testSession);
+        wsConnection.addNativeData(Constants.Struct.NativeData.PARENT_CONNECTION_ID, testSessionID);
         WebSocketConnectionManager.getInstance().addConnection(testSessionID, testParentWsConnection);
 
         // Test the original WebSocket connection.

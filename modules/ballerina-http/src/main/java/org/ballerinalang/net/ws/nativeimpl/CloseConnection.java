@@ -56,7 +56,7 @@ public class CloseConnection extends AbstractNativeFunction {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) wsConnection.getNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
         } catch (IOException e) {

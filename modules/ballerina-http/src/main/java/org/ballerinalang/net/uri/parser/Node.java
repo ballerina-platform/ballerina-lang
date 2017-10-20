@@ -124,7 +124,7 @@ public abstract class Node {
     private Resource validateHTTPMethod(List<Resource> resources, HTTPCarbonMessage carbonMessage) {
         Resource resource = null;
         boolean isOptionsRequest = false;
-        String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
+        String httpMethod = (String) carbonMessage.getProperty(Constants.HttpMethod.HTTP_METHOD);
         for (Resource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 resource = resourceInfo;
@@ -249,8 +249,8 @@ public abstract class Node {
     }
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
-        if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
+        if (httpMethod.equals(Constants.HttpMethod.OPTIONS)) {
+            cMsg.setHeader(Constants.HttpHeader.ALLOW, getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
@@ -272,7 +272,8 @@ public abstract class Node {
 
     public Resource validateConsumes(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isConsumeMatched = false;
-        String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
+        String contentMediaType =
+                extractContentMediaType(cMsg.getHeader(Constants.HttpHeader.ContentType.CONTENT_TYPE));
         String[] consumesList  = DispatcherUtil.getConsumerList(resource);
 
         if (consumesList != null) {
@@ -305,7 +306,7 @@ public abstract class Node {
 
     public Resource validateProduces(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isProduceMatched = false;
-        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.HttpHeader.ACCEPT));
         String[] producesList = DispatcherUtil.getProducesList(resource);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.

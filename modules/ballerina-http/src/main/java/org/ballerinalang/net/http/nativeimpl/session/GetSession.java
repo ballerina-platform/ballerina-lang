@@ -62,7 +62,7 @@ public class GetSession extends AbstractNativeFunction {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
-            String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
+            String cookieHeader = httpCarbonMessage.getHeader(Constants.HttpHeader.COOKIE);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
             Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);
 
@@ -98,7 +98,7 @@ public class GetSession extends AbstractNativeFunction {
                 logger.info("Failed to get session: session cookie is not available");
                 return new BValue[]{};
             }
-            httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
+            httpCarbonMessage.removeHeader(Constants.HttpHeader.COOKIE);
             requestStruct.addNativeData(Constants.HTTP_SESSION, session);
             return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
         } catch (IllegalStateException e) {

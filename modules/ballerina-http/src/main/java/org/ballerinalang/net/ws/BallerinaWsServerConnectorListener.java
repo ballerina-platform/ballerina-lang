@@ -56,13 +56,13 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
-        Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
+        Resource onHandshakeResource = wsService.getResourceByName(Constants.ResourceName.ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             Semaphore semaphore = new Semaphore(0);
             AtomicBoolean isResourceExeSuccessful = new AtomicBoolean(false);
             // TODO: Resource should be able to run without any parameter.
             BStruct handshakeStruct = wsService.createHandshakeConnectionStruct();
-            handshakeStruct.addNativeData(Constants.WEBSOCKET_MESSAGE, webSocketInitMessage);
+            handshakeStruct.addNativeData(Constants.Struct.NativeData.WEBSOCKET_MESSAGE, webSocketInitMessage);
             handshakeStruct.setStringField(0, webSocketInitMessage.getSessionID());
             handshakeStruct.setBooleanField(0, webSocketInitMessage.isConnectionSecured() ? 1 : 0);
 
@@ -153,13 +153,13 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             @Override
             public void onSuccess(Session session) {
                 BStruct wsConnection = wsService.createConnectionStruct();
-                wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
-                wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
+                wsConnection.addNativeData(Constants.Struct.NativeData.WEBSOCKET_SESSION, session);
+                wsConnection.addNativeData(Constants.Struct.NativeData.WEBSOCKET_MESSAGE, initMessage);
+                wsConnection.addNativeData(Constants.Struct.NativeData.UPGRADE_HEADERS, initMessage.getHeaders());
 
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
 
-                Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
+                Resource onOpenResource = wsService.getResourceByName(Constants.ResourceName.ON_OPEN);
                 BValue[] bValues = {wsConnection};
                 if (onOpenResource == null) {
                     return;

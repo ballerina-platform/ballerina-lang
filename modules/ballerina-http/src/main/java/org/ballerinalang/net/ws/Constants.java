@@ -30,38 +30,83 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
-    public static final String ANNOTATION_CONFIGURATION = "configuration";
-    public static final String ANNOTATION_WEBSOCKET_CLIENT_SERVICE = "clientService";
-    public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
-    public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
-    public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
-
-    public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
-    public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
-    public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
-    public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
-    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "onPingMessage";
-    public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
-    public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
-    public static final String RESOURCE_NAME_ON_ERROR = "onError";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
-
     public static final String CONNECTION = "Connection";
     public static final String UPGRADE = "Upgrade";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
-    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
+    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
 
-    public static final String STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION = "HandshakeConnection";
-    public static final String STRUCT_WEBSOCKET_CONNECTION = "Connection";
-    public static final String STRUCT_WEBSOCKET_TEXT_FRAME = "TextFrame";
-    public static final String STRUCT_WEBSOCKET_BINARY_FRAME = "BinaryFrame";
-    public static final String STRUCT_WEBSOCKET_PING_FRAME = "PingFrame";
-    public static final String STRUCT_WEBSOCKET_PONG_FRAME = "PongFrame";
-    public static final String STRUCT_WEBSOCKET_CLOSE_FRAME = "CloseFrame";
-    public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
-    public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
-    public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
+    /**
+     * WebSocket Annotation Constants.
+     */
+    public static final class WsAnnotation {
+
+        /**
+         * WebSocket service configuration annotation constants.
+         */
+        public static final class ServiceConfig {
+            public static final String ANNOTATION_NAME = "configuration";
+
+            /**
+             * Attribute names of WebSocket Service Configuration annotation attribute constants.
+             */
+            public static final class Attribute {
+                public static final String SUB_PROTOCOLS = "subProtocols";
+                public static final String IDLE_TIMEOUT_IN_SECS = "idleTimeoutInSeconds";
+                public static final String WSS_PORT = "wssPort";
+            }
+        }
+
+        /**
+         * WebSocket client service annotation constants.
+         */
+        public static final class ClientService {
+            public static final String CLIENT_SERVICE = "clientService";
+        }
+    }
+
+    /**
+     * WebSocket Resource Names.
+     */
+    public static final class ResourceName {
+        public static final String ON_HANDSHAKE = "onHandshake";
+        public static final String ON_OPEN = "onOpen";
+        public static final String ON_TEXT_MESSAGE = "onTextMessage";
+        public static final String ON_BINARY_MESSAGE = "onBinaryMessage";
+        public static final String ON_PING_MESSAGE = "onPingMessage";
+        public static final String ON_CLOSE = "onClose";
+        public static final String ON_IDLE_TIMEOUT = "onIdleTimeout";
+        public static final String ON_ERROR = "onError";
+    }
+
+    /**
+     * WebSocket Struct Names.
+     */
+    public static final class Struct {
+
+        /**
+         * Names of WebSocket Structs.
+         */
+        public static final class Name {
+            public static final String HANDSHAKE_CONNECTION = "HandshakeConnection";
+            public static final String CONNECTION = "Connection";
+            public static final String TEXT_FRAME = "TextFrame";
+            public static final String BINARY_FRAME = "BinaryFrame";
+            public static final String PING_FRAME = "PingFrame";
+            public static final String PONG_FRAME = "PongFrame";
+            public static final String CLOSE_FRAME = "CloseFrame";
+        }
+
+        /**
+         * Native data names relates to Structs.
+         */
+        public static final class NativeData {
+            public static final String WEBSOCKET_MESSAGE = "NATIVE_DATA_WEBSOCKET_MESSAGE";
+            public static final String WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
+            public static final String UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
+            public static final String PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
+        }
+    }
 }

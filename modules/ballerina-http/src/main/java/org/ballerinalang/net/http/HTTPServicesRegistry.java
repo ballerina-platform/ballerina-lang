@@ -80,7 +80,8 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
-        Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+        Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                                      Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME);
 
         String basePath = discoverBasePathFrom(service, annotation);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -108,7 +109,8 @@ public class HTTPServicesRegistry {
      * @param service requested service to be removed.
      */
     public void unregisterService(Service service) {
-        Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+        Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH,
+                                                      Constants.HttpAnnotation.ServiceConfig.ANNOTATION_NAME);
 
         String basePath = discoverBasePathFrom(service, annotation);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -129,7 +131,8 @@ public class HTTPServicesRegistry {
     private String discoverBasePathFrom(Service service, Annotation annotation) {
         String basePath = service.getName();
         if (annotation != null) {
-            AnnAttrValue annotationValue = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
+            AnnAttrValue annotationValue =
+                    annotation.getAnnAttrValue(Constants.HttpAnnotation.ServiceConfig.Attribute.BASE_PATH);
             if (annotationValue != null && annotationValue.getStringValue() != null) {
                 if (annotationValue.getStringValue().trim().isEmpty()) {
                     basePath = Constants.DEFAULT_BASE_PATH;

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.services.session;
 
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -29,16 +30,16 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.SESSION_ID;
-
 /**
  * HTTP session sub Methods Test Class.
  */
 public class HTTPSessionSubMethodsTest {
 
     CompileResult compileResult;
+
+    private static final String COOKIE_HEADER = Constants.HttpHeader.COOKIE;
+    private static final String RESPONSE_COOKIE_HEADER = Constants.HttpHeader.RESPONSE_COOKIE;
+    private static final String SESSION_ID = Constants.SESSION_ID;
 
     @BeforeClass
     public void setup() {
