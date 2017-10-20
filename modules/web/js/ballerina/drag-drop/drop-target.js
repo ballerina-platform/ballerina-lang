@@ -38,15 +38,15 @@ export function withDropEnabled(DropArea) {
 
         },
         canDrop: (props, monitor, component) => {
-            const { dropTarget, canDrop } = props;
+            const { dropTarget, canDrop, dropBefore } = props;
             const { dragSource } = monitor.getItem();
             let validDrop = false;
             // Try to validate drop through node methods
             if (!_.isNil(dropTarget) && _.isFunction(dropTarget.canAcceptDrop)) {
-                validDrop = dropTarget.canAcceptDrop(dragSource) && (_.isFunction(dragSource.canBeDropped)
-                    ? dragSource.canBeDropped(dropTarget) : true);
+                validDrop = dropTarget.canAcceptDrop(dragSource, dropBefore) && (_.isFunction(dragSource.canBeDropped)
+                    ? dragSource.canBeDropped(dropTarget, dropBefore) : true);
             }
-            // give priority to validate callback 
+            // give priority to validate callback
             // directly given to DropZone
             if (_.isFunction(canDrop)) {
                 validDrop = canDrop(dragSource);

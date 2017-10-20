@@ -26,10 +26,19 @@ class BlockNode extends AbstractBlockNode {
      * on top of this node.
      *
      * @param {Node} node Node instance to be dropped
-     * @returns {Boolean} True if can be acceped.
+     * @param {Node} dropBefore before the node
+     * @returns {Boolean} True if can be accepted.
      */
-    canAcceptDrop(node) {
-        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node)) || TreeUtil.isXmlns(node);
+    canAcceptDrop(node, dropBefore) {
+        const existingStatements = this.statements;
+        let lastStatement;
+        let isLastStatementReturn = false;
+        if (!dropBefore && existingStatements.length > 0) {
+            lastStatement = existingStatements[existingStatements.length - 1];
+            isLastStatementReturn = lastStatement ? TreeUtil.isReturn(lastStatement) : false;
+        }
+        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node) && !isLastStatementReturn)
+            || TreeUtil.isXmlns(node);
     }
 
     /**
