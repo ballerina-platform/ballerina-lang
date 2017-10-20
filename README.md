@@ -34,8 +34,6 @@ For Unix/Linux
 
 The command line will display the URL you can use to access the Composer in your browser.
 
-For complete instructions on creating your integrations and using the Composer, see the [Ballerina documentation](http://ballerinalang.org/docs/user-guide/0.8/quick-tour/#run-the-composer).
-
 ## How to build
 The build process of the composer works on Maven and Node Package Manager(npm).
 
