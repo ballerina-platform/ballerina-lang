@@ -10,7 +10,7 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 ![alt text](./docs/images/SourceView.png?raw=true "Source view")
 
-**View Design and Source view at the same time:**
+**See Design and Source view at the same time:**
 
 ![alt text](./docs/images/SplitView.png?raw=true "Split view")
 
