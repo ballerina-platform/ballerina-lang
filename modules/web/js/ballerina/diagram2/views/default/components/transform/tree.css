@@ -1,6 +1,5 @@
 .transform-endpoint-tree .variable {
     position: static;
-    padding: 0 4px;
 }
 
 .transform-endpoint-container {
@@ -21,6 +20,14 @@
     padding: 0;
     position: absolute;
     top: 0;
+}
+
+.transform-source .transform-endpoint-details {
+    padding-left: 8px;
+}
+
+.transform-return .transform-endpoint-details {
+    padding-left: 8px;
 }
 
 .transform-source .btn-remove {

@@ -449,17 +449,12 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(stmt, true);
 
-        const operator = target.operator;
-
-        if (TreeUtil.isUnaryExpr(operator)) {
-            operator.setExpression(source.operator, true);
-        } else if (TreeUtil.isBinaryExpr(operator) && target.index === 0) {
-            operator.setLeftExpression(source.operator, true);
-        } else if (TreeUtil.isBinaryExpr(operator) && target.index === 1) {
-            operator.setRightExpression(source.operator, true);
-        } else {
+        const setter = this.getOperandSetterFunction(target.operator, target.index);
+        if (!setter) {
+            log.error('Unknown operator type for mapping');
             return;
         }
+        setter(source.operator, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -503,17 +498,12 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(assignmentStmtSource, true);
 
-        const operator = target.operator;
-
-        if (TreeUtil.isUnaryExpr(operator)) {
-            target.operator.setExpression(source.funcInv, true);
-        } else if (TreeUtil.isBinaryExpr(operator) && target.index === 0) {
-            target.operator.setLeftExpression(source.funcInv, true);
-        } else if (TreeUtil.isBinaryExpr(operator) && target.index === 1) {
-            target.operator.setRightExpression(source.funcInv, true);
-        } else {
+        const setter = this.getOperandSetterFunction(target.operator, target.index);
+        if (!setter) {
+            log.error('Unknown operator type for mapping');
             return;
         }
+        setter(source.funcInv, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -704,26 +694,12 @@ class TransformNodeMapper {
 
         const defaultExp = TransformFactory.createDefaultOperatorExpression(operatorExp, target.index);
 
-        if (TreeUtil.isUnaryExpr(operatorExp) && target.index === 0) {
-            operatorExp.setExpression(defaultExp, true);
-        } else if (TreeUtil.isBinaryExpr(operatorExp)) {
-            if (target.index === 0) {
-                operatorExp.setLeftExpression(defaultExp, true);
-            } else if (target.index === 1) {
-                operatorExp.setRightExpression(defaultExp, true);
-            }
-        } else if (TreeUtil.isTernaryExpr(operatorExp)) {
-            if (target.index === 0) {
-                operatorExp.setCondition(defaultExp, true);
-            } else if (target.index === 1) {
-                operatorExp.setThenExpression(defaultExp, true);
-            } else if (target.index === 2) {
-                operatorExp.setElseExpression(defaultExp, true);
-            }
-        } else {
+        const setter = this.getOperandSetterFunction(operatorExp, target.index);
+        if (!setter) {
             log.error('Unknown operator type for mapping');
             return;
         }
+        setter(defaultExp, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -785,15 +761,12 @@ class TransformNodeMapper {
         const assignmentStmt = this.getParentStatement(target.operator);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
-        if (TreeUtil.isUnaryExpr(target.operator)) {
-            target.operator.setExpression(TransformFactory.createDefaultExpression(target.type), true);
-        } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 0) {
-            target.operator.setLeftExpression(TransformFactory.createDefaultExpression(target.type), true);
-        } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 1) {
-            target.operator.setRightExpression(TransformFactory.createDefaultExpression(target.type), true);
-        } else {
+        const setter = this.getOperandSetterFunction(target.operator, target.index);
+        if (!setter) {
+            log.error('Unknown operator type for mapping');
             return;
         }
+        setter(TransformFactory.createDefaultExpression(target.type), true);
 
         const newAssignmentStmt = this.createNewAssignment(source.operator);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
@@ -818,13 +791,12 @@ class TransformNodeMapper {
         const assignmentStmt = this.getParentStatement(target.operator);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
-        if (TreeUtil.isUnaryExpr(target.operator)) {
-            target.operator.setExpression(TransformFactory.createDefaultExpression(), true);
-        } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 0) {
-            target.operator.setLeftExpression(TransformFactory.createDefaultExpression(), true);
-        } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 1) {
-            target.operator.setRightExpression(TransformFactory.createDefaultExpression(), true);
+        const setter = this.getOperandSetterFunction(target.operator, target.index);
+        if (!setter) {
+            log.error('Unknown operator type for mapping');
+            return;
         }
+        setter(TransformFactory.createDefaultExpression(), true);
 
         const newAssignmentStmt = this.createNewAssignment(source.funcInv);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
@@ -940,6 +912,23 @@ class TransformNodeMapper {
                 expression.setLeftExpression(TransformFactory.createDefaultExpression());
             } else {
                 this.removeInputNestedExpressions(expression.getLeftExpression(), expStr);
+            }
+        } else if (TreeUtil.isTernaryExpr(expression)) {
+            // TODO: do a index check here
+            if (expression.getCondition().getSource().trim() === expStr) {
+                expression.setCondition(TransformFactory.createDefaultExpression());
+            } else {
+                this.removeInputNestedExpressions(expression.getCondition(), expStr);
+            }
+            if (expression.getThenExpression().getSource().trim() === expStr) {
+                expression.setThenExpression(TransformFactory.createDefaultExpression());
+            } else {
+                this.removeInputNestedExpressions(expression.getThenExpression(), expStr);
+            }
+            if (expression.getElseExpression().getSource().trim() === expStr) {
+                expression.setElseExpression(TransformFactory.createDefaultExpression());
+            } else {
+                this.removeInputNestedExpressions(expression.getThenExpression(), expStr);
             }
         } else if (TreeUtil.isFieldBasedAccessExpr(expression)) {
             if (TreeUtil.isSimpleVariableRef(expression.getExpression())) {
@@ -1516,6 +1505,34 @@ class TransformNodeMapper {
      */
     getMappingStatements() {
         return this._transformStmt.body.filterStatements(_.negate(TreeUtil.isComment));
+    }
+
+    /**
+     * Get associated setter function of the operator for the given index
+     * @param {any} operator operator
+     * @param {any} index index of the operand
+     * @returns {Function} setter function
+     * @memberof TransformNodeMapper
+     */
+    getOperandSetterFunction(operator, index) {
+        if (TreeUtil.isUnaryExpr(operator)) {
+            return operator.setExpression.bind(operator);
+        } else if (TreeUtil.isBinaryExpr(operator)) {
+            if (index === 0) {
+                return operator.setLeftExpression.bind(operator);
+            } else if (index === 1) {
+                return operator.setRightExpression.bind(operator);
+            }
+        } else if (TreeUtil.isTernaryExpr(operator)) {
+            if (index === 0) {
+                return operator.setCondition.bind(operator);
+            } else if (index === 1) {
+                return operator.setThenExpression.bind(operator);
+            } else if (index === 2) {
+                return operator.setElseExpression.bind(operator);
+            }
+        }
+        return undefined;
     }
 }
 

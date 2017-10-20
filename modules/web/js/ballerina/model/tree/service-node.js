@@ -67,9 +67,9 @@ class ServiceNode extends AbstractServiceNode {
         }
 
         if (resourceNodes.length > 0) {
-            for (let i = 1; i <= resourceNodes.length + 1; i++) {
-                if (!names[`${resourceDefaultName}${i}`]) {
-                    node.getName().setValue(`${resourceDefaultName}${i}`, true);
+            for (let j = 1; j <= resourceNodes.length; j++) {
+                if (!names[`${resourceDefaultName}${j}`]) {
+                    node.getName().setValue(`${resourceDefaultName}${j}`, true);
                     node.setName(node.getName(), false);
                     break;
                 }

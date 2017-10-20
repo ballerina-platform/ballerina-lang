@@ -159,7 +159,9 @@ class TopLevelNodes extends React.Component {
         value = `${value};\n`;
         const fragment = FragmentUtils.createTopLevelNodeFragment(value);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        this.props.model.addGlobal(TreeBuilder.build(parsedJson));
+        const globalNode = TreeBuilder.build(parsedJson);
+        globalNode.clearWS();
+        this.props.model.addGlobal(globalNode);
     }
 
     /**
@@ -173,7 +175,9 @@ class TopLevelNodes extends React.Component {
         value = `import ${value};\n`;
         const fragment = FragmentUtils.createTopLevelNodeFragment(value);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        this.props.model.addImport(TreeBuilder.build(parsedJson));
+        const importNode = TreeBuilder.build(parsedJson);
+        importNode.clearWS();
+        this.props.model.addImport(importNode);
     }
 
     /**

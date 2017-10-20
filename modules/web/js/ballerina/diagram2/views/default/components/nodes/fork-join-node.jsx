@@ -62,6 +62,7 @@ class ForkJoinNode extends React.Component {
         const forkJoinNode = this.props.model;
         const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(value));
         const newTimeoutCondition = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        newTimeoutCondition.clearWS();
         if (newTimeoutCondition.variable.initialExpression) {
             forkJoinNode.setTimeOutExpression(newTimeoutCondition.variable.initialExpression);
         }
@@ -81,6 +82,7 @@ class ForkJoinNode extends React.Component {
         const forkJoinNode = this.props.model;
         const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
         const newTimeoutParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        newTimeoutParameter.clearWS();
         forkJoinNode.setTimeOutVariable(newTimeoutParameter);
         return null;
     }
@@ -98,6 +100,7 @@ class ForkJoinNode extends React.Component {
         const forkJoinNode = this.props.model;
         const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
         const newJoinParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
+        newJoinParameter.clearWS();
         forkJoinNode.setJoinResultVar(newJoinParameter);
         return null;
     }
@@ -123,7 +126,7 @@ class ForkJoinNode extends React.Component {
         const forkJoinNode = this.props.model;
         const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createJoinCondition(value));
         const newJoinNode = TreeBuilder.build(parsedJson);
-
+        newJoinNode.clearWS();
         forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers());
         forkJoinNode.setJoinType(newJoinNode.getJoinType());
         forkJoinNode.setJoinCount(newJoinNode.getJoinCount());
@@ -204,7 +207,8 @@ class ForkJoinNode extends React.Component {
             const firstJoinChild = joinChildren[0].viewState;
             joinLifeLineY1 = firstJoinChild.bBox.y + firstJoinChild.bBox.h;
             const lastJoinChild = joinChildren[joinChildren.length - 1].viewState;
-            joinLifeLineY2 = lastJoinChild.bBox.y + lastJoinChild.components['drop-zone'].h;
+            joinLifeLineY2 = lastJoinChild.bBox.y
+                + (lastJoinChild.components['drop-zone'] ? lastJoinChild.components['drop-zone'].h : 0);
         }
 
         // Get timeout block life line y1 and y2.
@@ -215,7 +219,8 @@ class ForkJoinNode extends React.Component {
             const firstChild = children[0].viewState;
             timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
             const lastChild = children[children.length - 1].viewState;
-            timeoutLifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
+            timeoutLifeLineY2 = lastChild.bBox.y
+            + (lastChild.components['drop-zone'] ? lastChild.components['drop-zone'].h : 0);
         }
 
         return (
