@@ -114,6 +114,15 @@ service<http> helloServer {
     }
 
     @http:resourceConfig {
+        path:"/14"
+    }
+    resource echo4 (http:Request req, http:Response res) {
+        http:Response resp = {};
+        resp.setStringPayload("hello");
+        res.forward(resp);
+    }
+
+    @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
     resource addheader (http:Request req, http:Response res, string key, string value) {
