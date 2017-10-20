@@ -67,7 +67,8 @@ class ConnectorPropertiesForm extends React.Component {
     getSupportedProps() {
         const props = this.props.model.props;
         // Get the pkg alias
-        const pkgAlias = props.model.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value;
+        const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
+        const pkgAlias = initialExpr.connectorType.packageAlias.value || '';
         const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment, pkgAlias);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
@@ -192,7 +193,7 @@ class ConnectorPropertiesForm extends React.Component {
      */
     setDataToConnectorInitArgs(data) {
         const props = this.props.model.props;
-        const connectorInit = props.model.getVariable().getInitialExpression();
+        const connectorInit = TreeUtils.getConnectorInitFromStatement(props.model);
         const pkgAlias = connectorInit.getConnectorType().getPackageAlias().value;
         this.getConnectorInstanceString(connectorInit, pkgAlias, data);
     }
@@ -203,7 +204,8 @@ class ConnectorPropertiesForm extends React.Component {
      */
     getDataAddedToConnectorInit() {
         const props = this.props.model.props;
-        return props.model.getVariable().getInitialExpression().getExpressions();
+        const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
+        return initialExpr.getExpressions();
     }
 
     /**
@@ -216,8 +218,8 @@ class ConnectorPropertiesForm extends React.Component {
         const props = this.props.model.props;
         const positionX = (props.bBox.x) - 8 + 'px';
         const positionY = (props.bBox.y) + 'px';
-        const pkgAlias = props.model.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
-        || '';
+        const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
+        const pkgAlias = initialExpr.connectorType.packageAlias.value || '';
         const connectorName = props.model.getVariableName().value || '';
         const formH = `${pkgAlias} Client Connector ${connectorName}`;
         const styles = {
