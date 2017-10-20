@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.core.lang.error;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,13 +35,13 @@ public class TestErrorReturn {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/errors/valid-ignore.bal");
+        compileResult = BCompileUtil.compile("test-src/types/errors/valid-ignore.bal");
     }
 
     @Test(description = "Testing test1 method")
     public void testValidateIgnoreReturn1() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "test1", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "test1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "a");
@@ -51,7 +52,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test2 method")
     public void testValidateIgnoreReturn2() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "test2", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "test2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "a");
@@ -62,7 +63,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test3 method")
     public void testValidateIgnoreReturn3() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "test3", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "test3", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0);
@@ -71,9 +72,9 @@ public class TestErrorReturn {
 
     @Test(description = "validate ignored error struct type.")
     public void testValidateErrorReturn() {
-        CompileResult compileResult = BTestUtils.compile("test-src/types/errors/error-return.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/errors/error-return.bal");
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testReturnError", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "FOO:10.5");
@@ -84,7 +85,7 @@ public class TestErrorReturn {
         Assert.assertNotNull(returns[3]);
         Assert.assertEquals(returns[3].stringValue(), "BAR:11.5");
 
-        returns = BTestUtils.invoke(compileResult, "testReturnAndThrowError", args);
+        returns = BRunUtil.invoke(compileResult, "testReturnAndThrowError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "invalid name");
@@ -93,8 +94,8 @@ public class TestErrorReturn {
     @Test(description = "test case for validating when all variables are ignored. ")
     public void testValidateIgnoreAll() {
         BValue[] args = {};
-        BTestUtils.invoke(compileResult, "test4", args);
-        BTestUtils.invoke(compileResult, "test5", args);
+        BRunUtil.invoke(compileResult, "test4", args);
+        BRunUtil.invoke(compileResult, "test5", args);
     }
 
 }

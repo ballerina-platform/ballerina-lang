@@ -129,6 +129,7 @@ public class PackageLoader {
     /**
      * List all the packages of packageRepo
      *
+     * @param maxDepth the maximum depth of directories to search in
      * @return a set of PackageIDs
      */
     public Set<PackageID> listPackages(int maxDepth) {

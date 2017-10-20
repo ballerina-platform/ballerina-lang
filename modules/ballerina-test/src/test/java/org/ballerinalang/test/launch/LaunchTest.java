@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.test.launch;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,28 +32,28 @@ public class LaunchTest {
     @Test(expectedExceptions = { RuntimeException.class },
             expectedExceptionsMessageRegExp = "cannot find package 'xxxx'")
     public void testRunNonExistingPackage() {
-        BTestUtils.compile("test-src/launch/", "xxxx");
+        BCompileUtil.compile(this, "test-src/launch/", "xxxx");
     }
 
     @Test(expectedExceptions = { RuntimeException.class },
             expectedExceptionsMessageRegExp = "cannot find any entry in package 'foo'")
     public void testRunEmptyPackage() {
-        BTestUtils.compile("test-src/launch/", "foo");
+        BCompileUtil.compile(this, "test-src/launch/", "foo");
     }
 
     @Test
     public void testRunPackageWithFileSeparater() {
-        CompileResult compileResult = BTestUtils.compile("test-src/launch/", "foo/bar");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/launch/", "foo/bar");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BValue[] result = BTestUtils.invoke(compileResult, "foo");
+        BValue[] result = BRunUtil.invoke(compileResult, "foo");
         Assert.assertEquals(result[0].stringValue(), "hello!");
     }
 
     @Test
     public void testRunPackageWithDotSeparater() {
-        CompileResult compileResult = BTestUtils.compile("test-src/launch/", "foo.bar");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/launch/", "foo.bar");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BValue[] result = BTestUtils.invoke(compileResult, "foo");
+        BValue[] result = BRunUtil.invoke(compileResult, "foo");
         Assert.assertEquals(result[0].stringValue(), "hello!");
     }
 }

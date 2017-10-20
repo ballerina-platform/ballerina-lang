@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.expressions.identifierliteral;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,8 +38,8 @@ public class IdentifierLiteralServiceTest {
 
     @BeforeClass
     public void setup() {
-        application = EnvironmentInitializer
-                .setupProgramFile("test-src/expressions/identifierliteral/identifier-literal-service.bal");
+        application = BServiceUtil
+                .setupProgramFile(this, "test-src/expressions/identifierliteral/identifier-literal-service.bal");
     }
 
     @Test(description = "Test using identifier literals in service and resource names")
@@ -63,7 +63,7 @@ public class IdentifierLiteralServiceTest {
 
     @AfterClass
     public void tearDown() {
-         EnvironmentInitializer.cleanup(application);
+         BServiceUtil.cleanup(application);
     }
 
 }

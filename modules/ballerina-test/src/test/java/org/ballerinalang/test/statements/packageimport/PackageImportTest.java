@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,56 +30,58 @@ public class PackageImportTest {
 
     @Test
     public void testDuplicatePackageImports() {
-        CompileResult result = BTestUtils.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
+        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
     }
 
     @Test
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
-                BTestUtils.compile("test-src/statements/packageimport/import-same-pkg-with-different-alias.bal");
+                BCompileUtil.compile("test-src/statements/package/imports/import-same-pkg-with-different-alias.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testImportDifferentPkgsWithSameAlias() {
-        CompileResult result = BTestUtils
-                .compile("test-src/statements/packageimport/import-different-pkgs-with-same-alias-negative.bal");
+        CompileResult result = BCompileUtil
+                .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BTestUtils.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
-        BTestUtils.validateError(result, 1, "undefined function 'pow'", 6, 5);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
+        BAssertUtil.validateError(result, 1, "undefined function 'pow'", 6, 5);
     }
 
     @Test
     public void testInvalidPackageDeclr() {
-        CompileResult result = BTestUtils.compile("test-src/statements/package", "a.b");
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/package", "a.b");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0, "invalid package declaration: expected 'a.b', found 'x.y'", 1, 1);
+        BAssertUtil.validateError(result, 0, "invalid package declaration: expected 'a.b', found 'x.y'", 1, 1);
     }
 
     @Test
     public void testMissingPackageDeclr() {
-        CompileResult result = BTestUtils.compile("test-src/statements/package", "c.d");
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/package", "c.d");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0, "missing package declaration: expected 'c.d'", 1, 1);
+        BAssertUtil.validateError(result, 0, "missing package declaration: expected 'c.d'", 1, 1);
     }
 
     @Test
     public void testExtraneousPackageDeclr() {
-        CompileResult result = BTestUtils.compile("test-src/statements/package/extraneous-package-declr-negative.bal");
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/extraneous-package-declr-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BTestUtils.validateError(result, 0, "invalid package declaration 'x.y.z': no package declaration is needed " +
-                "for default package", 1, 1);
+        BAssertUtil.validateError(result, 0,
+                "invalid package declaration 'x.y.z': no package declaration is needed " + "for default package", 1, 1);
     }
 
     @Test
     public void testInalidPackageDeclrInMultipleSources() {
-        CompileResult result = BTestUtils.compile("test-src/statements/package/", "p.q");
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/package/", "p.q");
         Assert.assertEquals(result.getDiagnostics().length, 4);
-        BTestUtils.validateError(result, 0, "invalid package declaration: expected 'p.q', found 'p.q.r'", 1, 1);
-        BTestUtils.validateError(result, 1, "missing package declaration: expected 'p.q'", 1, 1);
-        BTestUtils.validateError(result, 2, "invalid package declaration: expected 'x.y', found 'x.y.z'", 1, 1);
-        BTestUtils.validateError(result, 3, "missing package declaration: expected 'x.y'", 1, 1);
+        BAssertUtil.validateError(result, 0, "invalid package declaration: expected 'p.q', found 'p.q.r'", 1, 1);
+        BAssertUtil.validateError(result, 1, "missing package declaration: expected 'p.q'", 1, 1);
+        BAssertUtil.validateError(result, 2, "invalid package declaration: expected 'x.y', found 'x.y.z'", 1, 1);
+        BAssertUtil.validateError(result, 3, "missing package declaration: expected 'x.y'", 1, 1);
     }
 }

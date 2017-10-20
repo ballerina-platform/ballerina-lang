@@ -104,7 +104,7 @@ public class ServerConnectorRegistry {
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *
      * @param protocolPkgPath of the server connector.
-     * @return
+     * @return ballerinaServerConnector object.
      */
     public BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
         return serverConnectorMap.get(protocolPkgPath);

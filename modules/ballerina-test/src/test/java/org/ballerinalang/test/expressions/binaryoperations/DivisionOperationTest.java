@@ -16,11 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -34,14 +36,14 @@ public class DivisionOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/division-operation.bal");
-        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/division-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/division-operation.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/binaryoperations/division-operation-negative.bal");
     }
 
     @Test(description = "Test two int divide expression")
     public void testIntDivideExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(50) };
-        BValue[] returns = BTestUtils.invoke(result, "intDivide", args);
+        BValue[] returns = BRunUtil.invoke(result, "intDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -54,7 +56,7 @@ public class DivisionOperationTest {
     @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
-        BTestUtils.invoke(result, "intDivide", args);
+        BRunUtil.invoke(result, "intDivide", args);
     }
 
     @Test(description = "Test two float divide expression")
@@ -65,7 +67,7 @@ public class DivisionOperationTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BFloat(b) };
-        BValue[] returns = BTestUtils.invoke(result, "floatDivide", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -82,7 +84,7 @@ public class DivisionOperationTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BInteger(a), new BFloat(b) };
-        BValue[] returns = BTestUtils.invoke(result, "intDivideByFloat", args);
+        BValue[] returns = BRunUtil.invoke(result, "intDivideByFloat", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
@@ -99,7 +101,7 @@ public class DivisionOperationTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BInteger(b) };
-        BValue[] returns = BTestUtils.invoke(result, "floatDivideByInt", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatDivideByInt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
@@ -111,20 +113,20 @@ public class DivisionOperationTest {
     @Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
-        BTestUtils.invoke(result, "floatDivide", args);
+        BRunUtil.invoke(result, "floatDivide", args);
     }
 
     @Test(description = "Test devide statement with errors")
     public void testDivideStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
-        BTestUtils.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
+        BAssertUtil.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
     }
 
     @Test
     public void testIntDivisionFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BTestUtils.invoke(result, "intDivideByFloat", args);
+        BValue[] returns = BRunUtil.invoke(result, "intDivideByFloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.0";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -133,7 +135,7 @@ public class DivisionOperationTest {
     @Test
     public void testFloatDivisionInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BTestUtils.invoke(result, "floatDivideByInt", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatDivideByInt", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.0";
         Assert.assertEquals(returns[0].stringValue(), expected);

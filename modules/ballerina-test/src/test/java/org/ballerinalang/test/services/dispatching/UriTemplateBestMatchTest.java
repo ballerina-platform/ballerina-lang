@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.test.services.dispatching;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,8 +40,8 @@ public class UriTemplateBestMatchTest {
 
     @BeforeClass()
     public void setup() {
-        application = EnvironmentInitializer
-                .setupProgramFile("test-src/services/dispatching/uri-template-matching.bal");
+        application = BServiceUtil
+                .setupProgramFile(this, "test-src/services/dispatching/uri-template-matching.bal");
     }
 
     @Test(description = "Test dispatching with URL. /hello/world/echo2?regid=abc")
@@ -494,6 +494,6 @@ public class UriTemplateBestMatchTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        BServiceUtil.cleanup(application);
     }
 }
