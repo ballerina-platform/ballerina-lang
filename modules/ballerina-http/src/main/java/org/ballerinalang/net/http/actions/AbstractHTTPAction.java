@@ -185,7 +185,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BallerinaConnectorException ex = new BallerinaConnectorException(throwable);
+            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
             ballerinaFuture.notifyFailure(ex);
         }
 

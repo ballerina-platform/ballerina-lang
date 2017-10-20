@@ -1202,7 +1202,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.createTransformStatement(getCurrentPos(ctx));
+        this.pkgBuilder.createTransformStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
