@@ -22,22 +22,50 @@ import _ from 'lodash';
 import Hidden from './views/action/components/hidden';
 
 import * as DefaultConfig from './views/default/designer-defaults';
+import * as compactConfig from './views/compact/designer-defaults';
+import * as actionConfig from './views/action/designer-defaults';
+
 import DefaultSizingUtil from './views/default/sizing-util';
+import CompactSizingUtil from './views/compact/sizing-util';
+import ActionSizingUtil from './views/action/sizing-util';
+
 import DefaultPositioningUtil from './views/default/positioning-util';
+import CompactPositioningUtil from './views/compact/positioning-util';
+import ActionPositioningUtil from './views/action/positioning-util';
+
+
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
 
 
 const components = {};
 
+// We need to refactor this big time for the time being implementing the functionality.
+// extend configs from default
+const CompactConfig = _.merge(_.cloneDeep(DefaultConfig), compactConfig);
+const ActionConfig = _.merge(_.cloneDeep(DefaultConfig), actionConfig);
+
 // initialize the utils.
 const defaultSizingUtil = new DefaultSizingUtil();
+const compactSizingUtil = new CompactSizingUtil();
+const actionSizingUtil = new ActionSizingUtil();
+
 const defaultPositioningUtil = new DefaultPositioningUtil();
+const compactPositioningUtil = new CompactPositioningUtil();
+const actionPositioningUtil = new ActionPositioningUtil();
+
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
 
-defaultSizingUtil.config = DefaultConfig;
+// assign configs to utils.
 defaultPositioningUtil.config = DefaultConfig;
+defaultSizingUtil.config = DefaultConfig;
+
+compactPositioningUtil.config = CompactConfig;
+compactSizingUtil.config = CompactConfig;
+
+actionPositioningUtil.config = ActionConfig;
+actionSizingUtil.config = ActionConfig;
 
 // require all react components
 function requireAll(requireContext) {
@@ -55,7 +83,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
-    // components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
+    components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
 
     // make sure what is passed is an array.
     nodeArray = _.concat([], nodeArray);
@@ -96,31 +124,33 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
 }
 
 function getSizingUtil(mode) {
-    if (mode === 'default') {
-        return defaultSizingUtil;
+    switch (mode) {
+        case 'action':
+            return actionSizingUtil;
+        case 'compact':
+            return compactSizingUtil;
+        default:
+            return defaultSizingUtil;
     }
-    return undefined;
 }
 
 function getPositioningUtil(mode) {
-    if (mode === 'default') {
-        return defaultPositioningUtil;
+    switch (mode) {
+        case 'action':
+            return actionPositioningUtil;
+        case 'compact':
+            return compactPositioningUtil;
+        default:
+            return defaultPositioningUtil;
     }
-    return undefined;
 }
 
 function getWorkerInvocationSyncUtil(mode) {
-    if (mode === 'default') {
-        return defaultWorkerInvocationSyncUtil;
-    }
-    return undefined;
+    return defaultWorkerInvocationSyncUtil;
 }
 
 function getInvocationArrowPositionUtil(mode) {
-    if (mode === 'default') {
-        return defaultInvocationArrowPositionUtil;
-    }
-    return undefined;
+    return defaultInvocationArrowPositionUtil;
 }
 
 function getOverlayComponent(nodeArray, mode = 'default') {
