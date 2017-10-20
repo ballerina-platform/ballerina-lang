@@ -56,10 +56,17 @@ class ActionNode extends AbstractActionNode {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
         } else if (TreeUtil.isConnectorDeclaration(node)) {
+            // If there are no statements we'll add it to 0
+            let index = 0;
+            const lastIndexOfConnectors = _.findLastIndex(this.getBody().getStatements(),
+                variable => TreeUtil.isConnectorDeclaration(variable));
+            if (lastIndexOfConnectors !== -1) {
+                index = lastIndexOfConnectors + 1;
+            }
             TreeUtil.getNewTempVarName(this.getBody(), '__endpoint')
                 .then((varNames) => {
                     node.getVariable().getName().setValue(varNames[0]);
-                    this.getBody().addStatements(node, 0);
+                    this.getBody().addStatements(node, index);
                 });
         }
     }
