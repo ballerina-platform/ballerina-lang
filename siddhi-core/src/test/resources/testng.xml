@@ -142,6 +142,7 @@
             <class name="org.wso2.siddhi.core.transport.InMemoryTransportTestCase"/>
             <class name="org.wso2.siddhi.core.transport.MultiClientDistributedSinkTestCase"/>
             <class name="org.wso2.siddhi.core.transport.SingleClientDistributedTransportTestCases"/>
+            <class name="org.wso2.siddhi.core.stream.output.sink.LogSinkTest"/>
         </classes>
 
 
