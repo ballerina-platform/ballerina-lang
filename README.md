@@ -20,7 +20,7 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 ## Running the Composer
 
-The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
+The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from [www.ballerinalang.org](www.ballerinalang.org?target=_blank). After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
 
 For Windows
 ```
