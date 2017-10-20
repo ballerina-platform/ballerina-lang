@@ -2615,7 +2615,8 @@ public class BLangVM {
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(this.programFile);
+            Context workerContext = new WorkerContext(this.programFile, context);
+            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
@@ -2627,6 +2628,7 @@ public class BLangVM {
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
                     workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
+            workerContext.startTrackWorker();
             workers.put(workerInfo.getWorkerName(), workerRunner);
         }
         Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
@@ -2972,7 +2974,8 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
+                    !context.blockingInvocation;
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
