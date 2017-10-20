@@ -19,17 +19,17 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
+import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.UnitTestAppender;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
 public class LogSinkTest {
-    private static final Logger logger = Logger.getLogger(LogSinkTest.class);
-
     @Test
-    public void testLogSink_1() throws Exception {
-        logger.info("LogSink Test 1 - With all options");
+    public void testWithAllOptions() throws Exception {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "@App:name(\"HelloWorldApp\")\n" +
                 "define stream CargoStream (weight int);";
@@ -46,19 +46,26 @@ public class LogSinkTest {
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("CargoStream");
+
+        Logger logger = Logger.getLogger(LogSink.class);
+        UnitTestAppender appender = new UnitTestAppender();
+        logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
+            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
+            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            Assert.fail("Unexpected exception occurred when testing with all options", e);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testLogSink_2() throws Exception {
-        logger.info("LogSink Test 2 - With default prefix");
+    public void testWithDefaultPrefix() throws Exception {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "@App:name(\"HelloWorldApp\")\n" +
                 "define stream CargoStream (weight int);";
@@ -75,19 +82,26 @@ public class LogSinkTest {
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("CargoStream");
+
+        Logger logger = Logger.getLogger(LogSink.class);
+        UnitTestAppender appender = new UnitTestAppender();
+        logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
+            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
+            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            Assert.fail("Unexpected exception occurred when testing with default prefix", e);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testLogSink_3() throws Exception {
-        logger.info("LogSink Test 3 - With default priority INFO");
+    public void testWithDefaultPriority() throws Exception {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "@App:name(\"HelloWorldApp\")\n" +
                 "define stream CargoStream (weight int);";
@@ -104,19 +118,26 @@ public class LogSinkTest {
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("CargoStream");
+
+        Logger logger = Logger.getLogger(LogSink.class);
+        UnitTestAppender appender = new UnitTestAppender();
+        logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
+            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
+            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            Assert.fail("Unexpected exception occurred when testing with default priority", e);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testLogSink_4() throws Exception {
-        logger.info("LogSink Test 4 - With default options");
+    public void testWithDefaultOptions() throws Exception {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "@App:name(\"HelloWorldApp\")\n" +
                 "define stream CargoStream (weight int);";
@@ -133,11 +154,19 @@ public class LogSinkTest {
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("CargoStream");
+
+        Logger logger = Logger.getLogger(LogSink.class);
+        UnitTestAppender appender = new UnitTestAppender();
+        logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
+            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
+            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            Assert.fail("Unexpected exception occurred when testing with default options", e);
         } finally {
             siddhiAppRuntime.shutdown();
         }

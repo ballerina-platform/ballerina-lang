@@ -151,7 +151,7 @@ public class LogSink extends Sink {
         }
     }
 
-    enum LogPriority {
+    private enum LogPriority {
         INFO,
         DEBUG,
         WARN,
@@ -163,17 +163,17 @@ public class LogSink extends Sink {
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-
+        // do nothing
     }
 
     @Override
     public void disconnect() {
-
+        // do nothing
     }
 
     @Override
     public void destroy() {
-
+        // do nothing
     }
 
     @Override
@@ -183,6 +183,6 @@ public class LogSink extends Sink {
 
     @Override
     public void restoreState(Map<String, Object> state) {
-
+        // no state
     }
 }
