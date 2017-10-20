@@ -67,6 +67,7 @@ class CatchNode extends React.Component {
         const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
         const parsedJson = FragmentUtils.parseFragment(fragmentJson);
         const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
+        newNode.clearWS();
         this.props.model.setParameter(newNode);
     }
 
