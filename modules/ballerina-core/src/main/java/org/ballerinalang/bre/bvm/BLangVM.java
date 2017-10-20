@@ -2688,7 +2688,7 @@ public class BLangVM {
 
     private void handleWorkerReturn() {
         WorkerContext workerContext = (WorkerContext) this.context;
-        if (workerContext.parentSF.workerReturned.compareAndSet(false, true)) {
+        if (workerContext.parentSF.tryReturn()) {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
