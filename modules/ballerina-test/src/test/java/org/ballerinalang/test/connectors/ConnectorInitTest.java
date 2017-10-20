@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.test.connectors;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,13 +39,13 @@ public class ConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/init");
+        result = BCompileUtil.compile(this, "test-src/", "connectors/init");
     }
 
     @Test(description = "Test Connector int functionality")
     public void testConnectorInit() {
         BValue[] args = {new BString("Apple"), new BInteger(13)};
-        BValue[] returns = BTestUtils.invoke(result, "connectors.init",
+        BValue[] returns = BRunUtil.invoke(result, "connectors.init",
                 "testConnectorInit", args);
 
         Assert.assertEquals(returns.length, 2);
@@ -57,7 +59,7 @@ public class ConnectorInitTest {
 
     @Test(description = "Test connector init using parameters with implicitly castable types")
     public void testConnectorInitWithImplicitCastableTypes() {
-        BValue[] returns = BTestUtils.invoke(result, "connectors.init",
+        BValue[] returns = BRunUtil.invoke(result, "connectors.init",
                 "testConnectorInitWithImplicitCastableTypes", new BString[] {});
         Assert.assertEquals(returns.length, 2);
 
@@ -70,17 +72,18 @@ public class ConnectorInitTest {
 
     @Test(description = "Test connector init with invalid parameter count")
     public void testConnectorInitWithInvalidArgTypes() {
-        CompileResult resultNegative = BTestUtils
+        CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/init/invalid/connector-init-arg-type-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 13, 32);
+        BAssertUtil.validateError(resultNegative, 0,
+                "incompatible types: expected 'int', found 'string'", 13, 32);
     }
 
     @Test(description = "Test connector init with invalid parameter count")
     public void testConnectorInitWithInvalidArgCount() {
-        CompileResult resultNegative = BTestUtils
+        CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/init/invalid/connector-init-arg-count-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "not enough arguments in call to 'Foo()'", 13, 13);
+        BAssertUtil.validateError(resultNegative, 0, "not enough arguments in call to 'Foo()'", 13, 13);
     }
 }

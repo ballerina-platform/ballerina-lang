@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.types.time;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -30,13 +31,13 @@ public class TimeTest {
     CompileResult result;
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/time/time-type.bal");
+        result = BCompileUtil.compile("test-src/types/time/time-type.bal");
     }
 
     @Test(description = "Test current time representation.")
     public void testCurrentTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCurrentTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCurrentTime", args);
         Assert.assertTrue(((BInteger) returns[0]).intValue() > 1498621376460L);
         //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
         //Assert.assertTrue(((BInteger) returns[2]).intValue() > 0);
@@ -45,7 +46,7 @@ public class TimeTest {
     @Test(description = "Test create time with offset ID provided.")
     public void testCreateTimeWithZoneID() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCreateTimeWithZoneID", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithZoneID", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "America/Panama");
     }
@@ -53,7 +54,7 @@ public class TimeTest {
     @Test(description = "Test create time with offset values provided.")
     public void testCreateTimeWithOffset() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCreateTimeWithOffset", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithOffset", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "-05:00");
     }
@@ -61,7 +62,7 @@ public class TimeTest {
     @Test(description = "Test create time with no zone info provided.")
     public void testCreateTimeWithNoZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCreateTimeWithNoZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithNoZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
         //Assert.assertEquals(((BInteger) returns[2]).intValue(), 19800);
@@ -70,14 +71,14 @@ public class TimeTest {
     @Test(description = "Test create time with no zone info provided.")
     public void testCreateTimeWithNullZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCreateTimeWithNullZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithNullZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
     @Test(description = "Test parsing a given time string to time.")
     public void testParseTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testParseTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testParseTime", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382444L);
         Assert.assertEquals((returns[1]).stringValue(), "-05:00");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -18000);
@@ -86,28 +87,28 @@ public class TimeTest {
     @Test(description = "Test To String funciton.")
     public void testToStringWithCreateTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testToStringWithCreateTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToStringWithCreateTime", args);
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
     }
 
     @Test(description = "Test new time create using year month date values.")
     public void testCreateDateTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCreateDateTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateDateTime", args);
         Assert.assertEquals((returns[0]).stringValue(), "2017-03-28T23:42:45.554-05:00");
     }
 
     @Test(description = "Test Format Time according to the given format.")
     public void testFormatTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testFormatTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testFormatTime", args);
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22.444-0500");
     }
 
     @Test(description = "Test Get Year Functions for date time values.")
     public void testGetFunctions() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testGetFunctions", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGetFunctions", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2016);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
@@ -122,7 +123,7 @@ public class TimeTest {
     @Test(description = "Test Get Date Function.")
     public void testGetDateFunction() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testGetDateFunction", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGetDateFunction", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2016);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
@@ -131,7 +132,7 @@ public class TimeTest {
     @Test(description = "Test Get Time Function.")
     public void testGetTimeFunction() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testGetTimeFunction", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGetTimeFunction", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 56);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 23);
@@ -141,21 +142,21 @@ public class TimeTest {
     @Test(description = "Test add Duration to Time.")
     public void testAddDuration() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testAddDuration", args);
+        BValue[] returns = BRunUtil.invoke(result, "testAddDuration", args);
         Assert.assertEquals((returns[0]).stringValue(), "2018-07-27T10:47:23.445-0500");
     }
 
     @Test(description = "Test subtract Duration to Time.")
     public void testSubtractDuration() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testSubtractDuration", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSubtractDuration", args);
         Assert.assertEquals((returns[0]).stringValue(), "2015-01-31T08:45:21.443-0500");
     }
 
     @Test(description = "Test changing the timezone.")
     public void testToTimezone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testToTimezone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToTimezone", args);
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-01T18:56:23.555-05:00");
         Assert.assertEquals((returns[1]).stringValue(), "2016-03-02T05:26:23.555+05:30");
     }
@@ -163,28 +164,28 @@ public class TimeTest {
     @Test(description = "Test changing the timezone with a time already having a timezone.")
     public void testToTimezoneWithDateTime() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testToTimezoneWithDateTime", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToTimezoneWithDateTime", args);
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-01T20:16:22.444+0530");
     }
 
     @Test(description = "Test Time struct create with struct initialization.")
     public void testManualTimeCreate() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testManualTimeCreate", args);
+        BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreate", args);
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
     }
 
     @Test(description = "Test Time struct create with struct initialization with no zone information.")
     public void testManualTimeCreateWithNoZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testManualTimeCreateWithNoZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithNoZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
     @Test(description = "Test Time struct create with struct initialization with no zone information.")
     public void testManualTimeCreateWithEmptyZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testManualTimeCreateWithEmptyZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithEmptyZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
@@ -192,7 +193,7 @@ public class TimeTest {
           expectedExceptionsMessageRegExp = ".*unknown time-zone ID: test.*")
     public void testManualTimeCreateWithInvalidZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testManualTimeCreateWithInvalidZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithInvalidZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
@@ -200,7 +201,7 @@ public class TimeTest {
           expectedExceptionsMessageRegExp = ".*invalid pattern for parsing test.*")
     public void testParseTimenvalidPattern() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testParseTimenvalidPattern", args);
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimenvalidPattern", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -208,28 +209,28 @@ public class TimeTest {
                   + "yyyy-MM-dd failed.*")
     public void testParseTimenFormatMismatch() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testParseTimenFormatMismatch", args);
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
     public void testFormatTimeInvalidPattern() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testFormatTimeInvalidPattern", args);
+        BValue[] returns = BRunUtil.invoke(result, "testFormatTimeInvalidPattern", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*invalid timezone id test.*")
     public void testToTimezoneWithInvalidZone() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testToTimezoneWithInvalidZone", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToTimezoneWithInvalidZone", args);
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
     }
 
     @Test(description = "Test parsing a given time string to time.")
     public void testParseTimeWithDifferentFormats() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testParseTimeWithDifferentFormats", args);
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeWithDifferentFormats", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 31);

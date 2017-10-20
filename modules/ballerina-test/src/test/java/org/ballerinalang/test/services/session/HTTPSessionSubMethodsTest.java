@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.services.session;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,8 +42,8 @@ public class HTTPSessionSubMethodsTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/services/session/httpSessionTest.bal");
+        compileResult = BServiceUtil
+                .setupProgramFile(this, "test-src/services/session/httpSessionTest.bal");
     }
 
     @Test(description = "Test for GetId Function")
@@ -244,6 +244,6 @@ public class HTTPSessionSubMethodsTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(compileResult);
+        BServiceUtil.cleanup(compileResult);
     }
 }

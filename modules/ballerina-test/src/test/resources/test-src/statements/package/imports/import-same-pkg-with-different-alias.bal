@@ -1,5 +1,3 @@
-package samples.parser;
-
 import ballerina.lang.system;
 import ballerina.lang.system as x;
 import ballerina.lang.system as y;

@@ -61,6 +61,8 @@ public class Context {
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
     private String threadId;
+    // TODO : Fix this. Added this for fork-join. Issue #3718.
+    public boolean blockingInvocation;
 
     @Deprecated
     public Context() {

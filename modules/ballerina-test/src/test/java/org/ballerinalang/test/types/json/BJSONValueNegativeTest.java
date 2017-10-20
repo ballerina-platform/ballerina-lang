@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,18 +33,18 @@ public class BJSONValueNegativeTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/jsontype/json-value-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/types/jsontype/json-value-negative.bal");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetFromNull() {
-        BTestUtils.invoke(compileResult, "testGetFromNull");
+        BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testAddToNull() {
-        BTestUtils.invoke(compileResult, "testAddToNull");
+        BRunUtil.invoke(compileResult, "testAddToNull");
     }
 }

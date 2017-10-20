@@ -6858,8 +6858,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class ExpressionStmtContext extends ParserRuleContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public ExpressionStmtContext(ParserRuleContext parent, int invokingState) {
@@ -6883,7 +6883,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1171);
-			expression(0);
+			variableReference(0);
 			setState(1172);
 			match(SEMICOLON);
 			}
@@ -10326,7 +10326,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u048c\u00ad\3\2\2\2\u048d\u0492\5\u00c4c\2\u048e\u048f\7C\2\2\u048f"+
 		"\u0491\5\u00c4c\2\u0490\u048e\3\2\2\2\u0491\u0494\3\2\2\2\u0492\u0490"+
 		"\3\2\2\2\u0492\u0493\3\2\2\2\u0493\u00af\3\2\2\2\u0494\u0492\3\2\2\2\u0495"+
-		"\u0496\5\u00c4c\2\u0496\u0497\7@\2\2\u0497\u00b1\3\2\2\2\u0498\u0499\7"+
+		"\u0496\5\u00a2R\2\u0496\u0497\7@\2\2\u0497\u00b1\3\2\2\2\u0498\u0499\7"+
 		"\67\2\2\u0499\u049d\7D\2\2\u049a\u049c\5X-\2\u049b\u049a\3\2\2\2\u049c"+
 		"\u049f\3\2\2\2\u049d\u049b\3\2\2\2\u049d\u049e\3\2\2\2\u049e\u04a0\3\2"+
 		"\2\2\u049f\u049d\3\2\2\2\u04a0\u04a1\7E\2\2\u04a1\u04a2\5\u00b4[\2\u04a2"+

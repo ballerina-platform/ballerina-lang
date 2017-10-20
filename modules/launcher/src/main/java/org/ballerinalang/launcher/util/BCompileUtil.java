@@ -14,23 +14,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.utils;
+package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.ballerinalang.util.program.BLangFunctions;
-import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -55,11 +49,11 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
- * Utility methods for unit tests.
+ * Utility methods for compile Ballerina files.
  *
  * @since 0.94
  */
-public class BTestUtils {
+public class BCompileUtil {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
@@ -76,14 +70,15 @@ public class BTestUtils {
     /**
      * Compile and return the semantic errors.
      *
+     * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the source packages
      * @param packageName name of the package to compile
      * @return Semantic errors
      */
-    public static CompileResult compile(String sourceRoot, String packageName) {
+    public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
         try {
             String effectiveSource;
-            Path rootPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource()
+            Path rootPath = Paths.get(obj.getClass().getProtectionDomain().getCodeSource()
                     .getLocation().toURI().getPath().concat(sourceRoot));
             if (Files.isDirectory(Paths.get(packageName))) {
                 String[] pkgParts = packageName.split("\\/");
@@ -185,75 +180,6 @@ public class BTestUtils {
     }
 
     /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param packageName   Name of the package to invoke
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, packageName, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String functionName) {
-        BValue[] args = {};
-        return invoke(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function given context.
-     *
-     * @param compileResult CompileResult instance.
-     * @param initFuncInfo Function to invoke.
-     * @param context invocation context.
-     */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
-        BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
-    }
-
-    /**
      * Compile and run a ballerina file.
      *
      * @param sourceFilePath Path to the ballerina file.
@@ -273,42 +199,6 @@ public class BTestUtils {
         } else {
             LauncherUtils.runServices(programFile);
         }
-    }
-
-    /**
-     * Assert an error.
-     *
-     * @param result          Result from compilation
-     * @param errorIndex      Index of the error in the result
-     * @param expectedErrMsg  Expected error message
-     * @param expectedErrLine Expected line number of the error
-     * @param expectedErrCol  Expected column number of the error
-     */
-    public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
-                                     int expectedErrCol) {
-        Diagnostic diag = result.getDiagnostics()[errorIndex];
-        Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
-        Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
-        Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
-        Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
-    }
-    
-    /**
-     * Assert a warning.
-     *
-     * @param result           Result from compilation
-     * @param warningIndex     Index of the warning in the result
-     * @param expectedWarnMsg  Expected warning message
-     * @param expectedWarnLine Expected line number of the warning
-     * @param expectedWarnCol  Expected column number of the warning
-     */
-    public static void validateWarning(CompileResult result, int warningIndex, String expectedWarnMsg, 
-            int expectedWarnLine, int expectedWarnCol) {
-        Diagnostic diag = result.getDiagnostics()[warningIndex];
-        Assert.assertEquals(diag.getKind(), Diagnostic.Kind.WARNING, "incorrect diagnostic type");
-        Assert.assertEquals(diag.getMessage(), expectedWarnMsg, "incorrect warning message:");
-        Assert.assertEquals(diag.getPosition().getStartLine(), expectedWarnLine, "incorrect line number:");
-        Assert.assertEquals(diag.getPosition().startColumn(), expectedWarnCol, "incorrect column position:");
     }
 
     public static String readFileAsString(String path) {
