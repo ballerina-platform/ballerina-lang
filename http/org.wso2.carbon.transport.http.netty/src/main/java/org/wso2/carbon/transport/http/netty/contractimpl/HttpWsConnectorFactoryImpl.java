@@ -85,8 +85,8 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled,
-                followRedirect, maxRedirectCount, chunkDisabled);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled
+                , chunkDisabled, followRedirect, maxRedirectCount);
     }
 
     @Override

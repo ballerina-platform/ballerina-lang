@@ -95,6 +95,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
+                        targetChannel.setChunkDisabled(chunkDisabled);
                         targetChannel.setRequestWritten(true);
                         if (followRedirect) {
                             setChannelAttributes(channelFuture.channel(), httpCarbonRequest, httpResponseFuture,

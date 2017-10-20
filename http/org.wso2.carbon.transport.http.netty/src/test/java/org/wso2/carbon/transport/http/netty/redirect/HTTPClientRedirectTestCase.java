@@ -113,7 +113,7 @@ public class HTTPClientRedirectTestCase {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
         embeddedChannel.pipeline().addLast(new HttpResponseDecoder());
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
@@ -137,7 +137,7 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
         embeddedChannel.pipeline()
                 .addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(50000, 50000, 0, TimeUnit.MILLISECONDS));
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, null, false));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, false, null, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
@@ -159,7 +159,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestFor303() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -182,7 +182,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForOriginalMethod() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -205,7 +205,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForAlwaysGet() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -227,7 +227,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestToDetermineCrossDomainURLs() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -252,7 +252,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestForSameDomain() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -274,7 +274,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathStartsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -298,7 +298,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -322,7 +322,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void justRelativePathName() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -346,7 +346,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void requestPathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
