@@ -322,15 +322,29 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull BreakPoint breakPoint) {
         String fileName = breakPoint.getFileName();
+        String packagePath = breakPoint.getPackagePath();
+        String relativeFilePathInProject;
+        // If the package is ".", full path of the file will be sent as the filename.
+        if (".".equals(packagePath)) {
+            // Then we need to get the actual filename from the path.
+            int index = fileName.lastIndexOf("/");
+            if (index <= -1) {
+                return null;
+            }
+            relativeFilePathInProject = fileName.substring(index);
+        } else {
+            // If the absolute path is not sent, we need to construct the relative file path in the project.
+            relativeFilePathInProject = packagePath.replaceAll("\\.", "/") + "/" + fileName;
+        }
         int lineNumber = breakPoint.getLineNumber();
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
             XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
             if (breakpointPosition == null) {
                 continue;
             }
-            VirtualFile file = breakpointPosition.getFile();
+            VirtualFile fileInBreakpoint = breakpointPosition.getFile();
             int line = breakpointPosition.getLine() + 1;
-            if (fileName.equals(file.getPath()) && line == lineNumber) {
+            if (fileInBreakpoint.getPath().endsWith(relativeFilePathInProject) && line == lineNumber) {
                 return breakpoint;
             }
         }
