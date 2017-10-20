@@ -1973,7 +1973,7 @@ public class BallerinaPsiImplUtil {
             List<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
                     ParameterNode.class);
 
-            if (index <= -1) {
+            if (index < 0 || index >= parameterNodes.size()) {
                 return null;
             }
             ParameterNode parameterNode = parameterNodes.get(index);
