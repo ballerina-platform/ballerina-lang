@@ -66,7 +66,6 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
-import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
@@ -2201,29 +2200,16 @@ public class BallerinaPsiImplUtil {
         PsiFile containingFile = structDefinitionNode.getContainingFile();
         PsiDirectory containingPackage = containingFile.getParent();
         if (containingPackage != null) {
-            ApplicationManager.getApplication().runReadAction(()->{
+            ApplicationManager.getApplication().runReadAction(() -> {
                 List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
                         false);
                 for (IdentifierPSINode function : functions) {
                     ProgressManager.checkCanceled();
-                    CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
-                            CodeBlockParameterNode.class);
-                    if (codeBlockParameterNode == null) {
+                    if (!isAttachedFunction(function)) {
                         continue;
                     }
-                    TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
-                    if (typeNameNode == null) {
-                        continue;
-                    }
-                    PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
-                    if (reference == null) {
-                        continue;
-                    }
-                    PsiElement resolvedElement = reference.resolve();
-                    if (resolvedElement == null) {
-                        continue;
-                    }
-                    if (!resolvedElement.getParent().equals(structDefinitionNode)) {
+                    PsiElement attachedStruct = getAttachedStruct(function);
+                    if (attachedStruct != null && !attachedStruct.equals(structDefinitionNode)) {
                         continue;
                     }
                     attachedFunctions.add(function);
@@ -2231,5 +2217,52 @@ public class BallerinaPsiImplUtil {
             });
         }
         return attachedFunctions;
+    }
+
+    @Nullable
+    public static StructDefinitionNode getAttachedStruct(@NotNull IdentifierPSINode function) {
+        CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
+                CodeBlockParameterNode.class);
+        if (codeBlockParameterNode == null) {
+            return null;
+        }
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return null;
+        }
+        PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement parent = resolvedElement.getParent();
+        if (!(parent instanceof StructDefinitionNode)) {
+            return null;
+        }
+        return (StructDefinitionNode) parent;
+    }
+
+    public static boolean isAttachedFunction(@NotNull IdentifierPSINode function) {
+        CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(function.getParent(),
+                CodeBlockParameterNode.class);
+        if (codeBlockParameterNode == null) {
+            return false;
+        }
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+        PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+        if (reference == null) {
+            return false;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return false;
+        }
+        return true;
     }
 }
