@@ -1,3 +1,5 @@
+import ballerina.lang.maps;
+
 function testMapWithAny() (string){
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
@@ -73,4 +75,32 @@ function testEchoAny(any value)(string){
     string stringVal;
     stringVal, _ = (string) value;
     return stringVal;
+}
+
+function testMapSynchronization()(int)
+{
+    map m = {};
+
+    fork {
+        worker w2 {
+            int i = 0;
+            while (i < 1000) {
+                string key = "a" + i;
+                string value = "foo" + i;
+                m[key] = value;
+                i = i + 1;
+            }
+        }
+        worker w3 {
+            int j = 0;
+            while (j < 1000) {
+                string key = "b" + j;
+                string value = "bar" + j;
+                m[key] = value;
+                j = j + 1;
+            }
+        }
+    } join (all) (map results) {
+        return maps:length(m);
+    }
 }

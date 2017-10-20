@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.map;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -26,6 +27,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.HashMap;
@@ -189,7 +191,7 @@ public class BMapValueTest {
     @Test(dependsOnMethods = "testGrammar")
     public void testMapOrder() {
 //        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapOrder", new BValue[0]);
-        BValue[] returnVals = BTestUtils.invoke(programFile, "testMapOrder", new BValue[0]);
+        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapOrder", new BValue[0]);
         BMap m = (BMap) returnVals[0];
         Set set = m.keySet();
         Iterator i = set.iterator();
@@ -222,4 +224,10 @@ public class BMapValueTest {
         Assert.assertEquals(map.get(ar[2]).stringValue(), "foobar");
 
     }
+
+    @Test(dependsOnMethods = "testGrammar")
+    public void testMapSynchronization() {
+        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapSynchronization", new BValue[0]);
+        Assert.assertEquals(((BInteger)returnVals[0]).intValue(), 2000);
+        }
 }
