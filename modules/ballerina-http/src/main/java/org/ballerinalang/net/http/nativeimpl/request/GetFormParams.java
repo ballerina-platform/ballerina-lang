@@ -54,7 +54,7 @@ public class GetFormParams extends AbstractNativeFunction {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, true);
+                    .createCarbonMsgIfAbsent(requestStruct, true);
             String contentType = httpCarbonMessage.getHeader(Constants.CONTENT_TYPE);
             if (contentType != null && contentType.contains(Constants.APPLICATION_FORM)) {
                 String payload;
