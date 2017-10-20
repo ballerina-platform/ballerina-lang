@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import TreeUtil from 'js/ballerina/model/tree-util.js';
 import DebugManager from '../DebugManager';
 import './BreakpointHoc.scss';
 
@@ -139,20 +140,12 @@ function breakpointHoc(WrappedComponent) {
             });
         }
         /**
-         * Get package name from astRoot
-         *
-         * @returns string - Package name of the file
+         * @description Get package name from astRoot
+         * @returns string - Package name
          */
         getPackageName() {
             const { astRoot } = this.context;
-            const packageDeclaration = astRoot.filterTopLevelNodes({ kind: 'PackageDeclaration' });
-            packageDeclaration[0] = packageDeclaration[0] || { packageName: [{}] };
-            if (!packageDeclaration[0]
-                || !packageDeclaration[0].packageName
-                || !packageDeclaration[0].packageName.length) {
-                return '.';
-            }
-            return packageDeclaration[0].packageName[0].value || '.';
+            return TreeUtil.getPackageNameString(astRoot);
         }
         /**
          * add breakpoint

@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import TreeUtil from 'js/ballerina/model/tree-util.js';
 import DebugManager from '../DebugManager';
 import './DebuggerHoc.scss';
 
@@ -69,6 +70,15 @@ function debuggerHoc(WrappedComponent) {
             });
         }
         /**
+         * @description Get package name from astRoot
+         *
+         * @returns string - Package name
+         */
+        getPackageName() {
+            const { astRoot } = this.context;
+            return TreeUtil.getPackageNameString(astRoot);
+        }
+        /**
          * indicate debughit
          *
          * @param {object} message - parsed message from backend
@@ -76,8 +86,7 @@ function debuggerHoc(WrappedComponent) {
         debugHit(message) {
             const fileName = this.getFileName();
             const position = message.location;
-            const packagePath = this.props.file.packageName || '.';
-
+            const packagePath = this.getPackageName();
             // remove package path from file name
             let fileIdentifier;
             if (position.fileName.includes('/')) {
@@ -106,7 +115,7 @@ function debuggerHoc(WrappedComponent) {
          */
         addBreakpoint(lineNumber) {
             const fileName = this.getFileName();
-            const packagePath = this.props.file.packageName || '.';
+            const packagePath = this.getPackageName();
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         }
         /**
@@ -114,7 +123,7 @@ function debuggerHoc(WrappedComponent) {
          */
         removeBreakpoint(lineNumber) {
             const fileName = this.getFileName();
-            const packagePath = this.props.file.packageName || '.';
+            const packagePath = this.getPackageName();
             DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
         }
         /**
@@ -146,6 +155,10 @@ function debuggerHoc(WrappedComponent) {
 
     newComponent.propTypes = {
         file: PropTypes.instanceOf(Object).isRequired,
+    };
+
+    newComponent.contextTypes = {
+        astRoot: PropTypes.instanceOf(Object).isRequired,
     };
 
     return newComponent;
