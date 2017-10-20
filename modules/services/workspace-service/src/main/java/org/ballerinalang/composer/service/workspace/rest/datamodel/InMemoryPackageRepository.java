@@ -32,7 +32,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID, byte[] code) {
         // This seems a wrong logic. But file name is received with "pkgID.name.value".
-        if (this.name.equals(pkgID.name.value)) {
+        if (this.name.equals(pkgID.name.value) || this.pkgID.name.value.equals(pkgID.name.value)) {
             return new InMemoryPackageSource(pkgID, name, code);
         } else {
             return null;
