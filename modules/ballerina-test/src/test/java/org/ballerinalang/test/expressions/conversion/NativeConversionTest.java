@@ -512,7 +512,7 @@ public class NativeConversionTest {
 
     @Test
     public void testSameTypeConversion() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testSameTypeConversion");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSameTypeConversion");
         Assert.assertTrue(returns[0] instanceof BInteger);
         int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);

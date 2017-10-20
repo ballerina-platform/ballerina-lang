@@ -840,7 +840,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testSameTypeCast() {
-        BValue[] returns = BTestUtils.invoke(result, "testSameTypeCast");
+        BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");
         Assert.assertTrue(returns[0] instanceof BInteger);
         final int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
