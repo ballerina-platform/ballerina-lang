@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.types;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,12 +40,12 @@ public class TypeUnificationTest {
     @BeforeClass
     public void setup() {
         // Todo - Fix any type issue
-        compileResult = BTestUtils.compile("test-src/types/map-struct-json-unified.bal");
+        compileResult = BCompileUtil.compile("test-src/types/map-struct-json-unified.bal");
     }
 
     @Test(description = "Test inline initializing of a struct and its fields")
     public void testMultiValuedStructInlineInit() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testMultiValuedStructInlineInit");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
 
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct person = ((BStruct) returns[0]);
@@ -72,7 +73,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessJsonInStruct() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testAccessJsonInStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessJsonInStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "married");
@@ -86,7 +87,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessMapInStruct() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testAccessMapInStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessMapInStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Colombo");
@@ -103,7 +104,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessArrayInStruct() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testAccessArrayInStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessArrayInStruct");
 
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 94);
@@ -114,7 +115,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testMapInitWithAnyType() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testMapInitWithAnyType");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapInitWithAnyType");
 
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(((BMap<String, BString>) returns[0]).get("name").stringValue(), "Supun");
@@ -125,7 +126,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testSetValueToJsonInStruct() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testSetValueToJsonInStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"status\":\"widowed\",\"retired\":true}");
     }

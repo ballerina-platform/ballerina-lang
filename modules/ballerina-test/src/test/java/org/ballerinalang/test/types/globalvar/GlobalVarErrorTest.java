@@ -18,8 +18,9 @@
 
 package org.ballerinalang.test.types.globalvar;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.annotations.Test;
 
 /**
@@ -29,8 +30,8 @@ public class GlobalVarErrorTest {
 
     @Test
     public void testStructFieldWithChildPackagePaths() {
-        CompileResult resultNegative = BTestUtils.compile(
+        CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global-var-function-negative.bal");
-        BTestUtils.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
+        BAssertUtil.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
     }
 }

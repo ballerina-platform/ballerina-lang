@@ -16,9 +16,10 @@
  */
 package org.ballerinalang.test.statements.comment;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,9 +37,9 @@ public class CommentStmtTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/comment/comment-stmt.bal");
-        compiledPackage = BTestUtils.compileAndGetPackage("test-src/statements/comment/comment-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/comment/comment-stmt-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/comment/comment-stmt.bal");
+        compiledPackage = BCompileUtil.compileAndGetPackage("test-src/statements/comment/comment-stmt.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/comment/comment-stmt-negative.bal");
     }
 
     @Test
@@ -57,6 +58,6 @@ public class CommentStmtTest {
     @Test(description = "Test comment statement with errors")
     public void testCommentStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "extraneous input '//invalid location to have a comments'", 1, 1);
+        BAssertUtil.validateError(resultNegative, 0, "extraneous input '//invalid location to have a comments'", 1, 1);
     }
 }

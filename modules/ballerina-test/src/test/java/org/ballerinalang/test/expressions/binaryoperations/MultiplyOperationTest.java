@@ -16,11 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,14 +34,14 @@ public class MultiplyOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/multiply-operation.bal");
-        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/multiply-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/multiply-operation.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/binaryoperations/multiply-operation-negative.bal");
     }
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
         BValue[] args = { new BInteger(100), new BInteger(50) };
-        BValue[] returns = BTestUtils.invoke(result, "intMultiply", args);
+        BValue[] returns = BRunUtil.invoke(result, "intMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -52,7 +54,7 @@ public class MultiplyOperationTest {
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
         BValue[] args = { new BFloat(40.0f), new BFloat(40.0f) };
-        BValue[] returns = BTestUtils.invoke(result, "floatMultiply", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -67,7 +69,7 @@ public class MultiplyOperationTest {
         int a = 10;
         float b = 1.5f;
         BValue[] args = { new BInteger(a), new BFloat(b) };
-        BValue[] returns = BTestUtils.invoke(result, "intFloatMultiply", args);
+        BValue[] returns = BRunUtil.invoke(result, "intFloatMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -82,7 +84,7 @@ public class MultiplyOperationTest {
         float a = 1.5f;
         int b = 10;
         BValue[] args = { new BFloat(a), new BInteger(b) };
-        BValue[] returns = BTestUtils.invoke(result, "floatIntMultiply", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatIntMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -97,7 +99,7 @@ public class MultiplyOperationTest {
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
-        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
     }
 }

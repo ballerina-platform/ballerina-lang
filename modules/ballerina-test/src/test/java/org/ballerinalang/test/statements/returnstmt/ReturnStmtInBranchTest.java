@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.statements.returnstmt;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,14 +37,14 @@ public class ReturnStmtInBranchTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/returnstmt/return-stmt-in-branches.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/returnstmt/return-stmt-in-branches.bal");
     }
 
     @Test(description = "Test Return statements in branches")
     public void testReturnStmtInBranches1() {
         BValue[] args = {new BInteger(12), new BInteger(13)};
 
-        BValue[] returns = BTestUtils.invoke(compileResult, "returnStmtBranch1", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "returnStmtBranch1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,7 +56,7 @@ public class ReturnStmtInBranchTest {
     public void testReturnStmtInBranches2() {
         BValue[] args = {new BInteger(9), new BInteger(10)};
 
-        BValue[] returns = BTestUtils.invoke(compileResult, "returnStmtBranch2", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "returnStmtBranch2", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

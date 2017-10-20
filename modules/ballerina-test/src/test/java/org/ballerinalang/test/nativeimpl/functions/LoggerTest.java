@@ -18,10 +18,11 @@
 
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -51,7 +52,7 @@ public class LoggerTest {
         System.setProperty("java.util.logging.config.file",
                            ClassLoader.getSystemResource("logging.properties").getPath());
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
-        result = BTestUtils.compile("test-src/natives/utils/logger/log-api.bal");
+        result = BCompileUtil.compile("test-src/natives/utils/logger/log-api.bal");
     }
 
     @AfterTest
@@ -65,7 +66,7 @@ public class LoggerTest {
         final String logMsg = "Test error log";
         final String expectedLog = "ERROR [] - " + logMsg + " \n";
 
-        BTestUtils.invoke(result, "testError", new BValue[]{new BString(logMsg)});
+        BRunUtil.invoke(result, "testError", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
@@ -76,7 +77,7 @@ public class LoggerTest {
         final String logMsg = "Test warn log";
         final String expectedLog = "WARN [] - " + logMsg + " \n";
 
-        BTestUtils.invoke(result, "testWarn", new BValue[]{new BString(logMsg)});
+        BRunUtil.invoke(result, "testWarn", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
@@ -87,7 +88,7 @@ public class LoggerTest {
         final String logMsg = "Test info log";
         final String expectedLog = "INFO [] - " + logMsg + " \n";
 
-        BTestUtils.invoke(result, "testInfo", new BValue[]{new BString(logMsg)});
+        BRunUtil.invoke(result, "testInfo", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
@@ -98,7 +99,7 @@ public class LoggerTest {
         final String logMsg = "Test debug log";
         final String expectedLog = "DEBUG [] - " + logMsg + " \n";
 
-        BTestUtils.invoke(result, "testDebug", new BValue[]{new BString(logMsg)});
+        BRunUtil.invoke(result, "testDebug", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
@@ -109,7 +110,7 @@ public class LoggerTest {
         final String logMsg = "Test trace log";
         final String expectedLog = "TRACE [] - " + logMsg + " \n";
 
-        BTestUtils.invoke(result, "testTrace", new BValue[]{new BString(logMsg)});
+        BRunUtil.invoke(result, "testTrace", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }

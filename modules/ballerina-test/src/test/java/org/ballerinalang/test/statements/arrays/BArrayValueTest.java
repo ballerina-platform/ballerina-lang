@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,19 +42,19 @@ public class BArrayValueTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/arrays/array-value.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-value.bal");
     }
 
     @Test(description = "Test lazy arrays creation", expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testLazyArrayCreation() {
-        BTestUtils.invoke(compileResult, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
+        BRunUtil.invoke(compileResult, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }
 
     @Test(description = "Test lazy arrays initializer. Size should be zero")
     public void lazyInitSizeZero() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "lazyInitSizeZero", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "lazyInitSizeZero", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BStringArray.class);
@@ -64,7 +65,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on int arrays")
     public void addValueToIntegerArray() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "addValueToIntArray");
+        BValue[] returns = BRunUtil.invoke(compileResult, "addValueToIntArray");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BIntArray.class);
@@ -81,7 +82,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on float arrays")
     public void addValueToFloatArray() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "addValueToFloatArray");
+        BValue[] returns = BRunUtil.invoke(compileResult, "addValueToFloatArray");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloatArray.class);
@@ -102,7 +103,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an integer array")
     public void testDefaultValueOfIntArrayElement() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult,
+        BValue[] returns = BRunUtil.invoke(compileResult,
                 "testDefaultValueOfIntArrayElement", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -117,7 +118,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an json array")
     public void testDefaultValueOfJsonArrayElement() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testDefaultValueOfJsonArrayElement", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueOfJsonArrayElement", args);
 
         Assert.assertNull(returns[0]);
         Assert.assertNull(returns[1]);
@@ -128,7 +129,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an json array")
     public void testArrayGrowth() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testArrayGrowth", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayGrowth", args);
 
         BInteger value = (BInteger) returns[0];
         Assert.assertEquals(value.intValue(), 2390725);

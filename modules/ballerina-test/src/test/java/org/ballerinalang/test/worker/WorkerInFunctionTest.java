@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,18 +33,18 @@ public class WorkerInFunctionTest {
 
     @Test(description = "Test worker in function")
     public void testWorkerInFunction() {
-        CompileResult result = BTestUtils.compile("test-src/workers/worker-in-function-test.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
         BValue[] args = {new BString("hello")};
-        BValue[] returns = BTestUtils.invoke(result, "testSimpleWorker", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleWorker", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
     @Test(description = "Test worker interactions with each other")
     public void testWorkerMultipleInteractions() {
-        CompileResult result = BTestUtils.compile("test-src/workers/worker-multiple-interactions.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/worker-multiple-interactions.bal");
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BTestUtils.invoke(result, "testMultiInteractions", args);
+        BValue[] returns = BRunUtil.invoke(result, "testMultiInteractions", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "1103";
