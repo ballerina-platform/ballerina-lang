@@ -173,21 +173,6 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     /**
-     * Return true if the statement is a connector declaration with initialization
-     *
-     * @param {any} node
-     * @returns {boolean} true if the statement is a connector declaration with initialization
-     * @memberof TreeUtil
-     */
-    isConnectorWithInitialization(node) {
-        if (node && this.isVariableDef(node)) {
-            const expression = _.get(node, 'variable.initialExpression');
-            return expression && this.isConnectorInitExpr(expression);
-        }
-        return false;
-    }
-
-    /**
      * Get the connector init for the variable definition
      * @param {object} node - variable node
      * @param {object} parent - node's parent

@@ -89,7 +89,7 @@ class ServiceNode extends AbstractServiceNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isConnectorWithInitialization(node);
+        return TreeUtil.isConnectorDeclaration(node);
     }
 
     /**
@@ -101,11 +101,11 @@ class ServiceNode extends AbstractServiceNode {
      *
      */
     acceptDrop(node, dropBefore) {
-        if (TreeUtil.isConnectorWithInitialization(node)) {
+        if (TreeUtil.isConnectorDeclaration(node)) {
             // If there are no variables we'll add it to 0
             let index = 0;
             const lastIndexOfConnectors = _.findLastIndex(this.getVariables(),
-                variable => TreeUtil.isConnectorWithInitialization(variable));
+                variable => TreeUtil.isConnectorDeclaration(variable));
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }

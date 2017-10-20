@@ -63,7 +63,7 @@ class ConnectorNode extends AbstractConnectorNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isConnectorWithInitialization(node) || TreeUtil.isAction(node);
+        return TreeUtil.isConnectorDeclaration(node) || TreeUtil.isAction(node);
     }
 
     /**
@@ -75,11 +75,11 @@ class ConnectorNode extends AbstractConnectorNode {
      *
      */
     acceptDrop(node, dropBefore) {
-        if (TreeUtil.isConnectorWithInitialization(node)) {
+        if (TreeUtil.isConnectorDeclaration(node)) {
             // If there are no variables we'll add it to 0
             let index = 0;
             const lastIndexOfConnectors = _.findLastIndex(this.getVariableDefs(),
-                variable => TreeUtil.isConnectorWithInitialization(variable));
+                variable => TreeUtil.isConnectorDeclaration(variable));
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
