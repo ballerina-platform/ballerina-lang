@@ -18,13 +18,13 @@
 package org.ballerinalang.swagger.code.generator.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.codegen.ProgramFileWriter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.ProgramFile;
+import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,32 +44,17 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BTestUtils {
 
-    public static ProgramFile getProgramFile(String sourceFilePath) {
+    public static org.ballerinalang.util.codegen.ProgramFile getProgramFile(String sourceFilePath) {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            ProgramFile programFile = getCompiledProgram(programPath, Paths.get(sourceFilePath));
-            Path targetPath;
-            Path sourcePath = programPath.resolve(sourceFilePath);
-            if (sourcePath.endsWith(".bal")) {
-                String sourcePathStr = sourcePath.toString();
-                targetPath = Paths.get(sourcePathStr.substring(0, sourcePathStr.length() - 4) + ".balx");
-            } else {
-                targetPath = Paths.get(sourcePath.getName(sourcePath.getNameCount() - 1).toString() + ".balx");
-            }
-
-            targetPath = programPath.resolve(targetPath);
-            ProgramFileWriter.writeProgram(programFile, targetPath);
-            ProgramFileReader reader = new ProgramFileReader();
-            return reader.readProgram(targetPath);
+            return getCompiledProgram(programPath, Paths.get(sourceFilePath));
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        } 
     }
 
-    private static ProgramFile getCompiledProgram(Path sourceRoot, Path sourcePath) {
+    private static org.ballerinalang.util.codegen.ProgramFile getCompiledProgram(Path sourceRoot, Path sourcePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, sourceRoot.toString());
@@ -86,17 +71,17 @@ public class BTestUtils {
             throw new BallerinaException("compilation contains errors");
         }
 
-        ProgramFile progFile = getExecutableProgram(programFile);
+        org.ballerinalang.util.codegen.ProgramFile progFile = getExecutableProgram(programFile);
         progFile.setProgramFilePath(sourcePath);
 
         return progFile;
     }
 
-    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+    public static org.ballerinalang.util.codegen.ProgramFile getExecutableProgram(ProgramFile programFile) {
         ByteArrayInputStream byteIS = null;
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {
-            org.wso2.ballerinalang.programfile.ProgramFileWriter.writeProgram(programFile, byteOutStream);
+            ProgramFileWriter.writeProgram(programFile, byteOutStream);
 
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
