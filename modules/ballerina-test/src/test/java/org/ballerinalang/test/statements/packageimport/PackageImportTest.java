@@ -71,7 +71,7 @@ public class PackageImportTest {
         BTestUtils.validateError(result, 0, "invalid package declaration 'x.y.z': no package declaration is needed " +
                 "for default package", 1, 1);
     }
-    
+
     @Test
     public void testInalidPackageDeclrInMultipleSources() {
         CompileResult result = BTestUtils.compile("test-src/statements/package/", "p.q");
