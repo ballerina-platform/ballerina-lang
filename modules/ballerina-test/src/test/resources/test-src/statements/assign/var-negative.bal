@@ -50,3 +50,8 @@ function test9(){
     any a = 1;
     var p, q, r = (string) a;
 }
+
+function test10 () {
+    var x = (Foo) bar;
+    string result1 = x + ex;
+}

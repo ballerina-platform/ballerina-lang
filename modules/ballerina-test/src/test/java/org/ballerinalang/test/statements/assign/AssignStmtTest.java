@@ -200,5 +200,7 @@ public class AssignStmtTest {
         BAssertUtil.validateError(result, 18, "assignment count mismatch: expected 3 values, but found 2", 42, 19);
         BAssertUtil.validateError(result, 19, "assignment count mismatch: expected 3 values, but found 2", 46, 19);
         BAssertUtil.validateError(result, 20, "assignment count mismatch: expected 3 values, but found 2", 51, 19);
+        BAssertUtil.validateError(result, 21, "unknown type 'Foo'", 55, 14);
+        BAssertUtil.validateError(result, 22, "undefined symbol 'bar'", 55, 19);
     }
 }
