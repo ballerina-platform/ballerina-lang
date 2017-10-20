@@ -36,7 +36,19 @@ class AboutDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title=""
+                title={
+                    <div>
+                        <div className="brand">
+                        <img
+                            src="images/BallerinaLogo.svg"
+                            alt="Ballerina Composer"
+                            className="logo"
+                        />
+                        <span className="appname">Composer</span>
+                        </div>
+                        <div className="version">v0.93.SNAPSHOT</div>
+                    </div>
+                }
                 onHide={this.onDialogHide}
                 className="modal-about"
                 actions={
@@ -53,18 +65,7 @@ class AboutDialog extends React.Component {
                     </div>
                 }
             >
-                <div className="brand">
-                    <img
-                        src="images/BallerinaLogo.svg"
-                        alt="Ballerina Composer"
-                        className="logo"
-                    />
-                    <span className="appname">Composer</span>
-                </div>
-                <div className="version">v0.93.SNAPSHOT</div>
-                <br />
                 <p>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
                     Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina
                     programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool
                     palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can
@@ -72,7 +73,6 @@ class AboutDialog extends React.Component {
                     definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create
                     your programs in the way that you like to work.
                     <br /><br />
-                    <br />
                     Please use &nbsp;
                     <a
                         rel="noopener noreferrer"
