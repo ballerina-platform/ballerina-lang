@@ -128,9 +128,6 @@ class ConnectorPropertiesForm extends React.Component {
         const paramArray = [];
         let map;
         data.forEach((key) => {
-            if (key.value === key.defaultValue && key.fields.length === 0) {
-                return;
-            }
             if (key.bType === 'string') {
                 key.value = this.addQuotationForStringValues(key.value);
             }
