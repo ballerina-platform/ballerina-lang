@@ -404,6 +404,10 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + join(node.fields, pretty, l, w, '', ';', true) + outdent()
                  + w() + '}';
             }
+        case 'TernaryExpr':
+            return getSourceOf(node.condition, pretty, l) + w() + '?'
+                 + getSourceOf(node.thenExpression, pretty, l) + w() + ':'
+                 + getSourceOf(node.elseExpression, pretty, l);
         case 'Throw':
             return dent() + w() + 'throw' + b(' ')
                  + getSourceOf(node.expressions, pretty, l) + w() + ';';

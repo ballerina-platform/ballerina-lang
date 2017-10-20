@@ -1225,6 +1225,9 @@ class TransformNodeMapper {
         if (TreeUtil.isInvocation(expression)) {
             return true;
         }
+        if (TreeUtil.isTernaryExpr(expression)) {
+            return true;
+        }
         if (TreeUtil.isBinaryExpr(expression)) {
             return true;
         }
@@ -1403,6 +1406,11 @@ class TransformNodeMapper {
             return _.flatten(expression.getArgumentExpressions().map((exp) => {
                 return [...this.getVerticesFromExpression(exp)];
             }));
+        }
+        if (TreeUtil.isTernaryExpr(expression)) {
+            return [...this.getVerticesFromExpression(expression.getCondition()),
+                ...this.getVerticesFromExpression(expression.getThenExpression()),
+                ...this.getVerticesFromExpression(expression.getElseExpression())];
         }
         if (TreeUtil.isBinaryExpr(expression)) {
             return [...this.getVerticesFromExpression(expression.getLeftExpression()),

@@ -24,7 +24,7 @@ import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import { binaryOpTools, unaryOpTools } from './item-provider/operator-tools';
+import { binaryOpTools, unaryOpTools, ternaryOpTools } from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import DefaultNodeFactory from '../model/default-node-factory';
 
@@ -114,13 +114,6 @@ class TransformPane extends React.Component {
     }
 
     render() {
-        const binaryOpToolGroup = {
-            name: 'Binary Operators',
-            id: 'binary-operators-tool-group',
-            order: 'horizontal',
-            tools: binaryOpTools,
-        };
-
         const unaryOpToolGroup = {
             name: 'Unary Operators',
             id: 'unary-operators-tool-group',
@@ -128,13 +121,28 @@ class TransformPane extends React.Component {
             tools: unaryOpTools,
         };
 
+        const binaryOpToolGroup = {
+            name: 'Binary Operators',
+            id: 'binary-operators-tool-group',
+            order: 'horizontal',
+            tools: binaryOpTools,
+        };
+
+        const ternaryOpToolGroup = {
+            name: 'Ternary Operators',
+            id: 'ternary-operators-tool-group',
+            order: 'horizontal',
+            tools: ternaryOpTools,
+        };
+
         return (
             <div>
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
                 <ToolGroupView group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
                 <ToolsPanel name="Operators">
-                    <ToolGroupView group={binaryOpToolGroup} showGridStyles={false} />
                     <ToolGroupView group={unaryOpToolGroup} showGridStyles={false} />
+                    <ToolGroupView group={binaryOpToolGroup} showGridStyles={false} />
+                    <ToolGroupView group={ternaryOpToolGroup} showGridStyles={false} />
                 </ToolsPanel>
                 <ToolsPanel name="Libraries">
                     {this.props.library}

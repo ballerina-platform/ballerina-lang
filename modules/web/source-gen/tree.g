@@ -188,6 +188,10 @@ Struct
    | <annotationAttachments>* struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
+TernaryExpr
+   : <condition.source> ? <thenExpression.source> : <elseExpression.source>
+   ;
+
 Throw
    : throw <expressions.source> ;
    ;
