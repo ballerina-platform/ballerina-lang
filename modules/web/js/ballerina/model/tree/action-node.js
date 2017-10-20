@@ -46,9 +46,9 @@ class ActionNode extends AbstractActionNode {
                 const defaultWorker = node.meta;
                 delete node.meta;
                 const connectors = this.getBody().getStatements()
-                        .filter((statement) => { return TreeUtil.isConnectorDeclaration(statement); });
+                    .filter((statement) => { return TreeUtil.isConnectorDeclaration(statement); });
                 const statements = this.getBody().getStatements()
-                        .filter((statement) => { return !TreeUtil.isConnectorDeclaration(statement); });
+                    .filter((statement) => { return !TreeUtil.isConnectorDeclaration(statement); });
                 this.getBody().setStatements(connectors, true);
                 defaultWorker.getBody().setStatements(statements);
                 this.addWorkers(defaultWorker, -1, true);
@@ -63,7 +63,7 @@ class ActionNode extends AbstractActionNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            TreeUtil.getNewTempVarName(this.getBody(), '__endpoint')
+            TreeUtil.getNewTempVarName(this.getBody(), 'endpoint')
                 .then((varNames) => {
                     node.getVariable().getName().setValue(varNames[0]);
                     this.getBody().addStatements(node, index);

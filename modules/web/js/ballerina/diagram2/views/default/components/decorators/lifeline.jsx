@@ -248,7 +248,7 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.contextTypes = {
-    model: PropTypes.instanceOf(Object).isRequired,
+    model: PropTypes.instanceOf(Object),
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,

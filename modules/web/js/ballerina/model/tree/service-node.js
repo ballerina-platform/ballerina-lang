@@ -109,7 +109,7 @@ class ServiceNode extends AbstractServiceNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            TreeUtil.getNewTempVarName(this, '__endpoint')
+            TreeUtil.getNewTempVarName(this, 'endpoint')
                 .then((varNames) => {
                     node.getVariable().getName().setValue(varNames[0]);
                     this.addVariables(node, index);

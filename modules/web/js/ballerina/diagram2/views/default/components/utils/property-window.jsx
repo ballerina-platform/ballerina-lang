@@ -70,7 +70,14 @@ class PropertyWindow extends React.Component {
         this.props.model.viewState.showOverlayContainer = false;
         this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
         this.props.model.viewState.overlayContainer = {};
-        this.context.editor.update();
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'Property Submitted',
+            title: 'Property Changed',
+            data: {
+                node: this.props.model,
+            },
+        });
     }
 
     /**
@@ -306,9 +313,11 @@ class PropertyWindow extends React.Component {
                 );
             } else {
                 return (
-                    <li><a className="previousBreadcrumbItem" onClick={() => {
-                        this.toggleStructView(index);
-                    }}
+                    <li><a
+                        className="previousBreadcrumbItem"
+                        onClick={() => {
+                            this.toggleStructView(index);
+                        }}
                     > {key}</a></li>
                 );
             }
