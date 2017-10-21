@@ -642,7 +642,7 @@ public class TypeCastExprTest {
     public void testCastingWithTooManyReturns() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "assignment count mismatch: 3 != 2", 15, 17);
+        BAssertUtil.validateError(res, 0, "assignment count mismatch: expected 3 values, but found 2", 15, 17);
     }
 
 
@@ -837,4 +837,12 @@ public class TypeCastExprTest {
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
     }*/
+
+    @Test
+    public void testSameTypeCast() {
+        BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final int expected = 10;
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
 }

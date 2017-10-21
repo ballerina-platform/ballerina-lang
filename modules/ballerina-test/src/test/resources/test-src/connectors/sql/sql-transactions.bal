@@ -11,10 +11,10 @@ function testLocalTransacton () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
     } aborted {
@@ -40,9 +40,9 @@ function testTransactonRollback () (int returnVal, int count) {
     sql:Parameter[] parameters = [];
     try {
         transaction {
-            testDB.update("Insert into Customers (firstName,lastName,registrationID,
+            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
-            testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
+            _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
         } aborted {
             returnVal = -1;
@@ -170,9 +170,9 @@ function testTransactonCommitted () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
-        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
     } committed {
         returnVal = 1;
@@ -197,10 +197,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } committed {
@@ -210,10 +210,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     }
 
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } aborted {
@@ -238,10 +238,10 @@ function testTransactonWithoutHandlers () (int count) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
     }
@@ -267,10 +267,10 @@ function testLocalTransactionFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-            testDB.update("Insert into Customers
+            _ = testDB.update("Insert into Customers
                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 111, 5000.75, 'USA')",
                parameters);
-            testDB.update("Insert into Customers2
+            _ = testDB.update("Insert into Customers2
                (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 111, 5000.75, 'USA')",
                                        parameters);
         } failed {
@@ -307,15 +307,15 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-                testDB.update("Insert into Customers
+                _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             if (i == 2 ){
-                testDB.update("Insert into Customers
+                _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             } else {
-                testDB.update("Insert into Customers2
+                _ = testDB.update("Insert into Customers2
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             }

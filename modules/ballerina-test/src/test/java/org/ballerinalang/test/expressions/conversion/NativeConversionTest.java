@@ -509,4 +509,12 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BStruct);
         Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
     }
+
+    @Test
+    public void testSameTypeConversion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSameTypeConversion");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        int expected = 10;
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
 }
