@@ -79,19 +79,19 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'Action':
             if (node.annotationAttachments && node.name.value && node.parameters
                          && node.returnParameters && node.returnParameters.length
-                         && node.workers && node.body) {
+                         && node.body && node.workers) {
                 return join(node.annotationAttachments, pretty, l, w, '') + dent() + w()
                  + 'action' + w(' ') + node.name.value + w(' ') + '('
                  + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '('
                  + join(node.returnParameters, pretty, l, w, '', ',') + w() + ')'
-                 + w(' ') + '{' + indent() + join(node.workers, pretty, l, w, '')
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
+                 + w(' ') + '{' + indent() + getSourceOf(node.body, pretty, l)
+                 + join(node.workers, pretty, l, w, '') + outdent() + w() + '}';
             } else {
                 return join(node.annotationAttachments, pretty, l, w, '') + dent() + w()
                  + 'action' + w(' ') + node.name.value + w(' ') + '('
                  + join(node.parameters, pretty, l, w, '', ',') + w() + ')' + w(' ') + '{'
-                 + indent() + join(node.workers, pretty, l, w, '')
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}';
+                 + indent() + getSourceOf(node.body, pretty, l)
+                 + join(node.workers, pretty, l, w, '') + outdent() + w() + '}';
             }
         case 'Annotation':
             if (node.name.value && node.attributes) {

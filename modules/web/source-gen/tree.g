@@ -13,8 +13,8 @@ Abort
    ;
 
 Action
-   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <workers>* <body.source> }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <workers>* <body.source> }
+   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <body.source> <workers>* }
    ;
 
 Annotation
