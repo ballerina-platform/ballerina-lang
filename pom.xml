@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-container-support</artifactId>
-    <version>0.93.1-SNAPSHOT</version>
+    <version>0.94.0-M1</version>
     <name>Ballerina - Container Support</name>
     <packaging>jar</packaging>
 
@@ -238,7 +238,7 @@
         <url>https://github.com/ballerinalang/container-support.git</url>
         <developerConnection>scm:git:https://github.com/ballerinalang/container-support.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/container-support.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.94.0-M1</tag>
     </scm>
 
     <repositories>
