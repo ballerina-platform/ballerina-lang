@@ -93,6 +93,7 @@ public class BallerinaDocGenerator {
      *            file which does not belong to a package.
      */
     public static void generateApiDocs(String output, String packageFilter, boolean isNative, String... sources) {
+        out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
         HtmlDocumentWriter htmlDocumentWriter;
         if (output == null) {
             htmlDocumentWriter = new HtmlDocumentWriter();
