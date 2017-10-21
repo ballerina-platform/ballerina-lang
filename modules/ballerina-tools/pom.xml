@@ -108,33 +108,33 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.ballerinalang</groupId>-->
-                <!--<artifactId>docerina-maven-plugin</artifactId>-->
-                <!--<version>${docerina.maven.plugin.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>docerina</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDir>${project.build.directory}/api-docs</outputDir>-->
-                            <!--<sourceDir>-->
-                                <!--${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives-->
-                            <!--</sourceDir>-->
-                            <!--<nativeCode>true</nativeCode>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<dependencies>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-http</artifactId>-->
-                        <!--<version>${ballerina.runtime.version}</version>-->
-                    <!--</dependency>-->
-                <!--</dependencies>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina-maven-plugin</artifactId>
+                <version>${docerina.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>docerina</goal>
+                        </goals>
+                        <configuration>
+                            <outputDir>${project.build.directory}/api-docs</outputDir>
+                            <sourceDir>
+                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+                            </sourceDir>
+                            <nativeCode>true</nativeCode>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-http</artifactId>
+                        <version>${ballerina.runtime.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
