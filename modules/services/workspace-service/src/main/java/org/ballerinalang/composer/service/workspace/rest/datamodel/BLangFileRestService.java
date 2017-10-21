@@ -329,7 +329,7 @@ public class BLangFileRestService {
      * @return List of errors if any
      */
     private JsonObject validate(BFile bFile) {
-        String fileName = "untitled";
+        String fileName = "untitled.bal";
         String content = bFile.getContent();
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
                 CompilerPhase.CODE_ANALYZE);
