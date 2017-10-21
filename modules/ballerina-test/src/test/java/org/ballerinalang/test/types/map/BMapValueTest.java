@@ -26,11 +26,13 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
 
@@ -184,4 +186,47 @@ public class BMapValueTest {
         
         Assert.assertEquals(map.stringValue(), "{\"key1\":1, \"key2\":\"foo\", \"key3\":<bar>hello</bar>}");
     }
+
+    @Test(dependsOnMethods = "testGrammar")
+    public void testMapOrder() {
+//        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapOrder", new BValue[0]);
+        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapOrder", new BValue[0]);
+        BMap m = (BMap) returnVals[0];
+        Set set = m.keySet();
+        Iterator i = set.iterator();
+        int counter = 0;
+        String[] values = {"Element 1", "Element 2", "Element 3"};
+        while (i.hasNext()) {
+            Assert.assertEquals(m.get(i.next()).stringValue(), values[counter]);
+            counter++;
+        }
+        String mapString = m.stringValue();
+        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":\"Element 3\"}");
+
+    }
+
+    @Test
+    public  void testBMapOrder() {
+        BMap<String, BRefType> map = new BMap<>();
+        map.put(new String("Entry1"), new BString("foo"));
+        map.put(new String("Entry2"), new BString("bar"));
+        map.put(new String("Entry3"), new BString("foobar"));
+
+        Set set = map.keySet();
+        String[] ar = new String[3];
+        Iterator itr = set.iterator();
+        for (int i = 0; i < set.size(); i++) {
+            ar[i] = itr.next().toString();
+        }
+        Assert.assertEquals(map.get(ar[0]).stringValue(), "foo");
+        Assert.assertEquals(map.get(ar[1]).stringValue(), "bar");
+        Assert.assertEquals(map.get(ar[2]).stringValue(), "foobar");
+
+    }
+
+    @Test(dependsOnMethods = "testGrammar")
+    public void testMapSynchronization() {
+        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapSynchronization", new BValue[0]);
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2000);
+        }
 }
