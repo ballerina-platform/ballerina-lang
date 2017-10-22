@@ -75,6 +75,10 @@ export default class VariableEndpoint extends React.Component {
             className += ' transform-endpoint-last'
         }
 
+        if (info.isRoot) {
+            className += ' transform-endpoint-root'
+        }
+
         const variableRoot = variable.root || variable;
 
         let currentInfo = info.parentInfo;

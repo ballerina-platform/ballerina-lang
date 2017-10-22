@@ -661,14 +661,24 @@ class TransformExpanded extends React.Component {
             return;
         }
         const boundingRect = this.transformOverlayDraggingContentDiv.getBoundingClientRect();
-        const middle = boundingRect.top + ((boundingRect.bottom - boundingRect.top) / 2);
-        let offset = -5;
-        if (e.pageY > middle) {
-            offset = 5;
+        
+        let offsetY = 0;
+        if (e.pageY < (boundingRect.top + 10)) {
+            offsetY = -5;
+        } else if (e.pageY > (boundingRect.bottom - 10)) {
+            offsetY = 5;
+        }
+
+        let offsetX = 0;
+        if (e.pageX < (boundingRect.left + 10)) {
+            offsetX = -5;
+        } else if (e.pageX > (boundingRect.right - 10)) {
+            offsetX = 5;
         }
 
         this.scrollTimer = setInterval(() => {
-            this.scroll.scrollTop(this.scroll.getScrollTop() + offset);
+            this.vscroll.scrollTop(this.vscroll.getScrollTop() + offsetY);
+            this.hscroll.scrollLeft(this.hscroll.getScrollLeft() + offsetX);
         }, 10);
     }
 
@@ -1124,6 +1134,7 @@ class TransformExpanded extends React.Component {
 
     render() {
         const { leftOffset, width, height } = this.props;
+        console.log(width, height)
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.inputs;
         const outputNodes = this.props.model.outputs;
@@ -1190,28 +1201,6 @@ class TransformExpanded extends React.Component {
                         Transform
                     </p>
                 </div>
-                <div className="select-source">
-                    <SuggestionsDropdown
-                        value={this.state.typedSource}
-                        onChange={this.onSourceInputChange}
-                        onEnter={this.onSourceInputEnter}
-                        suggestionsPool={vertices}
-                        placeholder='Select Source'
-                        onSuggestionSelected={this.onSourceSelect}
-                        type='source'
-                    />
-                </div>
-                <div className="select-target">
-                    <SuggestionsDropdown
-                        value={this.state.typedTarget}
-                        onChange={this.onTargetInputChange}
-                        onEnter={this.onTargetInputEnter}
-                        suggestionsPool={vertices}
-                        placeholder='Select Target'
-                        onSuggestionSelected={this.onTargetSelect}
-                        type='target'
-                    />
-                </div>
                 <div
                     id={`transformOverlay-content-dragging-${this.props.model.getID()}`}
                     ref={(div) => { this.transformOverlayDraggingContentDiv = div; }}
@@ -1220,94 +1209,125 @@ class TransformExpanded extends React.Component {
                     onMouseEnter={this.onDragEnter}
                     onMouseMove={this.onMouseMove}
                 >
-                    <div className="middle-content-frame" />
                     <Scrollbars
-                        ref={(scroll) => { this.scroll = scroll; }}
+                        ref={(scroll) => { this.hscroll = scroll; }}
                         onScroll={this.onConnectionsScroll}
+                        renderThumbHorizontal={props => <div {...props} className='transform-horizontal-scroll'/>}
                     >
-                        <div
-                            id={`transformOverlay-content-${this.props.model.getID()}`}
-                            ref={(div) => { this.transformOverlayContentDiv = div; }}
-                            className='transform-connections'
-                        >
-                            <div className='left-content'>
-                                <div className="leftType">
-                                    <Tree
-                                        viewId={this.props.model.getID()}
-                                        endpoints={inputs}
-                                        type='source'
-                                        makeConnectPoint={this.recordSourceElement}
-                                        removeTypeCallbackFunc={this.removeSourceType}
-                                        updateVariable={this.updateVariable}
-                                        onEndpointRemove={this.removeEndpoint}
-                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                        foldEndpoint={this.foldEndpoint}
-                                        foldedEndpoints={this.state.foldedEndpoints}
-                                    />
-                                </div>
+                        <div className='transform-content'>
+                            <div className="select-source">
+                                <SuggestionsDropdown
+                                    value={this.state.typedSource}
+                                    onChange={this.onSourceInputChange}
+                                    onEnter={this.onSourceInputEnter}
+                                    suggestionsPool={vertices}
+                                    placeholder='Select Source'
+                                    onSuggestionSelected={this.onSourceSelect}
+                                    type='source'
+                                />
                             </div>
-                            <DropZone
-                                baseComponent='div'
-                                className='middle-content'
-                                dropTarget={this.props.model.getBody()}
-                                canDrop={this.canDrop}
+                            <div className="select-target">
+                                <SuggestionsDropdown
+                                    value={this.state.typedTarget}
+                                    onChange={this.onTargetInputChange}
+                                    onEnter={this.onTargetInputEnter}
+                                    suggestionsPool={vertices}
+                                    placeholder='Select Target'
+                                    onSuggestionSelected={this.onTargetSelect}
+                                    type='target'
+                                />
+                            </div>
+                            <div className="middle-content-frame" />
+                            <Scrollbars
+                                style={{height: 'calc(100% - 50px)'}}
+                                ref={(scroll) => { this.vscroll = scroll; }}
+                                onScroll={this.onConnectionsScroll}
                             >
-                                {
-                                    intermediateNodes.map((node) => {
-                                        if (node.type === 'function') {
-                                            return (<FunctionInv
-                                                key={node.funcInv.getID()}
-                                                func={node.func}
-                                                statement={node.statement}
-                                                parentNode={node.parentNode}
-                                                funcInv={node.funcInv}
-                                                recordSourceElement={this.recordSourceElement}
-                                                recordTargetElement={this.recordTargetElement}
+                                <div
+                                    id={`transformOverlay-content-${this.props.model.getID()}`}
+                                    ref={(div) => { this.transformOverlayContentDiv = div; }}
+                                    className='transform-connections'
+                                >
+                                    <div className='left-content'>
+                                        <div className="leftType">
+                                            <Tree
                                                 viewId={this.props.model.getID()}
+                                                endpoints={inputs}
+                                                type='source'
+                                                makeConnectPoint={this.recordSourceElement}
+                                                removeTypeCallbackFunc={this.removeSourceType}
+                                                updateVariable={this.updateVariable}
                                                 onEndpointRemove={this.removeEndpoint}
-                                                onFunctionRemove={this.removeIntermediateNode}
                                                 onConnectPointMouseEnter={this.onConnectPointMouseEnter}
                                                 foldEndpoint={this.foldEndpoint}
                                                 foldedEndpoints={this.state.foldedEndpoints}
-                                                isCollapsed={this.state.foldedFunctions[node.funcInv.getID()]}
-                                                onHeaderClick={this.foldFunction}
-                                            />);
+                                            />
+                                        </div>
+                                    </div>
+                                    <DropZone
+                                        baseComponent='div'
+                                        className='middle-content'
+                                        dropTarget={this.props.model.getBody()}
+                                        canDrop={this.canDrop}
+                                    >
+                                        {
+                                            intermediateNodes.map((node) => {
+                                                if (node.type === 'function') {
+                                                    return (<FunctionInv
+                                                        key={node.funcInv.getID()}
+                                                        func={node.func}
+                                                        statement={node.statement}
+                                                        parentNode={node.parentNode}
+                                                        funcInv={node.funcInv}
+                                                        recordSourceElement={this.recordSourceElement}
+                                                        recordTargetElement={this.recordTargetElement}
+                                                        viewId={this.props.model.getID()}
+                                                        onEndpointRemove={this.removeEndpoint}
+                                                        onFunctionRemove={this.removeIntermediateNode}
+                                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                        foldEndpoint={this.foldEndpoint}
+                                                        foldedEndpoints={this.state.foldedEndpoints}
+                                                        isCollapsed={this.state.foldedFunctions[node.funcInv.getID()]}
+                                                        onHeaderClick={this.foldFunction}
+                                                    />);
+                                                }
+                                                return (<Operator
+                                                    key={node.opExp.getID()}
+                                                    operator={node.operator}
+                                                    statement={node.statement}
+                                                    parentNode={node.parentNode}
+                                                    opExp={node.opExp}
+                                                    recordSourceElement={this.recordSourceElement}
+                                                    recordTargetElement={this.recordTargetElement}
+                                                    viewId={this.props.model.getID()}
+                                                    onEndpointRemove={this.removeEndpoint}
+                                                    onOperatorRemove={this.removeIntermediateNode}
+                                                    onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                    isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
+                                                    onFolderClick={this.foldFunction}
+                                                />);
+                                            })
                                         }
-                                        return (<Operator
-                                            key={node.opExp.getID()}
-                                            operator={node.operator}
-                                            statement={node.statement}
-                                            parentNode={node.parentNode}
-                                            opExp={node.opExp}
-                                            recordSourceElement={this.recordSourceElement}
-                                            recordTargetElement={this.recordTargetElement}
-                                            viewId={this.props.model.getID()}
-                                            onEndpointRemove={this.removeEndpoint}
-                                            onOperatorRemove={this.removeIntermediateNode}
-                                            onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                            isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
-                                            onFolderClick={this.foldFunction}
-                                        />);
-                                    })
-                                }
-                            </DropZone>
-                            <div className='right-content'>
-                                <div className='rightType'>
-                                    <Tree
-                                        viewId={this.props.model.getID()}
-                                        endpoints={outputs}
-                                        type='target'
-                                        makeConnectPoint={this.recordTargetElement}
-                                        removeTypeCallbackFunc={this.removeTargetType}
-                                        updateVariable={this.updateVariable}
-                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                        foldEndpoint={this.foldEndpoint}
-                                        foldedEndpoints={this.state.foldedEndpoints}
-                                        onEndpointRemove={this.removeEndpoint}
-                                    />
+                                    </DropZone>
+                                    <div className='right-content'>
+                                        <div className='rightType'>
+                                            <Tree
+                                                viewId={this.props.model.getID()}
+                                                endpoints={outputs}
+                                                type='target'
+                                                makeConnectPoint={this.recordTargetElement}
+                                                removeTypeCallbackFunc={this.removeTargetType}
+                                                updateVariable={this.updateVariable}
+                                                onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                foldEndpoint={this.foldEndpoint}
+                                                foldedEndpoints={this.state.foldedEndpoints}
+                                                onEndpointRemove={this.removeEndpoint}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div id='transformContextMenu' className='transformContextMenu' />
                                 </div>
-                            </div>
-                            <div id='transformContextMenu' className='transformContextMenu' />
+                            </Scrollbars>
                         </div>
                     </Scrollbars>
                 </div>

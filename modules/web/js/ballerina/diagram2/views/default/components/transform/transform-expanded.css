@@ -1,5 +1,5 @@
 .transformOverlay {
-    font-size: 13px
+    font-size: 13px;
 }
 
 .left-content {
@@ -13,7 +13,7 @@
 .left-content, .right-content {
     width: calc(100% /3.7);
     min-height: 100%;
-    padding: 0px 20px 0px 20px;
+    padding: 0px 20px 20px 20px;
 }
 
 .transformOverlay .btn {
@@ -124,20 +124,20 @@
     width: calc(33% - 12px);
 }
 
+.select-source, .select-target {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
 .select-source {
     float: left;
-    left: 20px;
-    top: 20px;
-    position: relative;
+    margin-left: 20px;
     width: calc(100%/3.7 - 37px);
 }
 
 .select-target {
     float: right;
-    right: 20px;
-    top: 20px;
-    position: relative;
+    margin-right: 20px;
     width: calc(100%/3.7 - 37px);
 }
 
@@ -147,17 +147,27 @@
     height: 100%;
 }
 
+.transform-content {
+    min-width: 850px;
+}
+
 .transform-dragging-connections {
-    position: absolute;
-    width: calc(100% - 244px);
-    height: calc(100% - 85px);;
-    top: 85px;
+    position: relative;
+    width: 100%;
+    height: calc(100% - 30px);
     overflow: hidden;
+}
+
+.transform-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
 }
 
 .middle-content-frame {
     width: calc(100%/2.2);
-    height: 100%;
+    height: calc(100% - 50px);
+    top: 50px;
     position: absolute;
     border: 1px dashed #ccc;
     left: calc(100%/3.7);
@@ -170,4 +180,11 @@
 
 .drop-valid {
     cursor: auto;
+}
+
+.transform-horizontal-scroll {
+    z-index: 3;
+    cursor: pointer;
+    border-radius: inherit;
+    background-color: rgba(0, 0, 0, 0.2);
 }
