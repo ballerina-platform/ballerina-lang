@@ -19,12 +19,13 @@ package org.ballerinalang.test.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.Constant;
 import org.ballerinalang.nativeimpl.task.TaskScheduler;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -60,11 +61,11 @@ public class TaskTest {
 
     @BeforeClass
     public void setup() {
-        timerCompileResult = BTestUtils.compile("test-src/task/task-timer.bal");
-        appointmentCompileResult = BTestUtils.compile("test-src/task/task-appointment.bal");
-        stopTaskCompileResult = BTestUtils.compile("test-src/task/task-stop.bal");
-        timerMWCompileResult = BTestUtils.compile("test-src/task/task-timer-multiple-workers.bal");
-        timerWithEmptyResponseCompileResult = BTestUtils.compile("test-src/task/task-timer-with-empty-response.bal");
+        timerCompileResult = BCompileUtil.compile("test-src/task/task-timer.bal");
+        appointmentCompileResult = BCompileUtil.compile("test-src/task/task-appointment.bal");
+        stopTaskCompileResult = BCompileUtil.compile("test-src/task/task-stop.bal");
+        timerMWCompileResult = BCompileUtil.compile("test-src/task/task-timer-multiple-workers.bal");
+        timerWithEmptyResponseCompileResult = BCompileUtil.compile("test-src/task/task-timer-with-empty-response.bal");
 
         System.setErr(new PrintStream(consoleOutput));
         System.setProperty("java.util.logging.config.file",
@@ -79,7 +80,7 @@ public class TaskTest {
         createDirectoryWithFile();
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(130000) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskIdEM = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskIdEM, -1, -1, -1, -1, -1);
@@ -98,7 +99,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 0, -1, -1, -1, -1);
@@ -118,7 +119,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(5), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 5, -1, -1, -1, -1);
@@ -139,7 +140,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 0, hour, -1, -1, -1);
@@ -167,7 +168,7 @@ public class TaskTest {
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
@@ -180,7 +181,7 @@ public class TaskTest {
         int taskId;
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(2), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertNotEquals(taskId, -1);
@@ -204,7 +205,7 @@ public class TaskTest {
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
@@ -234,7 +235,7 @@ public class TaskTest {
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
@@ -261,7 +262,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 0, hour, dayOfWeek, -1, -1);
@@ -289,7 +290,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
                 new BInteger(month), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
@@ -317,7 +318,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(month), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, hour, dayOfWeek, -1, month);
@@ -343,7 +344,7 @@ public class TaskTest {
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
@@ -356,7 +357,7 @@ public class TaskTest {
         int taskId;
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(3), new BInteger(-1), new BInteger(0),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertNotEquals(taskId, -1);
@@ -374,7 +375,7 @@ public class TaskTest {
         int dayOfWeek = currentTime.get(Calendar.DAY_OF_WEEK) == 1 ? 7 : currentTime.get(Calendar.DAY_OF_WEEK) - 1;
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(0), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertNotEquals(taskId, -1);
@@ -393,7 +394,7 @@ public class TaskTest {
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(10), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long period = getExecutionLifeTime(taskId);
@@ -417,7 +418,7 @@ public class TaskTest {
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
                 new BInteger(-1), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, -1, dayOfMonth, -1);
@@ -453,7 +454,7 @@ public class TaskTest {
 
         BValue[] args = { new BInteger(0), new BInteger(0), new BInteger(dayOfWeek), new BInteger(dayOfMonth),
                 new BInteger(-1), new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 0, 0, dayOfWeek, dayOfMonth, -1);
@@ -468,7 +469,7 @@ public class TaskTest {
         int initialDelay = 1000;
         int interval = 10000;
         BValue[] args = { new BInteger(initialDelay), new BInteger(interval), new BInteger(25000) };
-        BValue[] returns = BTestUtils.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         String log = consoleOutput.toString();
         String firstLogEntry = log.substring(log.indexOf(taskId + Constant.DELAY_HINT));
@@ -496,7 +497,7 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.add(Calendar.MILLISECOND, interval);
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(25000) };
-        BValue[] returns = BTestUtils.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         String log = consoleOutput.toString();
         long calculatedDuration = getCalculatedDuration(Constant.PREFIX_TIMER, taskId, log);
@@ -510,7 +511,7 @@ public class TaskTest {
         consoleOutput.reset();
         int interval = 10000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(25000) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         String log = consoleOutput.toString();
         Assert.assertTrue(consoleOutput.toString().contains(Constant.TIMER_ERROR));
@@ -521,7 +522,7 @@ public class TaskTest {
         int taskId;
         int interval = 0;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(5000) };
-        BValue[] returns = BTestUtils.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertEquals(taskId, -1);
     }
@@ -531,7 +532,7 @@ public class TaskTest {
         int taskId;
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(32), new BInteger(-1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertEquals(taskId, -1);
@@ -542,7 +543,7 @@ public class TaskTest {
         int taskId;
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(30), new BInteger(1),
                 new BInteger(0) };
-        BValue[] returns = BTestUtils
+        BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertEquals(taskId, -1);
@@ -553,7 +554,7 @@ public class TaskTest {
     public void testStopTask() {
         //Schedules the timer with the interval 10seconds and stops it after some time
         BValue[] args = { new BInteger(taskIdEM), new BInteger(10000) };
-        BValue[] returns = BTestUtils.invoke(stopTaskCompileResult, "stopTask", args);
+        BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
         Assert.assertEquals("true", returns[0].stringValue());
         Assert.assertTrue(!TaskScheduler.isTheTaskRunning(taskIdEM));
     }
@@ -564,7 +565,7 @@ public class TaskTest {
         int interval = 1000;
         int sleepTime = 9000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(sleepTime) };
-        BValue[] returns = BTestUtils.invoke(timerMWCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(timerMWCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         int taskId = Integer.parseInt(returns[0].stringValue());
         int i = 0;
         Pattern p = Pattern.compile(TestConstant.TIMER_SUCCESS_MESSAGE);
