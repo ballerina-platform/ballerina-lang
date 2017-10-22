@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.9.1</version>
+    <version>0.9.2</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,11 +11,15 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li>Supports Ballerina 0.94 grammar.</li>
         <li>Improve code completion.</li>
-        <li>Improve code formatting.</li>
+        <li>Improve struct fields resolving.</li>
+        <li>Improve import as alias support.</li>
+        <li>Improve code highlighting.</li>
         <li>Improve parameter info support.</li>
+        <li>Improve debugger.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/12?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/13?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
