@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Base64;
 
 import javax.ws.rs.Consumes;
@@ -49,6 +50,8 @@ import javax.ws.rs.core.Response;
 @Path("/file")
 public class FileContentProvider {
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+    private static final String publicPath = Paths.get(File.separator + "resources", "composer", "web",
+            "public").toString();
     private String contextRoot;
 
     public void setContextRoot(String contextRoot) {
@@ -72,7 +75,7 @@ public class FileContentProvider {
     public Response getConnectorIcon(ConnectorIconRequest connectorIconRequest, @Context Request request) {
         JsonObject responseJson;
 
-        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web/public")) {
+        if (this.contextRoot != null && this.contextRoot.endsWith(publicPath)) {
             logger.debug(connectorIconRequest.getIconPath());
             logger.debug(connectorIconRequest.getConnectorName());
 
@@ -130,16 +133,17 @@ public class FileContentProvider {
     @GET
     @Path("/docs/api/**")
     public Response getDocs(@Context Request request) {
-        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web/public")) {
-            int index = contextRoot.indexOf("/resources/composer/web/public");
+        if (this.contextRoot != null && this.contextRoot.endsWith(publicPath)) {
+            int index = contextRoot.indexOf(publicPath);
             String home = contextRoot.substring(0, index);
             String filePath = home + request.getUri().substring(5);
             File file = new File(filePath);
             if (file.exists()) {
                 return Response.ok(file).build();
             }
-
-            File error404 = new File(home + "/resources/composer/web/errors/error404.html");
+            String errorHtmlPath = Paths.get(File.separator + "resources", "composer", "web", "errors",
+                    "error404.html").toString();
+            File error404 = new File(home + errorHtmlPath);
             if (error404.exists()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(error404).build();
             }
