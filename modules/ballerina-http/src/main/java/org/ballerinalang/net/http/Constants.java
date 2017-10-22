@@ -47,7 +47,6 @@ public class Constants {
     public static final String ALLOW = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
-    public static final String HOST = "HOST";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
@@ -132,7 +131,25 @@ public class Constants {
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
+
+    public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
+    public static final String CIPHERS = "ciphers";
+    public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    public static final int OPTIONS_STRUCT_INDEX = 0;
+    public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
+    public static final int SSL_STRUCT_INDEX = 1;
+    public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
+    public static final int FOLLOW_REDIRECT_INDEX = 0;
+    public static final int MAX_REDIRECT_COUNT = 0;
+    public static final int TRUST_STORE_FILE_INDEX = 0;
+    public static final int TRUST_STORE_PASSWORD_INDEX = 1;
+    public static final int KEY_STORE_FILE_INDEX = 2;
+    public static final int KEY_STORE_PASSWORD_INDEX = 3;
+    public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
+    public static final int CIPHERS_INDEX = 5;
+    public static final int SSL_PROTOCOL_INDEX = 6;
 
     /**
      * Content type HTTP header.

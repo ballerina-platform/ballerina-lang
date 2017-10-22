@@ -18,8 +18,9 @@
 
 package org.ballerinalang.test.parser;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.annotations.Test;
 
 /**
@@ -34,14 +35,14 @@ public class InvalidSyntaxParserTest {
 
     @Test
     public void testParseSemicolonMissingSerivce() {
-        CompileResult result = BTestUtils.compile("test-src/parser/semicolon-missing-service-negative.bal");
-        BTestUtils.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 10, 7);
+        CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 10, 7);
     }
 
     @Test
     public void testParseSemicolonMissingMainFunc() {
-        CompileResult result = BTestUtils.compile("test-src/parser/semicolon-missing-func-negative.bal");
-        BTestUtils.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 5, 2);
+        CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-func-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 5, 2);
     }
 
     /**
@@ -50,20 +51,20 @@ public class InvalidSyntaxParserTest {
 
     @Test
     public void testParseIdentifierMissingSerivce() {
-        CompileResult result = BTestUtils.compile("test-src/parser/identifier-missing-service-negative.bal");
-        BTestUtils.validateError(result, 0, "invalid token ';'", 10, 10);
+        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-service-negative.bal");
+        BAssertUtil.validateError(result, 0, "invalid token ';'", 10, 10);
     }
 
     @Test
     public void testParseIdentifierMissingMainFunc() {
-        CompileResult result = BTestUtils.compile("test-src/parser/identifier-missing-func-negative.bal");
-        BTestUtils.validateError(result, 0, "invalid token ';'", 3, 5);
+        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-func-negative.bal");
+        BAssertUtil.validateError(result, 0, "invalid token ';'", 3, 5);
     }
 
     @Test
     public void testReservedWordVariable() {
-        CompileResult result = BTestUtils.compile("test-src/parser/reserved-word-variable-negative.bal");
-        BTestUtils.validateError(result, 0, "invalid token 'resource'", 3, 9);
+        CompileResult result = BCompileUtil.compile("test-src/parser/reserved-word-variable-negative.bal");
+        BAssertUtil.validateError(result, 0, "invalid token 'resource'", 3, 9);
     }
 
     /**
@@ -72,16 +73,16 @@ public class InvalidSyntaxParserTest {
 
     @Test
     public void testServiceWithoutResourceName() {
-        CompileResult result = BTestUtils.compile("test-src/parser/service-without-resource-name-negative.bal");
-        BTestUtils.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
-        BTestUtils.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
+        CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
     }
 
     @Test
     public void testParseMainFuncWithoutName() {
-        CompileResult result = BTestUtils.compile("test-src/parser/func-without-name-negative.bal");
-        BTestUtils.validateError(result, 0, "invalid token '{'", 1, 10);
-        BTestUtils.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 3, 9);
+        CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
+        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 10);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 3, 9);
     }
 
     /**
@@ -90,21 +91,28 @@ public class InvalidSyntaxParserTest {
 
     @Test
     public void testServiceWithoutResourceParams() {
-        CompileResult result = BTestUtils.compile("test-src/parser/service-without-resource-params-negative.bal");
-        BTestUtils.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
-        BTestUtils.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
+        CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
     }
 
     @Test
     public void testParseMainFuncWithoutParams() {
-        CompileResult result = BTestUtils.compile("test-src/parser/func-without-params-negative.bal");
-        BTestUtils.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
+        CompileResult result = BCompileUtil.compile("test-src/parser/func-without-params-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
     }
 
     @Test
     public void testResourceWithEmptyReply() {
-        CompileResult result = BTestUtils.compile("test-src/parser/resource-with-empty-reply-negative.bal");
-        BTestUtils.validateError(result, 0, "invalid token 'reply'", 9, 5);
+        CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-empty-reply-negative.bal");
+        BAssertUtil.validateError(result, 0, "invalid token 'reply'", 9, 5);
     }
 
+    // token recognition.
+
+    public void testTokenRecognition() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-empty-reply-negative.bal");
+        BAssertUtil.validateError(result, 0, "token recognition error at: '\\'", 3, 5);
+        BAssertUtil.validateError(result, 0, "token recognition error at: '*'", 4, 15);
+    }
 }

@@ -86,7 +86,7 @@ function testNestedThrow (int a) (int) {
 }
 
 function testUncaughtException(){
-    testNestedThrow(1);
+    _ = testNestedThrow(1);
 }
 
 function testStackTrace()(stackFrame[]){

@@ -1438,13 +1438,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (body != null) {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
             localVarAttrInfo.localVars = new ArrayList<>(localVarAttributeInfo.localVars);
+            workerInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttrInfo);
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (defaultWorker) {
-                if (invokableNode.workers.size() > 0) {
-                    this.emit(InstructionCodes.WRKSTART);
+            if (defaultWorker && invokableNode.workers.size() > 0) {
+                this.emit(InstructionCodes.WRKSTART);
+                if (invokableNode.retParams.size() == 0) {
+                    this.emit(InstructionCodes.RET);
+                } else {
+                    this.emit(InstructionCodes.HALT);
                 }
             }
         }

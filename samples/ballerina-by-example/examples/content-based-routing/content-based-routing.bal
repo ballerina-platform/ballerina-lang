@@ -1,7 +1,5 @@
 import ballerina.net.http;
 import ballerina.doc;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
@@ -15,16 +13,18 @@ service<http> contentBasedRouting {
         //Create service endpoint using HTTP client-connector.
         locationEP = create http:ClientConnector("http://www.mocky.io", {});
         //Get JSON payload from the request message.
-        json jsonMsg = request:getJsonPayload(req);
+        json jsonMsg = req.getJsonPayload();
         //Get the string value relevant to the key "name".
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
+        http:Response clientResponse = {};
         if (nameString == "sanFrancisco") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
-            res = locationEP.post("/v2/594e018c1100002811d6d39a", req);
+            clientResponse = locationEP.post("/v2/594e018c1100002811d6d39a", {});
         } else {
-            res = locationEP.post("/v2/594e026c1100004011d6d39c", req);
+            clientResponse = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
-        response:send(res);
+        //Native function "forward" sends back the clientResponse to the caller.
+        res.forward(clientResponse);
     }
 }

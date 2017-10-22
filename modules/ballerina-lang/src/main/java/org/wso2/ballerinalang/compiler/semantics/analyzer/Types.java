@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -52,6 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This class consists of utility methods which operate on types.
+ * These utility methods allows you to check the compatibility of two types,
+ * i.e. check whether two types are equal, check whether one type is assignable to another type etc.
+ *
  * @since 0.94
  */
 public class Types {
@@ -74,7 +77,6 @@ public class Types {
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
 
-    private Names names;
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private DiagnosticLog dlog;
@@ -91,56 +93,67 @@ public class Types {
     public Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
 
-        this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
-    public List<BType> checkTypes(BLangExpression node, List<BType> actualTypes, List<BType> expTypes) {
+    public List<BType> checkTypes(BLangExpression node,
+                                  List<BType> actualTypes,
+                                  List<BType> expTypes) {
         List<BType> resTypes = new ArrayList<>();
         for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.get(i)));
+            resTypes.add(checkType(node, actualTypes.get(i), expTypes.size() > i ? expTypes.get(i) : symTable.noType));
         }
         return resTypes;
     }
 
-    public BType checkType(BLangExpression node, BType actualType, BType expType) {
+    public BType checkType(BLangExpression node,
+                           BType actualType,
+                           BType expType) {
         return checkType(node, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
-    public BType checkType(BLangExpression expr, BType actualType, BType expType, DiagnosticCode diagCode) {
+    public BType checkType(BLangExpression expr,
+                           BType actualType,
+                           BType expType,
+                           DiagnosticCode diagCode) {
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.ERROR) {
             return expr.type;
         }
 
-        // TODO Set an implicit cast expression if one available
+        // Set an implicit cast expression, if applicable
         setImplicitCastExpr(expr, actualType, expType);
 
         return expr.type;
     }
 
-    public BType checkType(DiagnosticPos pos, BType actualType, BType expType, DiagnosticCode diagCode) {
-        // First check whether both references points to the same object.
-        if (actualType == expType) {
-            return actualType;
-        } else if (expType.tag == TypeTags.ERROR) {
+    public BType checkType(DiagnosticPos pos,
+                           BType actualType,
+                           BType expType,
+                           DiagnosticCode diagCode) {
+        if (expType.tag == TypeTags.ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
             return actualType;
         } else if (actualType.tag == TypeTags.ERROR) {
             return actualType;
+        } else if (actualType.tag == TypeTags.NULL && !isValueType(expType)) {
+            return actualType;
+        } else if (isSameType(actualType, expType)) {
+            return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
-        } else if (isImplicitCastPossible(actualType, expType)) {
-            return actualType;
         }
-
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, actualType);
         return symTable.errType;
+    }
+
+    public Boolean isSameType(BType source, BType target) {
+        return target.accept(sameTypeVisitor, source);
     }
 
     public boolean isValueType(BType type) {
@@ -154,133 +167,96 @@ public class Types {
                 (type.tag == TypeTags.ARRAY && isValueType(((BArrayType) type).eType));
     }
 
-    public boolean isAssignable(BType actualType, BType expType) {
-        // First check whether both references points to the same object.
-        if (actualType == expType) {
-            return true;
-        }
-
-        if (expType.tag == TypeTags.ERROR) {
-            return true;
-        }
-
-        // If the actual type or the rhs type is NULL, then the expected type cannot be a value type.
-        if (actualType.tag == TypeTags.NULL && !isValueType(expType)) {
-            return true;
-        }
-
-        // If the both type tags are equal, then perform following checks.
-        if (actualType.tag == expType.tag && isValueType(actualType)) {
-            return true;
-        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.INVOKABLE) {
-            return checkFunctionTypeEquivalent(actualType, expType);
-        } else if (actualType.tag == expType.tag &&
-                !isUserDefinedType(actualType) && !isConstrainedType(actualType) &&
-                actualType.tag != TypeTags.ANNOTATION) {
-            return true;
-        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.ARRAY) {
-            return checkArrayEquivalent(actualType, expType);
-        }
-
-        // If both types are constrained types, then check whether they are assignable
-        if (isConstrainedTypeAssignable(actualType, expType)) {
-            return true;
-        }
-
-        // TODO Check connector equivalency
-        // TODO Check enums
-        return false;
-    }
-
-    public boolean isUserDefinedType(BType type) {
-        return type.tag == TypeTags.STRUCT || type.tag == TypeTags.CONNECTOR ||
-                type.tag == TypeTags.ENUM || type.tag == TypeTags.ARRAY;
-    }
-
-    public boolean isConstrainedType(BType type) {
-        return type.tag == TypeTags.JSON;
-    }
-
     /**
-     * Checks for the availability of an implicit cast from the actual type to the expected type.
-     * 1) Lookup the symbol table for an implicit cast
-     * 2) Check whether the expected type is ANY
-     * 3) If both types are array types, then check implicit cast possibility of their element types.
+     * Checks whether source type is assignable to the target type.
+     * <p>
+     * Source type is assignable to the target type if,
+     * 1) the target type is any and the source type is not a value type.
+     * 2) there exists an implicit cast symbol from source to target.
+     * 3) both types are JSON and the target constraint is no type.
+     * 4) both types are array type and both array types are assignable.
      *
-     * @param actualType actual type of an expression.
-     * @param expType    expected type from an expression.
-     * @return true if there exist an implicit cast from the actual type to the expected type.
+     * @param source type.
+     * @param target type.
+     * @return true if source type is assignable to the target type.
      */
-    public boolean isImplicitCastPossible(BType actualType, BType expType) {
-        if (isConstrainedType(expType) && ((ConstrainedType) expType).getConstraint() != symTable.noType) {
-            return false;
+    public boolean isAssignable(BType source, BType target) {
+        if (target.tag == TypeTags.ANY && !isValueType(source)) {
+            return true;
         }
 
-        BSymbol symbol = symResolver.resolveImplicitCastOperator(actualType, expType);
+        BSymbol symbol = symResolver.resolveImplicitCastOperator(source, target);
         if (symbol != symTable.notFoundSymbol) {
             return true;
         }
 
-        if (expType.tag == TypeTags.ANY) {
-            return true;
+        if (source.tag == TypeTags.JSON && target.tag == TypeTags.JSON) {
+            return ((BJSONType) target).constraint.tag == TypeTags.NONE;
         }
 
-        return actualType.tag == TypeTags.ARRAY && expType.tag == TypeTags.ARRAY &&
-                isImplicitArrayCastPossible(actualType, expType);
+        return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
+                isArrayTypesAssignable(source, target);
     }
 
-    public boolean isImplicitArrayCastPossible(BType actualType, BType expType) {
-        if (expType.tag == TypeTags.ARRAY && actualType.tag == TypeTags.ARRAY) {
+    public boolean isArrayTypesAssignable(BType source, BType target) {
+        if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) expType;
-            BArrayType rhsArrayType = (BArrayType) actualType;
-            return isImplicitArrayCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+            BArrayType lhsArrayType = (BArrayType) target;
+            BArrayType rhsArrayType = (BArrayType) source;
+            return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
 
-        } else if (actualType.tag == TypeTags.ARRAY) {
+        } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
             // Then lhs type should 'any' type
-            return expType.tag == TypeTags.ANY;
+            return target.tag == TypeTags.ANY;
 
-        } else if (expType.tag == TypeTags.ARRAY) {
+        } else if (target.tag == TypeTags.ARRAY) {
             // Only the left-hand side is an array type
             return false;
         }
 
         // Now both types are not array types and they have to be equal
-        if (expType == actualType) {
+        if (target == source) {
             // TODO Figure out this.
             return true;
         }
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
-        return expType.tag == TypeTags.ANY && !isValueType(actualType);
+        return target.tag == TypeTags.ANY && !isValueType(source);
     }
 
-    public boolean checkFunctionTypeEquivalent(BType actualType, BType expType) {
-        BInvokableType aType = (BInvokableType) actualType;
-        BInvokableType eType = (BInvokableType) expType;
-        if (aType.paramTypes.size() != eType.paramTypes.size() || aType.retTypes.size() != eType.retTypes.size()) {
+    public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
+        if (source.paramTypes.size() != target.paramTypes.size() ||
+                source.retTypes.size() != target.retTypes.size()) {
             return false;
         }
-        if (!aType.paramTypes.equals(eType.paramTypes)) {
-            return false;
+
+        for (int i = 0; i < source.paramTypes.size(); i++) {
+            if (!isSameType(source.paramTypes.get(i), target.paramTypes.get(i))) {
+                return false;
+            }
         }
-        return aType.retTypes.equals(eType.retTypes);
+
+        for (int i = 0; i < source.retTypes.size(); i++) {
+            if (!isSameType(source.retTypes.get(i), target.retTypes.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public boolean checkArrayEquivalent(BType actualType, BType expType) {
-        if (expType.tag == TypeTags.ARRAY && actualType.tag == TypeTags.ARRAY) {
+    public boolean checkArrayEquality(BType source, BType target) {
+        if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) expType;
-            BArrayType rhsArrayType = (BArrayType) actualType;
-            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+            BArrayType lhrArrayType = (BArrayType) target;
+            BArrayType rhsArrayType = (BArrayType) source;
+            return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
 
         }
+
         // Now one or both types are not array types and they have to be equal
-        if (expType == actualType) {
-            return true;
-        }
-        return false;
+        return target == source;
     }
 
     public boolean checkStructEquivalency(BType actualType, BType expType) {
@@ -298,7 +274,7 @@ public class Types {
             BStructField expStructField = expStructType.fields.get(i);
             BStructField actualStructField = actualStructType.fields.get(i);
             if (expStructField.name.equals(actualStructField.name) &&
-                    isAssignable(actualStructField.type, expStructField.type)) {
+                    isSameType(actualStructField.type, expStructField.type)) {
                 continue;
             }
             return false;
@@ -325,7 +301,9 @@ public class Types {
     }
 
     public BSymbol getCastOperator(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
@@ -333,6 +311,12 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
         return targetType.accept(conversionVisitor, sourceType);
     }
 
@@ -346,7 +330,7 @@ public class Types {
 
     /**
      * Check whether a given struct can be used to constraint a JSON.
-     * 
+     *
      * @param type struct type
      * @return flag indicating possibility of constraining
      */
@@ -368,30 +352,8 @@ public class Types {
         return true;
     }
 
+
     // private methods
-
-    private boolean isConstrainedTypeAssignable(BType actualType, BType expType) {
-        if (!isConstrainedType(actualType) || !isConstrainedType(expType)) {
-            return false;
-        }
-
-        if (actualType.tag != expType.tag) {
-            return false;
-        }
-
-        ConstrainedType expConstrainedType = (ConstrainedType) expType;
-        ConstrainedType actualConstrainedType = (ConstrainedType) actualType;
-
-        if (((BType) expConstrainedType.getConstraint()).tag == TypeTags.NONE) {
-            return true;
-        }
-
-        if (expConstrainedType.getConstraint() == actualConstrainedType.getConstraint()) {
-            return true;
-        }
-
-        return false;
-    }
 
     private BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
                                                          BType targetType,
@@ -401,14 +363,14 @@ public class Types {
                 false, safe, opcode, null, null);
     }
 
-    private BConversionOperatorSymbol createConversionOperatorSymbol(BType sourceType, 
-                                                                     BType targetType, 
+    private BConversionOperatorSymbol createConversionOperatorSymbol(BType sourceType,
+                                                                     BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
         return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errTypeConversionType, safe,
                 opcode, null, null);
     }
-    
+
     private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS) {
         if (t.tag == TypeTags.ARRAY && s.tag == TypeTags.ARRAY) {
             return getExplicitArrayCastOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
@@ -463,7 +425,8 @@ public class Types {
             return checkStructToJSONCompatibility(fieldType);
         }
 
-        if (isAssignable(fieldType, symTable.jsonType) || isImplicitCastPossible(fieldType, symTable.jsonType)) {
+        if (isSameType(fieldType, symTable.jsonType) ||
+                isAssignable(fieldType, symTable.jsonType)) {
             return true;
         }
 
@@ -476,7 +439,7 @@ public class Types {
 
     /**
      * Check whether a given struct can be converted into a JSON
-     * 
+     *
      * @param type struct type
      * @return flag indicating possibility of conversion
      */
@@ -510,16 +473,14 @@ public class Types {
         if (fieldType.tag == TypeTags.STRUCT) {
             return checkStructToJSONConvertibility(fieldType);
         }
-        
+
         if (fieldType.tag == TypeTags.ARRAY) {
             return checkStructFieldToJSONConvertibility(structType, getElementType(fieldType));
         }
 
-        if (isAssignable(fieldType, symTable.jsonType) || isImplicitCastPossible(fieldType, symTable.jsonType)) {
-            return true;
-        }
+        return isSameType(fieldType, symTable.jsonType) ||
+                isAssignable(fieldType, symTable.jsonType);
 
-        return false;
     }
 
     private BTypeVisitor<BSymbol> castVisitor = new BTypeVisitor<BSymbol>() {
@@ -551,9 +512,9 @@ public class Types {
         @Override
         public BSymbol visit(BJSONType t, BType s) {
             // Handle constrained JSON
-            if (isConstrainedTypeAssignable(s, t)) {
+            if (isSameType(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.ARRAY) { 
+            } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {
                 return symTable.notFoundSymbol;
@@ -597,13 +558,17 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BInvokableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BErrorType t, BType s) {
             // TODO Implement. Not needed for now.
             throw new AssertionError();
         }
     };
 
-    
     private BTypeVisitor<BSymbol> conversionVisitor = new BTypeVisitor<BSymbol>() {
 
         @Override
@@ -670,8 +635,82 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BInvokableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BErrorType t, BType s) {
             return symTable.notFoundSymbol;
+        }
+    };
+
+    private BTypeVisitor<Boolean> sameTypeVisitor = new BTypeVisitor<Boolean>() {
+        @Override
+        public Boolean visit(BType t, BType s) {
+            return t == s;
+
+        }
+
+        @Override
+        public Boolean visit(BBuiltInRefType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BAnyType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BMapType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BJSONType t, BType s) {
+            if (s.tag != TypeTags.JSON) {
+                return false;
+            }
+
+            BJSONType srcType = ((BJSONType) s);
+            if (srcType.constraint.tag == t.constraint.tag && t.constraint.tag == TypeTags.NONE) {
+                // Both source and the target types are JSON types with no constraints
+                return true;
+            }
+
+            return isSameType(((BJSONType) s).constraint, t.constraint);
+        }
+
+        @Override
+        public Boolean visit(BArrayType t, BType s) {
+            return s.tag == TypeTags.ARRAY && checkArrayEquality(s, t);
+        }
+
+        @Override
+        public Boolean visit(BStructType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BConnectorType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BEnumType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BInvokableType t, BType s) {
+            return s.tag == TypeTags.INVOKABLE &&
+                    checkFunctionTypeEquality((BInvokableType) s, t);
+        }
+
+        @Override
+        public Boolean visit(BErrorType t, BType s) {
+            return true;
         }
     };
 }

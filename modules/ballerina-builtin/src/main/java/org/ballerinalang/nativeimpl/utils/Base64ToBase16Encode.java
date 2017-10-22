@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -45,12 +43,6 @@ import java.util.Base64;
         args = { @Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = { @ReturnType(type = TypeKind.STRING) },
         isPublic = true)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Encodes a Base64 encoded string into a Base16 encoded string.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "baseString",
-        value = "The input string to be encoded") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The Base16 encoded string") })
 /**
  * This function converts a Base 64 encoded string to a Base16 encoded string.
  */

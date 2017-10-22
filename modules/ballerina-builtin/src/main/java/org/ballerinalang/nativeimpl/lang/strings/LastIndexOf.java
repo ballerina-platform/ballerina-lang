@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,14 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns the first index of the last occurence of the substring within the specified string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
-        value = "The original string argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "subString",
-        value = "The substring to search for") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
-        value = "The index of the last occurence of the substring") })
 public class LastIndexOf extends AbstractNativeFunction {
 
     @Override

@@ -1,7 +1,7 @@
+package globalvar.pkg.srvc;
 
 import ballerina.net.http;
 import globalvar.pkg.varpkg;
-
 
 
 int glbVarInt = 800;

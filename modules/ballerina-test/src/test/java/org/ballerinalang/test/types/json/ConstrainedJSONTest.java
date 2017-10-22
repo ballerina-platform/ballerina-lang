@@ -17,13 +17,15 @@
 */
 package org.ballerinalang.test.types.json;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,39 +41,39 @@ public class ConstrainedJSONTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/jsontype/constrained-json.bal");
-        negativeResult = BTestUtils.compile("test-src/types/jsontype/constrained-json-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json-negative.bal");
     }
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
         // testStructConstraintInInitializationInvalid
-        BTestUtils.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
+        BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
         
         // testInvalidStructFieldConstraintLhs
-        BTestUtils.validateError(negativeResult, 1, "undefined field 'firstName' in struct 'Person'", 21, 5);
+        BAssertUtil.validateError(negativeResult, 1, "undefined field 'firstName' in struct 'Person'", 21, 5);
         
         // tesInvalidStructFieldConstraintRhs
-        BTestUtils.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 28, 17);
+        BAssertUtil.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 28, 17);
         
         // TODO: testInvalidStructConstraintInPkg
         
         // testConstraintJSONIndexing
-        BTestUtils.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
+        BAssertUtil.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
         
         // tesInvalidNestedStructFieldAccess
-        BTestUtils.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
+        BAssertUtil.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
         
         // tesInvalidNestedStructFieldIndexAccess
-        BTestUtils.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
+        BAssertUtil.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
         
         // tesInitializationWithInvalidNestedStruct
-        BTestUtils.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
+        BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
     }
 
     @Test(description = "Test basic json struct constraint")
     public void testStructConstraint() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testJsonStructConstraint");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
@@ -98,7 +100,7 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint during json initialization")
     public void testStructConstraintInInitialization() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testJsonInitializationWithStructConstraint");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonInitializationWithStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
@@ -115,14 +117,14 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test json imported struct constraint")
     public void testStructConstraintInPkg() {
-        CompileResult compileResult = BTestUtils.compile("test-src/types/jsontype/pkg", "main");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkg", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test(description = "Test invalid json imported struct constraint")
     public void testInvalidStructConstraintInPkg() {
-        CompileResult compileResult = BTestUtils.compile("test-src/types/jsontype/pkginvalid", "main");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkginvalid", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
@@ -133,19 +135,19 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test trivial JSON return.")
     public void testGetPlainJson() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetPlainJson");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetPlainJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
     }
 
     @Test(description = "Test trivial Constraint JSON return.")
     public void testGetConstraintJson() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetConstraintJson");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetConstraintJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
     }
 
     @Test(description = "Test JSON to Constaint JSON unsafe cast.", enabled = false)
     public void testJSONToConstraintJsonUnsafeCast() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
         Assert.assertNull(returns[0]);
         Assert.assertNotNull(returns[1]);
         Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json' cannot be cast to 'json<Person>'");
@@ -153,19 +155,19 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test JSON to Constaint unsafe cast positive.", enabled = false)
     public void testJSONToConstraintJsonUnsafeCastPositive() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
         Assert.assertTrue(returns[0] instanceof BJSON);
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON Assignment.", enabled = false)
     public void testConstraintJSONToConstraintJsonAssignment() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testConstraintJSONToConstraintJsonAssignment");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonAssignment");
         Assert.assertNotNull(returns[0]);
     }
 
     @Test
     public void testContrainingWithNestedStructs() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testContrainingWithNestedStructs");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testContrainingWithNestedStructs");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\",\"last_name\":\"Doe\",\"age\":30," +

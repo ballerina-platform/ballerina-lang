@@ -871,3 +871,13 @@ function testUpdateAttributeWithDifferentUri() (xml) {
     
     return x1;
 }
+
+function testParseXMLElementWithXMLDeclrEntity() (xml) {
+    xml x = xmls:parse("<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root><!-- comment node-->");
+    return x;
+}
+
+function testParseXMLCommentWithXMLDeclrEntity() (xml) {
+    xml x = xmls:parse("<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->");
+    return x;
+}

@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,14 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a Boolean value indicating whether the string ends with specified suffix") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
-        value = "The original string argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "suffix",
-        value = "The suffix to be compared") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
-        value = "True if the string ends with the suffix; false otherwise") })
 public class HasSuffix extends AbstractNativeFunction {
 
     @Override

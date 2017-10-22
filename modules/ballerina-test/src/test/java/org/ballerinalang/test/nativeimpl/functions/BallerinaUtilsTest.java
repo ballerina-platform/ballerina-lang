@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +39,7 @@ public class BallerinaUtilsTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/utilsTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/utilsTest.bal");
     }
 
     @Test
@@ -49,7 +50,8 @@ public class BallerinaUtilsTest {
                 "バレリーナ日本語", "Ballerina 的中文翻译", "Traducción al español de  la bailarina"};
 
         for (String s : stringsToTest) {
-            BValue[] returnVals = BTestUtils.invoke(compileResult, "testEncodeDecode", new BValue[]{new BString(s)});
+            BValue[] returnVals = BRunUtil.invoke(compileResult,
+                    "testEncodeDecode", new BValue[]{new BString(s)});
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for :" + s);
             Assert.assertEquals(returnVals[0].stringValue(), s, "Original and Return value didn't match");
@@ -59,7 +61,7 @@ public class BallerinaUtilsTest {
     @Test
     public void testRandomString() {
         BValue[] args = {};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testRandomString", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRandomString", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");
     }
@@ -74,7 +76,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmac", args);
+            BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for");
         }
@@ -83,7 +85,7 @@ public class BallerinaUtilsTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testHmacNagativeInvalidAlgo() {
         final String key = "abcdefghijk";
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmac",
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac",
                                                 new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
                                                         new BString("SHA124")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -94,7 +96,7 @@ public class BallerinaUtilsTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testHmacNagativeInvalidKey() {
         final String key = "";
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmac",
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac",
                                                 new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
                                                         new BString("SHA1")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -112,7 +114,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmacFromBase64", args);
+            BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmacFromBase64", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }
@@ -127,7 +129,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = BTestUtils.invoke(compileResult, "testMessageDigest", args);
+            BValue[] returnVals = BRunUtil.invoke(compileResult, "testMessageDigest", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }
@@ -136,7 +138,7 @@ public class BallerinaUtilsTest {
     @Test
     public void testBase64toBase16Encode() {
         BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testBase64ToBase16Encode", args);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testBase64ToBase16Encode", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values for");
     }

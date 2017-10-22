@@ -18,11 +18,13 @@
 package org.ballerinalang.test.expressions.invocations;
 
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,15 +41,15 @@ public class FuncInvocationExprTest {
 
     @BeforeClass
     public void setup() {
-        funcInvocationExpResult = BTestUtils.compile("test-src/expressions/invocations/function-invocation-expr.bal");
-        funcInvocationNegative = BTestUtils
+        funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
+        funcInvocationNegative = BCompileUtil
                 .compile("test-src/expressions/invocations/function-invocation-negative.bal");
     }
 
     @Test
     public void invokeFunctionWithParams() {
         BValue[] args = new BValue[]{new BInteger(1), new BInteger(2)};
-        BValue[] values = BTestUtils.invoke(funcInvocationExpResult, "add", args);
+        BValue[] values = BRunUtil.invoke(funcInvocationExpResult, "add", args);
         Assert.assertEquals(values.length, 1);
         Assert.assertTrue(values[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) values[0]).intValue(), 3);
@@ -56,7 +58,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "testFuncInvocation", args);
+        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "testFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,7 +71,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         BValue[] args = {new BInteger(7)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "sum", args);
+        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "sum", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -83,7 +85,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
+        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -97,7 +99,7 @@ public class FuncInvocationExprTest {
     public void testReturnFuncInvocationWithinFuncInvocation() {
         BValue[] args = {new BInteger(2), new BInteger(3)};
         BValue[] returns =
-                BTestUtils.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
+                BRunUtil.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -110,7 +112,7 @@ public class FuncInvocationExprTest {
     @Test
     public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
         BValue[] args = {new BFloat(2)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult,
+        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult,
                                              "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -124,7 +126,7 @@ public class FuncInvocationExprTest {
     @Test
     public void testNativeInvocation() {
         BValue[] args = {new BFloat(2), new BFloat(2)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "getPowerOfN", args);
+        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "getPowerOfN", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -135,8 +137,8 @@ public class FuncInvocationExprTest {
     @Test(description = "Test uanry statement with errors")
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
-        BTestUtils
+        BAssertUtil
                 .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
-        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
+        BAssertUtil.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
     }
 }

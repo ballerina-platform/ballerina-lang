@@ -3,4 +3,4 @@
 $ ballerina run produces-consumes.bal
 #Service deployment:
 ballerina: deploying service(s) in 'produces-consumes.bal'
-ballerina: started server connector http-9090
+ballerina: started HTTP/WS server connector 0.0.0.0:9090

@@ -52,7 +52,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    private Map<String, ConnectorInfo> connectorInfoMap = new HashMap<>();
+    private Map<String, ConnectorInfo> connectorInfoMap = new LinkedHashMap<>();
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
