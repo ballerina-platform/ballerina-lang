@@ -21,14 +21,8 @@ package org.ballerinalang.nativeimpl.task;
  * Constants used in ballerina task.
  */
 public class Constant {
-    //Name of the Hashmap where we keep the ScheduledExecutorServices.
-    protected static final String SERVICEMAP = "executorServiceMap";
-    //The name of the context property which is used to keep the error.
-    protected static final String ERROR = "ERROR";
     //The name of the context property which is used to generate the task id.
     protected static final String ID = "id";
-    //The runnable duration.
-    protected static final String SCHEDULER_LIFETIME = "period";
     // The string which is used to find the calculated delay
     public static final String DELAY_HINT = " is scheduled with the DELAY [";
     // The string which is used to find the calculated delay
@@ -37,6 +31,12 @@ public class Constant {
     public static final String PREFIX_TIMER = "";
     // The prefix of appointment log
     public static final String PREFIX_APPOINTMENT = "Appointment ";
-    //59 minutes in milli seconds
-    public static final int LIFETIME = 59 * 60000;
+    // 59 minutes in milli seconds
+    public static final Long LIFETIME = 59 * 60000L;
+    // It always has -1
+    public static final int NOT_CONSIDERABLE = -1;
+    // It is the pool size. Since only one task is running on a executor service, this is always 1
+    public static final int POOL_SIZE = 1;
+    //The error message of timer with no response function.
+    public static final String TIMER_ERROR = "Unable to get the response from the triggered function";
 }

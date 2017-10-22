@@ -32,6 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.errorsMap;
+
 /**
  * Native function ballerina.model.task:scheduleAppointment.
  */
@@ -53,32 +55,31 @@ public class ScheduleAppointment extends AbstractNativeFunction {
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
                 .getCurrentFrame().getRefLocalVars()[0] instanceof BFunctionPointer) {
             onTriggerFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 0)).value();
+        } else {
+            log.error("The onTrigger function is not provided");
+            return getBValues(new BInteger(-1), new BString("The onTrigger function is not provided"));
         }
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[1] != null && ctx.getControlStackNew()
                 .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
             onErrorFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 1)).value();
         }
         BStruct scheduler = (BStruct) getRefArgument(ctx, 2);
-        long minute = scheduler.getIntField(0);
-        long hour = scheduler.getIntField(1);
-        long dayOfWeek = scheduler.getIntField(2);
-        long dayOfMonth = scheduler.getIntField(3);
-        long month = scheduler.getIntField(4);
-        log.info("Request has come to schedule the appointment with the expression: " + minute + " " + hour + " "
-                + dayOfWeek + " " + dayOfMonth + " " + month);
-        BString error = new BString("Unable to schedule the appointment");
-        int taskId = TaskUtil.generateTaskId(ctx);
-        if (taskId != -1) {
-            ctx.setProperty(Constant.SCHEDULER_LIFETIME + "_" + taskId, 0);
-            TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
-                    onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
-            String schedulerError = errorFromContext != null && !errorFromContext.isEmpty() ?
-                    ctx.getProperty(Constant.ERROR + "_" + taskId).toString() :
-                    "";
-            taskId = errorFromContext == null || errorFromContext.isEmpty() ? taskId : -1;
-            error = new BString(schedulerError);
+        int minute = (int) scheduler.getIntField(0);
+        int hour = (int) scheduler.getIntField(1);
+        int dayOfWeek = (int) scheduler.getIntField(2);
+        int dayOfMonth = (int) scheduler.getIntField(3);
+        int month = (int) scheduler.getIntField(4);
+        if (log.isDebugEnabled()) {
+            log.debug("Request has come to schedule the appointment with the expression: " + minute + " " + hour + " "
+                    + dayOfWeek + " " + dayOfMonth + " " + month);
         }
+        int taskId = TaskUtil.generateTaskId();
+        TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
+                onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+        String errorFromScheduler = errorsMap.get(taskId);
+        String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
+        taskId = errorFromScheduler == null || errorFromScheduler.isEmpty() ? taskId : -1;
+        BString error = new BString(schedulerError);
         return getBValues(new BInteger(taskId), error);
     }
 }

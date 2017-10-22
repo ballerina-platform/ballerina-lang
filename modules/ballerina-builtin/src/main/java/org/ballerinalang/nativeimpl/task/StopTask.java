@@ -42,10 +42,12 @@ public class StopTask extends AbstractNativeFunction {
     private static final Log log = LogFactory.getLog(StopTask.class.getName());
 
     public BValue[] execute(Context ctx) {
-        log.info("Request has come to stop the task");
+        if (log.isDebugEnabled()) {
+            log.debug("Request has come to stop the task");
+        }
         BString error = new BString("");
-        long taskId = getIntArgument(ctx, 0);
-        TaskScheduler.stopTask(ctx, (int) taskId);
+        int taskId = (int) getIntArgument(ctx, 0);
+        TaskScheduler.stopTask(taskId);
         return getBValues(error);
     }
 }

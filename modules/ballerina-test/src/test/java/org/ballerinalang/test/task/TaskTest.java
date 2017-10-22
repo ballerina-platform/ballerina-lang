@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.Constant;
+import org.ballerinalang.nativeimpl.task.TaskScheduler;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
@@ -37,6 +38,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.calculateDelay;
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.getExecutionLifeTime;
 
 /**
  * Tests for Task related functions
@@ -45,14 +51,20 @@ public class TaskTest {
     private CompileResult timerCompileResult;
     private CompileResult appointmentCompileResult;
     private CompileResult stopTaskCompileResult;
+    private CompileResult timerMWCompileResult;
+    private CompileResult timerWithEmptyResponseCompileResult;
     private static final Log log = LogFactory.getLog(TaskTest.class);
 
     private final ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
+    private int taskIdEM;
 
-    @BeforeClass public void setup() {
+    @BeforeClass
+    public void setup() {
         timerCompileResult = BTestUtils.compile("test-src/task/task-timer.bal");
         appointmentCompileResult = BTestUtils.compile("test-src/task/task-appointment.bal");
         stopTaskCompileResult = BTestUtils.compile("test-src/task/task-stop.bal");
+        timerMWCompileResult = BTestUtils.compile("test-src/task/task-timer-multiple-workers.bal");
+        timerWithEmptyResponseCompileResult = BTestUtils.compile("test-src/task/task-timer-with-empty-response.bal");
 
         System.setErr(new PrintStream(consoleOutput));
         System.setProperty("java.util.logging.config.file",
@@ -63,61 +75,61 @@ public class TaskTest {
     @Test(priority = 1, description = "Test for 'scheduleAppointment' function to trigger every minute")
     public void testScheduleAppointmentEveryMinute() {
         consoleOutput.reset();
-        int taskId;
         long expectedDuration = 60000;
-        createDirectoryWitFile();
+        createDirectoryWithFile();
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(130000) };
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
-        taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
-        Assert.assertNotEquals(taskId, -1);
+        taskIdEM = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskIdEM, -1, -1, -1, -1, -1);
+        Assert.assertNotEquals(taskIdEM, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
         Assert.assertTrue(consoleOutput.toString().contains(TestConstant.APPOINTMENT_SUCCESS_MESSAGE));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every hour")
     public void testScheduleAppointmentEveryHour() {
-        consoleOutput.reset();
         int taskId;
-        long expectedDuration = 3600000;
-        createDirectoryWitFile();
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, 0, -1);
+        modifiedTime.add(Calendar.HOUR, 1);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, 0, -1, -1, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
-    @Test(description = "Test for 'scheduleAppointment' function to trigger every 5 minutes")
-    public void testScheduleAppointmentEvery5Minutes() {
-        consoleOutput.reset();
+    @Test(description = "Test for 'scheduleAppointment' function to trigger every 5th minute")
+    public void testScheduleAppointmentEvery5thMinute() {
         int taskId;
-        long expectedDuration = 300000;
-        createDirectoryWitFile();
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, 5, -1);
+        if (modifiedTime.before(currentTime)) {
+            modifiedTime.add(Calendar.HOUR, 1);
+        }
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(5), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, 5, -1, -1, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 10AM everyday")
     public void testScheduleAppointmentEveryday10AM() {
-        consoleOutput.reset();
         int taskId;
         int hour = 10;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
@@ -130,19 +142,16 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, 0, hour, -1, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute on Mondays")
     public void testScheduleAppointmentEveryMinuteOnMondays() {
-        consoleOutput.reset();
         int taskId;
         int dayOfWeek = 2;
         long expectedDuration = 60000;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
@@ -161,17 +170,14 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays")
     public void testScheduleAppointment2PMOnMondays() {
-        consoleOutput.reset();
         int taskId;
-        createDirectoryWitFile();
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(2), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BTestUtils
@@ -182,11 +188,9 @@ public class TaskTest {
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in January")
     public void testScheduleAppointmentEveryMinuteInJanuary() {
-        consoleOutput.reset();
         int taskId;
         int month = 0;
         long expectedDuration = 60000;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.MONTH) != month) {
@@ -203,17 +207,153 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger every minute on tomorrow")
+    public void testScheduleAppointmentEveryMinuteOnTomorrow() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.DATE, 1);
+        int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
+        long expectedDuration = 60000;
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
+            int days = currentTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek ?
+                    7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
+                    dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
+            modifiedTime.add(Calendar.DATE, days);
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+            if (modifiedTime.before(currentTime)) {
+                modifiedTime.add(Calendar.DATE, 7);
+            }
+            expectedDuration = calculateDifference(currentTime, modifiedTime);
+        }
+        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger next week the hour is one hour back " +
+            "from the current hour")
+    public void testScheduleAppointmentBeforeAnHourInNextWeek() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.HOUR, -1);
+        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
+                clonedCalendar.get(Calendar.HOUR) :
+                clonedCalendar.get(Calendar.HOUR) + clonedCalendar.get(Calendar.HOUR);
+        int dayOfWeek = currentTime.get(Calendar.DAY_OF_WEEK);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
+        if (modifiedTime.before(currentTime)) {
+            modifiedTime.add(Calendar.DATE, 7);
+        }
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, 0, hour, dayOfWeek, -1, -1);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour "
+            + "the month is one month back from current and the year is next to current")
+    public void testScheduleAppointmentBeforeAnHourOneMonthBackInNextYear() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.HOUR, -1);
+        clonedCalendar.add(Calendar.MONTH, -1);
+        clonedCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR) + 1);
+        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
+                clonedCalendar.get(Calendar.HOUR) :
+                clonedCalendar.get(Calendar.HOUR) + 12;
+        int dayOfMonth = clonedCalendar.get(Calendar.DAY_OF_MONTH);
+        int month = clonedCalendar.get(Calendar.MONTH);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
+                new BInteger(month), new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour the day of week is " +
+            "one day back from current the month is one month back from current and year is next year from current")
+    public void testScheduleAppointmentBeforeAnHourOneDayOfWeekBackInNextYear() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.HOUR, -1);
+        clonedCalendar.add(Calendar.MONTH, -1);
+        clonedCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR) + 1);
+        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
+                clonedCalendar.get(Calendar.HOUR) :
+                clonedCalendar.get(Calendar.HOUR) + 12;
+        int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
+        int month = clonedCalendar.get(Calendar.MONTH);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(month), new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, hour, dayOfWeek, -1, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in next month")
+    public void testScheduleAppointmentEveryMinuteInNextMonth() {
+        int taskId;
+        int month = (Calendar.getInstance()).get(Calendar.MONTH) + 1;
+        long expectedDuration = 60000;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        if (currentTime.get(Calendar.MONTH) != month) {
+            if (modifiedTime.get(Calendar.MONTH) > month) {
+                modifiedTime.add(Calendar.YEAR, 1);
+            }
+            modifiedTime.set(Calendar.MONTH, month);
+            modifiedTime.set(Calendar.DATE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+            expectedDuration = calculateDifference(currentTime, modifiedTime);
+        }
+        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
+                new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays in January")
     public void testScheduleAppointment2PMOnTuesdaysInJanuary() {
-        consoleOutput.reset();
         int taskId;
-        createDirectoryWitFile();
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(3), new BInteger(-1), new BInteger(0),
                 new BInteger(0) };
         BValue[] returns = BTestUtils
@@ -222,12 +362,28 @@ public class TaskTest {
         Assert.assertNotEquals(taskId, -1);
     }
 
+    @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on one day of week before in January")
+    public void testScheduleAppointment2PMOnOneDayOfWeekBeforeInJanuary() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        if (currentTime.get(Calendar.MONTH) != 0) {
+            currentTime.set(Calendar.DATE, 1);
+            currentTime.set(Calendar.MONTH, 0);
+            currentTime.add(Calendar.YEAR, 1);
+        }
+        int dayOfWeek = currentTime.get(Calendar.DAY_OF_WEEK) == 1 ? 7 : currentTime.get(Calendar.DAY_OF_WEEK) - 1;
+        BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(0), new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertNotEquals(taskId, -1);
+    }
+
     @Test(description = "Test for 'scheduleAppointment' function to trigger at 10AM and stop at 10.59AM")
     public void testScheduleAppointmentStartAt10AMEndAt1059AM() {
-        consoleOutput.reset();
         int taskId;
         int hour = 10;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
@@ -240,29 +396,23 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        String logEntry = log.substring(log.lastIndexOf(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT));
-        String logEntryWithRuntime = logEntry.substring(logEntry.lastIndexOf(Constant.SCHEDULER_LIFETIME_HINT));
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_TIMER, taskId, log);
-        int period = Integer.parseInt(logEntryWithRuntime
-                .substring(Constant.SCHEDULER_LIFETIME_HINT.length(), logEntryWithRuntime.indexOf("]")));
+        long period = getExecutionLifeTime(taskId);
+        long calculatedDuration = calculateDelay(taskId, -1, 10, -1, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-        Assert.assertTrue(period == calculatedDuration + Constant.LIFETIME);
+        Assert.assertTrue(isAcceptable(period, calculatedDuration + Constant.LIFETIME));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 25th of every month")
     public void testScheduleAppointment25thOfEachMonth() {
-        consoleOutput.reset();
         int taskId;
         int dayOfMonth = 25;
         long expectedDuration = 60000;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
             modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-            modifiedTime = tuneTheDateByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
+            modifiedTime = modifyTheCalendarByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
@@ -270,20 +420,17 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, dayOfMonth, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
-    @Test(description = "Test for 'scheduleAppointment' function to trigger at midnight on Mondays and 15th of every "
-            + "month")
+    @Test(description = "Test for 'scheduleAppointment' function to trigger at midnight on Mondays " +
+            "and 15th of every month")
     public void testScheduleAppointmentMidnightOnMondayAnd15thOfEachMonth() {
-        consoleOutput.reset();
         int taskId;
         int dayOfWeek = 2;
         int dayOfMonth = 15;
-        createDirectoryWitFile();
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTimeByDOW = (Calendar) currentTime.clone();
         Calendar modifiedTimeByDOM = (Calendar) currentTime.clone();
@@ -299,7 +446,7 @@ public class TaskTest {
         }
         long expectedDurationByDOW = calculateDifference(currentTime, modifiedTimeByDOW);
         modifiedTimeByDOM = setCalendarFields(modifiedTimeByDOM, 0, 0, 0, 0, 0);
-        modifiedTimeByDOM = tuneTheDateByDayOfMonth(modifiedTimeByDOM, currentTime, dayOfMonth);
+        modifiedTimeByDOM = modifyTheCalendarByDayOfMonth(modifiedTimeByDOM, currentTime, dayOfMonth);
         long expectedDurationByDOM = calculateDifference(currentTime, modifiedTimeByDOM);
         long expectedDuration =
                 expectedDurationByDOW < expectedDurationByDOM ? expectedDurationByDOW : expectedDurationByDOM;
@@ -309,8 +456,7 @@ public class TaskTest {
         BValue[] returns = BTestUtils
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
-        long calculatedDuration = getCalculatedDuration(Constant.PREFIX_APPOINTMENT, taskId, log);
+        long calculatedDuration = calculateDelay(taskId, 0, 0, dayOfWeek, dayOfMonth, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
@@ -359,17 +505,80 @@ public class TaskTest {
         Assert.assertTrue(isAcceptable(interval, calculatedDuration));
     }
 
-    @Test(description = "Test for 'stopTask' function which is implemented in ballerina.task package")
-    public void testStopTask() {
-        //Schedules the timer with the interval 10seconds and stops it after some time
-        BValue[] args = { new BInteger(0), new BInteger(10000) };
-        BValue[] returns = BTestUtils.invoke(stopTaskCompileResult, "stopTask", args);
-        Assert.assertEquals("true", returns[0].stringValue());
+    @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
+    public void testScheduleTimerWithEmptyResponse() {
+        consoleOutput.reset();
+        int interval = 10000;
+        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(25000) };
+        BValue[] returns = BTestUtils
+                .invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        String log = consoleOutput.toString();
+        Assert.assertTrue(consoleOutput.toString().contains(Constant.TIMER_ERROR));
     }
 
-    private void createDirectoryWitFile() {
+    @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
+    public void testScheduleTimerWithInvalidInput() {
+        int taskId;
+        int interval = 0;
+        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(5000) };
+        BValue[] returns = BTestUtils.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertEquals(taskId, -1);
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function with invalid input")
+    public void testTaskWithInputOutOfRange() {
+        int taskId;
+        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(32), new BInteger(-1),
+                new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertEquals(taskId, -1);
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function with invalid input")
+    public void testTaskWithInvalidInput() {
+        int taskId;
+        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(30), new BInteger(1),
+                new BInteger(0) };
+        BValue[] returns = BTestUtils
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertEquals(taskId, -1);
+    }
+
+    @Test(dependsOnMethods = "testScheduleAppointmentEveryMinute",
+            description = "Test for 'stopTask' function which is implemented in ballerina.task package")
+    public void testStopTask() {
+        //Schedules the timer with the interval 10seconds and stops it after some time
+        BValue[] args = { new BInteger(taskIdEM), new BInteger(10000) };
+        BValue[] returns = BTestUtils.invoke(stopTaskCompileResult, "stopTask", args);
+        Assert.assertEquals("true", returns[0].stringValue());
+        Assert.assertTrue(!TaskScheduler.isTheTaskRunning(taskIdEM));
+    }
+
+    @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
+    public void testTimerWithMultipleWorkers() {
+        consoleOutput.reset();
+        int interval = 1000;
+        int sleepTime = 9000;
+        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(sleepTime) };
+        BValue[] returns = BTestUtils.invoke(timerMWCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        int taskId = Integer.parseInt(returns[0].stringValue());
+        int i = 0;
+        Pattern p = Pattern.compile(TestConstant.TIMER_SUCCESS_MESSAGE);
+        Matcher m = p.matcher(consoleOutput.toString());
+        while (m.find()) {
+            i++;
+        }
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue((sleepTime / interval * 2 - i) <= 1);
+    }
+
+    private void createDirectoryWithFile() {
         try {
-            File dir = new File("/tmp/tmpDir");
+            File dir = new File(TestConstant.DIRECTORY_PATH);
             dir.mkdir();
             File.createTempFile("test", "txt", new File(dir.getAbsolutePath()));
         } catch (IOException e) {
@@ -399,15 +608,19 @@ public class TaskTest {
 
     private Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
                                        int hours) {
-        calendar.set(Calendar.HOUR, hours);
+        if (hours != -1) {
+            calendar.set(Calendar.HOUR, hours);
+        }
         calendar.set(Calendar.MINUTE, minutes);
         calendar.set(Calendar.SECOND, seconds);
         calendar.set(Calendar.MILLISECOND, milliseconds);
-        calendar.set(Calendar.AM_PM, ampm);
+        if (ampm != -1) {
+            calendar.set(Calendar.AM_PM, ampm);
+        }
         return calendar;
     }
 
-    private Calendar tuneTheDateByDayOfMonth(Calendar calendar, Calendar currentTime, int dayOfMonth) {
+    private Calendar modifyTheCalendarByDayOfMonth(Calendar calendar, Calendar currentTime, int dayOfMonth) {
         if (dayOfMonth > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) {
             calendar.add(Calendar.MONTH, 1);
             calendar.set(Calendar.DATE, dayOfMonth);

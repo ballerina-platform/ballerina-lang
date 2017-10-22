@@ -29,4 +29,6 @@ public class TestConstant {
     public static final String TIMER_ONTRIGGER_FUNCTION = "scheduleTimer";
     //The onTrigger function of appointment.
     public static final String APPOINTMENT_ONTRIGGER_FUNCTION = "scheduleAppointment";
+    //The directory path.
+    public static final String DIRECTORY_PATH = "/tmp/tmpDir";
 }

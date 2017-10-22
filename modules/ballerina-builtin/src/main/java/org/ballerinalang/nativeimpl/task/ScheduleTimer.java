@@ -32,6 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.errorsMap;
+
 /**
  * Native function ballerina.model.task:scheduleTimer.
  */
@@ -53,6 +55,9 @@ public class ScheduleTimer extends AbstractNativeFunction {
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
                 .getCurrentFrame().getRefLocalVars()[0] instanceof BFunctionPointer) {
             onTriggerFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 0)).value();
+        } else {
+            log.error("The onTrigger function is not provided");
+            return getBValues(new BInteger(-1), new BString("The onTrigger function is not provided"));
         }
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[1] != null && ctx.getControlStackNew()
                 .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
@@ -61,20 +66,17 @@ public class ScheduleTimer extends AbstractNativeFunction {
         BStruct scheduler = (BStruct) getRefArgument(ctx, 2);
         long delay = scheduler.getIntField(0);
         long interval = scheduler.getIntField(1);
-        log.info("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: "
-                + interval);
-        BString error = new BString("Unable to schedule the timer");
-        int taskId = TaskUtil.generateTaskId(ctx);
-        if (taskId != -1) {
-            TaskScheduler
-                    .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            String errorFromContext = (String) ctx.getProperty(Constant.ERROR + "_" + taskId);
-            String schedulerError = errorFromContext != null && !errorFromContext.isEmpty() ?
-                    ctx.getProperty(Constant.ERROR + "_" + taskId).toString() :
-                    "";
-            taskId = errorFromContext == null || errorFromContext.isEmpty() ? taskId : -1;
-            error = new BString(schedulerError);
+        if (log.isDebugEnabled()) {
+            log.debug("Request has come to schedule the timer with the INITIAL DELAY: " + delay + " and INTERVAL: "
+                    + interval);
         }
+        int taskId = TaskUtil.generateTaskId();
+        TaskScheduler
+                .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+        String errorFromScheduler = errorsMap.get(taskId);
+        String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
+        taskId = errorFromScheduler == null || errorFromScheduler.isEmpty() ? taskId : -1;
+        BString error = new BString(schedulerError);
         return getBValues(new BInteger(taskId), error);
     }
 }
