@@ -381,8 +381,10 @@ class PropertyWindow extends React.Component {
                                         return this.renderTagInputs(key);
                                     } else if (key.bType === 'map') {
                                         return this.renderTextInputs(key);
-                                    } else {
+                                    } else if (key.bType === 'struct') {
                                         return this.renderStructs(key);
+                                    } else { // If not any of the types render a simple text box
+                                        return this.renderTextInputs(key);
                                     }
                                 })}
                             </form>

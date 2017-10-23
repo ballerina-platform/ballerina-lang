@@ -62,16 +62,18 @@ class ConnectorHelper {
                     for (const connector of packageDefintion.getConnectors()) {
                         // Get Connection Properties
                         connector.getParams().map((parameter) => {
+                            let paramType = parameter.type;
                             let structFields = [];
                             if (parameter.type.startsWith(fullPackageName)) {
                                 const structName = parameter.type.split(':')[1];
+                                paramType = 'struct';
                                 structFields = this.getStructDataFields(fullPackageName,
                                     packageDefintion.getStructDefinitions(), structName, structFields);
                             }
                             // Check the bType of each attribute and set the default values accordingly
                             const keyValuePair = {
                                 identifier: parameter.name,
-                                bType: parameter.type,
+                                bType: paramType,
                                 desc: parameter.name,
                                 fields: structFields,
                                 value: this.getDefaultValuesAccordingToBType(parameter.type),
@@ -91,9 +93,12 @@ class ConnectorHelper {
         for (const structDef of structDefinitions) {
             if (structDef.getName() === structName) {
                 structDef.getFields().map((field) => {
+                    let paramType = field.getType();
                     let fieldArray = [];
                     if (field.getType().startsWith(fullPackageName)) {
                         const innerStructName = field.getType().split(':')[1];
+                        paramType = 'struct';
+                        field.setDefaultValue(this.getDefaultValuesAccordingToBType(field.type));
                         fieldArray = (this.getStructDataFields(fullPackageName, structDefinitions,
                             innerStructName, fieldArray));
                     } else if (field.getDefaultValue() === undefined) {
@@ -102,7 +107,7 @@ class ConnectorHelper {
                     }
                     const keyValuePair = {
                         identifier: field.getName(),
-                        bType: field.getType(),
+                        bType: paramType,
                         desc: field.getName(),
                         fields: fieldArray,
                         value: field.getDefaultValue(),
