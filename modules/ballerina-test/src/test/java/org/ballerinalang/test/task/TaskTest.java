@@ -322,6 +322,16 @@ public class TaskTest {
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
+    @Test(description = "Test for 'scheduleAppointment' function to trigger next day of week in next month")
+    public void testScheduleAppointmentOnNextDOWInNextMonth() {
+        testAppointmentWithDifferentDOW('+', 1);
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger before one day of week in next month")
+    public void testScheduleAppointmentOnDifferentBeforeOneDOWInNextMonth() {
+        testAppointmentWithDifferentDOW('-', -1);
+    }
+
     @Test(description = "Test for 'scheduleAppointment' function to trigger on 31st day")
     public void testScheduleAppointmentOn31st() {
         int taskId;
@@ -576,6 +586,37 @@ public class TaskTest {
         }
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue((sleepTime / interval * 2 - i) <= 1);
+    }
+
+    private void testAppointmentWithDifferentDOW(char c, int days) {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.MONTH, 1);
+        clonedCalendar.set(Calendar.DATE, 1);
+        if (clonedCalendar.get(Calendar.DAY_OF_WEEK) == currentTime.get(Calendar.DAY_OF_WEEK)) {
+            clonedCalendar.add(Calendar.DATE, days);
+        } else if (c == '+' && clonedCalendar.get(Calendar.DAY_OF_WEEK) < currentTime.get(Calendar.DAY_OF_WEEK)) {
+            days = currentTime.get(Calendar.DAY_OF_WEEK) - clonedCalendar.get(Calendar.DAY_OF_WEEK) + 1;
+            clonedCalendar.add(Calendar.DATE, days);
+        } else if (c == '-' && clonedCalendar.get(Calendar.DAY_OF_WEEK) > currentTime.get(Calendar.DAY_OF_WEEK)) {
+            days = 7 - (clonedCalendar.get(Calendar.DAY_OF_WEEK) - currentTime.get(Calendar.DAY_OF_WEEK)) - 1;
+            clonedCalendar.add(Calendar.DATE, days);
+        }
+        int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
+        int month = clonedCalendar.get(Calendar.MONTH);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(month), new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     private void createDirectoryWithFile() {

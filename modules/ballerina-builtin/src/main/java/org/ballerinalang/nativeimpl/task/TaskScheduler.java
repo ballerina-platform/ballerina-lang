@@ -171,7 +171,7 @@ public class TaskScheduler {
      * Stops the execution
      *
      * @param taskId  The identifier of the task
-     * @param sPeriod
+     * @param sPeriod The delay to start the task shutdown function
      */
     private static void stopExecution(int taskId, long sPeriod) {
         ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
@@ -559,14 +559,14 @@ public class TaskScheduler {
             //If the the execution start time is future, set the time to midnight (00.00.00)
             executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0, 0, 0);
         }
-        if (((dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK)) || (
-                dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))
-                && currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR)) {
+        if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR)
+                && ((dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
+                || (dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))) {
             //If the execution start time is future, set the date to first day
             executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE) {
                 while (executionStartTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-                    //If the execution start time is futureand there is a considerable value is passed to the dayOfWeek
+                    //If the execution start time is future and there is a considerable value is passed to the dayOfWeek
                     //find the first possible day which is the same day of week
                     if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
                         executionStartTime
@@ -650,12 +650,8 @@ public class TaskScheduler {
         if (minutes != Constant.NOT_CONSIDERABLE) {
             calendar.set(Calendar.MINUTE, minutes);
         }
-        if (seconds != Constant.NOT_CONSIDERABLE) {
-            calendar.set(Calendar.SECOND, seconds);
-        }
-        if (milliseconds != Constant.NOT_CONSIDERABLE) {
-            calendar.set(Calendar.MILLISECOND, milliseconds);
-        }
+        calendar.set(Calendar.SECOND, seconds);
+        calendar.set(Calendar.MILLISECOND, milliseconds);
         if (ampm != Constant.NOT_CONSIDERABLE) {
             calendar.set(Calendar.AM_PM, ampm);
         }
