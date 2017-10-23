@@ -78,8 +78,8 @@ public class TaskTest {
         consoleOutput.reset();
         long expectedDuration = 60000;
         createDirectoryWithFile();
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(130000) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(130000)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskIdEM = Integer.parseInt(returns[0].stringValue());
@@ -97,8 +97,8 @@ public class TaskTest {
         modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, 0, -1);
         modifiedTime.add(Calendar.HOUR, 1);
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(0), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -117,8 +117,8 @@ public class TaskTest {
             modifiedTime.add(Calendar.HOUR, 1);
         }
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(5), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(5), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -138,8 +138,8 @@ public class TaskTest {
             modifiedTime.add(Calendar.DATE, 1);
         }
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -156,18 +156,10 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-            int days = currentTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek ?
-                    7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
-                    dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
-            modifiedTime.add(Calendar.DATE, days);
-            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-            if (modifiedTime.before(currentTime)) {
-                modifiedTime.add(Calendar.DATE, 7);
-            }
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+            expectedDuration = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
         }
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
-                new BInteger(-1), new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -179,8 +171,8 @@ public class TaskTest {
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays")
     public void testScheduleAppointment2PMOnMondays() {
         int taskId;
-        BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(2), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(14), new BInteger(2), new BInteger(-1), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -195,16 +187,10 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.MONTH) != month) {
-            if (modifiedTime.get(Calendar.MONTH) > month) {
-                modifiedTime.add(Calendar.YEAR, 1);
-            }
-            modifiedTime.set(Calendar.MONTH, month);
-            modifiedTime.set(Calendar.DATE, 1);
-            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
         }
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -223,18 +209,10 @@ public class TaskTest {
         long expectedDuration = 60000;
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-            int days = currentTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek ?
-                    7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
-                    dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
-            modifiedTime.add(Calendar.DATE, days);
-            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-            if (modifiedTime.before(currentTime)) {
-                modifiedTime.add(Calendar.DATE, 7);
-            }
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+            expectedDuration = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
         }
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
-                new BInteger(-1), new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -260,8 +238,8 @@ public class TaskTest {
             modifiedTime.add(Calendar.DATE, 7);
         }
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
-                new BInteger(-1), new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -271,8 +249,8 @@ public class TaskTest {
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour "
-            + "the month is one month back from current and the year is next to current")
-    public void testScheduleAppointmentBeforeAnHourOneMonthBackInNextYear() {
+            + "the month is one month back from current and the year is next year")
+    public void testScheduleAppointmentBeforeAnHourAndOneMonthInNextYear() {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
         Calendar clonedCalendar = (Calendar) currentTime.clone();
@@ -288,40 +266,12 @@ public class TaskTest {
         modifiedTime.setTime(clonedCalendar.getTime());
         modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
-                new BInteger(month), new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
+                new BInteger(month), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
-        Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-    }
-
-    @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour the day of week is " +
-            "one day back from current the month is one month back from current and year is next year from current")
-    public void testScheduleAppointmentBeforeAnHourOneDayOfWeekBackInNextYear() {
-        int taskId;
-        Calendar currentTime = Calendar.getInstance();
-        Calendar clonedCalendar = (Calendar) currentTime.clone();
-        clonedCalendar.add(Calendar.HOUR, -1);
-        clonedCalendar.add(Calendar.MONTH, -1);
-        clonedCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR) + 1);
-        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
-                clonedCalendar.get(Calendar.HOUR) :
-                clonedCalendar.get(Calendar.HOUR) + 12;
-        int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
-        int month = clonedCalendar.get(Calendar.MONTH);
-        Calendar modifiedTime = (Calendar) currentTime.clone();
-        modifiedTime.setTime(clonedCalendar.getTime());
-        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
-                new BInteger(month), new BInteger(0) };
-        BValue[] returns = BRunUtil
-                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
-        taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = calculateDelay(taskId, -1, hour, dayOfWeek, -1, month);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
@@ -334,16 +284,10 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.MONTH) != month) {
-            if (modifiedTime.get(Calendar.MONTH) > month) {
-                modifiedTime.add(Calendar.YEAR, 1);
-            }
-            modifiedTime.set(Calendar.MONTH, month);
-            modifiedTime.set(Calendar.DATE, 1);
-            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
         }
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -352,11 +296,37 @@ public class TaskTest {
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
+    @Test(description = "Test for 'scheduleAppointment' function to trigger after an hour from current in next month")
+    public void testScheduleAppointmentAfterAnHourInNextMonth() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.HOUR, 1);
+        clonedCalendar.set(Calendar.DATE, 1);
+        clonedCalendar.add(Calendar.MONTH, 1);
+        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
+                clonedCalendar.get(Calendar.HOUR) :
+                clonedCalendar.get(Calendar.HOUR) + 12;
+        int month = clonedCalendar.get(Calendar.MONTH);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = {new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(-1),
+                new BInteger(month), new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, hour, -1, -1, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays in January")
     public void testScheduleAppointment2PMOnTuesdaysInJanuary() {
         int taskId;
-        BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(3), new BInteger(-1), new BInteger(0),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(14), new BInteger(3), new BInteger(-1), new BInteger(0),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -373,8 +343,8 @@ public class TaskTest {
             currentTime.add(Calendar.YEAR, 1);
         }
         int dayOfWeek = currentTime.get(Calendar.DAY_OF_WEEK) == 1 ? 7 : currentTime.get(Calendar.DAY_OF_WEEK) - 1;
-        BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(dayOfWeek), new BInteger(-1),
-                new BInteger(0), new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(14), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(0), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -392,8 +362,8 @@ public class TaskTest {
             modifiedTime.add(Calendar.DATE, 1);
         }
         long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = { new BInteger(-1), new BInteger(10), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(10), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -416,8 +386,8 @@ public class TaskTest {
             modifiedTime = modifyTheCalendarByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
             expectedDuration = calculateDifference(currentTime, modifiedTime);
         }
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
-                new BInteger(-1), new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
+                new BInteger(-1), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -452,8 +422,8 @@ public class TaskTest {
         long expectedDuration =
                 expectedDurationByDOW < expectedDurationByDOM ? expectedDurationByDOW : expectedDurationByDOM;
 
-        BValue[] args = { new BInteger(0), new BInteger(0), new BInteger(dayOfWeek), new BInteger(dayOfMonth),
-                new BInteger(-1), new BInteger(0) };
+        BValue[] args = {new BInteger(0), new BInteger(0), new BInteger(dayOfWeek), new BInteger(dayOfMonth),
+                new BInteger(-1), new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -468,7 +438,7 @@ public class TaskTest {
         int taskId;
         int initialDelay = 1000;
         int interval = 10000;
-        BValue[] args = { new BInteger(initialDelay), new BInteger(interval), new BInteger(25000) };
+        BValue[] args = {new BInteger(initialDelay), new BInteger(interval), new BInteger(25000)};
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         String log = consoleOutput.toString();
@@ -477,9 +447,6 @@ public class TaskTest {
                 .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(),
                         firstLogEntry.indexOf("]")));
         String lastLogEntry = log.substring(log.lastIndexOf(taskId + Constant.DELAY_HINT));
-        if (lastLogEntry.contains(Constant.SCHEDULER_LIFETIME_HINT)) {
-            log.substring(log.lastIndexOf(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT));
-        }
         long lastCalculatedDuration = Long.parseLong(lastLogEntry
                 .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(), lastLogEntry.indexOf("]")));
         Assert.assertNotEquals(taskId, -1);
@@ -496,7 +463,7 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.add(Calendar.MILLISECOND, interval);
-        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(25000) };
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(25000)};
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         String log = consoleOutput.toString();
@@ -510,10 +477,8 @@ public class TaskTest {
     public void testScheduleTimerWithEmptyResponse() {
         consoleOutput.reset();
         int interval = 10000;
-        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(25000) };
-        BValue[] returns = BRunUtil
-                .invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
-        String log = consoleOutput.toString();
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(25000)};
+        BRunUtil.invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         Assert.assertTrue(consoleOutput.toString().contains(Constant.TIMER_ERROR));
     }
 
@@ -521,7 +486,7 @@ public class TaskTest {
     public void testScheduleTimerWithInvalidInput() {
         int taskId;
         int interval = 0;
-        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(5000) };
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(5000)};
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertEquals(taskId, -1);
@@ -530,8 +495,8 @@ public class TaskTest {
     @Test(description = "Test for 'scheduleAppointment' function with invalid input")
     public void testTaskWithInputOutOfRange() {
         int taskId;
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(32), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(32), new BInteger(-1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -541,8 +506,8 @@ public class TaskTest {
     @Test(description = "Test for 'scheduleAppointment' function with invalid input")
     public void testTaskWithInvalidInput() {
         int taskId;
-        BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(30), new BInteger(1),
-                new BInteger(0) };
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(30), new BInteger(1),
+                new BInteger(0)};
         BValue[] returns = BRunUtil
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
@@ -552,8 +517,7 @@ public class TaskTest {
     @Test(dependsOnMethods = "testScheduleAppointmentEveryMinute",
             description = "Test for 'stopTask' function which is implemented in ballerina.task package")
     public void testStopTask() {
-        //Schedules the timer with the interval 10seconds and stops it after some time
-        BValue[] args = { new BInteger(taskIdEM), new BInteger(10000) };
+        BValue[] args = {new BInteger(taskIdEM), new BInteger(10000)};
         BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
         Assert.assertEquals("true", returns[0].stringValue());
         Assert.assertTrue(!TaskScheduler.isTheTaskRunning(taskIdEM));
@@ -564,7 +528,7 @@ public class TaskTest {
         consoleOutput.reset();
         int interval = 1000;
         int sleepTime = 9000;
-        BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(sleepTime) };
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(sleepTime)};
         BValue[] returns = BRunUtil.invoke(timerMWCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         int taskId = Integer.parseInt(returns[0].stringValue());
         int i = 0;
@@ -632,5 +596,30 @@ public class TaskTest {
             }
         }
         return calendar;
+    }
+
+    private long modifyTheCalendarAndCalculateTimeByDayOfWeek(Calendar calendar, Calendar currentTime, int dayOfWeek) {
+        if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
+            int days = currentTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek ?
+                    7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
+                    dayOfWeek - currentTime.get(Calendar.DAY_OF_WEEK);
+            calendar.add(Calendar.DATE, days);
+            calendar = setCalendarFields(calendar, 0, 0, 0, 0, 0);
+            if (calendar.before(currentTime)) {
+                calendar.add(Calendar.DATE, 7);
+            }
+            return calculateDifference(currentTime, calendar);
+        }
+        return -1;
+    }
+
+    private long modifyTheCalendarAndCalculateTimeByMonth(Calendar calendar, Calendar currentTime, int month) {
+        if (calendar.get(Calendar.MONTH) > month) {
+            calendar.add(Calendar.YEAR, 1);
+        }
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DATE, 1);
+        calendar = setCalendarFields(calendar, 0, 0, 0, 0, 0);
+        return calculateDifference(currentTime, calendar);
     }
 }
