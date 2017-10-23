@@ -6,20 +6,20 @@ service<http> headQuoteService {
     @http:resourceConfig {
         path:"/default"
     }
-    resource defaultResource (http:Request req, http:Response res) {
+    resource defaultResource (http:Request req, http:Response resp) {
         http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
         string method = req.getMethod();
-        res = endPoint.execute(method, "/getQuote/stocks", req);
-        res.send();
+        http:Response clientResponse = endPoint.execute(method, "/getQuote/stocks", req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         path:"/getStock/{method}"
     }
-    resource commonResource (http:Request req, http:Response res, string method) {
+    resource commonResource (http:Request req, http:Response resp, string method) {
         http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
-        res = endPoint.execute(method, "/getQuote/stocks", req);
-        res.send();
+        http:Response clientResponse = endPoint.execute(method, "/getQuote/stocks", req);
+        resp.forward(clientResponse);
     }
 }
 
@@ -30,10 +30,10 @@ service<http> testClientConHEAD {
         methods:["HEAD"],
         path:"/"
     }
-    resource passthrough (http:Request req, http:Response res) {
+    resource passthrough (http:Request req, http:Response resp) {
         http:ClientConnector quoteEP = create http:ClientConnector("http://localhost:9090", {});
-	    res = quoteEP.get("/getQuote/stocks", req);
-        res.send();
+        http:Response clientResponse = quoteEP.get("/getQuote/stocks", req);
+        resp.forward(clientResponse);
     }
 }
 
