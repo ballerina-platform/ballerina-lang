@@ -91,7 +91,8 @@ export default class Tree extends React.Component {
                             <div className='transform-endpoint-details'>
                                 {
                                     endpoint.type === 'struct' ?
-                                    this.renderStruct(endpoint, 0, {}) : this.renderEndpoint(endpoint, 'variable', 0, {})
+                                        this.renderStruct(endpoint, 0, {isRoot: true}) : 
+                                        this.renderEndpoint(endpoint, 'variable', 0, {isRoot: true})
                                 }
                                 {
                                     (type === 'source' || type === 'target') &&

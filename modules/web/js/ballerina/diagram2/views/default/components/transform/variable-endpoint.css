@@ -116,6 +116,26 @@
     width: calc(100% - 30px);
 }
 
+.transform-source .transform-endpoint-root .endpoint-content {
+    margin-right: 65px;
+}
+
+.transform-source .endpoint-content {
+    margin-right: 35px;
+}
+
+.transform-return .endpoint-content {
+    margin-right: 35px;
+}
+
+.transform-target .transform-endpoint-root .endpoint-content {
+    margin-right: 35px;
+}
+
+.endpoint-content {
+    margin-right: 5px;
+}
+
 .transform-endpoint {
     position: relative;
     height: 30px;
@@ -148,8 +168,4 @@
     color: #3d3d3d;
     font-size: 13px;
     margin-left: 4px;
-}
-
-.variable-edit-button {
-    padding-right: 60px;
 }
