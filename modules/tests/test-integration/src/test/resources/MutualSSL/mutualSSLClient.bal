@@ -18,7 +18,9 @@ function getConnectorConfigs() (http:Options) {
                keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
                keyStorePassword:"wso2carbon",
                trustStoreFile:"${ballerina.home}/bre/security/client-truststore.jks",
-               trustStorePassword:"wso2carbon"
+               trustStorePassword:"wso2carbon",
+               ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+               sslEnabledProtocols:"TLSv1.2,TLSv1.1"
                    },
               followRedirects: {}
     };
