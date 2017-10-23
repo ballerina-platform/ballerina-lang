@@ -322,6 +322,28 @@ public class TaskTest {
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
+    @Test(description = "Test for 'scheduleAppointment' function to trigger on 31st day")
+    public void testScheduleAppointmentOn31st() {
+        int taskId;
+        int dayOfMonth = 31;
+        long expectedDuration = 60000;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+            modifiedTime = modifyTheCalendarByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
+            expectedDuration = calculateDifference(currentTime, modifiedTime);
+        }
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
+                new BInteger(-1), new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, dayOfMonth, -1);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays in January")
     public void testScheduleAppointment2PMOnTuesdaysInJanuary() {
         int taskId;
