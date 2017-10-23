@@ -533,6 +533,9 @@ class BallerinaFileEditor extends React.Component {
                     const runtimeFailures = data.errors.filter(({ category }) => {
                         return category === 'RUNTIME';
                     });
+                    this.semanticErrors = data.errors.filter(({ category }) => {
+                        return category === 'SEMANTIC';
+                    });
                     // if syntax errors are found
                     if (!_.isEmpty(syntaxErrors) || !_.isEmpty(runtimeFailures)) {
                         newState.parseFailed = true;

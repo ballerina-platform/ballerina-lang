@@ -53,6 +53,7 @@ class Node extends EventChannel {
 
         this.isStatement = false;
         this.isExpression = false;
+        this.errors = [];
     }
 
     /**
@@ -208,6 +209,22 @@ class Node extends EventChannel {
         } else {
             return this.parent.getRoot();
         }
+    }
+
+    /**
+     * Set errors of this node 
+     * @param {Object[]} errors - errors 
+     */
+    setErrors(errors){
+        this.errors = errors;
+    }
+
+    /**
+     * Get all the errors of this node
+     * @returns {Object[]} errors
+     */
+    getErrors(){
+        return this.errors;
     }
 
     /**

@@ -26,6 +26,7 @@ import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import ErrorMarker from '../decorators/error-marker';
 
 class FunctionNode extends React.Component {
 
@@ -42,6 +43,14 @@ class FunctionNode extends React.Component {
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
+
+        const position = this.props.model.position;
+        let semanticErrors = [];
+        if(this.context.editor.semanticErrors){
+            semanticErrors = this.context.editor.semanticErrors.filter((error) => {
+                return ((error.row === position.startLine) && (error.column === position.startColumn));
+            });
+        }
 
         // change icon for main function
         let icons = 'tool-icons/function';
@@ -81,6 +90,7 @@ class FunctionNode extends React.Component {
                 canDrop={this.canDropToPanelBody}
                 argumentParams={argumentParameters}
                 returnParams={returnParameters}
+                semanticErrors={semanticErrors}
             >
                 { this.props.model.getWorkers().length === 0 &&
                 <g>
@@ -128,6 +138,7 @@ FunctionNode.propTypes = {
 
 FunctionNode.contextTypes = {
     mode: PropTypes.string,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default FunctionNode;

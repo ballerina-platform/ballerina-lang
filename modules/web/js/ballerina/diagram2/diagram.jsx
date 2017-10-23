@@ -23,6 +23,7 @@ import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
+import ErrorMappingVisitor from './visitors/error-mapping-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
@@ -60,6 +61,7 @@ class Diagram extends React.Component {
         this.positionCalc = new PositionVisitor();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
         this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
+        this.errorMappingVisitor = new ErrorMappingVisitor();
     }
 
     /**
@@ -111,6 +113,10 @@ class Diagram extends React.Component {
         this.invocationArrowPositionVisitor
             .setWorkerInvocationPositionSyncUtil(getInvocationArrowPositionUtil(this.props.mode));
         this.props.model.accept(this.invocationArrowPositionVisitor);
+
+        // 7. Now we will enrich the model with Semantic errors.
+        this.errorMappingVisitor.setErrorList(this.context.editor.semanticErrors);
+        this.props.model.accept(this.errorMappingVisitor);
 
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
