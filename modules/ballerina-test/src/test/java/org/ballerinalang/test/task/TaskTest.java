@@ -54,6 +54,7 @@ public class TaskTest {
     private CompileResult stopTaskCompileResult;
     private CompileResult timerMWCompileResult;
     private CompileResult timerWithEmptyResponseCompileResult;
+    private CompileResult timerWithoutOnErrorFunctionCompileResult;
     private static final Log log = LogFactory.getLog(TaskTest.class);
 
     private final ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
@@ -66,6 +67,7 @@ public class TaskTest {
         stopTaskCompileResult = BCompileUtil.compile("test-src/task/task-stop.bal");
         timerMWCompileResult = BCompileUtil.compile("test-src/task/task-timer-multiple-workers.bal");
         timerWithEmptyResponseCompileResult = BCompileUtil.compile("test-src/task/task-timer-with-empty-response.bal");
+        timerWithoutOnErrorFunctionCompileResult = BCompileUtil.compile("test-src/task/task-timer-without-onErrorFunction.bal");
 
         System.setErr(new PrintStream(consoleOutput));
         System.setProperty("java.util.logging.config.file",
@@ -244,6 +246,28 @@ public class TaskTest {
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, 0, hour, dayOfWeek, -1, -1);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger next week the day of week is one day back " +
+            "from the current day of week")
+    public void testScheduleAppointmentBeforeADOWInNextWeek() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.DATE, 6);
+        int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
+                new BInteger(-1), new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
@@ -509,10 +533,20 @@ public class TaskTest {
     public void testScheduleTimerWithEmptyResponse() {
         consoleOutput.reset();
         int interval = 10000;
-        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(25000)};
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(15000)};
         BRunUtil.invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         Assert.assertTrue(consoleOutput.toString().contains(Constant.TIMER_ERROR));
     }
+
+    @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
+    public void testScheduleTimerWithoutOnErrorFunction() {
+        consoleOutput.reset();
+        int taskId;
+        int interval = 10000;
+        BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(15000)};
+        BValue[] returns = BRunUtil.invoke(timerWithoutOnErrorFunctionCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertNotEquals(taskId, -1);    }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithInvalidInput() {
@@ -558,7 +592,7 @@ public class TaskTest {
     @Test(description = "Test for 'stopTask' function which is implemented in ballerina.task package")
     public void testStopTaskWithInvalidId() {
         int taskId = -1;
-        BValue[] args = {new BInteger(taskId), new BInteger(10000)};
+        BValue[] args = {new BInteger(taskId), new BInteger(1000)};
         BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
         Assert.assertEquals("false", returns[0].stringValue());
     }
@@ -566,10 +600,11 @@ public class TaskTest {
     @Test(description = "Test for 'stopTask' function which is implemented in ballerina.task package")
     public void testStopTaskWithNonexistentId() {
         int taskId = 1000000000;
-        BValue[] args = {new BInteger(taskId), new BInteger(10000)};
+        BValue[] args = {new BInteger(taskId), new BInteger(1000)};
         BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
         Assert.assertEquals("false", returns[0].stringValue());
     }
+
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testTimerWithMultipleWorkers() {
         consoleOutput.reset();

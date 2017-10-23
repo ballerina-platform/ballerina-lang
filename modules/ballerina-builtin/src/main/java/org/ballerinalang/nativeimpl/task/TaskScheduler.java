@@ -195,7 +195,7 @@ public class TaskScheduler {
                         taskLifeTimeMap.put(taskId, 0L);
                     } else {
                         log.error("Unable to stop the task");
-                        stopTaskErrorsMaps.put(taskId, "Unable to stop the task which is associated to the ID " + taskId);
+                        stopTaskErrorsMaps.put(taskId, "Unable to stop the task ");
                     }
                 } catch (SecurityException e) {
                     log.error("Unable to stop the task: " + e.getMessage());
@@ -282,7 +282,8 @@ public class TaskScheduler {
             //Tune the execution start time by the value of minute
             executionStartTime = modifyCalendarByCheckingMinute(currentTime, executionStartTime, minute, hour);
             //Tune the execution start time by the value of hour
-            executionStartTime = modifyCalendarByCheckingHour(currentTime, executionStartTime, minute, hour);
+            executionStartTime = modifyCalendarByCheckingHour(currentTime, executionStartTime, minute, hour, dayOfWeek,
+                    dayOfMonth);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfMonth != Constant.NOT_CONSIDERABLE) {
                 //Clone the modified Calendar instances into two instances of either the day of week or
                 Calendar newTimeAccordingToDOW = cloneCalendarAndSetTime(executionStartTime, dayOfWeek, dayOfMonth);
@@ -377,10 +378,12 @@ public class TaskScheduler {
      * @param executionStartTime The modified Calendar instance
      * @param minute             The value of the minute in the appointment expression
      * @param hour               The value of the hour in the appointment expression
+     * @param dayOfWeek          The value of the day of week in the appointment expression
+     * @param dayOfMonth         The value of the day of month in the appointment expression
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingHour(Calendar currentTime, Calendar executionStartTime, int minute,
-                                                         int hour) {
+                                                         int hour, int dayOfWeek, int dayOfMonth) {
         if (minute == 0 && hour == Constant.NOT_CONSIDERABLE) {
             //If the minute == 0 and hour = -1, execute every hour
             executionStartTime.add(Calendar.HOUR, 1);
@@ -400,7 +403,8 @@ public class TaskScheduler {
                 executionStartTime.set(Calendar.AM_PM, 1);
             }
         }
-        if (executionStartTime.before(currentTime)) {
+        if (executionStartTime.before(currentTime) && dayOfWeek == Constant.NOT_CONSIDERABLE
+                && dayOfMonth == Constant.NOT_CONSIDERABLE) {
             //If the modified time is behind the current time, add a day
             executionStartTime.add(Calendar.DATE, 1);
         }
@@ -446,8 +450,8 @@ public class TaskScheduler {
                                 .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
                     } else {
                         //Find the number of days to reach the provided value and add that number
-                        executionStartTime.add(Calendar.DATE, dayOfWeek -
-                                executionStartTime.get(Calendar.DAY_OF_WEEK));
+                        executionStartTime.add(Calendar.DATE,
+                                dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
                     }
                 }
             }
@@ -559,9 +563,9 @@ public class TaskScheduler {
             //If the the execution start time is future, set the time to midnight (00.00.00)
             executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0, 0, 0);
         }
-        if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR)
-                && ((dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
-                || (dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))) {
+        if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
+                (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
+                        || (dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))) {
             //If the execution start time is future, set the date to first day
             executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE) {
@@ -572,8 +576,8 @@ public class TaskScheduler {
                         executionStartTime
                                 .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
                     } else {
-                        executionStartTime.add(Calendar.DATE, dayOfWeek -
-                                executionStartTime.get(Calendar.DAY_OF_WEEK));
+                        executionStartTime.add(Calendar.DATE,
+                                dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
                     }
                 }
             }
@@ -658,10 +662,22 @@ public class TaskScheduler {
         return calendar;
     }
 
+    /**
+     * Returns the status of the task
+     *
+     * @param taskId The identifier of the task
+     * @return boolean value. 'true' if the task is running, else 'false'
+     */
     public static boolean isTheTaskRunning(int taskId) {
         return executorServiceMap.get(taskId) != null;
     }
 
+    /**
+     * Returns the life time of the task if it is defined
+     *
+     * @param taskId The identifier of the task
+     * @return The numeric value
+     */
     public static long getExecutionLifeTime(int taskId) {
         return taskLifeTimeMap.get(taskId);
     }
