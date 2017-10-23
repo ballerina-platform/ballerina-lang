@@ -23,6 +23,7 @@ PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
+ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
@@ -37,6 +38,7 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_DATATABLE  : 'datatable' ;
 TYPE_ANY        : 'any' ;
+TYPE_CONNECTION : 'connection' ;
 TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
