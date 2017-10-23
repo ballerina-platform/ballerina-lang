@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.Test;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.UnitTestAppender;
@@ -52,11 +52,11 @@ public class LogSinkTest {
         logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
-            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("My Log"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
-            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("My Log"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[3, 5]"));
         } catch (Exception e) {
             Assert.fail("Unexpected exception occurred when testing with all options", e);
         } finally {
@@ -88,11 +88,11 @@ public class LogSinkTest {
         logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
-            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
-            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[3, 5]"));
         } catch (Exception e) {
             Assert.fail("Unexpected exception occurred when testing with default prefix", e);
         } finally {
@@ -124,11 +124,11 @@ public class LogSinkTest {
         logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
-            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("My Log"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
-            AssertJUnit.assertTrue(appender.messages.contains("My Log"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("My Log"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[3, 5]"));
         } catch (Exception e) {
             Assert.fail("Unexpected exception occurred when testing with default priority", e);
         } finally {
@@ -160,11 +160,11 @@ public class LogSinkTest {
         logger.addAppender(appender);
         try {
             inputHandler.send(new Object[]{2});
-            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[2, 2]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[2, 2]"));
             inputHandler.send(new Object[]{3});
-            AssertJUnit.assertTrue(appender.messages.contains("HelloWorldApp : OutputStream"));
-            AssertJUnit.assertTrue(appender.messages.contains("data=[3, 5]"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("HelloWorldApp : OutputStream"));
+            AssertJUnit.assertTrue(appender.getMessages().contains("data=[3, 5]"));
         } catch (Exception e) {
             Assert.fail("Unexpected exception occurred when testing with default options", e);
         } finally {

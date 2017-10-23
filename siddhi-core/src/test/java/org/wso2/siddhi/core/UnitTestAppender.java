@@ -23,7 +23,11 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class UnitTestAppender extends AppenderSkeleton {
-    public String messages;
+    private String messages;
+
+    public String getMessages() {
+        return messages;
+    }
 
     @Override
     protected void append(LoggingEvent loggingEvent) {
