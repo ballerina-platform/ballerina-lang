@@ -26,7 +26,6 @@ import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
-import ErrorMarker from '../decorators/error-marker';
 
 class FunctionNode extends React.Component {
 
