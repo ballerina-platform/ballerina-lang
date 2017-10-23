@@ -7,10 +7,12 @@ import ballerina.net.http;
 function main (string[] args) {
 
     twitter:ClientConnector twitterConnector;
-    // Create a Twitter Client Connector with the arguments consumerKey, consumerSecret, accessToken, accessTokenSecret of your Twitter account
+    // Create a Twitter Client Connector with the arguments consumerKey, consumerSecret,
+    // accessToken, accessTokenSecret of your Twitter account
     twitterConnector = create twitter:ClientConnector(args[0], args[1], args[2], args[3]);
 
-    // Call tweet action from Twitter Connector with a message to tweet in above Twitter account
+    // Call tweet action from Twitter Connector with a message to tweet in above Twitter
+    // account
     http:Response tweetResponse = twitterConnector.tweet ("Hello Ballerina!!");
     json tweetJSONResponse = tweetResponse.getJsonPayload();
 
@@ -23,7 +25,8 @@ function main (string[] args) {
         tweetId = jsons:toString(tweetJSONResponse.id);
     }
 
-    // Call search action to retrieve the collection of relevant Tweets matching a specified query
+    // Call search action to retrieve the collection of relevant Tweets matching a
+    // specified query
     tweetResponse = twitterConnector.search ("Hello Ballerina!!");
 
     tweetJSONResponse = tweetResponse.getJsonPayload();

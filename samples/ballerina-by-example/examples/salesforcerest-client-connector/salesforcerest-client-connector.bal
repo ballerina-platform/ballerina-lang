@@ -18,11 +18,13 @@ function main (string[] args) {
     string apiVersion = "v32.0";
 
     salesforcerest:ClientConnector salesforceClient;
-    // Create a Salesforcerest Client Connector with the arguments accessToken, clientID, clientSecret, refreshToken, apiInstance, refreshEndpoint
-    salesforceClient = create salesforcerest:ClientConnector(accessToken, clientID, clientSecret, refreshToken,
-                                                             apiInstance, refreshEndpoint);
+    // Create a Salesforcerest Client Connector with the arguments accessToken, clientID,
+    // clientSecret, refreshToken, apiInstance, refreshEndpoint
+    salesforceClient = create salesforcerest:ClientConnector(accessToken, clientID,
+                             clientSecret, refreshToken, apiInstance, refreshEndpoint);
 
-    // Call describeGlobal action to list the available objects and their metadata for your organization’s data
+    // Call describeGlobal action to list the available objects and their metadata for
+    // your organization’s data
     response = salesforceClient.describeGlobal (apiVersion);
     JSONResponse = response.getJsonPayload();
 
@@ -30,7 +32,8 @@ function main (string[] args) {
     system:println("===== Response from describeGlobal action =====");
     system:println(jsons:toString(JSONResponse));
 
-    // Call sObjectDescribe action with to describes the individual metadata at all levels for the specified object
+    // Call sObjectDescribe action with to describes the individual metadata at all
+    // levels for the specified object
     string sobjectName = "account";
     response = salesforceClient.sObjectDescribe (apiVersion, sobjectName);
     JSONResponse = response.getJsonPayload();
@@ -46,7 +49,8 @@ function main (string[] args) {
     system:println("===== Response from query action =====");
     system:println(jsons:toString(JSONResponse));
 
-    // Call queryAll action to retrieve the records that have been deleted because of a merge or delete, archived Task and Event records
+    // Call queryAll action to retrieve the records that have been deleted because of a
+    // merge or delete, archived Task and Event records
     response = salesforceClient.queryAll (apiVersion, query);
     JSONResponse = response.getJsonPayload();
 

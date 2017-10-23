@@ -1,4 +1,5 @@
-$ ballerina run twitter-client-connector.bal [CONSUMER_KEY] [CONSUMER_SECRET] [ACCESS_TOKEN] [ACCESS_TOKEN_SECRET]
+$ ballerina run twitter-client-connector.bal [CONSUMER_KEY] [CONSUMER_SECRET]
+[ACCESS_TOKEN] [ACCESS_TOKEN_SECRET]
 ====== Response from tweet action=====
 [RESPONSE OF tweet ACTION]
 ====== Response from search action =====
