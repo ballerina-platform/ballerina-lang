@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,12 +34,12 @@ public class WorkerCallingFunction {
 
     @BeforeClass
     public void setup() {
-        this.result = BTestUtils.compile("test-src/workers/worker-calling-function.bal");
+        this.result = BCompileUtil.compile("test-src/workers/worker-calling-function.bal");
     }
 
     @Test(description = "Test worker calling function")
     public void testWorkerCallingFunction() {
-        BValue[] returns = BTestUtils.invoke(result, "testWorkerInVM");
+        BValue[] returns = BRunUtil.invoke(result, "testWorkerInVM");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);

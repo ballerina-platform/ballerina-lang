@@ -1,9 +1,10 @@
 package org.ballerinalang.test.connectors;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -16,8 +17,8 @@ public class CompositeConnectorTest {
 
     @Test(description = "Test composite connector for load balancing")
     public void testCompositeConnector() {
-        result = BTestUtils.compile("test-src/connectors/composite-connector-test.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testCompositeConnector");
+        result = BCompileUtil.compile("test-src/connectors/composite-connector-test.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCompositeConnector");
         Assert.assertEquals(returns.length, 2);
         BString value1 = (BString) returns[0];
         BString value2 = (BString) returns[1];
@@ -29,8 +30,8 @@ public class CompositeConnectorTest {
 
     @Test(description = "Test composite connector with internal filters for all sub connectors", enabled = false)
     public void testCompositeConnectorInternalFilterAll() {
-        result = BTestUtils.compile("test-src/connectors/composite-connector-internal-filter-test.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testCompositeConnector");
+        result = BCompileUtil.compile("test-src/connectors/composite-connector-internal-filter-test.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCompositeConnector");
         Assert.assertEquals(returns.length, 2);
         BString value1 = (BString) returns[0];
         BString value2 = (BString) returns[1];
@@ -42,8 +43,8 @@ public class CompositeConnectorTest {
 
     @Test(description = "Test composite connector with external filter", enabled = false)
     public void testCompositeConnectorExternalFilterAll() {
-        result = BTestUtils.compile("test-src/connectors/composite-connector-external-filter-test.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testCompositeConnector");
+        result = BCompileUtil.compile("test-src/connectors/composite-connector-external-filter-test.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCompositeConnector");
         Assert.assertEquals(returns.length, 2);
         BString value1 = (BString) returns[0];
         BString value2 = (BString) returns[1];
@@ -55,8 +56,8 @@ public class CompositeConnectorTest {
 
     @Test(description = "Test composite connector with external filter with base connector", enabled = false)
     public void testCompositeConnectorExternalFilterBaseAll() {
-        result = BTestUtils.compile("test-src/connectors/comp-conn-external-filter-base-test.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testCompositeConnector");
+        result = BCompileUtil.compile("test-src/connectors/comp-conn-external-filter-base-test.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCompositeConnector");
         Assert.assertEquals(returns.length, 2);
         BString value1 = (BString) returns[0];
         BString value2 = (BString) returns[1];
@@ -68,8 +69,8 @@ public class CompositeConnectorTest {
 
     @Test(description = "Test composite connector with internal filter and array based syntax", enabled = false)
     public void testCompositeConnectorInternalArray() {
-        result = BTestUtils.compile("test-src/connectors/composite-connector-internal-array.bal");
-        BValue[] returns = BTestUtils.invoke(result, "testCompositeConnector");
+        result = BCompileUtil.compile("test-src/connectors/composite-connector-internal-array.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCompositeConnector");
         Assert.assertEquals(returns.length, 2);
         BString value1 = (BString) returns[0];
         BString value2 = (BString) returns[1];

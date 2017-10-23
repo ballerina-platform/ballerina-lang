@@ -2630,7 +2630,8 @@ public class BLangVM {
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(this.programFile);
+            Context workerContext = new WorkerContext(this.programFile, context);
+            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
@@ -2642,6 +2643,7 @@ public class BLangVM {
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
                     workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
+            workerContext.startTrackWorker();
             workers.put(workerInfo.getWorkerName(), workerRunner);
         }
         Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
@@ -2698,12 +2700,11 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
-        ip = -1;
     }
 
     private void handleWorkerReturn() {
         WorkerContext workerContext = (WorkerContext) this.context;
-        if (workerContext.parentSF.workerReturned.compareAndSet(false, true)) {
+        if (workerContext.parentSF.tryReturn()) {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
@@ -2987,7 +2988,8 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
+                    !context.blockingInvocation;
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.

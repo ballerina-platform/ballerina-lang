@@ -1,8 +1,6 @@
 import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.doc;
-import ballerina.net.http.response;
-import ballerina.net.http.request;
 
 @doc:Description {value:"Defining Person struct."}
 struct Person {
@@ -24,7 +22,7 @@ service<http> PersonService {
     @doc:Description {value:"Defining POST resource for the service to get person details."}
     resource getPerson (http:Request req, http:Response res) {
         // Get the JSON payload from the request
-        json j = request:getJsonPayload(req);
+        json j = req.getJsonPayload();
 
         // Declare a Person variable
         Person p;
@@ -53,9 +51,9 @@ service<http> PersonService {
         }
 
         // Set the new JSON payload to the message
-        response:setJsonPayload(res, response);
+        res.setJsonPayload(response);
 
         // Reply from the resource with message m.
-        response:send(res);
+        res.send();
     }
 }

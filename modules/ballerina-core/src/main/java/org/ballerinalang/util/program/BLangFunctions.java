@@ -157,8 +157,7 @@ public class BLangFunctions {
 
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
+        SynchronizedStackFrame calleeSF = new SynchronizedStackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
         controlStackNew.pushFrame(calleeSF);
 
         int longParamCount = 0;
@@ -223,8 +222,8 @@ public class BLangFunctions {
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
-        if (!context.await(timeOut)) {
-            throw new BLangRuntimeException("error: workers timed out.!");
+        if (!calleeSF.await(timeOut)) {
+            throw new BLangRuntimeException("error: worker timed out.!");
         }
 
         if (context.getError() != null) {

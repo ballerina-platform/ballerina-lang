@@ -122,6 +122,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolEnv env;
     public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
 
+    private BLangPackageDeclaration currentPkgDecl = null;
+
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
         if (symbolEnter == null) {
@@ -144,8 +146,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.rootPkgNode.symbol = symTable.rootPkgSymbol;
     }
 
-    public BPackageSymbol definePackage(BLangPackage pkgNode) {
-        populatePackageNode(pkgNode);
+    public BPackageSymbol definePackage(BLangPackage pkgNode, PackageID pkgId) {
+        populatePackageNode(pkgNode, pkgId);
 
         defineNode(pkgNode, null);
         return pkgNode.symbol;
@@ -242,6 +244,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
+        Name pkgAlias = names.fromIdNode(importPkgNode.alias);
+        if (symResolver.lookupSymbol(env, pkgAlias, SymTag.IMPORT) != symTable.notFoundSymbol) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+            return;
+        }
+
         // Create import package symbol
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
@@ -259,7 +267,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         importPkgNode.symbol = pkgSymbol;
-        this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
+        this.env.scope.define(pkgAlias, pkgSymbol);
     }
 
     @Override
@@ -481,9 +489,9 @@ public class SymbolEnter extends BLangNodeVisitor {
      *
      * @param pkgNode current package node
      */
-    private void populatePackageNode(BLangPackage pkgNode) {
+    private void populatePackageNode(BLangPackage pkgNode, PackageID pkgId) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
-        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
+        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit, pkgId));
     }
 
     /**
@@ -492,11 +500,10 @@ public class SymbolEnter extends BLangNodeVisitor {
      * @param pkgNode  current package node
      * @param compUnit current compilation unit
      */
-    private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit) {
-        // TODO Check whether package in 'compUnit' is equal to the package in 'pkgNode'
-
+    private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit, PackageID pkgId) {
         // TODO If the pkgID is null, then assign an unnamed package/default package.
         compUnit.getTopLevelNodes().forEach(node -> addTopLevelNode(pkgNode, node));
+        validatePackageDecl(pkgId, pkgNode, compUnit);
     }
 
     private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node) {
@@ -514,7 +521,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (kind) {
             case PACKAGE_DECLARATION:
                 // TODO verify the rules..
-                pkgNode.pkgDecl = (BLangPackageDeclaration) node;
+                currentPkgDecl = (BLangPackageDeclaration) node;
                 break;
             case IMPORT:
                 // TODO Verify the rules..
@@ -854,5 +861,41 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
                 .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+    }
+
+    /**
+     * Validate the package declaration of the current compilation unit. Updates the package declaration
+     * of the package node only if the current package declaration is a valid one.
+     * 
+     * @param pkgId Current package ID
+     * @param pkgNode Current package node
+     * @param compUnit Current compilation unit
+     */
+    private void validatePackageDecl(PackageID pkgId, BLangPackage pkgNode, BLangCompilationUnit compUnit) {
+        if (isValidPackageDecl(currentPkgDecl, pkgId)) {
+            pkgNode.pkgDecl = currentPkgDecl;
+            currentPkgDecl = null;
+            return;
+        }
+
+        if (currentPkgDecl == null) {
+            dlog.error(compUnit.pos, DiagnosticCode.MISSING_PACKAGE_DECLARATION, pkgId.name.value);
+        } else if (pkgId == PackageID.DEFAULT) {
+            dlog.error(currentPkgDecl.pos, DiagnosticCode.UNEXPECTED_PACKAGE_DECLARATION,
+                    currentPkgDecl.getPackageNameStr());
+        } else {
+            dlog.error(currentPkgDecl.pos, DiagnosticCode.INVALID_PACKAGE_DECLARATION, pkgId.name.value,
+                    currentPkgDecl.getPackageNameStr());
+        }
+
+        currentPkgDecl = null;
+    }
+
+    private boolean isValidPackageDecl(BLangPackageDeclaration pkgDecl, PackageID pkgId) {
+        if (pkgDecl == null) {
+            return pkgId == PackageID.DEFAULT;
+        }
+
+        return pkgId.name.value.equals(pkgDecl.getPackageNameStr());
     }
 }

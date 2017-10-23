@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,13 +38,13 @@ public class MapAccessExprTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/map/map-access-expr.bal");
+        compileResult = BCompileUtil.compile("test-src/types/map/map-access-expr.bal");
     }
 
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "mapAccessTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapAccessTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -56,7 +57,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map access through var keyword")
     public void testAccessThroughVar() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testAccessThroughVar", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessThroughVar", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -69,7 +70,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "mapReturnTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
@@ -85,7 +86,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Test map access with an index")
     public void testMapAccessWithIndex() {
-        CompileResult incorrectCompileResult = BTestUtils.compile("test-src/types/map/map-access-negative.bal");
+        CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/map-access-negative.bal");
         Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                             "incompatible types: expected 'string', found 'int'");
@@ -93,7 +94,7 @@ public class MapAccessExprTest {
     
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
-        CompileResult incorrectCompileResult = BTestUtils.compile("test-src/types/map/nested-map-access.bal");
+        CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
         Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                             "invalid operation: type 'any' does not support field access");
@@ -102,7 +103,7 @@ public class MapAccessExprTest {
     @Test(description = "Test array access expression as the index of a map")
     public void testArrayAccessAsIndexOfMapt() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

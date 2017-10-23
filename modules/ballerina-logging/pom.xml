@@ -32,11 +32,4 @@
     <name>Ballerina - Logging</name>
     <url>http://ballerinalang.org</url>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-        </dependency>
-    </dependencies>
-
 </project>

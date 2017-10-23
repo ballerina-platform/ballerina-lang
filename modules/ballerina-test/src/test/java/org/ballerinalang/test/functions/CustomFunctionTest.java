@@ -17,8 +17,9 @@
 */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,16 +30,16 @@ public class CustomFunctionTest {
 
     @Test(description = "Test defining duplicate ballerina function")
     public void testDuplicateFunction() {
-        CompileResult compile = BTestUtils.compile("test-src/functions/duplicate-function.bal");
+        CompileResult compile = BCompileUtil.compile("test-src/functions/duplicate-function.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BTestUtils.validateError(compile, 0, "redeclared symbol 'foo'", 5, 1);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'foo'", 5, 1);
     }
 
     @Test(description = "Test defining ballerina function with duplicate parameters")
     public void testDuplicateParameters() {
-        CompileResult compile = BTestUtils.compile("test-src/functions/duplicate-parameters.bal");
+        CompileResult compile = BCompileUtil.compile("test-src/functions/duplicate-parameters.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BTestUtils.validateError(compile, 0, "redeclared symbol 'param'", 1, 28);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 28);
     }
 
 }

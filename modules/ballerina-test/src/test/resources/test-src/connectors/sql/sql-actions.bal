@@ -6,6 +6,14 @@ struct ResultCustomers {
     string FIRSTNAME;
 }
 
+struct ResultIntType {
+    int INT_TYPE;
+}
+
+struct ResultBlob {
+    blob BLOB_TYPE;
+}
+
 struct ResultDataType {
     int INT_TYPE;
     int LONG_TYPE;
@@ -124,7 +132,7 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -153,7 +161,7 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -255,7 +263,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -285,7 +293,7 @@ function testNullINOutParameters ()
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -315,7 +323,7 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
     sql:Parameter para5 = {sqlType:"array", direction:1};
     sql:Parameter para6 = {sqlType:"array", direction:1};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
-    testDB.call ("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
 }
@@ -334,7 +342,7 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
     sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
-    testDB.call ("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call ("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
 }
@@ -428,6 +436,16 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     return updateCount, count;
 }
 
+function testBatchUpdateWithNullParam () (int[]) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    int[] updateCount;
+    updateCount = testDB.batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values ('Alex','Smith',20,3400.5,'Colombo')", null);
+    testDB.close();
+    return updateCount;
+}
+
 function testDateTimeInParameters () (int[]) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
@@ -510,7 +528,7 @@ function testCallProcedure () (string firstName) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    testDB.call ("{call InsertPersonData(100,'James')}", null);
+    _ = testDB.call ("{call InsertPersonData(100,'James')}", null);
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", null);
     TypeCastError err;
     ResultCustomers rs;
@@ -562,12 +580,16 @@ function testArrayofQueryParameters () (string firstName) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    int[] dataArray = [1,4343];
-    sql:Parameter para0 = {sqlType:"varchar", value:"John", direction:0};
-    sql:Parameter para1 = {sqlType:"integer", value:dataArray, direction:0};
-    sql:Parameter[] parameters = [para0,para1];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or registrationID in(?)",
-                                  parameters);
+    int[] intDataArray = [1,4343];
+    string[] stringDataArray = ["A", "B"];
+    float[] doubleArray = [233.4, 433.4];
+    sql:Parameter para0 = {sqlType:"varchar", value:"Johhhn", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:intDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:stringDataArray, direction:0};
+    sql:Parameter para3 = {sqlType:"double", value:doubleArray, direction:0};
+    sql:Parameter[] parameters = [para0,para1, para2, para3];
+    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
+                    lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -578,6 +600,43 @@ function testArrayofQueryParameters () (string firstName) {
     testDB.close ();
     return;
 }
+
+function testBoolArrayofQueryParameters () (int value ) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    boolean accepted1 = false;
+    boolean accepted2 = false;
+    boolean accepted3 = true;
+    boolean[] boolDataArray = [accepted1,accepted2,accepted3];
+
+
+    datatable dt1 = testDB.select("SELECT blob_type from DataTypeTable where row_id = 1", null);
+    blob blobData;
+    while (datatables:hasNext(dt1)) {
+        any dataStruct = datatables:getNext(dt1);
+        var rs, err = (ResultBlob)dataStruct;
+        blobData = rs.BLOB_TYPE;
+    }
+    blob[] blobDataArray = [blobData];
+
+    sql:Parameter para0 = {sqlType:"integer", value:1, direction:0};
+    sql:Parameter para1 = {sqlType:"boolean", value:boolDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:"blob", value:blobDataArray, direction:0};
+    sql:Parameter[] parameters = [para0,para1,para2];
+    datatable dt = testDB.select ("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
+                                                            blob_type in (?)",
+                                  parameters);
+    TypeCastError err;
+    ResultIntType rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:getNext(dt);
+        rs, err = (ResultIntType) dataStruct;
+        value = rs.INT_TYPE;
+    }
+    testDB.close ();
+    return;
+}
+
 
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
                                    map boolean_arr, map float_arr) {
@@ -637,7 +696,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
-    testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
+    _ = testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
 
     sql:Parameter[] emptyParam = [];
     datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
@@ -656,7 +715,7 @@ function testStructOutParameters() (any) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter para1 = {sqlType:"struct", direction:1};
     sql:Parameter[] parameters = [para1];
-    testDB.call("{call TestStructOut(?)}", parameters);
+    _ = testDB.call("{call TestStructOut(?)}", parameters);
     testDB.close();
     return para1.value;
 }
