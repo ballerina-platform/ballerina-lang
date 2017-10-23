@@ -47,7 +47,8 @@ public class TaskScheduler {
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
     private static HashMap<Integer, ScheduledExecutorService> executorServiceMap = new HashMap<>();
     private static HashMap<Integer, Long> taskLifeTimeMap = new HashMap<>();
-    protected static HashMap<Integer, String> errorsMap = new HashMap<>();
+    protected static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
+    protected static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
 
     /**
      * Triggers the timer
@@ -85,20 +86,20 @@ public class TaskScheduler {
                     executorServiceMap.put(taskId, executorService);
                 } else {
                     log.error("The vale of interval is invalid");
-                    String errorFromMap = errorsMap.get(taskId);
+                    String errorFromMap = scheduleTaskErrorsMap.get(taskId);
                     String error = errorFromMap != null && !errorFromMap.isEmpty() ?
                             errorFromMap + ",The vale of interval must be greater than 0" :
                             "The vale of interval must be greater than 0";
-                    errorsMap.put(taskId, error);
+                    scheduleTaskErrorsMap.put(taskId, error);
                 }
             }
         } catch (RejectedExecutionException | IllegalArgumentException e) {
             log.error("Error occurred while scheduling the task: " + e.getMessage());
-            String errorFromMap = errorsMap.get(taskId);
+            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
             String error = errorFromMap != null && !errorFromMap.isEmpty() ?
                     errorFromMap + "," + e.getMessage() :
                     e.getMessage();
-            errorsMap.put(taskId, error);
+            scheduleTaskErrorsMap.put(taskId, error);
         }
     }
 
@@ -158,11 +159,11 @@ public class TaskScheduler {
             }
         } catch (RuntimeException e) {
             log.error("Error occurred while scheduling the appointment: " + e.getMessage());
-            String errorFromMap = errorsMap.get(taskId);
+            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
             String error = errorFromMap != null && !errorFromMap.isEmpty() ?
                     errorFromMap + "," + e.getMessage() :
                     e.getMessage();
-            errorsMap.put(taskId, error);
+            scheduleTaskErrorsMap.put(taskId, error);
         }
     }
 
@@ -174,43 +175,37 @@ public class TaskScheduler {
      */
     private static void stopExecution(int taskId, long sPeriod) {
         ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
-        if (executorServiceMap.get(taskId) != null) {
+        if (taskId <= 0) {
+            log.error("Invalid task ID " + taskId);
+            stopTaskErrorsMaps.put(taskId, "Invalid task ID " + taskId);
+        } else if (executorServiceMap.get(taskId) != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Attempting to stop the task: " + taskId);
             }
             final Runnable schedulerFunc = () -> {
                 //Get the corresponding executor service from context
                 ScheduledExecutorService executorService = executorServiceMap.get(taskId);
-                if (executorService != null) {
-                    try {
-                        //Invoke shutdown of the executor service
-                        executorService.shutdown();
-                        if (executorService.isShutdown()) {
-                            //Remove the executor service from the context
-                            executorServiceMap.remove(taskId);
-                            errorsMap.put(taskId, "");
-                            taskLifeTimeMap.put(taskId, 0L);
-                        } else {
-                            log.error("Unable to stop the task");
-                            String errorFromMap = errorsMap.get(taskId);
-                            String error = errorFromMap != null && !errorFromMap.isEmpty() ?
-                                    errorFromMap + ",Unable to stop the task which is associated to the ID " + taskId :
-                                    "Unable to stop the task which is associated to the ID " + taskId;
-                            errorsMap.put(taskId, error);
-                        }
-                    } catch (SecurityException e) {
-                        log.error("Unable to stop the task: " + e.getMessage());
-                        String errorFromMap = errorsMap.get(taskId);
-                        String error = errorFromMap != null && !errorFromMap.isEmpty() ?
-                                errorFromMap + "," + e.getMessage() :
-                                e.getMessage();
-                        errorsMap.put(taskId, error);
+                try {
+                    //Invoke shutdown of the executor service
+                    executorService.shutdown();
+                    if (executorService.isShutdown()) {
+                        //Remove the executor service from the context
+                        executorServiceMap.remove(taskId);
+                        scheduleTaskErrorsMap.put(taskId, "");
+                        taskLifeTimeMap.put(taskId, 0L);
+                    } else {
+                        log.error("Unable to stop the task");
+                        stopTaskErrorsMaps.put(taskId, "Unable to stop the task which is associated to the ID " + taskId);
                     }
+                } catch (SecurityException e) {
+                    log.error("Unable to stop the task: " + e.getMessage());
+                    stopTaskErrorsMaps.put(taskId, e.getMessage());
                 }
             };
             executorServiceToStopTheTask.schedule(schedulerFunc, sPeriod, TimeUnit.MILLISECONDS);
         } else {
             log.error("Unable to find the corresponding task");
+            stopTaskErrorsMaps.put(taskId, "Unable to find the corresponding task");
         }
     }
 
@@ -277,10 +272,10 @@ public class TaskScheduler {
         if (isInvalidInput(currentTime, minute, hour, dayOfWeek, dayOfMonth, month)) {
             //Validate the fields
             log.error("Invalid input");
-            String errorFromMap = errorsMap.get(taskId);
+            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
             String error =
                     errorFromMap != null && !errorFromMap.isEmpty() ? errorFromMap + ",Wrong input" : "Wrong input";
-            errorsMap.put(taskId, error);
+            scheduleTaskErrorsMap.put(taskId, error);
         } else {
             //Clone the current time to another instance
             Calendar executionStartTime = (Calendar) currentTime.clone();

@@ -20,12 +20,12 @@ package org.ballerinalang.test.task;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.Constant;
 import org.ballerinalang.nativeimpl.task.TaskScheduler;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -545,6 +545,21 @@ public class TaskTest {
         Assert.assertTrue(!TaskScheduler.isTheTaskRunning(taskIdEM));
     }
 
+    @Test(description = "Test for 'stopTask' function which is implemented in ballerina.task package")
+    public void testStopTaskWithInvalidId() {
+        int taskId = -1;
+        BValue[] args = {new BInteger(taskId), new BInteger(10000)};
+        BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
+        Assert.assertEquals("false", returns[0].stringValue());
+    }
+
+    @Test(description = "Test for 'stopTask' function which is implemented in ballerina.task package")
+    public void testStopTaskWithNonexistentId() {
+        int taskId = 1000000000;
+        BValue[] args = {new BInteger(taskId), new BInteger(10000)};
+        BValue[] returns = BRunUtil.invoke(stopTaskCompileResult, "stopTask", args);
+        Assert.assertEquals("false", returns[0].stringValue());
+    }
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testTimerWithMultipleWorkers() {
         consoleOutput.reset();

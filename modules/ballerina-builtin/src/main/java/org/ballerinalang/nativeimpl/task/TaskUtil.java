@@ -34,10 +34,6 @@ public class TaskUtil {
      * @return taskId which is computed with the process id and atomic integer
      */
     protected static int generateTaskId() {
-
-        if (log.isDebugEnabled()) {
-            log.info("Generating the task id");
-        }
         int taskId = counter.incrementAndGet();
         if (log.isDebugEnabled()) {
             log.debug("ID " + taskId + " is generated for this task");

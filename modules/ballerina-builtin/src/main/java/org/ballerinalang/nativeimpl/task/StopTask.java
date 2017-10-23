@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.stopTaskErrorsMaps;
+
 /**
  * Native function ballerina.model.task:stopTask.
  */
@@ -45,9 +47,11 @@ public class StopTask extends AbstractNativeFunction {
         if (log.isDebugEnabled()) {
             log.debug("Request has come to stop the task");
         }
-        BString error = new BString("");
         int taskId = (int) getIntArgument(ctx, 0);
         TaskScheduler.stopTask(taskId);
+        String errorFromScheduler = stopTaskErrorsMaps.get(taskId);
+        String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
+        BString error = new BString(schedulerError);
         return getBValues(error);
     }
 }
