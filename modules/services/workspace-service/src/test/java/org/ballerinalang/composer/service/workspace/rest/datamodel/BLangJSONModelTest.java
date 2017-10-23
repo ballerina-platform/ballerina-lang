@@ -75,31 +75,31 @@ public class BLangJSONModelTest {
     }
 
     // TODO: Temporarily removing the test case
-//    @Test
-//    public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
-//        File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
-//                                       .getFile());
-//        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
-//        urlConn.setRequestProperty("Content-Type", "application/json");
-//        OutputStream outputStream = urlConn.getOutputStream();
-//        String content = new Scanner(file).useDelimiter("\\Z").next();;
-//        JsonObject json = new JsonObject();
-//        json.addProperty("content", content);
-//        outputStream.write(json.toString().getBytes());
-//        outputStream.flush();
-//        InputStream inputStream = urlConn.getInputStream();
-//        String response = StreamUtil.asString(inputStream);
-//
-//        File fileExpected = new File(
-//                getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt-expected.json")
-//                          .getFile());
-//        String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
-//
-//
-//        Assert.assertEquals(jsonParse.parse(response), jsonParse.parse(expectedJsonStr));
-//        IOUtils.closeQuietly(inputStream);
-//        urlConn.disconnect();
-//    }
+    @Test
+    public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
+        File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
+                                       .getFile());
+        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
+        urlConn.setRequestProperty("Content-Type", "application/json");
+        OutputStream outputStream = urlConn.getOutputStream();
+        String content = new Scanner(file).useDelimiter("\\Z").next();;
+        JsonObject json = new JsonObject();
+        json.addProperty("content", content);
+        outputStream.write(json.toString().getBytes());
+        outputStream.flush();
+        InputStream inputStream = urlConn.getInputStream();
+        String response = StreamUtil.asString(inputStream);
+
+        File fileExpected = new File(
+                getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt-expected.json")
+                          .getFile());
+        String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
+
+
+        Assert.assertEquals(jsonParse.parse(response), jsonParse.parse(expectedJsonStr));
+        IOUtils.closeQuietly(inputStream);
+        urlConn.disconnect();
+    }
 
     @AfterClass
     public void teardown() throws Exception {
