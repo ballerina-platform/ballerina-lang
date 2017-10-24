@@ -55,7 +55,7 @@ class EditorPlugin extends Plugin {
         this.onOpenFileInEditor = this.onOpenFileInEditor.bind(this);
         this.onOpenCustomEditorTab = this.onOpenCustomEditorTab.bind(this);
         this.onTabClose = this.onTabClose.bind(this);
-        this.dispatchToolBarUpdate = this.dispatchActionTriggerUpdate.bind(this);
+        this.dispatchActionTriggerUpdate = this.dispatchActionTriggerUpdate.bind(this);
         this.onEditorFileUpdated = this.onEditorFileUpdated.bind(this);
     }
 
