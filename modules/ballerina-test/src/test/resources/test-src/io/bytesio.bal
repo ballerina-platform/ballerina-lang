@@ -23,4 +23,3 @@ function writeBytes (blob content, int startOffset) (int) {
 function close(){
     channel.close();
 }
-

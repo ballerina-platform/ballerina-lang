@@ -69,14 +69,14 @@ public abstract class BByteChannel extends AbstractChannel {
 
     /**
      * <p>
-     * Will get the bytes from buffer
+     * Will get the bytes from buffer.
      * </p>
      * <p>
-     * This operation would ensure only the get number of bytes are returned from the buffer
+     * This operation would ensure only the get number of bytes are returned from the buffer.
      * </p>
      *
-     * @param origin the buffer which contains the bytes get
-     * @return the underlying byte getByteArray which contains the get bytes
+     * @param origin the buffer which contains the bytes get.
+     * @return the underlying byte getByteArray which contains the get bytes.
      */
     private byte[] getByteArray(ByteBuffer origin) {
         byte[] content;
@@ -102,26 +102,22 @@ public abstract class BByteChannel extends AbstractChannel {
 
     /**
      * <p>
-     * Reads a specified number of bytes from a given channel
+     * Reads a specified number of bytes from a given channel.
      * <p>
      * Each time this method is called the data will be get from the point where it was get before.
      * </P>
      * <p>
      * <b>Note : </b> This method is not thread safe, if attempted to get the same file concurrently there will be
-     * inconsistencies
+     * inconsistencies.
      * </P>
      *
-     * @param numberOfBytes the number of bytes to get
-     * @return the get bytes
-     * @throws BallerinaIOException during I/O error
+     * @param numberOfBytes the number of bytes to get.
+     * @return the get bytes.
+     * @throws BallerinaIOException during I/O error.
      */
     public byte[] read(int numberOfBytes) throws BallerinaIOException {
-        byte[] bytesRead = new byte[0];
-        if (hasReachedToEnd()) {
-            return bytesRead;
-        }
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        bytesRead = getByteArray(readBuffer);
+        byte[] bytesRead = getByteArray(readBuffer);
         return bytesRead;
     }
 

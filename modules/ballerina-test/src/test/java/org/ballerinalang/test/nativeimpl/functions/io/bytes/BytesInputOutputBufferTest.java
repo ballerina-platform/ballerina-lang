@@ -17,6 +17,7 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
@@ -25,6 +26,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
 /**
@@ -80,6 +82,58 @@ public class BytesInputOutputBufferTest {
         channel.close();
         //This should hold the number of bytes get
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
+    }
+
+    @Test
+    public void varyingBufferSizeTest() throws IOException {
+        final int numberOfBytesInFile = 7;
+        final int fixedBufferSize = 15;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
+        BByteChannel channel = new BByteChannelTest(byteChannel, fixedBufferSize);
+        byte[] readBytes = channel.read(8);
+        Assert.assertEquals(readBytes.length, numberOfBytesInFile);
+    }
+
+    @Test
+    public void fixedBufferIterativeRead() throws IOException {
+        final int numberOfBytesInFile = 7;
+        final int fixedBufferSize = 15;
+        int readByteLength = -1;
+        ByteBuffer content = ByteBuffer.allocate(fixedBufferSize);
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
+        BByteChannel channel = new BByteChannelTest(byteChannel, fixedBufferSize);
+        while (readByteLength != 0) {
+            byte[] readBytes = channel.read(3);
+            content.put(readBytes);
+            readByteLength = readBytes.length;
+        }
+        content.flip();
+        Assert.assertEquals(content.limit(), numberOfBytesInFile);
+    }
+
+    @Test
+    public void fileStreamCopyTest() throws IOException {
+        final int readLimit = 10000;
+        int readByteCount = -1;
+        int totalNumberOfBytesRead = 0;
+        int totalNumberOfBytesWritten = 0;
+        final int numberOfBytesInFile = 45613;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
+        BByteChannel channel = new BByteChannelTest(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
+        BByteChannel writeChannel = new BByteChannelTest(writeByteChannel, 0);
+        while (readByteCount != 0) {
+            byte[] readBytes = channel.read(readLimit);
+            int writtenByteCount = writeChannel.write(readBytes, 0);
+            readByteCount = readBytes.length;
+            totalNumberOfBytesRead = totalNumberOfBytesRead + readByteCount;
+            totalNumberOfBytesWritten = totalNumberOfBytesWritten + writtenByteCount;
+        }
+        Assert.assertEquals(totalNumberOfBytesRead, numberOfBytesInFile);
+        Assert.assertEquals(totalNumberOfBytesRead, totalNumberOfBytesWritten);
     }
 
     /**

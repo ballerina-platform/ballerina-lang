@@ -77,18 +77,19 @@ public class BByteBuffer {
         if (null != byteBuffer) {
             int position = byteBuffer.position();
             int limit = byteBuffer.limit();
-            int remainingBytesToBeRead = limit - position;
-            if (remainingBytesToBeRead == 0) {
+            int numberOfBytesRemainingInBuffer = limit - position;
+            if (numberOfBytesRemainingInBuffer == 0) {
                 //Given there's nothing to get from the buffer
                 return null;
             }
-            if (remainingBytesToBeRead > totalNumberOfBytesRequired) {
+            if (numberOfBytesRemainingInBuffer > totalNumberOfBytesRequired) {
                 //This means there's excess amount of bytes than requested, hence we narrow down the limit
-                limit = totalNumberOfBytesRequired;
+                limit = position + totalNumberOfBytesRequired;
             }
             byte[] content = Arrays.copyOfRange(byteBuffer.array(), position, limit);
+            int readBufferPosition = position + content.length;
             bufferedContent = ByteBuffer.wrap(content);
-            byteBuffer.position(content.length);
+            byteBuffer.position(readBufferPosition);
             //We need to keep the buffer in write mode
             bufferedContent.position(bufferedContent.limit());
         } else {
@@ -207,19 +208,18 @@ public class BByteBuffer {
      * </p>
      *
      * @param srcBuffer buffer which requires resizing
-     * @param size      the size buffer should be resized
+     * @param size      the number of bytes which should be in the buffer
      * @return the buffer which is resized
      */
     private ByteBuffer resizeIfRequired(ByteBuffer srcBuffer, int size) {
         ByteBuffer resizedBuffer;
         int capacity = srcBuffer.capacity();
-        if (size < capacity) {
-            byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), srcBuffer.position(), size);
-            resizedBuffer = ByteBuffer.wrap(resizedContent);
-            byteBuffer.position(resizedContent.length);
-        } else {
-            resizedBuffer = srcBuffer;
+        if (capacity < size) {
+            size = capacity;
         }
+        byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), 0, size);
+        resizedBuffer = ByteBuffer.wrap(resizedContent);
+        byteBuffer.position(resizedContent.length);
         return resizedBuffer;
     }
 
@@ -228,23 +228,34 @@ public class BByteBuffer {
      * Will reverse the get position of the buffer
      * </p>
      * <p>
-     * This could be called if the amount of bytes which were get have not being consumed properly
+     * This will reverse the un-processed bytes so that these bytes could be re-read
+     * </p>
+     * <p>
+     * Reverse will start from the current buffers read position and will go all the way to the position '0'
      * </p>
      *
      * @param count the number of bytes which should be reversed
      */
-    void reverse(int count) {
+    void reverse(int count) throws BallerinaIOException {
         if (null != byteBuffer) {
             int reversedByteBufferPosition = byteBuffer.position() - count;
-            byteBuffer.position(reversedByteBufferPosition);
+            final int minimumBytePosition = 0;
+            if (reversedByteBufferPosition >= minimumBytePosition) {
+                byteBuffer.position(reversedByteBufferPosition);
+            } else {
+                String message = "The specified byte count " + count + " has not being read,hence cannot reverse";
+                throw new BallerinaIOException(message);
+            }
         } else {
-            log.error("An unread ByteBuffer is attempted for reverse, please get from buffer first");
+            String message = "An unread ByteBuffer is attempted for reverse, please get from buffer first";
+            log.error(message);
+            throw new BallerinaIOException(message);
         }
     }
 
     /**
      * <p>
-     * Reads the bytes from the buffer
+     * Get readable byte buffer.
      * </p>
      * <p>
      * If the bytes are not available in the buffer, an attempt would be made to get from the channel, best effort
@@ -256,12 +267,12 @@ public class BByteBuffer {
      * of the current buffer. The buffer will be re-sized.
      * </p>
      * <p>
-     * If no bytes are available an empty buffer with the required size will be returned
+     * If no bytes are available an empty buffer with the required size will be returned.
      * </p>
      *
-     * @param numberOfBytesRequested number of bytes requested from the buffer
-     * @param channel                bytes channel which will perform I/O ops necessary for reading
-     * @return Buffer which contains the requested amount of bytes
+     * @param numberOfBytesRequested number of bytes requested from the buffer.
+     * @param channel                bytes channel which will perform I/O ops necessary for reading.
+     * @return New byte buffer which contains the requested amount of bytes.
      */
     public ByteBuffer get(int numberOfBytesRequested, AbstractChannel channel) throws BallerinaIOException {
         ByteBuffer remainingBytesInBuffer = getBytesLeftInBuffer(numberOfBytesRequested);

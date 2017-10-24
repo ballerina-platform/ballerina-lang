@@ -15,10 +15,19 @@ public struct CharacterChannel{
 public struct TextRecordChannel{
 }
 
+@doc:Description {value:"Ballerina Delimited Binary Record Channel will allow writing binary records"}
+public struct DBRecordChannel{
+}
+
 @doc:Description { value:"Prepares I/O resource for reading characters"}
 @doc:Param {value:"encoding: encoding of the input which is read (i.e UTF-8, ASCCI)"}
 @doc:Return {value:"CharacterChannel which will allow read/write characters"}
 public native function <ByteChannel channel> toCharacterChannel(string encoding)(CharacterChannel);
+
+@doc:Description {value:"Prepares I/O resource for reading delimited binary records"}
+@doc:Param {value:"recordSeparator:dlimited of the record"}
+@doc:Return{value:"DBRecordChannel which will allow reding delimited binary records"}
+public native function <ByteChannel channel> toDBRecordChannel(blob recordSeparator)(DBRecordChannel);
 
 @doc:Description {value:"Gets records from a channel"}
 @doc:Param {value:"recordSeparator: terminating expression to distingush between records"}
@@ -45,6 +54,14 @@ public native function <CharacterChannel channel> readCharacters(int numberOfCha
 @doc:Param {value:"startOffset: the start position to write bytes"}
 @doc:Return {value:"int: the number of characters written"}
 public native function <CharacterChannel channel> writeCharacters(string content,int startOffset)(int);
+
+@doc:Description{value:"Read delimited byte record"}
+@doc:Return{value:"Read delimited byte record"}
+public native function <DBRecordChannel channel> readDBRecord()(blob);
+
+@doc:Description{value:"Write delimited byte record"}
+@doc:Return{value:"Record which should be written"}
+public native function <DBRecordChannel channel> writeDBRecord(blob record);
 
 @doc:Description { value:"Reads bytes from a given channel"}
 @doc:Param { value:"numberOfBytes: The number of bytes to be read" }

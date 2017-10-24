@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -35,6 +34,6 @@ public class BSocketChannel extends BByteChannel {
 
     @Override
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

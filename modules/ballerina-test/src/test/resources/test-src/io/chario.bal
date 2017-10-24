@@ -18,6 +18,3 @@ function writeCharacters (string content, int startOffset) (int) {
     int numberOfCharactersWritten = characterChannel.writeCharacters(content, startOffset);
     return numberOfCharactersWritten;
 }
-
-
-

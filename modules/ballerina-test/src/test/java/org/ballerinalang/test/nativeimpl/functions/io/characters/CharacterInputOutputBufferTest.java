@@ -76,7 +76,6 @@ public class CharacterInputOutputBufferTest {
      */
     @Test
     public void writeCharacters() throws IOException {
-        int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
         AbstractChannel channel = new BByteChannelTest(byteChannel, 10);

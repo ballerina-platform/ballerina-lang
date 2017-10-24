@@ -196,7 +196,6 @@ public class BCharacterChannel {
                 log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
             }
             ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
-            byteBuffer.flip();
             charBuffer = bytesDecoder.decode(byteBuffer);
             //If there's a discrepancy between the limit and the capacity this could probably mean the required
             // amount of bytes have not being get
