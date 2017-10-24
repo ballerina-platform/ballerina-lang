@@ -303,20 +303,20 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                          && node.ladderParent) {
                 return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
                  + '(' + getSourceOf(node.condition, pretty, l) + w() + ')'
-                 + w(' ') + '{' + indent() + getSourceOf(node.body, pretty, l)
+                 + a(' ') + w() + '{' + indent() + getSourceOf(node.body, pretty, l)
                  + outdent() + w() + '}' + w(' ') + 'else' + a(' ')
                  + getSourceOf(node.elseStatement, pretty, l);
             } else if (node.condition && node.body && node.elseStatement) {
                 return (node.parent.kind === 'If' ? '' : dent())
                  + (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ') + '('
-                 + getSourceOf(node.condition, pretty, l) + w() + ')' + w(' ') + '{' + indent()
-                 + getSourceOf(node.body, pretty, l) + outdent() + w() + '}'
-                 + w(' ') + 'else' + a(' ') + w(' ') + '{' + indent()
+                 + getSourceOf(node.condition, pretty, l) + w() + ')' + a(' ') + w() + '{'
+                 + indent() + getSourceOf(node.body, pretty, l) + outdent() + w() + '}'
+                 + w(' ') + 'else' + a(' ') + w() + '{' + indent()
                  + getSourceOf(node.elseStatement, pretty, l) + outdent() + w() + '}';
             } else {
                 return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
                  + '(' + getSourceOf(node.condition, pretty, l) + w() + ')'
-                 + w(' ') + '{' + indent() + getSourceOf(node.body, pretty, l)
+                 + a(' ') + w() + '{' + indent() + getSourceOf(node.body, pretty, l)
                  + outdent() + w() + '}';
             }
         case 'IndexBasedAccessExpr':
