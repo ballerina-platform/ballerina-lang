@@ -116,23 +116,22 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 }
 
                 private void notifyErrorState(ChannelFuture channelFuture) {
+                    ConnectException cause;
+
                     if (channelFuture.isDone() && channelFuture.isCancelled()) {
-                        ConnectException cause = new ConnectException("Request Cancelled, " + route.toString());
-                        if (channelFuture.cause() != null) {
-                            cause.initCause(channelFuture.cause());
-                        }
-                        targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                        cause = new ConnectException("Request Cancelled, " + route.toString());
                     } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
                             !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
-                        ConnectException cause = new ConnectException("Connection timeout, " + route.toString());
-                        targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                        cause = new ConnectException("Connection timeout, " + route.toString());
                     } else {
-                        ConnectException cause = new ConnectException("Connection refused, " + route.toString());
-                        if (channelFuture.cause() != null) {
-                            cause.initCause(channelFuture.cause());
-                        }
-                        targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                        cause = new ConnectException("Connection refused, " + route.toString());
                     }
+
+                    if (channelFuture.cause() != null) {
+                        cause.initCause(channelFuture.cause());
+                    }
+
+                    httpResponseFuture.notifyHttpListener(cause);
                 }
             });
         } catch (Exception failedCause) {
