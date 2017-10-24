@@ -336,7 +336,7 @@ public class TaskScheduler {
      * @param executionStartTime The modified Calendar instance.
      * @param minute             The value of the minute in the appointment expression.
      * @param hour               The value of the hour in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingMinute(Calendar currentTime, Calendar executionStartTime,
                                                            int minute, int hour) {
@@ -368,7 +368,7 @@ public class TaskScheduler {
      * @param hour               The value of the hour in the appointment expression.
      * @param dayOfWeek          The value of the day of week in the appointment expression.
      * @param dayOfMonth         The value of the day of month in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingHour(Calendar currentTime, Calendar executionStartTime, int minute,
                                                          int hour, int dayOfWeek, int dayOfMonth) {
@@ -406,7 +406,7 @@ public class TaskScheduler {
      * @param executionStartTime The modified Calendar instance.
      * @param dayOfWeek          The value of the day of week in the appointment expression.
      * @param month              The value of the month in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingDayOfWeek(Calendar currentTime, Calendar executionStartTime,
                                                               int dayOfWeek, int month) {
@@ -455,7 +455,7 @@ public class TaskScheduler {
      * @param executionStartTime The modified Calendar instance.
      * @param dayOfMonth         The value of the day of month in the appointment expression.
      * @param month              The value of the month in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingDayOfMonth(Calendar currentTime, Calendar executionStartTime,
                                                                int dayOfMonth, int month) {
@@ -489,7 +489,7 @@ public class TaskScheduler {
      * @param dayOfWeek          The value of the day of week in the appointment expression.
      * @param dayOfMonth         The value of the day of month in the appointment expression.
      * @param month              The value of the month in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingMonth(int taskId, Calendar currentTime, Calendar executionStartTime,
                                                           int minute, int hour, int dayOfWeek, int dayOfMonth,
@@ -535,7 +535,7 @@ public class TaskScheduler {
      * @param dayOfWeek          The value of the day of week in the appointment expression.
      * @param dayOfMonth         The value of the day of month in the appointment expression.
      * @param month              The value of the month in the appointment expression.
-     * @return updated Calendar
+     * @return updated Calendar.
      */
     private static Calendar modifyCalendarByCheckingTheYear(Calendar currentTime, Calendar executionStartTime,
                                                             int minute, int hour, int dayOfWeek, int dayOfMonth,
