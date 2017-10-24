@@ -121,8 +121,7 @@ class FileTree extends React.Component {
                 if (targetChild) {
                     // this is the target
                     if (path === targetChild.id) {
-                        targetChild.active = true;
-                        this.forceUpdate();
+                        this.onToggle(targetChild, false);
                     } else if (targetChild.children) {
                         this.loadGivenPath(path, targetChild);
                     }
