@@ -21,7 +21,6 @@ import _ from 'lodash';
 /**
  * Finds line numbers in new ASTmodel and replaces in oldASTModel
  * @class SyncBreakpoints
- * @extends {ASTVisitor}
  */
 class SyncBreakpoints {
     constructor() {
@@ -46,6 +45,15 @@ class SyncBreakpoints {
      */
     canVisit() {
         return true;
+    }
+
+    /**
+ * At the end of node visit.
+ * @returns {any} Visit output.
+ * @memberof SyncBreakpoints
+ */
+    endVisit() {
+        return undefined;
     }
 }
 

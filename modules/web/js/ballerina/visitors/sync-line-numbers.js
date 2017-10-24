@@ -20,7 +20,6 @@
 /**
  * Finds line numbers in new ASTmodel and replaces in oldASTModel
  * @class SyncLineNumbers
- * @extends {ASTVisitor}
  */
 class SyncLineNumbers {
     /**
@@ -40,6 +39,15 @@ class SyncLineNumbers {
      */
     canVisit() {
         return true;
+    }
+
+    /**
+     * At the end of node visit.
+     * @returns {any} Visit output.
+     * @memberof SyncLineNumbers
+     */
+    endVisit() {
+        return undefined;
     }
 }
 

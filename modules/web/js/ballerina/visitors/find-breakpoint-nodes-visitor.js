@@ -19,7 +19,6 @@
 /**
  * Finds nodes with breakpoints
  * @class FindBreakpointNodesVisitor
- * @extends {ASTVisitor}
  */
 class FindBreakpointNodesVisitor {
     /**
@@ -52,11 +51,21 @@ class FindBreakpointNodesVisitor {
             node.isBreakpoint = false;
         }
     }
+
     /**
      * @inheritdoc
      */
     canVisit() {
         return true;
+    }
+
+    /**
+     * At the end of node visit.
+     * @returns {any} Visit output.
+     * @memberof FindBreakpointNodesVisitor
+     */
+    endVisit() {
+        return undefined;
     }
 }
 
