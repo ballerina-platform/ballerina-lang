@@ -126,10 +126,37 @@ public class WebSocketClientTestCase {
 
     @Test(priority = 3, description = "Test ping pong messaging.")
     public void testPingPong() throws Throwable {
-        CountDownLatch latch = new CountDownLatch(1);
-        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
-        HandshakeFuture handshakeFuture = handshake(connectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+        // Request ping from remote and test receive.
+        CountDownLatch pingLatch = new CountDownLatch(1);
+        WebSocketTestClientConnectorListener pingConnectorListener =
+                new WebSocketTestClientConnectorListener(pingLatch);
+        HandshakeFuture pingHandshakeFuture = handshake(pingConnectorListener);
+        pingHandshakeFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                try {
+                    session.getBasicRemote().sendText("ping");
+                } catch (IOException e) {
+                    log.error(e.getMessage());
+                    Assert.assertTrue(false, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
+        pingLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        Assert.assertTrue(pingConnectorListener.isPingReceived(), "Ping message should be received");
+
+        // Test pong receive
+        CountDownLatch pongLatch = new CountDownLatch(1);
+        WebSocketTestClientConnectorListener pongConnectorListener =
+                new WebSocketTestClientConnectorListener(pongLatch);
+        HandshakeFuture pongHandshakeFuture = handshake(pongConnectorListener);
+        pongHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
                 try {
@@ -148,9 +175,8 @@ public class WebSocketClientTestCase {
                 Assert.assertTrue(false, t.getMessage());
             }
         });
-
-        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-        Assert.assertTrue(connectorListener.isPongReceived(), "Pong message should be received");
+        pongLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        Assert.assertTrue(pongConnectorListener.isPongReceived(), "Pong message should be received");
     }
 
     @Test(priority = 4, description = "Test multiple clients handling, sending and receiving text messages for them.")

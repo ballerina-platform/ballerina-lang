@@ -19,10 +19,12 @@
 
 package org.wso2.carbon.transport.http.netty.util.server.websocket;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
@@ -50,6 +52,10 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
         if (frame instanceof TextWebSocketFrame) {
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
+            if ("ping".equals(text)) {
+                ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
+                return;
+            }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof BinaryWebSocketFrame) {
             ctx.channel().writeAndFlush(frame.retain());

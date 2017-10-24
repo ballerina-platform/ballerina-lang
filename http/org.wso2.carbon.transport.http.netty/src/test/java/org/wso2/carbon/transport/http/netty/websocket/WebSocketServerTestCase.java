@@ -138,15 +138,28 @@ public class WebSocketServerTestCase {
 
     @Test
     public void testPingPongMessage() throws InterruptedException, IOException, URISyntaxException {
-        CountDownLatch latch = new CountDownLatch(1);
-        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
-        primaryClient.handhshake();
+        // Check the ping receive.
+        CountDownLatch pingLatch = new CountDownLatch(1);
+        WebSocketTestClient pingCheckClient = new WebSocketTestClient(pingLatch);
+        pingCheckClient.handhshake();
+        pingCheckClient.sendText("ping");
+        pingLatch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        ByteBuffer expectedBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        Assert.assertTrue(pingCheckClient.isPingReceived(), "Should receive a ping from the server");
+        Assert.assertEquals(pingCheckClient.getBufferReceived(), expectedBuffer);
+        pingCheckClient.shutDown();
+
+        // Check the pong receive.
+        CountDownLatch pongLatch = new CountDownLatch(1);
+        WebSocketTestClient pongCheckClient = new WebSocketTestClient(pongLatch);
+        pongCheckClient.handhshake();
         byte[] bytes = {6, 7, 8, 9, 10, 11};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
-        primaryClient.sendPing(bufferSent);
-        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
-        Assert.assertEquals(primaryClient.getBufferReceived(), bufferSent);
-        primaryClient.shutDown();
+        pongCheckClient.sendPing(bufferSent);
+        pongLatch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertTrue(pongCheckClient.isPongReceived(), "Should receive a pong from the server");
+        Assert.assertEquals(pongCheckClient.getBufferReceived(), bufferSent);
+        pongCheckClient.shutDown();
     }
 
     @Test

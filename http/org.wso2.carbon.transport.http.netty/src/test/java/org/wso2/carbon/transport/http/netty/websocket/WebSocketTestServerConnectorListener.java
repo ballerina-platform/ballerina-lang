@@ -86,6 +86,10 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
         try {
+            if ("ping".equals(receivedTextToClient)) {
+                session.getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                return;
+            }
             session.getBasicRemote().sendText(receivedTextToClient);
         } catch (IOException e) {
             handleError(e);

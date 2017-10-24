@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlS
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -46,6 +47,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
     private boolean isPongReceived = false;
+    private boolean isPingReceived = false;
     private boolean isIdleTimeout = false;
 
     public WebSocketTestClientConnectorListener(CountDownLatch latch) {
@@ -59,6 +61,13 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
+        if ("ping".equals(textMessage.getText())) {
+            try {
+                textMessage.getChannelSession().getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+            } catch (IOException e) {
+                errorsQueue.add(e);
+            }
+        }
         textQueue.add(textMessage.getText());
         latch.countDown();
     }
@@ -71,6 +80,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
+        if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
+            isPingReceived = true;
+            latch.countDown();
+        }
+
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             isPongReceived = true;
             latch.countDown();
@@ -130,6 +144,20 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         if (errorsQueue.isEmpty()) {
             boolean tmp = isPongReceived;
             isPongReceived = false;
+            return tmp;
+        }
+        throw errorsQueue.remove();
+    }
+
+    /**
+     * Retrieve whether a pong is received client.
+     *
+     * @return true if a pong is received to client.
+     */
+    public boolean isPingReceived() throws Throwable {
+        if (errorsQueue.isEmpty()) {
+            boolean tmp = isPingReceived;
+            isPingReceived = false;
             return tmp;
         }
         throw errorsQueue.remove();
