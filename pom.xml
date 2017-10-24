@@ -210,15 +210,16 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-kahadb-store</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
                 <version>${org.apache.commons.pool2.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.quartz-scheduler</groupId>-->
-                <!--<artifactId>quartz</artifactId>-->
-                <!--<version>${quartz.version}</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.orbit.org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
@@ -228,6 +229,24 @@
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>${commons-net.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-jaas</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>javax.transaction-api</artifactId>
+                <version>${javax.transaction.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.atomikos.wso2</groupId>
+                <artifactId>atomikos</artifactId>
+                <version>${org.atomikos.wso2.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -369,6 +388,8 @@
         <jsch.version>0.1.51.wso2v1</jsch.version>
         <mock.ftp.server.version>2.7.1</mock.ftp.server.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javax.transaction.version>1.2</javax.transaction.version>
+        <org.atomikos.wso2.version>3.8.0.wso2v1</org.atomikos.wso2.version>
     </properties>
 
 </project>
