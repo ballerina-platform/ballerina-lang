@@ -33,7 +33,7 @@ ace.define('ace/mode/ballerina',
                 'return|break|timeout|transaction|aborted|abort|committed|failed|retry|next',
                 'ballerina-keyword-other': 'import|version|public|attach|as',
                 'ballerina-keyword-primitive-type': 'boolean|int|float|string|var|any',
-                'ballerina-keyword-non-primitive-type': 'message|map|exception|json|xml|xmlDocument|xmlns',
+                'ballerina-keyword-non-primitive-type': 'message|map|exception|json|xml|xmlDocument|xmlns|error',
                 'ballerina-keyword-definition': 'annotation|package|type|typemapper|connector|function|resource|' +
                 'service|action|worker|struct|transform',
                 'ballerina-keyword-language': 'const|true|false|reply|create|parameter',
