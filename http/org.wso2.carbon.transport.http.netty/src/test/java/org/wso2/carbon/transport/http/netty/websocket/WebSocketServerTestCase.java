@@ -139,10 +139,11 @@ public class WebSocketServerTestCase {
     @Test
     public void testPingPongMessage() throws InterruptedException, IOException, URISyntaxException {
         // Check the ping receive.
+        final String ping = "ping";
         CountDownLatch pingLatch = new CountDownLatch(1);
         WebSocketTestClient pingCheckClient = new WebSocketTestClient(pingLatch);
         pingCheckClient.handhshake();
-        pingCheckClient.sendText("ping");
+        pingCheckClient.sendText(ping);
         pingLatch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         ByteBuffer expectedBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         Assert.assertTrue(pingCheckClient.isPingReceived(), "Should receive a ping from the server");

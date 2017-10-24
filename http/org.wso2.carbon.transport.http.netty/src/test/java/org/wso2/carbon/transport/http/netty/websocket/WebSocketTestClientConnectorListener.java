@@ -46,6 +46,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private final Queue<String> textQueue = new LinkedList<>();
     private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
+    private static final String PING = "ping";
     private boolean isPongReceived = false;
     private boolean isPingReceived = false;
     private boolean isIdleTimeout = false;
@@ -61,7 +62,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        if ("ping".equals(textMessage.getText())) {
+        if (PING.equals(textMessage.getText())) {
             try {
                 textMessage.getChannelSession().getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
             } catch (IOException e) {

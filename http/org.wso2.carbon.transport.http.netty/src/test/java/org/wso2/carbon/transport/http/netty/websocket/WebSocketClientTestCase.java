@@ -53,6 +53,7 @@ public class WebSocketClientTestCase {
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+    private static final String PING = "ping";
     private final int latchWaitTimeInSeconds = 10;
     private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
@@ -124,9 +125,9 @@ public class WebSocketClientTestCase {
         Assert.assertEquals(bufferReceived, bufferSent);
     }
 
-    @Test(priority = 3, description = "Test ping pong messaging.")
+    @Test(priority = 3, description = "Test PING pong messaging.")
     public void testPingPong() throws Throwable {
-        // Request ping from remote and test receive.
+        // Request PING from remote and test receive.
         CountDownLatch pingLatch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener pingConnectorListener =
                 new WebSocketTestClientConnectorListener(pingLatch);
@@ -135,7 +136,7 @@ public class WebSocketClientTestCase {
             @Override
             public void onSuccess(Session session) {
                 try {
-                    session.getBasicRemote().sendText("ping");
+                    session.getBasicRemote().sendText(PING);
                 } catch (IOException e) {
                     log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());

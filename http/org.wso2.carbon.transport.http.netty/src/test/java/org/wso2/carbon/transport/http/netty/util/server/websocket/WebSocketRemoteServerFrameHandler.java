@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
+    private static final String PING = "ping";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -52,7 +53,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
         if (frame instanceof TextWebSocketFrame) {
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
-            if ("ping".equals(text)) {
+            if (PING.equals(text)) {
                 ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
                 return;
             }
