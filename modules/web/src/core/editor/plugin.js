@@ -170,10 +170,15 @@ class EditorPlugin extends Plugin {
     setActiveEditor(editor) {
         this.activeEditor = editor;
         this.activeEditorID = editor ? editor.id : undefined;
-        const { pref: { history } } = this.appContext;
+        const { pref: { history }, workspace } = this.appContext;
         history.put(HISTORY.ACTIVE_EDITOR, this.activeEditorID);
         this.reRender();
         this.dispatchActionTriggerUpdate();
+        if (editor instanceof Editor) {
+            setTimeout(() => {
+                workspace.goToFileInExplorer(editor.file.fullPath);
+            }, 100);
+        }
     }
 
     /**

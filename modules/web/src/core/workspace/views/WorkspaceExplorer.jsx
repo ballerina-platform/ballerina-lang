@@ -22,8 +22,37 @@ class WorkspaceExplorer extends View {
      */
     constructor(props) {
         super(props);
+        this.state = {
+            goToFilePath: undefined,
+        };
         this.onSelectNode = this.onSelectNode.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
+        this.onGoToFileInExplorer = this.onGoToFileInExplorer.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const { command: { on } } = this.context;
+        on(COMMANDS.GO_TO_FILE_IN_EXPLORER, this.onGoToFileInExplorer);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        const { command: { off } } = this.context;
+        off(COMMANDS.GO_TO_FILE_IN_EXPLORER, this.onGoToFileInExplorer);
+    }
+
+    /**
+     * On Go To File Dispatch
+     */
+    onGoToFileInExplorer({ filePath }) {
+        this.setState({
+            goToFilePath: filePath,
+        });
     }
 
     /**
@@ -54,8 +83,8 @@ class WorkspaceExplorer extends View {
         let foundGoToFileRoot = false;
         openedFolders.forEach((folder) => {
             let activeKey;
-            if (this.props.workspaceManager.goToFilePath && !foundGoToFileRoot) {
-                const { goToFilePath } = this.props.workspaceManager;
+            const { goToFilePath } = this.state;
+            if (goToFilePath && !foundGoToFileRoot) {
                 if (goToFilePath && _.startsWith(goToFilePath, folder)) {
                     activeKey = goToFilePath;
                     foundGoToFileRoot = true;
@@ -97,6 +126,10 @@ WorkspaceExplorer.contextTypes = {
     history: PropTypes.shape({
         put: PropTypes.func,
         get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
     }).isRequired,
 };
 

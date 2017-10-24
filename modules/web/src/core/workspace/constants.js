@@ -8,6 +8,7 @@ export const COMMANDS = {
     SHOW_FILE_OPEN_WIZARD: 'show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'show-folder-open-wizard',
     REFRESH_EXPLORER: 'refresh-explorer',
+    GO_TO_FILE_IN_EXPLORER: 'go-to-file-in-explorer',
 };
 
 export const EVENTS = {

@@ -58,7 +58,6 @@ class WorkspacePlugin extends Plugin {
         this.openedFolders = [];
         this.openedFiles = [];
         this._selectedNodeInExplorer = undefined;
-        this.goToFilePath = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
         this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
     }
@@ -95,6 +94,11 @@ class WorkspacePlugin extends Plugin {
         }
         this.selectedNodeInExplorer = node;
         this.reRender();
+        const { editor } = this.appContext;
+        if (editor.isFileOpenedInEditor(node.id)) {
+            const targetEditor = editor.getEditorByID(node.id);
+            editor.setActiveEditor(targetEditor);
+        }
     }
 
     /**
@@ -132,6 +136,17 @@ class WorkspacePlugin extends Plugin {
                 log.debug(`File ${filePath} is already opened.`);
                 resolve(this.openedFiles[indexInOpenedFiles]);
             }
+        });
+    }
+
+    /**
+     * Go To Give File in Explorer, if it's already opened
+     * @param {String} filePath Target File Path
+     */
+    goToFileInExplorer(filePath) {
+        const { command: { dispatch } } = this.appContext;
+        dispatch(COMMAND_IDS.GO_TO_FILE_IN_EXPLORER, {
+            filePath,
         });
     }
 
@@ -213,6 +228,7 @@ class WorkspacePlugin extends Plugin {
             openFolder: this.openFolder.bind(this),
             closeFile: this.closeFile.bind(this),
             removeFolder: this.removeFolder.bind(this),
+            goToFileInExplorer: this.goToFileInExplorer.bind(this),
         };
     }
 
@@ -279,21 +295,6 @@ class WorkspacePlugin extends Plugin {
                                     dispatch(COMMAND_IDS.REFRESH_EXPLORER, {});
                                 },
                                 description: 'Refresh',
-                            },
-                            {
-                                icon: 'left',
-                                isActive: () => {
-                                    const { editor } = this.appContext;
-                                    const activeEditor = editor.getActiveEditor();
-                                    return activeEditor && !_.isNil(activeEditor.file);
-                                },
-                                handleAction: () => {
-                                    const { editor } = this.appContext;
-                                    const activeEditor = editor.getActiveEditor();
-                                    this.goToFilePath = activeEditor.file.fullPath;
-                                    this.reRender();
-                                },
-                                description: 'Go To File',
                             },
                             {
                                 icon: 'add-folder',
