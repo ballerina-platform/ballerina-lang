@@ -122,8 +122,8 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "simple-test-config/client-truststore.jks"
-  trustStorePass: "wso2carbon"
+  trustStoreFile: "simple-test-config/ballerinaTruststore.p12"
+  trustStorePass: "ballerina"
   parameters:
     -
      name: "connection.pool.count"

@@ -64,9 +64,9 @@ public class CipherSuitesTest {
 
     private static HttpClientConnector httpClientConnector;
     private static String testValue = "successful";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
-    private String password = "wso2carbon";
+    private String keyStoreFile = "src/test/resources/simple-test-config/ballerinaKeystore.p12";
+    private String trustStoreFile = "src/test/resources/simple-test-config/ballerinaTruststore.p12";
+    private String password = "ballerina";
     private String scheme = "https";
     private String verifyClient = "require";
 

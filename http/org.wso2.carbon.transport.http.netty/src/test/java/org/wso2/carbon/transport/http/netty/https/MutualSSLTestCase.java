@@ -60,9 +60,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class MutualSSLTestCase {
     private static HttpClientConnector httpClientConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
-    private String password = "wso2carbon";
+    private String keyStoreFile = "src/test/resources/simple-test-config/ballerinaKeystore.p12";
+    private String trustStoreFile = "src/test/resources/simple-test-config/ballerinaTruststore.p12";
+    private String password = "ballerina";
     private String scheme = "https";
     private String verifyClient = "require";
     private static int serverPort = 9095;

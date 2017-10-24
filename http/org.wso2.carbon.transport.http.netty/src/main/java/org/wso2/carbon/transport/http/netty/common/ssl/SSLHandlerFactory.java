@@ -106,7 +106,7 @@ public class SSLHandlerFactory {
         KeyStore ks = null;
         if (keyStore != null && keyStorePassword != null) {
             try (InputStream is = new FileInputStream(keyStore)) {
-                ks = KeyStore.getInstance("JKS");
+                ks = KeyStore.getInstance("PKCS12");
                 ks.load(is, keyStorePassword.toCharArray());
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
                 throw new IOException(e);
