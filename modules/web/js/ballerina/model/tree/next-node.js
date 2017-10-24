@@ -28,11 +28,12 @@ class NextNode extends AbstractNextNode {
     /**
      * check whether this can be dropped on to the drop target.
      * @param {Node} dropTarget - node that this dragging node to be added to.
+     * @param {Node} dropBefore - node which is adding this dragging node before.
      * @return {boolean} true if can be dropped, false if not.
      * */
-    canBeDropped(dropTarget) {
+    canBeDropped(dropTarget, dropBefore) {
         const transactionNode = this.findIterativeBlock(dropTarget);
-        return transactionNode ? transactionNode.kind === 'While' : false;
+        return (transactionNode ? transactionNode.kind === 'While' : false) && !dropBefore;
     }
 
     /**
