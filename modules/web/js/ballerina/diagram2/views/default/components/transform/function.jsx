@@ -19,7 +19,6 @@
 import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
-import ASTFactory from '../../../../../ast/ast-factory';
 
 export default class FunctionInv extends React.Component {
     render() {

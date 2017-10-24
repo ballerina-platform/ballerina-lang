@@ -16,14 +16,13 @@
  * under the License.
  */
 
-import ASTVisitor from './ast-visitor';
 
 /**
  * Finds line numbers in new ASTmodel and replaces in oldASTModel
  * @class SyncLineNumbers
  * @extends {ASTVisitor}
  */
-class SyncLineNumbers extends ASTVisitor {
+class SyncLineNumbers {
     /**
      * @inheritdoc
      */

@@ -17,16 +17,14 @@
  */
 
 import _ from 'lodash';
-import ASTVisitor from './ast-visitor';
 
 /**
  * Finds line numbers in new ASTmodel and replaces in oldASTModel
  * @class SyncBreakpoints
  * @extends {ASTVisitor}
  */
-class SyncBreakpoints extends ASTVisitor {
+class SyncBreakpoints {
     constructor() {
-        super();
         this._breakpoints = [];
     }
     /**
