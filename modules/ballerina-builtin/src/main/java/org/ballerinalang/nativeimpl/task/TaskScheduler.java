@@ -397,10 +397,10 @@ public class TaskScheduler {
                     Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE);
             if (hour <= 11) {
                 //If the hour <= 11, it's first half of the day
-                executionStartTime.set(Calendar.AM_PM, 0);
+                executionStartTime.set(Calendar.AM_PM, Calendar.AM);
             } else {
                 //It's second half of the day
-                executionStartTime.set(Calendar.AM_PM, 1);
+                executionStartTime.set(Calendar.AM_PM, Calendar.PM);
             }
         }
         if (executionStartTime.before(currentTime) && dayOfWeek == Constant.NOT_CONSIDERABLE
@@ -566,7 +566,12 @@ public class TaskScheduler {
         if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
                 (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
                         || (dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))) {
-            //If the execution start time is future, set the date to first day
+            //1. If the year of the execution start time is greater than current and
+            //day of week is set and execution start time's day of week is not same, find the first possible day
+            //2. If the year of the execution start time is greater than current and day of month is not set
+            //and date of the execution start time is not first day, set the date to first day
+
+            //Set the date to first day
             executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE) {
                 while (executionStartTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
