@@ -43,14 +43,6 @@ class FunctionNode extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
 
-        const position = this.props.model.position;
-        let semanticErrors = [];
-        if(this.context.editor.semanticErrors){
-            semanticErrors = this.context.editor.semanticErrors.filter((error) => {
-                return ((error.row === position.startLine) && (error.column === position.startColumn));
-            });
-        }
-
         // change icon for main function
         let icons = 'tool-icons/function';
         if (name === 'main') {
@@ -89,7 +81,6 @@ class FunctionNode extends React.Component {
                 canDrop={this.canDropToPanelBody}
                 argumentParams={argumentParameters}
                 returnParams={returnParameters}
-                semanticErrors={semanticErrors}
             >
                 { this.props.model.getWorkers().length === 0 &&
                 <g>
@@ -137,7 +128,6 @@ FunctionNode.propTypes = {
 
 FunctionNode.contextTypes = {
     mode: PropTypes.string,
-    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default FunctionNode;
