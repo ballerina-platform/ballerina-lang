@@ -53,20 +53,40 @@ class StructDefinitionItem extends React.Component {
     deleteStatement(model) {
         model.parent.removeFields(model);
     }
+    getTypeKind(model) {
+        const typeNode = model.getTypeNode();
+        switch (typeNode.kind) {
+            case 'ArrayType':
+                const { dimensions = 1 } = typeNode;
+                let val = this.getTypeFromNode(typeNode.elementType);
+                for (let i = 0; i < dimensions; i++) {
+                    val = `${val}[]`;
+                }
+                return val;
+            default:
+                return this.getTypeFromNode(typeNode);
+        }
+    }
+    getTypeFromNode(typeNode) {
+        switch (typeNode.kind) {
+            case 'ValueTypeNode':
+                return typeNode.typeKind;
+            case 'UserDefinedType':
+                return typeNode.typeName.value;
+            default:
+                return typeNode.typeKind;
+        }
+    }
     render() {
         const { model } = this.props;
 
         const { x, y, w, h, validateIdentifierName, validateDefaultValue } = this.props;
         const columnSize = (w - closeButtonWidth) / 3;
 
-        // const typePkgName = model.getBTypePkgName();
-        const type = model.getTypeNode().typeKind;
-        /* if (typePkgName !== undefined) {
-            type = typePkgName + ':' + type;
-        }*/
+        const type = this.getTypeKind(model);
+
         const identifier = model.getName().value;
         const value = (model.getInitialExpression() ? model.getInitialExpression().value : undefined);
-
         const typeCellbox = {
             x,
             y,
