@@ -17,8 +17,8 @@
  */
 
 import _ from 'lodash';
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
-import SimpleBBox from './../../../ast/simple-bounding-box';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
 
 class PositioningUtil {

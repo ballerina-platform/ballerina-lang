@@ -16,8 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTFactory from '../ast/ast-factory';
-import SimpleBBox from './../ast/simple-bounding-box';
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
+import TreeUtils from 'ballerina/model/tree-util';
 
 /**
  * This will vist the tree and resolve any conflicts of arrows with boxes.
@@ -67,23 +67,24 @@ class ArrowConflictResolver {
     beginVisit(node) {
         // init a new list for function.
         // If a function, resource, acction discoved reset the grid lines.
-        if (ASTFactory.isFunctionDefinition(node) ||
-            ASTFactory.isResourceDefinition(node) ||
-            ASTFactory.isConnectorAction(node)) {
+        if (TreeUtils.isFunction(node) ||
+            TreeUtils.isResource(node) ||
+            TreeUtils.isConnector(node)) {
             this.startGrid();
         }
         // lets collect the connector declarations for this worker.
-        if (ASTFactory.isConnectorDeclaration(node)) {
+        if (TreeUtils.isConnectorDeclaration(node)) {
             this.connectors.push(node.getIdentifire());
         }
         // if a worker is found init a new active line
-        if (ASTFactory.isWorkerDeclaration(node)) {
+        // TODO : Is worker declaration
+        if (TreeUtils.isWorker(node)) {
             this.startWorker();
             this.workerList.push(node.getWorkerName());
         }
         // If the send/receive is the ending box for the arrow reset opaque and arrow.
-        if (ASTFactory.isWorkerInvocationStatement(node) ||
-            ASTFactory.isWorkerReplyStatement(node)) {
+        if (TreeUtils.isWorkerSend(node) ||
+            TreeUtils.isWorkerReceive(node)) {
             if (_.includes(this.workerList, node.getWorkerName())) {
                 node.viewState.components['statement-box'].arrow = false;
                 node.viewState.components['statement-box'].setOpaque(false);
