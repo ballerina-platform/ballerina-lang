@@ -20,6 +20,15 @@ import AbstractReturnNode from './abstract-tree/return-node';
 
 class ReturnNode extends AbstractReturnNode {
 
+    /**
+     * check whether this can be dropped on to the drop target.
+     * @param {Node} dropTarget - node that this dragging node to be added to.
+     * @param {Node} dropBefore - node which is adding this dragging node before.
+     * @return {boolean} true if can be dropped, false if not.
+     * */
+    canBeDropped(dropTarget, dropBefore) {
+        return dropTarget.isStatement && !dropBefore;
+    }
 }
 
 export default ReturnNode;
