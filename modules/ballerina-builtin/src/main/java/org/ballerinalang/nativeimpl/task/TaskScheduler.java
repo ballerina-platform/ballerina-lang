@@ -444,20 +444,9 @@ public class TaskScheduler {
             } else if (currentTime.get(Calendar.MONTH) < month) {
                 /*If the provided value of the month is future, find the first possible date
                 which is the same day of week.*/
-                while (executionStartTime.get(Calendar.MONTH) < month) {
-                    if (executionStartTime.get(Calendar.DAY_OF_WEEK) == dayOfWeek) {
-                        //Increase 7 days if the current day of week is same as the provided value.
-                        executionStartTime.add(Calendar.DATE, 7);
-                    } else if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
-                        //Find the number of days to reach the provided value and add that number.
-                        executionStartTime
-                                .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
-                    } else {
-                        //Find the number of days to reach the provided value and add that number.
-                        executionStartTime.add(Calendar.DATE,
-                                dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
-                    }
-                }
+                executionStartTime.set(Calendar.MONTH, month);
+                executionStartTime.set(Calendar.DATE, 1);
+                executionStartTime = setFirstPossibleDate(executionStartTime, dayOfWeek);
             }
             executionStartTime.add(Calendar.DATE, numberOfDaysToBeAdded);
         }
@@ -578,22 +567,26 @@ public class TaskScheduler {
             //Set the date to first day.
             executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE) {
-                while (executionStartTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-                    /*If the execution start time is future and there is a considerable value is passed to the dayOfWeek
-                    find the first possible day which is the same day of week.*/
-                    if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
-                        executionStartTime
-                                .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
-                    } else {
-                        executionStartTime.add(Calendar.DATE,
-                                dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
-                    }
-                }
+                executionStartTime = setFirstPossibleDate(executionStartTime, dayOfWeek);
             }
         }
         return executionStartTime;
     }
 
+    private static Calendar setFirstPossibleDate(Calendar executionStartTime, int dayOfWeek) {
+        while (executionStartTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
+                    /*If the execution start time is future and there is a considerable value is passed to the dayOfWeek
+                    find the first possible day which is the same day of week.*/
+            if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
+                executionStartTime
+                        .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
+            } else {
+                executionStartTime.add(Calendar.DATE,
+                        dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
+            }
+        }
+        return executionStartTime;
+    }
     /**
      * Clone a Calendar into new instance.
      *
