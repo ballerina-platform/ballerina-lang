@@ -181,28 +181,8 @@ public class TaskTest {
         Assert.assertNotEquals(taskId, -1);
     }
 
-    @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in January")
-    public void testScheduleAppointmentEveryMinuteInJanuary() {
-        int taskId;
-        int month = 0;
-        long expectedDuration = 60000;
-        Calendar currentTime = Calendar.getInstance();
-        Calendar modifiedTime = (Calendar) currentTime.clone();
-        if (currentTime.get(Calendar.MONTH) != month) {
-            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
-        }
-        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
-                new BInteger(0)};
-        BValue[] returns = BRunUtil
-                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
-        taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
-        Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-    }
-
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute on tomorrow")
-    public void testScheduleAppointmentEveryMinuteOnTomorrow() {
+    public void testScheduleAppointmentEveryMinuteTomorrow() {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
         Calendar clonedCalendar = (Calendar) currentTime.clone();
@@ -219,6 +199,26 @@ public class TaskTest {
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in January")
+    public void testScheduleAppointmentEveryMinuteInJanuary() {
+        int taskId;
+        int month = 0;
+        long expectedDuration = 60000;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        if (currentTime.get(Calendar.MONTH) != month) {
+            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
+        }
+        BValue[] args = {new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
+                new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
@@ -250,8 +250,8 @@ public class TaskTest {
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
-    @Test(description = "Test for 'scheduleAppointment' function to trigger next week the day of week is one day back " +
-            "from the current day of week")
+    @Test(description = "Test for 'scheduleAppointment' function to trigger next week. The day of week is " +
+            "one day back from the current day of week")
     public void testScheduleAppointmentBeforeADOWInNextWeek() {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
@@ -268,34 +268,6 @@ public class TaskTest {
                 .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
-        Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-    }
-
-    @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour "
-            + "the month is one month back from current and the year is next year")
-    public void testScheduleAppointmentBeforeAnHourAndOneMonthInNextYear() {
-        int taskId;
-        Calendar currentTime = Calendar.getInstance();
-        Calendar clonedCalendar = (Calendar) currentTime.clone();
-        clonedCalendar.add(Calendar.HOUR, -1);
-        clonedCalendar.add(Calendar.MONTH, -1);
-        clonedCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR) + 1);
-        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
-                clonedCalendar.get(Calendar.HOUR) :
-                clonedCalendar.get(Calendar.HOUR) + 12;
-        int dayOfMonth = clonedCalendar.get(Calendar.DAY_OF_MONTH);
-        int month = clonedCalendar.get(Calendar.MONTH);
-        Calendar modifiedTime = (Calendar) currentTime.clone();
-        modifiedTime.setTime(clonedCalendar.getTime());
-        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
-        BValue[] args = {new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
-                new BInteger(month), new BInteger(0)};
-        BValue[] returns = BRunUtil
-                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
-        taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
@@ -354,6 +326,34 @@ public class TaskTest {
     @Test(description = "Test for 'scheduleAppointment' function to trigger before one day of week in next month")
     public void testScheduleAppointmentOnDifferentBeforeOneDOWInNextMonth() {
         testAppointmentWithDifferentDOW('-', -1);
+    }
+
+    @Test(description = "Test for 'scheduleAppointment' function to trigger before an hour "
+            + "and a month from current and the year is next year")
+    public void testScheduleAppointmentBeforeAnHourAndOneMonthInNextYear() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar clonedCalendar = (Calendar) currentTime.clone();
+        clonedCalendar.add(Calendar.HOUR, -1);
+        clonedCalendar.add(Calendar.MONTH, -1);
+        clonedCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR) + 1);
+        int hour = clonedCalendar.get(Calendar.AM_PM) == 0 ?
+                clonedCalendar.get(Calendar.HOUR) :
+                clonedCalendar.get(Calendar.HOUR) + 12;
+        int dayOfMonth = clonedCalendar.get(Calendar.DAY_OF_MONTH);
+        int month = clonedCalendar.get(Calendar.MONTH);
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.setTime(clonedCalendar.getTime());
+        modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
+        long expectedDuration = calculateDifference(currentTime, modifiedTime);
+        BValue[] args = {new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
+                new BInteger(month), new BInteger(0)};
+        BValue[] returns = BRunUtil
+                .invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        long calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
+        Assert.assertNotEquals(taskId, -1);
+        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger on 31st day")
