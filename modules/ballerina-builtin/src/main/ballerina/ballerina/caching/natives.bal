@@ -8,11 +8,13 @@ import ballerina.lang.system;
 @doc:Field {value:"name - name of the cache"}
 @doc:Field {value:"timeout - timeout of the cache in seconds"}
 @doc:Field {value:"capacity - capacity of the cache"}
+@doc:Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @doc:Field {value:"entries - map which contains the cache entries"}
 public struct cache {
     string name;
     int timeOut;
     int capacity;
+    float evictionFactor;
     map entries;
 }
 
@@ -28,13 +30,14 @@ struct cacheEntry {
 @doc:Param {value:"name - name of the cache"}
 @doc:Param {value:"timeout - timeout of the cache"}
 @doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
+@doc:Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @doc:Return {value:"cache - a new cache"}
-public function createCache (string name, int timeOut, int capacity) returns (cache) {
+public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (cache) {
     if (capacity <= 0) {
         error e = {msg:"Capacity must be greater than 0."};
         throw e;
     }
-    cache c = {name:name, timeOut:timeOut, capacity:capacity, entries:{}};
+    cache c = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     return c;
 }
 
@@ -47,13 +50,24 @@ public function put (cache c, string key, any value) {
     int currentCapacity = maps:length(c.entries);
     // if the current cache is full,
     if (maxCapacity <= currentCapacity) {
-        string cacheKey = getLRUCache(c);
-        maps:remove(c.entries, cacheKey);
+        evictCache(c);
     }
     // Add the new entry
     int currentTime = system:nanoTime();
     cacheEntry entry = {value:value, lastAccessedTime:currentTime};
     c.entries[key] = entry;
+}
+
+function evictCache (cache c) {
+    int maxCapacity = c.capacity;
+    float evictionFactor = c.evictionFactor;
+    int noOfEntriesToBeEvicted = <int>(maxCapacity * evictionFactor);
+    int i = 0;
+    while (i < noOfEntriesToBeEvicted) {
+        string cacheKey = getLRUCache(c);
+        maps:remove(c.entries, cacheKey);
+        i = i + 1;
+    }
 }
 
 @doc:Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}

@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +38,7 @@ public class CachingTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/cachingTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/cachingTest.bal");
     }
 
     @Test
@@ -44,18 +46,22 @@ public class CachingTest {
         String cacheName = "userCache";
         int timeout = 60;
         int capacity = 10;
-        BValue[] args = new BValue[3];
+        float evictionFactor = 0.1f;
+        BValue[] args = new BValue[4];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testCreateCache", args);
-        Assert.assertTrue(returns.length == 3);
+        args[3] = new BFloat(evictionFactor);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCache", args);
+        Assert.assertTrue(returns.length == 4);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertTrue(returns[3] instanceof BFloat);
         Assert.assertEquals(returns[0].stringValue(), cacheName);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), timeout);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), capacity);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), evictionFactor, 0.000001);
     }
 
     @Test
@@ -63,15 +69,17 @@ public class CachingTest {
         String cacheName = "userCache";
         int timeout = 60;
         int capacity = 10;
+        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[5];
+        BValue[] args = new BValue[6];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        args[3] = new BString(key);
-        args[4] = new BString(value);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testPut", args);
+        args[3] = new BFloat(evictionFactor);
+        args[4] = new BString(key);
+        args[5] = new BString(value);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPut", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -82,15 +90,17 @@ public class CachingTest {
         String cacheName = "userCache";
         int timeout = 60;
         int capacity = 10;
+        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[5];
+        BValue[] args = new BValue[6];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        args[3] = new BString(key);
-        args[4] = new BString(value);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGet", args);
+        args[3] = new BFloat(evictionFactor);
+        args[4] = new BString(key);
+        args[5] = new BString(value);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGet", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);
@@ -103,15 +113,17 @@ public class CachingTest {
         String cacheName = "userCache";
         int timeout = 60;
         int capacity = 10;
+        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[5];
+        BValue[] args = new BValue[6];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        args[3] = new BString(key);
-        args[4] = new BString(value);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testRemove", args);
+        args[3] = new BFloat(evictionFactor);
+        args[4] = new BString(key);
+        args[5] = new BString(value);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
@@ -121,11 +133,13 @@ public class CachingTest {
         String cacheName = "userCache";
         int timeout = 60;
         int capacity = 10;
-        BValue[] args = new BValue[3];
+        float evictionFactor = 0.1f;
+        BValue[] args = new BValue[4];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testClear", args);
+        args[3] = new BFloat(evictionFactor);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testClear", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -135,15 +149,25 @@ public class CachingTest {
     public void testCacheEviction() {
         String cacheName = "userCache";
         int timeout = 60;
-        int capacity = 2;
-        BValue[] args = new BValue[3];
+        int capacity = 10;
+        float evictionFactor = 0.2f;
+        BValue[] args = new BValue[4];
         args[0] = new BString(cacheName);
         args[1] = new BInteger(timeout);
         args[2] = new BInteger(capacity);
-        BValue[] returns = BTestUtils.invoke(compileResult, "testCacheEviction", args);
-        Assert.assertTrue(returns.length == 1);
+        args[3] = new BFloat(evictionFactor);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction", args);
+        Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "B");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "C");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "C");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "D");
+        Assert.assertEquals(((BStringArray) returns[0]).get(2), "E");
+        Assert.assertEquals(((BStringArray) returns[0]).get(3), "F");
+        Assert.assertEquals(((BStringArray) returns[0]).get(4), "G");
+        Assert.assertEquals(((BStringArray) returns[0]).get(5), "H");
+        Assert.assertEquals(((BStringArray) returns[0]).get(6), "I");
+        Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
+        Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
     }
 }
