@@ -42,20 +42,15 @@ public class BServiceUtil {
     public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
-
-        try {
-            CompileResult compileResult;
-            if (pkgPath == null) {
-                compileResult = BCompileUtil.compile(sourcePath);
-            } else {
-                compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
-            }
-            ProgramFile programFile = compileResult.getProgFile();
-            BLangProgramRunner.runService(programFile);
-            return compileResult;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        CompileResult compileResult;
+        if (pkgPath == null) {
+            compileResult = BCompileUtil.compile(sourcePath);
+        } else {
+            compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
         }
+        ProgramFile programFile = compileResult.getProgFile();
+        BLangProgramRunner.runService(programFile);
+        return compileResult;
     }
 
     /**
