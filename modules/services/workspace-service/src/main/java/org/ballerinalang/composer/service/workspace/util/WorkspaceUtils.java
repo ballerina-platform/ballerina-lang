@@ -69,6 +69,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_PACKAGE_VALIDATION;
 
 /**
  * Utility methods for workspace service
@@ -108,6 +109,7 @@ public class WorkspaceUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
+        options.put(SKIP_PACKAGE_VALIDATION, Boolean.TRUE.toString());
 
         return getBallerinaFile(fileName, context);
     }
