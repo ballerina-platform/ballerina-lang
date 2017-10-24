@@ -55,7 +55,7 @@ class EditorPlugin extends Plugin {
         this.onOpenFileInEditor = this.onOpenFileInEditor.bind(this);
         this.onOpenCustomEditorTab = this.onOpenCustomEditorTab.bind(this);
         this.onTabClose = this.onTabClose.bind(this);
-        this.dispatchToolBarUpdate = this.dispatchToolBarUpdate.bind(this);
+        this.dispatchToolBarUpdate = this.dispatchActionTriggerUpdate.bind(this);
         this.onEditorFileUpdated = this.onEditorFileUpdated.bind(this);
     }
 
@@ -105,8 +105,8 @@ class EditorPlugin extends Plugin {
         const editorDefinition = _.find(this.editorDefinitions, ['extension', file.extension]);
         if (!_.isNil(editorDefinition)) {
             this.onOpenFileInEditor({ file, editorDefinition, activateEditor });
-            file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
-            file.on(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
+            file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchActionTriggerUpdate);
+            file.on(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchActionTriggerUpdate);
             file.on(WORKSPACE_EVENTS.FILE_UPDATED, this.onEditorFileUpdated);
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
@@ -116,7 +116,7 @@ class EditorPlugin extends Plugin {
     /**
      * Dispatch tool bar update
      */
-    dispatchToolBarUpdate() {
+    dispatchActionTriggerUpdate() {
         const { command: { dispatch } } = this.appContext;
         dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
     }
@@ -173,7 +173,7 @@ class EditorPlugin extends Plugin {
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.ACTIVE_EDITOR, this.activeEditorID);
         this.reRender();
-        this.dispatchToolBarUpdate();
+        this.dispatchActionTriggerUpdate();
     }
 
     /**
@@ -207,8 +207,8 @@ class EditorPlugin extends Plugin {
         }
 
         if (targetEditor instanceof Editor) {
-            targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
-            targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
+            targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchActionTriggerUpdate);
+            targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchActionTriggerUpdate);
             targetEditor.file.off(WORKSPACE_EVENTS.FILE_UPDATED, this.onEditorFileUpdated);
             workspace.closeFile(targetEditor.file);
         }
