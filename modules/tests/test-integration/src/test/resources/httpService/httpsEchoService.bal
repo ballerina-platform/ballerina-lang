@@ -3,9 +3,9 @@ import ballerina.net.http;
 @http:configuration {
     basePath:"/echo",
     httpsPort:9095,
-    keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePassword:"wso2carbon",
-    certPassword:"wso2carbon"
+    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword:"ballerina",
+    certPassword:"ballerina"
 }
 service<http> echo {
 
@@ -24,9 +24,9 @@ service<http> echo {
     basePath:"/echoOne",
     port:9094,
     httpsPort:9095,
-    keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePassword:"wso2carbon",
-    certPassword:"wso2carbon"
+    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword:"ballerina",
+    certPassword:"ballerina"
 }
 service<http> echoOne {
 
