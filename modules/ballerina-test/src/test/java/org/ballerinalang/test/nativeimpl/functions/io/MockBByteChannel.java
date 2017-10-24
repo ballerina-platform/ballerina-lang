@@ -15,25 +15,29 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.channels;
+package org.ballerinalang.test.nativeimpl.functions.io;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * Represents TCP socket to handle relevant I/O operations
+ * Mock implementation of byte channel for testing purposes.
  */
-public class BSocketChannel extends BByteChannel {
+public class MockBByteChannel extends BByteChannel {
 
-    public BSocketChannel(ByteChannel channel, int size) throws BallerinaIOException {
-        super(channel, size);
+    public MockBByteChannel(ByteChannel channel, int fixedBufferSize) {
+        super(channel, fixedBufferSize);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
-        throw new UnsupportedOperationException();
+        throw new NotImplementedException();
     }
 }

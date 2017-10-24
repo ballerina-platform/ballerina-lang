@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Will be used to throw Ballerina I/O related runtime exceptions
+ * Will be used to throw Ballerina I/O related runtime exceptions.
  */
 public class BallerinaIOException extends BallerinaException {
 

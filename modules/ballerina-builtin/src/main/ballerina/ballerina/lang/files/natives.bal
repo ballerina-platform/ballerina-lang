@@ -47,9 +47,9 @@ public native function write (blob content, File file);
 @doc:Param { value:"file: Path of the file" }
 public native function writeln (blob content, File file);
 
-@doc:Description {value:"Retrieves the stream from a local file"}
-@doc:Param {value:"file: The file to be opened"}
-@doc:Return{value:"Channel representation to perform I/O operations"}
+@doc:Description {value:"Function return the ByteChannel related to the file"}
+@doc:Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
+@doc:Return{value:"ByteChannel which will allow to perform I/O operations"}
 public native function <File file>  openChannel (string accessMode)(io:ByteChannel);
 
 public struct File {

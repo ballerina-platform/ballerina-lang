@@ -46,7 +46,9 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Gets the streams from a local file.
+ * Native function to obtain channel
+ *
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
@@ -57,11 +59,11 @@ import java.util.Set;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets streams from a local file")})
+        value = "Get streams from a local file")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "file",
         value = "The File that should be opened")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "accessMode",
-        value = "The mode the file should be opened in")})
+        value = "The mode the file should be opened R/W")})
 public class OpenChannel extends AbstractNativeChannel {
 
     /**
@@ -99,7 +101,7 @@ public class OpenChannel extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
-    public AbstractChannel flow(Context context) throws BallerinaException {
+    public AbstractChannel inFlow(Context context) throws BallerinaException {
         BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
         String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
         Path path = null;

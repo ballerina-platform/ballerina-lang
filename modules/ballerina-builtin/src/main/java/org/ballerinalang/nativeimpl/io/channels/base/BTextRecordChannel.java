@@ -27,52 +27,56 @@ import java.util.Arrays;
 
 /**
  * <p>
- * Will allow reading a channel into records
+ * Allows performing record I/O operations.
  * </p>
  * <p>
- * A readRecord will have a readRecord separator and a field separator
- * This is a stateful channel
+ * A readRecord will have a readRecord separator and a field separator.
+ * </p>
+ * <p>
+ * <b>Note : </b> this channel does not support concurrent operations, since underlying CharacterChannel is not
+ * synchronous.
  * </p>
  */
 public class BTextRecordChannel {
 
     /**
-     * Distinguishes the entire readRecord
+     * Distinguishes the Record.
      */
     private String recordSeparator;
 
     /**
-     * Field is a granular term of readRecord
+     * Record contains multiple fields, each field is separated through the field separator.
      */
     private String fieldSeparator;
 
     /**
-     * Once the record is being identified the remaining string would hold the remaining elements
+     * Once the record is being identified the remaining string would hold the remaining elements.
      */
     private StringBuilder persistentCharSequence;
 
     /**
-     * A rough character could which will contain a record
+     * A rough character count which will contain a record. This will be resized dynamically if the length of the
+     * record is long.
      */
-    private int recordCharacterCount = 1024;
+    private int recordCharacterCount = 100;
 
     /**
-     * Reads the character stream
+     * Read/Writes characters.
      */
     private BCharacterChannel channel;
 
     /**
-     * Whether there're remaining records in the channel
+     * Specified whether there're any remaining records left to be read from the channel.
      */
     private boolean remaining = true;
 
     /**
-     * Keeps track of the number of records which is being get through the channel
+     * Keeps track of the number of records which is being read through the channel.
      */
     private int numberOfRecordsReadThroughChannel = 0;
 
     /**
-     * Keeps track on the number of records written to channel
+     * Keeps track of the number of records written to channel.
      */
     private int numberOfRecordsWrittenToChannel = 0;
 
@@ -89,10 +93,10 @@ public class BTextRecordChannel {
     /**
      * <p>
      * Initially the number of characters which would be contained in a record will be speculated, if the record
-     * size is not adequate the size needs to be increased
+     * size is not adequate the size needs to be increased.
      * </p>
      *
-     * @param numberOfRecordHops number of reads done per record with the current recordCharacterCount
+     * @param numberOfRecordHops number of reads done per record with the current recordCharacterCount.
      */
     private void increaseRecordCharacterCount(int numberOfRecordHops) {
         int numberOfCharactersForRecord = numberOfRecordHops * this.recordCharacterCount;
@@ -105,14 +109,11 @@ public class BTextRecordChannel {
 
     /**
      * <p>
-     * Gets record from specified sequence of characters
-     * </p>
-     * <p>
-     * The record will be delimited based on the specified delimiter
+     * Gets record from specified sequence of characters.
      * </p>
      *
-     * @return the requested record
-     * @throws BallerinaIOException during I/O error
+     * @return the requested record.
+     * @throws BallerinaIOException during I/O error.
      */
     private String readRecord() throws BallerinaIOException {
         String record = null;
@@ -149,10 +150,10 @@ public class BTextRecordChannel {
 
     /**
      * <p>
-     * Reads the remaining set of characters as the final record
+     * Reads the remaining set of characters as the final record.
      * </p>
      * <p>
-     * This operation is called when there're no more content to be get from the the channel
+     * This operation is called when there're no more content to be retrieved from the the channel.
      * </p>
      */
     private String readFinalRecord() {
@@ -180,10 +181,10 @@ public class BTextRecordChannel {
 
     /**
      * <p>
-     * Reads a record from the channel
+     * Reads a record from the channel.
      * </p>
      *
-     * @return the record content
+     * @return the record content.
      */
     private String readRecordFromChannel() {
         String readCharacters;
@@ -200,14 +201,14 @@ public class BTextRecordChannel {
 
     /**
      * <p>
-     * Identifies the record from the provided collection
+     * Identifies the record from the provided collection.
      * </p>
      * <p>
-     * <b>Note :</b> This operation would append the remaining content to the string
+     * <b>Note :</b> This operation would append the remaining content to the string.
      * </p>
      *
-     * @param delimitedRecords collection of records which are split
-     * @return the record content value
+     * @param delimitedRecords collection of records which required to be split.
+     * @return the record content value.
      */
     private String processIdentifiedRecord(String[] delimitedRecords) {
         String record;
@@ -226,10 +227,10 @@ public class BTextRecordChannel {
     }
 
     /**
-     * Get the fields identified through the record
+     * Get the fields identified through the record.
      *
-     * @param record the record which contains all the fields
-     * @return fields which are separated as records
+     * @param record the record which contains all the fields.
+     * @return fields which are separated as records.
      */
     private String[] getFields(String record) {
         return record.split(fieldSeparator);
@@ -237,14 +238,14 @@ public class BTextRecordChannel {
 
     /**
      * <p>
-     * Read the next readRecord
+     * Read the next readRecord.
      * </p>
      * <p>
      * An empty list will be returned if all the records have being processed, all records will be marked as
-     * processed if all the content have being get from the provided channel
+     * processed if all the content have being retrieved from the provided channel.
      * </p>
      *
-     * @return the list of fields
+     * @return the list of fields.
      */
     public String[] read() throws BallerinaIOException {
         final int emptyArrayIndex = 0;
@@ -278,10 +279,10 @@ public class BTextRecordChannel {
     }
 
     /**
-     * Will place the relevant fields together to form a record
+     * Will place the relevant fields together to/form a record.
      *
-     * @param fields the list of fields in the record
-     * @return the record constructed through the fields
+     * @param fields the list of fields in the record.
+     * @return the record constructed through the fields.
      */
     private String composeRecord(BStringArray fields) {
         StringBuilder recordConsolidator = new StringBuilder();
@@ -305,10 +306,10 @@ public class BTextRecordChannel {
     }
 
     /**
-     * Writes a given record to a file
+     * Writes a given record to a file.
      *
-     * @param fields the list of fields composing the record
-     * @throws IOException during I/O error
+     * @param fields the list of fields composing the record.
+     * @throws IOException during I/O error.
      */
     public void write(BStringArray fields) throws IOException {
         final int writeOffset = 0;
@@ -325,7 +326,7 @@ public class BTextRecordChannel {
     }
 
     /**
-     * Closes the record channel
+     * Closes the record channel.
      */
     public void close() {
         channel.close();

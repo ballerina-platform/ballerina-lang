@@ -34,9 +34,9 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#ToCharacterChannel
+ * Native function ballerina.io#ToCharacterChannel.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -50,34 +50,34 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class ToCharacterChannel extends AbstractNativeFunction {
     /**
-     * Specifies the index of the character channel  in ballerina.io#toCharacterChannel
+     * Specifies the index of the character channel  in ballerina.io#toCharacterChannel.
      */
     private static final int CHAR_CHANNEL_INDEX = 0;
 
     /**
-     * Specifies the index of the encoding in ballerina.io#toCharacterChannel
+     * Specifies the index of the encoding in ballerina.io#toCharacterChannel.
      */
     private static final int ENCODING_INDEX = 0;
     /**
-     * represents the information related to the byte channel
+     * represents the information related to the byte channel.
      */
     private StructInfo characterChannelStructInfo;
 
     /**
-     * The package path of the byte channel
+     * The package path of the byte channel.
      */
     private static final String CHAR_CHANNEL_PACKAGE = "ballerina.io";
 
     /**
-     * The type of the byte channel
+     * The type of the byte channel struct.
      */
     private static final String STRUCT_TYPE = "CharacterChannel";
 
     /**
-     * Gets the struct related to AbstractChannel
+     * Gets the struct related to AbstractChannel.
      *
-     * @param context invocation context
-     * @return the struct related to AbstractChannel
+     * @param context invocation context.
+     * @return the struct related to AbstractChannel.
      */
     private StructInfo getCharacterChannelStructInfo(Context context) {
         StructInfo result = characterChannelStructInfo;

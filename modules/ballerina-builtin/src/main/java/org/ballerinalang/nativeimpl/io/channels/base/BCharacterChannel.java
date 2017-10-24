@@ -33,10 +33,10 @@ import java.nio.charset.CodingErrorAction;
 
 /**
  * <p>
- * Represents the channel for character I/O
+ * Represents the channel to perform character I/O operations.
  * </p>
  * <p>
- * This is a stateful channel
+ * This is a stateful channel.
  * </p>
  */
 public class BCharacterChannel {
@@ -44,43 +44,43 @@ public class BCharacterChannel {
     private static final Logger log = LoggerFactory.getLogger(BCharacterChannel.class);
 
     /**
-     * Holds the byte channel the characters should be get
+     * Channel implementation to read/write characters.
      */
     private AbstractChannel channel;
 
     /**
-     * Decodes the specified bytes when reading, currently decoder supports only unicode charset
+     * Decodes the specified bytes when reading.
      */
     private CharsetDecoder bytesDecoder;
 
     /**
-     * Encodes a given list of characters before writing to channel
+     * Encodes a given list of characters before writing to channel.
      */
     private CharsetEncoder byteEncoder;
 
     /**
-     * Will hold the decoded characters, char-buffer holds the character length in it's remaining
+     * Will hold the decoded characters, char-buffer holds the character length and it's remaining.
      */
     private CharBuffer charBuffer;
 
     /**
-     * Holds the bytes get from the byte channel
+     * Holds bytes retrieved from the channel.
      */
     private BByteBuffer contentBuffer;
 
     /**
      * <p>
-     * The maximum number of bytes held by a character
+     * The maximum number of bytes which should be used to represent a character.
      * </p>
      * <p>
      * Based on https://tools.ietf.org/html/rfc3629, the max number of bytes which could be allocated for a
-     * character would be '6' the maximum bytes allocated for character in java is '2'
+     * character would be '6' the maximum bytes allocated for character in java is '2'.
      * </p>
      */
     private static final int MAX_BYTES_PER_CHAR = 2;
 
     /**
-     * Specified the minimum buffer size which should be held in content buffer
+     * Specifies the minimum buffer size which should be held in content buffer.
      */
     private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
 
@@ -99,9 +99,9 @@ public class BCharacterChannel {
     }
 
     /**
-     * Gets number of characters left in the character buffer
+     * Gets number of characters left in the character buffer.
      *
-     * @return number of characters left to be get
+     * @return number of remaining characters.
      */
     private int getNumberOfCharactersRemaining() {
         int limit = charBuffer.limit();
@@ -110,10 +110,10 @@ public class BCharacterChannel {
     }
 
     /**
-     * Appends data from char buffer to string
+     * Appends data from CharBuffer to string.
      *
-     * @param content        the char sequence which will be appended to final string
-     * @param characterCount the number of characters in the char buffer
+     * @param content        the char sequence which will be appended to final string.
+     * @param characterCount the number of characters in the CharBuffer.
      */
     private void appendCharsToString(StringBuilder content, int characterCount) {
         final int indexCharacterOffset = 0;
@@ -127,18 +127,18 @@ public class BCharacterChannel {
 
     /**
      * <p>
-     * Appends a given character sequence to a string
+     * Appends a given character sequence to a string.
      * </p>
      * <p>
-     * if the character buffer has any remaining this operation will copy the remaining characters into the string
+     * if the character buffer has any remaining this operation will copy the remaining characters into the string.
      * <p>
-     * The character buffer may or may not have the required amount of characters to fill the entire string builder
+     * The character buffer may or may not have the required amount of characters to fill the entire string builder.
      * <p>
      * if the character buffer has > characters the required amount will be copied, if the character buffer has
-     * less characters the remaining characters will be copied
+     * less characters the remaining characters will be copied.
      * </p>
      *
-     * @param content the container which will hold the content
+     * @param content the container which will hold the content.
      */
     private void appendRemainingCharacters(StringBuilder content) {
         if (null != charBuffer) {
@@ -169,11 +169,11 @@ public class BCharacterChannel {
     }
 
     /**
-     * Reads specified number of characters from a given channel
+     * Reads specified number of characters from a given channel.
      *
-     * @param numberOfCharacters the number of characters which should be get
-     * @return the sequence of characters as a string
-     * @throws BallerinaIOException I/O errors
+     * @param numberOfCharacters the number of characters which should be retrieved.
+     * @return the sequence of characters as a string.
+     * @throws BallerinaIOException I/O errors.
      */
     public String read(int numberOfCharacters) throws BallerinaIOException {
         StringBuilder content;
@@ -219,12 +219,12 @@ public class BCharacterChannel {
     }
 
     /**
-     * Writes a given string input into the channel
+     * Writes a given string input into the channel.
      *
-     * @param content the string content to write
-     * @param offset  the offset which should be set when writing
-     * @return the number of bytes/characters written
-     * @throws BallerinaIOException during I/O error
+     * @param content the string content to be written.
+     * @param offset  the offset which should be used for writing.
+     * @return the number of bytes/characters written.
+     * @throws BallerinaIOException during I/O error.
      */
     public int write(String content, int offset) throws BallerinaIOException {
         try {
@@ -246,7 +246,7 @@ public class BCharacterChannel {
     }
 
     /**
-     * Closes the given channel
+     * Closes the given channel.
      */
     public void close() {
         channel.close();

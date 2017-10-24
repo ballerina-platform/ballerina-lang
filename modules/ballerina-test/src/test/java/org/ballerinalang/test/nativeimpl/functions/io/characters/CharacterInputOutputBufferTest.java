@@ -19,7 +19,7 @@ package org.ballerinalang.test.nativeimpl.functions.io.characters;
 
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
+import org.ballerinalang.test.nativeimpl.functions.io.MockBByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -30,33 +30,25 @@ import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Tests the input/output of reading characters from file
+ * Tests characters I/O operations.
  */
 public class CharacterInputOutputBufferTest {
-
     /**
-     * Specifies the default directory path
+     * Specifies the default directory path.
      */
     private String currentDirectoryPath = "/tmp/";
-
 
     @BeforeSuite
     public void setup() {
         currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
     }
 
-    /**
-     * Tests reading characters
-     *
-     * @throws IOException during I/O error
-     */
-    @Test
-    public void readCharacters() throws IOException {
-
+    @Test(description = "Read characters which does not fit to the fixed buffer limit")
+    public void readFussyCharacters() throws IOException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
-        AbstractChannel channel = new BByteChannelTest(byteChannel, 10);
+        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
@@ -67,18 +59,35 @@ public class CharacterInputOutputBufferTest {
 
         readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), 0);
+        characterChannel.close();
     }
 
-    /**
-     * Tests writing of characters
-     *
-     * @throws IOException
-     */
-    @Test
+    @Test(description = "Read characters into multiple iterations")
+    public void readCharacters() throws IOException {
+        int numberOfCharactersToRead = 2;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
+        BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
+
+        String readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(readCharacters.length(), numberOfCharactersToRead);
+
+        numberOfCharactersToRead = 1;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(readCharacters.length(), numberOfCharactersToRead);
+
+        numberOfCharactersToRead = 4;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(readCharacters.length(), 3);
+        characterChannel.close();
+    }
+
+    @Test(description = "Write characters to file")
     public void writeCharacters() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        AbstractChannel channel = new BByteChannelTest(byteChannel, 10);
+        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String text = "HelloǊ";
@@ -86,5 +95,6 @@ public class CharacterInputOutputBufferTest {
         int numberOfBytesWritten = characterChannel.write(text, 0);
 
         Assert.assertEquals(numberOfBytesWritten, numberOfBytes);
+        characterChannel.close();
     }
 }

@@ -29,32 +29,38 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * This will required to be implemented for native channels
- * i.e file open, socket open
+ * <p>
+ * For I/O APIs to work it requires each I/O source (file,tcp socket) to return a generic ByteChannel.
+ * </p>
+ * <p>
+ * This will prepare the ByteChannel to perform I/O operations.
+ * </p>
+ *
+ * @see org.ballerinalang.nativeimpl.lang.files.OpenChannel
  */
 public abstract class AbstractNativeChannel extends AbstractNativeFunction {
 
     /**
-     * represents the information related to the byte channel
+     * represents the information related to the byte channel.
      */
     private StructInfo byteChannelStructInfo;
 
     /**
-     * The package path of the byte channel
+     * The package path of the byte channel.
      */
     private static final String BYTE_CHANNEL_PACKAGE = "ballerina.io";
 
     /**
-     * The type of the byte channel
+     * The struct type of the byte channel.
      */
     private static final String STRUCT_TYPE = "ByteChannel";
 
 
     /**
-     * Gets the struct related to AbstractChannel
+     * Gets the struct related to AbstractChannel.
      *
-     * @param context invocation context
-     * @return the struct related to AbstractChannel
+     * @param context invocation context.
+     * @return the struct related to AbstractChannel.
      */
     private StructInfo getByteChannelStructInfo(Context context) {
         StructInfo result = byteChannelStructInfo;
@@ -66,12 +72,14 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
     }
 
     /**
-     * Will be the set of actions which should be executed prior to identifying the ByteChannel
+     * <p>
+     * Defines the set of actions which should be performed to created a byte channel.
+     * </p>
      *
-     * @param context holds the context received from Ballerina
-     * @return the channel which holds the reference t
+     * @param context holds the context received from Ballerina.
+     * @return the channel which holds the reference.
      */
-    public abstract AbstractChannel flow(Context context) throws BallerinaException;
+    public abstract AbstractChannel inFlow(Context context) throws BallerinaException;
 
 
     /**
@@ -79,7 +87,7 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        AbstractChannel channel = flow(context);
+        AbstractChannel channel = inFlow(context);
         BStruct channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context));
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         return getBValues(channelStruct);

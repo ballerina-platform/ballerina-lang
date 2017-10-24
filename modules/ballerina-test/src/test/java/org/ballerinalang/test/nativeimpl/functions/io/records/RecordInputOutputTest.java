@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
+import org.ballerinalang.test.nativeimpl.functions.io.MockBByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -32,55 +32,64 @@ import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Tests record I/O functionality
+ * Tests record I/O functionality.
  */
 public class RecordInputOutputTest {
-
     /**
-     * Specifies the default directory path
+     * Specifies the default directory path.
      */
     private String currentDirectoryPath = "/tmp/";
-
 
     @BeforeSuite
     public void setup() {
         currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
     }
 
-    /**
-     * Tests reading characters
-     *
-     * @throws IOException during I/O error
-     */
-    @Test
+    @Test(description = "Reads records from file")
     public void readRecords() throws IOException {
-
-        int expectedRecordCount = 3;
-
+        int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
-        Assert.assertEquals(readRecord.length, expectedRecordCount);
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
 
         readRecord = recordChannel.read();
-        Assert.assertEquals(readRecord.length, expectedRecordCount);
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
 
         readRecord = recordChannel.read();
-        Assert.assertEquals(readRecord.length, expectedRecordCount);
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
 
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 0);
+
+        recordChannel.close();
     }
 
-    @Test
+    @Test(description = "Read lengthy records")
+    public void readLongRecord() throws IOException {
+        int expectedFieldCount = 18;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
+        BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
+        BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
+
+        String[] readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+    }
+
+    @Test(description = "Read records which are not indented properly")
     public void readNonIndentedRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -94,13 +103,14 @@ public class RecordInputOutputTest {
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
 
+        recordChannel.close();
     }
 
-    @Test
+    @Test(description = "Writes records to channel")
     public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
         BTextRecordChannel recordChannel = new BTextRecordChannel(characterChannel, "\n", ",");
 
@@ -113,5 +123,6 @@ public class RecordInputOutputTest {
         BStringArray recordTwoArr = new BStringArray(recordTwo);
 
         recordChannel.write(recordTwoArr);
+        recordChannel.close();
     }
 }

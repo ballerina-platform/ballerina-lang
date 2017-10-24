@@ -28,9 +28,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#close
+ * Native function ballerina.io#close.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -41,12 +41,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class Close extends AbstractNativeFunction {
 
     /**
-     * The index of the byte channel in the ballerina.io#close()
+     * The index of the ByteChannel in ballerina.io#close().
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
-     * Reads bytes from a given channel
+     * Reads bytes from a given channel.
+     *
      * <p>
      * {@inheritDoc}
      */

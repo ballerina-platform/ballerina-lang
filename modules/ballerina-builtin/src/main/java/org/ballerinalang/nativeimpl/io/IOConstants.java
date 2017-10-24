@@ -18,28 +18,28 @@
 package org.ballerinalang.nativeimpl.io;
 
 /**
- * Holds the constants related to I/O
+ * I/O related constants.
  */
 public class IOConstants {
     /**
-     * The value of the key the channel will be held in the struct
+     * Name of the ByteChannel which will be represented through the native struct.
      *
      * @see java.nio.channels.ByteChannel
      */
     public static final String BYTE_CHANNEL_NAME = "channel";
 
     /**
-     * The value of the character channel which will be derived from the byte channel
+     * The name of the character channel which will be represented through the native struct.
      */
     static final String CHARACTER_CHANNEL_NAME = "char_channel";
 
     /**
-     * The value of the text record channel which will be used for struct registration
+     * The name of the text record channel which will be represented through the native struct.
      */
     static final String TXT_RECORD_CHANNEL_NAME = "txt_record";
 
     /**
-     * The size of the buffer allocated for reading bytes from the channel (15~ KB)
+     * The size of the buffer allocated for reading bytes from the channel (15~ KB).
      */
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 }

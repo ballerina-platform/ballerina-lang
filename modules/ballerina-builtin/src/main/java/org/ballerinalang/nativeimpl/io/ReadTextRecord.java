@@ -30,9 +30,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#readTextRecords
+ * Native function ballerina.io#readTextRecords.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -43,10 +43,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class ReadTextRecord extends AbstractNativeFunction {
     /**
-     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
@@ -58,7 +61,6 @@ public class ReadTextRecord extends AbstractNativeFunction {
                     .TXT_RECORD_CHANNEL_NAME);
             String[] recordValue = textRecordChannel.read();
             record = new BStringArray(recordValue);
-
         } catch (Throwable e) {
             String message = "Error occurred while reading text records. ";
             throw new BallerinaException(message + e.getMessage(), context);

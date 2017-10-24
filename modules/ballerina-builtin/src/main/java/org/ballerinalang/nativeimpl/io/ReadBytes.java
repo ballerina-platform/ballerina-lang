@@ -33,9 +33,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.lo#readBytes
+ * Native function ballerina.lo#readBytes.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -49,19 +49,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadBytes extends AbstractNativeFunction {
 
     /**
-     * Specifies the index which holds the number of bytes in ballerina.lo#readBytes
+     * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
      */
     private static final int NUMBER_OF_BYTES_INDEX = 0;
 
     /**
-     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
      * <p>
-     * Reads bytes from a given channel
+     * Reads bytes from a given channel.
      * </p>
+     * <p>
      * {@inheritDoc}
      */
     @Override

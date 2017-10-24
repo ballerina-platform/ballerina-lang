@@ -27,26 +27,26 @@ import java.util.Arrays;
 /**
  * <p>
  * Specialized ByteBuffer which will dynamically resize, maintain state and call the underlying ByteChannel as
- * necessary to return the required amount of bytes
+ * necessary to return the required amount of bytes.
  * </p>
  * <p>
- * BByteBuffer also focuses on offering the capability to get bytes through multiple channels and place into one
+ * BByteBuffer also focuses on offering the capability to get bytes through multiple channels and place into one.
  * </p>
  */
 public class BByteBuffer {
 
     /**
-     * Holds the bytes get from the byte channel
+     * Contains the buffer instance which will be wrapped.
      */
     private ByteBuffer byteBuffer;
 
     /**
      * <p>
-     * Minimum size of the which should be held in the buffer could be specified
+     * This is used for performance reasons, specified the minimum byte count which should be read from channel.
      * </p>
      * <p>
      * This will ensure to always maintain the minimum number of bytes in the buffer. Even if the required amount of
-     * bytes < than the minimum
+     * bytes < than the minimum so that that I/O overhead could be minimized.
      * </p>
      */
     private int minimumSizeOfBuffer;
@@ -59,18 +59,18 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Returns a ByteBuffer which will contain any remaining bytes left
+     * Returns a ByteBuffer which will contain any remaining bytes left in the previous read.
      * </p>
      * <p>
      * This operation will not guarantee a return of all the bytes required. This will return bytes if any is
      * available in the buffer.
      * </p>
      * <p>
-     * The operation will return null if none of the bytes are remaining in the buffer
+     * The operation will return null if none of the bytes are remaining in the buffer.
      * </p>
      *
-     * @param totalNumberOfBytesRequired number of bytes required
-     * @return new ByteBuffer which will contain bytes which will be remaining
+     * @param totalNumberOfBytesRequired number of bytes required.
+     * @return new ByteBuffer which will contain bytes which are remaining.
      */
     private ByteBuffer getBytesLeftInBuffer(int totalNumberOfBytesRequired) {
         ByteBuffer bufferedContent = null;
@@ -103,15 +103,15 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Will allocate a buffer for the specified size
+     * Will allocate a buffer for the specified size.
      * </p>
      * <p>
-     * If the size < minimumSizeOfBuffer the size of the new buffer = minimumSizeOfBuffer
-     * If the size > minimumSizeOfBuffer the size of the new buffer = size
+     * If the size < minimumSizeOfBuffer the size of the new buffer = minimumSizeOfBuffer.
+     * If the size > minimumSizeOfBuffer the size of the new buffer = size.
      * </p>
      *
-     * @param size the size of the buffer
-     * @return the newly allocated buffer for the specified size
+     * @param size the size of the buffer.
+     * @return the newly allocated buffer for the specified size.
      */
     private ByteBuffer allocate(int size) {
         if (size < minimumSizeOfBuffer) {
@@ -122,11 +122,11 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Will return a copy of the buffer which contains the read content
+     * Will return a copy of the buffer which contains the read content.
      * </p>
      *
-     * @param srcBuffer the buffer which required to be compressed
-     * @return the compressed buffer
+     * @param srcBuffer the buffer which will be compressed.
+     * @return the compressed buffer.
      */
     private ByteBuffer getCompressedBytes(ByteBuffer srcBuffer) {
         int bufferSize = srcBuffer.capacity();
@@ -145,21 +145,20 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Reads the specified number of bytes through ByteChannel
+     * Reads the specified number of bytes through ByteChannel.
      * </p>
      * <p>
-     * The operation will not guarantee all the bytes could be get. It will ensure to get the maximum number of
-     * bytes from what's requested. If an offset is specified the amount of bytes will be reduced
-     * (requiredNumberOfBytes - offset)
+     * This operation will read bytes from the channel. The channel may or may not return all required bytes. If the
+     * offset it specified the bytes will be read from the offset position.
      * </p>
      * <p>
-     * If the channel doesn't return any bytes it will return an empty buffer
+     * If the channel doesn't return any bytes it will return an empty buffer.
      * </p>
      *
-     * @param requiredNumberOfBytes the number of bytes required to be get from the channel
-     * @param offset                the number of bytes already present
-     * @return ByteBuffer which wraps the bytes get, null if the channel doesn't return any bytes
-     * @throws BallerinaIOException if an error is encountered when reading bytes from the channel
+     * @param requiredNumberOfBytes the number of bytes required to be read from the channel.
+     * @param offset                the number of bytes already present.
+     * @return ByteBuffer which wraps the bytes, null if the channel doesn't return any bytes.
+     * @throws BallerinaIOException if an error is encountered when reading bytes from the channel.
      */
     private ByteBuffer getBytesFromChannel(int requiredNumberOfBytes, int offset, AbstractChannel channel) throws
             BallerinaIOException {
@@ -170,10 +169,10 @@ public class BByteBuffer {
     }
 
     /**
-     * Specifies whether the buffer is empty
+     * Specifies whether the buffer is empty.
      *
-     * @param srcBuffer the buffer which needs to be validated
-     * @return true if the buffer is empty
+     * @param srcBuffer the buffer which needs to be validated.
+     * @return true if the buffer is empty.
      */
     private boolean isBufferEmpty(ByteBuffer srcBuffer) {
         return srcBuffer.limit() == 0;
@@ -181,15 +180,15 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Consolidates a given set of ByteBuffers into a single buffer instance
+     * Consolidates a given set of ByteBuffers into a single buffer instance.
      * </p>
      * <p>
-     * <b>Note : </b>It should be ensured that all the buffers provided are in write-able mode (not flipped)
+     * <b>Note : </b>It should be ensured that all the buffers provided are in write-able mode (not flipped).
      * </p>
      *
-     * @param size   the number of bytes which should be allocated for the buffer
-     * @param values the list of ByteBuffer instances which should be merged
-     * @return the consolidated ByteBuffer instance
+     * @param size   the number of bytes which should be allocated for the buffer.
+     * @param values the list of ByteBuffer instances which should be merged.
+     * @return the consolidated ByteBuffer instance.
      */
     private ByteBuffer consolidate(int size, ByteBuffer... values) {
         ByteBuffer consolidatedByteBuffer = ByteBuffer.allocate(size);
@@ -204,12 +203,12 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Resize the buffer for the specified size
+     * Resize the buffer for the specified size.
      * </p>
      *
-     * @param srcBuffer buffer which requires resizing
-     * @param size      the number of bytes which should be in the buffer
-     * @return the buffer which is resized
+     * @param srcBuffer buffer which requires resizing.
+     * @param size      the number of bytes which should be in the buffer.
+     * @return the buffer which is resized.
      */
     private ByteBuffer resizeIfRequired(ByteBuffer srcBuffer, int size) {
         ByteBuffer resizedBuffer;
@@ -225,18 +224,18 @@ public class BByteBuffer {
 
     /**
      * <p>
-     * Will reverse the get position of the buffer
+     * Will reverse the position of the buffer.
      * </p>
      * <p>
-     * This will reverse the un-processed bytes so that these bytes could be re-read
+     * This will reverse the un-processed bytes so that these bytes could be re-read.
      * </p>
      * <p>
-     * Reverse will start from the current buffers read position and will go all the way to the position '0'
+     * Reverse will start from the current buffers read position and will go all the way to the position '0'.
      * </p>
      *
-     * @param count the number of bytes which should be reversed
+     * @param count the number of bytes which should be reversed.
      */
-    void reverse(int count) throws BallerinaIOException {
+    public void reverse(int count) throws BallerinaIOException {
         if (null != byteBuffer) {
             int reversedByteBufferPosition = byteBuffer.position() - count;
             final int minimumBytePosition = 0;
@@ -247,7 +246,7 @@ public class BByteBuffer {
                 throw new BallerinaIOException(message);
             }
         } else {
-            String message = "An unread ByteBuffer is attempted for reverse, please get from buffer first";
+            String message = "ByteBuffer not initialized, please initialize it before reversing";
             log.error(message);
             throw new BallerinaIOException(message);
         }
@@ -259,8 +258,8 @@ public class BByteBuffer {
      * </p>
      * <p>
      * If the bytes are not available in the buffer, an attempt would be made to get from the channel, best effort
-     * will be taken to return the required amount of bytes. If bytes are not available in both the buffer and the
-     * the maximum available bytes will be returned.
+     * will be taken to return the required amount of bytes. If bytes are not available in both the buffer the
+     * maximum available bytes will be returned.
      * </p>
      * <p>
      * If bytes have being read previously through the buffer and the requested amount of bytes exceed the capacity
@@ -271,7 +270,7 @@ public class BByteBuffer {
      * </p>
      *
      * @param numberOfBytesRequested number of bytes requested from the buffer.
-     * @param channel                bytes channel which will perform I/O ops necessary for reading.
+     * @param channel                byte channel which will perform I/O ops necessary for reading.
      * @return New byte buffer which contains the requested amount of bytes.
      */
     public ByteBuffer get(int numberOfBytesRequested, AbstractChannel channel) throws BallerinaIOException {

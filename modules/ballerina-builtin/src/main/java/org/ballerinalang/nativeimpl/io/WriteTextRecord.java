@@ -30,9 +30,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#readCharacters
+ * Native function ballerina.io#writeTextRecord.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -44,17 +44,18 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class WriteTextRecord extends AbstractNativeFunction {
 
     /**
-     * Index of the record channel in ballerina.io#writeTextRecord
+     * Index of the record channel in ballerina.io#writeTextRecord.
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
 
     /**
-     * Index of the content in ballerina.io#writeTextRecord
+     * Index of the content in ballerina.io#writeTextRecord.
      */
     private static final int CONTENT_INDEX = 1;
 
     /**
-     * Writes records for a given file
+     * Writes records for a given file.
+     *
      * {@inheritDoc}
      */
     @Override
@@ -64,13 +65,9 @@ public class WriteTextRecord extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
-
-
             BTextRecordChannel textRecordChannel = (BTextRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-
             textRecordChannel.write(content);
-
         } catch (Throwable e) {
             String message = "Error occurred while writing text record .";
             throw new BallerinaException(message + e.getMessage(), context);

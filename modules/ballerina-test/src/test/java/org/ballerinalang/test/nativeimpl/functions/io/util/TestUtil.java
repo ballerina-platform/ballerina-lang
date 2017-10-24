@@ -13,41 +13,41 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Contains the util functions related to I/O test cases
+ * Contains the util functions related to I/O test cases.
  */
 public class TestUtil {
 
     /**
-     * Opens a channel from a specified file
+     * Opens a channel from a specified file.
      *
-     * @param filePath the path to the file
-     * @return the channel for the file
-     * @throws IOException
+     * @param filePath the path to the file.
+     * @return the file channel.
+     * @throws IOException during I/O error.
      */
     public static ByteChannel openForReading(String filePath) throws IOException {
         Set<OpenOption> opts = new HashSet<>();
         opts.add(StandardOpenOption.READ);
         URL fileResource = TestUtil.class.getClassLoader().getResource(filePath);
-        Path path = Paths.get(fileResource.getPath());
-        ByteChannel channel = Files.newByteChannel(path, opts);
-
+        ByteChannel channel = null;
+        if (null != fileResource) {
+            Path path = Paths.get(fileResource.getPath());
+            channel = Files.newByteChannel(path, opts);
+        }
         return channel;
     }
 
     /**
-     * Opens a file for writing
+     * Opens a file for writing.
      *
-     * @param filePath the path the file should be opened for writing
-     * @return the writable channel
-     * @throws IOException during I/O error
+     * @param filePath the path the file should be opened for writing.
+     * @return the writable channel.
+     * @throws IOException during I/O error.
      */
     public static ByteChannel openForWriting(String filePath) throws IOException {
         Set<OpenOption> opts = new HashSet<>();
         opts.add(StandardOpenOption.CREATE);
         opts.add(StandardOpenOption.WRITE);
         Path path = Paths.get(filePath);
-        ByteChannel channel = Files.newByteChannel(path, opts);
-
-        return channel;
+        return Files.newByteChannel(path, opts);
     }
 }

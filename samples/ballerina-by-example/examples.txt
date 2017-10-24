@@ -64,3 +64,6 @@ WebSocket Chat Application
 WebSocket Proxy Server
 Passthrough
 Mutual SSL
+Byte I/O
+Character I/O
+Record I/O

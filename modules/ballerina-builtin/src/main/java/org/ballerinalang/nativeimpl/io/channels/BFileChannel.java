@@ -25,12 +25,14 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * Channel which implements the file ops
+ * <p>
+ * Represents the channel to perform I/O operations on file.
+ * </p>
  */
 public class BFileChannel extends BByteChannel {
 
     /**
-     * Maintains the file channel implementation
+     * Maintains the file channel implementation.
      */
     private FileChannel channel;
 
@@ -40,7 +42,8 @@ public class BFileChannel extends BByteChannel {
     }
 
     /**
-     * Transfer file content to the specified destination
+     * Transfer file content to the specified destination.
+     *
      * {@inheritDoc}
      */
     @Override

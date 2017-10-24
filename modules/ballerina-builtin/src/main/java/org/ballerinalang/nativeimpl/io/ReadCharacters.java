@@ -31,9 +31,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#readCharacters
+ * Native function ballerina.io#readCharacters.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -46,19 +46,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadCharacters extends AbstractNativeFunction {
 
     /**
-     * Specifies the index which contains the byte channel in ballerina.lo#readBytes
+     * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
-     * Specifies the index which holds number of characters in ballerina.lo#readBytes
+     * Specifies the index which holds number of characters in ballerina.lo#readBytes.
      */
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
     /**
      * <p>
-     * Reads characters from the channel
+     * Reads characters from the channel.
      * </p>
+     *
      * {@inheritDoc}
      */
     @Override

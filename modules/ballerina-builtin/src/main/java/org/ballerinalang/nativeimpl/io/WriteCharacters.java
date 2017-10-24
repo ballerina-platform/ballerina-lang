@@ -31,9 +31,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#readCharacters
+ * Native function ballerina.io#writeCharacters.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -61,7 +61,8 @@ public class WriteCharacters extends AbstractNativeFunction {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes characters to a given file
+     * Writes characters to a given file.
+     *
      * {@inheritDoc}
      */
     @Override

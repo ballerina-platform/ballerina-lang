@@ -28,29 +28,38 @@ import java.nio.channels.WritableByteChannel;
 
 /**
  * <p>
- * Represents the bytes channel, Note this class is not thread safe so there cannot be multiple reads or writes
+ * Represents the channel which allows reading/writing bytes to I/O devices.
  * </p>
  * <p>
- * This is a stateful channel
+ * Any channel implementation could inherit it's base methods from this.
  * </p>
+ * <p>
+ * <b>Note : </b> this channel does not support concurrent reading/writing, hence this should not be accessed
+ * concurrently.
+ * </p>
+ *
+ * @see BByteChannel
+ * @see BCharacterChannel
+ * @see BTextRecordChannel
  */
 public abstract class AbstractChannel {
 
     /**
-     * Represents the channel for reading bytes
+     * Will be used to read/write bytes to/from channels.
      */
     private ByteChannel channel;
+
     /**
-     * Whether the channel has reached to it's end
+     * Specifies whether the channel has reached EoF.
      */
     private boolean hasReachedToEnd = false;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractChannel.class);
 
     /**
-     * Creates a ballerina channel which will source/sink from I/O resource
+     * Creates a ballerina channel which will source/sink from I/O resource.
      *
-     * @param channel the channel which will source/sink
+     * @param channel the channel to source/sink bytes.
      */
     public AbstractChannel(ByteChannel channel) throws BallerinaIOException {
         if (null != channel) {
@@ -65,28 +74,21 @@ public abstract class AbstractChannel {
     }
 
     /**
-     * Specifies whether there're any remaining content in channel
+     * Will be used when performing direct transfer operations from OS cache.
      *
-     * @return true if the there are'nt any remaining content
-     */
-    boolean hasReachedToEnd() {
-        return hasReachedToEnd;
-    }
-
-    /**
-     * Will be used when performing direct transfer operations from OS cache
-     *
-     * @param position   starting position of the bytes to be transferred
-     * @param count      number of bytes to be transferred
-     * @param dstChannel destination channel to transfer
-     * @throws BallerinaIOException during I/O error
+     * @param position   starting position of the bytes to be transferred.
+     * @param count      number of bytes to be transferred.
+     * @param dstChannel destination channel to transfer.
+     * @throws BallerinaIOException during I/O error.
      */
     public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException;
 
     /**
      * <p>
-     * Reads data from the channel until the buffer is full
+     * Reads data from the channel until the given buffer is filled.
      * </p>
+     *
+     * @param inputBuffer the source to read bytes from.
      */
     void readFromChannel(ByteBuffer inputBuffer) throws BallerinaIOException {
         try {
@@ -126,11 +128,13 @@ public abstract class AbstractChannel {
     }
 
     /**
-     * Writes content in the provided buffer to the channel
+     * <p>
+     * Writes provided buffer content to the channel.
+     * </p>
      *
-     * @param contentBuffer the buffer which holds the content
-     * @return the number of bytes written to the channel
-     * @throws BallerinaIOException during I/O error
+     * @param contentBuffer the buffer which holds the content.
+     * @return the number of bytes written to the channel.
+     * @throws BallerinaIOException during I/O error.
      */
     int write(ByteBuffer contentBuffer) throws BallerinaIOException {
         int numberOfBytesWritten;
@@ -156,7 +160,7 @@ public abstract class AbstractChannel {
     }
 
     /**
-     * Close the given channel
+     * Closes the given channel.
      */
     public void close() {
         try {

@@ -32,9 +32,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.lo#writeBytes
+ * Native function ballerina.lo#writeBytes.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -48,23 +48,23 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class WriteBytes extends AbstractNativeFunction {
 
     /**
-     * Index which holds the byte channel in ballerina.io#writeBytes
+     * Index which holds the byte channel in ballerina.io#writeBytes.
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
-     * Index which holds the content in ballerina.io#writeBytes
+     * Index which holds the content in ballerina.io#writeBytes.
      */
     private static final int CONTENT_INDEX = 0;
 
     /**
-     * Index which holds the start offset in ballerina.io#writeBytes
+     * Index which holds the start offset in ballerina.io#writeBytes.
      */
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes bytes to a given channel
-     * <p>
+     * Writes bytes to a given channel.
+     *
      * {@inheritDoc}
      */
     @Override

@@ -24,17 +24,23 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.util.Arrays;
 
 /**
- * Will contain the Bytes-I/O APIs
  * <p>
- * Per each channel type i.e file/socket there will be a separate channel implementation
+ * Represents Ballerina Byte Channel.
+ * </p>
+ * <p>
+ * Allows reading/writing bytes to perform I/O operations.
+ * </p>
+ * <p>
+ * The bytes are read through the channel into the buffer. This will manage the buffer and the channel to deliver
+ * bytes I/O reading/writing APIs.
+ * </p>
  */
 public abstract class BByteChannel extends AbstractChannel {
 
     /**
-     * Holds the content belonging to a particular channel
+     * Holds the content belonging to a particular channel.
      */
     private BByteBuffer contentBuffer;
 
@@ -46,87 +52,31 @@ public abstract class BByteChannel extends AbstractChannel {
     }
 
     /**
-     * Shrinks a given byte getByteArray to the specified length
-     *
-     * @param content the getByteArray which holds the content
-     * @param length  the length of the content of the new getByteArray
-     * @return shrunk byte getByteArray
-     */
-    private byte[] shrink(byte[] content, int length) {
-        int srcPos = 0;
-        int destPos = 0;
-        byte[] destinationArray = new byte[length];
-        if (log.isDebugEnabled()) {
-            log.debug("Shrinking the content from a length of " + content.length + " to a length of " + length);
-        }
-        System.arraycopy(content, srcPos, destinationArray, destPos, length);
-        if (log.isTraceEnabled()) {
-            log.trace("Content shrunk " + Arrays.toString(content));
-        }
-        return destinationArray;
-    }
-
-
-    /**
      * <p>
-     * Will get the bytes from buffer.
-     * </p>
+     * Reads specified amount of bytes from a given channel.
      * <p>
-     * This operation would ensure only the get number of bytes are returned from the buffer.
-     * </p>
-     *
-     * @param origin the buffer which contains the bytes get.
-     * @return the underlying byte getByteArray which contains the get bytes.
-     */
-    private byte[] getByteArray(ByteBuffer origin) {
-        byte[] content;
-        int byteReadLimit = origin.limit();
-        int totalBufferSpace = origin.capacity();
-        byte[] originData = origin.array();
-        //This means the required amount of bytes are not available
-        //Hence we will need to shrink the buffer
-        if (log.isTraceEnabled()) {
-            log.trace("Origin data in buffer [" + Arrays.toString(originData) + "]");
-        }
-        if (byteReadLimit < totalBufferSpace) {
-            content = shrink(originData, byteReadLimit);
-        } else {
-            content = originData;
-        }
-        if (log.isTraceEnabled()) {
-            log.trace("Content after sanitation [" + Arrays.toString(content) + "]");
-        }
-        return content;
-    }
-
-
-    /**
-     * <p>
-     * Reads a specified number of bytes from a given channel.
-     * <p>
-     * Each time this method is called the data will be get from the point where it was get before.
+     * Each time this method is called the data will be retrieved from the channels last read position.
      * </P>
      * <p>
-     * <b>Note : </b> This method is not thread safe, if attempted to get the same file concurrently there will be
-     * inconsistencies.
+     * <b>Note : </b> This operation cannot be called in parallel invocations since the underlying ByteBuffer and the
+     * channel are not synchronous.
      * </P>
      *
-     * @param numberOfBytes the number of bytes to get.
-     * @return the get bytes.
+     * @param numberOfBytes the number of bytes required.
+     * @return bytes which are retrieved from the channel.
      * @throws BallerinaIOException during I/O error.
      */
     public byte[] read(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        byte[] bytesRead = getByteArray(readBuffer);
-        return bytesRead;
+        return readBuffer.array();
     }
 
     /**
-     * Writes bytes to a channel, we do not worry about locking since channel is synchronous
+     * Writes bytes to channel.
      *
-     * @param content     the data which will be written
-     * @param startOffset the offset the bytes should be written
-     * @return the number of bytes written
+     * @param content     the data which will be written.
+     * @param startOffset if the data should be written from an offset (starting byte position).
+     * @return the number of bytes written.
      */
     public int write(byte[] content, int startOffset) throws BallerinaException {
         ByteBuffer outputBuffer = ByteBuffer.wrap(content);

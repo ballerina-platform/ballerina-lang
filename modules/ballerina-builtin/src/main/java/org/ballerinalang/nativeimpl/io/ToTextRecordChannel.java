@@ -34,9 +34,9 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#ToCharacterChannel
+ * Native function ballerina.io#toTextRecordChannel.
  *
- * @since 0.90
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
@@ -52,38 +52,35 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ToTextRecordChannel extends AbstractNativeFunction {
 
     /**
-     * The index od the text record channel in ballerina.io#toTextRecordChannel()
+     * The index od the text record channel in ballerina.io#toTextRecordChannel().
      */
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
     /**
-     * The index of the record channel separator in ballerina.io#toTextRecordChannel()
+     * The index of the record channel separator in ballerina.io#toTextRecordChannel().
      */
     private static final int RECORD_SEPARATOR_INDEX = 0;
-
     /**
-     * The index of the field separator in ballerina.io#toTextRecordChannel()
+     * The index of the field separator in ballerina.io#toTextRecordChannel().
      */
     private static final int FIELD_SEPARATOR_INDEX = 1;
     /**
-     * represents the information related to the byte channel
+     * represents the information related to the byte channel.
      */
     private StructInfo textRecordChannelStructInfo;
-
     /**
-     * The package path of the byte channel
+     * The package path of the byte channel.
      */
     private static final String TXT_RECORD_CHANNEL_PACKAGE = "ballerina.io";
-
     /**
-     * The type of the byte channel
+     * The type of the byte channel.
      */
     private static final String STRUCT_TYPE = "TextRecordChannel";
 
     /**
-     * Gets the struct related to AbstractChannel
+     * Gets the struct related to AbstractChannel.
      *
-     * @param context invocation context
-     * @return the struct related to AbstractChannel
+     * @param context invocation context.
+     * @return the struct related to AbstractChannel.
      */
     private StructInfo getCharacterChannelStructInfo(Context context) {
         StructInfo result = textRecordChannelStructInfo;
@@ -94,6 +91,9 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
         return textRecordChannelStructInfo;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BValue[] execute(Context context) {
         BStruct textRecordChannelInfo;

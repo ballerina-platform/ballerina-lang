@@ -17,9 +17,11 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.BByteBuffer;
 import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.BByteChannelTest;
+import org.ballerinalang.test.nativeimpl.functions.io.MockBByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -30,32 +32,21 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
 /**
- * Defines the unit test to test the functionality of reading bytes
+ * Defines the unit test to test the functionality of Byte I/O related use cases.
  */
 public class BytesInputOutputBufferTest {
 
     /**
-     * Specifies the default directory path
+     * Specifies the default directory path.
      */
     private String currentDirectoryPath = "/tmp/";
 
-
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
     }
 
-    /**
-     * <p>
-     * Read bytes into multiple iterations, validates whether the state is maintained properly
-     * </p>
-     * <p>
-     * This test covers varying buffer sizes when the bytes are get into multiple iterations
-     * </p>
-     *
-     * @throws IOException
-     */
-    @Test
+    @Test(description = "Reads files into multiple iterations")
     public void multiReadFile() throws IOException {
 
         int initialReadLimit = 3;
@@ -66,7 +57,7 @@ public class BytesInputOutputBufferTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         byte[] readBytes = channel.read(initialReadLimit);
 
         //This should hold the number of bytes get
@@ -84,18 +75,19 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
-    @Test
+    @Test(description = "Reads file which has varying buffer sizes")
     public void varyingBufferSizeTest() throws IOException {
         final int numberOfBytesInFile = 7;
         final int fixedBufferSize = 15;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
-        BByteChannel channel = new BByteChannelTest(byteChannel, fixedBufferSize);
+        BByteChannel channel = new MockBByteChannel(byteChannel, fixedBufferSize);
         byte[] readBytes = channel.read(8);
+
         Assert.assertEquals(readBytes.length, numberOfBytesInFile);
     }
 
-    @Test
+    @Test(description = "Reads bytes which has a fixed buffer for multiple read iterations")
     public void fixedBufferIterativeRead() throws IOException {
         final int numberOfBytesInFile = 7;
         final int fixedBufferSize = 15;
@@ -103,17 +95,25 @@ public class BytesInputOutputBufferTest {
         ByteBuffer content = ByteBuffer.allocate(fixedBufferSize);
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
-        BByteChannel channel = new BByteChannelTest(byteChannel, fixedBufferSize);
+        BByteChannel channel = new MockBByteChannel(byteChannel, fixedBufferSize);
         while (readByteLength != 0) {
             byte[] readBytes = channel.read(3);
             content.put(readBytes);
             readByteLength = readBytes.length;
         }
         content.flip();
+
         Assert.assertEquals(content.limit(), numberOfBytesInFile);
     }
 
-    @Test
+    @Test(expectedExceptions = BallerinaIOException.class)
+    public void reverseFromNonExistingBuffer() {
+        final int fixedBufferSize = 15;
+        BByteBuffer buffer = new BByteBuffer(fixedBufferSize);
+        buffer.reverse(2);
+    }
+
+    @Test(description = "Copy I/O byte file as a stream")
     public void fileStreamCopyTest() throws IOException {
         final int readLimit = 10000;
         int readByteCount = -1;
@@ -122,9 +122,9 @@ public class BytesInputOutputBufferTest {
         final int numberOfBytesInFile = 45613;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
-        BByteChannel channel = new BByteChannelTest(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+        BByteChannel channel = new MockBByteChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
         ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
-        BByteChannel writeChannel = new BByteChannelTest(writeByteChannel, 0);
+        BByteChannel writeChannel = new MockBByteChannel(writeByteChannel, 0);
         while (readByteCount != 0) {
             byte[] readBytes = channel.read(readLimit);
             int writtenByteCount = writeChannel.write(readBytes, 0);
@@ -132,21 +132,12 @@ public class BytesInputOutputBufferTest {
             totalNumberOfBytesRead = totalNumberOfBytesRead + readByteCount;
             totalNumberOfBytesWritten = totalNumberOfBytesWritten + writtenByteCount;
         }
+
         Assert.assertEquals(totalNumberOfBytesRead, numberOfBytesInFile);
         Assert.assertEquals(totalNumberOfBytesRead, totalNumberOfBytesWritten);
     }
 
-    /**
-     * <p>
-     * Read bytes into multiple iterations, validates whether the state is maintained properly
-     * </p>
-     * <p>
-     * This test covers varying buffer sizes when the bytes are get into multiple iterations
-     * </p>
-     *
-     * @throws IOException
-     */
-    @Test
+    @Test(description = "Read bytes from fix buffer into multiple reads")
     public void multiReadFromFixedBuffer() throws IOException {
 
         int initialReadLimit = 3;
@@ -157,7 +148,7 @@ public class BytesInputOutputBufferTest {
 
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 2);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 2);
         byte[] readBytes = channel.read(initialReadLimit);
 
         //This should hold the number of bytes get
@@ -175,26 +166,25 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
-    @Test
+    @Test(description = "Request for bytes more exceeding the available limit")
     public void requestForExcessBytes() throws IOException {
         int requestedLimit = 10;
         int expectedLimit = 6;
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         byte[] readBytes = channel.read(requestedLimit);
         channel.close();
         Assert.assertEquals(readBytes.length, expectedLimit);
     }
 
-    @Test
+    @Test(description = "Write bytes to file")
     public void writeBytesToFile() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        BByteChannel channel = new BByteChannelTest(byteChannel, 0);
+        BByteChannel channel = new MockBByteChannel(byteChannel, 0);
         byte[] bytes = "hello".getBytes();
         int numberOfBytesWritten = channel.write(bytes, 0);
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
-
 
 }
