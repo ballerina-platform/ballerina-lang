@@ -275,6 +275,22 @@ export function getContextMenuItems(node, parentNode, command,
                 },
                 children: [],
             });
+            menu.push({
+                icon: '',
+                label: 'Reveal In Editor',
+                handler: () => {
+                    const { editor } = reactContext;
+                    if (editor.isFileOpenedInEditor(node.id)) {
+                        const targetEditor = editor.getEditorByID(node.id);
+                        editor.setActiveEditor(targetEditor);
+                    }
+                },
+                isActive: () => {
+                    const { editor } = reactContext;
+                    return editor.isFileOpenedInEditor(node.id);
+                },
+                children: [],
+            });
             menu.push(menuDivider);
             menu.push(copyPathMenu);
             menu.push(menuDivider);
