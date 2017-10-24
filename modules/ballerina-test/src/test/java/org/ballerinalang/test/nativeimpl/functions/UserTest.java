@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,12 +35,12 @@ public class UserTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/userTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/userTest.bal");
     }
 
     @Test
     public void testGetHome() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetHome");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetHome");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("user.home");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -47,7 +48,7 @@ public class UserTest {
 
     @Test
     public void testGetName() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetName");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetName");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("user.name");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -55,7 +56,7 @@ public class UserTest {
 
     @Test
     public void testGetLanguage() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetLanguage");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetLanguage");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("user.language");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -63,7 +64,7 @@ public class UserTest {
 
     @Test
     public void testGetCountry() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetCountry");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCountry");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("user.country");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -71,7 +72,7 @@ public class UserTest {
 
     @Test
     public void testGetLocale() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetLocale");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetLocale");
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedLanguage = System.getProperty("user.language");

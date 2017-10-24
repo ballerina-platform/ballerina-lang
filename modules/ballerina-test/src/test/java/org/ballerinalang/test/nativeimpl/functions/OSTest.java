@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,12 +38,12 @@ public class OSTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/osTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/osTest.bal");
     }
 
     @Test
     public void testValidEnv() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testValidEnv");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidEnv");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getenv("JAVA_HOME");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -50,14 +51,14 @@ public class OSTest {
 
     @Test
     public void testEmptyEnv() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testEmptyEnv");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyEnv");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
 
     @Test
     public void testValidMultivaluedEnv() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testValidMultivaluedEnv");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidMultivaluedEnv");
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
         Assert.assertTrue(returns[0] instanceof BStringArray);
@@ -72,7 +73,7 @@ public class OSTest {
 
     @Test
     public void testEmptyMultivaluedEnv() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testEmptyMultivaluedEnv");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMultivaluedEnv");
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
         Assert.assertTrue(returns[0] instanceof BStringArray);
@@ -81,7 +82,7 @@ public class OSTest {
 
     @Test
     public void getName() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetName");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetName");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("os.name");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -89,7 +90,7 @@ public class OSTest {
 
     @Test
     public void getVersion() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetVersion");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetVersion");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("os.version");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
@@ -97,7 +98,7 @@ public class OSTest {
 
     @Test
     public void getArchitecture() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testGetArchitecture");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetArchitecture");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("os.arch");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
