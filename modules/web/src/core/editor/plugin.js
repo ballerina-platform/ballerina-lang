@@ -93,6 +93,11 @@ class EditorPlugin extends Plugin {
         if (this.activeEditorID === file.id && file.isPersisted) {
             this.activeEditorID = file.fullPath;
         }
+        // update file is the active file, update active editor ID
+        if (this.activeEditor instanceof Editor
+            && this.activeEditor.file.id === file.id) {
+            this.activeEditorID = file.fullPath;
+        }
     }
 
     /**
