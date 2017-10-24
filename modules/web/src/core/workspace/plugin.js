@@ -58,6 +58,7 @@ class WorkspacePlugin extends Plugin {
         this.openedFolders = [];
         this.openedFiles = [];
         this._selectedNodeInExplorer = undefined;
+        this.goToFilePath = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
         this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
     }
@@ -278,6 +279,21 @@ class WorkspacePlugin extends Plugin {
                                     dispatch(COMMAND_IDS.REFRESH_EXPLORER, {});
                                 },
                                 description: 'Refresh',
+                            },
+                            {
+                                icon: 'left',
+                                isActive: () => {
+                                    const { editor } = this.appContext;
+                                    const activeEditor = editor.getActiveEditor();
+                                    return activeEditor && !_.isNil(activeEditor.file);
+                                },
+                                handleAction: () => {
+                                    const { editor } = this.appContext;
+                                    const activeEditor = editor.getActiveEditor();
+                                    this.goToFilePath = activeEditor.file.fullPath;
+                                    this.reRender();
+                                },
+                                description: 'Go To File',
                             },
                             {
                                 icon: 'add-folder',

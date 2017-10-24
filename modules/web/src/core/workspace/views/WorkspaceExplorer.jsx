@@ -32,6 +32,7 @@ class WorkspaceExplorer extends View {
      *
      */
     onSelectNode(node) {
+        this.props.workspaceManager.goToFilePath = undefined;
         this.props.workspaceManager.onNodeSelectedInExplorer(node);
     }
 
@@ -49,9 +50,20 @@ class WorkspaceExplorer extends View {
     render() {
         const trees = [];
         const { openedFolders } = this.props.workspaceManager;
+        // give precedence to first root folder in explorer
+        let foundGoToFileRoot = false;
         openedFolders.forEach((folder) => {
+            let activeKey;
+            if (this.props.workspaceManager.goToFilePath && !foundGoToFileRoot) {
+                const { goToFilePath } = this.props.workspaceManager;
+                if (goToFilePath && _.startsWith(goToFilePath, folder)) {
+                    activeKey = goToFilePath;
+                    foundGoToFileRoot = true;
+                }
+            }
             trees.push((
                 <ExplorerItem
+                    activeKey={activeKey}
                     folderPath={folder}
                     key={folder}
                     workspaceManager={this.props.workspaceManager}

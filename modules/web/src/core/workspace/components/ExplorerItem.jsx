@@ -50,6 +50,19 @@ class ExplorerItem extends React.Component {
     /**
      * @inheritdoc
      */
+    componentWillReceiveProps(newProps) {
+        if (newProps.activeKey) {
+            const node = this.state.node;
+            node.collapsed = false;
+            this.setState({
+                node,
+            });
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     componentWillUnmount() {
         const { command: { off } } = this.context;
         off(COMMANDS.REFRESH_EXPLORER, this.refresh);
@@ -171,6 +184,7 @@ class ExplorerItem extends React.Component {
                             this.state.node.children = data;
                         }}
                         root={this.props.folderPath}
+                        activeKey={this.props.activeKey}
                         onOpen={this.onOpen}
                         onSelect={this.props.onSelect}
                         panelResizeInProgress={this.props.panelResizeInProgress}
@@ -184,11 +198,13 @@ class ExplorerItem extends React.Component {
 ExplorerItem.propTypes = {
     panelResizeInProgress: PropTypes.bool.isRequired,
     onSelect: PropTypes.func,
+    activeKey: PropTypes.string,
     folderPath: PropTypes.string.isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 
 ExplorerItem.defaultProps = {
+    activeKey: '',
     onSelect: () => {},
 };
 
