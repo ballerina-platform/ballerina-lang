@@ -30,7 +30,9 @@ function cleanup () returns (any) {
     boolean b = files:exists(targetDir);
     if (!b) {
         logger:info("Temporary directory /tmp/tmpDir is cleaned up");
-        return "SUCCESS";
+    } else {
+        error err = {msg:"Unable to clean up the tmp directory"};
+        return err;
     }
     return "";
 }
@@ -38,6 +40,6 @@ function cleanup () returns (any) {
 function cleanupError (any error) {
     var errorMessage, castErr = (string)error;
     if (errorMessage != "") {
-        logger:error("Error while cleaning up the tmp directory: " + errorMessage);
+        logger:error("Error: " + errorMessage);
     }
 }

@@ -30,8 +30,8 @@ public class TaskUtil {
 
     private static AtomicInteger counter = new AtomicInteger(0);
     /**
-     * Generates the task id
-     * @return taskId which is computed with the process id and atomic integer
+     * Generates the task id.
+     * @return taskId which is computed with the process id and atomic integer.
      */
     protected static int generateTaskId() {
         int taskId = counter.incrementAndGet();

@@ -51,14 +51,14 @@ public class TaskScheduler {
     static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
 
     /**
-     * Triggers the timer
+     * Triggers the timer.
      *
-     * @param ctx               The ballerina context
-     * @param taskId            The identifier of the task
-     * @param delay             The initial delay
-     * @param interval          The interval between two task executions
-     * @param onTriggerFunction The main function which will be triggered by the task
-     * @param onErrorFunction   The function which will be triggered in the error situation
+     * @param ctx               The ballerina context.
+     * @param taskId            The identifier of the task.
+     * @param delay             The initial delay.
+     * @param interval          The interval between two task executions.
+     * @param onTriggerFunction The main function which will be triggered by the task.
+     * @param onErrorFunction   The function which will be triggered in the error situation.
      */
     static void triggerTimer(Context ctx, int taskId, long delay, long interval, FunctionRefCPEntry onTriggerFunction,
                              FunctionRefCPEntry onErrorFunction) {
@@ -69,20 +69,20 @@ public class TaskScheduler {
                     log.debug(Constant.PREFIX_TIMER + taskId + " starts the execution");
                 }
                 triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
-                //Call the onTrigger function
+                //Call the onTrigger function.
                 callFunction(ctx, onTriggerFunction, onErrorFunction);
             };
             if (executorServiceMap.get(taskId) == null && delay != 0) {
-                //Schedule the service with initial delay if the initial delay is set
+                //Schedule the service with initial delay if the initial delay is set.
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
                 log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
                 executorServiceMap.put(taskId, executorService);
             } else {
                 if (interval > 0) {
-                    //Schedule the service with the provided delay
+                    //Schedule the service with the provided delay.
                     executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
                     log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
-                    //Add the executor service into the context
+                    //Add the executor service into the context.
                     executorServiceMap.put(taskId, executorService);
                 } else {
                     log.error("The vale of interval is invalid");
@@ -104,17 +104,17 @@ public class TaskScheduler {
     }
 
     /**
-     * Triggers the appointment
+     * Triggers the appointment.
      *
-     * @param ctx               The ballerina context
-     * @param taskId            The identifier of the task
-     * @param minute            The value of the minute in the appointment expression
-     * @param hour              The value of the hour in the appointment expression
-     * @param dayOfWeek         The value of the day of week in the appointment expression
-     * @param dayOfMonth        The value of the day of month in the appointment expression
-     * @param month             The value of the month in the appointment expression
-     * @param onTriggerFunction The main function which will be triggered by the task
-     * @param onErrorFunction   The function which will be triggered in the error situation
+     * @param ctx               The ballerina context.
+     * @param taskId            The identifier of the task.
+     * @param minute            The value of the minute in the appointment expression.
+     * @param hour              The value of the hour in the appointment expression.
+     * @param dayOfWeek         The value of the day of week in the appointment expression.
+     * @param dayOfMonth        The value of the day of month in the appointment expression.
+     * @param month             The value of the month in the appointment expression.
+     * @param onTriggerFunction The main function which will be triggered by the task.
+     * @param onErrorFunction   The function which will be triggered in the error situation.
      */
     static void triggerAppointment(Context ctx, int taskId, int minute, int hour, int dayOfWeek,
                                    int dayOfMonth, int month, FunctionRefCPEntry onTriggerFunction,
@@ -126,7 +126,7 @@ public class TaskScheduler {
                     log.debug(Constant.PREFIX_APPOINTMENT + taskId + " starts the execution");
                 }
                 if (taskLifeTimeMap.get(taskId) != null && taskLifeTimeMap.get(taskId) > 0) {
-                    //Set the life time to 0 and trigger every minute
+                    //Set the life time to 0 and trigger every minute.
                     taskLifeTimeMap.put(taskId, 0L);
                     triggerAppointment(ctx, taskId, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, dayOfWeek,
                             dayOfMonth, month, onTriggerFunction, onErrorFunction);
@@ -134,22 +134,22 @@ public class TaskScheduler {
                     triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
                             onErrorFunction);
                 }
-                //Call the onTrigger function
+                //Call the onTrigger function.
                 callFunction(ctx, onTriggerFunction, onErrorFunction);
             };
-            //Calculate the delay
+            //Calculate the delay.
             long delay = calculateDelay(taskId, minute, hour, dayOfWeek, dayOfMonth, month);
             if (delay != -1) {
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
-                //Get the execution life time
+                //Get the execution life time.
                 long period = taskLifeTimeMap.get(taskId) != null ? taskLifeTimeMap.get(taskId) : 0L;
-                //Add the executor service into the context
+                //Add the executor service into the context.
                 executorServiceMap.put(taskId, executorService);
                 if (period > 0) {
-                    //Calculate the actual execution lifetime from the delay and calculated value
+                    //Calculate the actual execution lifetime from the delay and calculated value.
                     period = delay + period;
                     taskLifeTimeMap.put(taskId, period);
-                    //Trigger stop if the execution lifetime > 0
+                    //Trigger stop if the execution lifetime > 0.
                     stopExecution(taskId, period);
                 }
                 if (log.isDebugEnabled()) {
@@ -168,10 +168,10 @@ public class TaskScheduler {
     }
 
     /**
-     * Stops the execution
+     * Stops the execution.
      *
-     * @param taskId  The identifier of the task
-     * @param sPeriod The delay to start the task shutdown function
+     * @param taskId  The identifier of the task.
+     * @param sPeriod The delay to start the task shutdown function.
      */
     private static void stopExecution(int taskId, long sPeriod) {
         ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
@@ -183,13 +183,13 @@ public class TaskScheduler {
                 log.debug("Attempting to stop the task: " + taskId);
             }
             final Runnable schedulerFunc = () -> {
-                //Get the corresponding executor service from context
+                //Get the corresponding executor service from context.
                 ScheduledExecutorService executorService = executorServiceMap.get(taskId);
                 try {
-                    //Invoke shutdown of the executor service
+                    //Invoke shutdown of the executor service.
                     executorService.shutdown();
                     if (executorService.isShutdown()) {
-                        //Remove the executor service from the context
+                        //Remove the executor service from the context.
                         executorServiceMap.remove(taskId);
                         scheduleTaskErrorsMap.put(taskId, "");
                         taskLifeTimeMap.put(taskId, 0L);
@@ -210,11 +210,11 @@ public class TaskScheduler {
     }
 
     /**
-     * Calls the onTrigger and onError functions
+     * Calls the onTrigger and onError functions.
      *
-     * @param ctx               The ballerina context
-     * @param onTriggerFunction The main function which will be triggered by the task
-     * @param onErrorFunction   The function which will be triggered in the error situation
+     * @param ctx               The ballerina context.
+     * @param onTriggerFunction The main function which will be triggered by the task.
+     * @param onErrorFunction   The function which will be triggered in the error situation.
      */
     private static void callFunction(Context ctx, FunctionRefCPEntry onTriggerFunction,
                                      FunctionRefCPEntry onErrorFunction) {
@@ -224,29 +224,17 @@ public class TaskScheduler {
             }
         };
         ProgramFile programFile = ctx.getProgramFile();
-        //Create new instance of the context and set required properties
+        //Create new instance of the context and set required properties.
         Context newContext = new Context(programFile);
         try {
-            //Invoke the onTrigger function
-            BValue[] response = BLangFunctions
-                    .invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
-            if (response[0].stringValue() == null || response[0].stringValue().isEmpty()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Invoking the onError function due to no response from the triggered function");
-                }
-                BValue[] error = abstractNativeFunction.getBValues(new BString(Constant.TIMER_ERROR));
-                if (onErrorFunction != null) {
-                    BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
-                } else {
-                    log.error("The onError function is not provided");
-                }
-            }
+            //Invoke the onTrigger function.
+            BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
         } catch (BLangRuntimeException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Invoking the onError function");
             }
             BValue[] error = abstractNativeFunction.getBValues(new BString(e.getMessage()));
-            //Call the onError function in case of error
+            //Call the onError function in case of error.
             if (onErrorFunction != null) {
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
             } else {
@@ -256,55 +244,55 @@ public class TaskScheduler {
     }
 
     /**
-     * Calculates the delay to schedule the appointment
+     * Calculates the delay to schedule the appointment.
      *
-     * @param taskId     The identifier of the task
-     * @param minute     The value of the minute in the appointment expression
-     * @param hour       The value of the hour in the appointment expression
-     * @param dayOfWeek  The value of the day of week in the appointment expression
-     * @param dayOfMonth The value of the day of month in the appointment expression
-     * @param month      The value of the month in the appointment expression
-     * @return delay which is used to schedule the appointment
+     * @param taskId     The identifier of the task.
+     * @param minute     The value of the minute in the appointment expression.
+     * @param hour       The value of the hour in the appointment expression.
+     * @param dayOfWeek  The value of the day of week in the appointment expression.
+     * @param dayOfMonth The value of the day of month in the appointment expression.
+     * @param month      The value of the month in the appointment expression.
+     * @return delay which is used to schedule the appointment.
      */
     public static long calculateDelay(int taskId, int minute, int hour, int dayOfWeek, int dayOfMonth, int month) {
-        //Get the Calendar instance
+        //Get the Calendar instance.
         Calendar currentTime = Calendar.getInstance();
         if (isInvalidInput(currentTime, minute, hour, dayOfWeek, dayOfMonth, month)) {
-            //Validate the fields
+            //Validate the fields.
             log.error("Invalid input");
             String errorFromMap = scheduleTaskErrorsMap.get(taskId);
             String error =
                     errorFromMap != null && !errorFromMap.isEmpty() ? errorFromMap + ",Wrong input" : "Wrong input";
             scheduleTaskErrorsMap.put(taskId, error);
         } else {
-            //Clone the current time to another instance
+            //Clone the current time to another instance.
             Calendar executionStartTime = (Calendar) currentTime.clone();
-            //Tune the execution start time by the value of minute
+            //Tune the execution start time by the value of minute.
             executionStartTime = modifyCalendarByCheckingMinute(currentTime, executionStartTime, minute, hour);
-            //Tune the execution start time by the value of hour
+            //Tune the execution start time by the value of hour.
             executionStartTime = modifyCalendarByCheckingHour(currentTime, executionStartTime, minute, hour, dayOfWeek,
                     dayOfMonth);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfMonth != Constant.NOT_CONSIDERABLE) {
-                //Clone the modified Calendar instances into two instances of either the day of week or
+                //Clone the modified Calendar instances into two instances.
                 Calendar newTimeAccordingToDOW = cloneCalendarAndSetTime(executionStartTime, dayOfWeek, dayOfMonth);
                 Calendar newTimeAccordingToDOM = cloneCalendarAndSetTime(executionStartTime, dayOfWeek, dayOfMonth);
-                //Tune the specific Calendar by the value of day of week
+                //Modify the specific Calendar by the value of day of week.
                 newTimeAccordingToDOW = modifyCalendarByCheckingDayOfWeek(currentTime, newTimeAccordingToDOW, dayOfWeek,
                         month);
-                //Tune the specific Calendar by the value of day of month
+                //Modify the specific Calendar by the value of day of month.
                 newTimeAccordingToDOM = modifyCalendarByCheckingDayOfMonth(currentTime, newTimeAccordingToDOM,
                         dayOfMonth, month);
-                //Tune both cloned Calendar instances by the value of month
+                //Modify both cloned Calendar instances by the value of month.
                 newTimeAccordingToDOW = modifyCalendarByCheckingMonth(taskId, currentTime, newTimeAccordingToDOW,
                         minute, hour, dayOfWeek, dayOfMonth, month);
                 newTimeAccordingToDOM = modifyCalendarByCheckingMonth(taskId, currentTime, newTimeAccordingToDOM,
                         minute, hour, dayOfWeek, dayOfMonth, month);
-                //Find the nearest value from both and set the final execution time
+                //Find the nearest value from both and set the final execution time.
                 executionStartTime = newTimeAccordingToDOW.before(newTimeAccordingToDOM) ?
                         newTimeAccordingToDOW :
                         newTimeAccordingToDOM;
             } else {
-                //Tune the execution start time by the value of day of week, day of month and month respectively
+                //Tune the execution start time by the value of day of week, day of month and month respectively.
                 executionStartTime = modifyCalendarByCheckingDayOfWeek(currentTime, executionStartTime, dayOfWeek,
                         month);
                 executionStartTime = modifyCalendarByCheckingDayOfMonth(currentTime, executionStartTime, dayOfMonth,
@@ -312,26 +300,26 @@ public class TaskScheduler {
                 executionStartTime = modifyCalendarByCheckingMonth(taskId, currentTime, executionStartTime, minute,
                         hour, dayOfWeek, dayOfMonth, month);
             }
-            //Calculate the time difference in MILLI SECONDS
+            //Calculate the time difference in MILLI SECONDS.
             return calculateDifference(taskId, executionStartTime);
         }
         return -1;
     }
 
     /**
-     * Checks the validity of the input
+     * Checks the validity of the input.
      *
-     * @param currentTime The Calendar instance with current time
-     * @param minute      The value of the minute in the appointment expression
-     * @param hour        The value of the hour in the appointment expression
-     * @param dayOfWeek   The value of the day of week in the appointment expression
-     * @param dayOfMonth  The value of the day of month in the appointment expression
-     * @param month       The value of the month in the appointment expression
-     * @return boolean value. 'true' if the input is valid else 'false'
+     * @param currentTime The Calendar instance with current time.
+     * @param minute      The value of the minute in the appointment expression.
+     * @param hour        The value of the hour in the appointment expression.
+     * @param dayOfWeek   The value of the day of week in the appointment expression.
+     * @param dayOfMonth  The value of the day of month in the appointment expression.
+     * @param month       The value of the month in the appointment expression.
+     * @return boolean value. 'true' if the input is valid else 'false'.
      */
     private static boolean isInvalidInput(Calendar currentTime, int minute, int hour, int dayOfWeek, int dayOfMonth,
                                           int month) {
-        //Valid ranges: (minute :- 0 - 59, hour :- 0 - 23, dayOfWeek :- 1 - 7, dayOfMonth :- 1 - 31, month :- 0 - 11)
+        //Valid ranges: (minute :- 0 - 59, hour :- 0 - 23, dayOfWeek :- 1 - 7, dayOfMonth :- 1 - 31, month :- 0 - 11).
         Calendar clonedCalendar = (Calendar) currentTime.clone();
         clonedCalendar.set(Calendar.MONTH, month);
         return minute > 59 || minute < Constant.NOT_CONSIDERABLE || hour > 23 || hour < Constant.NOT_CONSIDERABLE
@@ -342,28 +330,28 @@ public class TaskScheduler {
     }
 
     /**
-     * Modifies the Calendar by checking the minute
+     * Modifies the Calendar by checking the minute.
      *
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param minute             The value of the minute in the appointment expression
-     * @param hour               The value of the hour in the appointment expression
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param minute             The value of the minute in the appointment expression.
+     * @param hour               The value of the hour in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingMinute(Calendar currentTime, Calendar executionStartTime,
                                                            int minute, int hour) {
         if (minute == Constant.NOT_CONSIDERABLE && hour == Constant.NOT_CONSIDERABLE) {
-            //Run every minute
+            //Run every minute.
             executionStartTime.add(Calendar.MINUTE, 1);
         } else if (minute == Constant.NOT_CONSIDERABLE) {
-            //Run at clock time at 0th minute with 59 minutes execution lifetime e.g start at 2AM and end at 2.59AM
+            //Run at clock time at 0th minute with 59 minutes execution lifetime e.g start at 2AM and end at 2.59AM.
             executionStartTime.set(Calendar.MINUTE, 0);
         } else {
-            //Run every hour at 0th minute or at 5th minute or at a clock time e.g: 2.30AM
+            //Run every hour at 0th minute or at 5th minute or at a clock time e.g: 2.30AM.
             executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, minute,
                     Constant.NOT_CONSIDERABLE);
             if (minute != 0 && hour == Constant.NOT_CONSIDERABLE && executionStartTime.before(currentTime)) {
-                //If the modified time is behind the current time and it is every hour at 0th minute
+                //If the modified time is behind the current time and it is every hour at 0th minute.
                 //or at 5th minute case, add an hour
                 executionStartTime.add(Calendar.HOUR, 1);
             }
@@ -372,31 +360,31 @@ public class TaskScheduler {
     }
 
     /**
-     * Modifies the Calendar by checking the hour
+     * Modifies the Calendar by checking the hour.
      *
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param minute             The value of the minute in the appointment expression
-     * @param hour               The value of the hour in the appointment expression
-     * @param dayOfWeek          The value of the day of week in the appointment expression
-     * @param dayOfMonth         The value of the day of month in the appointment expression
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param minute             The value of the minute in the appointment expression.
+     * @param hour               The value of the hour in the appointment expression.
+     * @param dayOfWeek          The value of the day of week in the appointment expression.
+     * @param dayOfMonth         The value of the day of month in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingHour(Calendar currentTime, Calendar executionStartTime, int minute,
                                                          int hour, int dayOfWeek, int dayOfMonth) {
         if (minute == 0 && hour == Constant.NOT_CONSIDERABLE) {
-            //If the minute == 0 and hour = -1, execute every hour
+            //If the minute == 0 and hour = -1, execute every hour.
             executionStartTime.add(Calendar.HOUR, 1);
             executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, 0,
                     Constant.NOT_CONSIDERABLE);
         } else if (hour != Constant.NOT_CONSIDERABLE) {
-            //If the hour >= 12, it's in the 24 hours system.
-            //Therefore, find the duration to be added to the 12 hours system
+            /*If the hour >= 12, it's in the 24 hours system.
+            Therefore, find the duration to be added to the 12 hours system.*/
             executionStartTime.set(Calendar.HOUR, hour >= 12 ? hour - 12 : hour);
             executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE,
                     Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE);
             if (hour <= 11) {
-                //If the hour <= 11, it's first half of the day
+                //If the hour <= 11, it's first half of the day.
                 executionStartTime.set(Calendar.AM_PM, Calendar.AM);
             } else {
                 //It's second half of the day
@@ -405,19 +393,19 @@ public class TaskScheduler {
         }
         if (executionStartTime.before(currentTime) && dayOfWeek == Constant.NOT_CONSIDERABLE
                 && dayOfMonth == Constant.NOT_CONSIDERABLE) {
-            //If the modified time is behind the current time, add a day
+            //If the modified time is behind the current time, add a day.
             executionStartTime.add(Calendar.DATE, 1);
         }
         return executionStartTime;
     }
 
     /**
-     * Modifies the Calendar by checking the day of week
+     * Modifies the Calendar by checking the day of week.
      *
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param dayOfWeek          The value of the day of week in the appointment expression
-     * @param month              The value of the month in the appointment expression
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param dayOfWeek          The value of the day of week in the appointment expression.
+     * @param month              The value of the month in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingDayOfWeek(Calendar currentTime, Calendar executionStartTime,
@@ -425,31 +413,31 @@ public class TaskScheduler {
         int numberOfDaysToBeAdded = 0;
         if (dayOfWeek >= 1) {
             if (month == currentTime.get(Calendar.MONTH) || month == Constant.NOT_CONSIDERABLE) {
-                //If the provided value of the month is current month or no value considerable value is provided
-                // for month, calculate the number of days to be added
+                /*If the provided value of the month is current month or no value considerable value is provided
+                for month, calculate the number of days to be added.*/
                 if (dayOfWeek < executionStartTime.get(Calendar.DAY_OF_WEEK)) {
                     numberOfDaysToBeAdded = 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek);
                 } else if (dayOfWeek > executionStartTime.get(Calendar.DAY_OF_WEEK)) {
                     numberOfDaysToBeAdded = dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK);
                 } else if (executionStartTime.get(Calendar.DAY_OF_WEEK) == dayOfWeek && executionStartTime
                         .before(currentTime)) {
-                    //If the day of week of the execution time is same as the provided value
-                    //and the calculated time is behind, add 7 days
+                    /*If the day of week of the execution time is same as the provided value
+                    and the calculated time is behind, add 7 days.*/
                     numberOfDaysToBeAdded = 7;
                 }
             } else if (currentTime.get(Calendar.MONTH) < month) {
-                //If the provided value of the month is future, find the first possible date
-                //which is the same day of week
+                /*If the provided value of the month is future, find the first possible date
+                which is the same day of week.*/
                 while (executionStartTime.get(Calendar.MONTH) < month) {
                     if (executionStartTime.get(Calendar.DAY_OF_WEEK) == dayOfWeek) {
-                        //Increase 7 days if the current day of week is same as the provided value
+                        //Increase 7 days if the current day of week is same as the provided value.
                         executionStartTime.add(Calendar.DATE, 7);
                     } else if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
-                        //Find the number of days to reach the provided value and add that number
+                        //Find the number of days to reach the provided value and add that number.
                         executionStartTime
                                 .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
                     } else {
-                        //Find the number of days to reach the provided value and add that number
+                        //Find the number of days to reach the provided value and add that number.
                         executionStartTime.add(Calendar.DATE,
                                 dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
                     }
@@ -461,12 +449,12 @@ public class TaskScheduler {
     }
 
     /**
-     * Modifies the Calendar by checking the day of month
+     * Modifies the Calendar by checking the day of month.
      *
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param dayOfMonth         The value of the day of month in the appointment expression
-     * @param month              The value of the month in the appointment expression
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param dayOfMonth         The value of the day of month in the appointment expression.
+     * @param month              The value of the month in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingDayOfMonth(Calendar currentTime, Calendar executionStartTime,
@@ -474,15 +462,15 @@ public class TaskScheduler {
         if (dayOfMonth >= 1) {
             if (dayOfMonth > executionStartTime.getActualMaximum(Calendar.DAY_OF_MONTH)
                     && month == Constant.NOT_CONSIDERABLE) {
-                //If the last day of the calculated execution start time is less than the provided day of month,
-                //set it to next month
+                /*If the last day of the calculated execution start time is less than the provided day of month,
+                set it to next month.*/
                 executionStartTime.add(Calendar.MONTH, 1);
                 executionStartTime.set(Calendar.DATE, dayOfMonth);
             } else {
-                //Set the day of month of execution time
+                //Set the day of month of execution time.
                 executionStartTime.set(Calendar.DATE, dayOfMonth);
                 if (executionStartTime.before(currentTime)) {
-                    //If the calculated execution time is behind the current time, set it to next month
+                    //If the calculated execution time is behind the current time, set it to next month.
                     executionStartTime.add(Calendar.MONTH, 1);
                 }
             }
@@ -491,62 +479,62 @@ public class TaskScheduler {
     }
 
     /**
-     * Modifies the Calendar by checking the month
+     * Modifies the Calendar by checking the month.
      *
-     * @param taskId             The identifier of the task
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param minute             The value of the minute in the appointment expression
-     * @param hour               The value of the hour in the appointment expression
-     * @param dayOfWeek          The value of the day of week in the appointment expression
-     * @param dayOfMonth         The value of the day of month in the appointment expression
-     * @param month              The value of the month in the appointment expression
+     * @param taskId             The identifier of the task.
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param minute             The value of the minute in the appointment expression.
+     * @param hour               The value of the hour in the appointment expression.
+     * @param dayOfWeek          The value of the day of week in the appointment expression.
+     * @param dayOfMonth         The value of the day of month in the appointment expression.
+     * @param month              The value of the month in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingMonth(int taskId, Calendar currentTime, Calendar executionStartTime,
                                                           int minute, int hour, int dayOfWeek, int dayOfMonth,
                                                           int month) {
         if (minute == Constant.NOT_CONSIDERABLE && hour > Constant.NOT_CONSIDERABLE) {
-            //If the hour has considerable value and minute is -1, set the execution lifetime to 59 minutes
+            //If the hour has considerable value and minute is -1, set the execution lifetime to 59 minutes.
             taskLifeTimeMap.put(taskId, Constant.LIFETIME);
         }
         if (month > Constant.NOT_CONSIDERABLE) {
             if (executionStartTime.get(Calendar.MONTH) < month) {
-                //Add the number of months to be added when considerable value is passed to the month
+                //Add the number of months to be added when considerable value is passed to the month.
                 executionStartTime.add(Calendar.MONTH, month - executionStartTime.get(Calendar.MONTH));
                 if (dayOfWeek == Constant.NOT_CONSIDERABLE && dayOfMonth == Constant.NOT_CONSIDERABLE) {
-                    //Set the date as the first day of the month if there is no considerable value for both day of week
-                    //and day of month
+                    /*Set the date as the first day of the month if there is no considerable value for both day of week
+                    and day of month.*/
                     executionStartTime.set(Calendar.DATE, 1);
                 }
             } else if (executionStartTime.get(Calendar.MONTH) > month) {
-                //If the month of the calculated execution start time is future, schedule it to next year
+                //If the month of the calculated execution start time is future, schedule it to next year.
                 int months = month - executionStartTime.get(Calendar.MONTH);
                 executionStartTime.add(Calendar.YEAR, 1);
                 executionStartTime.add(Calendar.MONTH, months);
                 if (dayOfWeek == Constant.NOT_CONSIDERABLE && dayOfMonth == Constant.NOT_CONSIDERABLE) {
-                    //Set the date as the first day of the month if there is no considerable value for both day of week
-                    //and day of month
+                    /*Set the date as the first day of the month if there is no considerable value for both day of week
+                    and day of month.*/
                     executionStartTime.set(Calendar.DATE, 1);
                 }
             }
         }
-        //Check the year of the calculated execution time and set it properly
+        //Check the year of the calculated execution time and set it properly.
         executionStartTime = modifyCalendarByCheckingTheYear(currentTime, executionStartTime, minute, hour, dayOfWeek,
                 dayOfMonth, month);
         return executionStartTime;
     }
 
     /**
-     * Modifies the Calendar by checking the year
+     * Modifies the Calendar by checking the year.
      *
-     * @param currentTime        The Calendar instance with current time
-     * @param executionStartTime The modified Calendar instance
-     * @param minute             The value of the minute in the appointment expression
-     * @param hour               The value of the hour in the appointment expression
-     * @param dayOfWeek          The value of the day of week in the appointment expression
-     * @param dayOfMonth         The value of the day of month in the appointment expression
-     * @param month              The value of the month in the appointment expression
+     * @param currentTime        The Calendar instance with current time.
+     * @param executionStartTime The modified Calendar instance.
+     * @param minute             The value of the minute in the appointment expression.
+     * @param hour               The value of the hour in the appointment expression.
+     * @param dayOfWeek          The value of the day of week in the appointment expression.
+     * @param dayOfMonth         The value of the day of month in the appointment expression.
+     * @param month              The value of the month in the appointment expression.
      * @return updated Calendar
      */
     private static Calendar modifyCalendarByCheckingTheYear(Calendar currentTime, Calendar executionStartTime,
@@ -560,23 +548,23 @@ public class TaskScheduler {
                                 && dayOfWeek != Constant.NOT_CONSIDERABLE) || (
                         currentTime.get(Calendar.DAY_OF_MONTH) != executionStartTime.get(Calendar.DAY_OF_MONTH)
                                 && dayOfMonth != Constant.NOT_CONSIDERABLE))) {
-            //If the the execution start time is future, set the time to midnight (00.00.00)
+            //If the the execution start time is future, set the time to midnight (00.00.00).
             executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0);
         }
         if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
                 (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
                         || (dayOfMonth == Constant.NOT_CONSIDERABLE && currentTime.get(Calendar.DATE) != 1))) {
-            //1. If the year of the execution start time is greater than current and
-            //day of week is set and execution start time's day of week is not same, find the first possible day
-            //2. If the year of the execution start time is greater than current and day of month is not set
-            //and date of the execution start time is not first day, set the date to first day
-
-            //Set the date to first day
+            /*1. If the year of the execution start time is greater than current and
+            day of week is set and execution start time's day of week is not same, find the first possible day.
+            2. If the year of the execution start time is greater than current and day of month is not set
+            and date of the execution start time is not first day, set the date to first day.
+            */
+            //Set the date to first day.
             executionStartTime.set(Calendar.DATE, 1);
             if (dayOfWeek != Constant.NOT_CONSIDERABLE) {
                 while (executionStartTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-                    //If the execution start time is future and there is a considerable value is passed to the dayOfWeek
-                    //find the first possible day which is the same day of week
+                    /*If the execution start time is future and there is a considerable value is passed to the dayOfWeek
+                    find the first possible day which is the same day of week.*/
                     if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
                         executionStartTime
                                 .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
@@ -591,12 +579,12 @@ public class TaskScheduler {
     }
 
     /**
-     * Clone a Calendar into new instance
+     * Clone a Calendar into new instance.
      *
-     * @param executionStartTime The modified Calendar instance
-     * @param dayOfWeek          The value of the day of week in the appointment expression
-     * @param dayOfMonth         The value of the day of month in the appointment expression
-     * @return updated Calendar
+     * @param executionStartTime The modified Calendar instance.
+     * @param dayOfWeek          The value of the day of week in the appointment expression.
+     * @param dayOfMonth         The value of the day of month in the appointment expression.
+     * @return updated Calendar.
      */
     private static Calendar cloneCalendarAndSetTime(Calendar executionStartTime, long dayOfWeek, long dayOfMonth) {
         //Clone the Calendar to another instance
@@ -610,14 +598,14 @@ public class TaskScheduler {
     }
 
     /**
-     * Calculates the time difference in milliseconds
+     * Calculates the time difference in milliseconds.
      *
-     * @param taskId             The identifier of the task
-     * @param executionStartTime The modified Calendar instance
-     * @return duration in milliseconds
+     * @param taskId             The identifier of the task.
+     * @param executionStartTime The modified Calendar instance.
+     * @return duration in milliseconds.
      */
     private static long calculateDifference(int taskId, Calendar executionStartTime) {
-        //Calculate the time difference between current time and the calculated execution time in milli seconds
+        //Calculate the time difference between current time and the calculated execution time in milli seconds.
         LocalDateTime localCurrentTime = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedCurrentTime = ZonedDateTime.of(localCurrentTime, currentZone);
@@ -631,23 +619,23 @@ public class TaskScheduler {
     }
 
     /**
-     * Stops the running task
+     * Stops the running task.
      *
-     * @param taskId The identifier of the task
+     * @param taskId The identifier of the task.
      */
     static void stopTask(int taskId) {
-        //Stop the corresponding task
+        //Stop the corresponding task.
         stopExecution(taskId, 0);
     }
 
     /**
-     * Sets the calendar fields
+     * Sets the calendar fields.
      *
-     * @param calendar     The Calendar instance to be modified
-     * @param ampm         The value of ampm field to set to the Calendar
-     * @param minutes      The value of the minutes to set to the Calendar
-     * @param hours        The value of the hours to set to the Calendar
-     * @return updated Calendar
+     * @param calendar     The Calendar instance to be modified.
+     * @param ampm         The value of ampm field to set to the Calendar.
+     * @param minutes      The value of the minutes to set to the Calendar.
+     * @param hours        The value of the hours to set to the Calendar.
+     * @return updated Calendar.
      */
     private static Calendar setCalendarFields(Calendar calendar, int ampm, int minutes, int hours) {
         if (hours != Constant.NOT_CONSIDERABLE) {
@@ -665,20 +653,20 @@ public class TaskScheduler {
     }
 
     /**
-     * Returns the status of the task
+     * Returns the status of the task.
      *
-     * @param taskId The identifier of the task
-     * @return boolean value. 'true' if the task is running, else 'false'
+     * @param taskId The identifier of the task.
+     * @return boolean value. 'true' if the task is running, else 'false'.
      */
     public static boolean isTheTaskRunning(int taskId) {
         return executorServiceMap.get(taskId) != null;
     }
 
     /**
-     * Returns the life time of the task if it is defined
+     * Returns the life time of the task if it is defined.
      *
-     * @param taskId The identifier of the task
-     * @return The numeric value
+     * @param taskId The identifier of the task.
+     * @return The numeric value.
      */
     public static long getExecutionLifeTime(int taskId) {
         return taskLifeTimeMap.get(taskId);

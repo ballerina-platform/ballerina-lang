@@ -532,10 +532,12 @@ public class TaskTest {
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithEmptyResponse() {
         consoleOutput.reset();
+        int taskId;
         int interval = 10000;
         BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(15000)};
-        BRunUtil.invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
-        Assert.assertTrue(consoleOutput.toString().contains(Constant.TIMER_ERROR));
+        BValue[] returns = BRunUtil.invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertNotEquals(taskId, -1);
     }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
@@ -546,7 +548,8 @@ public class TaskTest {
         BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(15000)};
         BValue[] returns = BRunUtil.invoke(timerWithoutOnErrorFunctionCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        Assert.assertNotEquals(taskId, -1);    }
+        Assert.assertNotEquals(taskId, -1);
+    }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithInvalidInput() {
