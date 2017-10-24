@@ -45,7 +45,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentI
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
+import org.ballerinalang.composer.service.workspace.langserver.util.completion.WorkspaceSymbolProvider;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;

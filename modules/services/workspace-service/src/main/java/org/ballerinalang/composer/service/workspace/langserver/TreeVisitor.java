@@ -19,12 +19,14 @@
 package org.ballerinalang.composer.service.workspace.langserver;
 
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
+import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.BlockStatementScopeResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.CursorPositionResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.PackageNodeScopeResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.ResourceParamScopeResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -71,8 +73,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -93,7 +94,8 @@ public class TreeVisitor extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
-    private static final Logger logger = LoggerFactory.getLogger(TreeVisitor.class);
+    private Map<Class, CursorPositionResolver> cursorPositionResolvers;
+    private Class cursorPositionResolver;
 
     public TreeVisitor(String cUnitName, CompilerContext compilerContext, List<SymbolInfo> symbolInfoList,
                        Position pos, SuggestionsFilterDataModel filterDataModel) {
@@ -106,6 +108,14 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.filterDataModel = filterDataModel;
         blockOwnerStack = new Stack<>();
         blockStmtStack = new Stack<>();
+
+        cursorPositionResolvers = new HashMap<>();
+        BlockStatementScopeResolver blockStatementScopeResolver = new BlockStatementScopeResolver();
+        ResourceParamScopeResolver resourceParamScopeResolver = new ResourceParamScopeResolver();
+        PackageNodeScopeResolver packageNodeScopeResolver = new PackageNodeScopeResolver();
+        cursorPositionResolvers.put(BlockStatementScopeResolver.class, blockStatementScopeResolver);
+        cursorPositionResolvers.put(ResourceParamScopeResolver.class, resourceParamScopeResolver);
+        cursorPositionResolvers.put(PackageNodeScopeResolver.class, packageNodeScopeResolver);
     }
 
     // Visitor methods
@@ -122,6 +132,7 @@ public class TreeVisitor extends BLangNodeVisitor {
             terminateVisitor = true;
             acceptNode(null, null);
         } else {
+            cursorPositionResolver = PackageNodeScopeResolver.class;
             topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
         }
     }
@@ -145,10 +156,12 @@ public class TreeVisitor extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
 
         this.blockOwnerStack.push(funcNode);
+        // Cursor position is calculated against the Block statement scope resolver
+        cursorPositionResolver = BlockStatementScopeResolver.class;
         this.acceptNode(funcNode.body, funcEnv);
         this.blockOwnerStack.pop();
 
-        // Process   workers
+        // Process workers
         if (terminateVisitor && !funcNode.workers.isEmpty()) {
             terminateVisitor = false;
         }
@@ -169,6 +182,8 @@ public class TreeVisitor extends BLangNodeVisitor {
             // Since the struct definition do not have a block statement within, we push null
             this.blockStmtStack.push(null);
             this.blockOwnerStack.push(structNode);
+            // Cursor position is calculated against the Block statement scope resolver
+            this.cursorPositionResolver = BlockStatementScopeResolver.class;
             structNode.fields.forEach(field -> acceptNode(field, structEnv));
             this.blockStmtStack.pop();
             this.blockOwnerStack.pop();
@@ -181,7 +196,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        isCursorBeforeStatement(varNode.getPosition(), varNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(varNode.getPosition(), varNode, this);
     }
 
     @Override
@@ -192,13 +208,14 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
     }
 
-
     // Statements
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         this.blockStmtStack.push(blockNode);
+        // Cursor position is calculated against the Block statement scope resolver
+        this.cursorPositionResolver = BlockStatementScopeResolver.class;
         if (blockNode.stmts.isEmpty()) {
             this.isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockNode, blockEnv);
         } else {
@@ -209,24 +226,28 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        if (!isCursorBeforeStatement(varDefNode.getPosition(), varDefNode)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(varDefNode.getPosition(), varDefNode, this)) {
             this.acceptNode(varDefNode.var, symbolEnv);
         }
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        isCursorBeforeStatement(assignNode.getPosition(), assignNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(assignNode.getPosition(), assignNode, this);
     }
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        isCursorBeforeStatement(exprStmtNode.getPosition(), exprStmtNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(exprStmtNode.getPosition(), exprStmtNode, this);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        if (!isCursorBeforeStatement(ifNode.getPosition(), ifNode)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(ifNode.getPosition(), ifNode, this)) {
             this.blockOwnerStack.push(ifNode);
             this.acceptNode(ifNode.body, symbolEnv);
             this.blockOwnerStack.pop();
@@ -244,7 +265,8 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        if (!isCursorBeforeStatement(whileNode.getPosition(), whileNode)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(whileNode.getPosition(), whileNode, this)) {
 
             this.blockOwnerStack.push(whileNode);
             this.acceptNode(whileNode.body, symbolEnv);
@@ -253,7 +275,8 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransform transformNode) {
-        if (!isCursorBeforeStatement(transformNode.getPosition(), transformNode)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(transformNode.getPosition(), transformNode, this)) {
 
             this.blockOwnerStack.push(transformNode);
             this.acceptNode(transformNode.body, symbolEnv);
@@ -267,6 +290,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
         // TODO: Handle Annotation attachments
 
+        // Cursor position is calculated against the resource parameter scope resolver
+        cursorPositionResolver = ResourceParamScopeResolver.class;
         connectorNode.params.forEach(param -> this.acceptNode(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.acceptNode(varDef, connectorEnv));
         connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
@@ -278,7 +303,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
 
         // TODO: Handle Annotation attachments
-
+        // Cursor position is calculated against the resource parameter scope resolver
+        cursorPositionResolver = ResourceParamScopeResolver.class;
         actionNode.params.forEach(p -> this.acceptNode(p, actionEnv));
         this.blockOwnerStack.push(actionNode);
         acceptNode(actionNode.body, actionEnv);
@@ -298,16 +324,21 @@ public class TreeVisitor extends BLangNodeVisitor {
 
         // TODO:Handle Annotation attachments
 
+        // Cursor position is calculated against the resource parameter scope resolver
+        cursorPositionResolver = ResourceParamScopeResolver.class;
         resourceNode.params.forEach(p -> this.acceptNode(p, resourceEnv));
         resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
         this.blockOwnerStack.push(resourceNode);
+        // Cursor position is calculated against the Block statement scope resolver
+        cursorPositionResolver = BlockStatementScopeResolver.class;
         acceptNode(resourceNode.body, resourceEnv);
         this.blockOwnerStack.pop();
     }
 
     @Override
     public void visit(BLangTryCatchFinally tryCatchFinally) {
-        if (!isCursorBeforeStatement(tryCatchFinally.getPosition(), tryCatchFinally)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(tryCatchFinally.getPosition(), tryCatchFinally, this)) {
 
             this.blockOwnerStack.push(tryCatchFinally);
             this.acceptNode(tryCatchFinally.tryBody, symbolEnv);
@@ -329,7 +360,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCatch bLangCatch) {
-        if (!isCursorBeforeStatement(bLangCatch.getPosition(), bLangCatch)) {
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(bLangCatch.getPosition(), bLangCatch, this)) {
             SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, symbolEnv);
             this.acceptNode(bLangCatch.param, catchBlockEnv);
 
@@ -427,27 +459,31 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        isCursorBeforeStatement(workerSendNode.getPosition(), workerSendNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(workerSendNode.getPosition(), workerSendNode, this);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        isCursorBeforeStatement(workerReceiveNode.getPosition(), workerReceiveNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(workerReceiveNode.getPosition(), workerReceiveNode, this);
     }
 
     @Override
     public void visit(BLangReturn returnNode) {
-        isCursorBeforeStatement(returnNode.getPosition(), returnNode);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(returnNode.getPosition(), returnNode, this);
     }
 
     public void visit(BLangNext nextNode) {
-        isCursorBeforeStatement(nextNode.getPosition(), nextNode);
-        /* ignore */
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(nextNode.getPosition(), nextNode, this);
     }
 
     @Override
     public void visit(BLangComment comment) {
-        isCursorBeforeStatement(comment.getPosition(), comment);
+        cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(comment.getPosition(), comment, this);
     }
 
     // Private methods
@@ -457,7 +493,7 @@ public class TreeVisitor extends BLangNodeVisitor {
      * @param symbolEnv symbol environment
      * @return all visible symbols for current scope
      */
-    private Map<Name, Scope.ScopeEntry> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
+    public Map<Name, Scope.ScopeEntry> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
         return symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
     }
 
@@ -465,7 +501,7 @@ public class TreeVisitor extends BLangNodeVisitor {
      * Populate the symbols
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
+    public void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
         if (symbolEnv != null) {
             this.filterDataModel.setSymbolEnvNode(symbolEnv.node);
         } else {
@@ -498,52 +534,6 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.symbolEnv = prevEnv;
     }
 
-    /**
-     * Check whether the cursor position is located before the evaluating statement node
-     * @param nodePosition position of the node
-     * @param node statement being evaluated
-     * @return true|false
-     */
-    private boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node) {
-        int line = position.getLine();
-        int col = position.getCharacter();
-        int nodeSLine = nodePosition.sLine;
-        int nodeSCol = nodePosition.sCol;
-        // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
-        // node is the endLine of the else node.
-        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : nodePosition.eLine;
-        int nodeECol = nodePosition.eCol;
-
-        BLangBlockStmt bLangBlockStmt = this.blockStmtStack.peek();
-        Node blockOwner = this.blockOwnerStack.peek();
-        int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
-        int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
-
-        boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
-
-        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) ||
-                (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
-                        (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-            this.populateSymbols(visibleSymbolEntries, null);
-            this.terminateVisitor = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
-        if (bLangBlockStmt != null) {
-            return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
-        } else if (blockOwner instanceof BLangStruct) {
-            List<BLangVariable> structFields = ((BLangStruct) blockOwner).getFields();
-            return (structFields.indexOf(node) == structFields.size() - 1);
-        } else {
-            return false;
-        }
-    }
-
     private boolean isCursorWithinBlock(DiagnosticPos nodePosition, Node node, SymbolEnv symbolEnv) {
         int line = position.getLine();
         int nodeSLine = nodePosition.sLine;
@@ -559,112 +549,23 @@ public class TreeVisitor extends BLangNodeVisitor {
         return false;
     }
 
-    private int getBlockOwnerELine(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
-        if (blockOwner instanceof BLangTryCatchFinally) {
-            return getTryCatchBlockComponentEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
-        } else if (blockOwner == null) {
-            // When the else node is evaluating, block owner is null and the block statement only present
-            // This is because, else node is represented with a blocks statement only
-            return bLangBlockStmt.getPosition().getEndLine();
-        } else if (blockOwner instanceof BLangTransaction) {
-            return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, bLangBlockStmt);
-        } else {
-            return blockOwner.getPosition().getEndLine();
-        }
+    public Position getPosition() {
+        return position;
     }
 
-    private int getBlockOwnerECol(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
-        if (blockOwner instanceof BLangTryCatchFinally) {
-            return getTryCatchBlockComponentEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
-        } else if (blockOwner == null) {
-            // When the else node is evaluating, block owner is null and the block statement only present
-            // This is because, else node is represented with a blocks statement only
-            return bLangBlockStmt.getPosition().endColumn();
-        } else {
-            return blockOwner.getPosition().endColumn();
-        }
+    public Stack<Node> getBlockOwnerStack() {
+        return blockOwnerStack;
     }
 
-    private int getTryCatchBlockComponentEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
-        if (blockStmt == tryCatchFinally.tryBody) {
-            // We are inside the try block
-            if (tryCatchFinally.catchBlocks.size() > 0) {
-                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
-                return bLangCatch.getPosition().sLine;
-            } else if (tryCatchFinally.finallyBody != null) {
-                return tryCatchFinally.finallyBody.getPosition().sLine;
-            } else {
-                return tryCatchFinally.getPosition().eLine;
-            }
-        } else {
-            // We are inside the finally block
-            return tryCatchFinally.getPosition().eLine;
-        }
+    public Stack<BLangBlockStmt> getBlockStmtStack() {
+        return blockStmtStack;
     }
 
-    private int getTryCatchBlockComponentEndCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
-        if (blockStmt == tryCatchFinally.tryBody) {
-            // We are inside the try block
-            if (tryCatchFinally.catchBlocks.size() > 0) {
-                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
-                return bLangCatch.getPosition().sCol;
-            } else if (tryCatchFinally.finallyBody != null) {
-                return tryCatchFinally.finallyBody.getPosition().sCol;
-            } else {
-                return tryCatchFinally.getPosition().eCol;
-            }
-        } else {
-            // We are inside the finally block
-            return tryCatchFinally.getPosition().eCol;
-        }
+    public SymbolEnv getSymbolEnv() {
+        return symbolEnv;
     }
 
-    private int getTransactionBlockComponentEndLine(BLangTransaction bLangTransaction, BLangBlockStmt bLangBlockStmt) {
-        BLangBlockStmt transactionBody = bLangTransaction.transactionBody;
-        BLangBlockStmt committedBody = bLangTransaction.committedBody;
-        BLangBlockStmt failedBody = bLangTransaction.failedBody;
-        BLangBlockStmt abortedBody = bLangTransaction.abortedBody;
-
-        List<BLangBlockStmt> components = new ArrayList<>();
-        components.add(transactionBody);
-        components.add(committedBody);
-        components.add(failedBody);
-        components.add(abortedBody);
-
-        components.sort(Comparator.comparing(component -> {
-            if (component != null) {
-                return component.getPosition().getEndLine();
-            } else {
-                return -1;
-            }
-        }));
-
-        int blockStmtIndex = components.indexOf(bLangBlockStmt);
-        if (blockStmtIndex == components.size() - 1) {
-            return bLangTransaction.getPosition().eLine;
-        } else if (components.get(blockStmtIndex + 1) != null) {
-            return components.get(blockStmtIndex + 1).getPosition().sLine;
-        } else {
-            // Ideally should not invoke this
-            return -1;
-        }
-    }
-
-    /**
-     * Calculate the end line of the BLangIf node
-     * @param bLangIf {@link BLangIf}
-     * @return end line of the if node
-     */
-    private int getIfElseNodeEndLine(BLangIf bLangIf) {
-        BLangIf ifNode = bLangIf;
-        while (true) {
-            if (ifNode.elseStmt == null) {
-                return bLangIf.getPosition().eLine;
-            } else if (ifNode.elseStmt instanceof BLangIf) {
-                ifNode = (BLangIf) ifNode.elseStmt;
-            } else {
-                return ifNode.elseStmt.getPosition().getEndLine();
-            }
-        }
+    public void setTerminateVisitor(boolean terminateVisitor) {
+        this.terminateVisitor = terminateVisitor;
     }
 }
