@@ -20,8 +20,11 @@ import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -142,8 +145,16 @@ public class Command {
         }
 
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
-        if (ballerinaFile.getBLangPackage().pkgDecl != null) {
-            List<String> pkgNameCompsInString = ballerinaFile.getBLangPackage().pkgDecl.pkgNameComps.stream()
+        // assuming there will be only one compilation unit in the list, I'm getting the first element from the list
+        BLangCompilationUnit currentBLangCompilationUnit = ballerinaFile.getBLangPackage().compUnits.get(0);
+        List<TopLevelNode> topLevelNodes = currentBLangCompilationUnit.getTopLevelNodes();
+        // filter out the BLangPackageDeclaration from top level nodes list
+        BLangPackageDeclaration bLangPackageDeclaration = (BLangPackageDeclaration) topLevelNodes.stream()
+                .filter(topLevelNode ->  topLevelNode instanceof BLangPackageDeclaration)
+                .collect(Collectors.toList()).get(0);
+
+        if (bLangPackageDeclaration != null) {
+            List<String> pkgNameCompsInString = bLangPackageDeclaration.pkgNameComps.stream()
                     .map(WorkspaceUtils.B_LANG_IDENTIFIER_TO_STRING).collect(Collectors.<String>toList());
             if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
                 packagePath = String.join(File.separator, pkgNameCompsInString);
