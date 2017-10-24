@@ -18,8 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import SimpleBBox from './../../../../../ast/simple-bounding-box';
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import ImageUtil from '../../../../image-util';
 
 class StatementPropertyItemSelector extends React.Component {

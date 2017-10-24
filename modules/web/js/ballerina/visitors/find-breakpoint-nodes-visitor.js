@@ -16,19 +16,16 @@
  * under the License.
  */
 
-import ASTVisitor from './ast-visitor';
 /**
  * Finds nodes with breakpoints
  * @class FindBreakpointNodesVisitor
- * @extends {ASTVisitor}
  */
-class FindBreakpointNodesVisitor extends ASTVisitor {
+class FindBreakpointNodesVisitor {
     /**
      * Creates an instance of FindBreakpointNodesVisitor.
      * @memberof FindBreakpointNodesVisitor
      */
     constructor() {
-        super();
         this._breakpoints = [];
     }
     /**
@@ -54,11 +51,21 @@ class FindBreakpointNodesVisitor extends ASTVisitor {
             node.isBreakpoint = false;
         }
     }
+
     /**
      * @inheritdoc
      */
     canVisit() {
         return true;
+    }
+
+    /**
+     * At the end of node visit.
+     * @returns {any} Visit output.
+     * @memberof FindBreakpointNodesVisitor
+     */
+    endVisit() {
+        return undefined;
     }
 }
 

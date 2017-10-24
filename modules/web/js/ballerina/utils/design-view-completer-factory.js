@@ -15,7 +15,6 @@
  */
 
 import _ from 'lodash';
-import ASTFactory from './../ast/ast-factory';
 import DesignViewCompleterUtils from './design-view-completer-utils';
 /**
  * Class to represent design view completer factory
@@ -94,14 +93,16 @@ class CompleterFactory {
      * @param {string} editorContent Current content of the editor
      */
     filterCompletionItems(items, node, editorContent) {
-        return items.filter((item) => {
+        // TODO : Fix filtering.
+        return items;
+        // return items.filter((item) => {
             // Only suggest BTypes for empty var def statements
-            if (ASTFactory.isVariableDefinitionStatement(node) && editorContent.trim() === '') {
-                return item.detail === 'BType';
-            } else {
-                return true;
-            }
-        });
+            // if (ASTFactory.isVariableDefinitionStatement(node) && editorContent.trim() === '') {
+                // return item.detail === 'BType';
+            // } else {
+            // return true;
+            // }
+        // });
     }
 
 }

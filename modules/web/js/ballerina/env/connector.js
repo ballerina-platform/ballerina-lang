@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 
-import ASTFactory from '../ast/ast-factory';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
@@ -78,9 +77,10 @@ class Connector {
      */
     removeAllActions(connectorDef) {
         _.each(connectorDef.getChildren(), (child) => {
-            if (ASTFactory.isConnectorAction(child)) {
-                this.removeAction(child);
-            }
+            // TODO : Fix check
+            // if (ASTFactory.isConnectorAction(child)) {
+            this.removeAction(child);
+            // }
         });
     }
 

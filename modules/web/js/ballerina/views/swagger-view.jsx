@@ -25,10 +25,9 @@ import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
 import NodeFactory from 'ballerina/model/node-factory';
+import ServiceNode from 'ballerina/model/tree/service-node';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import { getSwaggerDefinition } from '../../api-client/api-client';
-import ServiceDefinition from '../ast/service-definition';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 
 
 const ace = global.ace;
@@ -369,7 +368,7 @@ class SwaggerView extends React.Component {
 }
 
 SwaggerView.propTypes = {
-    targetService: PropTypes.instanceOf(ServiceDefinition),
+    targetService: PropTypes.instanceOf(ServiceNode),
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,

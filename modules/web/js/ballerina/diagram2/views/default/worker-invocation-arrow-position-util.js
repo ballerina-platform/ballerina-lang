@@ -16,8 +16,8 @@
  * under the License.
  */
 
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
-import SimpleBBox from './../../../ast/simple-bounding-box';
 
 /**
  * Util for positioning the worker invocation arrows
