@@ -39,4 +39,11 @@ public interface WebSocketControlMessage extends WebSocketMessage {
      * @return the payload of the control signal.
      */
     ByteBuffer getPayload();
+
+    /**
+     * Get the binary data as a byte array.
+     *
+     * @return the binary data as a byte array.
+     */
+    byte[] getByteArray();
 }
