@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -26,10 +27,10 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
  * SourceHandler is an optional implementable class that wraps {@link org.wso2.siddhi.core.stream.input.InputHandler}.
  * It will do optional processing to the events before sending the events to the input handler
  */
-public abstract class SourceHandler implements InputEventHandler, Snapshotable {
+public abstract class SourceHandler implements InputEventHandlerCallback, Snapshotable {
 
-    private InputEventHandlerImpl inputEventHandlerImpl;
     private String elementId;
+    private InputHandler inputHandler;
 
     final void initSourceHandler(String elementId, StreamDefinition streamDefinition) {
         this.elementId = elementId;
@@ -38,25 +39,29 @@ public abstract class SourceHandler implements InputEventHandler, Snapshotable {
 
     public abstract void init(String elementId, StreamDefinition streamDefinition);
 
-    final void setInputEventHandlerImpl(InputEventHandlerImpl inputEventHandlerImpl) {
-        this.inputEventHandlerImpl = inputEventHandlerImpl;
+    @Override
+    public void sendEvent(Event event) throws InterruptedException {
+        sendEvent(event, inputHandler);
     }
 
     @Override
     public void sendEvents(Event[] events) throws InterruptedException {
-        handle(events, inputEventHandlerImpl);
+        sendEvent(events, inputHandler);
     }
 
-    @Override
-    public void sendEvent(Event event) throws InterruptedException {
-        handle(event, inputEventHandlerImpl);
-    }
+    public abstract void sendEvent(Event event, InputHandler inputHandler) throws InterruptedException;
 
-    public abstract void handle(Event event, InputEventHandler inputEventHandler) throws InterruptedException;
-
-    public abstract void handle(Event[] events, InputEventHandler inputEventHandler) throws InterruptedException;
+    public abstract void sendEvent(Event[] events, InputHandler inputHandler) throws InterruptedException;
 
     public String getElementId() {
         return elementId;
+    }
+
+    public void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
+    }
+
+    public InputHandler getInputHandler() {
+        return inputHandler;
     }
 }
