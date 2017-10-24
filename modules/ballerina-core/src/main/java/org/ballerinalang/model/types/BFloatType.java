@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 
@@ -34,8 +33,8 @@ class BFloatType extends BType {
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BFloat.class);
+    BFloatType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BFloat.class);
     }
 
     @SuppressWarnings("unchecked")

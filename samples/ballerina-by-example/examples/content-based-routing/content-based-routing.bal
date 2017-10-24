@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 import ballerina.doc;
 
 @http:configuration {basePath:"/cbr"}
@@ -9,27 +8,23 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/route"
     }
-    resource cbrResource (message m) {
-
+    resource cbrResource (http:Request req, http:Response res) {
+        http:ClientConnector locationEP;
         //Create service endpoint using HTTP client-connector.
-        http:ClientConnector locationEP = create http:ClientConnector(
-                                          "http://www.mocky.io");
+        locationEP = create http:ClientConnector("http://www.mocky.io", {});
         //Get JSON payload from the request message.
-        json jsonMsg = messages:getJsonPayload(m);
+        json jsonMsg = req.getJsonPayload();
         //Get the string value relevant to the key "name".
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
-
-        message response = {};
+        http:Response clientResponse = {};
         if (nameString == "sanFrancisco") {
-        //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
-            response = locationEP.post("/v2/594e018c1100002811d6d39a", m);
-
+            //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
+            clientResponse = locationEP.post("/v2/594e018c1100002811d6d39a", {});
         } else {
-            response = locationEP.post("/v2/594e026c1100004011d6d39c", m);
+            clientResponse = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
-
-        reply response;
+        //Native function "forward" sends back the clientResponse to the caller.
+        res.forward(clientResponse);
     }
 }
-

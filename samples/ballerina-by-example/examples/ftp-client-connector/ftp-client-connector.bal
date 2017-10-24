@@ -5,7 +5,7 @@ import ballerina.lang.blobs;
 import ballerina.lang.strings;
 
 function main (string[] args) {
-    // Create an FTP Client Connector
+    // Create an FTP Client Connector.
     ftp:ClientConnector c = create ftp:ClientConnector();
 
     // Checking if a specified file exists.

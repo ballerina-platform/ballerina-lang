@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
 
@@ -27,20 +26,17 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.88
  */
 public class BBlobType extends BType {
-    protected BBlobType(SymbolScope symbolScope) {
-        super(symbolScope);
-    }
 
-    protected BBlobType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BBlob.class);
+    protected BBlobType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BBlob.class);
     }
 
     @Override public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BBlob(new byte[0]);
     }
 
     @Override public <V extends BValue> V getEmptyValue() {
-        return null;
+        return (V) new BBlob(new byte[0]);
     }
 
     @Override public TypeSignature getSig() {

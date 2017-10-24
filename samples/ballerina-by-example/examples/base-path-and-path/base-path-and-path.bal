@@ -10,10 +10,11 @@ service<http> echo {
         methods:["POST"],
         path:"/bar"
     }
-    resource echo (message m) {
-        // A util method that can convert the request to a response.
-        http:convertToResponse(m);
+    resource echo (http:Request req, http:Response res) {
+        // A util method that can get the request payload.
+        json payload = req.getJsonPayload();
+        res.setJsonPayload(payload);
         // Send back the response to the client.
-        reply m;
+        res.send();
     }
 }

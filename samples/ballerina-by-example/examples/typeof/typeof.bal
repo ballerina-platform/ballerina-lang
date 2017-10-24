@@ -1,9 +1,9 @@
 import ballerina.lang.system;
 
 function main (string[] args) {
-    //Here you create any typed variable.
+    //Here you create 'any' typed variable.
     any variable;
-    //Assign an Integer variable to any typed variable.
+    //Assign an integer variable to 'any' typed variable.
     variable = 5;
 
     //Here you create integer typed variable.
@@ -13,7 +13,7 @@ function main (string[] args) {
     type typeOfVariable = (typeof variable);
     type typeOfIntVariable = (typeof intVariable);
 
-    //Check for runtime type equivalency of any typed variable.
+    //Check for runtime type equivalency of 'any' typed variable.
     if (typeOfVariable == typeOfIntVariable) {
         system:println("This 'variable' is an integer typed variable.");
     } else {

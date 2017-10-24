@@ -461,6 +461,30 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public void addChildren(BXML<?> seq) {
+        OMElement currentNode;
+        switch (nodeType) {
+            case ELEMENT:
+                currentNode = ((OMElement) omNode);
+                break;
+            default:
+                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+        }
+        
+        if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
+            BRefValueArray childSeq = ((BXMLSequence) seq).value();
+            for (int i = 0; i < childSeq.size(); i++) {
+                currentNode.addChild((OMNode) childSeq.get(i).value());
+            }
+        } else {
+            currentNode.addChild((OMNode) seq.value());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public BXML<?> strip() {
         if (omNode == null || (nodeType == XMLNodeType.TEXT && 
                 ((OMText) omNode).getText().isEmpty())) {

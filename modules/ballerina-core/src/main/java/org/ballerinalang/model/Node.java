@@ -25,13 +25,6 @@ package org.ballerinalang.model;
 public interface Node {
 
     /**
-     * Accept a {link NodeVisitor} and executes the visitor.
-     * 
-     * @param visitor Node visitor to traverse the node
-     */
-    void accept(NodeVisitor visitor);
-
-    /**
      * Returns the location of this node.
      * <p>
      * {@link NodeLocation} includes the source filename and the line number.

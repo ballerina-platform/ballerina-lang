@@ -290,6 +290,9 @@ public class JSONUtils {
                     case TypeTags.BOOLEAN_TAG:
                         jsonNode.put(key, struct.getBooleanField(++booleanRegIndex) == 1);
                         break;
+                    case TypeTags.BLOB_TAG:
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                BTypes.typeJSON, BTypes.typeBlob);
                     default:
                         BValue value = struct.getRefField(++refRegIndex);
                         if (value == null) {
@@ -479,6 +482,7 @@ public class JSONUtils {
      * Converts given json object to the corresponding xml.
      *
      * @param json JSON object to get the corresponding xml
+     * @param attributePrefix String prefix used for attributes
      * @return BXML XML representation of the given json object
      */
     public static BXML convertToXML(BJSON json, String attributePrefix, String arrayEntryTag) {
@@ -668,6 +672,7 @@ public class JSONUtils {
      *
      * @param bjson      JSON to convert
      * @param structType Type (definition) of the target struct
+     * @param pkgInfo    Package information
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
@@ -680,7 +685,7 @@ public class JSONUtils {
      *
      * @param jsonNode   JSON to convert
      * @param structType Type (definition) of the target struct
-     * @param pkgInfo 
+     * @param pkgInfo    Package information
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */

@@ -34,7 +34,6 @@ import java.util.StringJoiner;
  */
 public final class BStruct implements BRefType, StructureType {
 
-    private BStruct stackTrace;
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
@@ -48,6 +47,8 @@ public final class BStruct implements BRefType, StructureType {
 
     /**
      * Creates a struct with a single memory block.
+     *
+     * @param structType type of the struct
      */
     public BStruct(BStructType structType) {
         this.structType = structType;
@@ -110,14 +111,6 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public BStructType getType() {
         return structType;
-    }
-
-    public BStruct getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(BStruct stackTrace) {
-        this.stackTrace = stackTrace;
     }
 
     @Override

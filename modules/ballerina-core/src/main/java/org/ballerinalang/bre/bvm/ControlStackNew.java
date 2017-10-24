@@ -51,7 +51,7 @@ public class ControlStackNew {
             currentFrame = null;
             fp--;
         }
-
+        poppedFrame.markedAsReturned();
         return poppedFrame;
     }
 

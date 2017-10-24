@@ -19,11 +19,10 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.WorkerCounter;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.BalCallback;
-import org.ballerinalang.services.dispatchers.session.Session;
-import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -44,27 +43,30 @@ public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
     private ControlStackNew controlStackNew;
+    //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
-    private BalCallback balCallback;
+    private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
-    private Session currentSession = null;
     private WorkerInfo workerInfo;
     private BLangVM bLangVM;
 
     private int startIP;
     private BStruct unhandledError;
 
+    protected WorkerCounter workerCounter;
+
     // TODO : Temporary solution to make non-blocking working.
-    public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
     private String threadId;
+    // TODO : Fix this. Added this for fork-join. Issue #3718.
+    public boolean blockingInvocation;
 
     @Deprecated
     public Context() {
@@ -74,6 +76,7 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
         this.controlStackNew = new ControlStackNew();
+        this.workerCounter = new WorkerCounter();
     }
 
     public DebugInfoHolder getDebugInfoHolder() {
@@ -88,9 +91,13 @@ public class Context {
             if (this.debugInfoHolder != null) {
                 return;
             }
-            this.debugInfoHolder = debugInfoHolder;
+            this.setDebugInfoHolder(debugInfoHolder);
             this.debugInfoHolder.init(programFile);
         }
+    }
+
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
     }
 
     public String getThreadId() {
@@ -133,14 +140,14 @@ public class Context {
         this.properties.put(key, value);
     }
 
-    public BalCallback getBalCallback() {
-        return this.balCallback;
+    public BServerConnectorFuture getConnectorFuture() {
+        return connectorFuture;
     }
 
-    public void setBalCallback(BalCallback balCallback) {
-        this.balCallback = balCallback;
+    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
+        this.connectorFuture = connectorFuture;
     }
-    
+
     public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
@@ -188,19 +195,50 @@ public class Context {
         return programFile;
     }
 
-    public SessionManager getSessionManager() {
-        return SessionManager.getInstance();
+    /**
+     * start tracking current worker.
+     */
+    public void startTrackWorker() {
+        workerCounter.countUp();
     }
 
-    public Session getCurrentSession() {
-        if (currentSession != null && currentSession.isValid()) {
-            return currentSession;
-        }
-        return null;
+    /**
+     * end tracking current worker.
+     */
+    public void endTrackWorker() {
+        workerCounter.countDown();
     }
 
-    public void setCurrentSession(Session currentSession) {
-        this.currentSession = currentSession;
+    /**
+     * Wait until all spawned workers are completed.
+     */
+    public void await() {
+        workerCounter.await();
+    }
+
+    /**
+     * Wait until all spawned worker are completed within the given waiting time.
+     *
+     * @param timeout time out duration in seconds.
+     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
+     */
+    public boolean await(int timeout) {
+        return workerCounter.await(timeout);
+    }
+
+    /**
+     * Mark this context is associated with a resource.
+     */
+    public void setAsResourceContext() {
+        this.workerCounter.setResourceContext(this);
+    }
+
+    public void resetWorkerContextFlow() {
+        this.workerCounter = new WorkerCounter();
+    }
+
+    public WorkerCounter getWorkerCounter() {
+        return workerCounter;
     }
 
     public WorkerInfo getWorkerInfo() {

@@ -21,7 +21,7 @@ import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -38,13 +38,11 @@ public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
     private List<ColumnDefinition> columnDefs;
-    private int columnCount;
     private BStruct bStruct;
 
     public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.columnDefs = columnDefs;
-        this.columnCount = columnDefs.size();
         generateStruct();
     }
 
@@ -87,7 +85,7 @@ public class BDataTable implements BRefType<Object> {
             int sqlType = columnDef.getSQLType();
             switch (sqlType) {
             case Types.ARRAY:
-                BMap bMapvalue = getDataArray(columnName);
+                BMap<BString, BValue> bMapvalue = getDataArray(columnName);
                 bStruct.setRefField(++refRegIndex, bMapvalue);
                 break;
             case Types.CHAR:
@@ -296,10 +294,10 @@ public class BDataTable implements BRefType<Object> {
     public static class ColumnDefinition {
 
         private String name;
-        private TypeEnum mappedType;
+        private TypeKind mappedType;
         private int sqlType;
 
-        public ColumnDefinition(String name, TypeEnum mappedType, int sqlType) {
+        public ColumnDefinition(String name, TypeKind mappedType, int sqlType) {
             this.name = name;
             this.mappedType = mappedType;
             this.sqlType = sqlType;
@@ -309,7 +307,7 @@ public class BDataTable implements BRefType<Object> {
             return name;
         }
 
-        public TypeEnum getType() {
+        public TypeKind getType() {
             return mappedType;
         }
 

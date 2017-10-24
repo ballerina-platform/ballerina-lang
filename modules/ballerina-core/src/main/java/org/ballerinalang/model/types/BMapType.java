@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -41,8 +40,8 @@ public class BMapType extends BType implements BIndexedType {
      *
      * @param typeName string name of the type
      */
-    BMapType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BMap.class);
+    BMapType(String typeName, BType elementType, String pkgPath) {
+        super(typeName, pkgPath, BMap.class);
         this.elementType = elementType;
     }
 

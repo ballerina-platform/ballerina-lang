@@ -42,22 +42,6 @@ public class SimpleVariableDef implements VariableDef {
     protected String pkgPath;
     protected boolean isPublic = false;
     protected boolean isNative = false;
-    protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
-
-    public SimpleVariableDef(NodeLocation location,
-                             WhiteSpaceDescriptor whiteSpaceDescriptor,
-                             Identifier identifier,
-                             SimpleTypeName typeName,
-                             SymbolName symbolName,
-                             SymbolScope symbolScope) {
-        this.location = location;
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        this.identifier = identifier;
-        this.symbolName = symbolName;
-        this.typeName = typeName;
-        this.symbolScope = symbolScope;
-    }
 
     public SimpleTypeName getTypeName() {
         return typeName;
@@ -104,11 +88,6 @@ public class SimpleVariableDef implements VariableDef {
     }
 
     @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
-
-    @Override
     public String getPackagePath() {
         return pkgPath;
     }
@@ -123,22 +102,7 @@ public class SimpleVariableDef implements VariableDef {
         return isNative;
     }
 
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
     // Methods in Node interface
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
 
     @Override
     public NodeLocation getNodeLocation() {

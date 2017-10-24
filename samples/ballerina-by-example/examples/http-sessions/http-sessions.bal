@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 
 service<http> session {
 
@@ -7,58 +6,53 @@ service<http> session {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayHello (message m) {
+    resource sayHello (http:Request req, http:Response res) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = http:createSessionIfAbsent(m);
+        http:Session session = req.createSessionIfAbsent();
         string result;
-        message response = {};
         //Session status(new or already existing) is informed by isNew() as boolean value.
-        if (http:isNew(session)) {
+        if (session.isNew()) {
             result = "Say hello to a new session";
         } else {
             result = "Say hello to an existing session";
         }
         //Binds a string attribute to this session with a key(string).
-        http:setAttribute(session, key, "Session sample");
-        messages:setStringPayload(response, result);
-        reply response;
+        session.setAttribute(key, "Session sample");
+        res.setStringPayload(result);
+        res.send();
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource doTask (message m) {
+    resource doTask (http:Request req, http:Response res) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = http:getSession(m);
+        http:Session session = req.getSession();
         string attributeValue;
-        message response = {};
         if (session != null) {
             //Returns the object bound with the specified key.
-            attributeValue, _ = (string)http:getAttribute(session, key);
+            attributeValue, _ = (string)session.getAttribute(key);
         } else {
             attributeValue = "Session unavailable";
         }
-        messages:setStringPayload(response, attributeValue);
-        reply response;
+        res.setStringPayload(attributeValue);
+        res.send();
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayBye (message m) {
-        http:Session session = http:getSession(m);
-        message response = {};
+    resource sayBye (http:Request req, http:Response res) {
+        http:Session session = req.getSession();
         if (session != null) {
             //Returns session id.
-            string id = http:getId(session);
+            string id = session.getId();
             //Invalidates this session.
-            http:invalidate(session);
-            messages:setStringPayload(response
-                            , "Session: " + id + " invalidated");
+            session.invalidate();
+            res.setStringPayload("Session: " + id + " invalidated");
         } else {
-            messages:setStringPayload(response, "Session unavailable");
+            res.setStringPayload("Session unavailable");
         }
-        reply response;
+        res.send();
     }
 }
-

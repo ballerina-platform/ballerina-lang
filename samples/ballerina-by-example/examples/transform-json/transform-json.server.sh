@@ -2,4 +2,4 @@
 # and use "ballerina run" command.
 $ ballerina run transform-json.bal
 ballerina: deploying service(s) in 'transform-json.bal'
-ballerina: started server connector http-9090
+ballerina: started HTTP/WS server connector 0.0.0.0:9090
