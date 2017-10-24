@@ -34,7 +34,6 @@ class ErrorMappingVisior {
                     return ((error.row === position.startLine) && (error.column === position.startColumn));
                 });
                 node.setErrors(semanticErrors);
-                console.log(semanticErrors);
             }
         }
     }
