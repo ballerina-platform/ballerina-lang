@@ -102,6 +102,7 @@ class CompoundStatementDecorator extends React.Component {
      * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
      */
     setActionVisibility(show, e) {
+        e.stopPropagation();
         if (show) {
             const isInChildStatement = this.isInFocusableChild(e.target);
             const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);

@@ -33,12 +33,14 @@ class BlockNode extends AbstractBlockNode {
         const existingStatements = this.statements;
         let lastStatement;
         let isLastStatementReturn = false;
+        let isLastStatementNext = false;
         if (!dropBefore && existingStatements.length > 0) {
             lastStatement = existingStatements[existingStatements.length - 1];
             isLastStatementReturn = lastStatement ? TreeUtil.isReturn(lastStatement) : false;
+            isLastStatementNext = lastStatement ? TreeUtil.isNext(lastStatement) : false;
         }
-        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node) && !isLastStatementReturn)
-            || TreeUtil.isXmlns(node);
+        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node) && !isLastStatementReturn
+            && !isLastStatementNext) || TreeUtil.isXmlns(node);
     }
 
     /**
