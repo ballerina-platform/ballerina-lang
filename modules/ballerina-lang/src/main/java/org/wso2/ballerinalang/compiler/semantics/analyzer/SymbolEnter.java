@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -80,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
@@ -124,6 +126,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BLangPackageDeclaration currentPkgDecl = null;
 
+    private final boolean skipPkgValidation;
+
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
         if (symbolEnter == null) {
@@ -144,6 +148,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgNode.symbol = symTable.rootPkgSymbol;
+        
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        this.skipPkgValidation = Boolean.parseBoolean(options.get(CompilerOptionName.SKIP_PACKAGE_VALIDATION));
     }
 
     public BPackageSymbol definePackage(BLangPackage pkgNode, PackageID pkgId) {
@@ -892,6 +899,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isValidPackageDecl(BLangPackageDeclaration pkgDecl, PackageID pkgId) {
+        if (skipPkgValidation) {
+            return true;
+        }
+
         if (pkgDecl == null) {
             return pkgId == PackageID.DEFAULT;
         }
