@@ -24,12 +24,13 @@ function main (string[] args) {
     sql:Parameter[] params = [];
 
     //Create table named EMPLOYEE and populate sample data.
-    empDB.update("CREATE TABLE IF NOT EXISTS EMPLOYEE (id INT,name VARCHAR(25),salary
-       DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,updated TIMESTAMP)", params);
-    empDB.update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,'1990-12-31',
-               '11:30:45', '2007-05-23 09:15:28')", params);
-    empDB.update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true, '1999-12-31',
-               '13:40:24', '2017-05-23 09:15:28')", params);
+    int count = empDB.update("CREATE TABLE IF NOT EXISTS EMPLOYEE (id INT,name
+        VARCHAR(25),salary DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,
+        updated TIMESTAMP)", params);
+    count = empDB.update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,
+        '1990-12-31', '11:30:45', '2007-05-23 09:15:28')", params);
+    count = empDB.update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
+        '1999-12-31', '13:40:24', '2017-05-23 09:15:28')", params);
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
