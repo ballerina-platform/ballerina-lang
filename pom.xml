@@ -239,13 +239,13 @@
             <dependency>
                 <groupId>javax.transaction</groupId>
                 <artifactId>javax.transaction-api</artifactId>
-                <version>1.2</version>
+                <version>${javax.transaction.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.atomikos.wso2</groupId>
                 <artifactId>atomikos</artifactId>
-                <version>3.8.0.wso2v1</version>
+                <version>${org.atomikos.wso2.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -388,6 +388,8 @@
         <jsch.version>0.1.51.wso2v1</jsch.version>
         <mock.ftp.server.version>2.7.1</mock.ftp.server.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javax.transaction.version>1.2</javax.transaction.version>
+        <org.atomikos.wso2.version>3.8.0.wso2v1</org.atomikos.wso2.version>
     </properties>
 
 </project>
