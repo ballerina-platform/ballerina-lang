@@ -368,6 +368,7 @@
         <javax.jms.version>2.0.1</javax.jms.version>
         <jsch.version>0.1.51.wso2v1</jsch.version>
         <mock.ftp.server.version>2.7.1</mock.ftp.server.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 </project>
