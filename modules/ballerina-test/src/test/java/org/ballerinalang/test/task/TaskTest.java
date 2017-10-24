@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.nativeimpl.task.TaskScheduler.calculateDelay;
 import static org.ballerinalang.nativeimpl.task.TaskScheduler.getExecutionLifeTime;
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.getTimerLog;
 
 /**
  * Tests for Task related functions
@@ -497,7 +498,7 @@ public class TaskTest {
         BValue[] args = {new BInteger(initialDelay), new BInteger(interval), new BInteger(25000)};
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
+        String log = getTimerLog(taskId);
         String firstLogEntry = log.substring(log.indexOf(taskId + Constant.DELAY_HINT));
         long firstCalculatedDuration = Long.parseLong(firstLogEntry
                 .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(),
@@ -522,7 +523,7 @@ public class TaskTest {
         BValue[] args = {new BInteger(0), new BInteger(interval), new BInteger(25000)};
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        String log = consoleOutput.toString();
+        String log = getTimerLog(taskId);
         long calculatedDuration = getCalculatedDuration(Constant.PREFIX_TIMER, taskId, log);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(consoleOutput.toString().contains(TestConstant.TIMER_SUCCESS_MESSAGE));

@@ -45,10 +45,11 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
+    private static HashMap<Integer, String> timersMap = new HashMap<>();
     private static HashMap<Integer, ScheduledExecutorService> executorServiceMap = new HashMap<>();
     private static HashMap<Integer, Long> taskLifeTimeMap = new HashMap<>();
-    static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
-    static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
+    private static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
+    private static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
 
     /**
      * Triggers the timer.
@@ -75,13 +76,27 @@ public class TaskScheduler {
             if (executorServiceMap.get(taskId) == null && delay != 0) {
                 //Schedule the service with initial delay if the initial delay is set.
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
-                log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
+                if (log.isDebugEnabled()) {
+                    log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
+                }
+                String logFromMap = timersMap.get(taskId);
+                String log = logFromMap != null && !logFromMap.isEmpty() ? logFromMap + Constant.PREFIX_TIMER + taskId
+                        + Constant.DELAY_HINT + delay + "] MILLISECONDS" : Constant.PREFIX_TIMER + taskId
+                        + Constant.DELAY_HINT + delay + "] MILLISECONDS";
+                timersMap.put(taskId, log);
                 executorServiceMap.put(taskId, executorService);
             } else {
                 if (interval > 0) {
                     //Schedule the service with the provided delay.
                     executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
-                    log.info(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
+                    if (log.isDebugEnabled()) {
+                        log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
+                    }
+                    String logFromMap = timersMap.get(taskId);
+                    String log = logFromMap != null && !logFromMap.isEmpty() ? logFromMap + Constant.PREFIX_TIMER
+                            + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS" : Constant.PREFIX_TIMER + taskId
+                            + Constant.DELAY_HINT + interval + "] MILLISECONDS";
+                    timersMap.put(taskId, log);
                     //Add the executor service into the context.
                     executorServiceMap.put(taskId, executorService);
                 } else {
@@ -190,6 +205,7 @@ public class TaskScheduler {
                     executorService.shutdown();
                     if (executorService.isShutdown()) {
                         //Remove the executor service from the context.
+                        timersMap.remove(taskId);
                         executorServiceMap.remove(taskId);
                         scheduleTaskErrorsMap.put(taskId, "");
                         taskLifeTimeMap.put(taskId, 0L);
@@ -670,5 +686,24 @@ public class TaskScheduler {
      */
     public static long getExecutionLifeTime(int taskId) {
         return taskLifeTimeMap.get(taskId);
+    }
+
+    /**
+     * Returns the log of the timer.
+     *
+     * @param taskId The identifier of the task.
+     * @return The timer log.
+     */
+    public static String getTimerLog(int taskId) {
+        return timersMap.get(taskId);
+    }
+
+
+    public static HashMap<Integer, String> getScheduleTaskErrorsMap() {
+        return scheduleTaskErrorsMap;
+    }
+
+    public static HashMap<Integer, String> getStopTaskErrorsMaps() {
+        return stopTaskErrorsMaps;
     }
 }

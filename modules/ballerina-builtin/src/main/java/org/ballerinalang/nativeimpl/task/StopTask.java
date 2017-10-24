@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.nativeimpl.task.TaskScheduler.stopTaskErrorsMaps;
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.getStopTaskErrorsMaps;
 
 /**
  * Native function ballerina.model.task:stopTask.
@@ -49,7 +49,7 @@ public class StopTask extends AbstractNativeFunction {
         }
         int taskId = (int) getIntArgument(ctx, 0);
         TaskScheduler.stopTask(taskId);
-        String errorFromScheduler = stopTaskErrorsMaps.get(taskId);
+        String errorFromScheduler = getStopTaskErrorsMaps().get(taskId);
         String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
         BString error = new BString(schedulerError);
         return getBValues(error);
