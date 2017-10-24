@@ -107,6 +107,7 @@ export default class VariableEndpoint extends React.Component {
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
+                    {!this.state.onEdit && (
                     <span className='endpoint-content' onClick={(e) => { onClick && onClick(variable.name); }}>
                         {!this.state.onEdit && variable.displayName &&
                             <span className='endpoint-name'>
@@ -125,6 +126,7 @@ export default class VariableEndpoint extends React.Component {
                         }
 
                     </span>
+                    )}
                 </span>
                 { this.state.onEdit &&
                 <div className='transform-edit-panel'>
