@@ -47,8 +47,8 @@ public class TaskScheduler {
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
     private static HashMap<Integer, ScheduledExecutorService> executorServiceMap = new HashMap<>();
     private static HashMap<Integer, Long> taskLifeTimeMap = new HashMap<>();
-    protected static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
-    protected static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
+    static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
+    static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
 
     /**
      * Triggers the timer
@@ -60,8 +60,8 @@ public class TaskScheduler {
      * @param onTriggerFunction The main function which will be triggered by the task
      * @param onErrorFunction   The function which will be triggered in the error situation
      */
-    protected static void triggerTimer(Context ctx, int taskId, long delay, long interval,
-                                       FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) {
+    static void triggerTimer(Context ctx, int taskId, long delay, long interval, FunctionRefCPEntry onTriggerFunction,
+                             FunctionRefCPEntry onErrorFunction) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Constant.POOL_SIZE);
         try {
             final Runnable schedulerFunc = () -> {
@@ -116,9 +116,9 @@ public class TaskScheduler {
      * @param onTriggerFunction The main function which will be triggered by the task
      * @param onErrorFunction   The function which will be triggered in the error situation
      */
-    protected static void triggerAppointment(Context ctx, int taskId, int minute, int hour, int dayOfWeek,
-                                             int dayOfMonth, int month, FunctionRefCPEntry onTriggerFunction,
-                                             FunctionRefCPEntry onErrorFunction) {
+    static void triggerAppointment(Context ctx, int taskId, int minute, int hour, int dayOfWeek,
+                                   int dayOfMonth, int month, FunctionRefCPEntry onTriggerFunction,
+                                   FunctionRefCPEntry onErrorFunction) {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         try {
             final Runnable schedulerFunc = () -> {
@@ -360,7 +360,7 @@ public class TaskScheduler {
             executionStartTime.set(Calendar.MINUTE, 0);
         } else {
             //Run every hour at 0th minute or at 5th minute or at a clock time e.g: 2.30AM
-            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, 0, 0, minute,
+            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, minute,
                     Constant.NOT_CONSIDERABLE);
             if (minute != 0 && hour == Constant.NOT_CONSIDERABLE && executionStartTime.before(currentTime)) {
                 //If the modified time is behind the current time and it is every hour at 0th minute
@@ -387,13 +387,13 @@ public class TaskScheduler {
         if (minute == 0 && hour == Constant.NOT_CONSIDERABLE) {
             //If the minute == 0 and hour = -1, execute every hour
             executionStartTime.add(Calendar.HOUR, 1);
-            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, 0, 0, 0,
+            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, 0,
                     Constant.NOT_CONSIDERABLE);
         } else if (hour != Constant.NOT_CONSIDERABLE) {
             //If the hour >= 12, it's in the 24 hours system.
             //Therefore, find the duration to be added to the 12 hours system
             executionStartTime.set(Calendar.HOUR, hour >= 12 ? hour - 12 : hour);
-            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE, 0, 0,
+            executionStartTime = setCalendarFields(executionStartTime, Constant.NOT_CONSIDERABLE,
                     Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE);
             if (hour <= 11) {
                 //If the hour <= 11, it's first half of the day
@@ -561,7 +561,7 @@ public class TaskScheduler {
                         currentTime.get(Calendar.DAY_OF_MONTH) != executionStartTime.get(Calendar.DAY_OF_MONTH)
                                 && dayOfMonth != Constant.NOT_CONSIDERABLE))) {
             //If the the execution start time is future, set the time to midnight (00.00.00)
-            executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0, 0, 0);
+            executionStartTime = setCalendarFields(executionStartTime, 0, 0, 0);
         }
         if (currentTime.get(Calendar.YEAR) < executionStartTime.get(Calendar.YEAR) && (
                 (dayOfWeek != Constant.NOT_CONSIDERABLE && dayOfWeek != executionStartTime.get(Calendar.DAY_OF_WEEK))
@@ -630,7 +630,7 @@ public class TaskScheduler {
      *
      * @param taskId The identifier of the task
      */
-    protected static void stopTask(int taskId) {
+    static void stopTask(int taskId) {
         //Stop the corresponding task
         stopExecution(taskId, 0);
     }
@@ -640,22 +640,19 @@ public class TaskScheduler {
      *
      * @param calendar     The Calendar instance to be modified
      * @param ampm         The value of ampm field to set to the Calendar
-     * @param milliseconds The value of the milli seconds to set to the Calendar
-     * @param seconds      The value of the seconds to set to the Calendar
      * @param minutes      The value of the minutes to set to the Calendar
      * @param hours        The value of the hours to set to the Calendar
      * @return updated Calendar
      */
-    private static Calendar setCalendarFields(Calendar calendar, int ampm, int milliseconds, int seconds, int minutes,
-                                              int hours) {
+    private static Calendar setCalendarFields(Calendar calendar, int ampm, int minutes, int hours) {
         if (hours != Constant.NOT_CONSIDERABLE) {
             calendar.set(Calendar.HOUR, hours);
         }
         if (minutes != Constant.NOT_CONSIDERABLE) {
             calendar.set(Calendar.MINUTE, minutes);
         }
-        calendar.set(Calendar.SECOND, seconds);
-        calendar.set(Calendar.MILLISECOND, milliseconds);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         if (ampm != Constant.NOT_CONSIDERABLE) {
             calendar.set(Calendar.AM_PM, ampm);
         }
