@@ -22,8 +22,37 @@ class WorkspaceExplorer extends View {
      */
     constructor(props) {
         super(props);
+        this.state = {
+            goToFilePath: undefined,
+        };
         this.onSelectNode = this.onSelectNode.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
+        this.onGoToFileInExplorer = this.onGoToFileInExplorer.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const { command: { on } } = this.context;
+        on(COMMANDS.GO_TO_FILE_IN_EXPLORER, this.onGoToFileInExplorer);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        const { command: { off } } = this.context;
+        off(COMMANDS.GO_TO_FILE_IN_EXPLORER, this.onGoToFileInExplorer);
+    }
+
+    /**
+     * On Go To File Dispatch
+     */
+    onGoToFileInExplorer({ filePath }) {
+        this.setState({
+            goToFilePath: filePath,
+        });
     }
 
     /**
@@ -32,6 +61,7 @@ class WorkspaceExplorer extends View {
      *
      */
     onSelectNode(node) {
+        this.props.workspaceManager.goToFilePath = undefined;
         this.props.workspaceManager.onNodeSelectedInExplorer(node);
     }
 
@@ -49,9 +79,20 @@ class WorkspaceExplorer extends View {
     render() {
         const trees = [];
         const { openedFolders } = this.props.workspaceManager;
+        // give precedence to first root folder in explorer
+        let foundGoToFileRoot = false;
         openedFolders.forEach((folder) => {
+            let activeKey;
+            const { goToFilePath } = this.state;
+            if (goToFilePath && !foundGoToFileRoot) {
+                if (goToFilePath && _.startsWith(goToFilePath, folder)) {
+                    activeKey = goToFilePath;
+                    foundGoToFileRoot = true;
+                }
+            }
             trees.push((
                 <ExplorerItem
+                    activeKey={activeKey}
                     folderPath={folder}
                     key={folder}
                     workspaceManager={this.props.workspaceManager}
@@ -85,6 +126,10 @@ WorkspaceExplorer.contextTypes = {
     history: PropTypes.shape({
         put: PropTypes.func,
         get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
     }).isRequired,
 };
 
