@@ -110,6 +110,34 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
+    public static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+        Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING_MESSAGE);
+        if (onPingMessageResource == null) {
+            return;
+        }
+        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsPingFrame = wsService.createPingFrameStruct();
+        byte[] data = controlMessage.getByteArray();
+        wsPingFrame.setBlobField(0, data);
+        BValue[] bValues = {wsConnection, wsPingFrame};
+        ConnectorFuture future = Executor.submit(onPingMessageResource, null, bValues);
+        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+    }
+
+    public static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+        Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG_MESSAGE);
+        if (onPongMessageResource == null) {
+            return;
+        }
+        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsPongFrame = wsService.createPingFrameStruct();
+        byte[] data = controlMessage.getByteArray();
+        wsPongFrame.setBlobField(0, data);
+        BValue[] bValues = {wsConnection, wsPongFrame};
+        ConnectorFuture future = Executor.submit(onPongMessageResource, null, bValues);
+        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+    }
+
     public static void dispatchCloseMessage(WebSocketService wsService, WebSocketCloseMessage closeMessage) {
         Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {

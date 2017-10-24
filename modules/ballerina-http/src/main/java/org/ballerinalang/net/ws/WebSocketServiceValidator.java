@@ -63,6 +63,10 @@ public class WebSocketServiceValidator {
                 validateOnTextMessageResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE)) {
                 validateOnBinaryMessageResource(resource);
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PING_MESSAGE)) {
+
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PONG_MESSAGE)) {
+
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT)) {
                 validateOnIdleTimeoutResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_CLOSE)) {
