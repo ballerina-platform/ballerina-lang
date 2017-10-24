@@ -44,6 +44,8 @@ import './../utils/react-try-catch-batching-strategy';
 import FragmentUtils from '../utils/fragment-utils';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
+import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
+import SyncErrorsVisitor from './../visitors/sync-errors';
 
 /**
  * React component for BallerinaFileEditor.
@@ -393,6 +395,9 @@ class BallerinaFileEditor extends React.Component {
         currentAST.sync(syncLineNumbersVisitor, newAST);
         const syncBreakpoints = new SyncBreakpointsVisitor(newAST);
         currentAST.sync(syncBreakpoints, newAST);
+        const syncErrorsVisitor = new SyncErrorsVisitor();
+        currentAST.sync(syncErrorsVisitor, newAST);
+
         const newBreakpoints = syncBreakpoints.getBreakpoints();
         this.updateBreakpoints(newBreakpoints, newAST);
     }
@@ -590,6 +595,10 @@ class BallerinaFileEditor extends React.Component {
                             const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
                             ast.setFile(this.props.file);
                             this.markBreakpointsOnAST(ast);
+                            // Now we will enrich the model with Semantic errors.
+                            const errorMappingVisitor = new ErrorMappingVisitor();
+                            errorMappingVisitor.setErrorList(this.semanticErrors);
+                            ast.accept(errorMappingVisitor);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
                                 this.onASTModified(evt);
