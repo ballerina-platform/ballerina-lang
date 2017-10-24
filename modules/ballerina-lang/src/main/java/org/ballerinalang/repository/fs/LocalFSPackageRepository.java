@@ -20,7 +20,7 @@ package org.ballerinalang.repository.fs;
 import java.nio.file.Paths;
 
 /**
- * This represents a local file system based {@link PackageRepository}.
+ * This represents a local file system based {@link org.ballerinalang.repository.PackageRepository}.
  *
  * @since 0.94
  */

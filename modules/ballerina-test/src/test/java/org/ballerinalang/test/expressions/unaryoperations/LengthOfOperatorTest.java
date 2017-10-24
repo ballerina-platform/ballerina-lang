@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.expressions.unaryoperations;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,18 +29,19 @@ import org.testng.annotations.Test;
 public class LengthOfOperatorTest {
 
     CompileResult result;
-    CompileResult resultNegative;
+    CompileResult resNegative;
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src", "expressions/unaryoperations/lengthof-operation.bal");
-        resultNegative = BTestUtils.compile("test-src", "expressions/unaryoperations/lengthof-operation-negative.bal");
+        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/lengthof-operation.bal");
+        resNegative = BCompileUtil.compile(this, "test-src",
+                "expressions/unaryoperations/lengthof-operation-negative.bal");
     }
 
     @Test(description = "Test lengthof unary expression")
     public void testArrayLengthAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestAssignmentCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestAssignmentCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -52,7 +54,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Function invocation statement.")
     public void testArrayLengthAccessExprFunctionInvocationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestFunctionInvocationCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestFunctionInvocationCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -65,7 +67,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Variable definition statement.")
     public void testArrayLengthAccessExprVariableDefinitionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestVariableDefinitionCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestVariableDefinitionCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -78,7 +80,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Array initialization statement.")
     public void testArrayLengthAccessExprArrayInitializationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestArrayInitializerCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestArrayInitializerCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -91,7 +93,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Map initialization statement.")
     public void testArrayLengthAccessExprMapInitializationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestMapInitializerCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestMapInitializerCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -104,7 +106,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Return statement.")
     public void testArrayLengthAccessExprReturnExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestReturnStatementCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestReturnStatementCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -117,7 +119,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in multi Return statement.")
     public void testArrayLengthAccessExprMultiReturnExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestMultiReturnStatementCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestMultiReturnStatementCase", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -138,7 +140,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -151,7 +153,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in If condition.")
     public void testArrayLengthAccessExprIfConditionExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestIfConditionCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestIfConditionCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -164,7 +166,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Binary expression.")
     public void testArrayLengthAccessExpBinaryExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestBinaryExpressionCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestBinaryExpressionCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -177,7 +179,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Struct field access expression.")
     public void testArrayLengthAccessExpStructFieldAccessCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestStructFieldAccessCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestStructFieldAccessCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -191,7 +193,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when reference point to JSON array.")
     public void testArrayLengthAccessJSONArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -204,7 +206,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when reference point to JSON Object.")
     public void testArrayLengthAccessJSONArrayNegativeNonArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestJSONArrayNegativeNonArrayCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayNegativeNonArrayCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -219,7 +221,7 @@ public class LengthOfOperatorTest {
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BTestUtils.invoke(resultNegative, "arrayLengthAccessNullArrayCase", args);
+        BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
     }
 
     @Test(description = "Test lengthof unary expression when reference point to json null.",
@@ -227,7 +229,7 @@ public class LengthOfOperatorTest {
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BTestUtils.invoke(resultNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
+        BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
     }
 
 }

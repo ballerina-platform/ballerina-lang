@@ -19,8 +19,6 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.QueryParamProcessor;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -29,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +37,7 @@ public class HTTPResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
-    public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg)
+    public static HttpResource findResource(HttpService service, HTTPCarbonMessage cMsg)
             throws BallerinaConnectorException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -50,7 +45,7 @@ public class HTTPResourceDispatcher {
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
-            Resource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
+            HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
@@ -58,7 +53,7 @@ public class HTTPResourceDispatcher {
                             .forEach((resourceArgumentValues::put));
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-                cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
+                cMsg.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
@@ -76,24 +71,24 @@ public class HTTPResourceDispatcher {
     }
 
     private static String sanitizeSubPath(String subPath) {
-        if (!"/".equals(subPath)) {
-            if (!subPath.startsWith("/")) {
-                subPath = Constants.DEFAULT_BASE_PATH + subPath;
-            }
-            subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+        if ("/".equals(subPath)) {
+            return subPath;
         }
+        if (!subPath.startsWith("/")) {
+            subPath = Constants.DEFAULT_BASE_PATH + subPath;
+        }
+        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         return subPath;
     }
 
-    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service)
+    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, HttpService service)
             throws URITemplateException {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         if (cMsg.getHeader(Constants.ALLOW) != null) {
             response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
-        } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
-            if (!getAllResourceMethods(service).isEmpty()) {
-                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
-            }
+        } else if (service.getBasePath().equals(cMsg.getProperty(Constants.TO))
+                && !service.getAllAllowMethods().isEmpty()) {
+            response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaConnectorException("no matching resource found for path : "
@@ -104,19 +99,5 @@ public class HTTPResourceDispatcher {
         response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);
         HttpUtil.handleResponse(cMsg, response);
-        return;
-    }
-
-    private static List<String> getAllResourceMethods(Service service) {
-        List<String> cachedMethods = new ArrayList();
-        for (Resource resource : service.getResources()) {
-            if (DispatcherUtil.getHttpMethods(resource) == null) {
-                cachedMethods = DispatcherUtil.addAllMethods();
-                break;
-            } else {
-                cachedMethods.addAll(Arrays.asList(DispatcherUtil.getHttpMethods(resource)));
-            }
-        }
-        return DispatcherUtil.validateAllowMethods(cachedMethods);
     }
 }

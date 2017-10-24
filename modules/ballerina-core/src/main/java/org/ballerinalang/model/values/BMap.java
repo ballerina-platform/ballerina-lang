@@ -25,10 +25,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code MapType} represents a map.
@@ -38,16 +42,21 @@ import java.util.StringJoiner;
  */
 public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
 
-    private int size;
-    private static final int INITIAL_CAPACITY = 16;
-    private static final int MAX_CAPACITY = 1 << 16;
+
     @SuppressWarnings("unchecked")
-    private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
+    private LinkedHashMap<K, V> map;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
+
+    public BMap() {
+        map =  new LinkedHashMap<>();
+    }
 
     /**
      * Output stream to write message out to the socket.
      */
-     private OutputStream outputStream;
+    private OutputStream outputStream;
 
     /**
      * Retrieve the value for the given key from map.
@@ -55,14 +64,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return value
      */
     public V get(K key) {
-        for (int i = 0; i < size; i++) {
-            if (values[i] != null) {
-                if (values[i].getKey().equals(key)) {
-                    return values[i].getValue();
-                }
-            }
+        readLock.lock();
+        try {
+            return map.get(key);
+        } finally {
+            readLock.unlock();
         }
-        return null;
     }
 
     /**
@@ -71,27 +78,11 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param value value related to the key
      */
     public void put(K key, V value) {
-        boolean insert = true;
-        for (int i = 0; i < size; i++) {
-            if (values[i].getKey().equals(key)) {
-                values[i].setValue(value);
-                insert = false;
-            }
-        }
-        if (insert) {
-            ensureCapacity();
-            values[size++] = new MapEntry<>(key, value);
-        }
-    }
-
-    private void ensureCapacity() {
-        if (size == values.length) {
-            int newSize = values.length * 2;
-            if (newSize <= MAX_CAPACITY) {
-                values = Arrays.copyOf(values, newSize);
-            } else {
-                throw new RuntimeException(" Map cannot exceed the maximum size");
-            }
+        writeLock.lock();
+        try {
+            map.put(key, value);
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -100,7 +91,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the size of the map
      */
     public int size() {
-        return size;
+        return map.size();
     }
 
     /**
@@ -108,17 +99,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param key key of the item to be removed
      */
     public void remove(K key) {
-        for (int i = 0; i < size; i++) {
-            if (values[i].getKey().equals(key)) {
-                values[i] = null;
-                size--;
-                condenseArray(i);
-            }
-        }
-    }
-
-    private void condenseArray(int start) {
-        System.arraycopy(values, start + 1, values, start, (values.length - start - 1));
+        map.remove(key);
     }
 
     /**
@@ -126,19 +107,15 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the set of keys
      */
     public Set<K> keySet() {
-        Set<K> set = new HashSet<>();
-        for (int i = 0; i < size; i++) {
-            set.add(values[i].getKey());
-        }
-        return set;
+        return map.keySet();
     }
 
     /**Return true if this map is empty.
-     * 
+     *
      * @return Flag indicating whether the map is empty or not
      */
     public boolean isEmpty() {
-        return size() == 0;
+        return map.size() == 0;
     }
 
     @Override
@@ -149,12 +126,16 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     @Override
     public String stringValue() {
         StringJoiner sj = new StringJoiner(", ", "{", "}");
-        String key;
-        BValue value;
-        String stringValue;
-        for (int i = 0; i < size; i++) {
-            key = "\"" + (String) values[i].getKey() + "\"";
-            value = values[i].getValue();
+
+        for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+
+            String key;
+            String stringValue;
+
+            Map.Entry<K, V> e = i.next();
+            key = "\"" + (String) e.getKey() + "\"";
+            V value = e.getValue();
+
             if (value == null) {
                 stringValue = null;
             } else if (value instanceof BString) {
@@ -162,9 +143,11 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
             } else {
                 stringValue = value.stringValue();
             }
+
             sj.add(key + ":" + stringValue);
         }
         return sj.toString();
+
     }
 
     @Override
@@ -174,34 +157,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        BMap map = BTypes.typeMap.getEmptyValue();
-        for (int i = 0; i < size; i++) {
-            BValue value = values[i].getValue();
-            map.put(values[i].getKey(), value == null ? null : value.copy());
+        BMap newMap = BTypes.typeMap.getEmptyValue();
+        for (Map.Entry<K, V> entry: map.entrySet()) {
+            BValue value = entry.getValue();
+            newMap.put(entry.getKey(), value == null ? null : value.copy());
         }
-        return map;
-    }
-    
-    private class MapEntry<K, V> {
-        private final K key;
-        private V value;
-
-        MapEntry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        K getKey() {
-            return key;
-        }
-
-        V getValue() {
-            return value;
-        }
-
-        void setValue(V value) {
-            this.value = value;
-        }
+        return newMap;
     }
 
     @Override
@@ -222,5 +183,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
     }
+
 }
 

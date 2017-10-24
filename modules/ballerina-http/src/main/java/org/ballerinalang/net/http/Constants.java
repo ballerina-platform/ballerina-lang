@@ -47,7 +47,6 @@ public class Constants {
     public static final String ALLOW = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
-    public static final String HOST = "HOST";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
@@ -132,6 +131,7 @@ public class Constants {
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";

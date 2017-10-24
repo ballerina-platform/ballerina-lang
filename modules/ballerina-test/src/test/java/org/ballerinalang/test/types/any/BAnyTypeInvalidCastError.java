@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.types.any;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,14 +30,14 @@ public class BAnyTypeInvalidCastError {
 
     @Test
     public void testInvalidAnyCasting() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-cast-negative.bal");
+        CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-type-cast-negative.bal");
 
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
 
-        BTestUtils.validateError(resultNegative, 0,
+        BAssertUtil.validateError(resultNegative, 0,
                                  "unsafe cast from 'any' to 'float', use multi-return cast expression", 3, 15);
-        BTestUtils.validateError(resultNegative, 1, "unsafe cast from 'any' to 'int', use multi-return cast expression",
-                                 14, 11);
+        BAssertUtil.validateError(resultNegative, 1,
+                "unsafe cast from 'any' to 'int', use multi-return cast expression", 14, 11);
         //TODO: This needs to have another error, for casting a null value. Add that check when it's fixed.
     }
 }

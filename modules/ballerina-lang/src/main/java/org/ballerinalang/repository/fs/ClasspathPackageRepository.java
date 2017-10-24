@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This represents a Java classpath based {@link PackageRepository}, which can either
+ * This represents a Java classpath based {@link org.ballerinalang.repository.PackageRepository}, which can either
  * represent a .jar file or a file system directory.
  *
  * @since 0.94

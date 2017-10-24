@@ -9,19 +9,20 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/"
     }
-    resource cbrResource (http:Request req, http:Response res) {
+    resource cbrResource (http:Request req, http:Response resp) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks", {});
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks", {});
         string nyseString = "nyse";
         json jsonMsg = req.getJsonPayload();
         var nameString, _ = (string) jsonMsg.name;
+        http:Response clientResponse = {};
         if (nameString == nyseString) {
-            res = nyseEP.post("/stocks", req);
+            clientResponse = nyseEP.post("/stocks", req);
         }
         else {
-            res = nasdaqEP.post("/stocks", req);
+            clientResponse = nasdaqEP.post("/stocks", req);
         }
-        res.send();
+        resp.forward(clientResponse);
 
     }
     

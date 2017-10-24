@@ -1,6 +1,8 @@
 package ballerina.net.http.swagger;
 
-public annotation ServiceInfo attach service {
+import ballerina.net.http;
+
+public annotation ServiceInfo attach service<http> {
     string title;
     string serviceVersion;
     string description;
@@ -44,7 +46,7 @@ public annotation Developer {
     string email;
 }
 
-public annotation Swagger attach service {
+public annotation Swagger attach service<http> {
     string swaggerVersion;
     SwaggerExtension[] extension;
 }
@@ -53,7 +55,7 @@ public annotation SwaggerExtension {
     string target;
 }
 
-public annotation ServiceConfig attach service {
+public annotation ServiceConfig attach service<http> {
     string host;
     string[] schemes;
     string interface;

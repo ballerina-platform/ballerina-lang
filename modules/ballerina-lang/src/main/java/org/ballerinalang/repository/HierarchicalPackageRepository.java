@@ -52,28 +52,36 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
 
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
-        PackageEntity result;
+        PackageEntity result = null;
         if (this.isSystemPackage(pkgId)) {
             result = this.systemRepo.loadPackage(pkgId);
-        } else {
-            result = this.lookupPackage(pkgId);
-            if (result == null && this.parentRepo != null) {
-                result = this.parentRepo.loadPackage(pkgId);
-            }
+        }
+
+        if (result != null) {
+            return result;
+        }
+
+        result = this.lookupPackage(pkgId);
+        if (result == null && this.parentRepo != null) {
+            result = this.parentRepo.loadPackage(pkgId);
         }
         return result;
     }
 
     @Override
-    public PackageEntity loadPackage(PackageID pkgID, String entryName) {
-        PackageEntity result;
-        if (this.isSystemPackage(pkgID)) {
-            result = this.systemRepo.loadPackage(pkgID, entryName);
-        } else {
-            result = this.lookupPackage(pkgID, entryName);
-            if (result == null && this.parentRepo != null) {
-                result = this.parentRepo.loadPackage(pkgID, entryName);
-            }
+    public PackageEntity loadPackage(PackageID pkgId, String entryName) {
+        PackageEntity result = null;
+        if (this.isSystemPackage(pkgId)) {
+            result = this.systemRepo.loadPackage(pkgId, entryName);
+        }
+
+        if (result != null) {
+            return result;
+        }
+
+        result = this.lookupPackage(pkgId, entryName);
+        if (result == null && this.parentRepo != null) {
+            result = this.parentRepo.loadPackage(pkgId, entryName);
         }
         return result;
     }

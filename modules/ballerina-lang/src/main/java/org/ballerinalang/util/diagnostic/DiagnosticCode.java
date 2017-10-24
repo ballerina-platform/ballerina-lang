@@ -28,6 +28,9 @@ public enum DiagnosticCode {
     UNUSED_IMPORT_PACKAGE("unused.import.package"),
     PACKAGE_NOT_FOUND("package.not.found"),
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
+    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
+    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
+    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
@@ -81,6 +84,7 @@ public enum DiagnosticCode {
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+    ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
     FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
@@ -124,7 +128,8 @@ public enum DiagnosticCode {
     MISSING_TOKEN("missing.token"),
     EXTRANEOUS_INPUT("extraneous.input"),
     MISMATCHED_INPUT("mismatched.input"),
-    FAILED_PREDICATE("failed.predicate")
+    FAILED_PREDICATE("failed.predicate"),
+    SYNTAX_ERROR("syntax.error"),
     ;
 
     private String value;

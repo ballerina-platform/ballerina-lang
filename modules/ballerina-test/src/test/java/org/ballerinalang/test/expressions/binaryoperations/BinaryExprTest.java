@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,7 +31,7 @@ public class BinaryExprTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/binary-expr.bal");
     }
 
     @Test(description = "Test binary logical expression")
@@ -39,7 +40,7 @@ public class BinaryExprTest {
         boolean stone = true;
         boolean value = true;
         BValue[] args = { new BBoolean(stone), new BBoolean(value) };
-        BValue[] returns = BTestUtils.invoke(result, "makeChild", args);
+        BValue[] returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actual = ((BBoolean) returns[0]).booleanValue();
@@ -50,7 +51,7 @@ public class BinaryExprTest {
         stone = true;
         value = false;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BTestUtils.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -61,7 +62,7 @@ public class BinaryExprTest {
         stone = false;
         value = true;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BTestUtils.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -72,7 +73,7 @@ public class BinaryExprTest {
         stone = false;
         value = false;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BTestUtils.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -89,7 +90,7 @@ public class BinaryExprTest {
         boolean expectedResult = one & two & three;
 
         BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryANDExpression", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -106,7 +107,7 @@ public class BinaryExprTest {
         boolean expectedResult = one || two || three;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryORExpression", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -123,7 +124,7 @@ public class BinaryExprTest {
         boolean expectedResult = (!one || (two && three)) || (!three || (one && two));
 
         BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryExpression", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();

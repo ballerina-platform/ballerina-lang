@@ -70,6 +70,7 @@ public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String TRANSPORT_MESSAGE = "transport_message";
+    private static final String METHOD_ACCESSED = "isMethodAccessed";
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -463,8 +464,7 @@ public class HttpUtil {
         if (statusCode == 404) {
             handleResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         } else {
-            // TODO If you put just "", then we got a NPE. Need to find why
-            handleResponse(requestMessage, createErrorMessage("  ", statusCode));
+            handleResponse(requestMessage, createErrorMessage("", statusCode));
         }
     }
 
@@ -505,6 +505,9 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
+    public static void addResponseFlag(BStruct response) {
+        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+    }
 
     /**
      * Extract the listener configurations from the config annotation.
@@ -685,4 +688,25 @@ public class HttpUtil {
         }
         return httpCarbonMessage;
     }
+
+    public static String sanitizeUri(String uri) {
+        if (uri.startsWith("/")) {
+            return uri;
+        }
+        return "/".concat(uri);
+    }
+
+    public static void methodInvocationCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
+            throw new IllegalStateException("illegal function invocation");
+        }
+        bStruct.addNativeData(METHOD_ACCESSED, true);
+    }
+
+    public static void operationNotAllowedCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
+            throw new BallerinaException("operation not allowed");
+        }
+    }
+
 }

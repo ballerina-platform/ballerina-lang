@@ -18,10 +18,12 @@
 
 package org.ballerinalang.test.types.constant;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,14 +41,14 @@ public class ConstantAssignmentTest {
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BTestUtils.compile("test-src/types/constant/constant-assignment.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/types/constant/constant-assignment-negative.bal");
+        positiveCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment.bal");
+        negativeCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment-negative.bal");
     }
 
     @Test(description = "Test accessing constant evaluated by an expression.")
     public void testConstantAssignmentExpression() {
         setEnv("env_var", "test");
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "accessConstant");
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstant");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
@@ -66,21 +68,21 @@ public class ConstantAssignmentTest {
 
     @Test(description = "Test accessing constant evaluated by a function return value.")
     public void testConstantAssignmentViaFunction() {
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "accessConstantViaFunction");
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaFunction");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "dummy");
     }
 
     @Test(description = "Test accessing constant evaluated by a native function return value.")
     public void testConstantAssignmentViaNativeFunction() {
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "accessConstantViaNativeFunction");
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaNativeFunction");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "ballerina is awesome");
     }
 
     @Test(description = "Test accessing constant evaluated by a integer addition expr.")
     public void testConstantAssignmentViaIntegerAddition() {
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "accessConstantEvalIntegerExpression");
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalIntegerExpression");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
     }
@@ -88,7 +90,7 @@ public class ConstantAssignmentTest {
     @Test(description = "Test accessing constant evaluated by another already defined constant.")
     public void testConstantAssignmentViaConstant() {
         setEnv("env_var", "test");
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "testdummyballerina is awesome");
     }
@@ -96,9 +98,10 @@ public class ConstantAssignmentTest {
     @Test
     public void testConstantAssignmentNegative() {
         // Todo - Fix duplicate errors issue
-        BTestUtils.validateError(negativeCompileResult, 0, "incompatible types: expected 'int', found 'float'", 1, 16);
-        BTestUtils.validateError(negativeCompileResult, 1, "incompatible types: expected 'float', found 'string'", 3,
+        BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'int', found 'float'", 1, 16);
+        BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'float', found 'string'", 3,
                                  31);
-        BTestUtils.validateError(negativeCompileResult, 2, "incompatible types: expected 'int', found 'string'", 5, 27);
+        BAssertUtil.validateError(negativeCompileResult, 2,
+                "incompatible types: expected 'int', found 'string'", 5, 27);
     }
 }

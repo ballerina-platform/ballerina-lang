@@ -670,7 +670,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 // a variable defined in transform scope is a inner variable
-                if (variable.expr.getKind() != NodeKind.LITERAL) {
+                if (isLiteralExpression(variable.expr)) {
                     // a variable defined in transform scope is a inner variable
                     // if the variable does not hold a constant value, it is a temporary variable and hence not an input
                     innerVars.add(varName);
@@ -731,6 +731,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         innerVars.forEach(var -> inputs.remove(var));
     }
 
+    private boolean isLiteralExpression(BLangExpression expression) {
+        NodeKind expressionKind = expression.getKind();
+        return ((expressionKind != NodeKind.LITERAL) && (expressionKind != NodeKind.RECORD_LITERAL_EXPR)
+               && (expressionKind != NodeKind.XML_ELEMENT_LITERAL) && (expressionKind != NodeKind.ARRAY_LITERAL_EXPR)
+               && (expressionKind != NodeKind.STRING_TEMPLATE_LITERAL));
+    }
+
     private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
         if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             while (!(expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF)) {
@@ -749,15 +756,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.TERNARY_EXPR) {
+            List<BLangExpression> expList = new ArrayList<>();
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).expr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).thenExpr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).elseExpr)));
+            return expList.toArray(new BLangExpression[expList.size()]);
         } else if (expression.getKind() == NodeKind.BINARY_EXPR) {
-                List<BLangExpression> expList = new ArrayList<>();
-                expList.addAll(Arrays.asList(
-                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
-                expList.addAll(Arrays.asList(
-                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
-                return expList.toArray(new BLangExpression[expList.size()]);
+            List<BLangExpression> expList = new ArrayList<>();
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
+            return expList.toArray(new BLangExpression[expList.size()]);
         } else if (expression.getKind() == NodeKind.UNARY_EXPR) {
-                return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
+            return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {

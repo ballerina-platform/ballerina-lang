@@ -18,7 +18,7 @@
 <FindBugsFilter>
     <!-- TODO Fix following findbug issues-->
     <Match>
-        <Class name="org.ballerinalang.net.http.CorsRegistry"/>
+        <Class name="org.ballerinalang.net.http.CorsPopulator"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.net.http.HttpServerConnector"/>

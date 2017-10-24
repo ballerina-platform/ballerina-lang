@@ -16,14 +16,16 @@
  */
 package org.ballerinalang.test.statements.assign;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,14 +37,14 @@ public class AssignStmtTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/assign/assign-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/assign/assign-stmt-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/assign/assign-stmt.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/assign/assign-stmt-negative.bal");
     }
 
     @Test
     public void invokeAssignmentTest() {
         BValue[] args = { new BInteger(100) };
-        BValue[] returns = BTestUtils.invoke(result, "testIntAssignStmt", args);
+        BValue[] returns = BRunUtil.invoke(result, "testIntAssignStmt", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
@@ -52,7 +54,7 @@ public class AssignStmtTest {
 
         // floattype assignment test
         args = new BValue[] { new BFloat(2.3f) };
-        returns = BTestUtils.invoke(result, "testFloatAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testFloatAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -63,7 +65,7 @@ public class AssignStmtTest {
 
         // Boolean assignment test
         args = new BValue[] { new BBoolean(true) };
-        returns = BTestUtils.invoke(result, "testBooleanAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testBooleanAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -73,7 +75,7 @@ public class AssignStmtTest {
 
         // String assignment test
         args = new BValue[] { new BString("Test Value") };
-        returns = BTestUtils.invoke(result, "testStringAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testStringAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -86,7 +88,7 @@ public class AssignStmtTest {
         BIntArray arrayValue = new BIntArray();
         arrayValue.add(0, 150);
         args = new BValue[] { arrayValue };
-        returns = BTestUtils.invoke(result, "testArrayIndexToIntAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testArrayIndexToIntAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -97,7 +99,7 @@ public class AssignStmtTest {
 
         // Int to array index assignment test
         args = new BValue[] { new BInteger(250) };
-        returns = BTestUtils.invoke(result, "testIntToArrayAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testIntToArrayAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -111,7 +113,7 @@ public class AssignStmtTest {
     public void testAssignmentStmtWithMultiReturnFunc() {
         // Int assignment test
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testMultiReturn", args);
+        BValue[] returns = BRunUtil.invoke(result, "testMultiReturn", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -123,7 +125,7 @@ public class AssignStmtTest {
     @Test(description = "Test assignment of int to float")
     public void testAssignmentStatementIntToFloat() {
         BValue[] args = { new BInteger(100) };
-        BValue[] returns = BTestUtils.invoke(result, "testIntCastFloatStmt", args);
+        BValue[] returns = BRunUtil.invoke(result, "testIntCastFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -136,7 +138,7 @@ public class AssignStmtTest {
     @Test(description = "Test binary expression with int and float")
     public void testBinaryExpressionIntToFloat() {
         BValue[] args = { new BInteger(100) };
-        BValue[] returns = BTestUtils.invoke(result, "testBinaryExpressionIntAndFloatStmt", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBinaryExpressionIntAndFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -150,25 +152,55 @@ public class AssignStmtTest {
     public void testAssignmentNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         //testIncompatibleTypeAssign
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 9);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 9);
         //testAssignCountMismatch1
-        BTestUtils.validateError(resultNegative, 1, "assignment count mismatch: 2 != 3", 11, 15);
+        BAssertUtil.validateError(resultNegative, 1, "assignment count mismatch: expected 2 values, but found 3", 11,
+                15);
         //testAssignCountMismatch2
-        BTestUtils.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 21);
+        BAssertUtil.validateError(resultNegative, 2, "assignment count mismatch: expected 4 values, but found 3", 21,
+                21);
         //testAssignTypeMismatch1
-        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 18);
-        BTestUtils.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 12);
+        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 18);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 12);
         //testAssignTypeMismatch2
-        BTestUtils.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 18);
-        BTestUtils.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 15);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 18);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 15);
         //testVarRepeatedReturn1
-        BTestUtils.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 18);
-        BTestUtils.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 21);
+        BAssertUtil.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 18);
+        BAssertUtil.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 21);
         //testVarRepeatedReturn2
-        BTestUtils.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 18);
-        BTestUtils.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 21);
+        BAssertUtil.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 18);
+        BAssertUtil.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 21);
 
-        BTestUtils.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
-        BTestUtils.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
+        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
+        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
+    }
+
+    @Test(description = "Test negative assignment statement with cast and conversion with var.")
+    public void testCastAndConversionWithVar() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/assign/var-negative.bal");
+        BAssertUtil.validateError(result, 0, "unknown type 'Foo'", 4, 17);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'bar'", 4, 22);
+        BAssertUtil.validateError(result, 2, "operator '+' not defined for 'TypeCastError' and 'error'", 6, 22);
+        BAssertUtil.validateError(result, 3, "unknown type 'Float'", 11, 17);
+        BAssertUtil.validateError(result, 4, "operator '+' not defined for 'TypeCastError' and 'error'", 13, 22);
+        BAssertUtil.validateError(result, 5, "undefined symbol 'foo'", 17, 25);
+        BAssertUtil.validateError(result, 6, "operator '+' not defined for 'string' and 'error'", 18, 22);
+        BAssertUtil.validateError(result, 7, "operator '+' not defined for 'TypeCastError' and 'error'", 19, 22);
+        BAssertUtil.validateError(result, 8, "unknown type 'Foo'", 23, 17);
+        BAssertUtil.validateError(result, 9, "undefined symbol 'bar'", 23, 22);
+        BAssertUtil.validateError(result, 10, "operator '+' not defined for 'TypeConversionError' and 'error'", 25, 22);
+        BAssertUtil.validateError(result, 11, "unknown type 'Float'", 30, 17);
+        BAssertUtil.validateError(result, 12, "operator '+' not defined for 'TypeConversionError' and 'error'", 32, 22);
+        BAssertUtil.validateError(result, 13, "undefined symbol 'foo'", 36, 25);
+        BAssertUtil.validateError(result, 14, "operator '+' not defined for 'string' and 'error'", 37, 22);
+        BAssertUtil.validateError(result, 15, "operator '+' not defined for 'TypeConversionError' and 'error'", 38, 22);
+        BAssertUtil.validateError(result, 16, "unknown type 'Float'", 42, 20);
+        BAssertUtil.validateError(result, 17, "undefined symbol 'fooo'", 42, 27);
+        BAssertUtil.validateError(result, 18, "assignment count mismatch: expected 3 values, but found 2", 42, 19);
+        BAssertUtil.validateError(result, 19, "assignment count mismatch: expected 3 values, but found 2", 46, 19);
+        BAssertUtil.validateError(result, 20, "assignment count mismatch: expected 3 values, but found 2", 51, 19);
+        BAssertUtil.validateError(result, 21, "unknown type 'Foo'", 55, 14);
+        BAssertUtil.validateError(result, 22, "undefined symbol 'bar'", 55, 19);
     }
 }

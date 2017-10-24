@@ -20,7 +20,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -58,8 +57,8 @@ public class HttpDispatcher {
      * @param httpCarbonMessage incoming message.
      * @return matching resource.
      */
-    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage) {
-        Resource resource = null;
+    public static HttpResource findResource(HTTPCarbonMessage httpCarbonMessage) {
+        HttpResource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
@@ -73,7 +72,7 @@ public class HttpDispatcher {
         }
 
         try {
-            // Find the Service
+            // Find the Service TODO can be improved
             HttpService service = serverConnector.findService(httpCarbonMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request");
@@ -88,27 +87,30 @@ public class HttpDispatcher {
         return resource;
     }
 
-    public static BValue[] getSignatureParameters(Resource resource, HTTPCarbonMessage httpCarbonMessage) {
+    public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
 
-        BStruct request = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
-        BStruct response = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+        BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
+        BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.addCarbonMsg(request, httpCarbonMessage);
         HttpUtil.addCarbonMsg(response, HttpUtil.createHttpCarbonMessage(false));
+        HttpUtil.addResponseFlag(response);
 
-        List<ParamDetail> paramDetails = resource.getParamDetails();
+        List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =
                 (Map<String, String>) httpCarbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
 
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;
         bValues[1] = response;
-        if (paramDetails.size() > 2) {
-            int i = 2;
-            for (ParamDetail parameter : paramDetails) {
-                if (parameter.getVarType().getName().equals(Constants.TYPE_STRING)) {
-                    bValues[i++] = new BString(resourceArgumentValues.get(parameter.getVarName()));
-                }
-            }
+        if (paramDetails.size() <= 2) {
+            return bValues;
+        }
+        for (int i = 2; i < paramDetails.size(); i++) {
+            //No need for validation(validation already happened at deployment time),
+            //only string parameters can be found here,
+            bValues[i] = new BString(resourceArgumentValues.get(paramDetails.get(i).getVarName()));
         }
         return bValues;
     }

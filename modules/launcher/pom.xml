@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.93.1-SNAPSHOT</version>
+        <version>0.94.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -33,6 +33,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
         </dependency>
@@ -42,15 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
+            <artifactId>ballerina-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -60,33 +56,7 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.messaging</groupId>
-            <artifactId>org.wso2.carbon.messaging</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-log4j2</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
-
-    <properties>
-        <ballerina.core.test.coverage>${project.build.directory}/../../ballerina-core/target/coverage-reports
-        </ballerina.core.test.coverage>
-        <ballerina.native.test.coverage>${project.build.directory}/../../ballerina-native/target/coverage-reports
-        </ballerina.native.test.coverage>
-        <individual.test.report.name>jacoco-unit.exec</individual.test.report.name>
-    </properties>
 
     <build>
         <resources>
@@ -95,83 +65,5 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                        <!--<phase>post-integration-test</phase>-->
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target name="mergeReports">
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-                                <if>
-                                    <and>
-                                        <available file="${ballerina.core.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${ballerina.native.test.coverage}/${individual.test.report.name}" />
-                                    </and>
-                                    <then>
-                                        <taskdef name="report" classname="org.jacoco.ant.ReportTask">
-                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar" />
-                                        </taskdef>
-                                        <mkdir dir="${basedir}/../../target/coverage-report" />
-                                        <report>
-                                            <executiondata>
-                                                <fileset dir="${ballerina.core.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                                <fileset dir="${ballerina.native.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                            </executiondata>
-                                            <structure name="Ballerina Coverage Report">
-                                                <group name="ballerina">
-                                                    <classfiles>
-                                                        <fileset dir="${project.build.directory}/../../ballerina-core/target/classes">
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaBaseListener*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaLexer*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaListener*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaParser*" />
-                                                        </fileset>
-                                                        <fileset dir="${project.build.directory}/../../ballerina-native/target/classes" />
-                                                    </classfiles>
-                                                    <sourcefiles encoding="UTF-8">
-                                                        <fileset dir="${project.build.directory}/../../ballerina-core/src/main/java" />
-                                                        <fileset dir="${project.build.directory}/../../ballerina-native/src/main/java" />
-                                                    </sourcefiles>
-                                                </group>
-                                            </structure>
-                                            <html destdir="${basedir}/../../target/coverage-report/site" />
-                                        </report>
-                                    </then>
-                                </if>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>org.jacoco.ant</artifactId>
-                        <version>${jacoco.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>${ant.contrib.plugin.version}</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
     </build>
 </project>
