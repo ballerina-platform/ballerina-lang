@@ -208,7 +208,7 @@ class DebuggerPanel extends View {
                             type="button"
                             id="run_application"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Run Program"
+                            title="Run (Ctrl+Shift+R)"
                             onClick={this.startApplication}
                         >
                             <span className="launch-label">Run</span>
@@ -217,7 +217,7 @@ class DebuggerPanel extends View {
                             type="button"
                             id="start_debug"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Debugging"
+                            title="Run With Debug (Ctrl+Shift+D)"
                             onClick={this.startDebug}
                         >
                             <span className="launch-label">Debug</span>
