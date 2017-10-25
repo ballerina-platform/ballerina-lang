@@ -124,6 +124,7 @@ class LauncherConfigDialog extends React.Component {
                             <FormGroup key={idx}>
                                 <InputGroup>
                                     <FormControl
+                                        autoFocus
                                         value={config}
                                         onChange={event => this.onChangeArgument(idx, event)}
                                         type="text"
