@@ -39,18 +39,16 @@ public class InputEventHandler {
     private InputHandler inputHandler;
     private List<AttributeMapping> transportMapping;
     private InputEventHandlerCallback inputEventHandlerCallback;
-    private boolean allowNullInTransportProperties;
 
     InputEventHandler(InputHandler inputHandler, List<AttributeMapping> transportMapping,
                       ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext,
-                      InputEventHandlerCallback inputEventHandlerCallback, boolean allowNullInTransportProperties) {
+                      InputEventHandlerCallback inputEventHandlerCallback) {
         this.inputHandler = inputHandler;
         this.transportMapping = transportMapping;
         this.trpProperties = trpProperties;
         this.sourceType = sourceType;
         this.siddhiAppContext = siddhiAppContext;
         this.inputEventHandlerCallback = inputEventHandlerCallback;
-        this.allowNullInTransportProperties = allowNullInTransportProperties;
     }
 
     public void sendEvent(Event event) throws InterruptedException {
@@ -59,17 +57,6 @@ public class InputEventHandler {
             trpProperties.remove();
             for (int i = 0; i < transportMapping.size(); i++) {
                 AttributeMapping attributeMapping = transportMapping.get(i);
-                String property = transportProperties[i];
-                if (property == null && !allowNullInTransportProperties) {
-                    LOG.error("Dropping event " + event.toString() + " belonging to stream " + inputHandler
-                            .getStreamId() + "as it contains null transport attributes and system "
-                                      + "is configured not to allow 'null' in transport properties. "
-                                      + "You can configure it to allow 'null' valuses via "
-                                      + "source mapper option 'fail.on.missing.attribute' if the respective "
-                                      + "mapper type allows it. Refer mapper documentation to verify "
-                                      + "supportability");
-                    return;
-                }
                 event.getData()[attributeMapping.getPosition()] = transportProperties[i];
             }
             inputEventHandlerCallback.sendEvent(event);

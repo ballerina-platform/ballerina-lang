@@ -87,12 +87,26 @@ public abstract class SourceMapper implements SourceEventListener {
         }
         this.inputEventHandler = new InputEventHandler(inputHandler, transportMappings,
                                                        trpProperties, sourceType, siddhiAppContext,
-                                                       inputEventHandlerCallback, allowNullInTransportProperties());
+                                                       inputEventHandlerCallback);
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {
         try {
             if (eventObject != null) {
+                if (!allowNullInTransportProperties()) {
+                    for (String property : transportProperties) {
+                        if (property == null) {
+                            log.error("Dropping event " + eventObject.toString() + " belonging to stream " +
+                                              sourceHandler.getInputHandler().getStreamId()
+                                              + " as it contains null transport properties and system "
+                                              + "is configured to not allow null transport properties. You can "
+                                              + "configure it via source mapper if the respective "
+                                              + "mapper type allows it. Refer mapper documentation to verify "
+                                              + "supportability");
+                        return;
+                        }
+                    }
+                }
                 trpProperties.set(transportProperties);
                 mapAndProcess(eventObject, inputEventHandler);
             }
