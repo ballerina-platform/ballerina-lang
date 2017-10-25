@@ -51,6 +51,7 @@ class IfNode extends React.Component {
     onAddElseClick() {
         const elseNode = DefaultNodeFactory.createIf().getElseStatement().getElseStatement();
         const parent = this.props.model;
+        elseNode.clearWS();
         parent.setElseStatement(elseNode);
     }
 
@@ -60,11 +61,13 @@ class IfNode extends React.Component {
     onAddElseIfClick() {
         const elseIfNode = DefaultNodeFactory.createIf().getElseStatement();
         const parent = this.props.model;
-        elseIfNode.elseStatement = parent.elseStatement;
         if (parent.elseStatement) {
+            elseIfNode.elseStatement = parent.elseStatement;
             parent.elseStatement.parent = elseIfNode;
             parent.ladderParent = true;
         }
+        elseIfNode.clearWS();
+        parent.ws = null;
         parent.setElseStatement(elseIfNode);
     }
 
