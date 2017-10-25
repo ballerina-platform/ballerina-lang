@@ -388,7 +388,7 @@ set_assignment
     ;
 
 output_event_type
-    : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS   
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT? EVENTS   
     ;
 
 output_rate
