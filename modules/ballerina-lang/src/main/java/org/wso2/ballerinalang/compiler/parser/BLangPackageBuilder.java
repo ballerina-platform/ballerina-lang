@@ -40,7 +40,7 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
-import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
+//import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -74,7 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectionInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConnectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -202,7 +203,7 @@ public class BLangPackageBuilder {
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
-    private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
+//    private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
     
@@ -293,6 +294,16 @@ public class BLangPackageBuilder {
         constrainedType.addWS(ws);
 
         addType(constrainedType);
+    }
+
+    public void addConnectionType(DiagnosticPos pos, Set<Whitespace> ws, String typeName, String pkgIdentifier) {
+        BLangConnectionTypeNode connectionTypeNode = (BLangConnectionTypeNode) TreeBuilder.createConnectionTypeNode();
+        connectionTypeNode.pos = pos;
+        connectionTypeNode.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
+        connectionTypeNode.typeKind = TreeUtils.stringToTypeKind(typeName);
+        connectionTypeNode.addWS(ws);
+
+        addType(connectionTypeNode);
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
@@ -462,8 +473,8 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    public void addConnectorInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
-        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
+    public void addConnectionInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
+        BLangConnectionInit connectorInitNode = (BLangConnectionInit) TreeBuilder.createConnectionInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.addWS(ws);
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
@@ -472,24 +483,24 @@ public class BLangPackageBuilder {
             exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
             connectorInitNode.addWS(commaWsStack.pop());
         }
-        while (!connectorInitNodeStack.empty()) {
-            connectorInitNode.filterConnectors.add(0, connectorInitNodeStack.pop());
-        }
+//        while (!connectorInitNodeStack.empty()) {
+//            connectorInitNode.filterConnectors.add(0, connectorInitNodeStack.pop());
+//        }
         this.addExpressionNode(connectorInitNode);
     }
 
-    public void addFilterConnectorInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
-        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
-        connectorInitNode.pos = pos;
-        connectorInitNode.addWS(ws);
-        connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
-        if (exprAvailable) {
-            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
-            connectorInitNode.addWS(commaWsStack.pop());
-        }
-        this.connectorInitNodeStack.push(connectorInitNode);
-    }
+//    public void addFilterConnectorInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
+//        BLangConnectionInit connectorInitNode = (BLangConnectionInit) TreeBuilder.createConnectionInitNode();
+//        connectorInitNode.pos = pos;
+//        connectorInitNode.addWS(ws);
+//        connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
+//        if (exprAvailable) {
+//            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+//            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
+//            connectorInitNode.addWS(commaWsStack.pop());
+//        }
+//        this.connectorInitNodeStack.push(connectorInitNode);
+//    }
 
     private void addStmtToCurrentBlock(StatementNode statement) {
         this.blockNodeStack.peek().addStatement(statement);
@@ -975,9 +986,9 @@ public class BLangPackageBuilder {
         /* end of connector definition header, so let's populate 
          * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        if (!this.varStack.empty()) {
-            connectorNode.setFilteredParamter(this.varStack.pop());
-        }
+//        if (!this.varStack.empty()) {
+//            connectorNode.setFilteredParamter(this.varStack.pop());
+//        }
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(connectorNode::addParameter);
         }

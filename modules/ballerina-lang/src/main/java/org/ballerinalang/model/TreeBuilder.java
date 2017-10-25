@@ -82,6 +82,7 @@ import org.ballerinalang.model.tree.statements.WorkerSendNode;
 import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.tree.types.ConnectionTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
@@ -108,7 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectionInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -152,6 +153,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConnectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -252,6 +254,10 @@ public class TreeBuilder {
         return new BLangUserDefinedType();
     }
 
+    public static ConnectionTypeNode createConnectionTypeNode() {
+        return new BLangConnectionTypeNode();
+    }
+
     public static BuiltInReferenceTypeNode createBuiltInReferenceTypeNode() {
         return new BLangBuiltInRefTypeNode();
     }
@@ -304,8 +310,8 @@ public class TreeBuilder {
         return new BLangLambdaFunction();
     }
 
-    public static ConnectorInitNode createConnectorInitNode() {
-        return new BLangConnectorInit();
+    public static ConnectorInitNode createConnectionInitNode() {
+        return new BLangConnectionInit();
     }
 
     public static StructNode createStructNode() {

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConnectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -344,6 +345,15 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
+    }
+
+    public void visit(BLangConnectionTypeNode connectionType) {
+        BSymbol pkgSymbol = resolvePkgSymbol(connectionType.pos, this.env,
+                names.fromIdNode(connectionType.pkgAlias));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            resultType = symTable.errType;
+            return;
+        }
     }
 
     public void visit(BLangArrayType arrayTypeNode) {

@@ -42,6 +42,8 @@ public class TreeUtils {
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("type", TypeKind.TYPE);
         stringTypeKindMap.put("message", TypeKind.MESSAGE);
+        stringTypeKindMap.put("connection", TypeKind.CONNECTION);
+        stringTypeKindMap.put("endpoint", TypeKind.ENDPOINT);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

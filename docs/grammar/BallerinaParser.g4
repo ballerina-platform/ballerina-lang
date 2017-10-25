@@ -76,7 +76,7 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
@@ -184,8 +184,12 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_DATATABLE
-    |   TYPE_CONNECTION (LT Identifier? GT)
+    |   connectionTypeName
     |   functionTypeName
+    ;
+
+connectionTypeName
+    :   TYPE_CONNECTION (LT Identifier? GT)
     ;
 
 functionTypeName
@@ -283,12 +287,12 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectionInitExpression
+connectionInit
     :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 endpointDeclaration
-    :   endpointDefinition LEFT_BRACE ((nameReference | connectionInitExpression) SEMICOLON)? RIGHT_BRACE
+    :   endpointDefinition LEFT_BRACE (expression SEMICOLON)? RIGHT_BRACE
     ;
 
 endpointDefinition
@@ -297,7 +301,6 @@ endpointDefinition
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectionInitExpression SEMICOLON
     ;
 
 variableReferenceList
@@ -485,6 +488,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectionInit                                                      # connectionInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression

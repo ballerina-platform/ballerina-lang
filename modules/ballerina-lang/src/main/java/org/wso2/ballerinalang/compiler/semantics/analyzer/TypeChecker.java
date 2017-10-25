@@ -43,7 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectionInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -414,7 +414,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     }
 
-    public void visit(BLangConnectorInit cIExpr) {
+    public void visit(BLangConnectionInit cIExpr) {
         Name connectorName = names.fromIdNode(cIExpr.connectorType.getTypeName());
         BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
                 this.env, names.fromIdNode(cIExpr.connectorType.pkgAlias), connectorName);
@@ -921,7 +921,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
-    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
+    private void checkConnectorInitTypes(BLangConnectionInit iExpr, BType actualType, Name connName) {
         int expected = expTypes.size();
         if (expTypes.size() > 1) {
             dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);
