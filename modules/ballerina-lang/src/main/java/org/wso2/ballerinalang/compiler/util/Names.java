@@ -47,6 +47,7 @@ public class Names {
     // Built in Names.
     public static final Name BUILTIN_DOCS_PACKAGE = new Name("ballerina.builtin.docs");
     public static final Name BUILTIN_SYSTEM_PACKAGE = new Name("ballerina.builtin.systemlib");
+    public static final Name BUILTIN_STRING_PACKAGE = new Name("ballerina.builtin.stringlib");
 
     public CompilerContext context;
 
