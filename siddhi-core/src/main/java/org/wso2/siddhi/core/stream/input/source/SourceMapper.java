@@ -86,12 +86,27 @@ public abstract class SourceMapper implements SourceEventListener {
             inputEventHandlerCallback = new PassThroughSourceHandler(inputHandler);
         }
         this.inputEventHandler = new InputEventHandler(inputHandler, transportMappings,
-                trpProperties, sourceType, siddhiAppContext, inputEventHandlerCallback);
+                                                       trpProperties, sourceType, siddhiAppContext,
+                                                       inputEventHandlerCallback);
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {
         try {
             if (eventObject != null) {
+                if (!allowNullInTransportProperties()) {
+                    for (String property : transportProperties) {
+                        if (property == null) {
+                            log.error("Dropping event " + eventObject.toString() + " belonging to stream " +
+                                              sourceHandler.getInputHandler().getStreamId()
+                                              + " as it contains null transport properties and system "
+                                              + "is configured to not allow null transport properties. You can "
+                                              + "configure it via source mapper if the respective "
+                                              + "mapper type allows it. Refer mapper documentation to verify "
+                                              + "supportability");
+                        return;
+                        }
+                    }
+                }
                 trpProperties.set(transportProperties);
                 mapAndProcess(eventObject, inputEventHandler);
             }
@@ -121,4 +136,14 @@ public abstract class SourceMapper implements SourceEventListener {
     protected abstract void mapAndProcess(Object eventObject,
                                           InputEventHandler inputEventHandler)
             throws InterruptedException;
+
+    /**
+     * Method used by {@link SourceMapper} to determine on how to handle transport properties with null values. If
+     * this returns 'false' then {@link SourceMapper} will drop any event/s with null transport
+     * property values. If this returns
+     * 'true' then {@link SourceMapper} will send events even though they contains null transport properties.
+     * This method will be called after init().
+     * @return whether {@link SourceMapper} should allow or drop events when transport properties are null.
+     */
+    protected abstract boolean allowNullInTransportProperties();
 }

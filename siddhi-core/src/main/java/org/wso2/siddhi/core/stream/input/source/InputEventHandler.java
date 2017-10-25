@@ -72,6 +72,7 @@ public class InputEventHandler {
     public void sendEvents(Event[] events) throws InterruptedException {
         try {
             String[] transportProperties = trpProperties.get();
+            trpProperties.remove();
             for (int i = 0; i < transportMapping.size(); i++) {
                 AttributeMapping attributeMapping = transportMapping.get(i);
                 for (Event event : events) {
