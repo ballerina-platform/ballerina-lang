@@ -91,7 +91,7 @@ public class TestExecutionListener implements IExecutionListener {
      */
     public static Server getServerInstance() {
         if (newServer == null || !newServer.isRunning()) {
-            throw new RuntimeException("Server in not started Properly");
+            throw new RuntimeException("Server startup failed");
         }
         return newServer;
     }
