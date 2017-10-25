@@ -64,7 +64,7 @@ class FileDeleteConfirmDialog extends React.Component {
                         </Col>
                         <Col md={10}>
                             <h4 style={{ marginTop: 0 }}>
-                                {`Are you sure you want to delete "${this.props.target}"
+                                {`Are you sure you want to delete the "${this.props.target}"
                                     ${this.props.isFolder ? ' and its contents' : ''} ?`}
                             </h4>
                             <p>
