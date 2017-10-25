@@ -75,6 +75,9 @@ class TopLevelNodes extends React.Component {
     componentWillReceiveProps() {
         const model = this.props.model;
         this.packageDefValue = this.getPackageName(model);
+        if (!this.packageDefValue) {
+            this.setState({ packageDefExpanded: false });
+        }
     }
 
     /**
