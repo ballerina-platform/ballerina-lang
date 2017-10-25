@@ -174,7 +174,11 @@ class CompoundStatementDecorator extends React.Component {
         const { bBox } = this.props;
         const breakpointHalf = breakpointSize / 2;
         const pointX = bBox.getRight() - breakpointHalf;
-        const pointY = (bBox.y + statement.gutter.v) - breakpointHalf;
+        const { model: { viewState } } = this.props;
+        const statementBBox = viewState.components['statement-box'];
+        const { designer } = this.context;
+        const headerHeight = viewState.components['block-header'].h;
+        const pointY = statementBBox.y - breakpointHalf;
         return (
             <Breakpoint
                 x={pointX}
