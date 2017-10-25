@@ -76,7 +76,7 @@ public abstract class SourceMapper implements SourceEventListener {
 
     public final void setInputHandler(InputHandler inputHandler) {
         InputEventHandlerImpl inputEventHandlerImpl = new InputEventHandlerImpl(inputHandler, transportMappings,
-                trpProperties, sourceType, siddhiAppContext);
+                trpProperties, sourceType, siddhiAppContext, isFailOnMissingAttribute());
         if (sourceHandler != null) {
             sourceHandler.setInputEventHandlerImpl(inputEventHandlerImpl);
             this.inputEventHandler = sourceHandler;
@@ -117,4 +117,14 @@ public abstract class SourceMapper implements SourceEventListener {
     protected abstract void mapAndProcess(Object eventObject,
                                           InputEventHandler inputEventHandler)
             throws InterruptedException;
+
+    /**
+     * Method used by {@link InputEventHandler} to determine on how to handle events with null attributes. If this
+     * returns 'true' then {@link InputEventHandler} will drop any event with null attributes in it. If this returns
+     * 'false' then {@link InputEventHandler} will send events even though they contains null attributes. This can
+     * either be a static value or uer defined value. To make this user defined Mapper developer should read user
+     * configurations and set the value return by this method according to user input.
+     * @return whether {@link InputEventHandler} should drop events when attributes are null.
+     */
+    public abstract boolean isFailOnMissingAttribute();
 }

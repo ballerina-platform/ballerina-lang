@@ -38,14 +38,17 @@ public class InputEventHandlerImpl implements InputEventHandler {
     private SiddhiAppContext siddhiAppContext;
     private InputHandler inputHandler;
     private List<AttributeMapping> transportMapping;
+    private boolean failOnMissingAttribute;
 
     InputEventHandlerImpl(InputHandler inputHandler, List<AttributeMapping> transportMapping,
-                      ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext) {
+                          ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext,
+                          boolean failOnMissingAttribute) {
         this.inputHandler = inputHandler;
         this.transportMapping = transportMapping;
         this.trpProperties = trpProperties;
         this.sourceType = sourceType;
         this.siddhiAppContext = siddhiAppContext;
+        this.failOnMissingAttribute = failOnMissingAttribute;
     }
 
     @Override
