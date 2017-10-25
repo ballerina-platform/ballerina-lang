@@ -295,9 +295,20 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + join(node.workers, pretty, l, w, '') + outdent() + w() + '}';
             }
         case 'FunctionType':
-            return w() + 'function' + w() + '('
+            if (node.paramTypeNode && node.returnKeywordExists
+                         && node.returnParamTypeNode) {
+                return w() + 'function' + w() + '('
                  + join(node.paramTypeNode, pretty, l, w, '', ',') + w() + ')' + w() + 'returns' + w() + '('
                  + join(node.returnParamTypeNode, pretty, l, w, '') + w() + ')';
+            } else if (node.paramTypeNode && node.returnParamTypeNode
+                         && node.returnParamTypeNode.length) {
+                return w() + 'function' + w() + '('
+                 + join(node.paramTypeNode, pretty, l, w, '', ',') + w() + ')' + w() + '('
+                 + join(node.returnParamTypeNode, pretty, l, w, '') + w() + ')';
+            } else {
+                return w() + 'function' + w() + '('
+                 + join(node.paramTypeNode, pretty, l, w, '', ',') + w() + ')';
+            }
         case 'If':
             if (node.condition && node.body && node.elseStatement
                          && node.ladderParent) {

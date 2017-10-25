@@ -116,6 +116,8 @@ Function
 
 FunctionType
    : function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> ( <returnParamTypeNode>* )
+   | function ( <paramTypeNode-joined-by,>* ) ( <returnParamTypeNode>+ )
+   | function ( <paramTypeNode-joined-by,>* )
    ;
 
 If
