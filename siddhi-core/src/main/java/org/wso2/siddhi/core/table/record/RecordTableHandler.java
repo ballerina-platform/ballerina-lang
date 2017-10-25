@@ -31,7 +31,7 @@ import java.util.Map;
  * RecordTableHandler is an optional handler that can be implemented to do processing on output events before sending
  * to the AbstractRecordTable.
  */
-public abstract class RecordTableHandler implements Snapshotable {
+public abstract class RecordTableHandler {
 
     private String elementId;
     private RecordTableHandlerCallback recordTableHandlerCallback;
