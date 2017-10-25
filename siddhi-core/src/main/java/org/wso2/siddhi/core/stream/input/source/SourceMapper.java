@@ -138,12 +138,12 @@ public abstract class SourceMapper implements SourceEventListener {
             throws InterruptedException;
 
     /**
-     * Method used by {@link InputEventHandler} to determine on how to handle transport properties with null values. If
-     * this returns 'false' then {@link InputEventHandler} will drop any event with null transport
-     * property values in it. If this returns
-     * 'true' then {@link InputEventHandler} will send events even though they contains null transport properties.
+     * Method used by {@link SourceMapper} to determine on how to handle transport properties with null values. If
+     * this returns 'false' then {@link SourceMapper} will drop any event/s with null transport
+     * property values. If this returns
+     * 'true' then {@link SourceMapper} will send events even though they contains null transport properties.
      * This method will be called after init().
-     * @return whether {@link InputEventHandler} should allow or drop events when transport properties are null.
+     * @return whether {@link SourceMapper} should allow or drop events when transport properties are null.
      */
     protected abstract boolean allowNullInTransportProperties();
 }
