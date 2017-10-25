@@ -372,13 +372,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
-            // Check whether there exists a struct field with the same name as the function name.
             BTypeSymbol structSymbol = funcNode.receiver.type.tsymbol;
-            BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
-                    names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-            if (symbol != symTable.notFoundSymbol) {
-                dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                        funcNode.name.value, funcNode.receiver.type.toString());
+            // Check whether there exists a struct field with the same name as the function name.
+            if (structSymbol.tag == TypeTags.STRUCT) {
+                BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
+                        names.fromIdNode(funcNode.name), SymTag.VARIABLE);
+                if (symbol != symTable.notFoundSymbol) {
+                    dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
+                            funcNode.name.value, funcNode.receiver.type.toString());
+                }
             }
 
             defineNode(funcNode.receiver, invokableEnv);
@@ -843,6 +845,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType varType = symResolver.resolveTypeNode(funcNode.receiver.typeNode, env);
         funcNode.receiver.type = varType;
         if (varType.tag == TypeTags.ERROR) {
+            return;
+        }
+
+        if (this.env.enclPkg.pkgDecl != null &&
+                this.env.enclPkg.pkgDecl.getPackageNameStr().startsWith(Names.BUILTIN_PACKAGE.value)) {
             return;
         }
 

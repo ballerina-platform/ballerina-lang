@@ -82,7 +82,7 @@ public class Compiler {
     }
 
     public void compile(String sourcePkg) {
-        loadBuiltInPackage();
+        BLangPackage builtInPackage = loadBuiltInPackage();
         if (this.stopCompilation(CompilerPhase.DEFINE)) {
             return;
         }
@@ -101,7 +101,7 @@ public class Compiler {
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
-
+        desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
             return;
@@ -110,7 +110,7 @@ public class Compiler {
         gen(pkgNode);
     }
 
-    private void loadBuiltInPackage() {
+    private BLangPackage loadBuiltInPackage() {
         BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         symbolTable.createErrorTypes();
@@ -118,6 +118,8 @@ public class Compiler {
         // Load other built-in packages.
         mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_DOCS_PACKAGE), builtInPkg);
         mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_SYSTEM_PACKAGE), builtInPkg);
+        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_STRING_PACKAGE), builtInPkg);
+        return builtInPkg;
     }
 
     public ProgramFile getCompiledProgram() {
@@ -208,6 +210,6 @@ public class Compiler {
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return desugar(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue()))));
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
     }
 }
