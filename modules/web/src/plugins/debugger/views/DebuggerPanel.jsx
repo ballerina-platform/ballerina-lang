@@ -224,9 +224,9 @@ class DebuggerPanel extends View {
                         </div>
                         <div
                             type="button"
-                            id="start_debug"
+                            id="start_remote_debug"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Application"
+                            title="Remote Debug"
                             onClick={this.showRemoteDebugDialog}
                         >
                             <span className="launch-label">Remote Debug</span>
