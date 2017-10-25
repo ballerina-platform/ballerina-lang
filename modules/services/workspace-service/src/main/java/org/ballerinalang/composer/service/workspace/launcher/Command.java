@@ -149,18 +149,19 @@ public class Command {
         BLangCompilationUnit currentBLangCompilationUnit = ballerinaFile.getBLangPackage().compUnits.get(0);
         List<TopLevelNode> topLevelNodes = currentBLangCompilationUnit.getTopLevelNodes();
         // filter out the BLangPackageDeclaration from top level nodes list
-        BLangPackageDeclaration bLangPackageDeclaration = (BLangPackageDeclaration) topLevelNodes.stream()
-                .filter(topLevelNode ->  topLevelNode instanceof BLangPackageDeclaration)
-                .collect(Collectors.toList()).get(0);
-
-        if (bLangPackageDeclaration != null) {
-            List<String> pkgNameCompsInString = bLangPackageDeclaration.pkgNameComps.stream()
-                    .map(WorkspaceUtils.B_LANG_IDENTIFIER_TO_STRING).collect(Collectors.<String>toList());
-            if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
-                packagePath = String.join(File.separator, pkgNameCompsInString);
-                packageDir = Utils.getProgramDirectory(
-                        pkgNameCompsInString.size(), Paths.get(scriptLocation)
-                ).toString();
+        List<TopLevelNode> bLangPackageDeclarations = topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangPackageDeclaration).collect(Collectors.toList());
+        if (!bLangPackageDeclarations.isEmpty()) {
+            BLangPackageDeclaration bLangPackageDeclaration = (BLangPackageDeclaration) bLangPackageDeclarations.get(0);
+            if (bLangPackageDeclaration != null) {
+                List<String> pkgNameCompsInString = bLangPackageDeclaration.pkgNameComps.stream()
+                        .map(WorkspaceUtils.B_LANG_IDENTIFIER_TO_STRING).collect(Collectors.<String>toList());
+                if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
+                    packagePath = String.join(File.separator, pkgNameCompsInString);
+                    packageDir = Utils.getProgramDirectory(
+                            pkgNameCompsInString.size(), Paths.get(scriptLocation)
+                    ).toString();
+                }
             }
         }
         if (packagePath == null) {
