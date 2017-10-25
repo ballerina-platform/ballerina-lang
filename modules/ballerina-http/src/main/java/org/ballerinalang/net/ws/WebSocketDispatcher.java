@@ -111,7 +111,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
-        Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING_MESSAGE);
+        Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             return;
         }
@@ -125,7 +125,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
-        Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG_MESSAGE);
+        Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;
         }

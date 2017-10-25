@@ -40,8 +40,8 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
     public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
-    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "onPingMessage";
-    public static final String RESOURCE_NAME_ON_PONG_MESSAGE = "onPongMessage";
+    public static final String RESOURCE_NAME_ON_PING = "onPing";
+    public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
     public static final String RESOURCE_NAME_ON_ERROR = "onError";
