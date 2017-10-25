@@ -47,7 +47,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private String interfaceId;
-    private boolean chunkDisabled;
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfiguration requestSizeValidationConfig;
@@ -94,10 +93,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
             pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
         }
-        pipeline.addLast("compressor", new CustomHttpContentCompressor(chunkDisabled));
-        if (!chunkDisabled) {
-            pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
-        }
+        pipeline.addLast("compressor", new CustomHttpContentCompressor());
+        pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
@@ -142,10 +139,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setSslConfig(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
-    }
-
-    public void setChunkingDisabled(boolean chunkDisabled) {
-        this.chunkDisabled = chunkDisabled;
     }
 
     public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {

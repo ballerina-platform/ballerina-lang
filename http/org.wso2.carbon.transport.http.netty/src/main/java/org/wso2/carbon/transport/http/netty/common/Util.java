@@ -149,20 +149,6 @@ public class Util {
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
             setTransferEncodingHeader(cMsg);
         }
-
-
-
-
-//        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null && chunkDisabled) {
-//            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-//            setContentLength(cMsg);
-//            return;
-//        }
-//        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null && !chunkDisabled) {
-//            cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-//        } else {
-//            setContentLength(cMsg);
-//        }
     }
 
     private static void  setContentLength(HTTPCarbonMessage cMsg) {

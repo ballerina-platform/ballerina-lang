@@ -14,7 +14,11 @@ import java.util.List;
 public class CustomHttpContentCompressor extends HttpContentCompressor {
 
     private HttpMethod method;
-    private boolean chunkDisabled;
+    private boolean chunkDisabled = false;
+
+    public CustomHttpContentCompressor() {
+        super();
+    }
 
     public CustomHttpContentCompressor(boolean chunkDisabled) {
         super();

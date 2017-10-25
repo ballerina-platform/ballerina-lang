@@ -64,9 +64,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("compressor", new CustomHttpContentCompressor(chunkDisabled));
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
-        if (!chunkDisabled) {
-            ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
-        }
+        ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));

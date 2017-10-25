@@ -148,10 +148,6 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
-    public void addChunkedWriteHandler(boolean chunkDisabled) {
-        httpServerChannelInitializer.setChunkingDisabled(chunkDisabled);
-    }
-
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfiguration requestSizeValidationConfig) {
         httpServerChannelInitializer.setRequestSizeValidationConfig(requestSizeValidationConfig);
     }

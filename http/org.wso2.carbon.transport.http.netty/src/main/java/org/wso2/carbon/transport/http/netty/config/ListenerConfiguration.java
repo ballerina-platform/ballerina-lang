@@ -87,9 +87,6 @@ public class ListenerConfiguration {
     private boolean httpTraceLogEnabled;
 
     @XmlAttribute
-    private boolean chunkDisabled;
-
-    @XmlAttribute
     private String verifyClient;
 
     @XmlAttribute
@@ -262,14 +259,6 @@ public class ListenerConfiguration {
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
-    }
-
-    public boolean isChunkDisabled() {
-        return chunkDisabled;
-    }
-
-    public void setChunkDisabled(boolean chunkDisabled) {
-        this.chunkDisabled = chunkDisabled;
     }
 
     public RequestSizeValidationConfiguration getRequestSizeValidationConfig() {
