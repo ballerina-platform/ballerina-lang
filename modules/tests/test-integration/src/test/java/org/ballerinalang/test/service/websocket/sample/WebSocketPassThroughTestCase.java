@@ -29,6 +29,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Test class for WebSocket client connector.
@@ -75,6 +77,31 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
             assertWebSocketClientStringMessage(wsClients[i], expectedMessage, threadSleepTime,
                                                messageDeliveryCountDown);
         }
+    }
+
+    @Test(priority = 1)
+    public void testPingPongSupport() throws IOException, InterruptedException {
+        WebSocketClient client = wsClients[0];
+
+        // Test ping and receive pong from server
+        client.sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+        Thread.sleep(threadSleepTime);
+        Assert.assertTrue(client.isPong());
+
+        // Test ping and receive pong from remote server when ballerina client send a ping
+        client.sendText("client_ping");
+        Thread.sleep(threadSleepTime);
+        Assert.assertEquals(client.getTextReceived(), "remote_server_pong");
+
+        // Test ping received from server
+        client.sendText("ping");
+        Thread.sleep(threadSleepTime);
+        Assert.assertTrue(client.isPing());
+
+        // Test ping received from remote server
+        client.sendText("client_ping_req");
+        Thread.sleep(threadSleepTime);
+        Assert.assertEquals(client.getTextReceived(), "remote_server_ping");
     }
 
     @Test(priority = 2)
