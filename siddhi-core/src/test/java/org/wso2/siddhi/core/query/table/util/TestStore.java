@@ -65,12 +65,12 @@ public class TestStore extends AbstractRecordTable {
     }
 
     @Override
-    public void add(List<Object[]> records) throws ConnectionUnavailableException {
+    protected void add(List<Object[]> records) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
     @Override
-    public RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
+    protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition)
             throws ConnectionUnavailableException {
         //Not Applicable
@@ -78,21 +78,21 @@ public class TestStore extends AbstractRecordTable {
     }
 
     @Override
-    public boolean contains(Map<String, Object> containsConditionParameterMap,
+    protected boolean contains(Map<String, Object> containsConditionParameterMap,
                                CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         //Not Applicable
         return false;
     }
 
     @Override
-    public void delete(List<Map<String, Object>> deleteConditionParameterMaps,
+    protected void delete(List<Map<String, Object>> deleteConditionParameterMaps,
                           CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
 
     @Override
-    public void update(CompiledCondition updateCondition,
+    protected void update(CompiledCondition updateCondition,
                           List<Map<String, Object>> updateConditionParameterMaps,
                           Map<String, CompiledExpression> updateSetExpressions,
                           List<Map<String, Object>> updateSetParameterMaps) throws ConnectionUnavailableException {
@@ -111,7 +111,7 @@ public class TestStore extends AbstractRecordTable {
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     @Override
-    public void updateOrAdd(CompiledCondition updateCondition,
+    protected void updateOrAdd(CompiledCondition updateCondition,
                                List<Map<String, Object>> updateConditionParameterMaps,
                                Map<String, CompiledExpression> updateSetExpressions,
                                List<Map<String, Object>> updateSetParameterMaps,
@@ -121,7 +121,7 @@ public class TestStore extends AbstractRecordTable {
     }
 
     @Override
-    public CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
+    protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
         return null;    //not implemented
     }
 
@@ -133,7 +133,7 @@ public class TestStore extends AbstractRecordTable {
      * updateOrAdd
      */
     @Override
-    public CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder) {
+    protected CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder) {
         return null;
     }
 
