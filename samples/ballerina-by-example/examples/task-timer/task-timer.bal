@@ -17,9 +17,9 @@ function main (string[] args) {
         interval, e2 = <int>args[1];
     }
     task:TimerScheduler ts = {delay:delay, interval:interval};
-    function () returns (json) onTriggerFunction;
-    onTriggerFunction = returnDummyMessage;
-    function () returns (any) onErrorFunction;
+    function () onTriggerFunction;
+    onTriggerFunction = testFunction;
+    function (any) onErrorFunction;
     onErrorFunction = null;
 
     schedulerTaskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, ts);
@@ -31,13 +31,9 @@ function main (string[] args) {
     system:sleep(100000);
 }
 
-function returnDummyMessage () returns (json) {
+function testFunction () {
     int i = 0;
     while(i < 10000) {
         i = i + 10;
     }
-    json dummyJSON = {name:"Foo", address:"Bar"};
-    logger:info("Sample JSON object is returned:");
-    logger:info(dummyJSON);
-    return dummyJSON;
 }

@@ -32,8 +32,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
-import static org.ballerinalang.nativeimpl.task.TaskScheduler.getScheduleTaskErrorsMap;
-
 /**
  * Native function ballerina.model.task:scheduleAppointment.
  */
@@ -74,12 +72,15 @@ public class ScheduleAppointment extends AbstractNativeFunction {
                     + dayOfWeek + " " + dayOfMonth + " " + month);
         }
         int taskId = TaskUtil.generateTaskId();
-        TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
-                onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-        String errorFromScheduler = getScheduleTaskErrorsMap().get(taskId);
-        String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
+        String errorFromScheduler = "";
+        try {
+            TaskScheduler.triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month,
+                    onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+        } catch (SchedulingFailedException e) {
+            errorFromScheduler = e.getMessage();
+        }
         taskId = errorFromScheduler == null || errorFromScheduler.isEmpty() ? taskId : -1;
-        BString error = new BString(schedulerError);
+        BString error = new BString(errorFromScheduler);
         return getBValues(new BInteger(taskId), error);
     }
 }

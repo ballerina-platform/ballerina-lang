@@ -45,11 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
-    private static HashMap<Integer, String> timersMap = new HashMap<>();
-    private static HashMap<Integer, ScheduledExecutorService> executorServiceMap = new HashMap<>();
-    private static HashMap<Integer, Long> taskLifeTimeMap = new HashMap<>();
-    private static HashMap<Integer, String> scheduleTaskErrorsMap = new HashMap<>();
-    private static HashMap<Integer, String> stopTaskErrorsMaps = new HashMap<>();
+    private static HashMap<Integer, Appointment> executorServiceMap = new HashMap<>();
 
     /**
      * Triggers the timer.
@@ -60,16 +56,21 @@ public class TaskScheduler {
      * @param interval          The interval between two task executions.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
+     * @throws SchedulingFailedException
      */
     static void triggerTimer(Context ctx, int taskId, long delay, long interval, FunctionRefCPEntry onTriggerFunction,
-                             FunctionRefCPEntry onErrorFunction) {
+                             FunctionRefCPEntry onErrorFunction) throws SchedulingFailedException {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Constant.POOL_SIZE);
         try {
             final Runnable schedulerFunc = () -> {
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_TIMER + taskId + " starts the execution");
                 }
-                triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
+                try {
+                    triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
+                } catch (SchedulingFailedException e) {
+                    log.error(e.getMessage());
+                }
                 //Call the onTrigger function.
                 callFunction(ctx, onTriggerFunction, onErrorFunction);
             };
@@ -79,12 +80,10 @@ public class TaskScheduler {
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
                 }
-                String logFromMap = timersMap.get(taskId);
-                String log = logFromMap != null && !logFromMap.isEmpty() ? logFromMap + Constant.PREFIX_TIMER + taskId
-                        + Constant.DELAY_HINT + delay + "] MILLISECONDS" : Constant.PREFIX_TIMER + taskId
-                        + Constant.DELAY_HINT + delay + "] MILLISECONDS";
-                timersMap.put(taskId, log);
-                executorServiceMap.put(taskId, executorService);
+                Appointment appointment = new Appointment();
+                appointment.setExecutorService(executorService);
+                appointment.setLifeTime(0L);
+                executorServiceMap.put(taskId, appointment);
             } else {
                 if (interval > 0) {
                     //Schedule the service with the provided delay.
@@ -92,29 +91,17 @@ public class TaskScheduler {
                     if (log.isDebugEnabled()) {
                         log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
                     }
-                    String logFromMap = timersMap.get(taskId);
-                    String log = logFromMap != null && !logFromMap.isEmpty() ? logFromMap + Constant.PREFIX_TIMER
-                            + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS" : Constant.PREFIX_TIMER + taskId
-                            + Constant.DELAY_HINT + interval + "] MILLISECONDS";
-                    timersMap.put(taskId, log);
-                    //Add the executor service into the context.
-                    executorServiceMap.put(taskId, executorService);
+                    //Add the executor service into the map.
+                    Appointment appointment = new Appointment();
+                    appointment.setExecutorService(executorService);
+                    appointment.setLifeTime(0L);
+                    executorServiceMap.put(taskId, appointment);
                 } else {
-                    log.error("The vale of interval is invalid");
-                    String errorFromMap = scheduleTaskErrorsMap.get(taskId);
-                    String error = errorFromMap != null && !errorFromMap.isEmpty() ?
-                            errorFromMap + ",The vale of interval must be greater than 0" :
-                            "The vale of interval must be greater than 0";
-                    scheduleTaskErrorsMap.put(taskId, error);
+                    throw new SchedulingFailedException("The vale of interval is invalid");
                 }
             }
         } catch (RejectedExecutionException | IllegalArgumentException e) {
-            log.error("Error occurred while scheduling the task: " + e.getMessage());
-            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
-            String error = errorFromMap != null && !errorFromMap.isEmpty() ?
-                    errorFromMap + "," + e.getMessage() :
-                    e.getMessage();
-            scheduleTaskErrorsMap.put(taskId, error);
+            throw new SchedulingFailedException("Error occurred while scheduling the timer: " + e.getMessage());
         }
     }
 
@@ -130,24 +117,31 @@ public class TaskScheduler {
      * @param month             The value of the month in the appointment expression.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
+     * @throws SchedulingFailedException
      */
-    static void triggerAppointment(Context ctx, int taskId, int minute, int hour, int dayOfWeek,
-                                   int dayOfMonth, int month, FunctionRefCPEntry onTriggerFunction,
-                                   FunctionRefCPEntry onErrorFunction) {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    static void triggerAppointment(Context ctx, int taskId, int minute, int hour, int dayOfWeek, int dayOfMonth,
+                                   int month, FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction)
+            throws SchedulingFailedException {
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Constant.POOL_SIZE);
         try {
             final Runnable schedulerFunc = () -> {
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_APPOINTMENT + taskId + " starts the execution");
                 }
-                if (taskLifeTimeMap.get(taskId) != null && taskLifeTimeMap.get(taskId) > 0) {
-                    //Set the life time to 0 and trigger every minute.
-                    taskLifeTimeMap.put(taskId, 0L);
-                    triggerAppointment(ctx, taskId, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, dayOfWeek,
-                            dayOfMonth, month, onTriggerFunction, onErrorFunction);
-                } else {
-                    triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
-                            onErrorFunction);
+                try {
+                    if (executorServiceMap.get(taskId) != null && executorServiceMap.get(taskId).getLifeTime() > 0) {
+                        //Set the life time to 0 and trigger every minute.
+                        Appointment appointment = executorServiceMap.get(taskId);
+                        appointment.setLifeTime(0L);
+                        executorServiceMap.put(taskId, appointment);
+                        triggerAppointment(ctx, taskId, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, dayOfWeek,
+                                dayOfMonth, month, onTriggerFunction, onErrorFunction);
+                    } else {
+                        triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
+                                onErrorFunction);
+                    }
+                } catch (SchedulingFailedException e) {
+                    log.error(e.getMessage());
                 }
                 //Call the onTrigger function.
                 callFunction(ctx, onTriggerFunction, onErrorFunction);
@@ -157,72 +151,84 @@ public class TaskScheduler {
             if (delay != -1) {
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
                 //Get the execution life time.
-                long period = taskLifeTimeMap.get(taskId) != null ? taskLifeTimeMap.get(taskId) : 0L;
-                //Add the executor service into the context.
-                executorServiceMap.put(taskId, executorService);
+
+                long period = executorServiceMap.get(taskId) != null ? executorServiceMap.get(taskId).getLifeTime()
+                        : 0L;
+                //Add the executor service into the map.
+                Appointment appointment = new Appointment();
+                appointment.setExecutorService(executorService);
                 if (period > 0) {
                     //Calculate the actual execution lifetime from the delay and calculated value.
                     period = delay + period;
-                    taskLifeTimeMap.put(taskId, period);
+                    appointment.setLifeTime(period);
+                    executorServiceMap.put(taskId, appointment);
                     //Trigger stop if the execution lifetime > 0.
-                    stopExecution(taskId, period);
+                    stopExecution(taskId, period, ctx, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
+                            onErrorFunction);
+                } else {
+                    appointment.setLifeTime(0L);
+                    executorServiceMap.put(taskId, appointment);
                 }
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_APPOINTMENT + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS "
                             + Constant.SCHEDULER_LIFETIME_HINT + period + "]");
                 }
             }
-        } catch (RuntimeException e) {
-            log.error("Error occurred while scheduling the appointment: " + e.getMessage());
-            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
-            String error = errorFromMap != null && !errorFromMap.isEmpty() ?
-                    errorFromMap + "," + e.getMessage() :
-                    e.getMessage();
-            scheduleTaskErrorsMap.put(taskId, error);
+        } catch (RuntimeException | SchedulingFailedException e) {
+            throw new SchedulingFailedException("Error occurred while scheduling the appointment: " + e.getMessage());
         }
     }
 
     /**
      * Stops the execution.
      *
-     * @param taskId  The identifier of the task.
-     * @param sPeriod The delay to start the task shutdown function.
+     * @param taskId            The identifier of the task.
+     * @param sPeriod           The delay to start the task shutdown function.
+     * @param ctx               The ballerina context.
+     * @param minute            The value of the minute in the appointment expression.
+     * @param hour              The value of the hour in the appointment expression.
+     * @param dayOfWeek         The value of the day of week in the appointment expression.
+     * @param dayOfMonth        The value of the day of month in the appointment expression.
+     * @param month             The value of the month in the appointment expression.
+     * @param onTriggerFunction The main function which will be triggered by the task.
+     * @param onErrorFunction   The function which will be triggered in the error situation.
+     * @throws SchedulingFailedException
      */
-    private static void stopExecution(int taskId, long sPeriod) {
-        ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(1);
-        if (taskId <= 0) {
-            log.error("Invalid task ID " + taskId);
-            stopTaskErrorsMaps.put(taskId, "Invalid task ID " + taskId);
-        } else if (executorServiceMap.get(taskId) != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Attempting to stop the task: " + taskId);
-            }
-            final Runnable schedulerFunc = () -> {
-                //Get the corresponding executor service from context.
-                ScheduledExecutorService executorService = executorServiceMap.get(taskId);
-                try {
-                    //Invoke shutdown of the executor service.
-                    executorService.shutdown();
-                    if (executorService.isShutdown()) {
-                        //Remove the executor service from the context.
-                        timersMap.remove(taskId);
-                        executorServiceMap.remove(taskId);
-                        scheduleTaskErrorsMap.put(taskId, "");
-                        taskLifeTimeMap.put(taskId, 0L);
-                    } else {
-                        log.error("Unable to stop the task");
-                        stopTaskErrorsMaps.put(taskId, "Unable to stop the task ");
-                    }
-                } catch (SecurityException e) {
-                    log.error("Unable to stop the task: " + e.getMessage());
-                    stopTaskErrorsMaps.put(taskId, e.getMessage());
-                }
-            };
-            executorServiceToStopTheTask.schedule(schedulerFunc, sPeriod, TimeUnit.MILLISECONDS);
-        } else {
-            log.error("Unable to find the corresponding task");
-            stopTaskErrorsMaps.put(taskId, "Unable to find the corresponding task");
+    private static void stopExecution(int taskId, long sPeriod, Context ctx, int minute, int hour, int dayOfWeek,
+                                      int dayOfMonth, int month, FunctionRefCPEntry onTriggerFunction,
+                                      FunctionRefCPEntry onErrorFunction)
+            throws SchedulingFailedException {
+        ScheduledExecutorService executorServiceToStopTheTask = Executors.newScheduledThreadPool(Constant.POOL_SIZE);
+        ScheduledExecutorService task;
+        if (executorServiceMap.get(taskId) == null) {
+            throw new SchedulingFailedException("Unable to find the corresponding task");
         }
+        task = executorServiceMap.get(taskId).getExecutorService();
+        if (log.isDebugEnabled()) {
+            log.debug("Attempting to stop the task: " + taskId);
+        }
+        final Runnable schedulerFunc = () -> {
+            //Get the corresponding executor service from map.
+            try {
+                //Invoke shutdown of the executor service.
+                task.shutdown();
+                if (task.isShutdown()) {
+                    //Remove the executor service from the map.
+                    executorServiceMap.remove(taskId);
+                    if (onTriggerFunction != null && sPeriod > 0) {
+                        triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
+                                onErrorFunction);
+                    }
+                } else {
+                    throw new SchedulingFailedException("Unable to stop the task");
+                }
+            } catch (SecurityException e) {
+                log.error("Unable to stop the task: " + e.getMessage());
+            } catch (SchedulingFailedException e) {
+                log.error(e.getMessage());
+            }
+        };
+        executorServiceToStopTheTask.schedule(schedulerFunc, sPeriod, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -270,16 +276,13 @@ public class TaskScheduler {
      * @param month      The value of the month in the appointment expression.
      * @return delay which is used to schedule the appointment.
      */
-    public static long calculateDelay(int taskId, int minute, int hour, int dayOfWeek, int dayOfMonth, int month) {
+    public static long calculateDelay(int taskId, int minute, int hour, int dayOfWeek, int dayOfMonth, int month)
+            throws SchedulingFailedException {
         //Get the Calendar instance.
         Calendar currentTime = Calendar.getInstance();
         if (isInvalidInput(currentTime, minute, hour, dayOfWeek, dayOfMonth, month)) {
             //Validate the fields.
-            log.error("Invalid input");
-            String errorFromMap = scheduleTaskErrorsMap.get(taskId);
-            String error =
-                    errorFromMap != null && !errorFromMap.isEmpty() ? errorFromMap + ",Wrong input" : "Wrong input";
-            scheduleTaskErrorsMap.put(taskId, error);
+            throw new SchedulingFailedException("Wrong input");
         } else {
             //Clone the current time to another instance.
             Calendar executionStartTime = (Calendar) currentTime.clone();
@@ -319,7 +322,6 @@ public class TaskScheduler {
             //Calculate the time difference in MILLI SECONDS.
             return calculateDifference(taskId, executionStartTime);
         }
-        return -1;
     }
 
     /**
@@ -501,7 +503,9 @@ public class TaskScheduler {
                                                           int month) {
         if (minute == Constant.NOT_CONSIDERABLE && hour > Constant.NOT_CONSIDERABLE) {
             //If the hour has considerable value and minute is -1, set the execution lifetime to 59 minutes.
-            taskLifeTimeMap.put(taskId, Constant.LIFETIME);
+            Appointment appointment = new Appointment();
+            appointment.setLifeTime(Constant.LIFETIME);
+            executorServiceMap.put(taskId, appointment);
         }
         if (month > Constant.NOT_CONSIDERABLE) {
             if (executionStartTime.get(Calendar.MONTH) < month) {
@@ -578,15 +582,14 @@ public class TaskScheduler {
                     /*If the execution start time is future and there is a considerable value is passed to the dayOfWeek
                     find the first possible day which is the same day of week.*/
             if (executionStartTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek) {
-                executionStartTime
-                        .add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
+                executionStartTime.add(Calendar.DATE, 7 - (executionStartTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek));
             } else {
-                executionStartTime.add(Calendar.DATE,
-                        dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
+                executionStartTime.add(Calendar.DATE, dayOfWeek - executionStartTime.get(Calendar.DAY_OF_WEEK));
             }
         }
         return executionStartTime;
     }
+
     /**
      * Clone a Calendar into new instance.
      *
@@ -632,18 +635,19 @@ public class TaskScheduler {
      *
      * @param taskId The identifier of the task.
      */
-    static void stopTask(int taskId) {
+    static void stopTask(int taskId) throws SchedulingFailedException {
         //Stop the corresponding task.
-        stopExecution(taskId, 0);
+        stopExecution(taskId, 0, null, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE,
+                Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, null, null);
     }
 
     /**
      * Sets the calendar fields.
      *
-     * @param calendar     The Calendar instance to be modified.
-     * @param ampm         The value of ampm field to set to the Calendar.
-     * @param minutes      The value of the minutes to set to the Calendar.
-     * @param hours        The value of the hours to set to the Calendar.
+     * @param calendar The Calendar instance to be modified.
+     * @param ampm     The value of ampm field to set to the Calendar.
+     * @param minutes  The value of the minutes to set to the Calendar.
+     * @param hours    The value of the hours to set to the Calendar.
      * @return updated Calendar.
      */
     private static Calendar setCalendarFields(Calendar calendar, int ampm, int minutes, int hours) {
@@ -678,25 +682,6 @@ public class TaskScheduler {
      * @return The numeric value.
      */
     public static long getExecutionLifeTime(int taskId) {
-        return taskLifeTimeMap.get(taskId);
-    }
-
-    /**
-     * Returns the log of the timer.
-     *
-     * @param taskId The identifier of the task.
-     * @return The timer log.
-     */
-    public static String getTimerLog(int taskId) {
-        return timersMap.get(taskId);
-    }
-
-
-    public static HashMap<Integer, String> getScheduleTaskErrorsMap() {
-        return scheduleTaskErrorsMap;
-    }
-
-    public static HashMap<Integer, String> getStopTaskErrorsMaps() {
-        return stopTaskErrorsMaps;
+        return executorServiceMap.get(taskId).getLifeTime();
     }
 }

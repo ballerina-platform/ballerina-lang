@@ -24,7 +24,7 @@ public class TestConstant {
     //The info log message which is printed in the onTrigger function of appointment schedule.
     public static final String APPOINTMENT_SUCCESS_MESSAGE = "Temporary directory /tmp/tmpDir is cleaned up";
     //The info log message which is printed in the onTrigger function of timer.
-    public static final String TIMER_SUCCESS_MESSAGE = "Sample JSON object is returned";
+    public static final String TIMER_SUCCESS_MESSAGE = "Loop Completed";
     //The onTrigger function of timer.
     public static final String TIMER_ONTRIGGER_FUNCTION = "scheduleTimer";
     //The onTrigger function of appointment.

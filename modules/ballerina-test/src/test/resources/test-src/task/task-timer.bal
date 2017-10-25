@@ -2,14 +2,14 @@ import ballerina.lang.system;
 import ballerina.task;
 import ballerina.utils.logger;
 
-function scheduleTimer (int delay, int interval, int sleepInterval) returns (int) {
+function scheduleTimer (int delay, int interval, int sleepInterval)  (int) {
 
     int schedulerTaskId = -1;
     any schedulerError;
     task:TimerScheduler ts = {delay:delay, interval:interval};
-    function () returns (json) onTriggerFunction;
+    function () onTriggerFunction;
     onTriggerFunction = returnDummyMessage;
-    function () returns (any) onErrorFunction;
+    function (any) onErrorFunction;
     onErrorFunction = null;
 
     schedulerTaskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, ts);
@@ -23,12 +23,10 @@ function scheduleTimer (int delay, int interval, int sleepInterval) returns (int
     return schedulerTaskId;
 }
 
-function returnDummyMessage () returns (json) {
+function returnDummyMessage () {
     int i = 0;
     while(i < 10000) {
         i = i + 10;
     }
-    json dummyJSON = {name:"Foo", address:"Bar"};
-    logger:info("Sample JSON object is returned");
-    return dummyJSON;
+    logger:info("Loop Completed");
 }

@@ -32,8 +32,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
-import static org.ballerinalang.nativeimpl.task.TaskScheduler.getScheduleTaskErrorsMap;
-
 /**
  * Native function ballerina.model.task:scheduleTimer.
  */
@@ -71,12 +69,15 @@ public class ScheduleTimer extends AbstractNativeFunction {
                     + interval);
         }
         int taskId = TaskUtil.generateTaskId();
-        TaskScheduler
-                .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-        String errorFromScheduler = getScheduleTaskErrorsMap().get(taskId);
-        String schedulerError = errorFromScheduler != null && !errorFromScheduler.isEmpty() ? errorFromScheduler : "";
+        String errorFromScheduler = "";
+        try {
+            TaskScheduler
+                    .triggerTimer(ctx, taskId, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+        } catch (SchedulingFailedException e) {
+            errorFromScheduler = e.getMessage();
+        }
         taskId = errorFromScheduler == null || errorFromScheduler.isEmpty() ? taskId : -1;
-        BString error = new BString(schedulerError);
+        BString error = new BString(errorFromScheduler);
         return getBValues(new BInteger(taskId), error);
     }
 }
