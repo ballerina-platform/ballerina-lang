@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.table.record.RecordTableHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -58,19 +59,22 @@ public abstract class Table implements FindableProcessor {
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ScheduledExecutorService scheduledExecutorService;
     private SiddhiAppContext siddhiAppContext;
+    private RecordTableHandler recordTableHandler;
 
     public void initTable(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                           StreamEventCloner storeEventCloner,
-                          ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+                          ConfigReader configReader, SiddhiAppContext siddhiAppContext,
+                          RecordTableHandler recordTableHandler) {
         this.tableDefinition = tableDefinition;
         this.scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
         this.siddhiAppContext = siddhiAppContext;
-        init(tableDefinition, storeEventPool, storeEventCloner, configReader, siddhiAppContext);
+        this.recordTableHandler = recordTableHandler;
+        init(tableDefinition, storeEventPool, storeEventCloner, configReader, siddhiAppContext, recordTableHandler);
     }
 
     protected abstract void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-                                 StreamEventCloner storeEventCloner,
-                                 ConfigReader configReader, SiddhiAppContext siddhiAppContext);
+                                 StreamEventCloner storeEventCloner, ConfigReader configReader,
+                                 SiddhiAppContext siddhiAppContext, RecordTableHandler recordTableHandler);
 
     public TableDefinition getTableDefinition() {
         return tableDefinition;
@@ -292,6 +296,10 @@ public abstract class Table implements FindableProcessor {
     protected abstract void disconnect();
 
     protected abstract void destroy();
+
+    public RecordTableHandler getHandler() {
+        return recordTableHandler;
+    }
 
     public void shutdown() {
         disconnect();

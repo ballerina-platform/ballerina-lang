@@ -44,6 +44,7 @@ import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -268,6 +269,10 @@ public class SiddhiAppRuntime {
         return sinkMap.values();
     }
 
+    public Collection<Table> getTables() {
+        return tableMap.values();
+    }
+
     public synchronized void start() {
         if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().startReporting();
@@ -344,6 +349,14 @@ public class SiddhiAppRuntime {
         }
 
         for (Table table : tableMap.values()) {
+            RecordTableHandlerManager recordTableHandlerManager = siddhiAppContext.getSiddhiContext().
+                    getRecordTableHandlerManager();
+            if (recordTableHandlerManager != null) {
+                String elementId = table.getHandler().getElementId();
+                if (elementId != null) {
+                    recordTableHandlerManager.unregisterRecordTableHandler(elementId);
+                }
+            }
             table.shutdown();
         }
 

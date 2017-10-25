@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.record.RecordTableHandler;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -61,7 +62,8 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     @Override
 public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-            StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+                 StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext,
+                 RecordTableHandler recordTableHandler) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 

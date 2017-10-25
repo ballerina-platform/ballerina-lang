@@ -41,6 +41,8 @@ import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.table.record.RecordTableHandler;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.trigger.CronTrigger;
 import org.wso2.siddhi.core.trigger.PeriodicTrigger;
 import org.wso2.siddhi.core.trigger.StartTrigger;
@@ -172,6 +174,8 @@ public class DefinitionParserHelper {
 
             Table table;
             ConfigReader configReader = null;
+            RecordTableHandlerManager recordTableHandlerManager = null;
+            RecordTableHandler recordTableHandler = null;
             if (annotation != null) {
                 annotation = updateAnnotationRef(annotation, SiddhiConstants.NAMESPACE_STORE, siddhiAppContext);
                 String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -186,6 +190,10 @@ public class DefinitionParserHelper {
                         return tableType;
                     }
                 };
+                recordTableHandlerManager = siddhiAppContext.getSiddhiContext().getRecordTableHandlerManager();
+                if (recordTableHandlerManager != null) {
+                    recordTableHandler = recordTableHandlerManager.generateRecordTableHandler();
+                }
                 table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
                         TableExtensionHolder.getInstance(siddhiAppContext));
                 configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
@@ -194,7 +202,11 @@ public class DefinitionParserHelper {
                 table = new InMemoryTable();
             }
             table.initTable(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
-                    siddhiAppContext);
+                    siddhiAppContext, recordTableHandler);
+            if (recordTableHandler != null) {
+                recordTableHandlerManager.registerRecordTableHandler(recordTableHandler.getElementId(),
+                        recordTableHandler);
+            }
             tableMap.putIfAbsent(tableDefinition.getId(), table);
         }
     }
