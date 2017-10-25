@@ -37,6 +37,7 @@ import org.wso2.carbon.transport.http.netty.http2.HTTP2MessageProcessor;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpsServer;
 import org.wso2.carbon.transport.http.netty.util.server.initializers.MockServerInitializer;
@@ -86,7 +87,7 @@ public class HTTPSClientTestCase {
             msg.setEndOfMsgAdded(true);
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 

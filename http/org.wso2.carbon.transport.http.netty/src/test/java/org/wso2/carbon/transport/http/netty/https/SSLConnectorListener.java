@@ -18,11 +18,13 @@
 
 package org.wso2.carbon.transport.http.netty.https;
 
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class SSLConnectorListener extends HTTPSConnectorListener {
+public class SSLConnectorListener extends HTTPConnectorListener {
 
     private List<Throwable> throwables = new ArrayList<>();
     private CountDownLatch latch;
