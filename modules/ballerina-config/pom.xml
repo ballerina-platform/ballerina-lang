@@ -34,4 +34,15 @@
     <name>Ballerina - Config API</name>
     <url>http://ballerinalang.org</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-core</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
