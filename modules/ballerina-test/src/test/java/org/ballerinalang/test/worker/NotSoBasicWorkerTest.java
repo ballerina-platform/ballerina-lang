@@ -16,11 +16,13 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,13 +36,13 @@ public class NotSoBasicWorkerTest {
     
     @BeforeClass
     public void setup() {
-        this.result = BTestUtils.compile("test-src/workers/not-so-basic-worker-actions.bal");
+        this.result = BCompileUtil.compile("test-src/workers/not-so-basic-worker-actions.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
     
     @Test
     public void forkJoinWithTimeoutTest1() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithTimeoutTest1", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithTimeoutTest1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -49,7 +51,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithTimeoutTest2() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithTimeoutTest2", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithTimeoutTest2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -58,7 +60,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithMessagePassingTimeoutNotTriggered() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMessagePassingTimeoutNotTriggered", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMessagePassingTimeoutNotTriggered", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -67,7 +69,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void chainedWorkerSendReceive() {
-        BValue[] vals = BTestUtils.invoke(result, "chainedWorkerSendReceive", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "chainedWorkerSendReceive", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -76,7 +78,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithSomeSelectedJoin1() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -86,7 +88,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithSomeSelectedJoin2() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin2", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -95,7 +97,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithSomeSelectedJoin3() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin3", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin3", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -104,7 +106,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithSomeSelectedJoin4() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -113,7 +115,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithSomeSelectedJoin5() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -122,7 +124,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithAllSelectedJoin1() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithAllSelectedJoin1", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -131,7 +133,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinWithAllSelectedJoin2() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         @SuppressWarnings("unchecked")
         BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
@@ -140,7 +142,7 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void forkJoinInWorkers() {
-        BValue[] vals = BTestUtils.invoke(result, "forkJoinInWorkers", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinInWorkers", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 30);
@@ -148,10 +150,32 @@ public class NotSoBasicWorkerTest {
     
     @Test
     public void largeForkJoinCreationTest() {
-        BValue[] vals = BTestUtils.invoke(result, "largeForkJoinCreationTest", new BValue[0]);
+        BValue[] vals = BRunUtil.invoke(result, "largeForkJoinCreationTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 65000);
     }
-    
+
+    @Test
+    public void testForkJoinWorkersWithNonBlockingConnector() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
+        Context ctx = new Context(result.getProgFile());
+        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0], ctx, 20);
+        Assert.assertEquals(vals.length, 2);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
+        Assert.assertTrue(((BInteger) vals[1]).intValue() > 0);
+        ctx.await(20);
+        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+    }
+
+    @Test
+    public void testVoidFunctionWorkers() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
+        Context ctx = new Context(result.getProgFile());
+        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0], ctx, 20);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
+        ctx.await(20);
+        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+    }
 }

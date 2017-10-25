@@ -16,42 +16,52 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services.testutils;
+package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 /**
- * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
+ * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.
+ *
+ * @since 0.94
  */
-public class EnvironmentInitializer {
+public class BServiceUtil {
 
-    public static CompileResult setupProgramFile(String sourcePath, String pkgPath) {
+    /**
+     * Helper method to setup program file for tests.
+     *
+     * @param obj to find the source location of the original caller.
+     * @param sourcePath source file path.
+     * @param pkgPath package path.
+     * @return compileResult of the compilation.
+     */
+    public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry.getInstance().initServerConnectors();
-
-        try {
-            CompileResult compileResult;
-            if (pkgPath == null) {
-                compileResult = BTestUtils.compile(sourcePath);
-            } else {
-                compileResult = BTestUtils.compile(sourcePath, pkgPath);
-            }
-            ProgramFile programFile = compileResult.getProgFile();
-            BLangProgramRunner.runService(programFile);
-            return compileResult;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        CompileResult compileResult;
+        if (pkgPath == null) {
+            compileResult = BCompileUtil.compile(sourcePath);
+        } else {
+            compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
         }
+        ProgramFile programFile = compileResult.getProgFile();
+        BLangProgramRunner.runService(programFile);
+        return compileResult;
     }
 
-    public static CompileResult setupProgramFile(String sourcePath) {
-        return setupProgramFile(sourcePath, null);
+    /**
+     * Helper method to setup a Ballerina file for test.
+     *
+     * @param obj to find the source location of the original caller.
+     * @param sourcePath of the file.
+     * @return compileResult of the compilation.
+     */
+    public static CompileResult setupProgramFile(Object obj, String sourcePath) {
+        return setupProgramFile(obj, sourcePath, null);
     }
 
     public static void cleanup(CompileResult compileResult) {

@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -28,37 +28,37 @@ public class WorkerFailTest {
     
     @Test
     public void invalidForkJoinJoinResult() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-forkjoin-join-result.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-join-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
     @Test
     public void invalidForkJoinTimeoutResult() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-forkjoin-timeout-result.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-timeout-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
     @Test
     public void invalidWorkerSendReceive() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-worker-send-receive.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
     @Test
     public void invalidForkJoinWithReturn() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-forkjoin-with-return.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-with-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
     @Test
     public void invalidWorkSendWithoutWorker() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-worksend-without-worker.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
     }
     
     @Test
     public void invalidWorkReceiveWithoutWorker() {
-        CompileResult result = BTestUtils.compile("test-src/workers/invalid-workreceive-without-worker.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-workreceive-without-worker.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
     }
     

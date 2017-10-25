@@ -18,13 +18,14 @@
 package org.ballerinalang.test.expressions.literals;
 
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,12 +42,12 @@ public class XMLAttributesTest {
     
     @BeforeClass
     public void setup() {
-        xmlAttrProgFile = BTestUtils.compile("test-src/expressions/literals/xml/xml-attributes.bal");
+        xmlAttrProgFile = BCompileUtil.compile("test-src/expressions/literals/xml/xml-attributes.bal");
     }
 
     @Test
     public void testAddAttributeWithString() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithString");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" "
                 + "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
@@ -55,19 +56,19 @@ public class XMLAttributesTest {
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
             expectedExceptionsMessageRegExp = "error: error, message: localname of the attribute cannot be empty.*")
     public void testAddAttributeWithoutLocalname() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
     }
     
     @Test
     public void testAddAttributeWithEmptyNamespace() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithEmptyNamespace");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithEmptyNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"/>");
     }
     
     @Test
     public void testAddNamespaceAsAttribute1() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
             "xmlns:ns4=\"http://wso2.com\"/>");
@@ -79,7 +80,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testAddAttributeWithQName() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithQName");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\"/>");
@@ -87,7 +88,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_1() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
@@ -98,7 +99,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_2() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
@@ -108,7 +109,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_3() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://sample.com/wso2/f/\" " + 
@@ -120,7 +121,7 @@ public class XMLAttributesTest {
             expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
             "'ns5:foo1'. prefix 'ns5' is already bound to namespace 'http://sample.com/wso2/f/'.*")
     public void testAddAttributeWithQName_4() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
@@ -130,7 +131,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_5() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
@@ -143,7 +144,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testUpdateAttributeWithString() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUpdateAttributeWithString");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://sample.com/wso2/e\" "
                 + "foo1=\"newbar1\" ns0:foo2=\"newbar2\" foo3=\"newbar3\"/>");
@@ -151,7 +152,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithString_1() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUpdateAttributeWithString_1");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString_1");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" xmlns:nsbrlwf=\"http://sample.com/wso2/f/t\" " +
@@ -160,7 +161,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testUpdateNamespaceAsAttribute() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUpdateNamespaceAsAttribute");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateNamespaceAsAttribute");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://wso2.com\"/>");
         
@@ -171,7 +172,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testUpdateAttributeWithQName() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"newbar1\" ns3:foo2=\"newbar2\"/>");
@@ -179,7 +180,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithQName_1() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns5=\"http://sample.com/wso2/a1\" " +
@@ -188,7 +189,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testGetAttributeWithString() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeWithString");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
         
@@ -201,28 +202,28 @@ public class XMLAttributesTest {
     
     @Test
     public void testGetAttributeWithoutLocalname() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
     
     @Test
     public void testGetAttributeWithEmptyNamespace() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeWithEmptyNamespace");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithEmptyNamespace");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
     }
 
     @Test
     public void testGetNamespaceAsAttribute() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetNamespaceAsAttribute");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetNamespaceAsAttribute");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "http://sample.com/wso2/f");
     }
 
     @Test
     public void testGetAttributeWithQName() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeWithQName");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
 
@@ -235,7 +236,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUsingQNameAsString() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testUsingQNameAsString");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUsingQNameAsString");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a1}wso2");
 
@@ -245,7 +246,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testGetAttributesAsMap() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributesAsMap");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributesAsMap");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":"
                 + "\"http://sample.com/wso2/a1\", \"{http://sample.com/wso2/a1}foo1\":\"bar1\", \"foo2\":\"bar2\"}");
@@ -263,7 +264,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testXMLAttributesToAny() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testXMLAttributesToAny");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testXMLAttributesToAny");
         Assert.assertTrue(returns[0] instanceof BXMLAttributes);
         Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
             "\"http://sample.com/wso2/a1\", \"{http://sample.com/wso2/a1}foo1\":\"bar1\", \"foo2\":\"bar2\"}");
@@ -271,7 +272,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testRuntimeNamespaceLookup() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testRuntimeNamespaceLookup");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testRuntimeNamespaceLookup");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns401=\"http://sample.com/wso2/a1\" xmlns:ns1=" +
             "\"http://sample.com/wso2/b1\" xmlns:ns403=\"http://sample.com/wso2/e3\" xmlns:nsn7xFP=" +
@@ -281,7 +282,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testRuntimeNamespaceLookupPriority() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testRuntimeNamespaceLookupPriority");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testRuntimeNamespaceLookupPriority");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:p1=\"http://wso2.com\" " +
             "xmlns:p2=\"http://sample.com/wso2/a1\" xmlns:ns401=\"http://sample.com/wso2/a1\" ns401:foo1=\"bar1\" " +
@@ -290,15 +291,17 @@ public class XMLAttributesTest {
 
     @Test
     public void testSetAttributes() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testSetAttributes");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testSetAttributes");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:nsRJUck=\"http://wso2.com\" xmlns:nsn7xDi="
-                + "\"http://sample.com/wso2/a1\" nsRJUck:foo2=\"bar2\" nsn7xDi:foo3=\"bar3\" foo1=\"bar1\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:nsRJUck=\"http://wso2.com\" " +
+                "xmlns:nsn7xDi=\"http://sample.com/wso2/a1\" foo1=\"bar1\" nsRJUck:foo2=\"bar2\" " +
+                "nsn7xDi:foo3=\"bar3\"/>");
     }
+
 
     @Test
     public void testGetAttributeFromSingletonSeq() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
     }
@@ -306,7 +309,7 @@ public class XMLAttributesTest {
     
     @Test
     public void testGetAttributeFromLiteral() {
-        BValue[] returns = BTestUtils.invoke(xmlAttrProgFile, "testGetAttributeFromLiteral");
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromLiteral");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
     }

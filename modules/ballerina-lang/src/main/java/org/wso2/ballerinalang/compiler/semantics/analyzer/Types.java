@@ -103,7 +103,7 @@ public class Types {
                                   List<BType> expTypes) {
         List<BType> resTypes = new ArrayList<>();
         for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.get(i)));
+            resTypes.add(checkType(node, actualTypes.get(i), expTypes.size() > i ? expTypes.get(i) : symTable.noType));
         }
         return resTypes;
     }
@@ -301,7 +301,9 @@ public class Types {
     }
 
     public BSymbol getCastOperator(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
@@ -309,6 +311,12 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
         return targetType.accept(conversionVisitor, sourceType);
     }
 

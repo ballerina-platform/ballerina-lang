@@ -2,6 +2,12 @@ package ballerina.lang.math;
 
 import ballerina.doc;
 
+@doc:Description { value:"The ratio of the circumference of a circle to its diameter"}
+const float PI = 3.141592653589793;
+
+@doc:Description { value:"The base of the natural logarithms"}
+const float E = 2.718281828459045;
+
 @doc:Description { value:"Returns Euler's number, that is 'e' raised to the power of exponent"}
 @doc:Param { value:"val: exponent value to raise" }
 @doc:Return { value:"float: exp value" }
