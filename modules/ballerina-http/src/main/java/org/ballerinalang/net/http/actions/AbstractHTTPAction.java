@@ -108,10 +108,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
                 cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
             }
-            //Set transfer encoding header
-            if (!headers.contains(Constants.HTTP_CONTENT_LENGTH)) {
-                cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
-            }
 
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
