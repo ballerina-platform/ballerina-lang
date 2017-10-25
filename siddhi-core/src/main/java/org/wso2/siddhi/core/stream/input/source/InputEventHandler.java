@@ -61,7 +61,7 @@ public class InputEventHandler {
                 AttributeMapping attributeMapping = transportMapping.get(i);
                 String property = transportProperties[i];
                 if (property == null && failOnMissingAttribute) {
-                    LOG.error("Dropping event " + event.toString() + " belonging to stream " +inputHandler
+                    LOG.error("Dropping event " + event.toString() + " belonging to stream " + inputHandler
                             .getStreamId() + "as it contains null transport attributes and system "
                                       + "is configured to fail on missing attributes. You can configure it via "
                                       + "source mapper option 'fail.on.missing.attribute' if the respective "
