@@ -94,6 +94,7 @@ describe('Ballerina Composer Transform Test Suite', () => {
             getTree(testSource)
                 .then((tree) => {
                     const transformStmt = getTransformStmt(tree, 2);
+                    transformManager.setTransformStmt(transformStmt);
                     const connection = {
                         source: {
                             name: 'b',
@@ -106,7 +107,6 @@ describe('Ballerina Composer Transform Test Suite', () => {
                             endpointKind: 'output',
                         },
                     };
-                    transformManager.setTransformStmt(transformStmt);
                     transformManager.createStatementEdge(connection);
                     expect(tree.getSource()).to.equal(expectedSource);
                     done();
@@ -120,6 +120,7 @@ describe('Ballerina Composer Transform Test Suite', () => {
             getTree(testSource)
                 .then((tree) => {
                     const transformStmt = getTransformStmt(tree, 0);
+                    transformManager.setTransformStmt(transformStmt);
                     const connection = {
                         source: {
                             name: 'b',
@@ -132,7 +133,6 @@ describe('Ballerina Composer Transform Test Suite', () => {
                             endpointKind: 'output',
                         },
                     };
-                    transformManager.setTransformStmt(transformStmt);
                     transformManager.createStatementEdge(connection);
                     expect(tree.getSource()).to.equal(expectedSource);
                     done();
@@ -140,6 +140,82 @@ describe('Ballerina Composer Transform Test Suite', () => {
                     done(error);
                 });
         });
+        it('Direct mapping with casting and conversion', (done) => {
+            const testSource = readSource(testDir, 'direct-with-cast-conversion');
+            const expectedSource = readSource(testDir, 'direct-with-cast-conversion-expected');
+            getTree(testSource)
+                .then((tree) => {
+                    const transformStmt = getTransformStmt(tree, 7);
+                    transformManager.setTransformStmt(transformStmt);
+                    let connection = {
+                        source: {
+                            name: 's1',
+                            type: 'string',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'any1',
+                            type: 'any',
+                            endpointKind: 'output',
+                        },
+                    };
+                    // create implicit cast : any to string
+                    transformManager.createStatementEdge(connection);
+
+                    connection = {
+                        source: {
+                            name: 'any2',
+                            type: 'any',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'b2',
+                            type: 'boolean',
+                            endpointKind: 'output',
+                        },
+                    };
+
+                    // create explicit unsafe cast : any to boolean
+                    transformManager.createStatementEdge(connection);
+
+                    connection = {
+                        source: {
+                            name: 'f2',
+                            type: 'float',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'i1',
+                            type: 'int',
+                            endpointKind: 'output',
+                        },
+                    };
+
+                    // create safe safe conversion : float to int
+                    transformManager.createStatementEdge(connection);
+
+                    connection = {
+                        source: {
+                            name: 's2',
+                            type: 'string',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'f1',
+                            type: 'float',
+                            endpointKind: 'output',
+                        },
+                    };
+
+                    // create safe unsafe conversion : string to float
+                    transformManager.createStatementEdge(connection);
+
+                    expect(tree.getSource()).to.equal(expectedSource);
+                    done();
+                }).catch((error) => {
+                    done(error);
+                });
+        }).timeout(10000);
     });
 });
 
