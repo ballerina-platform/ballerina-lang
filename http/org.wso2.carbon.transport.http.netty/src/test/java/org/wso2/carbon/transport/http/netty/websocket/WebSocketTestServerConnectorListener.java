@@ -47,6 +47,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
+    private static final String PING = "ping";
     private List<Session> sessionList = new LinkedList<>();
     private boolean isIdleTimeout = false;
 
@@ -86,6 +87,10 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
         try {
+            if (PING.equals(receivedTextToClient)) {
+                session.getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                return;
+            }
             session.getBasicRemote().sendText(receivedTextToClient);
         } catch (IOException e) {
             handleError(e);

@@ -44,6 +44,21 @@ public class WebSocketControlMessageImpl extends WebSocketMessageImpl implements
     }
 
     @Override
+    public byte[] getByteArray() {
+        byte[] bytes;
+        if (buffer.hasArray()) {
+            bytes = buffer.array();
+        } else {
+            int remaining = buffer.remaining();
+            bytes = new byte[remaining];
+            for (int i = 0; i < remaining; i++) {
+                bytes[i] = buffer.get();
+            }
+        }
+        return bytes;
+    }
+
+    @Override
     public ByteBuffer getPayload() {
         return buffer;
     }
