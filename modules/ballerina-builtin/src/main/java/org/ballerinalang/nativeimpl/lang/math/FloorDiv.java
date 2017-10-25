@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.lang.math:floorDiv.
  *
- * @since 0.95
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
