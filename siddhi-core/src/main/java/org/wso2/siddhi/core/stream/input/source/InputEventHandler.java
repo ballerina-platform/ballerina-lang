@@ -39,18 +39,18 @@ public class InputEventHandler {
     private InputHandler inputHandler;
     private List<AttributeMapping> transportMapping;
     private InputEventHandlerCallback inputEventHandlerCallback;
-    private boolean failOnMissingAttribute;
+    private boolean allowNullInTransportProperties;
 
     InputEventHandler(InputHandler inputHandler, List<AttributeMapping> transportMapping,
                       ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext,
-                      InputEventHandlerCallback inputEventHandlerCallback, boolean failOnMissingAttribute) {
+                      InputEventHandlerCallback inputEventHandlerCallback, boolean allowNullInTransportProperties) {
         this.inputHandler = inputHandler;
         this.transportMapping = transportMapping;
         this.trpProperties = trpProperties;
         this.sourceType = sourceType;
         this.siddhiAppContext = siddhiAppContext;
         this.inputEventHandlerCallback = inputEventHandlerCallback;
-        this.failOnMissingAttribute = failOnMissingAttribute;
+        this.allowNullInTransportProperties = allowNullInTransportProperties;
     }
 
     public void sendEvent(Event event) throws InterruptedException {
@@ -60,10 +60,11 @@ public class InputEventHandler {
             for (int i = 0; i < transportMapping.size(); i++) {
                 AttributeMapping attributeMapping = transportMapping.get(i);
                 String property = transportProperties[i];
-                if (property == null && failOnMissingAttribute) {
+                if (property == null && !allowNullInTransportProperties) {
                     LOG.error("Dropping event " + event.toString() + " belonging to stream " + inputHandler
                             .getStreamId() + "as it contains null transport attributes and system "
-                                      + "is configured to fail on missing attributes. You can configure it via "
+                                      + "is configured not to allow 'null' in transport properties. "
+                                      + "You can configure it to allow 'null' valuses via "
                                       + "source mapper option 'fail.on.missing.attribute' if the respective "
                                       + "mapper type allows it. Refer mapper documentation to verify "
                                       + "supportability");
@@ -84,6 +85,7 @@ public class InputEventHandler {
     public void sendEvents(Event[] events) throws InterruptedException {
         try {
             String[] transportProperties = trpProperties.get();
+            trpProperties.remove();
             for (int i = 0; i < transportMapping.size(); i++) {
                 AttributeMapping attributeMapping = transportMapping.get(i);
                 for (Event event : events) {
