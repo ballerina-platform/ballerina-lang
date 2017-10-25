@@ -86,7 +86,8 @@ public abstract class SourceMapper implements SourceEventListener {
             inputEventHandlerCallback = new PassThroughSourceHandler(inputHandler);
         }
         this.inputEventHandler = new InputEventHandler(inputHandler, transportMappings,
-                trpProperties, sourceType, siddhiAppContext, inputEventHandlerCallback);
+                                                       trpProperties, sourceType, siddhiAppContext,
+                                                       inputEventHandlerCallback, allowNullInTransportProperties());
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {
@@ -123,12 +124,12 @@ public abstract class SourceMapper implements SourceEventListener {
             throws InterruptedException;
 
     /**
-     * Method used by {@link InputEventHandler} to determine on how to handle events with null attributes. If this
-     * returns 'true' then {@link InputEventHandler} will drop any event with null attributes in it. If this returns
-     * 'false' then {@link InputEventHandler} will send events even though they contains null attributes. This can
-     * either be a static value or uer defined value. To make this user defined Mapper developer should read user
-     * configurations and set the value return by this method according to user input.
-     * @return whether {@link InputEventHandler} should drop events when attributes are null.
+     * Method used by {@link InputEventHandler} to determine on how to handle transport properties with null values. If
+     * this returns 'false' then {@link InputEventHandler} will drop any event with null transport
+     * property values in it. If this returns
+     * 'true' then {@link InputEventHandler} will send events even though they contains null transport properties.
+     * This method will be called after init().
+     * @return whether {@link InputEventHandler} should allow or drop events when transport properties are null.
      */
-    public abstract boolean isFailOnMissingAttribute();
+    protected abstract boolean allowNullInTransportProperties();
 }
