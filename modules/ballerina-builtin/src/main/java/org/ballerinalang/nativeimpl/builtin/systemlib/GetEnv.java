@@ -15,7 +15,7 @@
  *
  */
 
-package org.ballerinalang.nativeimpl.lang.system;
+package org.ballerinalang.nativeimpl.builtin.systemlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.system",
+        packageName = "ballerina.builtin",
         functionName = "getEnv",
         args = {@Argument(name = "key", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

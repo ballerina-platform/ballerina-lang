@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.lang.system;
+package org.ballerinalang.nativeimpl.builtin.systemlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,7 +29,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * Native function ballerina.lang.system:sleep.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.system",
+        packageName = "ballerina.builtin",
         functionName = "sleep",
         args = {@Argument(name = "t", type = TypeKind.INT)},
         isPublic = true

@@ -117,6 +117,7 @@ public class Compiler {
         symbolTable.loadOperators();
         // Load other built-in packages.
         mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_DOCS_PACKAGE), builtInPkg);
+        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_SYSTEM_PACKAGE), builtInPkg);
     }
 
     public ProgramFile getCompiledProgram() {
