@@ -74,7 +74,6 @@ public class BLangJSONModelTest {
         urlConn.disconnect();
     }
 
-    // TODO: Temporarily removing the test case
     @Test
     public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
         File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
