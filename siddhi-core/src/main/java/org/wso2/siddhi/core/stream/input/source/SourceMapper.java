@@ -93,7 +93,7 @@ public abstract class SourceMapper implements SourceEventListener {
     public final void onEvent(Object eventObject, String[] transportProperties) {
         try {
             if (eventObject != null) {
-                if (!allowNullInTransportProperties()) {
+                if (!allowNullInTransportProperties() && transportProperties != null) {
                     for (String property : transportProperties) {
                         if (property == null) {
                             log.error("Dropping event " + eventObject.toString() + " belonging to stream " +
