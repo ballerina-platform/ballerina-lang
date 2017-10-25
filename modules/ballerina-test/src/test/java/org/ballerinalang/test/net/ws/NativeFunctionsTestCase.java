@@ -208,6 +208,24 @@ public class NativeFunctionsTestCase {
     }
 
     @Test
+    public void testPingPong() {
+        byte[] bytes = {1, 2, 3, 4, 5};
+        BValue[] inputBValues = {wsConnection, new BBlob(bytes)};
+
+        // Test ping
+        BRunUtil.invoke(compileResult, "testPing", inputBValues);
+        ByteBuffer pingBuffer = session.getBufferReceived();
+        Assert.assertTrue(session.isPing());
+        Assert.assertEquals(pingBuffer.array(), bytes);
+
+        // Test pong
+        BRunUtil.invoke(compileResult, "testPing", inputBValues);
+        ByteBuffer pongBuffer = session.getBufferReceived();
+        Assert.assertTrue(session.isPing());
+        Assert.assertEquals(pongBuffer.array(), bytes);
+    }
+
+    @Test
     public void testCloseConnection() {
         int statusCode = 1001;
         String closeReasonStr = "Test reason";
