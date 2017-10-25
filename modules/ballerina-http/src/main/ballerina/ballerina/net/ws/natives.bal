@@ -82,6 +82,14 @@ public native function <Connection conn> pushText(string text);
 @doc:Param {value:"data: Binary data which should be sent"}
 public native function <Connection conn> pushBinary(blob data);
 
+@doc:Description {value:"Ping the connection"}
+@doc:Param {value:"data: Binary data which should be sent"}
+public native function <Connection conn> ping(blob data);
+
+@doc:Description {value:"Send pong message to the connection"}
+@doc:Param {value:"data: Binary data which should be sent"}
+public native function <Connection conn> pong(blob data);
+
 @doc:Description {value:"Close the connection"}
 @doc:Param {value:"statusCode: Status code for closing the connection"}
 @doc:Param {value:"reason: Reason for closing the connection"}
