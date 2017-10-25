@@ -177,7 +177,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope);
+        SymbolEnv builtinEnv = this.packageEnvs.get(symTable.builtInPackageSymbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
         packageEnvs.put(pSymbol, pkgEnv);
 
         createPackageInitFunction(pkgNode);
@@ -481,8 +482,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
-        if (Names.BUILTIN_PACKAGE.value.equals(pSymbol.name.value) ||
-                Names.BUILTIN_PACKAGE_CORE.value.equals(pSymbol.name.value)) {
+        if (pSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             pSymbol.scope = symTable.rootScope;
         } else {
             pSymbol.scope = new Scope(pSymbol);

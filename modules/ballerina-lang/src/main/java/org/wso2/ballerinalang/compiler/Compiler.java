@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
@@ -110,14 +111,12 @@ public class Compiler {
     }
 
     private void loadBuiltInPackage() {
-        BLangPackage builtInCorePkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
-                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         symbolTable.createErrorTypes();
         symbolTable.loadOperators();
-        BLangPackage builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
-                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
-        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        // Load other built-in packages.
+        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_DOCS_PACKAGE), builtInPkg);
     }
 
     public ProgramFile getCompiledProgram() {
@@ -182,5 +181,32 @@ public class Compiler {
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
+    }
+
+    private void mergeIntoBuiltinPackage(BLangPackage source, BLangPackage builtInPkg) {
+        source.getAnnotations().forEach(a -> {
+            builtInPkg.getAnnotations().add(a);
+            builtInPkg.topLevelNodes.add(a);
+        });
+        source.getGlobalVariables().forEach(g -> {
+            builtInPkg.getGlobalVariables().add(g);
+            builtInPkg.topLevelNodes.add(g);
+        });
+        source.getNamespaceDeclarations().forEach(n -> {
+            builtInPkg.getNamespaceDeclarations().add(n);
+            builtInPkg.topLevelNodes.add(n);
+        });
+        source.getStructs().forEach(s -> {
+            builtInPkg.getStructs().add(s);
+            builtInPkg.topLevelNodes.add(s);
+        });
+        source.getFunctions().forEach(f -> {
+            builtInPkg.getFunctions().add(f);
+            builtInPkg.topLevelNodes.add(f);
+        });
+    }
+
+    private BLangPackage getBuiltInPackage(Name name) {
+        return desugar(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue()))));
     }
 }
