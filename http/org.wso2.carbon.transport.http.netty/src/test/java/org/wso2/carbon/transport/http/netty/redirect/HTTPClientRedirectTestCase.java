@@ -38,12 +38,12 @@ import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseFutureImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.https.HTTPSConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.sender.RedirectHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 import org.wso2.carbon.transport.http.netty.util.server.initializers.RedirectServerInitializer;
@@ -380,7 +380,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
@@ -428,7 +428,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), URL1, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
@@ -477,7 +477,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 3000));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
@@ -505,7 +505,7 @@ public class HTTPClientRedirectTestCase {
             HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT3,
                     new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT3));

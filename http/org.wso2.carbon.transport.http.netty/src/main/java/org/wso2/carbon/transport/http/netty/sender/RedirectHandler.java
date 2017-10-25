@@ -74,15 +74,17 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount, boolean chunkDisabled) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
+            , boolean chunkDisabled) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
         this.chunkDisabled = chunkDisabled;
     }
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount, boolean chunkDisabled,
-            ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
+            , boolean chunkDisabled, ChannelHandlerContext originalChannelContext
+            , boolean isIdleHandlerOfTargetChannelRemoved) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
@@ -664,8 +666,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkDisabled, originalChannelContext,
-                        isIdleHandlerOfTargetChannelRemoved));
+                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkDisabled
+                        , originalChannelContext, isIdleHandlerOfTargetChannelRemoved));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         registerListener(channelHandlerContext, channelFuture, httpCarbonRequest, httpRequest);
