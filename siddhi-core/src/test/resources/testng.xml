@@ -20,7 +20,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Siddhi-Core-Test-Suite">
-    <test name="siddhi-core-tests" enabled="true" preserve-order="true">
+    <test name="siddhi-core-tests" enabled="true" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.siddhi.core.aggregation.AggregationTestCase"/>
 

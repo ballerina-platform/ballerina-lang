@@ -50,6 +50,9 @@ public abstract class SourceMapper implements SourceEventListener {
         this.mapType = mapType;
         this.sourceType = sourceType;
         this.transportMappings = transportMappings;
+        if (sourceHandler != null) {
+            sourceHandler.initSourceHandler(siddhiAppContext.getElementIdGenerator().createNewId(), streamDefinition);
+        }
         this.sourceHandler = sourceHandler;
         this.siddhiAppContext = siddhiAppContext;
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
@@ -75,14 +78,15 @@ public abstract class SourceMapper implements SourceEventListener {
     public abstract Class[] getSupportedInputEventClasses();
 
     public final void setInputHandler(InputHandler inputHandler) {
-        InputEventHandlerImpl inputEventHandlerImpl = new InputEventHandlerImpl(inputHandler, transportMappings,
-                trpProperties, sourceType, siddhiAppContext, isFailOnMissingAttribute());
+        InputEventHandlerCallback inputEventHandlerCallback;
         if (sourceHandler != null) {
-            sourceHandler.setInputEventHandlerImpl(inputEventHandlerImpl);
-            this.inputEventHandler = sourceHandler;
+            sourceHandler.setInputHandler(inputHandler);
+            inputEventHandlerCallback = sourceHandler;
         } else {
-            this.inputEventHandler = inputEventHandlerImpl;
+            inputEventHandlerCallback = new PassThroughSourceHandler(inputHandler);
         }
+        this.inputEventHandler = new InputEventHandler(inputHandler, transportMappings,
+                trpProperties, sourceType, siddhiAppContext, inputEventHandlerCallback);
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {
