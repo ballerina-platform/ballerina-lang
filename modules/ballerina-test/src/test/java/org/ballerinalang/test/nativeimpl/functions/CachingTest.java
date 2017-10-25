@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 public class CachingTest {
 
     private CompileResult compileResult;
+    private static final double DELTA = 0.0000000001;
 
     @BeforeClass
     public void setup() {
@@ -61,7 +62,7 @@ public class CachingTest {
         Assert.assertEquals(returns[0].stringValue(), cacheName);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), timeout);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), capacity);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), evictionFactor, 0.000001);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), evictionFactor, DELTA);
     }
 
     @Test
