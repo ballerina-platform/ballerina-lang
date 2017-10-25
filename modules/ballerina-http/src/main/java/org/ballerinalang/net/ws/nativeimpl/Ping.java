@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.PingTimeValidator;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.ByteBuffer;
@@ -43,7 +44,8 @@ import javax.websocket.Session;
         functionName = "ping",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.ws"),
-        args = {@Argument(name = "binaryData", type = TypeKind.BLOB)},
+        args = {@Argument(name = "binaryData", type = TypeKind.BLOB),
+                @Argument(name = "timeoutInSecs", type = TypeKind.INT)},
         isPublic = true
 )
 public class Ping extends AbstractNativeFunction {
@@ -55,6 +57,9 @@ public class Ping extends AbstractNativeFunction {
             Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
             byte[] binaryData = getBlobArgument(context, 0);
             session.getBasicRemote().sendPing(ByteBuffer.wrap(binaryData));
+            long timeoutInSecs = getIntArgument(context, 0);
+            PingTimeValidator timeValidator = new PingTimeValidator(timeoutInSecs);
+            wsConnection.addNativeData(Constants.NATIVE_DATA_PING_TIME_VALIDATOR, timeValidator);
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }

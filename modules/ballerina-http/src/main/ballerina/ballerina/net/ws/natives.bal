@@ -28,6 +28,7 @@ public struct PingFrame {
 @doc:Description {value:"Represent WebSocket pong frame in Ballerina"}
 public struct PongFrame {
     blob data;
+    boolean valid;
 }
 
 @doc:Description {value:"Represent the details needed before the Handshake is done"}
@@ -84,7 +85,8 @@ public native function <Connection conn> pushBinary(blob data);
 
 @doc:Description {value:"Ping the connection"}
 @doc:Param {value:"data: Binary data which should be sent"}
-public native function <Connection conn> ping(blob data);
+@doc:Param {value:"timeoutInSecs: Valid time period to receive a pong for the time period, -1 for infinite timeout"}
+public native function <Connection conn> ping(blob data, int timeoutInSecs);
 
 @doc:Description {value:"Send pong message to the connection"}
 @doc:Param {value:"data: Binary data which should be sent"}

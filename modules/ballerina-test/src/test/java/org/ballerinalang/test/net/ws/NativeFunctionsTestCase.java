@@ -210,7 +210,7 @@ public class NativeFunctionsTestCase {
     @Test
     public void testPingPong() {
         byte[] bytes = {1, 2, 3, 4, 5};
-        BValue[] inputBValues = {wsConnection, new BBlob(bytes)};
+        BValue[] inputBValues = {wsConnection, new BBlob(bytes), new BInteger(10)};
 
         // Test ping
         BRunUtil.invoke(compileResult, "testPing", inputBValues);

@@ -65,4 +65,5 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
     public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
+    public static final String NATIVE_DATA_PING_TIME_VALIDATOR = "NATIVE_DATA_PING_TIME_VALIDATOR";
 }

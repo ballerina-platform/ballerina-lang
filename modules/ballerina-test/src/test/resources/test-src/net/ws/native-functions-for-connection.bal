@@ -40,8 +40,8 @@ function testCloseConnection(ws:Connection conn, int statusCode, string reason) 
     conn.closeConnection(statusCode, reason);
 }
 
-function testPing(ws:Connection conn, blob b) {
-    conn.ping(b);
+function testPing(ws:Connection conn, blob b, int timeoutInSecs) {
+    conn.ping(b, timeoutInSecs);
 }
 
 function testPong(ws:Connection conn, blob b) {

@@ -130,9 +130,18 @@ public class WebSocketDispatcher {
             return;
         }
         BStruct wsConnection = getWSConnection(controlMessage);
-        BStruct wsPongFrame = wsService.createPingFrameStruct();
+        BStruct wsPongFrame = wsService.createPongFrameStruct();
         byte[] data = controlMessage.getByteArray();
         wsPongFrame.setBlobField(0, data);
+
+        PingTimeValidator validator =
+                (PingTimeValidator) wsConnection.getNativeData(Constants.NATIVE_DATA_PING_TIME_VALIDATOR);
+        if (validator == null) {
+            wsPongFrame.setBooleanField(0, 0);
+        } else {
+            wsPongFrame.setBooleanField(0, validator.validate() ? 1 : 0);
+        }
+
         BValue[] bValues = {wsConnection, wsPongFrame};
         ConnectorFuture future = Executor.submit(onPongMessageResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
