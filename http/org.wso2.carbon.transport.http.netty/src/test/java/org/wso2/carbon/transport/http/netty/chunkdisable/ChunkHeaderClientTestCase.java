@@ -114,6 +114,7 @@ public class ChunkHeaderClientTestCase {
         senderConfiguration.setChunkDisabled(isDisabled);
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+
         ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
         msg.setProperty("PORT", TestUtil.TEST_HTTP_SERVER_PORT);
         msg.setProperty("PROTOCOL", "http");

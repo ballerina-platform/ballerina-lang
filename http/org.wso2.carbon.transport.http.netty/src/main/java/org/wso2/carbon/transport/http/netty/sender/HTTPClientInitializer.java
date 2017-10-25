@@ -45,7 +45,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private boolean chunkDisabled;
 
     public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean chunkDisabled
-            , boolean followRedirect,  int maxRedirectCount) {
+            , boolean followRedirect, int maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.followRedirect = followRedirect;
