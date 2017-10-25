@@ -77,11 +77,11 @@ class DebuggerConsole extends View {
         const { height } = this.props;
         return (
             <div id="console" style={{ height }}>
-                {this.state.messages.map((message, i) => {
+                {this.state.messages.map((message) => {
                     return (<ConsoleDecorators
                         message={message}
                         command={this.props.debuggerPlugin.appContext.command}
-                        key={i}
+                        key={message.id}
                     />);
                 })}
             </div>
