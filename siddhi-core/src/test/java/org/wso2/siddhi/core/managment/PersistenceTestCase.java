@@ -135,7 +135,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest1")
     public void persistenceTest2() throws InterruptedException {
         log.info("persistence test 2 - pattern count query");
 
@@ -218,7 +218,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test(expectedExceptions = NoPersistenceStoreException.class)
+    @Test(expectedExceptions = NoPersistenceStoreException.class, dependsOnMethods = "persistenceTest2")
     public void persistenceTest3() throws Exception {
         log.info("persistence test 3 - no store defined");
 
@@ -281,7 +281,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest3")
     public void persistenceTest4() throws InterruptedException {
         log.info("persistence test 4 - window restart");
 
@@ -355,7 +355,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest4")
     public void persistenceTest5() throws InterruptedException {
         log.info("persistence test 5 - window restart expired event ");
 
@@ -438,7 +438,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest5")
     public void persistenceTest6() throws InterruptedException {
         log.info("persistence test 6 - batch window query");
 
@@ -516,7 +516,7 @@ public class PersistenceTestCase {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest6")
     public void persistenceTest7() throws InterruptedException {
         log.info("persistence test 7 - external time window with group by query");
 
@@ -601,7 +601,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest7")
     public void persistenceTest8() throws InterruptedException {
         log.info("persistence test 8 - window query");
 
@@ -680,7 +680,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest8")
     public void persistenceTest9() throws InterruptedException {
         log.info("persistence test 9 - batch window query");
 
@@ -706,7 +706,6 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 if (inEvents != null) {
                     for (Event inEvent : inEvents) {
-                        count++;
                         atomicCount.incrementAndGet();
                         AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) ||
                                 "WSO2".equals(inEvent.getData(0)));
@@ -752,13 +751,14 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"IBM", 75.6f, 108L});
         Thread.sleep(10);
 
-        //shutdown execution plan
-        executionPlanRuntime.shutdown();
         SiddhiTestHelper.waitForEvents(100, 7, atomicCount, 10000);
         AssertJUnit.assertEquals(7, atomicCount.get());
+
+        //shutdown execution plan
+        executionPlanRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest9")
     public void persistenceTest10() throws InterruptedException {
         log.info("persistence test 10 - sort window query");
 
@@ -829,7 +829,7 @@ public class PersistenceTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = "persistenceTest10")
     public void persistenceTest11() throws InterruptedException {
         log.info("persistence test 11 - batch window query");
 
