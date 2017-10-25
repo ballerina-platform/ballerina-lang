@@ -4,4 +4,4 @@ function func() {
     transform {
         a = b;
     }
-    }
+}

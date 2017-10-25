@@ -22,9 +22,12 @@ import path from 'path';
 import { fetchConfigs, parseContent } from 'api-client/api-client';
 import { expect } from 'chai';
 import TreeBuilder from '../../../ballerina/model/tree-builder';
+import TransformManager from '../../../ballerina/diagram2/views/default/components/transform/transform-node-manager';
+import environment from '../../../ballerina/env/environment';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transform');
+let transformManager;
 
 /**
  * Converts a ballerina source to JSON model
@@ -41,6 +44,16 @@ function getTree(fileContent) {
             })
             .catch(reject);
     });
+}
+
+/**
+ * Get transform stmt from tree
+ * @param {any} tree node tree
+ * @param {any} index index of transform statement
+ * @returns transform statement
+ */
+function getTransformStmt(tree, index) {
+    return tree.topLevelNodes[0].body.statements[index];
 }
 
 /**
@@ -61,8 +74,16 @@ describe('Ballerina Composer Transform Test Suite', () => {
     /* global before */
     before((done) => {
         fetchConfigs()
-            .then(() => done())
-            .catch(done);
+            .then(() => {
+                return environment.initialize();
+            })
+            .then(() => {
+                transformManager = new TransformManager({
+                    environment,
+                    typeLattice: environment.getTypeLattice(),
+                });
+                done();
+            }).catch(done);
     });
 
     describe('Direct Mappings', () => {
@@ -72,6 +93,21 @@ describe('Ballerina Composer Transform Test Suite', () => {
             const expectedSource = readSource(testDir, 'direct-with-primitive-vars-expected');
             getTree(testSource)
                 .then((tree) => {
+                    const transformStmt = getTransformStmt(tree, 2);
+                    const connection = {
+                        source: {
+                            name: 'b',
+                            type: 'int',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'a',
+                            type: 'int',
+                            endpointKind: 'output',
+                        },
+                    };
+                    transformManager.setTransformStmt(transformStmt);
+                    transformManager.createStatementEdge(connection);
                     expect(tree.getSource()).to.equal(expectedSource);
                     done();
                 }).catch((error) => {
@@ -83,6 +119,21 @@ describe('Ballerina Composer Transform Test Suite', () => {
             const expectedSource = readSource(testDir, 'direct-with-args-expected');
             getTree(testSource)
                 .then((tree) => {
+                    const transformStmt = getTransformStmt(tree, 0);
+                    const connection = {
+                        source: {
+                            name: 'b',
+                            type: 'int',
+                            endpointKind: 'input',
+                        },
+                        target: {
+                            name: 'a',
+                            type: 'int',
+                            endpointKind: 'output',
+                        },
+                    };
+                    transformManager.setTransformStmt(transformStmt);
+                    transformManager.createStatementEdge(connection);
                     expect(tree.getSource()).to.equal(expectedSource);
                     done();
                 }).catch((error) => {
