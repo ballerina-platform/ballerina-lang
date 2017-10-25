@@ -1,4 +1,5 @@
 import ballerina.lang.system;
+import ballerina.lang.strings;
 import ballerina.lang.maps;
 import ballerina.lang.blobs;
 import ballerina.net.ws;
@@ -18,6 +19,8 @@ import ballerina.doc;
     certPassword: "wso2carbon"
 }
 service<ws> SimpleSecureServer {
+
+    blob pingData = strings:toBlob("ping", "UTF-8");
 
     @doc:Description {value:"This resource is responsible for handling user logic on handshake time. Note that the connection is not yet established while this code is running."}
     resource onHandshake(ws:HandshakeConnection conn) {
@@ -45,7 +48,12 @@ service<ws> SimpleSecureServer {
     resource onTextMessage (ws:Connection conn, ws:TextFrame frame) {
         system:println("\ntext message: " + frame.text + " & is final fragment: " + frame.isFinalFragment);
         string text = frame.text;
-        if (text == "closeMe") {
+
+        if (text == "ping") {
+            system:println("Pinging...");
+            int pingTimeoutInSecs = 5;
+            conn.ping(pingData, pingTimeoutInSecs);
+        } else if (text == "closeMe") {
             conn.closeConnection(1001, "You asked me to close connection");
         } else {
             conn.pushText("You said: " + frame.text);
@@ -58,6 +66,23 @@ service<ws> SimpleSecureServer {
         blob b = frame.data;
         system:println("UTF-8 decoded binary message: " + blobs:toString(b, "UTF-8"));
         conn.pushBinary(b);
+    }
+
+    @doc:Description {value:"This resource is triggered when a ping message is received from the client"}
+    resource onPing(ws:Connection conn, ws:PingFrame frame) {
+        conn.pong(frame.data);
+    }
+
+    @doc:Description {value:"This resource is triggered when a pong message is received"}
+    resource onPong(ws:Connection conn, ws:PongFrame frame) {
+        system:println("Pong received");
+
+        // Frame is not valid if pong is received without ping
+        // or not received within the timeout defined in ping function
+        if (!frame.valid)  {
+            string  errorMsg = "Received invalid pong message";
+            conn.closeConnection(1001, errorMsg);
+        }
     }
 
     @doc:Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation"}
