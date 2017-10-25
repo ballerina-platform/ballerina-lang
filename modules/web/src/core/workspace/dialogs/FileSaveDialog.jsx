@@ -166,7 +166,7 @@ class FileSaveDialog extends React.Component {
                         <Button
                             bsStyle="primary"
                             onClick={this.onFileSave}
-                            disabled={this.state.filePath === '' && this.state.fileName === ''}
+                            disabled={this.state.filePath === '' || this.state.fileName === ''}
                         >
                             Save
                         </Button>
