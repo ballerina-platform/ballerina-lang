@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
@@ -33,10 +34,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "equalsIgnoreCase",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "anotherString", type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "string.equalsIgnoreCase",
+        receiver = @Receiver(type = TypeKind.STRING),
+        args = {@Argument(name = "anotherString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

@@ -187,7 +187,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, null, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
