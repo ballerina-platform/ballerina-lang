@@ -9,8 +9,8 @@ import ballerina.doc;
 @doc:Return { value:"string: The identifier of the scheduled task" }
 @doc:Return { value:"error: The error which is occurred while scheduling the task" }
 public native function scheduleTimer (
-  any onTrigger,
-  any onError,
+  function() returns (error) onTrigger,
+  function(error e) onError,
   struct {
     int delay = 0;
     int interval;
