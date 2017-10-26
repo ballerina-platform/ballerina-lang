@@ -330,6 +330,7 @@ struct FollowRedirects {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
+    boolean chunkDisabled = false;
     FollowRedirects followRedirects;
     SSL ssl;
 }
