@@ -1,7 +1,7 @@
 struct TrxError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string data;
 }
 

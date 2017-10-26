@@ -3,10 +3,10 @@ package ballerina.builtin.core;
 public struct error {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
 }
 
-public struct stackFrame {
+public struct StackFrame {
     string caller;
     string packageName;
     string fileName;
@@ -16,7 +16,7 @@ public struct stackFrame {
 public struct TypeCastError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string sourceType;
     string targetType;
 }
@@ -24,7 +24,8 @@ public struct TypeCastError {
 public struct TypeConversionError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string sourceType;
     string targetType;
 }
+

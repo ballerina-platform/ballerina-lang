@@ -1,9 +1,9 @@
-import ballerina.lang.system;
-import ballerina.lang.system as x;
-import ballerina.lang.system as y;
+import ballerina.lang.time;
+import ballerina.lang.time as x;
+import ballerina.lang.time as y;
 
 function testFunc() {
-    system:println("hello");
-    x:println("hello");
-    y:println("hello");
+    _ = time:currentTime();
+    _ = x:currentTime();
+    _ = y:currentTime();
 }
