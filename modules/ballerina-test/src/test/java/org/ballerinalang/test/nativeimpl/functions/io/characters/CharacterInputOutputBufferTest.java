@@ -40,7 +40,7 @@ public class CharacterInputOutputBufferTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
     }
 
     @Test(description = "Read characters which does not fit to the fixed buffer limit")

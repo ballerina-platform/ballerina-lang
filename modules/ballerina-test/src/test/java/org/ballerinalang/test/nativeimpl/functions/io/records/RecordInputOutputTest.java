@@ -42,7 +42,7 @@ public class RecordInputOutputTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
     }
 
     @Test(description = "Reads records from file")

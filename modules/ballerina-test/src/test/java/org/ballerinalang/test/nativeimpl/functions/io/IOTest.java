@@ -46,7 +46,7 @@ public class IOTest {
         bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytesio.bal");
         characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/chario.bal");
         recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/recordio.bal");
-        currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target";
+        currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
     /**

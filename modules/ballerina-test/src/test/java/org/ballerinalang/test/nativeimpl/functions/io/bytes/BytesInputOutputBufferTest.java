@@ -43,7 +43,7 @@ public class BytesInputOutputBufferTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/modules/ballerina-test/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
     }
 
     @Test(description = "Reads files into multiple iterations")
@@ -122,8 +122,7 @@ public class BytesInputOutputBufferTest {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
         Channel channel = new MockByteChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
-        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath +
-                "ballerinaCopy.png");
+        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
         Channel writeChannel = new MockByteChannel(writeByteChannel, 0);
         while (readByteCount != 0) {
             byte[] readBytes = channel.read(readLimit);
