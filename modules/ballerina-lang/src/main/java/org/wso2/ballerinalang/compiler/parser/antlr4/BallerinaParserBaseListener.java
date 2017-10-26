@@ -520,6 +520,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}

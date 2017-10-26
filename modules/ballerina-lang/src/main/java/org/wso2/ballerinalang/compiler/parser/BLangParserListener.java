@@ -830,6 +830,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addUserDefineType(getWS(ctx));
     }
 
+    @Override
+    public void enterAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStructDef();
+    }
+
+
+    @Override
+    public void exitAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAnonStructType(getCurrentPos(ctx), getWS(ctx));
+    }
 
     @Override
     public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) {

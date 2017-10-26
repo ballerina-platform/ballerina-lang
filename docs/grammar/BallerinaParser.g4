@@ -165,10 +165,15 @@ typeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
+    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
+    ;
+
+anonStructTypeName
+    : STRUCT structBody
     ;
 
 valueTypeName
