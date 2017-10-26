@@ -40,12 +40,16 @@ class FunctionNode extends React.Component {
     }
 
     render() {
-        const bBox = this.props.model.viewState.bBox;
-        const name = this.props.model.getName().value;
-
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
+        const name = model.getName().value;
         // change icon for main function
         let icons = 'tool-icons/function';
-        if (name === 'main') {
+        if (name === 'main'
+            && model.getReturnParameters().length === 0
+            && model.getParameters().length === 1
+            && model.getParameters()[0].typeNode.kind === 'ArrayType'
+            && model.getParameters()[0].typeNode.elementType.typeKind === 'string') {
             icons = 'tool-icons/main-function';
         }
         const body = this.props.model.getBody();

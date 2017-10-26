@@ -393,7 +393,11 @@ class ToolPaletteView extends React.Component {
             functionsOrdered = _.uniqBy(functionsOrdered, (item) => { return item.getName(); });
 
             _.each(functionsOrdered, (functionDef) => {
-                if (functionDef.getName() === 'main') {
+                if (functionDef.getName() === 'main'
+                    && functionDef.getReturnParameters().length === 0
+                    && functionDef.getParameters().length === 1
+                    && functionDef.getParameters()[0].typeNode.kind === 'ArrayType'
+                    && functionDef.getParameters()[0].typeNode.elementType.typeKind === 'string') {
                     // do not add main function to tool palette
                     return;
                 }

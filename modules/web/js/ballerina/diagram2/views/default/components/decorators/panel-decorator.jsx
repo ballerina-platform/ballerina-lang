@@ -81,7 +81,14 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleClick() {
-        if (this.props.model.getKind() === 'Function' && this.props.model.getName().value === 'main') {
+        const model = this.props.model;
+        if (model.getKind() === 'Function'
+            && model.getName().value === 'main'
+            && model.getReturnParameters().length === 0
+            && model.getParameters().length === 1
+            && model.getParameters()[0].typeNode.kind === 'ArrayType'
+            && model.getParameters()[0].typeNode.elementType.typeKind === 'string'
+        ) {
             // should not edit main function name
             return;
         }
