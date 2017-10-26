@@ -1330,7 +1330,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(),
                 "{msg:\"Unexpected EOF in prolog\n at [row,col {unknown-source}]:"
                         + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
-                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:818}], sourceType:"
+                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:816}], sourceType:"
                         + "\"string\", targetType:\"xml\"}");
     }
 

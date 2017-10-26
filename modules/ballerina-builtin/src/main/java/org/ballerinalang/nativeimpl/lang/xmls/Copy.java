@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -32,9 +31,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Make a deep copy of an XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "copy",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.copy",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )

@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function successfulXmlCasting()(string) {
   any abc = jsonReturnFunction();
   json jsonVal;

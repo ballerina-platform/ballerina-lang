@@ -1,6 +1,5 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.lang.xmls;
 import ballerina.lang.jsons;
 import ballerina.lang.blobs;
 

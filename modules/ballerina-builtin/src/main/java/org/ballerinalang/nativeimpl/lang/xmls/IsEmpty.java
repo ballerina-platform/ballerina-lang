@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -34,9 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "isEmpty",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.isEmpty",
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

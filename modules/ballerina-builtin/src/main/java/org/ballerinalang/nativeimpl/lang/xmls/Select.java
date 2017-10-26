@@ -34,10 +34,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "select",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.select",
+        args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )

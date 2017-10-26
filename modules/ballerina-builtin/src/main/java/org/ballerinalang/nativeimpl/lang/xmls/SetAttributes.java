@@ -34,10 +34,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "setAttributes",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "attributes", type = TypeKind.MAP)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.setAttributes",
+        args = {@Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
 )
 public class SetAttributes extends AbstractNativeFunction {

@@ -1,4 +1,4 @@
-import ballerina.lang.xmls;
+
 import ballerina.lang.system as x;
 
 function testRestrictedElementPrefix() (xml) {

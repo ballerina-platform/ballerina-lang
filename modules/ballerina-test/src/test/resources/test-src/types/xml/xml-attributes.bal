@@ -1,4 +1,3 @@
-import ballerina.lang.xmls;
 import ballerina.lang.strings;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
@@ -256,14 +255,14 @@ function testSetAttributes() (xml) {
     attributesMap[ns0:foo3] = "bar3";
     var x, _ = <xml> "<root xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\"/>";
     
-    xmls:setAttributes(x, attributesMap);
+    x.setAttributes(attributesMap);
     
     return x;
 }
 
 function testGetAttributeFromSingletonSeq() (string) {
     var x1, _ = <xml> "<root><child xmlns:p1=\"http://wso2.com/\" xmlns:p2=\"http://sample.com/wso2/a1/\" p1:foo=\"bar\"/></root>";
-    xml x2 = xmls:children(x1);
+    xml x2 = x1.children();
     return x2@["{http://wso2.com/}foo"];
 }
 

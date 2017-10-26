@@ -34,10 +34,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "setChildren",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "children", type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.setChildren",
+        args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true
 )
 public class SetChildren extends AbstractNativeFunction {

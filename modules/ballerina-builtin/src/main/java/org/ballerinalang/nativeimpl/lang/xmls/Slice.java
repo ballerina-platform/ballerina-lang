@@ -34,13 +34,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "slice",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-            @Argument(name = "startIndex", type = TypeKind.INT),
-            @Argument(name = "endIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
+        packageName = "ballerina.builtin",
+        functionName = "xml.slice",
+        args = { @Argument(name = "startIndex", type = TypeKind.INT),
+                @Argument(name = "endIndex", type = TypeKind.INT) },
+        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 )
 public class Slice extends AbstractNativeFunction {
 

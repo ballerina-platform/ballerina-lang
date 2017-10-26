@@ -33,10 +33,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.95
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "removeAttribute",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.removeAttribute",
+        args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true
 )
 public class RemoveAttribute extends AbstractNativeFunction {
