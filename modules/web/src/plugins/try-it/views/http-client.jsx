@@ -421,7 +421,7 @@ class HttpClient extends React.Component {
                     }}
                     placeholder='Key'
                     type='text'
-                    className="response-header-input form-control"
+                    className="request-header-input form-control"
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -432,7 +432,7 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
-                    className="response-header-input form-control"
+                    className="request-header-input form-control"
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}

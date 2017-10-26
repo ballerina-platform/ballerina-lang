@@ -166,12 +166,15 @@ public class WorkspaceUtils {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
 
         CompilerContext context = prepareCompilerContext("", "");
+        // load builtin packages - ballerina.builtin and ballerina.builtin.core explicitly
+        BLangPackage builtInPackage = loadBuiltInPackage(context);
+        String builtInPackageName = builtInPackage.getPackageDeclaration().getPackageName().stream()
+                .map(name -> name.getValue()).collect(Collectors.joining("."));
+        loadPackageMap(builtInPackageName, builtInPackage, modelPackage);
         PackageLoader packageLoader = PackageLoader.getInstance(context);
         // max depth for the recursive function which search for child directories
         int maxDepth = 15;
         Set<PackageID> packages = packageLoader.listPackages(maxDepth);
-        // load builtin packages - ballerina.builtin and ballerina.builtin.core explicitly
-        loadBuiltInPackage(context);
         packages.stream().forEach(pkg -> {
             Name version = pkg.getPackageVersion();
             BLangIdentifier bLangIdentifier = new BLangIdentifier();
@@ -548,9 +551,11 @@ public class WorkspaceUtils {
 
     /**
      * Loading builtin packages.
+     *
      * @param context compiler context
+     * @return {BLangPackage} builtIn package
      */
-    private static void loadBuiltInPackage(CompilerContext context) {
+    private static BLangPackage loadBuiltInPackage(CompilerContext context) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
@@ -565,5 +570,6 @@ public class WorkspaceUtils {
                 pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
         builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        return builtInPkg;
     }
 }
