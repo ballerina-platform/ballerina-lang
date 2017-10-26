@@ -22,7 +22,6 @@ import PropTypes from 'prop-types';
 import DefaultTools from './item-provider/default-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
-import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import { binaryOpTools, unaryOpTools, ternaryOpTools } from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';

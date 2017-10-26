@@ -17,12 +17,7 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import ServiceDefinition from './../ast/service-definition';
-import FunctionDefinition from './../ast/function-definition';
-import TypeDefinition from './../ast/type-definition';
-import ConstantDefinition from './../ast/constant-definition';
-import StructDefinition from './../ast/struct-definition';
-import AnnotationDefinition from './../ast/annotation-definition';
+import ServiceDefinition from 'ballerina/model/tree/service-node';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
@@ -60,13 +55,6 @@ class Package {
      * @fires Package#constant-defs-added
      */
     addConstantDefinitions(constantDefinitions) {
-        let err;
-        if (!_.isArray(constantDefinitions) && !(constantDefinitions instanceof ConstantDefinition)) {
-            err = 'Adding constant def failed. Not an instance of ConstantDefinition' + constantDefinitions;
-            log.error(err);
-            throw err;
-        }
-
         this._constantDefinitions = this._constantDefinitions || [];
         this._constantDefinitions = _.concat(this._constantDefinitions, constantDefinitions);
     }
@@ -95,12 +83,6 @@ class Package {
      * @fires Package#type-defs-added
      */
     addTypeDefinitions(typeDefinitions) {
-        let err;
-        if (!_.isArray(typeDefinitions) && !(typeDefinitions instanceof TypeDefinition)) {
-            err = 'Adding type def failed. Not an instance of TypeDefinition' + typeDefinitions;
-            log.error(err);
-            throw err;
-        }
         this._typeDefinitions = this._typeDefinitions || [];
         this._typeDefinitions = _.concat(this._typeDefinitions, typeDefinitions);
     }

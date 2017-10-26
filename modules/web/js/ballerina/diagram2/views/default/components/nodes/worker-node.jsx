@@ -23,30 +23,24 @@ import ActiveArbiter from '../decorators/active-arbiter';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import LifeLine from '../decorators/lifeline';
 import ImageUtil from '../../../../image-util';
+import FragmentUtils from '../../../../../utils/fragment-utils';
+import TreeBuilder from '../../../../../model/tree-builder';
 
 /**
  * Worker Node Decorator.
+ * @class WorkerNode
+ * @extends React.Component
  * */
 class WorkerNode extends React.Component {
 
+    /**
+     * Constructor for worker node.
+     * @param {Object} props - properties for worker node.
+     * */
     constructor(props) {
         super(props);
         this.onDelete = this.onDelete.bind(this);
-
-        // TODO: Set the name
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'Worker',
-            model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
-        };
-    }
-
-    /**
-     * ToDo Update the edited expression
-     */
-    updateExpression(value) {
+        this.handleSetName = this.handleSetName.bind(this);
     }
 
     /**
@@ -73,7 +67,25 @@ class WorkerNode extends React.Component {
     }
 
     /**
+     * Handle setting name for worker node.
+     * @param {string} value - changed value for worker identifier
+     * */
+    handleSetName(value) {
+        if (value) {
+            // Parse new worker node with changed identifier value.
+            const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createWorkerFragment(`worker ${value} {
+            }`));
+            const newNameNode = TreeBuilder.build(parsedJson).getName();
+            newNameNode.clearWS();
+
+            // Set name for worker node.
+            this.props.model.setName(newNameNode);
+        }
+    }
+
+    /**
      * Render Function for the assignment statement.
+     * @return {XML} React component.
      * */
     render() {
         const model = this.props.model;
@@ -84,6 +96,13 @@ class WorkerNode extends React.Component {
             lineClass: 'worker-life-line',
             polygonClass: 'worker-life-line-polygon',
         };
+        // Set worker name editor option.
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'Worker',
+            model: this.props.model.getName(),
+            setterMethod: this.handleSetName,
+        };
 
         // TODO: We need to add the expression editor
         return (
@@ -92,6 +111,7 @@ class WorkerNode extends React.Component {
                     model={model}
                     title={title}
                     bBox={model.viewState.components.lifeLine}
+                    editorOptions={editorOptions}
                     classes={classes}
                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                     iconColor='#0380c6'

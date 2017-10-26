@@ -18,10 +18,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import { blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
-import SimpleBBox from '../../../../../ast/simple-bounding-box';
 import './compound-statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
@@ -102,6 +102,7 @@ class CompoundStatementDecorator extends React.Component {
      * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
      */
     setActionVisibility(show, e) {
+        e.stopPropagation();
         if (show) {
             const isInChildStatement = this.isInFocusableChild(e.target);
             const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
@@ -173,7 +174,11 @@ class CompoundStatementDecorator extends React.Component {
         const { bBox } = this.props;
         const breakpointHalf = breakpointSize / 2;
         const pointX = bBox.getRight() - breakpointHalf;
-        const pointY = (bBox.y + statement.gutter.v) - breakpointHalf;
+        const { model: { viewState } } = this.props;
+        const statementBBox = viewState.components['statement-box'];
+        const { designer } = this.context;
+        const headerHeight = viewState.components['block-header'].h;
+        const pointY = statementBBox.y - breakpointHalf;
         return (
             <Breakpoint
                 x={pointX}

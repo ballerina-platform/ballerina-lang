@@ -18,11 +18,17 @@
 
 package org.ballerinalang.composer.service.workspace.launcher.dto;
 
+import java.util.UUID;
+
 /**
  * {@link MessageDTO} launch message sent to client.
  *
  */
 public class MessageDTO {
+
+    public MessageDTO() {
+        this.setId(UUID.randomUUID().toString());
+    }
 
     private String code;
 
@@ -31,6 +37,8 @@ public class MessageDTO {
     private String type;
 
     private int port;
+
+    private String id;
 
     public String getCode() {
         return code;
@@ -62,5 +70,13 @@ public class MessageDTO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    private void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 }

@@ -38,7 +38,9 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
@@ -69,6 +71,8 @@ import javax.ws.rs.core.Response;
 public class BLangFileRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+    private static final String SYMBOL_TYPE = "symbolType";
+    private static final String INVOCATION_TYPE = "invocationType";
     public static final String UNESCAPED_VALUE = "unescapedValue";
 
     @POST
@@ -217,6 +221,21 @@ public class BLangFileRestService {
             positionJson.addProperty("endLine", position.getEndLine());
             nodeJson.add("position", positionJson);
         }
+
+        /* Virtual props */
+
+        JsonArray type = getType(node);
+        if (type != null) {
+            nodeJson.add(SYMBOL_TYPE, type);
+        }
+        if (node.getKind() == NodeKind.INVOCATION) {
+            assert node instanceof BLangInvocation : node.getClass();
+            BLangInvocation invocation = (BLangInvocation) node;
+            if (invocation.symbol != null && invocation.symbol.kind != null) {
+                nodeJson.addProperty(INVOCATION_TYPE, invocation.symbol.kind.toString());
+            }
+        }
+
         for (Method m : methods) {
             String name = m.getName();
 
@@ -251,16 +270,6 @@ public class BLangFileRestService {
                 continue;
             }
 
-            /* Virtual prop */
-            // This is since the invocation symbol abstract method has not currently been exposed from the runtime
-            // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
-            if (node.getKind() == NodeKind.INVOCATION) {
-                assert node instanceof BLangInvocation : node.getClass();
-                BLangInvocation invocation = (BLangInvocation) node;
-                if (invocation.symbol != null) {
-                    nodeJson.addProperty("invocationType", invocation.symbol.kind.toString());
-                }
-            }
 
             /* Node classes */
             if (prop instanceof Node) {
@@ -316,6 +325,22 @@ public class BLangFileRestService {
             }
         }
         return nodeJson;
+    }
+
+    private static JsonArray getType(Node node) {
+        BType type = ((BLangNode) node).type;
+        if (node instanceof BLangInvocation) {
+            JsonArray jsonElements = new JsonArray();
+            for (BType returnType : ((BLangInvocation) node).types) {
+                jsonElements.add(returnType.getKind().name());
+            }
+            return jsonElements;
+        } else if (type != null) {
+            JsonArray jsonElements = new JsonArray();
+            jsonElements.add(type.getKind().name());
+            return jsonElements;
+        }
+        return null;
     }
 
     private static String toJsonName(String name, int prefixLen) {

@@ -61,5 +61,11 @@ export function getCommandDefinitions() {
                 default: 'ctrl+shift+o',
             },
         },
+        {
+            id: COMMANDS.GO_TO_FILE_IN_EXPLORER,
+            argTypes: {
+                filePath: PropTypes.string.isRequired,
+            },
+        },
     ];
 }

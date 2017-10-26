@@ -58,15 +58,6 @@ class LifeLine extends React.Component {
     onUpdate(text) {
     }
 
-    openExpressionEditor(e) {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.enviornment;
-        if (options) {
-            new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
-                .render(this.context.getOverlayContainer());
-        }
-    }
-    
     /**
      * Shows the action box.
      * @param {boolean} show - Display action box if true or else hide.
@@ -76,6 +67,15 @@ class LifeLine extends React.Component {
             this.context.activeArbiter.readyToActivate(this);
         } else {
             this.context.activeArbiter.readyToDeactivate(this);
+        }
+    }
+
+    openExpressionEditor(e) {
+        const options = this.props.editorOptions;
+        const packageScope = this.context.enviornment;
+        if (options) {
+            new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
+                .render(this.context.getOverlayContainer());
         }
     }
 
@@ -246,6 +246,14 @@ class LifeLine extends React.Component {
         </g>);
     }
 }
+
+LifeLine.propTypes = {
+    editorOptions: PropTypes.shape(),
+};
+
+LifeLine.defaultProps = {
+    editorOptions: null,
+};
 
 LifeLine.contextTypes = {
     model: PropTypes.instanceOf(Object),

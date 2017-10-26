@@ -156,7 +156,7 @@ class ExpressionEditor {
             if (props.setterMethod instanceof Function) {
                 props.setterMethod.call(props.model, text);
             } else {
-                TreeUtil.setSource(props.model, text);
+                TreeUtil.setSource(props.model, text, this.ballerinaFileEditor);
             }
 
             didEnter = true;
@@ -215,7 +215,7 @@ class ExpressionEditor {
                     if (props.setterMethod instanceof Function) {
                         props.setterMethod.call(props.model, text);
                     } else {
-                        TreeUtil.setSource(props.model, text);
+                        TreeUtil.setSource(props.model, text, this.ballerinaFileEditor);
                     }
 
                     didSemicolon = true;

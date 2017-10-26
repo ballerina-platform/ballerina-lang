@@ -1134,7 +1134,6 @@ class TransformExpanded extends React.Component {
 
     render() {
         const { leftOffset, width, height } = this.props;
-        console.log(width, height)
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.inputs;
         const outputNodes = this.props.model.outputs;

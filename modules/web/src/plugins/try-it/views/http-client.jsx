@@ -21,7 +21,7 @@ import { invokeTryIt } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
-import AutoSuggest from 'ballerina/diagram/views/default/components/utils/autosuggest-html';
+import AutoSuggest from 'ballerina/diagram2/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
 import CompilationUnitTreeNode from 'ballerina/model/tree/compilation-unit-node';
