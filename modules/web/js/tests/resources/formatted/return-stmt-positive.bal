@@ -1,34 +1,34 @@
-function testReturn() {
+function testReturn () {
     return;
 }
 
-function testReturnOneVarDcl() {
+function testReturnOneVarDcl () {
     int x;
 
     x = 0;
     return;
 }
 
-function testReturnOneReturnArg() (int) {
+function testReturnOneReturnArg () (int) {
     return 5;
 }
 
-function testReturnOneParam(int a) {
+function testReturnOneParam (int a) {
     return;
 }
 
-function testReturnOneParamOneReturnArg(int a) (int) {
+function testReturnOneParamOneReturnArg (int a) (int) {
     return a;
 }
 
-function testReturnOneParamOneVarDclOneReturnArg(int a) (int) {
+function testReturnOneParamOneVarDclOneReturnArg (int a) (int) {
     int b;
 
     b = 10;
     return a + b;
 }
 
-function testReturnNoParamTwoVarDclsTwoReturnArgs() (int, string) {
+function testReturnNoParamTwoVarDclsTwoReturnArgs () (int, string) {
     int b;
     string t;
 
@@ -38,7 +38,7 @@ function testReturnNoParamTwoVarDclsTwoReturnArgs() (int, string) {
     return b, t;
 }
 
-function testReturnTwoVarDclsTwoReturnArgs(int a, int q) (int, string) {
+function testReturnTwoVarDclsTwoReturnArgs (int a, int q) (int, string) {
     int b;
     string t;
 
@@ -48,7 +48,7 @@ function testReturnTwoVarDclsTwoReturnArgs(int a, int q) (int, string) {
     return a + b, t;
 }
 
-function testReturnThreeVarDclsThreeReturnArgs(int a, int q) (int, string, float) {
+function testReturnThreeVarDclsThreeReturnArgs (int a, int q) (int, string, float) {
     int b;
     string t;
     float f;
@@ -61,11 +61,11 @@ function testReturnThreeVarDclsThreeReturnArgs(int a, int q) (int, string, float
 }
 
 
-function splitUtil(string s) (string part1, string part2, string part3) {
+function splitUtil (string s) (string part1, string part2, string part3) {
     return "section1", "section2", "section3";
 }
 
-function testSplitString() (string part1, string part2, string part3) {
+function testSplitString () (string part1, string part2, string part3) {
     string section;
 
     section = "Ballerina is a programming language";
@@ -73,50 +73,50 @@ function testSplitString() (string part1, string part2, string part3) {
 }
 
 
-function testToUpperUtil(string s) (string) {
+function testToUpperUtil (string s) (string) {
     // Covert s to upper
     return "SECTION";
 }
 
-function testToUpperUtilDouble(string s1, string s2) (string s3, string s4) {
+function testToUpperUtilDouble (string s1, string s2) (string s3, string s4) {
     // Covert s to upper
     s3 = "NAME1";
     s4 = "NAME2";
     return s3, s4;
 }
 
-function testToUpper(string s) (string) {
+function testToUpper (string s) (string) {
     return testToUpperUtil(s);
 }
 
-function testToUpper1(string s1, string s2) (string, string) {
+function testToUpper1 (string s1, string s2) (string, string) {
     return testToUpperUtil(s1), s2;
 }
 
-function testToUpper2(string s1, string s2) (string, string) {
+function testToUpper2 (string s1, string s2) (string, string) {
     return s1, testToUpperUtil(s2);
 }
 
-function testToUpper3(string s1, string s2) (string, string) {
+function testToUpper3 (string s1, string s2) (string, string) {
     return testToUpperUtil(s1), testToUpperUtil(s2);
 }
 
-function testToUpper4(string s1, string s2) (string, string) {
+function testToUpper4 (string s1, string s2) (string, string) {
     return testToUpperUtilDouble(s1, s2);
 }
 
-function testReturnWithThreeArguments() (int, string, int) {
+function testReturnWithThreeArguments () (int, string, int) {
     int x;
     x = 10;
 
     return x, foo(1, 4), bar(5, "john", 6);
 }
 
-function foo(int a, int b) (string) {
+function foo (int a, int b) (string) {
     return "foo";
 }
 
-function bar(int a, string s, int b) (int) {
+function bar (int a, string s, int b) (int) {
     return 4;
 }
 

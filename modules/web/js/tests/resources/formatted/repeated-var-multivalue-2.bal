@@ -1,4 +1,4 @@
-function testMultiReturn() (int, string, int) {
+function testMultiReturn () (int, string, int) {
     //int a;
     //string name;
     //int b;
@@ -7,6 +7,6 @@ function testMultiReturn() (int, string, int) {
     return a, name, b;
 }
 
-function testMultiReturnInternal() (int, string, int) {
+function testMultiReturnInternal () (int, string, int) {
     return 5, "john", 6;
 }

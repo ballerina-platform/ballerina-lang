@@ -1,22 +1,22 @@
-function testIntegerValue() (int) {
+function testIntegerValue () (int) {
     int b;
     b = 10;
     return b;
 }
 
-function testNegativeIntegerValue() (int) {
+function testNegativeIntegerValue () (int) {
     int y;
     y = -10;
     return y;
 }
 
-function testIntegerValueAssignmentByReturnValue() (int) {
+function testIntegerValueAssignmentByReturnValue () (int) {
     int x;
     x = testIntegerValue();
     return x;
 }
 
-function testIntegerAddition() (int) {
+function testIntegerAddition () (int) {
     int b;
     int a;
     a = 9;
@@ -24,7 +24,7 @@ function testIntegerAddition() (int) {
     return a + b;
 }
 
-function testIntegerMultiplication() (int) {
+function testIntegerMultiplication () (int) {
     int b;
     int a;
     a = 2;
@@ -32,7 +32,7 @@ function testIntegerMultiplication() (int) {
     return a * b;
 }
 
-function testIntegerSubtraction() (int) {
+function testIntegerSubtraction () (int) {
     int b;
     int a;
     a = 25;
@@ -40,7 +40,7 @@ function testIntegerSubtraction() (int) {
     return a - b;
 }
 
-function testIntegerDivision() (int) {
+function testIntegerDivision () (int) {
     int b;
     int a;
     a = 25;
@@ -48,7 +48,7 @@ function testIntegerDivision() (int) {
     return a / b;
 }
 
-function testIntegerParameter(int a) (int) {
+function testIntegerParameter (int a) (int) {
     int b;
     b = a;
     return b;

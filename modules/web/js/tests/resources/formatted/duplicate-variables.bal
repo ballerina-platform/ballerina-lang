@@ -1,8 +1,8 @@
-function main(string[] i) {
+function main (string[] i) {
 
-	// Following line is invalid.
-	boolean b;
-	float b;
-	
-	return;
+    // Following line is invalid.
+    boolean b;
+    float b;
+
+    return;
 }

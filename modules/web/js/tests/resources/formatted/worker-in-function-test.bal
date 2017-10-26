@@ -6,7 +6,7 @@ struct TStruct {
     string msg;
 }
 
-function testSimpleWorkerVM (string msg) (string ) {
+function testSimpleWorkerVM (string msg) (string) {
     worker default {
         "a" -> sampleWorker;
         string result;

@@ -1,3 +1,3 @@
-function testUndeclaredVariables() (int) {
-	return a;
+function testUndeclaredVariables () (int) {
+    return a;
 }

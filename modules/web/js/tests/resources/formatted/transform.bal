@@ -1,4 +1,4 @@
-function func(int a, int b) {
+function func (int a, int b) {
     int d;
     int e;
     transform {
@@ -7,6 +7,6 @@ function func(int a, int b) {
     }
 }
 
-function test(int a) (int) {
+function test (int a) (int) {
     return 5;
 }

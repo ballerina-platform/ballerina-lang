@@ -1,39 +1,39 @@
-function testReturnStmtLocation1() {
+function testReturnStmtLocation1 () {
     int a = 2;
     if (a > 0) {
-       string s1 = "hello if";
+        string s1 = "hello if";
     } else {
-       string s2 = "hello else";
+        string s2 = "hello else";
     }
     return;
 }
 
-function testReturnStmtLocation2()(int) {
+function testReturnStmtLocation2 () (int) {
     int a = 2;
     if (a > 0) {
-      string s1 = "hello if";
+        string s1 = "hello if";
     } else {
-      string s2 = "hello else";
+        string s2 = "hello else";
     }
     return a;
 }
 
-function testReturnStmtLocation3() {
+function testReturnStmtLocation3 () {
     int a = 2;
     if (a > 0) {
-       string s1 = "hello if";
-       return;
+        string s1 = "hello if";
+        return;
     } else {
-      string s2 = "hello else";
+        string s2 = "hello else";
     }
 }
 
-function testReturnStmtLocation4() {
+function testReturnStmtLocation4 () {
     int a = 2;
-    while(a < 4) {
+    while (a < 4) {
         a = a + 1;
         if (a == 3) {
-        return;
+            return;
         }
     }
 }

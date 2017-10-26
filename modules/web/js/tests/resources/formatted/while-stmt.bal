@@ -1,18 +1,18 @@
-function testWhileStmt(int x, int y) (int) {
+function testWhileStmt (int x, int y) (int) {
     int z;
 
-    while(x >= y) {
+    while (x >= y) {
         y = y + 1;
         z = z + 10;
     }
     return z;
 }
 
-function testWhileScope(int number)(int) {
+function testWhileScope (int number) (int) {
     int i = number;
-    while(i < 4) {
+    while (i < 4) {
         i = i + 1;
-        if(i == 2) {
+        if (i == 2) {
             int x = 200;
             i = x;
         } else {
@@ -23,23 +23,23 @@ function testWhileScope(int number)(int) {
     return i;
 }
 
-function testWhileScopeWithIf()(int, float) {
+function testWhileScopeWithIf () (int, float) {
     float[] values = [];
     string operator;
     float sum = 0.0;
-    string[] args = ["+" , "10", "20"];
+    string[] args = ["+", "10", "20"];
 
     int i = 0;
     while (i < 3) {
-        if(i == 0){
+        if (i == 0) {
             operator = args[0];
         } else {
-            values[i -1], _ = <float>args[i];
+            values[i - 1], _ = <float>args[i];
         }
         i = i + 1;
     }
     int j = 0;
-    while(j < 2) {
+    while (j < 2) {
         sum = sum + values[j];
         j = j + 1;
     }

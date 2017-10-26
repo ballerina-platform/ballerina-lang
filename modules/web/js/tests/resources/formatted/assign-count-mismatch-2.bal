@@ -1,4 +1,4 @@
-function testAssignCountMismatch() (int, string, int) {
+function testAssignCountMismatch () (int, string, int) {
     int a;
     string name;
     int b;
@@ -8,6 +8,6 @@ function testAssignCountMismatch() (int, string, int) {
     return a, name, b;
 }
 
-function testMultiReturnInternal() (int, string, int) {
+function testMultiReturnInternal () (int, string, int) {
     return 5, "john", 6;
 }

@@ -1,5 +1,5 @@
 import ballerina.lang.system;
-function testMultiInteractions(int k) (int){
+function testMultiInteractions (int k) (int) {
     return test(k);
 }
 

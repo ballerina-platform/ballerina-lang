@@ -25,7 +25,7 @@ connector TestConnector (string param1, string param2, int param3) {
             return result;
         }
         worker sampleWorker {
-              msg -> default;
+            msg -> default;
         }
     }
 

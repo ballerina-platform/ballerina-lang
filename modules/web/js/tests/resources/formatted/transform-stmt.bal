@@ -11,7 +11,7 @@ struct Employee {
     string address;
 }
 
-function oneToOneTransform() (string, int, string){
+function oneToOneTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -22,7 +22,7 @@ function oneToOneTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function functionsInTransform() (string, int, string){
+function functionsInTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -33,7 +33,7 @@ function functionsInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function varInTransform() (string, int, string){
+function varInTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -45,7 +45,7 @@ function varInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function varDefInTransform() (string, int, string){
+function varDefInTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -57,25 +57,25 @@ function varDefInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function castAndConversionInTransform() (string, int, string, any){
+function castAndConversionInTransform () (string, int, string, any) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     any ageAny = "";
     any defaultAddress = "New York";
     transform {
         string age = "20";
-        e.address, _ = (string) defaultAddress; //unsafe explicit cast
+        e.address, _ = (string)defaultAddress; //unsafe explicit cast
         e.name = getPrefixedName(p.firstName);
-        e.age, _ = <int> age; //unsafe conversion
+        e.age, _ = <int>age; //unsafe conversion
         ageAny = p.age; // implicit cast
     }
     return e.name, e.age, e.address, ageAny;
 }
 
-function getPrefixedName(string name)(string){
+function getPrefixedName (string name) (string) {
     return "Mr." + name;
 }
 
-function getNameWithPrefix(string prefix, string name)(string){
+function getNameWithPrefix (string prefix, string name) (string) {
     return prefix + name;
 }

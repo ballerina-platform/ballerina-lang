@@ -28,7 +28,7 @@ function floatToInt (float value) (int) {
     return result;
 }
 
-function floatToString(float value)(string) {
+function floatToString (float value) (string) {
     string result;
     result = <string>value;
     return result;
@@ -46,55 +46,55 @@ function floatToAny (float value) (any) {
     return result;
 }
 
-function stringToInt(string value)(int) {
+function stringToInt (string value) (int) {
     int result;
     result, _ = <int>value;
     return result;
 }
 
-function stringToFloat(string value)(float) {
+function stringToFloat (string value) (float) {
     float result;
     result, _ = <float>value;
     return result;
 }
 
-function stringToBoolean(string value)(boolean) {
+function stringToBoolean (string value) (boolean) {
     boolean result;
     result, _ = <boolean>value;
     return result;
 }
 
-function stringToAny(string value)(any) {
+function stringToAny (string value) (any) {
     any result;
     result = (any)value;
     return result;
 }
 
-function booleanToInt(boolean value)(int) {
+function booleanToInt (boolean value) (int) {
     int result;
     result = <int>value;
     return result;
 }
 
-function booleanToFloat(boolean value)(float) {
+function booleanToFloat (boolean value) (float) {
     float result;
     result = <float>value;
     return result;
 }
 
-function booleanToString(boolean value)(string) {
+function booleanToString (boolean value) (string) {
     string result;
     result = <string>value;
     return result;
 }
 
-function booleanToAny(boolean value)(any) {
+function booleanToAny (boolean value) (any) {
     any result;
     result = (any)value;
     return result;
 }
 
-function blobToAny(blob value)(any) {
+function blobToAny (blob value) (any) {
     any result;
     result = (any)value;
     return result;
@@ -140,15 +140,15 @@ function anyToBlob (blob data) (blob) {
     return value;
 }
 
-function booleanappendtostring(boolean value)(string) {
+function booleanappendtostring (boolean value) (string) {
     string result;
     result = value + "-append-" + value;
     return result;
 }
 
-function intarrtofloatarr()(float[]) {
+function intarrtofloatarr () (float[]) {
     float[] numbers;
-    numbers = [999,95,889];
+    numbers = [999, 95, 889];
     return numbers;
 }
 

@@ -1,3 +1,3 @@
-function messageTest() {
+function messageTest () {
     message message = {};
 }

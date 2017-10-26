@@ -1,40 +1,40 @@
-function testIntAssignStmt(int a) (int) {
+function testIntAssignStmt (int a) (int) {
     int x;
     x = a;
     return x;
 }
 
-function testFloatAssignStmt(float a) (float) {
+function testFloatAssignStmt (float a) (float) {
     float x;
     x = a;
     return x;
 }
 
-function testBooleanAssignStmt(boolean a) (boolean) {
+function testBooleanAssignStmt (boolean a) (boolean) {
     boolean x;
     x = a;
     return x;
 }
 
-function testStringAssignStmt(string a) (string) {
+function testStringAssignStmt (string a) (string) {
     string x;
     x = a;
     return x;
 }
 
-function testIntToArrayAssignStmt(int a) (int) {
+function testIntToArrayAssignStmt (int a) (int) {
     int[] arr = [];
     arr[0] = a;
     return arr[0];
 }
 
-function testArrayIndexToIntAssignStmt(int[] arr) (int) {
+function testArrayIndexToIntAssignStmt (int[] arr) (int) {
     int a;
     a = arr[0];
     return a;
 }
 
-function testMultiReturn() (int, string, int) {
+function testMultiReturn () (int, string, int) {
     int a;
     string name;
     int b;
@@ -43,7 +43,7 @@ function testMultiReturn() (int, string, int) {
     return a, name, b;
 }
 
-function testMultiReturnInternal() (int, string, int) {
+function testMultiReturnInternal () (int, string, int) {
     return 5, "john", 6;
 }
 

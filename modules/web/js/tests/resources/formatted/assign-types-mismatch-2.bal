@@ -1,4 +1,4 @@
-function testAssignTypeMismatch() (int, string, int) {
+function testAssignTypeMismatch () (int, string, int) {
     int a;
     int name;
     int b;
@@ -7,6 +7,6 @@ function testAssignTypeMismatch() (int, string, int) {
     return a, name, b;
 }
 
-function testMultiReturnInternal() (int, string, int) {
+function testMultiReturnInternal () (int, string, int) {
     return 5, "john", 6;
 }

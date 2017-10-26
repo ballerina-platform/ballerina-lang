@@ -15,11 +15,11 @@ struct Student {
     int[] marks;
 }
 
-function testStructToStruct() (Person) {
-    Student s = { name:"Supun", 
-                  age:25, 
-                  address:{"city":"Kandy", "country":"SriLanka"}, 
-                  marks:[24, 81]
+function testStructToStruct () (Person) {
+    Student s = {name:"Supun",
+                    age:25,
+                    address:{"city":"Kandy", "country":"SriLanka"},
+                    marks:[24, 81]
                 };
     Person p = s;
     return p;

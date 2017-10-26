@@ -14,7 +14,7 @@ struct User {
 }
 
 function main (string[] args) {
-    json<Person> p = {firstName: "John",lastName: "Doe",age: 30,city: "London"};
+    json<Person> p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     json<User> u = {};
 
     transform {

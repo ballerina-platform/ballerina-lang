@@ -1,5 +1,5 @@
-function testUndeclaredStructAccess() {
-	string name;
+function testUndeclaredStructAccess () {
+    string name;
 
-	dpt1.name = "HR";
+    dpt1.name = "HR";
 }

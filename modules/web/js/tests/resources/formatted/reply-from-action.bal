@@ -1,8 +1,8 @@
-connector TestConnector(string param1) {
+connector TestConnector (string param1) {
 
     boolean b1;
 
-    action testReplyAction() (boolean){
+    action testReplyAction () (boolean) {
         response:send(b1);
     }
 }

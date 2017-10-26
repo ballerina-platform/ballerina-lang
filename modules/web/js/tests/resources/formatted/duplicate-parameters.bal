@@ -1,4 +1,4 @@
-function foo(string param, int param) {
-	string a;
-	a = param;
+function foo (string param, int param) {
+    string a;
+    a = param;
 }

@@ -1,4 +1,4 @@
-function testReturnStmtLocation1() {
+function testReturnStmtLocation1 () {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -8,7 +8,7 @@ function testReturnStmtLocation1() {
     return;
 }
 
-function testReturnStmtLocation2()(int) {
+function testReturnStmtLocation2 () (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -18,7 +18,7 @@ function testReturnStmtLocation2()(int) {
     return a;
 }
 
-function testReturnStmtLocation3() {
+function testReturnStmtLocation3 () {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -28,9 +28,9 @@ function testReturnStmtLocation3() {
     }
 }
 
-function testReturnStmtLocation4() {
+function testReturnStmtLocation4 () {
     int a = 2;
-    while(a < 4) {
+    while (a < 4) {
         a = a + 1;
         if (a == 3) {
             return;
@@ -38,7 +38,7 @@ function testReturnStmtLocation4() {
     }
 }
 
-function testCommentAfterReturnStmt()(int) {
+function testCommentAfterReturnStmt () (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";

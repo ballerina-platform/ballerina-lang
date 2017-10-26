@@ -1,4 +1,3 @@
-
-function foo5() {
-  // do nothing
+function foo5 () {
+    // do nothing
 }

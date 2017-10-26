@@ -1,4 +1,4 @@
-function testCommentAfterReturnStmt()(int) {
+function testCommentAfterReturnStmt () (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";

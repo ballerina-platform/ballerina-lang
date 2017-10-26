@@ -1,5 +1,5 @@
 package p.q.r;
 
-function foo3() {
-  // do nothing
+function foo3 () {
+    // do nothing
 }

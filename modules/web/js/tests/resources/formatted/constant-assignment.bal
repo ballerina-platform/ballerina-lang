@@ -3,32 +3,32 @@ import ballerina.lang.strings;
 
 const string envVar = system:getEnv("env_var");
 const string varFunc = dummyStringFunction();
-const string varNativeFunc = strings:replace("ballerina is $$$","$$$","awesome");
-const int varIntExpr = 10+10+10;
+const string varNativeFunc = strings:replace("ballerina is $$$", "$$$", "awesome");
+const int varIntExpr = 10 + 10 + 10;
 const string varConcat = envVar + varFunc + varNativeFunc;
 
-function accessConstant() (string) {
+function accessConstant () (string) {
     return envVar;
 }
 
-function accessConstantViaFunction() (string) {
+function accessConstantViaFunction () (string) {
     return varFunc;
 }
 
-function dummyStringFunction() (string) {
+function dummyStringFunction () (string) {
     return "dummy";
 }
 
-function accessConstantViaNativeFunction() (string) {
+function accessConstantViaNativeFunction () (string) {
     return varNativeFunc;
 }
 
 
-function accessConstantEvalIntegerExpression() (int) {
+function accessConstantEvalIntegerExpression () (int) {
     return varIntExpr;
 }
 
-function accessConstantEvalWithMultipleConst() (string) {
+function accessConstantEvalWithMultipleConst () (string) {
     return varConcat;
 }
 

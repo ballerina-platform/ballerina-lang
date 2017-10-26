@@ -1,6 +1,6 @@
 const int a = 6;
 
-function testConditionScope(int b)(int) {
+function testConditionScope (int b) (int) {
     int output = 0;
     if (a > b) {
         int a = 1;

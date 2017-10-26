@@ -1,35 +1,35 @@
 import ballerina.lang.system;
 
-function successfulXmlCasting()(xml) {
-  any abc = jsonReturnFunction();
-  json jsonVal;
-  jsonVal, _ = (json)abc;
-  xml xmlVal;
-  xmlVal, _ = <xml>jsonVal;
-  return xmlVal;
+function successfulXmlCasting () (xml) {
+    any abc = jsonReturnFunction();
+    json jsonVal;
+    jsonVal, _ = (json)abc;
+    xml xmlVal;
+    xmlVal, _ = <xml>jsonVal;
+    return xmlVal;
 }
 
-function jsonReturnFunction()(json) {
-  json val = {"PropertyName" : "Value"};
-  return val;
+function jsonReturnFunction () (json) {
+    json val = {"PropertyName":"Value"};
+    return val;
 }
 
-function printlnAnyVal() {
+function printlnAnyVal () {
     any val = jsonReturnFunction();
     system:println(val);
 }
 
-function printAnyVal() {
+function printAnyVal () {
     any val = jsonReturnFunction();
     system:print(val);
 }
 
-function findBestNativeFunctionPrintln() {
+function findBestNativeFunctionPrintln () {
     int val = 8;
     system:println(val);
 }
 
-function findBestNativeFunctionPrint() {
+function findBestNativeFunctionPrint () {
     int val = 7;
     system:print(val);
 }

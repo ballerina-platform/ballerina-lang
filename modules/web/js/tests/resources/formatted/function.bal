@@ -1,11 +1,11 @@
-function test(int a, int b, int c) (int, int) {
+function test (int a, int b, int c) (int, int) {
 
     int x;
     x = 10;
     a = c;
-    a = b ;
+    a = b;
 
-    while ( a == b ) {
+    while (a == b) {
         a = b + c;
     }
 

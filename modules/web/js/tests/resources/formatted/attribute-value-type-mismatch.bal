@@ -1,7 +1,6 @@
-
 const int intValue = getInt();
 
-@Args{value : intValue}
+@Args {value:intValue}
 function foo () {
     // do nothing
 }
@@ -10,6 +9,6 @@ annotation Args {
     string value;
 }
 
-function getInt()(int) {
+function getInt () (int) {
     return 44;
 }

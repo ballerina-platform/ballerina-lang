@@ -1,6 +1,6 @@
 const int i = 10;
 
-function testConstAssignment(){
+function testConstAssignment () {
     int a;
     string name;
     int b;

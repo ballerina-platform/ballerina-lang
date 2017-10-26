@@ -11,7 +11,7 @@ struct Employee {
     string address;
 }
 
-function varInTransform() (string, int, string){
+function varInTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -24,6 +24,6 @@ function varInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function getPrefixedName(string a) (string) {
+function getPrefixedName (string a) (string) {
     return "";
 }

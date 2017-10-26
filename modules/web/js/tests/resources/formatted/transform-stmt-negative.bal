@@ -11,7 +11,7 @@ struct Employee {
     string address;
 }
 
-function oneToOneTransform() (string, int, string){
+function oneToOneTransform () (string, int, string) {
     Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {

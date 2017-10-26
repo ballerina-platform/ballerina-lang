@@ -1,3 +1,3 @@
-function testNullForValueType() {
-    json j = (json) null;
+function testNullForValueType () {
+    json j = (json)null;
 }

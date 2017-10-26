@@ -1,5 +1,5 @@
-function getAttributesFromNonXml() {
+function getAttributesFromNonXml () {
     map m = {};
-    
+
     string s = m@["foo"];
 }

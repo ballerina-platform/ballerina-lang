@@ -1,3 +1,3 @@
-function m(){
+function m () {
     string s = string `Hello {{name}}`;
 }

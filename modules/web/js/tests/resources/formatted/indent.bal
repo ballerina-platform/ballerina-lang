@@ -1,7 +1,7 @@
-function testAssignTypeMismatch(int manu) {
+function testAssignTypeMismatch (int manu) {
     if (xxx) {
         int j;
-       if (yyy) {
+        if (yyy) {
             int k;
             int low;
         }
