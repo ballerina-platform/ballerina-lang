@@ -24,7 +24,7 @@ function funcReturnInt()(int){
 struct TestError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string code;
 }
 

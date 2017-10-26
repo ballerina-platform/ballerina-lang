@@ -82,17 +82,14 @@ public class BRunUtil {
      * @param functionName  Name of the function to invoke
      * @param args          Input parameters for the function
      * @param context       context for function invocation
-     * @param timeout       timeout value for the invocation in seconds
      * @return return values of the function
      */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, Context context,
-                                  int timeout) {
+    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, Context context) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args, context,
-                timeout);
+        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args, context);
     }
 
     /**
