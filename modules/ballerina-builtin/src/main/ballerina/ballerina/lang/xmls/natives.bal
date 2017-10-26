@@ -8,11 +8,6 @@ public struct Options {
     boolean preserveNamespaces = true;
 }
 
-@doc:Description { value:"Converts an XML object to a string representation."}
-@doc:Param { value:"x: An XML object" }
-@doc:Return { value:"string: String value of the converted XML" }
-public native function toString (xml x) (string);
-
 @doc:Description { value:"Check whether the XML sequence contains only a single element."}
 @doc:Param { value:"x: An XML object" }
 @doc:Return { value:"xml: Boolean flag indicating whether the XML sequence contains only a single element" }
@@ -69,11 +64,6 @@ public native function setChildren(xml x, xml children);
 @doc:Return { value:"xml: A Copy of the XML" }
 public native function copy(xml x) (xml);
 
-@doc:Description { value:"Parses a string as an XML."}
-@doc:Param { value:"xmlStr: String representation of XML" }
-@doc:Return { value:"xml: Parsed XML value" }
-public native function parse(string xmlStr) (xml);
-
 @doc:Description { value:"Strips any text items from an XML sequence that are all whitespace."}
 @doc:Param { value:"x: An XML object" }
 @doc:Return { value:"xml: Striped sequence" }
@@ -101,3 +91,8 @@ public native function toJSON (xml x, Options options) (json);
 @doc:Param { value:"qname: Qualified name of the element" }
 @doc:Return { value:"xml: All the descendants that matches the given qualified name, as a sequence" }
 public native function selectDescendants(xml x, string qname) (xml);
+
+@doc:Description { value:"Remove an attribute from an XML." }
+@doc:Param { value:"x: An XML object" }
+@doc:Param { value:"qname: Qualified name of the attribute" }
+public native function removeAttribute(xml x, string qname);

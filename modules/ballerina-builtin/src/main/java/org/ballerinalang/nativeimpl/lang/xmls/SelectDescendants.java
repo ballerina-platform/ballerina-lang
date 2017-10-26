@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -53,7 +52,7 @@ public class SelectDescendants extends AbstractNativeFunction {
         try {
             // Accessing Parameters.
             BXML<?> value = (BXML<?>) getRefArgument(ctx, 0);
-            BString qname = new BString(getStringArgument(ctx, 0));
+            String qname = getStringArgument(ctx, 0);
             result = value.descendants(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

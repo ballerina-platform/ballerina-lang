@@ -360,6 +360,8 @@ public class SymbolTable {
         defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
         defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
+        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
+        defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

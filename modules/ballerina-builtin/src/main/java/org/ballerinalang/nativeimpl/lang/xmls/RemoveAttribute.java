@@ -20,42 +20,41 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Parse a string and get an XML.
+ * Remove an attribute from an XML.
  * 
- * @since 0.88
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "parse",
-        args = {@Argument(name = "xmlStr", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        functionName = "removeAttribute",
+        args = {@Argument(name = "x", type = TypeKind.XML),
+                @Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Parse extends AbstractNativeFunction {
+public class RemoveAttribute extends AbstractNativeFunction {
 
-private static final String OPERATION = "parse xml";
+    private static final String OPERATION = "remove attribute";
 
     @Override
     public BValue[] execute(Context ctx) {
-        BValue result = null;
         try {
             // Accessing Parameters.
-            String xmlStr = getStringArgument(ctx, 0);
-            result = XMLUtils.parse(xmlStr);
+            BXML<?> xml = (BXML<?>) getRefArgument(ctx, 0);
+            String qname = getStringArgument(ctx, 0);
+            xml.removeAttribute(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
-        return getBValues(result);
+        return VOID_RETURN;
     }
 }

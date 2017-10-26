@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -816,9 +817,26 @@ public class XMLNativeFunctionTest {
             expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
                     "index out of range: \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
-        BRunUtil.invoke(result, "testSliceOutOfRangeIndex");
+        BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
+        BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
-    
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+                    + "index out of range: \\[-4,10\\].*")
+    public void testSliceOutOfRangeNegativeStartIndex() {
+        BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
+        BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+                    + "index out of range: \\[4,-10\\].*")
+    public void testSliceOutOfRangeNegativeEndIndex() {
+        BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
+        BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
+    }
+
     @Test
     public void testSliceSingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testSliceSingleton");
@@ -1305,9 +1323,41 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<root>hello world</root>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: failed to parse xml: Unexpected EOF in prolog.*")
+    @Test
     public void testParseXMLCommentWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
+        Assert.assertEquals(returns[0], null);
+        Assert.assertEquals(returns[1].stringValue(),
+                "{msg:\"Unexpected EOF in prolog\n at [row,col {unknown-source}]:"
+                        + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
+                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:818}], sourceType:"
+                        + "\"string\", targetType:\"xml\"}");
+    }
+
+    @Test
+    public void testRemoveAttributeUsingStringName() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsingStringName");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
+                        + "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+    }
+
+    @Test
+    public void testRemoveAttributeUsinQName() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsinQName");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
+                        + "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+    }
+
+    @Test
+    public void testRemoveNonExistingAttribute() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveNonExistingAttribute");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
+                        + "foo1=\"bar1\" ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 }

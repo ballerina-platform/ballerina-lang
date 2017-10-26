@@ -27,7 +27,6 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
@@ -55,15 +54,6 @@ public class Slice extends AbstractNativeFunction {
             BXML value = (BXML) getRefArgument(ctx, 0);
             long startIndex = getIntArgument(ctx, 0);
             long endIndex = getIntArgument(ctx, 1);
-            
-            if (startIndex < -1) {
-                throw new BallerinaException("invalid start index: " + startIndex);
-            }
-            
-            if (endIndex < -1) {
-                throw new BallerinaException("invalid end index: " + endIndex);
-            }
-            
             result = value.slice(startIndex, endIndex);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

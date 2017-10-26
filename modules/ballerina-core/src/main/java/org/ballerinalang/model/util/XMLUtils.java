@@ -296,24 +296,6 @@ public class XMLUtils {
     }
 
     /**
-     * Get the singleton value of the xml, for xpath operations.
-     *
-     * @param xml source xml
-     * @return singleton value
-     */
-    public static BXML getSingletonValue(BXML xml) {
-        if (xml instanceof BXMLItem) {
-            return xml;
-        }
-
-        if (!xml.isSingleton().value()) {
-            throw new BallerinaException("cannot execute xpath on a xml sequence");
-        }
-
-        return (BXML) ((BXMLSequence) xml).value().get(0);
-    }
-
-    /**
      * Converts a {@link BDataTable} to {@link BXML}.
      *
      * @param dataTable {@link BDataTable} to convert

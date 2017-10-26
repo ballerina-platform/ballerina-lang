@@ -644,6 +644,8 @@ public class BLangVM {
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.XML2S:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -2221,6 +2223,23 @@ public class BLangVM {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
                 }
+                break;
+            case InstructionCodes.S2XML:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                try {
+                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.XML2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.refRegs[j].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();

@@ -155,7 +155,7 @@ function testToXmlWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             xml xmlResult;
             xmlResult, _ = <xml>dt;
-            result = xmls:toString(xmlResult);
+            result = <string> xmlResult;
         } aborted {
         returnValue = -1;
     }

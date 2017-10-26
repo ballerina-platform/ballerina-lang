@@ -165,7 +165,7 @@ public class BLangVMErrors {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
-        BStruct error = createBStruct(errorStructInfo, errorMessage, null,
+        BStruct error = createBStruct(errorStructInfo, errorMessage, null, null,
                 sourceTypeName, targetTypeName);
 
         // Set StackTrace.
