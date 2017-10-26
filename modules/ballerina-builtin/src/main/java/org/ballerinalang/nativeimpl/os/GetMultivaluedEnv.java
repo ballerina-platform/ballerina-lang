@@ -21,8 +21,6 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,14 +36,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Splits the value of a environment variable using path separator and returns the separated values as " +
-                "an array.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "name",
-        value = "name of the environment variable") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string[]",
-        value = "environment variable values as an array if the provided environment variable exists, otherwise an " +
-                "empty array") })
 public class GetMultivaluedEnv extends AbstractNativeFunction {
 
     private static final String PROPERTY_NAME = "path.separator";

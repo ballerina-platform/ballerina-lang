@@ -17,12 +17,11 @@ package org.ballerinalang.nativeimpl.user;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -40,11 +39,6 @@ import org.ballerinalang.util.codegen.StructInfo;
                                   structPackage = "ballerina.utils")},
         isPublic = true
 )
-
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns the current user's locale.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
-        value = "current user's locale")})
 public class GetLocale extends AbstractNativeFunction {
 
     @Override
@@ -55,11 +49,11 @@ public class GetLocale extends AbstractNativeFunction {
     private BStruct createLocale(Context context) {
         String language = System.getProperty("user.language");
         if (language == null) {
-            language = "";
+            language = BTypes.typeString.getZeroValue().stringValue();
         }
         String country = System.getProperty("user.country");
         if (country == null) {
-            country = "";
+            country = BTypes.typeString.getZeroValue().stringValue();
         }
         PackageInfo utilsPackageInfo = context.getProgramFile().getPackageInfo("ballerina.utils");
         StructInfo localeStructInfo = utilsPackageInfo.getStructInfo("Locale");

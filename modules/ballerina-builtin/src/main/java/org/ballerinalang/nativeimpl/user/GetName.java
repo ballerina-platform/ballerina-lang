@@ -16,12 +16,11 @@
 package org.ballerinalang.nativeimpl.user;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -36,10 +35,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns the current user's name.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "current user's name if it can be determined, an empty string otherwise")})
 public class GetName extends AbstractNativeFunction {
 
     private static final String PROPERTY_NAME = "user.name";
@@ -48,7 +43,7 @@ public class GetName extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String value = System.getProperty(PROPERTY_NAME);
         if (value == null) {
-            value = "";
+            value = BTypes.typeString.getZeroValue().stringValue();
         }
         return getBValues(new BString(value));
     }

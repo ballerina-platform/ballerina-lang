@@ -21,8 +21,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -39,10 +37,6 @@ import java.util.Properties;
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns all system properties.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map",
-        value = "all system properties")})
 public class GetProperties extends AbstractNativeFunction {
 
     @Override

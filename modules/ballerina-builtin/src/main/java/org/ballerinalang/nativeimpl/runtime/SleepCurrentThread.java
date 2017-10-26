@@ -20,8 +20,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,15 +33,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sleeps the current thread for a predefined amount of time.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "millis",
-        value = "amount of time to sleep in milliseconds")})
 public class SleepCurrentThread extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        long  millis = getIntArgument(context, 0);
+        long millis = getIntArgument(context, 0);
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

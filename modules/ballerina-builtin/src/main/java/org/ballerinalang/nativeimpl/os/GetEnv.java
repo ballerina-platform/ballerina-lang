@@ -16,13 +16,12 @@
 package org.ballerinalang.nativeimpl.os;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,12 +37,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns environment variable which is associated with the provided name.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "name",
-        value = "name of the environment variable") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "environment variable value if exists, otherwise an empty string") })
 public class GetEnv extends AbstractNativeFunction {
 
     @Override
@@ -51,7 +44,7 @@ public class GetEnv extends AbstractNativeFunction {
         String str = getStringArgument(context, 0);
         String value = System.getenv(str);
         if (value == null) {
-            value = "";
+            value = BTypes.typeString.getZeroValue().stringValue();
         }
         return getBValues(new BString(value));
     }
