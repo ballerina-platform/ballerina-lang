@@ -33,6 +33,7 @@ import TreeUtils from './../../../../../model/tree-util';
 import Node from './../../../../../../ballerina/model/tree/node';
 import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
+import FragmentUtils from './../../../../../utils/fragment-utils';
 
 /**
  * @class StructDefinition
@@ -186,6 +187,58 @@ class StructNode extends React.Component {
         this.setState({ canShowAddType: false });
     }
 
+    onClickJsonImport() {
+        const onImport = (json) => {
+            let fragment = FragmentUtils.createExpressionFragment(json);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            let refExpr = TreeBuilder.build(parsedJson);
+            let currentValue;
+            this.props.model.setFields([], true);
+            refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
+                let currentName
+                if (TreeUtils.isLiteral(ketValPair.getKey())) {
+                    currentName = ketValPair.getKey().getValue().replace(/"/g, '');
+                } else {
+                    currentName = ketValPair.getKey().getVariableName().getValue();
+                }
+                if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
+                    // TODO : Implement anonymous struct generation
+                    return;
+                } else {
+                    currentValue = ketValPair.getValue().getValue();
+                }
+
+                let currentType = 'string';
+                if (this.isInt(currentValue)) {
+                    currentType = 'int';
+                } else if (this.isFloat(currentValue)) {
+                    currentType = 'float';
+                }
+                fragment = FragmentUtils.createStatementFragment(currentType + ' ' + currentName
+                                                                  + ' = ' + currentValue + ';');
+                parsedJson = FragmentUtils.parseFragment(fragment);
+                refExpr = TreeBuilder.build(parsedJson);
+                this.props.model.addFields(refExpr.getVariable());
+            });
+        };
+        const id = 'composer.dialog.import.struct';
+        const { command: { dispatch } } = this.context;
+        dispatch('popup-dialog', {
+            id,
+            additionalProps: {
+                onImport,
+            },
+        });
+    }
+
+    isInt(val) {
+        return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
+    }
+
+    isFloat(val) {
+        return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
+    }
+
     /**
      * Validate identifier name
      * @param {string} identifier - identifier name
@@ -249,6 +302,21 @@ class StructNode extends React.Component {
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
+              <rect
+                  x={x + 480}
+                  y={y - 22}
+                  width={120}
+                  height={20}
+                  className="struct-import-json-button"
+                  onClick={e => this.onClickJsonImport()}
+              />
+              <text
+                  x={x + 485}
+                  y={y - 10}
+                  className="struct-import-json-text"
+                  onClick={e => this.onClickJsonImport()}
+              > {'Import from JSON'}
+              </text>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
                 <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
@@ -411,6 +479,10 @@ class StructNode extends React.Component {
 StructNode.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
 };
 
 export default StructNode;
