@@ -47,7 +47,6 @@ ArrayLiteralExpr
 
 Assignment
    : <declaredWithVar?var> <variables-joined-by,>* = <expression.source> ;
-   | <variables-joined-by,>* = <expression.source> ;
    ;
 
 BinaryExpr
@@ -108,20 +107,21 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <lambda?> <annotationAttachments>* function ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   |           <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 FunctionType
-   : function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> ( <returnParamTypeNode>* )
+   : function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> ( <returnParamTypeNode>+ )
+   | function ( <paramTypeNode-joined-by,>* )
    ;
 
 If
-   : if ( <condition.source> ) { <body.source> } else <elseStatement.source> <ladderParent?>
-   | if ( <condition.source> ) { <body.source> } else { <elseStatement.source> }
-   | if ( <condition.source> ) { <body.source> }
+   : <ladderParent?> if ( <condition.source> ) { <body.source> } else   <elseStatement.source>
+   |                 if ( <condition.source> ) { <body.source> } else { <elseStatement.source> }
+   |                 if ( <condition.source> ) { <body.source> }
    ;
 
 IndexBasedAccessExpr
@@ -129,9 +129,9 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <expression.source> . <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> : <name.value> ( <argumentExpressions-joined-by,>* )
-   | <name.value> ( <argumentExpressions-joined-by,>* )
+   : <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda
@@ -185,7 +185,6 @@ StringTemplateLiteral
 
 Struct
    : <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
-   | <annotationAttachments>* struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -198,12 +197,12 @@ Throw
 
 Transaction
    : transaction { <transactionBody.source> } failed { <failedBody.source> } aborted { <abortedBody.source> } committed { <committedBody.source> }
-   | transaction { <transactionBody.source> } aborted { <abortedBody.source> } committed { <committedBody.source> }
+   | transaction { <transactionBody.source> }                                aborted { <abortedBody.source> } committed { <committedBody.source> }
    | transaction { <transactionBody.source> } failed { <failedBody.source> } aborted { <abortedBody.source> }
-   | transaction { <transactionBody.source> } failed { <failedBody.source> } committed { <committedBody.source> }
+   | transaction { <transactionBody.source> } failed { <failedBody.source> }                                  committed { <committedBody.source> }
    | transaction { <transactionBody.source> } failed { <failedBody.source> }
-   | transaction { <transactionBody.source> } committed { <committedBody.source> }
-   | transaction { <transactionBody.source> } aborted { <abortedBody.source> }
+   | transaction { <transactionBody.source> }                                                                 committed { <committedBody.source> }
+   | transaction { <transactionBody.source> }                                aborted { <abortedBody.source> }
    | transaction { <transactionBody.source> }
    ;
 
@@ -239,14 +238,11 @@ ValueType
    ;
 
 Variable
-   : <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <annotationAttachments>* <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <annotationAttachments>* <public?public> <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
-   | <annotationAttachments>* <typeNode.source> <name.value> = <initialExpression.source> ; <global?>
-   | <annotationAttachments>* <typeNode.source> <name.value> ; <global?>
-   | <typeNode.source> <name.value> = <initialExpression.source>
-   | <annotationAttachments>* <typeNode.source> <name.value>
-   | <typeNode.source>
+   : <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
+   |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
+   |           <annotationAttachments>*                               <typeNode.source> <name.value>
+   |                                                                  <typeNode.source>
    ;
 
 VariableDef
@@ -266,8 +262,8 @@ WorkerReceive
    ;
 
 WorkerSend
-   : <expressions-joined-by,>* -> <forkJoinedSend?fork> ;
-   | <expressions-joined-by,>* -> <workerName.value> ;
+   : <forkJoinedSend?> <expressions-joined-by,>* -> fork ;
+   |                   <expressions-joined-by,>* -> <workerName.value> ;
    ;
 
 XmlAttribute
