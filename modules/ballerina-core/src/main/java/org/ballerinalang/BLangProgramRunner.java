@@ -79,6 +79,9 @@ public class BLangProgramRunner {
             serviceCount++;
         }
 
+        // Validate the server connectors after service registration
+        ServerConnectorRegistry.getInstance().validateServerConnectors();
+
         if (serviceCount == 0) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }

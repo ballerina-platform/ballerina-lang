@@ -34,17 +34,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Store all the WebSocket serviceEndpoints here.
+ * Store all the WebSocket serviceEndpointsMap here.
  */
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
-    // Map<interface, Map<uri, service>>
-    private final Map<String, Map<String, WebSocketService>> serviceEndpoints = new ConcurrentHashMap<>();
+    // Map<interface, Map<uri, ServiceName>>
+    private final Map<String, Map<String, String>> serviceEndpointsMap = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
+    // Map<clientServiceName, ServiceEndpoint>
+    private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
 
     private WebSocketServicesRegistry() {
     }
@@ -64,7 +66,7 @@ public class WebSocketServicesRegistry {
             registerClientService(service);
         } else {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
-                String upgradePath = findFullWebSocketUpgradePath(service);
+                String basePath = findFullWebSocketUpgradePath(service);
                 Annotation configAnnotation =
                         service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
                 Set<ListenerConfiguration> listenerConfigurationSet =
@@ -73,20 +75,32 @@ public class WebSocketServicesRegistry {
                 for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
                     String entryListenerInterface =
                             listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-                    Map<String, WebSocketService> servicesOnInterface = serviceEndpoints
+                    Map<String, String> servicesOnInterface = serviceEndpointsMap
                             .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
                     // Assumption : this is always sequential, no two simultaneous calls can get here
-                    if (servicesOnInterface.containsKey(upgradePath)) {
+                    if (servicesOnInterface.containsKey(basePath)) {
                         throw new BallerinaConnectorException(
-                                "service with base path :" + upgradePath + " already exists in listener : "
+                                "service with base path :" + basePath + " already exists in listener : "
                                         + entryListenerInterface);
                     }
-                    servicesOnInterface.put(upgradePath, service);
+                    servicesOnInterface.put(basePath, service.getName());
+                    serviceEndpoints.put(service.getName(), service);
                 }
 
-                logger.info("Service deployed : " + service.getName() + " with context " + upgradePath);
+                logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+            }
+        }
+    }
+
+    public void validateSeverEndpoints() {
+        for (Map.Entry<String, Map<String, String>> serviceInterfaceEntry : serviceEndpointsMap.entrySet()) {
+            for (Map.Entry<String, String> uriToEndpointNameEntry : serviceInterfaceEntry.getValue().entrySet()) {
+                if (!serviceEndpoints.containsKey(uriToEndpointNameEntry.getKey())) {
+                    throw new BallerinaConnectorException("Could not find a service for service name: " +
+                                                                  uriToEndpointNameEntry.getKey());
+                }
             }
         }
     }
@@ -113,8 +127,8 @@ public class WebSocketServicesRegistry {
         // TODO: Recorrect the logic behind unregistering service.
         String upgradePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
-        if (serviceEndpoints.containsKey(listenerInterface)) {
-            serviceEndpoints.get(listenerInterface).remove(upgradePath);
+        if (serviceEndpointsMap.containsKey(listenerInterface)) {
+            serviceEndpointsMap.get(listenerInterface).remove(upgradePath);
         }
     }
 
@@ -126,7 +140,7 @@ public class WebSocketServicesRegistry {
      * @return the service which matches.
      */
     public WebSocketService getServiceEndpoint(String listenerInterface, String uri) {
-        return serviceEndpoints.get(listenerInterface).get(uri);
+        return serviceEndpoints.get(serviceEndpointsMap.get(listenerInterface).get(uri));
     }
 
     /**

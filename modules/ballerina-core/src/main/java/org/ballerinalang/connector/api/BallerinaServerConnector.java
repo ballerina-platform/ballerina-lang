@@ -49,6 +49,13 @@ public interface BallerinaServerConnector {
     void serviceUnregistered(Service service) throws BallerinaConnectorException;
 
     /**
+     * Validate services registration.
+     *
+     * @throws BallerinaConnectorException if any error occurred in service registration.
+     */
+    void validateServiceRegistration() throws BallerinaConnectorException;
+
+    /**
      * This will fire a deployment complete event so to the server connector implementation.
      *
      * @throws BallerinaConnectorException if an error occurs
