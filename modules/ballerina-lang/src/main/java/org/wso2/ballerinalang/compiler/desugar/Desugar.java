@@ -567,6 +567,15 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         switch (iExpr.expr.type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BLOB:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.MAP:
+            case TypeTags.DATATABLE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
