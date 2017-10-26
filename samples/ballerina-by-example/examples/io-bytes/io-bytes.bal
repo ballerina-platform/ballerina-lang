@@ -23,10 +23,11 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     int bytesChunk = 10000;
     blob readContent;
     int readCount = -1;
+    int numberOfBytesWritten = 0;
 
     while (readCount != 0) {
         readContent,readCount = readBytes(src, bytesChunk);
-        writeBytes(dst, readContent, 0);
+        numberOfBytesWritten = writeBytes(dst, readContent, 0);
     }
 }
 

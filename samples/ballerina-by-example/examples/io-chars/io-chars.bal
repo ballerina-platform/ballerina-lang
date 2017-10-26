@@ -12,9 +12,9 @@ function process(io:CharacterChannel sourceChannel,io:CharacterChannel destinati
     string intermediateCharacterString = " my name is ";
     string greetingText = sourceChannel.readCharacters(5);
     string name = sourceChannel.readCharacters(12);
-    destinationChannel.writeCharacters(greetingText, 0);
-    destinationChannel.writeCharacters(intermediateCharacterString, 0);
-    destinationChannel.writeCharacters(name, 1);
+    _=destinationChannel.writeCharacters(greetingText, 0);
+    _=destinationChannel.writeCharacters(intermediateCharacterString, 0);
+    _=destinationChannel.writeCharacters(name, 1);
 }
 
 function main (string[] args) {
