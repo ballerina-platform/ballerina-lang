@@ -1,4 +1,4 @@
-function lazyInitThrowArrayIndexOutOfBound() {
+function lazyInitThrowArrayIndexOutOfBound () {
     int[] arr = [];
     int x;
 
@@ -40,12 +40,12 @@ function addValueToFloatArray() (float[]) {
 
 
 function commnetFunction() {
-// TODO
-// 1) Array add value test
-// 2) Array get value test
-// 3) Array grow test
-// 4) Array maximum size test
-// 5) Array grow and size change test
+    // TODO
+    // 1) Array add value test
+    // 2) Array get value test
+    // 3) Array grow test
+    // 4) Array maximum size test
+    // 5) Array grow and size change test
 }
 
 function testDefaultValueOfIntArrayElement() (int, int, int){
@@ -67,11 +67,11 @@ function testArrayGrowth () (int) {
     int count = 0;
     while (count < 20) {
         int intValue;
-        intValue, _ = <int>value;
+        intValue = <int>value;
 
         ar[intValue] = 1;
         value = value * 1.7;
         count = count + 1;
     }
-    return ar.length;
+    return lengthof ar;
 }
