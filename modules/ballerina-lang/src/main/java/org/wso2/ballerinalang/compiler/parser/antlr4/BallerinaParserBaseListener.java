@@ -544,18 +544,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConnectionTypeName(BallerinaParser.ConnectionTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectionTypeName(BallerinaParser.ConnectionTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}

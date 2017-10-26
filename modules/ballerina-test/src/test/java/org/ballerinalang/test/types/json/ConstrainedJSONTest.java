@@ -45,7 +45,7 @@ public class ConstrainedJSONTest {
         negativeResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json-negative.bal");
     }
 
-    @Test(description = "Test basic json struct constraint")
+    @Test(description = "Test basic json struct pkgConstraint")
     public void testConstrainedJSONNegative() {
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
@@ -71,7 +71,7 @@ public class ConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
     }
 
-    @Test(description = "Test basic json struct constraint")
+    @Test(description = "Test basic json struct pkgConstraint")
     public void testStructConstraint() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
@@ -98,7 +98,7 @@ public class ConstrainedJSONTest {
         Assert.assertEquals((returns[5]).stringValue(), "London");
     }
 
-    @Test(description = "Test basic json struct constraint during json initialization")
+    @Test(description = "Test basic json struct pkgConstraint during json initialization")
     public void testStructConstraintInInitialization() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonInitializationWithStructConstraint");
 
@@ -115,14 +115,14 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
-    @Test(description = "Test json imported struct constraint")
+    @Test(description = "Test json imported struct pkgConstraint")
     public void testStructConstraintInPkg() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkg", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
-    @Test(description = "Test invalid json imported struct constraint")
+    @Test(description = "Test invalid json imported struct pkgConstraint")
     public void testInvalidStructConstraintInPkg() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkginvalid", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);

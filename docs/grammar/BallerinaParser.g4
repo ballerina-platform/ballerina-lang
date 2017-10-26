@@ -184,12 +184,7 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_DATATABLE
-    |   connectionTypeName
     |   functionTypeName
-    ;
-
-connectionTypeName
-    :   TYPE_CONNECTION (LT Identifier? GT)
     ;
 
 functionTypeName

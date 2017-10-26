@@ -27,20 +27,22 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConnectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -347,13 +349,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
     }
 
-    public void visit(BLangConnectionTypeNode connectionType) {
-        BSymbol pkgSymbol = resolvePkgSymbol(connectionType.pos, this.env,
-                names.fromIdNode(connectionType.pkgAlias));
+    public void visit(BLangEndpointTypeNode endpointType) {
+        BPackageSymbol pkgSymbol = (BPackageSymbol) resolvePkgSymbol(endpointType.pos, this.env,
+                names.fromIdNode(endpointType.pkgAlias));
         if (pkgSymbol == symTable.notFoundSymbol) {
             resultType = symTable.errType;
             return;
         }
+        resultType = new BEndpointType(TypeTags.ENDPOINT, pkgSymbol.type, pkgSymbol);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {

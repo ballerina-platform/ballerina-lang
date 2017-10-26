@@ -19,20 +19,15 @@ package org.ballerinalang.model.tree.types;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.Set;
 
 /**
  * foo:Person
- * @since 0.94
+ * @since 0.95
  */
-public interface ConnectionTypeNode extends ReferenceTypeNode {
+public interface EndpointTypeNode extends ReferenceTypeNode {
     IdentifierNode getPackageAlias();
-
-    TypeKind getTypeKind();
-
-    void setTypeKind(TypeKind typeKind);
 
     Set<? extends Flag> getFlags();
 }

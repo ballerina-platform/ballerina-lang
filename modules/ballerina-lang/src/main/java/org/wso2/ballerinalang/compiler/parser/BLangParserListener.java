@@ -845,7 +845,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.functionTypeName() != null || ctx.connectionTypeName() != null) {
+        if (ctx.functionTypeName() != null) {
             return;
         }
         String typeName = ctx.getChild(0).getText();
@@ -854,21 +854,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);
         }
-    }
-
-    @Override
-    public void exitConnectionTypeName(BallerinaParser.ConnectionTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        String typeName = ctx.TYPE_CONNECTION().getText();
-        String pkgIdentifier;
-        if (ctx.Identifier() != null) {
-            pkgIdentifier = ctx.Identifier().getText();
-        } else {
-            pkgIdentifier = "";
-        }
-        this.pkgBuilder.addConnectionType(getCurrentPos(ctx), getWS(ctx), typeName, pkgIdentifier);
     }
 
     @Override
@@ -1222,7 +1207,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             pkgIdentifier = "";
         }
         if (ctx.Identifier() != null) {
-            this.pkgBuilder.addConnectionType(getCurrentPos(ctx), getWS(ctx), ctx.ENDPOINT().getText(), pkgIdentifier);
+            this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx), ctx.ENDPOINT().getText(), pkgIdentifier);
         }
     }
 

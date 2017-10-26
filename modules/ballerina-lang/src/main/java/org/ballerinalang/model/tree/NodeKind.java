@@ -42,7 +42,6 @@ public enum NodeKind {
     STRUCT,
     VARIABLE,
     WORKER,
-    ENDPOINT,
     XMLNS,
 
     /* Expressions */
@@ -99,6 +98,6 @@ public enum NodeKind {
     CONSTRAINED_TYPE,
     FUNCTION_TYPE,
     USER_DEFINED_TYPE,
-    CONNECTION_TYPE,
+    ENDPOINT_TYPE,
     VALUE_TYPE,
 }

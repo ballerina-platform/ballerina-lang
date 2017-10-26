@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -291,7 +292,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldName = names.fromIdNode(fieldAccessExpr.field);
                     BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
 
-                    // If the type of the field is struct, treat it as constraint JSON type.
+                    // If the type of the field is struct, treat it as pkgConstraint JSON type.
                     if (fieldType.tag == TypeTags.STRUCT) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
@@ -344,7 +345,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BType fieldType =
                             checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
 
-                    // If the type of the field is struct, treat it as constraint JSON type.
+                    // If the type of the field is struct, treat it as pkgConstraint JSON type.
                     if (fieldType.tag == TypeTags.STRUCT) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
@@ -401,8 +402,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Then perform arg and param matching
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
-            case TypeTags.CONNECTOR:
-                checkActionInvocationExpr(iExpr, (BConnectorType) iExpr.expr.type);
+            case TypeTags.ENDPOINT:
+                checkActionInvocationExpr(iExpr, (BEndpointType) iExpr.expr.type);
                 break;
             default:
                 // TODO Handle this condition
@@ -870,10 +871,10 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BConnectorType connectorType) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BEndpointType endpointType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        Name connectorName = names.fromString(connectorType.toString());
-        BPackageSymbol packageSymbol = (BPackageSymbol) connectorType.tsymbol.owner;
+        Name connectorName = names.fromString(endpointType.connectorType.toString());
+        BPackageSymbol packageSymbol = (BPackageSymbol) endpointType.connectorType.tsymbol.owner;
         BSymbol connectorSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 connectorName, SymTag.CONNECTOR);
         if (connectorSymbol == symTable.notFoundSymbol) {
@@ -944,7 +945,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.JSON);
 
-                // If the field is again a struct, treat that literal expression as another constraint JSON.
+                // If the field is again a struct, treat that literal expression as another pkgConstraint JSON.
                 if (fieldType.tag == TypeTags.STRUCT) {
                     fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                 }

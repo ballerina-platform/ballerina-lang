@@ -122,8 +122,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConnectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -296,14 +296,13 @@ public class BLangPackageBuilder {
         addType(constrainedType);
     }
 
-    public void addConnectionType(DiagnosticPos pos, Set<Whitespace> ws, String typeName, String pkgIdentifier) {
-        BLangConnectionTypeNode connectionTypeNode = (BLangConnectionTypeNode) TreeBuilder.createConnectionTypeNode();
-        connectionTypeNode.pos = pos;
-        connectionTypeNode.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
-        connectionTypeNode.typeKind = TreeUtils.stringToTypeKind(typeName);
-        connectionTypeNode.addWS(ws);
+    public void addEndpointType(DiagnosticPos pos, Set<Whitespace> ws, String typeName, String pkgIdentifier) {
+        BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
+        endpointTypeNode.pos = pos;
+        endpointTypeNode.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
+        endpointTypeNode.addWS(ws);
 
-        addType(connectionTypeNode);
+        addType(endpointTypeNode);
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,

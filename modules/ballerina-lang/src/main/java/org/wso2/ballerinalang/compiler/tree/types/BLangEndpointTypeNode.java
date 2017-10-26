@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.types.ConnectionTypeNode;
+import org.ballerinalang.model.tree.types.EndpointTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -27,26 +27,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.Set;
 
 /**
- * @since 0.94
+ * @since 0.95
  */
-public class BLangConnectionTypeNode extends BLangType implements ConnectionTypeNode {
+public class BLangEndpointTypeNode extends BLangType implements EndpointTypeNode {
     public BLangIdentifier pkgAlias;
-    public TypeKind typeKind;
     public Set<Flag> flagSet;
 
     @Override
     public BLangIdentifier getPackageAlias() {
         return pkgAlias;
-    }
-
-    @Override
-    public TypeKind getTypeKind() {
-        return typeKind;
-    }
-
-    @Override
-    public void setTypeKind(TypeKind typeKind) {
-        this.typeKind = typeKind;
     }
 
     @Override
@@ -56,7 +45,7 @@ public class BLangConnectionTypeNode extends BLangType implements ConnectionType
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CONNECTION_TYPE;
+        return NodeKind.ENDPOINT_TYPE;
     }
 
     @Override
@@ -66,7 +55,7 @@ public class BLangConnectionTypeNode extends BLangType implements ConnectionType
 
     @Override
     public String toString() {
-        return this.typeKind.typeName() + ":"
+        return "endpoint:"
                 + (pkgAlias != null ? (pkgAlias.value != null ? "Pkg alias: " + pkgAlias.value : "") : "");
     }
 }
