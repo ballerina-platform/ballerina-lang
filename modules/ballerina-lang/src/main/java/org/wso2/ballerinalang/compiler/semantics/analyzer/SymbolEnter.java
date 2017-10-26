@@ -848,19 +848,23 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (this.env.enclPkg.pkgDecl != null &&
-                this.env.enclPkg.pkgDecl.getPackageNameStr().startsWith(Names.BUILTIN_PACKAGE.value)) {
-            return;
-        }
-
-        if (varType.tag != TypeTags.STRUCT) {
-            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_STRUCT_TYPE,
+        if (varType.tag != TypeTags.BOOLEAN
+                && varType.tag != TypeTags.STRING
+                && varType.tag != TypeTags.INT
+                && varType.tag != TypeTags.FLOAT
+                && varType.tag != TypeTags.BLOB
+                && varType.tag != TypeTags.JSON
+                && varType.tag != TypeTags.XML
+                && varType.tag != TypeTags.MAP
+                && varType.tag != TypeTags.DATATABLE
+                && varType.tag != TypeTags.STRUCT) {
+            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());
             return;
         }
 
-        if (this.env.enclPkg.symbol.pkgID != varType.tsymbol.pkgID) {
-            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE,
+        if (!this.env.enclPkg.symbol.pkgID.equals(varType.tsymbol.pkgID)) {
+            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
                     funcNode.name.value, varType.toString());
         }
     }
