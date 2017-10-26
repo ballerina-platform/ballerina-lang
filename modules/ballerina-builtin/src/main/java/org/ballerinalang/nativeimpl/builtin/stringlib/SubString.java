@@ -1,4 +1,4 @@
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -16,8 +16,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.model.arrays:subString(string, int, int).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "subString",
+        packageName = "ballerina.builtin",
+        functionName = "string.subString",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "from", type = TypeKind.INT),
                 @Argument(name = "to", type = TypeKind.INT)},

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,26 +28,25 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:lastIndexOf.
- *
- * @since 0.8.0
+ * Native function ballerina.model.strings:split(string, string).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "lastIndexOf",
+        packageName = "ballerina.builtin",
+        functionName = "string.split",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "subString", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+                @Argument(name = "regex", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class LastIndexOf extends AbstractNativeFunction {
+public class Split extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getStringArgument(context, 0);
-        String subString = getStringArgument(context, 1);
+        String initialString = getStringArgument(context, 0);
+        String regex = getStringArgument(context, 1);
 
-        BInteger bInteger = new BInteger(param1.lastIndexOf(subString));
-        return getBValues(bInteger);
+        String[] splitArray = initialString.split(regex);
+        BStringArray bSplitArray = new BStringArray(splitArray);
+        return getBValues(bSplitArray);
     }
 }
