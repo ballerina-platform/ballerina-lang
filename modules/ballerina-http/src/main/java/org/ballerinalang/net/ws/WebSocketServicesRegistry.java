@@ -94,12 +94,18 @@ public class WebSocketServicesRegistry {
         }
     }
 
+    public void registerServiceByName(String serviceInterface, String uri, String serviceName) {
+        Map<String, String> servicesOnInterface = serviceEndpointsMap
+                .computeIfAbsent(serviceInterface, k -> new HashMap<>());
+        servicesOnInterface.put(uri, serviceName);
+    }
+
     public void validateSeverEndpoints() {
         for (Map.Entry<String, Map<String, String>> serviceInterfaceEntry : serviceEndpointsMap.entrySet()) {
             for (Map.Entry<String, String> uriToEndpointNameEntry : serviceInterfaceEntry.getValue().entrySet()) {
-                if (!serviceEndpoints.containsKey(uriToEndpointNameEntry.getKey())) {
-                    throw new BallerinaConnectorException("Could not find a service for service name: " +
-                                                                  uriToEndpointNameEntry.getKey());
+                if (!serviceEndpoints.containsKey(uriToEndpointNameEntry.getValue())) {
+                    throw new BallerinaConnectorException("Could not find a WebSocket service for the service name: " +
+                                                                  uriToEndpointNameEntry.getValue());
                 }
             }
         }
@@ -125,10 +131,10 @@ public class WebSocketServicesRegistry {
      */
     public void unregisterService(WebSocketService service) {
         // TODO: Recorrect the logic behind unregistering service.
-        String upgradePath = findFullWebSocketUpgradePath(service);
+        String basePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
         if (serviceEndpointsMap.containsKey(listenerInterface)) {
-            serviceEndpointsMap.get(listenerInterface).remove(upgradePath);
+            serviceEndpointsMap.get(listenerInterface).remove(basePath);
         }
     }
 
