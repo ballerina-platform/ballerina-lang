@@ -14,12 +14,6 @@ public native function toUpperCase (string s) (string);
 @doc:Return { value:"string: The derived sub string" }
 public native function subString (string mainString, int from, int to) (string);
 
-@doc:Description { value:"Compares two strings, ignoring the case of the strings"}
-@doc:Param { value:"mainString: The original string argument" }
-@doc:Param { value:"anotherString: The string to be compared" }
-@doc:Return { value:"boolean: True if the strings are equal; false otherwise" }
-public native function equalsIgnoreCase (string mainString, string anotherString) (boolean);
-
 @doc:Description { value:"Returns the first index of the last occurence of the substring within the specified string"}
 @doc:Param { value:"mainString: The original string argument" }
 @doc:Param { value:"subString: The substring to search for" }

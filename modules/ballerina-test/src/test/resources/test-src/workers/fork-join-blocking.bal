@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.net.http;
 
 int i = 0;
@@ -26,7 +25,7 @@ function testForkJoin() (int x, int st){
 
 function testWorkers() (int){
     worker w1 {
-        system:sleep(5000);
+        sleep(5000);
         testNew();
     }
     worker w2 {

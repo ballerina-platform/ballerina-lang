@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
@@ -81,7 +82,7 @@ public class Compiler {
     }
 
     public void compile(String sourcePkg) {
-        loadBuiltInPackage();
+        BLangPackage builtInPackage = loadBuiltInPackage();
         if (this.stopCompilation(CompilerPhase.DEFINE)) {
             return;
         }
@@ -100,7 +101,8 @@ public class Compiler {
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
-
+        // TODO : Improve this.
+        desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
             return;
@@ -109,15 +111,18 @@ public class Compiler {
         gen(pkgNode);
     }
 
-    private void loadBuiltInPackage() {
-        BLangPackage builtInCorePkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
-                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+    private BLangPackage loadBuiltInPackage() {
+        BLangPackage builtInCorePkg = getBuiltInPackage(Names.BUILTIN_CORE_PACKAGE);
         symbolTable.createErrorTypes();
         symbolTable.loadOperators();
-        BLangPackage builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
-                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
-        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
+        // Load built-in packages.
+        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
+        builtInCorePkg.getStructs().forEach(s -> {
+            builtInPkg.getStructs().add(s);
+            builtInPkg.topLevelNodes.add(s);
+        });
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        return builtInPkg;
     }
 
     public ProgramFile getCompiledProgram() {
@@ -182,5 +187,9 @@ public class Compiler {
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
+    }
+
+    private BLangPackage getBuiltInPackage(Name name) {
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
     }
 }
