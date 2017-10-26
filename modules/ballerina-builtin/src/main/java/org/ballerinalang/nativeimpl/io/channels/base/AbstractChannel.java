@@ -38,9 +38,9 @@ import java.nio.channels.WritableByteChannel;
  * concurrently.
  * </p>
  *
- * @see BByteChannel
- * @see BCharacterChannel
- * @see BTextRecordChannel
+ * @see Channel
+ * @see CharacterChannel
+ * @see TextRecordChannel
  */
 public abstract class AbstractChannel {
 

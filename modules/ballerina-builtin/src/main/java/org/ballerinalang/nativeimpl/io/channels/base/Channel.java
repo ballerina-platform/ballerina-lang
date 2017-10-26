@@ -37,18 +37,18 @@ import java.nio.channels.ByteChannel;
  * bytes I/O reading/writing APIs.
  * </p>
  */
-public abstract class BByteChannel extends AbstractChannel {
+public abstract class Channel extends AbstractChannel {
 
     /**
      * Holds the content belonging to a particular channel.
      */
-    private BByteBuffer contentBuffer;
+    private Buffer contentBuffer;
 
-    private static final Logger log = LoggerFactory.getLogger(BByteChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
-    public BByteChannel(ByteChannel channel, int size) throws BallerinaIOException {
+    public Channel(ByteChannel channel, int size) throws BallerinaIOException {
         super(channel);
-        contentBuffer = new BByteBuffer(size);
+        contentBuffer = new Buffer(size);
     }
 
     /**

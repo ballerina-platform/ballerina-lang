@@ -22,8 +22,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -110,9 +110,9 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
             textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 
             //Will get the relevant byte channel and will create a character channel
-            BCharacterChannel characterChannel = (BCharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
+            CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            BTextRecordChannel bCharacterChannel = new BTextRecordChannel(characterChannel, recordSeparator,
+            TextRecordChannel bCharacterChannel = new TextRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(textRecordChannel);

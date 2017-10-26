@@ -15,43 +15,28 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.channels;
+package org.ballerinalang.test.nativeimpl.functions.io;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 
-import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * <p>
- * Represents the channel to perform I/O operations on file.
- * </p>
+ * Mock implementation of byte channel for testing purposes.
  */
-public class BFileChannel extends BByteChannel {
+public class MockByteChannel extends Channel {
 
-    /**
-     * Maintains the file channel implementation.
-     */
-    private FileChannel channel;
-
-    public BFileChannel(FileChannel channel, int size) throws BallerinaIOException {
-        super(channel, size);
-        this.channel = channel;
+    public MockByteChannel(ByteChannel channel, int fixedBufferSize) {
+        super(channel, fixedBufferSize);
     }
 
     /**
-     * Transfer file content to the specified destination.
-     *
      * {@inheritDoc}
      */
     @Override
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
-        try {
-            channel.transferTo(position, count, dstChannel);
-        } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while transferring file", e);
-        }
+        throw new UnsupportedOperationException();
     }
 }

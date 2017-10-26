@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BTextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -65,7 +65,7 @@ public class WriteTextRecord extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
-            BTextRecordChannel textRecordChannel = (BTextRecordChannel) channel.getNativeData(IOConstants
+            TextRecordChannel textRecordChannel = (TextRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
             textRecordChannel.write(content);
         } catch (Throwable e) {

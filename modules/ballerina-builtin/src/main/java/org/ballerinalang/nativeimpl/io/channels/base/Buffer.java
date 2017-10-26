@@ -30,10 +30,10 @@ import java.util.Arrays;
  * necessary to return the required amount of bytes.
  * </p>
  * <p>
- * BByteBuffer also focuses on offering the capability to get bytes through multiple channels and place into one.
+ * Buffer also focuses on offering the capability to get bytes through multiple channels and place into one.
  * </p>
  */
-public class BByteBuffer {
+public class Buffer {
 
     /**
      * Contains the buffer instance which will be wrapped.
@@ -51,9 +51,9 @@ public class BByteBuffer {
      */
     private int minimumSizeOfBuffer;
 
-    private static final Logger log = LoggerFactory.getLogger(BByteBuffer.class);
+    private static final Logger log = LoggerFactory.getLogger(Buffer.class);
 
-    public BByteBuffer(int minimumSizeOfBuffer) {
+    public Buffer(int minimumSizeOfBuffer) {
         this.minimumSizeOfBuffer = minimumSizeOfBuffer;
     }
 
@@ -128,7 +128,7 @@ public class BByteBuffer {
      * @param srcBuffer the buffer which will be compressed.
      * @return the compressed buffer.
      */
-    private ByteBuffer getCompressedBytes(ByteBuffer srcBuffer) {
+    private ByteBuffer compactBytes(ByteBuffer srcBuffer) {
         int bufferSize = srcBuffer.capacity();
         int bufferReadPosition = srcBuffer.position();
         ByteBuffer response;
@@ -165,7 +165,7 @@ public class BByteBuffer {
         int numberOfBytesRequiredFromChannel = requiredNumberOfBytes - offset;
         ByteBuffer srcBuffer = allocate(numberOfBytesRequiredFromChannel);
         channel.readFromChannel(srcBuffer);
-        return getCompressedBytes(srcBuffer);
+        return compactBytes(srcBuffer);
     }
 
     /**

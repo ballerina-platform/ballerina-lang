@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -105,7 +105,7 @@ public class ToCharacterChannel extends AbstractNativeFunction {
             //Will get the relevant byte channel and will create a character channel
             AbstractChannel byteChannel = (AbstractChannel) characterChannelInfo.getNativeData(IOConstants
                     .BYTE_CHANNEL_NAME);
-            BCharacterChannel bCharacterChannel = new BCharacterChannel(byteChannel, encoding);
+            CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(characterChannel);
         } catch (Throwable e) {

@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -77,7 +77,7 @@ public class WriteBytes extends AbstractNativeFunction {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
             startOffset = (int) getIntArgument(context, START_OFFSET_INDEX);
-            BByteChannel byteChannel = (BByteChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             numberOfBytesWritten = byteChannel.write(content, startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes .";

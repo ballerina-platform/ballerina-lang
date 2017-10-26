@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -76,7 +76,7 @@ public class WriteCharacters extends AbstractNativeFunction {
             content = getStringArgument(context, CONTENT_INDEX);
             startOffset = getIntArgument(context, START_OFFSET_INDEX);
 
-            BCharacterChannel characterChannel = (BCharacterChannel) channel.getNativeData(IOConstants
+            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
 
             numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);

@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
-import org.ballerinalang.nativeimpl.io.channels.BFileChannel;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -134,7 +134,7 @@ public class OpenChannel extends AbstractNativeChannel {
                 }
             }
             FileChannel byteChannel = FileChannel.open(path, opts);
-            channel = new BFileChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+            channel = new FileIOChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {

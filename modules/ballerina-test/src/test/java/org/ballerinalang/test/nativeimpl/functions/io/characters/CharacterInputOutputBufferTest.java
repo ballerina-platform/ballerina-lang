@@ -18,8 +18,8 @@
 package org.ballerinalang.test.nativeimpl.functions.io.characters;
 
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.MockBByteChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -48,27 +48,99 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
-        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
-        BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals(readCharacters.length(), numberOfCharactersToRead);
+        Assert.assertEquals("aa", readCharacters);
 
+        numberOfCharactersToRead = 4;
         readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals(readCharacters.length(), numberOfCharactersToRead);
+        Assert.assertEquals("abbǊ", readCharacters);
 
         readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), 0);
         characterChannel.close();
     }
 
+    @Test(description = "Reads characters which are represented with long bytes")
+    public void readLongCharacters() throws IOException {
+        int numberOfCharactersToRead = 2;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longChars.txt");
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+
+        String readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("Ǌa", readCharacters);
+
+        numberOfCharactersToRead = 3;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("bcǊ", readCharacters);
+
+        numberOfCharactersToRead = 4;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("ff", readCharacters);
+
+        characterChannel.close();
+    }
+
+    @Test(description = "Read corrupted characters from text")
+    public void readCorruptedCharacters() throws IOException {
+        int numberOfCharactersToRead;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText");
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+
+        numberOfCharactersToRead = 2;
+        String readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("�T", readCharacters);
+
+        numberOfCharactersToRead = 11;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("est Curr ÃŸ", readCharacters);
+
+        numberOfCharactersToRead = 4;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(" �", readCharacters);
+
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(readCharacters, "");
+
+        characterChannel.close();
+    }
+
+    @Test(description = "Read from file which has all corrupted chars")
+    public void readCorruptedCharactersIntoMultipleChannelReads() throws IOException {
+        int numberOfCharactersToRead;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText2");
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+
+        numberOfCharactersToRead = 3;
+        String readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("���", readCharacters);
+
+        numberOfCharactersToRead = 3;
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals("��a", readCharacters);
+
+        readCharacters = characterChannel.read(numberOfCharactersToRead);
+        Assert.assertEquals(readCharacters, "");
+
+        characterChannel.close();
+    }
+
+
     @Test(description = "Read characters into multiple iterations")
     public void readCharacters() throws IOException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
-        BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), numberOfCharactersToRead);
@@ -87,8 +159,8 @@ public class CharacterInputOutputBufferTest {
     public void writeCharacters() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        AbstractChannel channel = new MockBByteChannel(byteChannel, 10);
-        BCharacterChannel characterChannel = new BCharacterChannel(channel, StandardCharsets.UTF_8.name());
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String text = "HelloǊ";
         int numberOfBytes = text.getBytes().length;

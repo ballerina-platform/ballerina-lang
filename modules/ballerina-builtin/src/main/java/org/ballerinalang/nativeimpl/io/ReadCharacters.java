@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.BCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -70,7 +70,7 @@ public class ReadCharacters extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
-            BCharacterChannel characterChannel = (BCharacterChannel) channel.getNativeData(IOConstants
+            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             String readBytes = characterChannel.read((int) numberOfCharacters);
             content = new BString(readBytes);

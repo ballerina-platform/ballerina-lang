@@ -23,8 +23,8 @@ function process (io:TextRecordChannel srcRecordChannel, io:TextRecordChannel ds
 }
 
 function main (string[] args) {
-    string srcFileName = "./files/sample.csv";
-    string dstFileName = "./files/sampleResponse.csv";
+    string srcFileName = "../samples/csvFileReader/files/sample.csv";
+    string dstFileName = "../samples/csvFileReader/files/sampleResponse.txt";
     io:TextRecordChannel srcRecordChannel = getFileRecordChannel(srcFileName, "r", "UTF-8", "\\r?\\n", ",");
     io:TextRecordChannel dstRecordChannel = getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
     process(srcRecordChannel,dstRecordChannel);

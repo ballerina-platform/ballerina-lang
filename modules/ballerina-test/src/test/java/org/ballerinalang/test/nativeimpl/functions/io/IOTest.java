@@ -98,22 +98,21 @@ public class IOTest {
     @Test(description = "Test 'readCharacters' function in ballerina.io package")
     public void testReadCharacters() {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
-        int numberOfCharactersToRead = 2;
+        int numberOfCharactersToRead = 3;
         BString readCharacters;
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
         BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
 
-        //Reads the 1st three bytes "123"
-        String expectedCharacters = "aa";
+        String expectedCharacters = "aaa";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
         BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readCharacters", args);
         readCharacters = (BString) returns[0];
 
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
-        expectedCharacters = "aǊ";
+        expectedCharacters = "bbǊ";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
         returns = BRunUtil.invoke(characterInputOutputProgramFile, "readCharacters", args);
         readCharacters = (BString) returns[0];

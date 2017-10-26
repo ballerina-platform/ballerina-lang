@@ -37,7 +37,7 @@ import java.util.Arrays;
  * synchronous.
  * </p>
  */
-public class BTextRecordChannel {
+public class TextRecordChannel {
 
     /**
      * Distinguishes the Record.
@@ -63,7 +63,7 @@ public class BTextRecordChannel {
     /**
      * Read/Writes characters.
      */
-    private BCharacterChannel channel;
+    private CharacterChannel channel;
 
     /**
      * Specified whether there're any remaining records left to be read from the channel.
@@ -80,31 +80,14 @@ public class BTextRecordChannel {
      */
     private int numberOfRecordsWrittenToChannel = 0;
 
-    private static final Logger log = LoggerFactory.getLogger(BTextRecordChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(TextRecordChannel.class);
 
 
-    public BTextRecordChannel(BCharacterChannel channel, String recordSeparator, String fieldSeparator) {
+    public TextRecordChannel(CharacterChannel channel, String recordSeparator, String fieldSeparator) {
         this.recordSeparator = recordSeparator;
         this.fieldSeparator = fieldSeparator;
         this.channel = channel;
         this.persistentCharSequence = new StringBuilder();
-    }
-
-    /**
-     * <p>
-     * Initially the number of characters which would be contained in a record will be speculated, if the record
-     * size is not adequate the size needs to be increased.
-     * </p>
-     *
-     * @param numberOfRecordHops number of reads done per record with the current recordCharacterCount.
-     */
-    private void increaseRecordCharacterCount(int numberOfRecordHops) {
-        int numberOfCharactersForRecord = numberOfRecordHops * this.recordCharacterCount;
-        if (log.isDebugEnabled()) {
-            log.debug("Character count in the record is increased from " + this.recordCharacterCount + " to " +
-                    numberOfCharactersForRecord);
-        }
-        this.recordCharacterCount = numberOfCharactersForRecord;
     }
 
     /**
@@ -118,10 +101,8 @@ public class BTextRecordChannel {
     private String readRecord() throws BallerinaIOException {
         String record = null;
         String readCharacters = "";
-        int numberOfChannelReads = 0;
         final int minimumRecordCount = 1;
         final int numberOfSplits = 2;
-        final int recordThresholdIncreaseCount = 1;
         do {
             if (log.isTraceEnabled()) {
                 log.trace("char[] remaining in memory " + persistentCharSequence);
@@ -130,20 +111,17 @@ public class BTextRecordChannel {
             String[] delimitedRecord = persistentCharSequence.toString().split(recordSeparator, numberOfSplits);
             if (delimitedRecord.length > minimumRecordCount) {
                 record = processIdentifiedRecord(delimitedRecord);
+                int recordCharacterLength = record.length();
+                if (recordCharacterLength > recordCharacterCount) {
+                    recordCharacterCount = record.length();
+                }
             } else {
-                numberOfChannelReads++;
                 readCharacters = readRecordFromChannel();
             }
         } while (record == null && !readCharacters.isEmpty());
 
         if (null == record && readCharacters.isEmpty()) {
             record = readFinalRecord();
-        } else {
-            if (numberOfChannelReads > recordThresholdIncreaseCount) {
-                //This means a record exceeds the currently specified number of characters per record and we need to
-                // increase it
-                increaseRecordCharacterCount(numberOfChannelReads);
-            }
         }
         return record;
     }
