@@ -32,8 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatables",
-        functionName = "close",
+        packageName = "ballerina.builtin",
+        functionName = "datatable.close",
         args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
         isPublic = true
 )

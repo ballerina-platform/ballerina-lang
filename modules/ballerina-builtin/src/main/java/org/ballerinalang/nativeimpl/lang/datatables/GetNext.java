@@ -33,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatables",
-        functionName = "getNext",
+        packageName = "ballerina.builtin",
+        functionName = "datatable.getNext",
         args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

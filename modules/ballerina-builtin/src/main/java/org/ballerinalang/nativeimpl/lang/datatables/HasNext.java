@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatables",
-        functionName = "hasNext",
+        packageName = "ballerina.builtin",
+        functionName = "datatable.hasNext",
         args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
