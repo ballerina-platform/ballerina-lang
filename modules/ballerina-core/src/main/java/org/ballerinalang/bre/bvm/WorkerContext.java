@@ -30,7 +30,7 @@ public class WorkerContext extends Context {
     public Context parent;
     StackFrame parentSF;
 
-    WorkerContext(ProgramFile programFile, Context parent) {
+    public WorkerContext(ProgramFile programFile, Context parent) {
         super(programFile);
         this.parent = parent;
         parentSF = parent.getControlStackNew().currentFrame;
