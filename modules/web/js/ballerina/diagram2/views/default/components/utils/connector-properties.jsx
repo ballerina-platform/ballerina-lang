@@ -133,12 +133,7 @@ class ConnectorPropertiesForm extends React.Component {
             if (key.bType === 'string') {
                 key.value = this.addQuotationForStringValues(key.value);
             }
-                // For simple fields
-            if (key.bType !== 'struct') {
-                paramArray.push(key.value);
-            } else if (key.bType === 'struct') {
-                paramArray.push(key.value);
-            }
+            paramArray.push(key.value);
         });
         if (map) {
             paramArray.push(map);
