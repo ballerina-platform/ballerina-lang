@@ -2,8 +2,7 @@
   "responseCode": "200",
   "responseBody": "",
   "responseHeaders": {
-    "Connection": "keep-alive",
-    "Content-Length": "0"
+    "Connection": "keep-alive"
   },
   "returnedRequestHeaders": {
     "Content-Type": "application/json",

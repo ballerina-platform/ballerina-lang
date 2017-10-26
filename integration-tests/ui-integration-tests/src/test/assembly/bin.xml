@@ -97,6 +97,14 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../../modules/services/workspace-service/src/main/resources/</directory>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <includes>
+                <include>deployment.yaml</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
     </fileSets>
 
     <files>

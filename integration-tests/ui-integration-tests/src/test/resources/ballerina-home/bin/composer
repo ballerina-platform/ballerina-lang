@@ -193,5 +193,6 @@ status=$START_EXIT_STATUS
     -DenableCloud=false \
     -Dworkspace.port=8289 \
     -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
+    -Dmsf4j.conf=./resources/composer/services/deployment.yaml \
     org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner $@
 

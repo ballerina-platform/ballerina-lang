@@ -1,8 +1,7 @@
 {
   "responseBody": "",
   "responseHeaders": {
-    "Connection": "keep-alive",
-    "Content-Length": "0"
+    "Connection": "keep-alive"
   },
   "requestUrl": "http://localhost:9595/stockquote",
   "returnedRequestHeaders": {
