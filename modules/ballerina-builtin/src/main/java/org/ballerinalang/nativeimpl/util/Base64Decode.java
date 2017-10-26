@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 /**
- * Native function ballerina.utils:base64decode.
+ * Native function ballerina.util:base64decode.
  *
  * @since 0.8.0
  */

@@ -37,7 +37,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.utils:getHmacFromBase64.
+ * Native function ballerina.util:getHmacFromBase64.
  *
  * @since 0.8.0
  */

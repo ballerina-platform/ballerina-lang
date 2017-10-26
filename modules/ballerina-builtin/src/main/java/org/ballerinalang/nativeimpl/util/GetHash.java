@@ -33,7 +33,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Native function ballerina.utils:getHash.
+ * Native function ballerina.util:getHash.
  *
  * @since 0.8.0
  */
