@@ -84,12 +84,15 @@ stream.once('open', () => {
                             js.push('b(' + wQuoted(getter) + ')');
                         }
                         js.push('getSourceOf(node.' + getter + ', pretty, l)');
-                    } else if (getter.match(/^[^?]+\?[^?]*$/)) {
+                    } else if (getter.match(/^[^?]+\?[^?]+$/)) {
                         const parts = getter.split('?');
                         getter = parts[0];
-                        if (parts[1]) {
-                            pushWithWS(js, '\'' + parts[1] + '\'', parts[1]);
-                        }
+                        js.push('(node.' + getter + ' ? ' + wWrapped(getter) +
+                            '\'' + parts[1] + '\'' +
+                            wAfterWrapped(getter) + ' : \'\')');
+                        getter = null;
+                    } else if (getter.match(/^[^?]+\?$/)) {
+                        getter = getter.slice(0, -1);
                     } else {
                         pushWithWS(js, 'node.' + getter, getter);
                     }
@@ -97,7 +100,7 @@ stream.once('open', () => {
                     if (getter === 'joinCount') {
                         // HACK
                         condition.push(getter + ' >= 0');
-                    } else {
+                    } else if (getter) {
                         condition.push(getter);
                     }
                 } else if (p.match(/^<.*>[*+]$/)) {
