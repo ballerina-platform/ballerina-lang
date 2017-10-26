@@ -1,4 +1,4 @@
-function mapInitTest() (map) {
+function mapInitTest () (map) {
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
     return animals;
@@ -15,19 +15,19 @@ function testMapInitWithJson () (map) {
     return m;
 }
 
-function testComplexMapInit() (map) {
-    map m = { name:"Supun", 
-              age:25,
-              gpa:2.81,
-              status:true,
-              info:null, 
-              address:{city:"CA", "country":"USA"},
-              intArray:[7,8,9],
-              addressArray:[
-                    {address:{city:"Colombo", "country":"SriLanka"}},
-                    {address:{city:"Kandy", "country":"SriLanka"}},
-                    {address:{city:"Galle", "country":"SriLanka"}}
-              ]
+function testComplexMapInit () (map) {
+    map m = {name:"Supun",
+                age:25,
+                gpa:2.81,
+                status:true,
+                info:null,
+                address:{city:"CA", "country":"USA"},
+                intArray:[7, 8, 9],
+                addressArray:[
+                             {address:{city:"Colombo", "country":"SriLanka"}},
+                             {address:{city:"Kandy", "country":"SriLanka"}},
+                             {address:{city:"Galle", "country":"SriLanka"}}
+                             ]
             };
     return m;
 }

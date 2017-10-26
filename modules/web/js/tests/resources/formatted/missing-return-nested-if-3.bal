@@ -1,4 +1,4 @@
-function testReturnFromIf() (int) {
+function testReturnFromIf () (int) {
     int x = 5;
     int y = 10;
 

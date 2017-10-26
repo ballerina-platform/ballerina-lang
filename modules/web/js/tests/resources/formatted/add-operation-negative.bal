@@ -1,4 +1,4 @@
-function addJson() {
+function addJson () {
     json j1;
     json j2;
     json j3;
@@ -8,7 +8,7 @@ function addJson() {
     j3 = j1 + j2;
 }
 
-function addIncompatibleTypes() {
+function addIncompatibleTypes () {
     int i;
     // Following line is invalid.
     i = 5 + "abc";

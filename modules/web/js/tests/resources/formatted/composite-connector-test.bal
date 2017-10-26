@@ -15,23 +15,23 @@ function testCompositeConnector () (string, string) {
 
 }
 
-connector TestConnector(string param1) {
+connector TestConnector (string param1) {
 
-    action action1(http:Request req) (string){
+    action action1 (http:Request req) (string) {
         return param1;
     }
 
-    action action2(http:Request req) (string) {
+    action action2 (http:Request req) (string) {
         return "value from action2";
     }
 
 }
 
-connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) {
+connector TestLBConnector (TestConnector[] testConnectorArray, string algorithm) {
 
     int count = 0;
 
-    action action1(http:Request req) (string){
+    action action1 (http:Request req) (string) {
         int index = count % lengthof testConnectorArray;
         TestConnector t1 = testConnectorArray[index];
         count = count + 1;
@@ -39,7 +39,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
         return retValue;
     }
 
-    action action2(http:Request req) (string) {
+    action action2 (http:Request req) (string) {
         return "value from action2";
     }
 }

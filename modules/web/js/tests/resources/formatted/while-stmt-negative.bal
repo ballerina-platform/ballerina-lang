@@ -1,5 +1,5 @@
-function testIfStmtWithIncompatibleType() {
-	while ("foo") {
-		int a = 5;
-	}
+function testIfStmtWithIncompatibleType () {
+    while ("foo") {
+        int a = 5;
+    }
 }

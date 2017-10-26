@@ -11,7 +11,7 @@ struct Employee {
     string address;
 }
 
-function varDefInTransform() (string, int, string){
+function varDefInTransform () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -24,7 +24,7 @@ function varDefInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function varDefInTransformWithInput() (string, int, string){
+function varDefInTransformWithInput () (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
@@ -37,10 +37,10 @@ function varDefInTransformWithInput() (string, int, string){
     return e.name, e.age, e.address;
 }
 
-function getNameWithPrefix(string prefix, string name) (string) {
+function getNameWithPrefix (string prefix, string name) (string) {
     return prefix + name;
 }
 
-function getPrefixedName(string name) (string) {
+function getPrefixedName (string name) (string) {
     return "Ms." + name;
 }

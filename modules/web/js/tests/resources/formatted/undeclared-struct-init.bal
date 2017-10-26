@@ -1,3 +1,3 @@
-function testUndeclaredStructInit() {
-	Department dpt1 = {name:"HR"};
+function testUndeclaredStructInit () {
+    Department dpt1 = {name:"HR"};
 }

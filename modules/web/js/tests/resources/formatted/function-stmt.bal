@@ -1,11 +1,11 @@
-function testHelloWorldPublic() {
+function testHelloWorldPublic () {
     testFunction();
 }
 
-function testHelloWorldPrivate() {
+function testHelloWorldPrivate () {
     testFunction();
 }
 
-function testFunction() {
-	return;
+function testFunction () {
+    return;
 }

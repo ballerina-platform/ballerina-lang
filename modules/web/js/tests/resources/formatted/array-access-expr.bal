@@ -1,4 +1,4 @@
-function arrayAccessTest(int x, int y) (int) {
+function arrayAccessTest (int x, int y) (int) {
     int[] arr = [];
 
     arr[0] = x;
@@ -8,21 +8,21 @@ function arrayAccessTest(int x, int y) (int) {
     return arr[0] + arr[1] + arr[2];
 }
 
-function arrayReturnTest(int x, int y) (int[]) {
-    int[] arr =[];
+function arrayReturnTest (int x, int y) (int[]) {
+    int[] arr = [];
 
     arr[0] = x;
     arr[1] = y;
-    arr[ x + y ] = x + y;
+    arr[x + y] = x + y;
 
     return arr;
 }
 
-function arrayArgTest(int[] arr) (int) {
+function arrayArgTest (int[] arr) (int) {
     return arr[0] + arr[1];
 }
 
-function arrayIndexOutOfBoundTest() {
+function arrayIndexOutOfBoundTest () {
     string name;
     string[] animals = [];
 

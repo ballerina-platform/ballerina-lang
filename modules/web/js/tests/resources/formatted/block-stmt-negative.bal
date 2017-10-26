@@ -1,4 +1,4 @@
-function testUnreachableStmtInIfFunction1() {
+function testUnreachableStmtInIfFunction1 () {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -6,13 +6,13 @@ function testUnreachableStmtInIfFunction1() {
         string s2 = "hello else";
     }
     return;
-    if(a > 10) {
+    if (a > 10) {
         int number = 10;
     }
     int i = 9;
 }
 
-function testUnreachableStmtInIfFunction2() {
+function testUnreachableStmtInIfFunction2 () {
     int a = 2;
     int b;
     if (a > 0) {
@@ -25,7 +25,7 @@ function testUnreachableStmtInIfFunction2() {
     int i = 9;
 }
 
-function testUnreachableStmtInIfBlock()(int) {
+function testUnreachableStmtInIfBlock () (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -37,9 +37,9 @@ function testUnreachableStmtInIfBlock()(int) {
     return a;
 }
 
-function testUnreachableStmtInWhileBlock() {
+function testUnreachableStmtInWhileBlock () {
     int a = 2;
-    while(a < 4) {
+    while (a < 4) {
         a = a + 1;
         if (a == 3) {
             return;
@@ -48,7 +48,7 @@ function testUnreachableStmtInWhileBlock() {
     }
 }
 
-function testCommentAfterReturnStmt()(int) {
+function testCommentAfterReturnStmt () (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -63,7 +63,7 @@ function testCommentAfterReturnStmt()(int) {
     return x;
 }
 
-function testUnreachableTryCatch()(string){
+function testUnreachableTryCatch () (string) {
     string a;
     if (2 > 1) {
         return "one";
@@ -78,7 +78,7 @@ function testUnreachableTryCatch()(string){
     return a;
 }
 
-function testUnreachableNext()(string){
+function testUnreachableNext () (string) {
     while (true) {
         return "unreachable next";
         next;
@@ -86,7 +86,7 @@ function testUnreachableNext()(string){
     return "done";
 }
 
-function testUnreachableBreak()(string){
+function testUnreachableBreak () (string) {
     if (true) {
         return "unreachable break";
         break;

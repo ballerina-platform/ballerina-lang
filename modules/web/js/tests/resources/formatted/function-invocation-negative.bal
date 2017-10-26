@@ -1,12 +1,12 @@
-function testAmbiguousFunctionInvocation() {
+function testAmbiguousFunctionInvocation () {
     string val = "sample";
     ambiguousFuncTest(val);
 }
 
-function ambiguousFuncTest(int val) {
+function ambiguousFuncTest (int val) {
     string result = val + "abc";
 }
 
-function testUndefinedFunction() {
+function testUndefinedFunction () {
     foo();
 }

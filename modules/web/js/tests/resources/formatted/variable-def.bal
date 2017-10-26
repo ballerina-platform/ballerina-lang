@@ -8,7 +8,7 @@ int glbVarAnyInt = 88343;
 
 float glbVarFloatChange = 99;
 
-function getIntValue() (int) {
+function getIntValue () (int) {
     return 8876;
 }
 

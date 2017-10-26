@@ -1,5 +1,5 @@
 package x.y.z;
 
-function foo6() {
-  // do nothing
+function foo6 () {
+    // do nothing
 }

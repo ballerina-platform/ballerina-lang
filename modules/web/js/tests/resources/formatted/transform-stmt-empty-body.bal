@@ -11,7 +11,7 @@ struct Employee {
     string address;
 }
 
-function emptyTransform() (string, int, string){
+function emptyTransform () (string, int, string) {
     Person p = {first_name:"John", last_name:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {

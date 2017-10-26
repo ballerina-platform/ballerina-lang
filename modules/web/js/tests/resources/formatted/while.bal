@@ -27,7 +27,7 @@ function main (string[] args) {
             k = k + 1;
             next;
         }
-                 
+
         system:println(k);
         k = k + 1;
     }

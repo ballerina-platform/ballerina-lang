@@ -18,15 +18,15 @@ function testConnectionPoolProperties () (string firstName) {
     testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:getNext(dt);
-        rs, err = (ResultCustomers) dataStruct;
+        rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    testDB.close ();
+    testDB.close();
     return;
 }
 
@@ -90,7 +90,7 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     sql:ClientConnector testDB;
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
     testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+                                        "TEST_SQL_CONNECTOR", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);

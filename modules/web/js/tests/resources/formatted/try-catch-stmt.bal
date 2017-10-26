@@ -19,36 +19,36 @@ struct testInputError {
     string input;
 }
 
-function testTryCatch(int value)(string){
+function testTryCatch (int value) (string) {
     string path = "start ";
-    try{
+    try {
         path = path + "insideTry ";
         try {
             path = path + "insideInnerTry ";
-            if(value > 10){
+            if (value > 10) {
                 path = path + "onError ";
-                testError error = { msg : "error" , code : "test" };
+                testError error = {msg:"error", code:"test"};
                 throw error;
-            } else if( value < 0 ) {
-                path = path + "onInputError " ;
-                testInputError error = {msg : "error", input : "0"};
+            } else if (value < 0) {
+                path = path + "onInputError ";
+                testInputError error = {msg:"error", input:"0"};
                 throw error;
             }
 
             path = path + "endInsideInnerTry ";
-        } catch (testError ex){
+        } catch (testError ex) {
             path = path + "innerTestErrorCatch:" + ex.code + " ";
             throw ex;
-        } catch (testDataError e){
+        } catch (testDataError e) {
             path = path + "innerDataErrorCatch:" + e.msg + " ";
             throw e;
         } finally {
             path = path + "innerFinally ";
         }
         path = path + "endInsideTry ";
-    } catch (error e){
+    } catch (error e) {
         path = path + "ErrorCatch ";
-    } catch (testError ex){
+    } catch (testError ex) {
         path = path + "TestErrorCatch ";
     } finally {
         path = path + "Finally ";
@@ -57,13 +57,13 @@ function testTryCatch(int value)(string){
     return path;
 }
 
-function testFunctionThrow (int arg)(boolean, string){
+function testFunctionThrow (int arg) (boolean, string) {
     string a = "0";
     try {
         a = a + "1";
         int b = testThrow(arg);
         a = a + "2";
-    } catch (error b){
+    } catch (error b) {
         a = a + "3";
         return true, a;
     }
@@ -71,7 +71,7 @@ function testFunctionThrow (int arg)(boolean, string){
     return false, a;
 }
 
-function testThrow(int a)(int) {
+function testThrow (int a) (int) {
     int c = a + 10;
     return testNestedThrow(c);
 }
@@ -85,13 +85,13 @@ function testNestedThrow (int a) (int) {
     return i;
 }
 
-function testUncaughtException(){
+function testUncaughtException () {
     testNestedThrow(1);
 }
 
-function testStackTrace()(stackFrame[]){
+function testStackTrace () (stackFrame[]) {
     stackFrame[] trace;
-    try{
+    try {
         testUncaughtException();
     } catch (error e) {
         trace = e.stackTrace;
@@ -99,17 +99,17 @@ function testStackTrace()(stackFrame[]){
     return trace;
 }
 
-function mockFunction ()(string) {
+function mockFunction () (string) {
     return "done";
 }
 
-function testMethodCallInFinally ()(string) {
+function testMethodCallInFinally () (string) {
     string s = "start";
     try {
         error e = {msg:"test"};
         throw e;
-    }finally {
-         s = s + mockFunction();
+    } finally {
+        s = s + mockFunction();
     }
     return s;
 }
@@ -131,15 +131,15 @@ function scopeIssueTest () (int) {
     return j6;
 }
 
-function testTryWithinWhile() (int) {
+function testTryWithinWhile () (int) {
     int i = 0;
-    while(i < 3) {
+    while (i < 3) {
         try {
             int o = 0;
         } catch (error e) {
 
         }
-        i = i+1;
+        i = i + 1;
     }
     return i;
 }

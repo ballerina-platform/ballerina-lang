@@ -1,3 +1,3 @@
-function testNullForValueType() {
+function testNullForValueType () {
     int a = null;
 }

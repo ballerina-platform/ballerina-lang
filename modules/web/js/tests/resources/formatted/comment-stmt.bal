@@ -1,4 +1,4 @@
-function testCommentStmt() {
+function testCommentStmt () {
     //comment1
     int a = 10;
     //comment2

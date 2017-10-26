@@ -1,9 +1,9 @@
-@Bar{
-    value:@InnerAnnotation1{
-      value:@InnerAnnotation2{
-         value:5
-       }
-    }
+@Bar {
+    value:@InnerAnnotation1 {
+              value:@InnerAnnotation2 {
+                        value:5
+                    }
+          }
 }
 function foo (string args) {
     // do nothing

@@ -35,7 +35,7 @@ function main (string[] args) {
     }
 
     //Print employee details
-    system:println("Employee details : " );
+    system:println("Employee details : ");
     system:println("Name : " + employee.name);
     system:println("Address : " + employee.address);
     system:println("Age : " + employee.age);

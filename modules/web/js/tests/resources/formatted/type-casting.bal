@@ -1,106 +1,106 @@
-function floattoint(float value)(int) {
+function floattoint (float value) (int) {
     int result;
     //float to int should be a conversion
     result = <int>value;
     return result;
 }
- 
-function inttofloat(int value)(float) {
+
+function inttofloat (int value) (float) {
     float result;
     //int to float should be a conversion
-    result = <float> value;
+    result = <float>value;
     return result;
 }
 
-function stringtoint(string value)(int) {
+function stringtoint (string value) (int) {
     int result;
     //string to int should be a unsafe conversion
     result, _ = <int>value;
     return result;
 }
 
-function testJsonIntToString() (string) {
+function testJsonIntToString () (string) {
     json j = 5;
     int value;
     value, _ = (int)j;
-    return <string> value;
+    return <string>value;
 }
 
-function stringtofloat(string value)(float) {
+function stringtofloat (string value) (float) {
     float result;
     //string to float should be a conversion
     result, _ = <float>value;
     return result;
 }
 
-function inttostring(int value)(string) {
+function inttostring (int value) (string) {
     string result;
     //int to string should be a conversion
     result = <string>value;
     return result;
 }
 
-function floattostring(float value)(string) {
+function floattostring (float value) (string) {
     string result;
     //float to string should be a conversion
     result = <string>value;
     return result;
 }
 
-function booleantostring(boolean value)(string) {
+function booleantostring (boolean value) (string) {
     string result;
     //boolean to string should be a conversion
     result = <string>value;
     return result;
 }
 
-function booleanappendtostring(boolean value)(string) {
+function booleanappendtostring (boolean value) (string) {
     string result;
     result = value + "-append-" + value;
     return result;
 }
 
-function intarrtofloatarr()(float[]) {
+function intarrtofloatarr () (float[]) {
     float[] numbers;
-    numbers = [999,95,889];
+    numbers = [999, 95, 889];
     return numbers;
 }
 
-function testJsonToStringCast() (string) {
+function testJsonToStringCast () (string) {
     json j = "hello";
     string value;
     value, _ = (string)j;
     return value;
 }
 
-function testJSONObjectToStringCast() (string, TypeCastError) {
+function testJSONObjectToStringCast () (string, TypeCastError) {
     json j = {"foo":"bar"};
     var value, e = (string)j;
     return value, e;
 }
 
-function testJsonToInt() (int){
+function testJsonToInt () (int) {
     json j = 5;
     int value;
     value, _ = (int)j;
     return value;
 }
 
-function testJsonToFloat() (float){
+function testJsonToFloat () (float) {
     json j = 7.65;
     float value;
     value, _ = (float)j;
     return value;
 }
 
-function testJsonToBoolean() (boolean){
+function testJsonToBoolean () (boolean) {
     json j = true;
     boolean value;
     value, _ = (boolean)j;
     return value;
 }
 
-function testStringToJson(string s) (json) {
+function testStringToJson (string s) (json) {
     return s;
 }
 
@@ -123,24 +123,24 @@ struct Student {
     int[] marks;
 }
 
-function testStructToStruct() (Student) {
-    Person p = { name:"Supun",
+function testStructToStruct () (Student) {
+    Person p = {name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Kandy", "country":"SriLanka"},
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    return (Student) p;
+    return (Student)p;
 }
 
-function testNullStructToStruct() (Student) {
+function testNullStructToStruct () (Student) {
     Person p;
-    return (Student) p;
+    return (Student)p;
 }
 
-function testStructAsAnyToStruct() (Person) {
-    Person p1 = { name:"Supun",
+function testStructAsAnyToStruct () (Person) {
+    Person p1 = {name:"Supun",
                     age:25,
                     parent:{name:"Parent", age:50},
                     address:{"city":"Kandy", "country":"SriLanka"},
@@ -149,12 +149,12 @@ function testStructAsAnyToStruct() (Person) {
                 };
     any a = p1;
     Person p2;
-    p2, _ = (Person) a;
+    p2, _ = (Person)a;
     return p2;
 }
 
-function testAnyToStruct() (Person) {
-    any a = { name:"Supun",
+function testAnyToStruct () (Person) {
+    any a = {name:"Supun",
                 age:25,
                 parent:{name:"Parent", age:50},
                 address:{"city":"Kandy", "country":"SriLanka"},
@@ -163,37 +163,37 @@ function testAnyToStruct() (Person) {
             };
     Person p2;
     TypeCastError e;
-    p2, e = (Person) a;
+    p2, e = (Person)a;
     if (e != null) {
         throw e;
     }
     return p2;
 }
 
-function testAnyNullToStruct() (Person) {
+function testAnyNullToStruct () (Person) {
     any a;
     Person p;
-    p, _ = (Person) a;
+    p, _ = (Person)a;
     return p;
 }
 
-function testStructToAnyExplicit() (any) {
-    Person p = { name:"Supun",
+function testStructToAnyExplicit () (any) {
+    Person p = {name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Kandy", "country":"SriLanka"},
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    return (any) p;
+    return (any)p;
 }
 
-function testMapToAnyExplicit() (any) {
+function testMapToAnyExplicit () (any) {
     map m = {name:"supun"};
-    return (any) m;
+    return (any)m;
 }
 
-function testBooleanInJsonToInt() (int) {
+function testBooleanInJsonToInt () (int) {
     json j = true;
     int value;
     TypeCastError e;
@@ -204,7 +204,7 @@ function testBooleanInJsonToInt() (int) {
     return value;
 }
 
-function testIncompatibleJsonToInt() (int) {
+function testIncompatibleJsonToInt () (int) {
     json j = "hello";
     int value;
     TypeCastError e;
@@ -215,7 +215,7 @@ function testIncompatibleJsonToInt() (int) {
     return value;
 }
 
-function testIntInJsonToFloat() (float) {
+function testIntInJsonToFloat () (float) {
     json j = 7;
     float value;
     TypeCastError e;
@@ -226,7 +226,7 @@ function testIntInJsonToFloat() (float) {
     return value;
 }
 
-function testIncompatibleJsonToFloat() (float) {
+function testIncompatibleJsonToFloat () (float) {
     json j = "hello";
     float value;
     TypeCastError e;
@@ -237,7 +237,7 @@ function testIncompatibleJsonToFloat() (float) {
     return value;
 }
 
-function testIncompatibleJsonToBoolean() (boolean) {
+function testIncompatibleJsonToBoolean () (boolean) {
     json j = "hello";
     boolean value;
     TypeCastError e;
@@ -253,139 +253,139 @@ struct Address {
     string country;
 }
 
-function testNullJsonToString() (string) {
+function testNullJsonToString () (string) {
     json j;
     string value;
     value, _ = (string)j;
     return value;
 }
 
-function testNullJsonToInt() (int) {
+function testNullJsonToInt () (int) {
     json j;
     int value;
     value, _ = (int)j;
     return value;
 }
 
-function testNullJsonToFloat() (float) {
+function testNullJsonToFloat () (float) {
     json j;
     float value;
     value, _ = (float)j;
     return value;
 }
 
-function testNullJsonToBoolean() (boolean) {
+function testNullJsonToBoolean () (boolean) {
     json j;
     boolean value;
     value, _ = (boolean)j;
     return value;
 }
 
-function testAnyIntToJson() (json) {
+function testAnyIntToJson () (json) {
     any a = 8;
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyStringToJson() (json) {
+function testAnyStringToJson () (json) {
     any a = "Supun";
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyBooleanToJson() (json) {
+function testAnyBooleanToJson () (json) {
     any a = true;
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyFloatToJson() (json) {
+function testAnyFloatToJson () (json) {
     any a = 8.73;
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyMapToJson() (json) {
+function testAnyMapToJson () (json) {
     map m = {name:"supun"};
     any a = m;
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyStructToJson() (json) {
+function testAnyStructToJson () (json) {
     Address adrs = {city:"CA"};
     any a = adrs;
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyNullToJson() (json) {
+function testAnyNullToJson () (json) {
     any a = null;
     json value;
-    value, _ = (json) a;
+    value, _ = (json)a;
     return value;
 }
 
-function testAnyJsonToJson() (json) {
+function testAnyJsonToJson () (json) {
     json j = {home:"SriLanka"};
     any a = j;
     json value;
-    value, _ = (json) a;
+    value, _ = (json)a;
     return value;
 }
 
-function testAnyArrayToJson() (json) {
-    any a = [8,4,6];
+function testAnyArrayToJson () (json) {
+    any a = [8, 4, 6];
     json value;
     TypeCastError e;
-    value, e = (json) a;
+    value, e = (json)a;
     if (e != null) {
         throw e;
     }
     return value;
 }
 
-function testAnyNullToMap() (map) {
+function testAnyNullToMap () (map) {
     any a;
     map value;
-    value, _ = (map) a;
+    value, _ = (map)a;
     return value;
 }
 
-function testAnyNullToXml() (xml) {
+function testAnyNullToXml () (xml) {
     any a;
     xml value;
-    value, _ = (xml) a;
+    value, _ = (xml)a;
     return value;
 }
 
@@ -398,141 +398,141 @@ struct B {
     string x;
 }
 
-function testCompatibleStructForceCasting()(A, TypeCastError) {
-    A a = {x: "x-valueof-a", y:4};
-    B b = {x: "x-valueof-b"};
+function testCompatibleStructForceCasting () (A, TypeCastError) {
+    A a = {x:"x-valueof-a", y:4};
+    B b = {x:"x-valueof-b"};
     A c;
 
-    b = (B) a;
+    b = (B)a;
     TypeCastError err;
-    c, err = (A) b;
+    c, err = (A)b;
 
     a.x = "updated-x-valueof-a";
     return c, err;
 }
 
-function testInCompatibleStructForceCasting()(A, TypeCastError) {
-    B b = {x: "x-valueof-b"};
+function testInCompatibleStructForceCasting () (A, TypeCastError) {
+    B b = {x:"x-valueof-b"};
     A a;
     TypeCastError err;
-    a, err = (A) b;
+    a, err = (A)b;
 
     return a, err;
 }
 
-function testAnyToStringWithErrors()(string, TypeCastError) {
-    any a = 5; 
+function testAnyToStringWithErrors () (string, TypeCastError) {
+    any a = 5;
     string s;
     TypeCastError err;
-    s, err = (string) a;
-    
+    s, err = (string)a;
+
     return s, err;
 }
 
-function testAnyToStringWithoutErrors()(string, TypeCastError) {
+function testAnyToStringWithoutErrors () (string, TypeCastError) {
     any a = "value";
     string s;
     TypeCastError err;
-    s, err = (string) a;
+    s, err = (string)a;
 
     return s, err;
 }
 
-function testAnyToIntWithoutErrors()(int, TypeCastError) {
+function testAnyToIntWithoutErrors () (int, TypeCastError) {
     any a = 6;
     int s;
     TypeCastError err;
-    s, err = (int) a;
+    s, err = (int)a;
 
     return s, err;
 }
 
-function testAnyToFloatWithoutErrors()(float, TypeCastError) {
+function testAnyToFloatWithoutErrors () (float, TypeCastError) {
     any a = 6.99;
     float s;
     TypeCastError err;
-    s, err = (float) a;
+    s, err = (float)a;
 
     return s, err;
 }
 
-function testAnyToBooleanWithoutErrors()(boolean, TypeCastError) {
+function testAnyToBooleanWithoutErrors () (boolean, TypeCastError) {
     any a = true;
     boolean s;
     TypeCastError err;
-    s, err = (boolean) a;
+    s, err = (boolean)a;
 
     return s, err;
 }
 
-function testAnyToBooleanWithErrors()(boolean, TypeCastError) {
-    any a = 5; 
+function testAnyToBooleanWithErrors () (boolean, TypeCastError) {
+    any a = 5;
     boolean b;
     TypeCastError err;
-    b, err = (boolean) a;
-    
+    b, err = (boolean)a;
+
     return b, err;
 }
 
-function testAnyNullToBooleanWithErrors()(boolean, TypeCastError) {
-    any a = null; 
+function testAnyNullToBooleanWithErrors () (boolean, TypeCastError) {
+    any a = null;
     boolean b;
     TypeCastError err;
-    b, err = (boolean) a;
-    
+    b, err = (boolean)a;
+
     return b, err;
 }
 
-function testAnyToIntWithErrors()(int, TypeCastError) {
-    any a = "foo"; 
+function testAnyToIntWithErrors () (int, TypeCastError) {
+    any a = "foo";
     int b;
     TypeCastError err;
-    b, err = (int) a;
-    
+    b, err = (int)a;
+
     return b, err;
 }
 
-function testAnyNullToIntWithErrors()(int, TypeCastError) {
-    any a = null; 
+function testAnyNullToIntWithErrors () (int, TypeCastError) {
+    any a = null;
     int b;
     TypeCastError err;
-    b, err = (int) a;
-    
+    b, err = (int)a;
+
     return b, err;
 }
 
-function testAnyToFloatWithErrors()(float, TypeCastError) {
-    any a = "foo"; 
+function testAnyToFloatWithErrors () (float, TypeCastError) {
+    any a = "foo";
     float b;
     TypeCastError err;
-    b, err = (float) a;
-    
+    b, err = (float)a;
+
     return b, err;
 }
 
-function testAnyNullToFloatWithErrors()(float, TypeCastError) {
-    any a = null; 
+function testAnyNullToFloatWithErrors () (float, TypeCastError) {
+    any a = null;
     float b;
     TypeCastError err;
-    b, err = (float) a;
-    
+    b, err = (float)a;
+
     return b, err;
 }
 
-function testAnyToMapWithErrors()(map, TypeCastError) {
-    any a = "foo"; 
+function testAnyToMapWithErrors () (map, TypeCastError) {
+    any a = "foo";
     map b;
     TypeCastError err;
-    b, err = (map) a;
-    
+    b, err = (map)a;
+
     return b, err;
 }
 
-function testAnyNullToStringWithErrors()(string, TypeCastError) {
+function testAnyNullToStringWithErrors () (string, TypeCastError) {
     any a = null;
     string s;
     TypeCastError err;
-    s, err = (string) a;
+    s, err = (string)a;
 
     return s, err;
 }

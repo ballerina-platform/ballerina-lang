@@ -1,3 +1,3 @@
-function invalidActionInvocation() {
+function invalidActionInvocation () {
     lk.parse("value");
 }

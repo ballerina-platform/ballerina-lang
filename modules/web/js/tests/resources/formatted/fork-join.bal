@@ -23,7 +23,7 @@ function main (string[] args) {
         //Here we use "all" as the join condition which means wait for all the workers.
         //When the join condition has been satisfied, results 'map' will be filled with
         //the returned messages from the workers.
-        
+
         // Get values received from worker 'w1'.
         var resW1, _ = (any[])results["w1"];
         var iW1, _ = (int)resW1[0];

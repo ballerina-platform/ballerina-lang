@@ -1,12 +1,12 @@
-function returnStmtBranch(int value, int b) (int) {
-    if( value > 10) {
+function returnStmtBranch (int value, int b) (int) {
+    if (value > 10) {
         return 100;
-    } else if ( value == 10) {
+    } else if (value == 10) {
         return 200;
     } else {
         if (b > 10) {
             return 300;
-        } else{
+        } else {
             return 400;
         }
         return 500;

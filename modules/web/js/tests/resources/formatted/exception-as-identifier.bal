@@ -1,3 +1,3 @@
-function exceptionTest() {
+function exceptionTest () {
     exception exception = {};
 }

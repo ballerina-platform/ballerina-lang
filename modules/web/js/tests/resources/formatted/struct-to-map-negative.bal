@@ -11,14 +11,14 @@ struct Person {
 }
 
 
-function testStructToMap() (map) {
-    Person p = { name:"Child", 
-                 age:25, 
-                 parent:{name:"Parent", age:50}, 
-                 address:{"city":"Colombo", "country":"SriLanka"}, 
-                 info:{status:"single"},
-                 marks:[67,38,91]
+function testStructToMap () (map) {
+    Person p = {name:"Child",
+                   age:25,
+                   parent:{name:"Parent", age:50},
+                   address:{"city":"Colombo", "country":"SriLanka"},
+                   info:{status:"single"},
+                   marks:[67, 38, 91]
                };
-    map m = (map) p;
+    map m = (map)p;
     return m;
 }

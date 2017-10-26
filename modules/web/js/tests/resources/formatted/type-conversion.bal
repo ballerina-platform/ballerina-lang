@@ -31,7 +31,7 @@ function main (string[] args) {
 
     //'int' to 'boolean' conversion. The boolean value will be 'false' only if the int value is 0;
     intVal = -10;
-    boolVal = <boolean> intVal;
+    boolVal = <boolean>intVal;
     system:println(boolVal);
 
     //'string' to 'boolean conversion'

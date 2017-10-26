@@ -12,7 +12,7 @@ struct Student {
 }
 
 
-function getStudent() (json){
+function getStudent () (json) {
     json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
     return (string)j["bus"];
 }

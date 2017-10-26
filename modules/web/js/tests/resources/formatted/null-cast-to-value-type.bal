@@ -1,3 +1,3 @@
-function testNullForValueType() {
-    string s = (string) null;
+function testNullForValueType () {
+    string s = (string)null;
 }

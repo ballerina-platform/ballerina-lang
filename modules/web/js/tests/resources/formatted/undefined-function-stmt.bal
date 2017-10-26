@@ -1,4 +1,4 @@
-function testUndefinedFunction() {
+function testUndefinedFunction () {
     foo();
 }
 

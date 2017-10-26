@@ -5,19 +5,19 @@ struct InvalidNameError {
     string companyName;
 }
 
-function getQuote(string name)( float , InvalidNameError ) {
+function getQuote (string name) (float, InvalidNameError) {
 
-    if(name == "FOO"){
+    if (name == "FOO") {
         return 10.5, null;
     } else if (name == "BAR") {
         return 11.5, null;
     }
 
-    InvalidNameError err = { msg : "invalid name", companyName : name };
+    InvalidNameError err = {msg:"invalid name", companyName:name};
     return -1.0, err;
 }
 
-function testReturnError()(string, string, string, string) {
+function testReturnError () (string, string, string, string) {
 
     string a;
     string b;
@@ -38,7 +38,7 @@ function testReturnError()(string, string, string, string) {
     InvalidNameError errorBAZ;
     quoteValue, errorBAZ = getQuote("BAZ");
 
-    if(errorBAZ != null){
+    if (errorBAZ != null) {
         // error occurred. Recover from the error by assigning 0.
         quoteValue = 0.0;
     }
@@ -46,29 +46,29 @@ function testReturnError()(string, string, string, string) {
 
     InvalidNameError errorBAR;
     quoteValue, errorBAZ = getQuote("BAR");
-    if(errorBAZ != null){
+    if (errorBAZ != null) {
         // error occurred. Recover from the error by assigning 0.
         quoteValue = 0.0;
     }
     d = "BAR:" + quoteValue;
 
-    return a,b,c,d;
+    return a, b, c, d;
 }
 
-function testReturnAndThrowError()(string){
-    try{
+function testReturnAndThrowError () (string) {
+    try {
         checkAndThrow();
-    }catch(error e){
+    } catch (error e) {
         return e.msg;
     }
     return "OK";
 }
 
-function checkAndThrow(){
+function checkAndThrow () {
     InvalidNameError err;
     float quoteValue;
     quoteValue, err = getQuote("BAZ");
-    if(err !=null){
+    if (err != null) {
         throw err;
     }
 }

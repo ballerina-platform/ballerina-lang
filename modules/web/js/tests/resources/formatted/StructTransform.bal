@@ -14,12 +14,12 @@ struct User {
 }
 
 function getFirstName (string name) (string) {
-    string[] names = strings:split(name," ");
+    string[] names = strings:split(name, " ");
     return names[0];
 }
 
 function main (string[] args) {
-    Person p = {name: "John Allen",age: 30,city: "London"};
+    Person p = {name:"John Allen", age:30, city:"London"};
     User u = {};
 
     transform {

@@ -1,10 +1,10 @@
-function testUnreachableStmtInIfFunction() {
+function testUnreachableStmtInIfFunction () {
     int a = 2;
     int b;
     if (a > 0) {
-       string s1 = "hello if";
+        string s1 = "hello if";
     } else {
-       string s2 = "hello else";
+        string s2 = "hello else";
     }
     b = 7;
     return;

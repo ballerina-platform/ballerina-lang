@@ -14,7 +14,7 @@ function main (string[] args) {
 
     //Compares two strings, ignoring the case. Returns True if the strings are equal; false otherwise.
     boolean isEqual = strings:equalsIgnoreCase(statement,
-                                              "lion in town. catch the lion ");
+                                               "lion in town. catch the lion ");
     system:println("EqualsIgnoreCase: " + isEqual);
 
     //Returns a new string that is the substring of the specified string. The original string, starting index and
@@ -73,7 +73,7 @@ function main (string[] args) {
 
     //Converts string to a BLOB
     blob blobValue = strings:toBlob(statement, "UTF-8");
-    
+
     //Converts the BLOB to the string
     string s10 = blobs:toString(blobValue, "UTF-8");
     system:println("Blob: " + s10);

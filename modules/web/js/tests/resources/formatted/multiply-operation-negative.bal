@@ -8,7 +8,7 @@ function multiplyJson () {
     j3 = j1 * j2;
 }
 
-function multiplyUnsupportedTypes() {
+function multiplyUnsupportedTypes () {
     float f;
     // Following line is invalid.
     f = 5.0 * "test";
