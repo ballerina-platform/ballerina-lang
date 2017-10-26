@@ -5,7 +5,7 @@ function contains(string source, string substring) (boolean) {
 }
 
 function equalsIgnoreCase(string s1, string s2) (boolean) {
-    return strings:equalsIgnoreCase(s1, s2);
+    return s1.equalsIgnoreCase(s2);
 }
 
 function hasPrefix(string s, string prefix) (boolean) {

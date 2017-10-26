@@ -1,7 +1,6 @@
-import ballerina.lang.system;
 import ballerina.lang.strings;
 
-const string envVar = system:getEnv("env_var");
+const string envVar = getEnv("env_var");
 const string varFunc = dummyStringFunction();
 const string varNativeFunc = strings:replace("ballerina is $$$","$$$","awesome");
 const int varIntExpr = 10+10+10;
