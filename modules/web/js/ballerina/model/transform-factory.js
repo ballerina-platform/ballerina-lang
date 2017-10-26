@@ -28,13 +28,19 @@ import Environment from '../env/environment';
 class TransformFactory {
     /**
      * Create for expression for fields
-     * @param  {string} name expression name
+     * @param {string} name expression name
+     * @param {string} type expression type
      * @return {object} expression object
      */
-    static createVariableRefExpression(name) {
+    static createVariableRefExpression(name, type) {
         const fragment = FragmentUtils.createExpressionFragment(name);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        if (type) {
+            refExpr.symbolType = [type];
+        } else {
+            console.log('Type unknown');
+        }
         refExpr.clearWS();
         return refExpr;
     }
@@ -76,12 +82,13 @@ class TransformFactory {
     /**
      * Create default expression based on operator type
      * @static
-     * @param {Expression} operator operator expression
-     * @param {int} index index of the operator
+     * @param {Expression} operator operator
+     * @param {[string]} operandTypes operator types of the operator
+     * @param {int} operandIndex index of the operand that needs the default expression
      * @memberof TransformFactory
      * @return {object} expression object
      */
-    static createDefaultOperatorExpression(operator, index) {
+    static createDefaultOperandExpression(operator, operandTypes, operandIndex) {
         const operatorLattice = Environment.getOperatorLattice();
         const operatorKind = operator.getOperatorKind();
 
@@ -89,11 +96,11 @@ class TransformFactory {
 
         let compatibility;
         if (TreeUtil.isTernaryExpr(operator)) {
-            compatibility = operatorLattice.getCompatibleTernaryTypes(operatorKind);
+            compatibility = operatorLattice.getCompatibleTernaryTypes(operatorKind, operandIndex);
         } else if (TreeUtil.isBinaryExpr(operator)) {
-            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind);
+            compatibility = operatorLattice.getCompatibleBinaryTypes(operatorKind, operandTypes, operandIndex);
         } else if (TreeUtil.isUnaryExpr(operator)) {
-            compatibility = operatorLattice.getCompatibleUnaryTypes(operatorKind);
+            compatibility = operatorLattice.getCompatibleUnaryTypes(operatorKind, operandTypes, operandIndex);
         }
 
         if (compatibility) {

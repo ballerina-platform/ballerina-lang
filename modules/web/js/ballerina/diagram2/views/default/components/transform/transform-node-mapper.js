@@ -140,14 +140,14 @@ class TransformNodeMapper {
         const index = target.index;
 
         if (compatibility.safe) {
-            if (index === 0) {
-                operatorNode.setCondition(sourceExpression, true);
-            } else if (index === 1) {
-                operatorNode.setThenExpression(sourceExpression, true);
-            } else {
-                operatorNode.setElseExpression(sourceExpression, true);
+            const setter = this.getOperandSetterFunction(operatorNode, index);
+            if (!setter) {
+                log.error('Unknown operator type for mapping');
+                return;
             }
+            setter(sourceExpression, true);
         } else {
+             // TODO:
             const stmt = this.getParentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
                                             this._transformStmt.body.getIndexOfStatements(stmt));
@@ -173,12 +173,14 @@ class TransformNodeMapper {
         const index = target.index;
 
         if (compatibility.safe) {
-            if (index === 0) {
-                operatorNode.setLeftExpression(sourceExpression, true);
-            } else {
-                operatorNode.setRightExpression(sourceExpression, true);
+            const setter = this.getOperandSetterFunction(operatorNode, index);
+            if (!setter) {
+                log.error('Unknown operator type for mapping');
+                return;
             }
+            setter(sourceExpression, true);
         } else {
+             // TODO:
             const stmt = this.getParentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
                                             this._transformStmt.body.getIndexOfStatements(stmt));
@@ -206,6 +208,7 @@ class TransformNodeMapper {
         if (compatibility.safe) {
             operatorNode.setExpression(sourceExpression, true);
         } else {
+            // TODO:
             const stmt = this.getParentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
                                             this._transformStmt.body.getIndexOfStatements(stmt));
@@ -692,7 +695,8 @@ class TransformNodeMapper {
     removeInputToOperatorMapping(source, target) {
         const operatorExp = target.operator;
 
-        const defaultExp = TransformFactory.createDefaultOperatorExpression(operatorExp, target.index);
+        const operandTypes = this.getOperandTypes(operatorExp);
+        const defaultExp = TransformFactory.createDefaultExpression(operandTypes[target.index]);
 
         const setter = this.getOperandSetterFunction(operatorExp, target.index);
         if (!setter) {
@@ -1208,7 +1212,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     insertAssignmentStatement(variableExpressions, rightExpression, index, isVar = true) {
-        const assignmentStmt = NodeFactory.createAssignment({});
+        const assignmentStmt = NodeFactory.createAssignment();
 
         assignmentStmt.setVariables(variableExpressions, true);
         assignmentStmt.setExpression(rightExpression, true);
@@ -1508,6 +1512,35 @@ class TransformNodeMapper {
     }
 
     /**
+     * Get operand types of the operator expression
+     * @param {Expression} operator operator
+     * @returns {[string]} types of the operands
+     * @memberof TransformNodeMapper
+     */
+    getOperandTypes(operator) {
+        const operandTypes = [];
+        let operandCount = 0;
+        if (TreeUtil.isUnaryExpr(operator)) {
+            operandCount = 1;
+        } else if (TreeUtil.isBinaryExpr(operator)) {
+            operandCount = 2;
+        } else if (TreeUtil.isTernaryExpr(operator)) {
+            operandCount = 3;
+        }
+
+        for (let i = 0; i < operandCount; i++) {
+            const getter = this.getOperandGetterFunction(operator, i);
+            const operandExp = getter();
+            if (operandExp.symbolType && operandExp.symbolType.length > 0) {
+                operandTypes.push(operandExp.symbolType[0]);
+            } else {
+                operandTypes.push(undefined);
+            }
+        }
+        return operandTypes;
+    }
+
+    /**
      * Get associated setter function of the operator for the given index
      * @param {any} operator operator
      * @param {any} index index of the operand
@@ -1530,6 +1563,34 @@ class TransformNodeMapper {
                 return operator.setThenExpression.bind(operator);
             } else if (index === 2) {
                 return operator.setElseExpression.bind(operator);
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Get associated getter function of the operator for the given index
+     * @param {any} operator operator
+     * @param {any} index index of the operand
+     * @returns {Function} getter function
+     * @memberof TransformNodeMapper
+     */
+    getOperandGetterFunction(operator, index) {
+        if (TreeUtil.isUnaryExpr(operator)) {
+            return operator.getExpression.bind(operator);
+        } else if (TreeUtil.isBinaryExpr(operator)) {
+            if (index === 0) {
+                return operator.getLeftExpression.bind(operator);
+            } else if (index === 1) {
+                return operator.getRightExpression.bind(operator);
+            }
+        } else if (TreeUtil.isTernaryExpr(operator)) {
+            if (index === 0) {
+                return operator.getCondition.bind(operator);
+            } else if (index === 1) {
+                return operator.getThenExpression.bind(operator);
+            } else if (index === 2) {
+                return operator.getElseExpression.bind(operator);
             }
         }
         return undefined;
