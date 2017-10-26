@@ -103,9 +103,15 @@ public class BLangFunctions {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
 
-        ControlStackNew controlStackNew = context.getControlStackNew();
         invokePackageInitFunction(bLangProgram, packageInfo.getInitFunctionInfo(), context);
+        return invokeFunction(bLangProgram, functionInfo, args, context);
+    }
 
+    public static BValue[] invokeFunction(ProgramFile bLangProgram, FunctionInfo functionInfo, BValue[] args,
+                                          Context context) {
+
+        PackageInfo packageInfo = functionInfo.getPackageInfo();
+        ControlStackNew controlStackNew = context.getControlStackNew();
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
         StackFrame callerSF = new StackFrame(packageInfo, -1, new int[0]);
