@@ -20,8 +20,8 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
-import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.CallableUnitBodyContextResolver;
-import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
+import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.CallableUnitBodyContextResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.ResolveCommandExecutor;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
