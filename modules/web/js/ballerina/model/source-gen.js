@@ -407,52 +407,52 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'Transaction':
             if (node.transactionBody && node.failedBody && node.abortedBody
                          && node.committedBody) {
-                return dent() + dent() + dent() + dent() + w() + 'transaction' + w()
+                return dent() + dent() + dent() + dent() + w() + 'transaction' + w(' ')
                  + '{' + indent() + getSourceOf(node.transactionBody, pretty, l)
-                 + outdent() + w() + '}' + w() + 'failed' + w() + '{' + indent()
-                 + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}'
-                 + w() + 'aborted' + w() + '{' + indent()
-                 + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}' + w() + 'committed' + w()
-                 + '{' + indent() + getSourceOf(node.committedBody, pretty, l)
-                 + outdent() + w() + '}';
+                 + outdent() + w() + '}' + w(' ') + 'failed' + w(' ') + '{'
+                 + indent() + getSourceOf(node.failedBody, pretty, l) + outdent() + w()
+                 + '}' + w(' ') + 'aborted' + w(' ') + '{' + indent()
+                 + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}' + w(' ')
+                 + 'committed' + w(' ') + '{' + indent()
+                 + getSourceOf(node.committedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.abortedBody && node.committedBody) {
-                return dent() + dent() + dent() + w() + 'transaction' + w() + '{'
-                 + indent() + getSourceOf(node.transactionBody, pretty, l) + outdent()
-                 + w() + '}' + w() + 'aborted' + w() + '{' + indent()
-                 + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}' + w()
-                 + 'committed' + w() + '{' + indent()
+                return dent() + dent() + dent() + w() + 'transaction' + w(' ') + '{'
+                 + indent() + getSourceOf(node.transactionBody, pretty, l)
+                 + outdent() + w() + '}' + w(' ') + 'aborted' + w(' ') + '{' + indent()
+                 + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}'
+                 + w(' ') + 'committed' + w(' ') + '{' + indent()
                  + getSourceOf(node.committedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.failedBody && node.abortedBody) {
-                return dent() + dent() + dent() + w() + 'transaction' + w() + '{'
-                 + indent() + getSourceOf(node.transactionBody, pretty, l) + outdent()
-                 + w() + '}' + w() + 'failed' + w() + '{' + indent()
-                 + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}' + w()
-                 + 'aborted' + w() + '{' + indent()
+                return dent() + dent() + dent() + w() + 'transaction' + w(' ') + '{'
+                 + indent() + getSourceOf(node.transactionBody, pretty, l)
+                 + outdent() + w() + '}' + w(' ') + 'failed' + w(' ') + '{' + indent()
+                 + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}'
+                 + w(' ') + 'aborted' + w(' ') + '{' + indent()
                  + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.failedBody && node.committedBody) {
-                return dent() + dent() + dent() + w() + 'transaction' + w() + '{'
-                 + indent() + getSourceOf(node.transactionBody, pretty, l) + outdent()
-                 + w() + '}' + w() + 'failed' + w() + '{' + indent()
-                 + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}' + w()
-                 + 'committed' + w() + '{' + indent()
+                return dent() + dent() + dent() + w() + 'transaction' + w(' ') + '{'
+                 + indent() + getSourceOf(node.transactionBody, pretty, l)
+                 + outdent() + w() + '}' + w(' ') + 'failed' + w(' ') + '{' + indent()
+                 + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}'
+                 + w(' ') + 'committed' + w(' ') + '{' + indent()
                  + getSourceOf(node.committedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.failedBody) {
-                return dent() + dent() + w() + 'transaction' + w() + '{' + indent()
+                return dent() + dent() + w() + 'transaction' + w(' ') + '{' + indent()
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w()
-                 + '}' + w() + 'failed' + w() + '{' + indent()
+                 + '}' + w(' ') + 'failed' + w(' ') + '{' + indent()
                  + getSourceOf(node.failedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.committedBody) {
-                return dent() + dent() + w() + 'transaction' + w() + '{' + indent()
+                return dent() + dent() + w() + 'transaction' + w(' ') + '{' + indent()
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w()
-                 + '}' + w() + 'committed' + w() + '{' + indent()
+                 + '}' + w(' ') + 'committed' + w(' ') + '{' + indent()
                  + getSourceOf(node.committedBody, pretty, l) + outdent() + w() + '}';
             } else if (node.transactionBody && node.abortedBody) {
-                return dent() + dent() + w() + 'transaction' + w() + '{' + indent()
+                return dent() + dent() + w() + 'transaction' + w(' ') + '{' + indent()
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w()
-                 + '}' + w() + 'aborted' + w() + '{' + indent()
+                 + '}' + w(' ') + 'aborted' + w(' ') + '{' + indent()
                  + getSourceOf(node.abortedBody, pretty, l) + outdent() + w() + '}';
             } else {
-                return dent() + w() + 'transaction' + w() + '{' + indent()
+                return dent() + w() + 'transaction' + w(' ') + '{' + indent()
                  + getSourceOf(node.transactionBody, pretty, l) + outdent() + w() + '}';
             }
         case 'Transform':
