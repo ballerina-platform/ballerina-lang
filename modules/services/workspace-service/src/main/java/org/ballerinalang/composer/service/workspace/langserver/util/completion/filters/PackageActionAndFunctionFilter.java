@@ -41,55 +41,83 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
 
         TokenStream tokenStream = dataModel.getTokenStream();
         int delimiterIndex = this.getPackageDelimeterTokenIndex(dataModel);
-
-        String searchTokenString = tokenStream.get(delimiterIndex - 1).getText();
         String delimiter = tokenStream.get(delimiterIndex).getText();
-        int colonTokenIndex;
-
-        if (delimiter.equals(":")) {
-            colonTokenIndex = delimiterIndex;
-        } else {
-            int initTokenIndex = this.getIndexOfTokenString(searchTokenString, 0, dataModel);
-            int equalTokenIndex = this.getIndexOfTokenString("create", initTokenIndex, dataModel);
-            colonTokenIndex = this.getIndexOfTokenString(":", equalTokenIndex, dataModel);
-        }
-
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
 
-        if (colonTokenIndex > -1) {
-            String packageName = tokenStream.get(colonTokenIndex - 1).getText();
-
-            SymbolInfo packageSymbolInfo = symbols.stream().filter(symbolInfo -> {
-                Scope.ScopeEntry scopeEntry = symbolInfo.getScopeEntry();
-                return symbolInfo.getSymbolName().equals(packageName) && scopeEntry.symbol instanceof BPackageSymbol;
-            }).findFirst().orElse(null);
-
-            if (packageSymbolInfo != null) {
-                Scope.ScopeEntry packageEntry = packageSymbolInfo.getScopeEntry();
-                SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
-                returnSymbolsInfoList.add(symbolInfo);
-            }
+        if (delimiter.equals(".")) {
+            // If the delimiter is "." then we are filtering the bound functions for the structs
+            returnSymbolsInfoList.addAll(this.getBoundActionAndFunctions(dataModel, symbols, delimiterIndex));
+        } else if (delimiter.equals(":")) {
+            // We are filtering the package functions
+            returnSymbolsInfoList.addAll(this.getActionsAndFunctions(dataModel, symbols, delimiterIndex));
         }
 
         return returnSymbolsInfoList;
     }
 
-    /**
-     * Get the actions and functions in the given symbol info item
-     * @param symbolInfo {@link SymbolInfo} symbol info item, this must contains a package Item
-     * @param dataModel {@link SuggestionsFilterDataModel} suggestions filter data model
-     * @return list of actions and functions
-     */
-    public ArrayList<SymbolInfo> getCompletionItems(SymbolInfo symbolInfo,
-                                                        SuggestionsFilterDataModel dataModel) {
-        ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
+    private ArrayList<SymbolInfo> getActionsAndFunctions(SuggestionsFilterDataModel dataModel,
+                                                        ArrayList<SymbolInfo> symbols, int delimiterIndex) {
 
-        symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
-            if (value.symbol instanceof BInvokableSymbol) {
-                SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), value);
-                actionFunctionList.add(actionFunctionSymbol);
-            }
-        });
+        ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
+        TokenStream tokenStream = dataModel.getTokenStream();
+        String packageName = tokenStream.get(delimiterIndex - 1).getText();
+
+        SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
+            Scope.ScopeEntry scopeEntry = item.getScopeEntry();
+            return item.getSymbolName().equals(packageName) && scopeEntry.symbol instanceof BPackageSymbol;
+        }).findFirst().orElse(null);
+
+        if (packageSymbolInfo != null) {
+            Scope.ScopeEntry packageEntry = packageSymbolInfo.getScopeEntry();
+            SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
+
+            symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
+                if (value.symbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) value.symbol).receiverSymbol == null) {
+                    SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), value);
+                    actionFunctionList.add(actionFunctionSymbol);
+                }
+            });
+        }
+
+        return actionFunctionList;
+    }
+
+    private ArrayList<SymbolInfo> getBoundActionAndFunctions(SuggestionsFilterDataModel dataModel,
+                                                             ArrayList<SymbolInfo> symbols, int delimiterIndex) {
+
+        ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
+        TokenStream tokenStream = dataModel.getTokenStream();
+        String variableName = tokenStream.get(delimiterIndex - 1).getText();
+        SymbolInfo variable = this.getVariableByName(variableName, symbols);
+
+        if (variable == null) {
+            return actionFunctionList;
+        }
+
+        String packageID = variable.getScopeEntry().symbol.getType().tsymbol.pkgID.toString();
+
+        SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
+            Scope.ScopeEntry scopeEntry = item.getScopeEntry();
+            return (scopeEntry.symbol instanceof BPackageSymbol)
+                    && scopeEntry.symbol.pkgID.toString().equals(packageID);
+        }).findFirst().orElse(null);
+
+        if (packageSymbolInfo != null) {
+            packageSymbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, scopeEntry) -> {
+                if (scopeEntry.symbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
+                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
+                            .receiverSymbol.getType().tsymbol.name.getValue();
+                    String checkValue = variable.getScopeEntry().symbol.getType().tsymbol.name.getValue();
+                    if (symbolBoundedName.equals(checkValue)) {
+                        SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
+                        actionFunctionList.add(actionFunctionSymbol);
+                    }
+                }
+            });
+        }
+
         return actionFunctionList;
     }
 
@@ -100,7 +128,7 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
      * @param dataModel - suggestions filter data model
      * @return {@link Integer}
      */
-    private int getIndexOfTokenString(String tokenString, int from, SuggestionsFilterDataModel dataModel) {
+    public int getIndexOfTokenString(String tokenString, int from, SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
         int resultTokenIndex = -1;
         int searchIndex = from;
@@ -156,5 +184,12 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         }
 
         return delimiterIndex;
+    }
+
+    private SymbolInfo getVariableByName(String name, ArrayList<SymbolInfo> symbols) {
+        return symbols.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 }
