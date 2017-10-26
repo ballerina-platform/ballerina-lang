@@ -588,7 +588,6 @@ public class TaskTest {
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithEmptyResponse() {
-        consoleOutput.reset();
         int taskId;
         int interval = 10000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(15000) };
@@ -600,7 +599,6 @@ public class TaskTest {
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithoutOnErrorFunction() {
-        consoleOutput.reset();
         int taskId;
         int interval = 10000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(15000) };
