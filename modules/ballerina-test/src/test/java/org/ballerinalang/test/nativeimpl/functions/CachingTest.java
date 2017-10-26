@@ -130,23 +130,6 @@ public class CachingTest {
     }
 
     @Test
-    public void testClear() {
-        String cacheName = "userCache";
-        int timeout = 60;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(timeout);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testClear", args);
-        Assert.assertTrue(returns.length == 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-    }
-
-    @Test
     public void testCacheEviction() {
         String cacheName = "userCache";
         int timeout = 60;
@@ -170,5 +153,23 @@ public class CachingTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
         Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
+    }
+
+    @Test
+    public void testCacheClearing() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheClearing");
+        Assert.assertTrue(returns.length == 6);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertTrue(returns[3] instanceof BInteger);
+        Assert.assertTrue(returns[4] instanceof BInteger);
+        Assert.assertTrue(returns[5] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 2);
     }
 }

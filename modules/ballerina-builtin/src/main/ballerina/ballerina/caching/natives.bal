@@ -1,8 +1,17 @@
 package ballerina.caching;
 
 import ballerina.doc;
-import ballerina.lang.maps;
-import ballerina.lang.system;
+import ballerina.task;
+
+@doc:Description {value:"delay in ms which is used to create a new cache cleanup task."}
+const int CACHE_CLEANUP_START_DELAY = 0;
+@doc:Description {value:"interval in ms which is used to create a new cache cleanup task."}
+const int CACHE_CLEANUP_INTERVAL = 5000;
+
+@doc:Description {value:"array which stores the caches."}
+cache[] caches = [];
+
+string scheduleID;
 
 @doc:Description {value:"Represents a cache."}
 @doc:Field {value:"name - name of the cache"}
@@ -28,16 +37,36 @@ struct cacheEntry {
 
 @doc:Description {value:"Creates a new cache."}
 @doc:Param {value:"name - name of the cache"}
-@doc:Param {value:"timeout - timeout of the cache"}
+@doc:Param {value:"timeout - timeout of the cache in seconds"}
 @doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
 @doc:Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @doc:Return {value:"cache - a new cache"}
 public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (cache) {
+    // Cache capacity must be a positive value.
     if (capacity <= 0) {
         error e = {msg:"Capacity must be greater than 0."};
         throw e;
     }
+
+    // If a cache cleanup scheduler is not already created, create a new scheduler.
+    if (scheduleID == "") {
+        function () returns (error) onTriggerFunction = cleanCache;
+        function (error) onErrorFunction = null;
+        error schedulerError;
+        scheduleID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
+        // If task creation failed, throw an error.
+        if (schedulerError != null) {
+            throw schedulerError;
+        }
+    }
+
+    // Create a new cache.
     cache c = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
+    // Get the current total cache count.
+    int currentCachesCount = lengthof caches;
+    // Add the new cache to the end of the caches array.
+    caches[currentCachesCount] = c;
+    // Return the new cache.
     return c;
 }
 
@@ -47,14 +76,14 @@ public function createCache (string name, int timeOut, int capacity, float evict
 @doc:Param {value:"value - value to be cached"}
 public function put (cache c, string key, any value) {
     int maxCapacity = c.capacity;
-    int currentCapacity = maps:length(c.entries);
+    int currentCapacity = c.entries.length();
     // if the current cache is full,
     if (maxCapacity <= currentCapacity) {
         evictCache(c);
     }
     // Add the new entry
-    int currentTime = system:nanoTime();
-    cacheEntry entry = {value:value, lastAccessedTime:currentTime};
+    int time = currentTime().time;
+    cacheEntry entry = {value:value, lastAccessedTime:time};
     c.entries[key] = entry;
 }
 
@@ -65,7 +94,7 @@ function evictCache (cache c) {
     int i = 0;
     while (i < noOfEntriesToBeEvicted) {
         string cacheKey = getLRUCache(c);
-        maps:remove(c.entries, cacheKey);
+        c.entries.remove(cacheKey);
         i = i + 1;
     }
 }
@@ -82,7 +111,7 @@ public function get (cache c, string key) returns (any) {
     if (e != null || entry == null) {
         return null;
     }
-    entry.lastAccessedTime = system:nanoTime();
+    entry.lastAccessedTime = currentTime().time;
     return entry.value;
 }
 
@@ -90,13 +119,61 @@ public function get (cache c, string key) returns (any) {
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key of the cache entry which needs to be removed"}
 public function remove (cache c, string key) {
-    maps:remove(c.entries, key);
+    c.entries.remove(key);
 }
 
 @doc:Description {value:"Clears a cache."}
-@doc:Param {value:"cache - a cache"}
-public function clear (cache c) {
-    c.entries = {};
+public function cleanCache () returns (error) {
+    int currentCacheIndex = 0;
+    int cacheSize = lengthof caches;
+    // Iterate through all caches.
+    while (currentCacheIndex < cacheSize) {
+        // Get a cache from the array.
+        cache currentCache = caches[currentCacheIndex];
+        // If the cache is null, go to next cache.
+        if (currentCache == null) {
+            next;
+        }
+        // Get the entries in the current cache.
+        map currentCacheEntries = currentCache.entries;
+        // Ge the keys in the current cache.
+        string[] currentCacheEntriesKeys = currentCacheEntries.keys();
+        // Get the timeout of the current cache
+        int currentCacheTimeout = currentCache.timeOut;
+
+        int currentKeyIndex = 0;
+        int currentCacheSize = lengthof currentCacheEntriesKeys;
+
+        // Create a new array to store keys of cache entries which needs to be removed.
+        string[] cachesToBeRemoved = [];
+        int cachesToBeRemovedIndex = 0;
+        // Iterate through all keys.
+        while (currentKeyIndex < currentCacheSize) {
+            // Get the current key.
+            string key = currentCacheEntriesKeys[currentKeyIndex];
+            // Get the corresponding entry from the cache.
+            var entry, _ = (cacheEntry)currentCacheEntries[key];
+            // Get the current system time.
+            int currentSystemTime = currentTime().time;
+            // Check whether the cache entry needs to be removed.
+            if (currentSystemTime >= entry.lastAccessedTime + currentCacheTimeout) {
+                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
+            }
+            currentKeyIndex = currentKeyIndex + 1;
+        }
+
+        // Iterate through the key list which needs to be removed.
+        currentKeyIndex = 0;
+        while (currentKeyIndex < cachesToBeRemovedIndex) {
+            string key = cachesToBeRemoved[currentKeyIndex];
+            // Remove the cache entry.
+            currentCacheEntries.remove(key);
+            currentKeyIndex = currentKeyIndex + 1;
+        }
+        currentCacheIndex = currentCacheIndex + 1;
+    }
+    return null;
 }
 
 @doc:Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
@@ -104,9 +181,9 @@ public function clear (cache c) {
 @doc:Return {value:"string - key of the LRU cache entry"}
 public function getLRUCache (cache c) (string cacheKey) {
     map entries = c.entries;
-    string[] keys = maps:keys(entries);
+    string[] keys = entries.keys();
     cacheKey = "";
-    int currentMin = system:nanoTime();
+    int currentMinimumTime = currentTime().time;
 
     int index = 0;
     int size = lengthof keys;
@@ -114,9 +191,9 @@ public function getLRUCache (cache c) (string cacheKey) {
     while (index < size) {
         string key = keys[index];
         var entry, _ = (cacheEntry)entries[key];
-        if (currentMin > entry.lastAccessedTime) {
+        if (currentMinimumTime > entry.lastAccessedTime) {
             cacheKey = key;
-            currentMin = entry.lastAccessedTime;
+            currentMinimumTime = entry.lastAccessedTime;
         }
         index = index + 1;
     }
