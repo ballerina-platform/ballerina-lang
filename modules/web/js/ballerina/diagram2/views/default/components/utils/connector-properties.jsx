@@ -78,6 +78,7 @@ class ConnectorPropertiesForm extends React.Component {
                     property.value = this.getAddedValueOfProp(addedValues[index]);
                 } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // For structs
                     this.getValueOfStructs(addedValues[index], property.fields);
+                    property.value = this.getStringifiedMap(property.fields);
                 }
             }
         });
@@ -100,6 +101,7 @@ class ConnectorPropertiesForm extends React.Component {
                 } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
                     const propName = _.find(fields, { identifier: key });
                     this.getValueOfStructs(element.getValue(), propName.fields);
+                    propName.value = this.getStringifiedMap(propName.fields);
                 }
             }
         });
@@ -132,12 +134,10 @@ class ConnectorPropertiesForm extends React.Component {
                 key.value = this.addQuotationForStringValues(key.value);
             }
                 // For simple fields
-            if (key.fields.length === 0) {
+            if (key.bType !== 'struct') {
                 paramArray.push(key.value);
-            } else if (key.value) {
+            } else if (key.bType === 'struct') {
                 paramArray.push(key.value);
-            } else {
-                map = this.getStringifiedMap(key.fields);
             }
         });
         if (map) {
@@ -164,21 +164,26 @@ class ConnectorPropertiesForm extends React.Component {
             if (field.identifier.startsWith('"')) {
                 field.identifier = JSON.parse(field.identifier);
             }
-            if (field.value === field.defaultValue && field.fields.length === 0) {
+            if ((!field.value && field.bType !== 'struct') ||
+                (field.value === field.defaultValue && field.bType !== 'struct')) {
                 return;
             }
             // If the btype is string, add quotation marks to the value
             if (field.bType === 'string') {
                 field.value = this.addQuotationForStringValues(field.value);
             }
-            if (field.fields.length === 0) {
+            if (field.bType !== 'struct') {
                 valueArr.push(field.identifier + ':' + field.value);
-            } else if (field.value) {
-                valueArr.push(field.identifier + ':' + field.value);
-            } else {
-                let localMap = this.getStringifiedMap(field.fields);
-                localMap = field.identifier + ': ' + localMap;
-                valueArr.push(localMap);
+            } else if (field.bType === 'struct') {
+                if (!field.value || (field.value.startsWith('{') && field.value.endsWith('}'))) {
+                    let localMap = this.getStringifiedMap(field.fields);
+                    if (localMap !== '{}') {
+                        localMap = field.identifier + ': ' + localMap;
+                        valueArr.push(localMap);
+                    }
+                } else {
+                    valueArr.push(field.identifier + ':' + field.value);
+                }
             }
         });
         const map = '{' + valueArr.join(',') + '}';
