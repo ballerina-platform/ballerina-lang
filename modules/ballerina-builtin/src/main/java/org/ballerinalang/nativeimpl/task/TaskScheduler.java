@@ -66,39 +66,23 @@ public class TaskScheduler {
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_TIMER + taskId + " starts the execution");
                 }
-                try {
-                    triggerTimer(ctx, taskId, delay, interval, onTriggerFunction, onErrorFunction);
-                } catch (SchedulingFailedException e) {
-                    log.error(e.getMessage());
-                }
                 //Call the onTrigger function.
                 callFunction(ctx, onTriggerFunction, onErrorFunction);
             };
-            if (executorServiceMap.get(taskId) == null && delay != 0) {
-                //Schedule the service with initial delay if the initial delay is set.
-                executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
+            if (interval > 0) {
+                //Schedule the task
+                executorService.scheduleAtFixedRate(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
                 if (log.isDebugEnabled()) {
-                    log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS");
+                    log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] and interval ["
+                            + interval + "] MILLISECONDS");
                 }
+                //Add the executor service into the map.
                 Appointment appointment = new Appointment();
                 appointment.setExecutorService(executorService);
                 appointment.setLifeTime(0L);
                 executorServiceMap.put(taskId, appointment);
             } else {
-                if (interval > 0) {
-                    //Schedule the service with the provided delay.
-                    executorService.schedule(schedulerFunc, interval, TimeUnit.MILLISECONDS);
-                    if (log.isDebugEnabled()) {
-                        log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + interval + "] MILLISECONDS");
-                    }
-                    //Add the executor service into the map.
-                    Appointment appointment = new Appointment();
-                    appointment.setExecutorService(executorService);
-                    appointment.setLifeTime(0L);
-                    executorServiceMap.put(taskId, appointment);
-                } else {
-                    throw new SchedulingFailedException("The vale of interval is invalid");
-                }
+                throw new SchedulingFailedException("The vale of interval is invalid");
             }
         } catch (RejectedExecutionException | IllegalArgumentException e) {
             throw new SchedulingFailedException("Error occurred while scheduling the timer: " + e.getMessage());
@@ -149,9 +133,9 @@ public class TaskScheduler {
             //Calculate the delay.
             long delay = calculateDelay(taskId, minute, hour, dayOfWeek, dayOfMonth, month);
             if (delay != -1) {
+                //Schedule the task
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
                 //Get the execution life time.
-
                 long period = executorServiceMap.get(taskId) != null ? executorServiceMap.get(taskId).getLifeTime()
                         : 0L;
                 //Add the executor service into the map.

@@ -8,7 +8,7 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (int) {
     any schedulerError;
     task:TimerScheduler ts = {delay:delay, interval:interval};
     function () onTriggerFunction;
-    onTriggerFunction = returnDummyMessage;
+    onTriggerFunction = testFunction;
     function (any) onErrorFunction;
     onErrorFunction = null;
 
@@ -23,7 +23,7 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (int) {
     return schedulerTaskId;
 }
 
-function returnDummyMessage () {
+function testFunction () {
     int i = 0;
     while(i < 10000) {
         i = i + 10;

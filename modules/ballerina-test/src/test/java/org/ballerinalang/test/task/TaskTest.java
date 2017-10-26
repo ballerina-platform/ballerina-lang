@@ -564,8 +564,10 @@ public class TaskTest {
         BValue[] args = { new BInteger(initialDelay), new BInteger(interval), new BInteger(25000) };
         BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
+        int i = countOccurrences(consoleOutput.toString(), TestConstant.TIMER_SUCCESS_MESSAGE);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue(consoleOutput.toString().contains(TestConstant.TIMER_SUCCESS_MESSAGE));
+        Assert.assertEquals(i, 3);
     }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
@@ -670,16 +672,20 @@ public class TaskTest {
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(sleepTime) };
         BValue[] returns = BRunUtil.invoke(timerMWCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         int taskId = Integer.parseInt(returns[0].stringValue());
-        int i = 0;
-        Pattern p = Pattern.compile(TestConstant.TIMER_SUCCESS_MESSAGE);
-        Matcher m = p.matcher(consoleOutput.toString());
-        while (m.find()) {
-            i++;
-        }
+        int i = countOccurrences(consoleOutput.toString(), TestConstant.TIMER_SUCCESS_MESSAGE);
         Assert.assertNotEquals(taskId, -1);
         Assert.assertTrue((sleepTime / interval * 2 - i) <= 1);
     }
 
+    private int countOccurrences(String consoleOutput, String message) {
+        int i = 0;
+        Pattern p = Pattern.compile(message);
+        Matcher m = p.matcher(consoleOutput);
+        while (m.find()) {
+            i++;
+        }
+        return i;
+    }
     private void testAppointmentWithDifferentDOW(char c, int days) {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
