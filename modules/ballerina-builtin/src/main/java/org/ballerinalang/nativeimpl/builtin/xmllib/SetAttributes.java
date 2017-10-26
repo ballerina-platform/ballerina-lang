@@ -16,47 +16,45 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Selects and concatenate all the children of the elements in this sequence that matches the given qualified name.
+ * Sets the attributes the provided attributes map
  * 
- * @since 0.88
+ * @since 0.90
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.selectChildren",
-        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        functionName = "xml.setAttributes",
+        args = {@Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
 )
-public class SelectChildren extends AbstractNativeFunction {
+public class SetAttributes extends AbstractNativeFunction {
 
-    private static final String OPERATION = "select children from xml";
+    private static final String OPERATION = "set attributes";
 
     @Override
     public BValue[] execute(Context ctx) {
-        BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            String qname = getStringArgument(ctx, 0);
-            result = value.children(qname);
+            BXML<?> xml = (BXML<?>) getRefArgument(ctx, 0);
+            BMap<String, ?> attributes = (BMap<String, ?>) getRefArgument(ctx, 1);
+            xml.setAttributes(attributes);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         // Setting output value.
-        return getBValues(result);
+        return VOID_RETURN;
     }
 }

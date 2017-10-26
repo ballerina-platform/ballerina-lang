@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,37 +24,36 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the type of a XML as a string. If the xml is singleton, type can be one of 
- * 'element', 'text', 'comment' or 'pi'. Returns an empty string if the xml is not a singleton.
+ * Set the children of an XML if its a singleton. Error otherwise.
+ * Any existing children will be removed.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.getItemType",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "xml.setChildren",
+        args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true
 )
-public class GetItemType extends AbstractNativeFunction {
+public class SetChildren extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get xml item type";
+    private static final String OPERATION = "set children to xml element";
 
     @Override
     public BValue[] execute(Context ctx) {
-        BValue result = null;
         try {
-            // Accessing Parameters.
             BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.getItemType();
+            BXML children = (BXML) getRefArgument(ctx, 1);
+            xml.setChildren(children);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         // Setting output value.
-        return getBValues(result);
+        return VOID_RETURN;
     }
 }

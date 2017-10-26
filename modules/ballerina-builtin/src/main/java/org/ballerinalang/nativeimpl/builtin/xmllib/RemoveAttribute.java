@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,27 +28,27 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Set the children of an XML if its a singleton. Error otherwise.
- * Any existing children will be removed.
+ * Remove an attribute from an XML.
  * 
- * @since 0.88
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.setChildren",
-        args = {@Argument(name = "children", type = TypeKind.XML)},
+        functionName = "xml.removeAttribute",
+        args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetChildren extends AbstractNativeFunction {
+public class RemoveAttribute extends AbstractNativeFunction {
 
-    private static final String OPERATION = "set children to xml element";
+    private static final String OPERATION = "remove attribute";
 
     @Override
     public BValue[] execute(Context ctx) {
         try {
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            BXML children = (BXML) getRefArgument(ctx, 1);
-            xml.setChildren(children);
+            // Accessing Parameters.
+            BXML<?> xml = (BXML<?>) getRefArgument(ctx, 0);
+            String qname = getStringArgument(ctx, 0);
+            xml.removeAttribute(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

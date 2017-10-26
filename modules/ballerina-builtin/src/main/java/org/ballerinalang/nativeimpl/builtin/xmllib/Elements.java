@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,27 +28,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Check whether the XML sequence is empty.
+ * Get all the elements-type items of a xml.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.isEmpty",
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        functionName = "xml.elements",
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class IsEmpty extends AbstractNativeFunction {
+public class Elements extends AbstractNativeFunction {
 
-    private static final String OPERATION = "check xml is empty";
+    private static final String OPERATION = "get elements from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.isEmpty();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            result = value.elements();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

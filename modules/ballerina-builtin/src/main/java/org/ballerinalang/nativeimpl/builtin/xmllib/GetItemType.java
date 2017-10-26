@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,29 +28,32 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Make a deep copy of an XML.
+ * Get the type of a XML as a string. If the xml is singleton, type can be one of 
+ * 'element', 'text', 'comment' or 'pi'. Returns an empty string if the xml is not a singleton.
+ * 
+ * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.copy",
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        functionName = "xml.getItemType",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Copy extends AbstractNativeFunction {
+public class GetItemType extends AbstractNativeFunction {
 
-private static final String OPERATION = "get children from xml";
+    private static final String OPERATION = "get xml item type";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            result = value.copy();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            result = xml.getItemType();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
         return getBValues(result);
     }

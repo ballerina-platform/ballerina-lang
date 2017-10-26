@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,27 +28,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the text value of a XML.
+ * Strips any text items from an XML sequence that are all whitespace.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.getTextValue",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "xml.strip",
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class GetTextValue extends AbstractNativeFunction {
+public class Strip extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get text from xml";
+    private static final String OPERATION = "strip xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-                result = xml.getTextValue();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            result = value.strip();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

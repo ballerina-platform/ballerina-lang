@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,31 +28,31 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the fully qualified name of the element as a string.
+ * Selects and concatenate all the children of the elements in an XML.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.getElementName",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "xml.children",
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class GetElementName extends AbstractNativeFunction {
+public class Children extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get element name in xml";
+private static final String OPERATION = "get children from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.getElementName();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            result = value.children();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-        
+
         // Setting output value.
         return getBValues(result);
     }

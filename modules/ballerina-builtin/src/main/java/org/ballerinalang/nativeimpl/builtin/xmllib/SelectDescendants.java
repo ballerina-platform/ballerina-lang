@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,35 +24,39 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Selects and concatenate all the children of the elements in an XML.
+ * Searches in children recursively for elements matching the name and returns a sequence containing them all.
+ * Does not search within a matched result.
  * 
- * @since 0.88
+ * @since 0.92
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.children",
+        functionName = "xml.selectDescendants",
+        args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Children extends AbstractNativeFunction {
+public class SelectDescendants extends AbstractNativeFunction {
 
-private static final String OPERATION = "get children from xml";
+    private static final String OPERATION = "select descendants from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            result = value.children();
+            BXML<?> value = (BXML<?>) getRefArgument(ctx, 0);
+            String qname = getStringArgument(ctx, 0);
+            result = value.descendants(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
         return getBValues(result);
     }
