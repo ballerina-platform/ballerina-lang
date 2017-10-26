@@ -20,8 +20,8 @@ package org.ballerinalang.test.types.any;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,14 +46,12 @@ public class BAnyTypeNativeSuccessScenariosTest {
         result = BCompileUtil.compile("test-src/types/any/any-type-native-success.bal");
     }
 
-    @Test(description = "Test json value in any type get casted to xml in two steps")
-    public void testJsonInAnyCastToX() {
+    @Test(description = "Test json value in any type get casted to string in two steps")
+    public void testJsonInAnyCastToString() {
         BValue[] returns = BRunUtil.invoke(result, "successfulXmlCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        BXML xmlVal = (BXML) returns[0];
-        Assert.assertTrue(xmlVal.stringValue().contains("<PropertyName>Value</PropertyName>"),
-                          "Invalid xml value returned.");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Value", "Invalid xml value returned.");
     }
 
 

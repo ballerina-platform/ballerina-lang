@@ -355,8 +355,6 @@ public class SymbolTable {
         defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
         defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
         defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
-        defineConversionOperator(jsonType, xmlType, false, InstructionCodes.JSON2XML);
-        defineConversionOperator(xmlType, jsonType, false, InstructionCodes.XML2JSON);
         defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
         defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
