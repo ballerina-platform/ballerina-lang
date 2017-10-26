@@ -38,12 +38,12 @@ import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseFutureImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.https.HTTPSConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.sender.RedirectHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 import org.wso2.carbon.transport.http.netty.util.server.initializers.RedirectServerInitializer;
@@ -113,7 +113,7 @@ public class HTTPClientRedirectTestCase {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
         embeddedChannel.pipeline().addLast(new HttpResponseDecoder());
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
@@ -137,7 +137,7 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
         embeddedChannel.pipeline()
                 .addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(50000, 50000, 0, TimeUnit.MILLISECONDS));
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, null, false));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, false, null, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
@@ -159,7 +159,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestFor303() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -182,7 +182,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForOriginalMethod() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -205,7 +205,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForAlwaysGet() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -227,7 +227,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestToDetermineCrossDomainURLs() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -252,7 +252,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestForSameDomain() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -274,7 +274,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathStartsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -298,7 +298,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -322,7 +322,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void justRelativePathName() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -346,7 +346,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void requestPathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, false);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -380,7 +380,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
@@ -428,7 +428,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), URL1, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
@@ -477,7 +477,7 @@ public class HTTPClientRedirectTestCase {
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 3000));
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
@@ -505,7 +505,7 @@ public class HTTPClientRedirectTestCase {
             HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT3,
                     new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT3));

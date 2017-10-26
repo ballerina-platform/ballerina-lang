@@ -78,13 +78,14 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         boolean followRedirect = senderConfiguration.isFollowRedirect();
         int maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
+        boolean chunkDisabled = senderConfiguration.isChunkDisabled();
 
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled,
-                followRedirect, maxRedirectCount);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled
+                , chunkDisabled, followRedirect, maxRedirectCount);
     }
 
     @Override

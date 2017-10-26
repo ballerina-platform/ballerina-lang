@@ -141,14 +141,28 @@ public class Util {
      *
      * @param cMsg HTTPCarbonMessage
      */
-    public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg) {
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
+    public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg, boolean chunkDisabled) {
+        if (chunkDisabled) {
+            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            setContentLength(cMsg);
+        } else {
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+            setTransferEncodingHeader(cMsg);
+        }
+    }
+
+    private static void  setContentLength(HTTPCarbonMessage cMsg) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
             }
+        }
+    }
+
+    private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
+        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+            cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
     }
 
