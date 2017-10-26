@@ -7,9 +7,9 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (int) {
     int schedulerTaskId = -1;
     any schedulerError;
     task:TimerScheduler ts = {delay:delay, interval:interval};
-    function () onTriggerFunction;
+    function () returns (error) onTriggerFunction;
     onTriggerFunction = testFunction;
-    function (any) onErrorFunction;
+    function (error) onErrorFunction;
     onErrorFunction = null;
 
     schedulerTaskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, ts);
@@ -23,10 +23,11 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (int) {
     return schedulerTaskId;
 }
 
-function testFunction () {
+function testFunction () returns (error) {
     int i = 0;
     while(i < 10000) {
         i = i + 10;
     }
     logger:info("Loop Completed");
+    return null;
 }

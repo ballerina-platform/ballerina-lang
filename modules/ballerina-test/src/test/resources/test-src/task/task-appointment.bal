@@ -8,9 +8,9 @@ function scheduleAppointment (int minute, int hour, int dayOfWeek, int dayOfMont
     any appointmentSchedulerError;
     task:AppointmentScheduler aScheduler = {minute:minute, hour:hour, dayOfWeek:dayOfWeek, dayOfMonth:dayOfMonth, month:month};
 
-    function () returns (any) scheduleAppointmentOnTriggerFunction;
+    function () returns (error) scheduleAppointmentOnTriggerFunction;
     scheduleAppointmentOnTriggerFunction = cleanup;
-    function (any) scheduleAppointmentOnErrorFunction;
+    function (error) scheduleAppointmentOnErrorFunction;
     scheduleAppointmentOnErrorFunction = cleanupError;
 
     appointmentSchedulerTaskId, appointmentSchedulerError = task:scheduleAppointment(scheduleAppointmentOnTriggerFunction, scheduleAppointmentOnErrorFunction, aScheduler);
@@ -24,7 +24,7 @@ function scheduleAppointment (int minute, int hour, int dayOfWeek, int dayOfMont
     return appointmentSchedulerTaskId;
 }
 
-function cleanup () returns (any) {
+function cleanup () returns (error) {
     files:File targetDir = {path:"/tmp/tmpDir"};
     files:delete(targetDir);
     boolean b = files:exists(targetDir);
@@ -34,12 +34,11 @@ function cleanup () returns (any) {
         error err = {msg:"Unable to clean up the tmp directory"};
         return err;
     }
-    return "";
+    return null;
 }
 
-function cleanupError (any error) {
-    var errorMessage, castErr = (string)error;
-    if (errorMessage != "") {
-        logger:error("Error: " + errorMessage);
+function cleanupError (error error) {
+    if (error != null) {
+        logger:error("Error: " + error.msg);
     }
 }

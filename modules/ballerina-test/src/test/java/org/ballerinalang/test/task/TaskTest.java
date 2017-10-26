@@ -19,7 +19,6 @@ package org.ballerinalang.test.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -55,7 +54,7 @@ public class TaskTest {
     private CompileResult appointmentCompileResult;
     private CompileResult stopTaskCompileResult;
     private CompileResult timerMWCompileResult;
-    private CompileResult timerWithEmptyResponseCompileResult;
+    private CompileResult timerWithErrorCompileResult;
     private CompileResult timerWithoutOnErrorFunctionCompileResult;
     private static final Log log = LogFactory.getLog(TaskTest.class);
 
@@ -68,7 +67,7 @@ public class TaskTest {
         appointmentCompileResult = BCompileUtil.compile("test-src/task/task-appointment.bal");
         stopTaskCompileResult = BCompileUtil.compile("test-src/task/task-stop.bal");
         timerMWCompileResult = BCompileUtil.compile("test-src/task/task-timer-multiple-workers.bal");
-        timerWithEmptyResponseCompileResult = BCompileUtil.compile("test-src/task/task-timer-with-empty-response.bal");
+        timerWithErrorCompileResult = BCompileUtil.compile("test-src/task/task-timer-with-error.bal");
         timerWithoutOnErrorFunctionCompileResult = BCompileUtil
                 .compile("test-src/task/task-timer-without-onErrorFunction.bal");
 
@@ -587,12 +586,12 @@ public class TaskTest {
     }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
-    public void testScheduleTimerWithEmptyResponse() {
+    public void testScheduleTimerWithError() {
         int taskId;
         int interval = 10000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(15000) };
         BValue[] returns = BRunUtil
-                .invoke(timerWithEmptyResponseCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+                .invoke(timerWithErrorCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertNotEquals(taskId, -1);
     }
