@@ -55,7 +55,7 @@ public class BLangJSONModelTest {
     public void testBLangJSONModelServiceUsingPost() throws IOException, URISyntaxException {
         File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
                 .getFile());
-        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
+        HttpURLConnection urlConn = request("/ballerina/file/validate-and-parse", HttpMethod.POST);
         urlConn.setRequestProperty("Content-Type", "application/json");
         OutputStream outputStream = urlConn.getOutputStream();
         String content = new Scanner(file).useDelimiter("\\Z").next();;
@@ -78,7 +78,7 @@ public class BLangJSONModelTest {
     public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
         File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
                                        .getFile());
-        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
+        HttpURLConnection urlConn = request("/ballerina/file/validate-and-parse", HttpMethod.POST);
         urlConn.setRequestProperty("Content-Type", "application/json");
         OutputStream outputStream = urlConn.getOutputStream();
         String content = new Scanner(file).useDelimiter("\\Z").next();;
