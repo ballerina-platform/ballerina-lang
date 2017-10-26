@@ -398,8 +398,10 @@ public class SiddhiAppRuntime {
             siddhiAppRuntimeMap.remove(siddhiAppContext.getName());
         }
 
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
-            siddhiAppContext.getStatisticsManager().stopReporting();
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            if (siddhiAppContext.isStatsEnabled()) {
+                siddhiAppContext.getStatisticsManager().stopReporting();
+            }
             siddhiAppContext.getStatisticsManager().cleanup();
         }
         running = false;

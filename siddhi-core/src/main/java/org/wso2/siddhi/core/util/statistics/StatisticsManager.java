@@ -18,8 +18,6 @@
 
 package org.wso2.siddhi.core.util.statistics;
 
-import com.codahale.metrics.MetricRegistry;
-
 /**
  * Each siddhi app will have one StatisticsManager in siddhi app context
  */
@@ -28,8 +26,6 @@ public interface StatisticsManager {
     void startReporting();
 
     void stopReporting();
-
-    MetricRegistry getRegistry();
 
     void cleanup();
 }

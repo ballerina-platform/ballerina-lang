@@ -245,6 +245,7 @@ public class DefinitionParserHelper {
             siddhiAppContext.getScriptFunctionMap().put(functionDefinition.getId(), script);
         } catch (Throwable t) {
             ExceptionUtil.populateQueryContext(t, functionDefinition, siddhiAppContext);
+            throw t;
         }
     }
 
@@ -352,6 +353,7 @@ public class DefinitionParserHelper {
                                 siddhiAppContext);
                     } catch (Throwable t) {
                         ExceptionUtil.populateQueryContext(t, sourceAnnotation, siddhiAppContext);
+                        throw t;
                     }
                     siddhiAppContext.getSnapshotService().addSnapshotable(source.getStreamDefinition().getId(), source);
                     if (sourceHandlerManager != null) {
@@ -520,6 +522,7 @@ public class DefinitionParserHelper {
                                         supportedDynamicOptions);
                             } catch (Throwable t) {
                                 ExceptionUtil.populateQueryContext(t, sinkAnnotation, siddhiAppContext);
+                                throw t;
                             }
                         } else {
                             try {
@@ -528,6 +531,7 @@ public class DefinitionParserHelper {
                                         mapperConfigReader, siddhiAppContext);
                             } catch (Throwable t) {
                                 ExceptionUtil.populateQueryContext(t, sinkAnnotation, siddhiAppContext);
+                                throw t;
                             }
                         }
 

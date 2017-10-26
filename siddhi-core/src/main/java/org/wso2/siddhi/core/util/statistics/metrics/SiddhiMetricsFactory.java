@@ -33,19 +33,19 @@ import java.util.List;
 public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
 
     public LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager) {
-        return new SiddhiLatencyMetric(name, statisticsManager.getRegistry());
+        return new SiddhiLatencyMetric(name, ((SiddhiStatisticsManager) statisticsManager).getRegistry());
     }
 
     public ThroughputTracker createThroughputTracker(String name, StatisticsManager statisticsManager) {
-        return new SiddhiThroughputMetric(name, statisticsManager.getRegistry());
+        return new SiddhiThroughputMetric(name, ((SiddhiStatisticsManager) statisticsManager).getRegistry());
     }
 
     public MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager) {
-        return new SiddhiMemoryUsageMetric(statisticsManager.getRegistry());
+        return new SiddhiMemoryUsageMetric(((SiddhiStatisticsManager) statisticsManager).getRegistry());
     }
 
     @Override
-    public StatisticsManager createStatisticsManager(List<Element> elements) {
+    public StatisticsManager createStatisticsManager(String prefix, String siddhiAppName, List<Element> elements) {
         return new SiddhiStatisticsManager(elements);
     }
 

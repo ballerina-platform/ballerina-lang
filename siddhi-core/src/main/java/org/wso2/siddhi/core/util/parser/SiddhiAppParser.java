@@ -116,7 +116,10 @@ public class SiddhiAppParser {
                 siddhiAppContext.setStatisticsManager(siddhiContext
                         .getStatisticsConfiguration()
                         .getFactory()
-                        .createStatisticsManager(statisticsElements));
+                        .createStatisticsManager(
+                                siddhiContext.getStatisticsConfiguration().getMetricPrefix(),
+                                siddhiAppContext.getName(),
+                                statisticsElements));
             }
 
             Element statStateElement = AnnotationHelper.getAnnotationElement(
@@ -226,6 +229,7 @@ public class SiddhiAppParser {
                         .getWindowMap(), latencyTracker, window.getWindowDefinition().getId());
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, window.getWindowDefinition(), siddhiAppContext);
+                throw t;
             }
         }
         int queryIndex = 1;
@@ -274,6 +278,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineTrigger(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
     }
@@ -286,6 +291,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineFunction(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
     }
@@ -298,6 +304,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineStream(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
     }
@@ -310,6 +317,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineTable(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
     }
@@ -322,6 +330,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineWindow(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
     }
@@ -334,6 +343,7 @@ public class SiddhiAppParser {
                 siddhiAppRuntimeBuilder.defineAggregation(definition);
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, definition, siddhiAppContext);
+                throw t;
             }
         }
 
