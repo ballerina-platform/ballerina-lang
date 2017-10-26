@@ -21,6 +21,9 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './properties-form.css';
 import TagInput from './tag-input';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
+import TreeUtils from './../../../../../model/tree-util';
 /**
  * React component for a service definition.
  *
@@ -36,6 +39,7 @@ class PropertyWindow extends React.Component {
         this.supportedKeys = props.supportedProps;
         this.state = {
             properties: this.supportedKeys,
+            error: false,
         };
         this.onChange = this.onChange.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
@@ -49,6 +53,7 @@ class PropertyWindow extends React.Component {
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.toggleStructView = this.toggleStructView.bind(this);
         this.closePropertyWindow = this.closePropertyWindow.bind(this);
+        this.handleStructs = this.handleStructs.bind(this);
     }
 
     /**
@@ -66,18 +71,22 @@ class PropertyWindow extends React.Component {
      * Hanldes the dismiss/cancel event of the prop window
      */
     handleDismiss() {
-        this.props.addedValues(this.supportedKeys);
-        this.props.model.viewState.showOverlayContainer = false;
-        this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
-        this.props.model.viewState.overlayContainer = {};
-        this.props.model.trigger('tree-modified', {
-            origin: this.props.model,
-            type: 'Property Submitted',
-            title: 'Property Changed',
-            data: {
-                node: this.props.model,
-            },
-        });
+        this.handleStructs(this.state.properties); // update the properties in the specific page
+        this.handleStructs(this.supportedKeys); // update all the properties
+        if (!this.state.error) {
+            this.props.addedValues(this.supportedKeys);
+            this.props.model.viewState.showOverlayContainer = false;
+            this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
+            this.props.model.viewState.overlayContainer = {};
+            this.props.model.trigger('tree-modified', {
+                origin: this.props.model,
+                type: 'Property Submitted',
+                title: 'Property Changed',
+                data: {
+                    node: this.props.model,
+                },
+            });
+        }
     }
 
     /**
@@ -95,6 +104,7 @@ class PropertyWindow extends React.Component {
     toggleStructProperties(identifier, fields) {
         this.previousItems.push(this.state.properties);
         this.breadCrumbs.push(identifier);
+        this.handleStructs(this.supportedKeys);
         this.setState({
             properties: fields,
         });
@@ -106,6 +116,7 @@ class PropertyWindow extends React.Component {
     goToPreviousView() {
         const poppedData = this.previousItems.pop();
         this.breadCrumbs.pop();
+        this.handleStructs(this.supportedKeys);
         this.setState({
             properties: poppedData,
         });
@@ -119,6 +130,7 @@ class PropertyWindow extends React.Component {
         const elements = this.previousItems[index];
         this.previousItems.splice(index);
         this.breadCrumbs.splice(index + 1);
+        this.handleStructs(this.supportedKeys);
         this.setState({
             properties: elements,
         });
@@ -210,12 +222,168 @@ class PropertyWindow extends React.Component {
                 </div>
             </div>);
     }
+
+    /**
+     * Add quotation for strings
+     */
+    addQuotationForStringValues(value) {
+        if (!value.startsWith('"')) {
+            value = '"' + value + '"';
+        }
+        return value;
+    }
+
+    /**
+     * Get the stringified map
+     * @param properties
+     * @returns {string} stringified map
+     */
+    getStringifiedMap(properties) {
+        const valueArr = [];
+        properties.forEach((field) => {
+            // Remove quotation marks of the identifier
+            if (field.identifier.startsWith('"')) {
+                field.identifier = JSON.parse(field.identifier);
+            }
+            if ((!field.value && field.bType !== 'struct') ||
+                (field.value === field.defaultValue && field.bType !== 'struct')) {
+                return;
+            }
+            // If the btype is string, add quotation marks to the value
+            if (field.bType === 'string') {
+                field.value = this.addQuotationForStringValues(field.value);
+            }
+            if (field.bType !== 'struct') {
+                valueArr.push(field.identifier + ':' + field.value);
+            } else if (field.bType === 'struct') {
+                if (!field.value || (field.value.startsWith('{') && field.value.endsWith('}'))) {
+                    let localMap = this.getStringifiedMap(field.fields);
+                    if (localMap !== '{}') {
+                        localMap = field.identifier + ': ' + localMap;
+                        valueArr.push(localMap);
+                    }
+                } else {
+                    valueArr.push(field.identifier + ':' + field.value);
+                }
+            }
+        });
+        const map = '{' + valueArr.join(',') + '}';
+        return map;
+    }
+
+    /**
+     * Clears the struct field values
+     */
+    clearStructFieldValues(key, fields) {
+        if (fields) {
+            fields.forEach((field) => {
+                if (field.bType === 'struct') {
+                    this.clearStructFieldValues(field, field.fields);
+                }
+                field.value = field.defaultValue;
+            });
+        }
+        key.value = '{}';
+        this.setState({
+            error: false,
+        });
+    }
+    /**
+     * Update values of structs when navigating across the prop window
+     * @param properties
+     */
+    handleStructs(properties) {
+        properties.forEach((key) => {
+            if (key.bType === 'struct') {
+                if (!key.value) {
+                    key.fields.forEach((field) => {
+                        if (key.bType === 'struct') {
+                            this.clearStructFieldValues(key, key.fields);
+                        } else {
+                            field.value = field.defaultValue;
+                        }
+                    });
+                    key.value = '{}';
+                } else if (key.value.startsWith('{') && key.value.endsWith('}')) {
+                    // If the user edits the configuration properties, then the user
+                    // is not on the first page i.e. the user is inside a struct
+                    // TODO no way to figure out whether the user is providing a direct
+                    // value to the struct or whether the properties of the struct are
+                    // configured
+                    key.value = this.getStringifiedMap(key.fields);
+                    const fragment = FragmentUtils.createExpressionFragment(key.value);
+                    const parsedJson = FragmentUtils.parseFragment(fragment);
+                    if (parsedJson.error) {
+                        this.setState({
+                            error: true,
+                        });
+                    } else {
+                        const varDefNode = TreeBuilder.build(parsedJson).variable.initialExpression;
+                        if (TreeUtils.isSimpleVariableRef(varDefNode) ||
+                            TreeUtils.isLiteral(varDefNode)) {
+                            key.value = this.getAddedValueOfProp(varDefNode);
+                        } else if (TreeUtils.isRecordLiteralExpr(varDefNode)) { // For structs
+                            this.getValueOfStructs(varDefNode, key.fields);
+                            key.value = this.getStringifiedMap(key.fields);
+                        }
+                    }
+                }
+            }
+        });
+        this.forceUpdate();
+    }
+
+    /**
+     * Get already added values to properties
+     * @param node
+     * @returns {string}
+     */
+    getAddedValueOfProp(node) {
+        let value = '';
+        if (TreeUtils.isLiteral(node)) { // If its a direct value
+            value = node.getValue();
+        } else if (TreeUtils.isSimpleVariableRef(node)) { // If its a reference variable
+            value = node.getVariableName().value;
+        }
+        return value;
+    }
+    /**
+     * Get value of structs
+     */
+    getValueOfStructs(addedValues, fields) {
+        addedValues.getKeyValuePairs().forEach((element) => {
+            if (TreeUtils.isRecordLiteralKeyValue(element)) {
+                const key = element.getKey().getVariableName().value ||
+                    element.getKey().value;
+                // If the value is a Literal Node
+                if (TreeUtils.isLiteral(element.getValue())
+                    || TreeUtils.isSimpleVariableRef(element.getValue())) {
+                    const obj = _.find(fields, { identifier: key });
+                    obj.value = (this.getAddedValueOfProp(element.getValue()));
+                } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
+                    const propName = _.find(fields, { identifier: key });
+                    this.getValueOfStructs(element.getValue(), propName.fields);
+                    propName.value = this.getStringifiedMap(propName.fields);
+                }
+            }
+        });
+    }
+
     /**
      * Renders structs
      * @param key
      * @returns {XML}
      */
     renderStructs(key) {
+        const disabled = (((key.value.includes('{') || key.value.includes('}')) &&
+        key.value.substring(1, key.value.length - 1).length > 1) ? 'disabled' : '');
+        let wrongInput = '';
+        if (disabled) {
+            const stringifiedValue = this.getStringifiedMap(key.fields);
+            if (key.value && key.value !== stringifiedValue) {
+                wrongInput = 'wrongInput';
+            }
+        }
         return (<div className="propWindowStruct">
             <div id='optionGroup' key={key.identifier} className="form-group">
                 <label
@@ -224,21 +392,42 @@ class PropertyWindow extends React.Component {
                 >
                     {_.startCase(key.identifier)}</label>
                 <div className='col-sm-7'>
-                    <input
-                        className='property-dialog-form-control'
-                        id={key.identifier}
-                        name={key.identifier}
-                        type='text'
-                        placeholder='Defined option object or a method'
-                        value={key.value}
-                        onChange={event => this.onChange(event, key)}
-                    />
-                    <input
-                        id='viewOptionParams'
-                        type='button'
-                        value='+'
-                        onClick={() => { this.toggleStructProperties(key.identifier, key.fields); }}
-                    />
+                    <div className="input-group">
+                        {wrongInput &&
+                            <div className="errorMsgDiv">
+                                <i
+                                    className="fw fw-error errorIcon"
+                                    onClick={() => { this.clearStructFieldValues(key, key.fields); }}
+                                />
+                                <span className="errorMsg"> Configure properties for the map </span> </div>
+                        }
+                        <input
+                            className={['property-dialog-form-control',
+                                disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
+                            id={key.identifier}
+                            name={key.identifier}
+                            type='text'
+                            placeholder='Defined option object or a method'
+                            value={key.value}
+                            onChange={event => this.onChange(event, key)}
+                            disabled={disabled}
+                        />
+                        <span className="input-group-btn">
+                            { (disabled && !wrongInput) &&
+                            <input
+                                id='viewOptionParams'
+                                type='button'
+                                value='x'
+                                onClick={() => { this.clearStructFieldValues(key, key.fields); }}
+                            /> }
+                            <input
+                                id='viewOptionParams'
+                                type='button'
+                                value='+'
+                                onClick={() => { this.toggleStructProperties(key.identifier, key.fields); }}
+                            />
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>);
@@ -381,8 +570,10 @@ class PropertyWindow extends React.Component {
                                         return this.renderTagInputs(key);
                                     } else if (key.bType === 'map') {
                                         return this.renderTextInputs(key);
-                                    } else {
+                                    } else if (key.bType === 'struct') {
                                         return this.renderStructs(key);
+                                    } else { // If not any of the types render a simple text box
+                                        return this.renderTextInputs(key);
                                     }
                                 })}
                             </form>

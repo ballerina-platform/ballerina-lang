@@ -284,9 +284,8 @@
     padding-left: -10px;
     height: 25px;
     width: 22px;
-    margin-left: -23px;
     margin-top: 8px;
-    background-color: #b3acac;
+    font-size: 12px;
 }
 
 #property-modal .propWindowStruct input:disabled{
@@ -428,4 +427,34 @@
 
 #property-modal .previousBreadcrumbItem{
     cursor: pointer;
+}
+
+#property-modal .disabledInput {
+    background-color: #FEEFB3;
+    color: #9F6000;
+}
+
+#property-modal .wrongInput {
+    background-color: #FFBABA;
+    color: #D8000C;
+}
+
+#property-modal .errorIcon {
+    position: absolute;
+    top: 15px;
+    left: 46px;
+    color: #FF0000;
+}
+#property-modal .errorMsg{
+    display: table-cell;
+    text-align:center;
+    vertical-align: middle;
+    position: relative;
+    left: 60px;
+    top: 12px;
+}
+
+#property-modal .errorMsgDiv {
+    position: absolute;
+    color: #FF0000;
 }
