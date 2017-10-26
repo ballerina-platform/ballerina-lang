@@ -1,42 +1,475 @@
 # Writing plugins for Ballerina Composer
 
-A plugin should extend from [Plugin](./../../modules/web/src/core/plugin/plugin.js) class. Each plugin should provide a unique ID via `getID()` method. A plugin can contribute to various [extension points available](#available-extension-points) in composer by
+A Componser front-end plugin is a javascript class which is extended from [Plugin](./../../modules/web/src/core/plugin/plugin.js) class and it should provide a no arg constructor. Each plugin should also provide a unique ID via `getID()` method. A plugin can contribute to various [extension points available](#available-extension-points) in composer front-end by
 providing contributions via `getContributions()` method.
 
-Main components of Composer are also developed as plugins. However, comapared to other plugins, they are treated differently while initializing. They are the first set of plugins to be initialized and their startup order is enforced by Composer.
+Main components of Composer front-end are also developed as plugins. However, comapared to other plugins, they are treated differently while initializing. They are the first set of plugins to be initialized and their startup order is enforced by Composer.
 
-A plugin will be able to expose their APIs to other plugins via pluginContext. This is the object which should be returned in [init](#plugin-init) method - [here](./../../modules/web/src/core/workspace/plugin.js#L143) is an example of exposing public api.
+```javascript
+// bare minimum code required for a plugin
 
-A plugin can access public APIs of other plugins via appContext object which is passed to [activate](#plugin-activate) method. By default, upon plugin activate, appContext will be assigined to this.appContext of plugin class.
+import Plugin from 'core/plugin/plugin';
 
-To access the API of another plugin, use appContext.pluginContext[pluginID]. To make life easy, we have exposed [APIs of core plugins](#core-plugins-and-their-apis) via shorter namespaces in appContext object (such as appContext.command, appContext.pref, appContext.workspace, etc.)
+class SamplePlugin extends Plugin {
+     /**
+     * @inheritdoc
+     */
+    getID() {
+        return 'ballerina.composer.plugin.sampleplugin';
+    }
+}
 
-[Here](./../../modules/web/src/core/workspace/plugin.js) is an example for a plugin.
+```
+
+To add a plugin to composer, in composer [config.js](./../../modules/web/src/config.js#L32), under plugins
+section, add the plugin class. (Note: This will be improved in future to allow more flexibility.)
+
+```javascript
+//config.js 
+
+...
+import TryItPlugin from 'plugins/try-it/plugin';
+...
+
+export default {
+    app: {
+        ...
+        plugins: [
+            ...,
+            TryItPlugin,
+            ...,
+        ]
+        ...
+    }
+}
+
+```
+
 
 ## Plugin Life-Cycle
 
-1. init - `init(config)`
-2. activate - `activate(appContext)`
-3. onAfterInitialRender
-4. deactivate - Not
+1. [init - `init(config)`](#plugin-init)
+2. [activate - `activate(appContext)`](#plugin-activate)
+3. [onAfterInitialRender](#after-initial-render)
 
-### plugin init
-### plugin activate
+### Plugin Init
+
+Signature of the method : `init(config)`
+
+After constructing the plugin instance, this will be the very first method that will be invoked by composer. This will receive the plugin config as the argument. This is where you should do initial setting up tasks.
+
+It is possible to pass specific configurations to each plugin by putting it under `pluginConfig.pluginID` (the pluginID is what you return in `getID` method) path in composer config object or providing it under the same path from composer config backend service.
+
+
+If you do not override this method, the default implementation will assign the 
+config object to `this.config` in plugin instance.
+
+To validate the config at runtime, you can use PluginClass.configTypes object with [proptypes](https://www.npmjs.com/package/prop-types) library.  Error logs will be printed for configs that fail the validations. 
+
+[Here's how](./../../modules/web/src/core/layout/plugin.js#L138) layout manager validates its configs.
+
+```javascript 
+//...
+import PropTypes from 'prop-types';
+import Plugin from './../plugin/plugin';
+
+class LayoutPlugin extends Plugin {
+    //...
+}
+
+LayoutPlugin.configTypes = {
+    layout: PropTypes.object,
+    container: PropTypes.string.isRequired,
+};
+
+export default LayoutPlugin;
+```
+
+#### Plugin Context
+
+Plugin context is the object which is returned from [`init`](#plugin-init) method. This is considered as the public API of a plugin which is visible to other plugins.
+
+[Here](./../../modules/web/src/core/workspace/plugin.js#L226) is how workspace plugin exposes its public api.
+
+```javascript
+
+//..
+class WorkspacePlugin extends Plugin {
+     /**
+     * @inheritdoc
+     */
+    init(config) {
+        super.init(config);
+        return {
+            openFile: this.openFile.bind(this),
+            openFolder: this.openFolder.bind(this),
+            closeFile: this.closeFile.bind(this),
+            removeFolder: this.removeFolder.bind(this),
+            goToFileInExplorer: this.goToFileInExplorer.bind(this),
+        };
+    }
+
+}
+
+```
+
+### Plugin Activate
+
+Signature of the method : `activate(appContext)`
+
+After calling init of each plugin, composer now has the APIs from all the plugins ready. The activate method is the next method that composer will invoke through the plugin lifecycle. It receives [appContext](#app-context) as the argument and here you can do the setting up stuff that needs access to other plugin APIs.
+
+
+If you do not override this method, the default implementation will assign the 
+appContext object to `this.appContext` in plugin instance.
+
+#### App Context
+
+To access the API of another plugin, use appContext.pluginContext[pluginID]. To make life easy, we have exposed [APIs of core plugins](#core-plugins-and-their-apis) via shorter namespaces in appContext object (such as appContext.command, appContext.pref, appContext.workspace, etc.)
+
+[Here](./../../modules/web/src/core/workspace/plugin.js#L238) is how workspace plugin loads opened files from history
+upon plugin activate.
+
+```javascript
+
+//..
+class WorkspacePlugin extends Plugin {
+      /**
+     * @inheritdoc
+     */
+    activate(appContext) {
+        super.activate(appContext);
+        //  reopen files from last session
+        const { pref: { history } } = appContext;
+        this.openedFolders = history.get(HISTORY.OPENED_FOLDERS) || [];
+        // make File objects for each serialized file
+        const serializedFiles = history.get(HISTORY.OPENED_FILES) || [];
+        this.openedFiles = serializedFiles.map((serializedFile) => {
+            return Object.assign(new File({}), serializedFile);
+        });
+    }
+
+}
+
+```
+
+### After Initial Render
+
+This is the life cycle hook for post initial render completion. This method of each plugin, will be invoked by composer after layout manager completes rendering the application. This gurantees that all the active views, contributed by all the plugins, are now completely rendered.
+
+Signature of the method : `onAfterInitialRender()`
+
+Inside this method, you can execute logic which needs above mentioned gurantee. 
+
+[Here's how](./../../modules/web/src/plugins/welcome-tab/plugin.js#L72) welcome-page plugin uses this hook to open welcome page if there are no active editors (from history) upon composer open.
+
+```javascript
+
+//..
+class WelcomeTabPlugin extends Plugin {
+     /**
+     * @inheritdoc
+     */
+    onAfterInitialRender() {
+        const { editor, command: { dispatch } } = this.appContext;
+        const activeEditor = editor.getActiveEditor();
+        if (_.isNil(activeEditor)) {
+            dispatch(COMMAND_IDS.SHOW_WELCOME, {});
+        }
+    }
+
+}
+```
 
 ## Available extension points
 
-> Please note that, as of now, these extension points only allow contributing to higher level components of the Composer. In future we are planning to improve ballerina-plugin to accept contributions from other plugins. For example, contributing to ballerina tool pallete will become possible after making plugins capable of defining their own extension points. As a first step, we have made basic components of the Composer pluggable and we will keep on improving it to allow more flexibility. 
+> Please note that, as of now, these extension points only allow contributing to higher level components of the Composer. In future we are planning to improve plugins to accept contributions from other plugins. For example, contributing to ballerina tool pallete will become possible after making plugins capable of defining their own extension points. As a first step, we have made basic components of the Composer front end pluggable and we will keep on improving it to allow more flexibility. 
+
+A plugin can provide contributions to any of below extension points via `getContributions()` method. [Here's how](./../../modules/web/src/plugins/welcome-tab/plugin.js#L89) welocme-page plugin contributes a [view](#views) to editor area.
+
+
+```javascript
+import Plugin from 'core/plugin/plugin';
+import { CONTRIBUTIONS } from 'core/plugin/constants';
+
+//..
+
+class WelcomeTabPlugin extends Plugin {
+    /**
+     * @inheritdoc
+     */
+    getContributions() {
+        const { VIEWS } = CONTRIBUTIONS;
+        return {
+            [VIEWS]: [
+                {
+                    id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
+                    component: WelcomeTab,
+                    propsProvider: () => {
+                        const { command } = this.appContext;
+                        return {
+                            createNew: this.createNewHandler.bind(this),
+                            openFile: this.openFileHandler.bind(this),
+                            openDirectory: this.openDirectoryHandler.bind(this),
+                            userGuide: this.config.userGuide,
+                            balHome: this.config.balHome,
+                            samples: this.config.samples,
+                            commandManager: command,
+                        };
+                    },
+                    region: REGIONS.EDITOR_TABS,
+                    // region specific options for editor-tabs views
+                    regionOptions: {
+                        tabTitle: LABELS.WELCOME,
+                        customTitleClass: 'welcome-page-tab-title',
+                    },
+                },
+            ],
+        };
+    }
+}
+```
 
 - [commands](#command)
 - [handlers](#handlers)
 - [menus](#menus)
+- [tools](#tools)
 - [dialogs](#dialogs)
 - [views](#views)
 - [editors](#editors)
 
+Please note that contribution schemas are defined using syntax of  [proptypes](https://www.npmjs.com/package/prop-types) library. If you are familiar with react prop types validations, well this is the same syntax.
+
 ### command
+
+Commands allow plugins to define an executable action identified by a unique ID. It allows shortcut keys to be binded to dispatch that action. Or to dispatch the command programatically you can use `appContext.command.dispatch(cmdId, argObject)` method.
+
+In a command definition, provide argTypes object to validate commands arguments at dispatch time using [proptypes](https://www.npmjs.com/package/prop-types) library.
+
+[Handlers](#handlers) can be registered against command IDs, to execute some logic upon command dispatch.
+
+
+```javascript
+// command definition schema
+{ 
+    "id": PropTypes.string.isRequired,
+    "shortcut": PropTypes.shape({
+        "default": PropTypes.string.isRequired,
+        "mac": PropTypes.string,
+    }),
+    "argTypes": PropTypes.shape({
+        "arg1": ... //PropType Validations
+        ...
+    }),
+}
+
+// examples
+
+// Toggle Bottom Panel Command
+{
+    "id": COMMANDS.TOGGLE_BOTTOM_PANEL,
+    "shortcut": {
+        "default": "ctrl+`",
+    },
+}
+
+// Show View Command
+{
+    "id": COMMANDS.SHOW_VIEW,
+    "argTypes": {
+        "id": PropTypes.string.isRequired,
+        "additionalProps": PropTypes.objectOf(Object),
+        "options": PropTypes.objectOf(Object),
+    },
+},
+```
+
 ### handlers
+Handlers allow plugins to register a piece of code which will be executed upon a particular [command](#command) dispatch - either by shortcut keypress or programmatically.
+
+
+```javascript
+// handler definition schema
+{ 
+    "cmdID": PropTypes.string.isRequired,
+    "handler": PropTypes.func.isRequired,
+}
+
+// examples
+
+// Report Issue Command Handler
+{
+    "cmdID": COMMANDS.REPORT_ISSUE,
+    "handler": () => {
+        window.open(plugin.config.issue_tracker_url);
+    },
+},
+
+// Show About Dialog Handler
+{
+    "cmdID": COMMANDS.SHOW_ABOUT,
+    "handler": () => {
+        const id = DIALOG.ABOUT;
+        plugin.appContext.command
+         .dispatch(LAYOUT_COMMANDS.POPUP_DIALOG,{id});
+    },
+},
+```
 ### menus
+
+Menus allow plugins to contribute menu items for top menu. New menu items can be added to existing menus or new root menus can be added. 
+
+There are three diffrent menu types possible.
+
+- ROOT : A root menu means an isolated drop down menu such as file/view etc.
+- GROUP : A sub menu which opens a new drop down to right side
+- ITEM : A leaf menu with a icon and target command
+
+A leaf menu can be associated with a command which will be dispatched upon click.
+
+`order` integer can be used to enforce order within same parent.
+
+`isActive` function can be used to enable/disable a menu according to current state of workspace.
+
+```javascript
+// menu definition schema
+ {
+    "id": PropTypes.string.isRequired,
+    "parent": PropTypes.string, // can be a root or a group id
+    "label": PropTypes.string.isRequired,
+    "isActive": PropTypes.func.isRequired,
+    "order": PropTypes.number,
+    "command": PropTypes.string.isRequired,
+    "icon": PropTypes.string, // class name from fon
+    "type": PropTypes.string.isRequired,
+    "divider": PropTypes.shape({
+        "before": PropTypes.bool,
+        "after": PropTypes.bool,
+    }),
+},
+
+// examples
+
+// file root menu
+{
+    id: MENUS.FILE_MENU,
+    label: LABELS.FILE,
+    isActive: () => {
+        return true;
+    },
+    icon: '',
+    order: 0,
+    type: MENU_DEF_TYPES.ROOT,
+},
+// new file menu
+{
+    id: MENUS.NEW_FILE,
+    parent: MENUS.FILE_MENU,
+    label: LABELS.NEW_FILE,
+    isActive: () => {
+        return true;
+    },
+    command: COMMANDS.CREATE_NEW_FILE,
+    icon: 'add',
+    type: MENU_DEF_TYPES.ITEM,
+    divider: {
+        after: true,
+    },
+},
+// Save file menu
+{
+    id: MENUS.SAVE_FILE,
+    parent: MENUS.FILE_MENU,
+    label: LABELS.SAVE,
+    isActive: () => {
+        // enable only if current active file is dirty
+        const { editor } = workspaceManager.appContext;
+        const activeTab = editor.getActiveEditor();
+        return activeTab && activeTab.isDirty ? activeTab.isDirty : false;
+    },
+    command: COMMANDS.SAVE_FILE,
+    icon: 'save',
+    type: MENU_DEF_TYPES.ITEM,
+},
+```
+### tools
+
+A plugin can add tools to tool bar via TOOLS contributions. 
+Tools can be grouped together using `group` property.
+
+In contrast to menus, tools have two call backs for controlling its state.
+
+`isVisible` and `isActive` are the two functions that composer will invoke to decide whether to render the tool and to enable it. Tools will be re-rendered upon various events such as tab change, file dirty state change, debugger state change, etc.
+
+```javascript
+// tool definition schema
+{
+    "id": PropTypes.string.isRequired,
+    "group": PropTypes.string.isRequired,
+    "icon": PropTypes.string.isRequired,
+    "commandID":PropTypes.string.isRequired,
+    "isActive": PropTypes.func,
+    "isVisible": PropTypes.func,
+    "description": PropTypes.string,
+}
+
+// examples
+
+// Run Tool
+{
+    id: TOOL_IDS.RUN,
+    group: TOOL_IDS.GROUP,
+    icon: 'start',
+    commandID: COMMAND_IDS.RUN,
+    isActive: () => {
+        const activeEditor = this.appContext.editor.getActiveEditor();
+        return activeEditor && activeEditor.definition &&
+            activeEditor.definition.id === 'composer.editor.ballerina' && !LaunchManager.active;
+    },
+    isVisible: () => {
+        return !LaunchManager.active;
+    },
+    description: 'Run',
+}
+
+// Stop Tool
+{
+    id: TOOL_IDS.STOP,
+    group: TOOL_IDS.GROUP,
+    icon: 'stop',
+    commandID: COMMAND_IDS.STOP,
+    isVisible: () => {
+        if (DebugManager.active) {
+            return false;
+        }
+        return LaunchManager.active;
+    },
+    description: 'Stop',
+}
+
+// Debug Tool
+{
+    id: TOOL_IDS.DEBUG,
+    group: TOOL_IDS.GROUP,
+    icon: 'bug',
+    commandID: COMMAND_IDS.RUN_WITH_DEBUG,
+    isVisible: () => {
+        if (LaunchManager.active || DebugManager.active) {
+            return false;
+        }
+        return true;
+    },
+    isActive: () => {
+        const activeEditor = this.appContext.editor.getActiveEditor();
+        return activeEditor && activeEditor.definition &&
+            activeEditor.definition.id === 'composer.editor.ballerina' && !DebugManager.active;
+    },
+    description: 'Run With Debug',
+}
+
+```
+
+## View layer
 ### dialogs
 ### views
 ### editors
