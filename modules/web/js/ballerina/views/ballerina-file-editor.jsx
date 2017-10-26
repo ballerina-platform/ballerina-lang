@@ -580,13 +580,13 @@ class BallerinaFileEditor extends React.Component {
                                 log.error('Error while parsing the file ' + file.name + '.' + file.extension
                                     + '. ' + (jsonTree.diagnostics || jsonTree.errorMessage || jsonTree));
                                 // cannot be in a view which depends on AST
-                                // hence forward to source view
-                                newState.activeView = SOURCE_VIEW;
                                 newState.parseFailed = true;
                                 newState.isASTInvalid = true;
                                 // keep current AST when in preview view - even though its not valid
                                 if (!this.props.isPreviewViewEnabled) {
                                     newState.model = undefined;
+                                    // hence forward to source view
+                                    newState.activeView = SOURCE_VIEW;
                                 }
                                 resolve(newState);
                                 this.context.alert.showError('Unexpected error occurred while parsing.');
