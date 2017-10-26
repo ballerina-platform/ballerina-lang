@@ -268,14 +268,14 @@ public class BLangFunctions {
 
     public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
-        StackFrame stackFrame = new StackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
+        SynchronizedStackFrame stackFrame = new SynchronizedStackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
         context.startTrackWorker();
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
-        context.await();
+        stackFrame.await();
         context.resetWorkerContextFlow();
     }
 
