@@ -26,6 +26,7 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import { binaryOpTools, unaryOpTools, ternaryOpTools } from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import DefaultNodeFactory from '../model/default-node-factory';
+import TreeUtil from './../model/tree-util';
 
 const searchBoxHeight = 30;
 
@@ -393,11 +394,7 @@ class ToolPaletteView extends React.Component {
             functionsOrdered = _.uniqBy(functionsOrdered, (item) => { return item.getName(); });
 
             _.each(functionsOrdered, (functionDef) => {
-                if (functionDef.getName() === 'main'
-                    && functionDef.getReturnParameters().length === 0
-                    && functionDef.getParameters().length === 1
-                    && functionDef.getParameters()[0].typeNode.kind === 'ArrayType'
-                    && functionDef.getParameters()[0].typeNode.elementType.typeKind === 'string') {
+                if (TreeUtil.isMainFunction(functionDef)) {
                     // do not add main function to tool palette
                     return;
                 }

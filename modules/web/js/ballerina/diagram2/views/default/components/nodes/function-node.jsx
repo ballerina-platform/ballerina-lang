@@ -45,11 +45,7 @@ class FunctionNode extends React.Component {
         const name = model.getName().value;
         // change icon for main function
         let icons = 'tool-icons/function';
-        if (name === 'main'
-            && model.getReturnParameters().length === 0
-            && model.getParameters().length === 1
-            && model.getParameters()[0].typeNode.kind === 'ArrayType'
-            && model.getParameters()[0].typeNode.elementType.typeKind === 'string') {
+        if (TreeUtil.isMainFunction(model)) {
             icons = 'tool-icons/main-function';
         }
         const body = this.props.model.getBody();
