@@ -1,6 +1,14 @@
-package ballerina.utils;
+package ballerina.util;
 
 import ballerina.doc;
+
+@doc:Description { value: "Locale struct represents specific geographical, political, or cultural region."}
+@doc:Field {value:"language: The language field for Locale"}
+@doc:Field {value:"countryCode: The countryCode field for Locale"}
+public struct Locale {
+    string language;
+    string countryCode;
+}
 
 @doc:Description { value:"Returns a hash of a given string using the SHA-256 algorithm "}
 @doc:Param { value:"baseString: The string to be hashed" }
@@ -15,7 +23,7 @@ public native function base64decode (string s) (string);
 
 @doc:Description { value:"Returns a random UUID string"}
 @doc:Return { value:"string: The random string" }
-public native function getRandomString () (string);
+public native function uuid () (string);
 
 @doc:Description { value:"Encodes a Base64 encoded string into a Base16 encoded string."}
 @doc:Param { value:"baseString: The input string to be encoded" }

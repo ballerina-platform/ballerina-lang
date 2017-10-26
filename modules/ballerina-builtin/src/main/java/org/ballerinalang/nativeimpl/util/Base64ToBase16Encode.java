@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 
 import org.ballerinalang.bre.Context;
@@ -38,7 +38,7 @@ import java.util.Base64;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.utils",
+        packageName = "ballerina.util",
         functionName = "base64ToBase16Encode",
         args = { @Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = { @ReturnType(type = TypeKind.STRING) },

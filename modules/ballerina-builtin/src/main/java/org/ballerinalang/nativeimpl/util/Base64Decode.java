@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,7 +36,7 @@ import java.util.Base64;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
+        packageName = "ballerina.util",
         functionName = "base64decode",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

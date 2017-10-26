@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,17 +29,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.UUID;
 
 /**
- * Native function ballerina.utils:getRandomString.
+ * Native function ballerina.util:uuid.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
-        functionName = "getRandomString",
+        packageName = "ballerina.util",
+        functionName = "uuid",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetRandomString extends AbstractNativeFunction {
+public class Uuid extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
