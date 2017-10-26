@@ -45,7 +45,6 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAction> actions;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-//    public BLangVariable filteredParam;
     public BLangFunction initFunction;
     public BLangAction initAction;
 
@@ -155,14 +154,4 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
                 ")\n\t Variable Defs: " + this.varDefs + "\n\t Actions: " + this.actions;
     }
 
-//    @Override
-//    public void setFilteredParamter(VariableNode filteredParam) {
-//        this.filteredParam = (BLangVariable) filteredParam;
-//    }
-
-//    @Override
-//    public VariableNode getFilteredParameter() {
-//        return filteredParam;
-//    }
-    
 }

@@ -292,7 +292,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldName = names.fromIdNode(fieldAccessExpr.field);
                     BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
 
-                    // If the type of the field is struct, treat it as pkgConstraint JSON type.
+                    // If the type of the field is struct, treat it as constraint JSON type.
                     if (fieldType.tag == TypeTags.STRUCT) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
@@ -345,7 +345,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BType fieldType =
                             checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
 
-                    // If the type of the field is struct, treat it as pkgConstraint JSON type.
+                    // If the type of the field is struct, treat it as constraint JSON type.
                     if (fieldType.tag == TypeTags.STRUCT) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
@@ -971,7 +971,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.JSON);
 
-                // If the field is again a struct, treat that literal expression as another pkgConstraint JSON.
+                // If the field is again a struct, treat that literal expression as another constraint JSON.
                 if (fieldType.tag == TypeTags.STRUCT) {
                     fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                 }

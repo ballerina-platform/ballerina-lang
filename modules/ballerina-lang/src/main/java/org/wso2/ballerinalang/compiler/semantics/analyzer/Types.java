@@ -173,7 +173,7 @@ public class Types {
      * Source type is assignable to the target type if,
      * 1) the target type is any and the source type is not a value type.
      * 2) there exists an implicit cast symbol from source to target.
-     * 3) both types are JSON and the target pkgConstraint is no type.
+     * 3) both types are JSON and the target constraint is no type.
      * 4) both types are array type and both array types are assignable.
      *
      * @param source type.
@@ -335,7 +335,7 @@ public class Types {
     }
 
     /**
-     * Check whether a given struct can be used to pkgConstraint a JSON.
+     * Check whether a given struct can be used to constraint a JSON.
      *
      * @param type struct type
      * @return flag indicating possibility of constraining

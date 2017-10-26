@@ -19,7 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectionType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONConstraintType;

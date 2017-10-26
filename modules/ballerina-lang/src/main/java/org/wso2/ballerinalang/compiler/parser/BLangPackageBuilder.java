@@ -40,7 +40,6 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
-//import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -202,8 +201,6 @@ public class BLangPackageBuilder {
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
-
-//    private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
     
@@ -497,24 +494,8 @@ public class BLangPackageBuilder {
             exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
             connectorInitNode.addWS(commaWsStack.pop());
         }
-//        while (!connectorInitNodeStack.empty()) {
-//            connectorInitNode.filterConnectors.add(0, connectorInitNodeStack.pop());
-//        }
         this.addExpressionNode(connectorInitNode);
     }
-
-//    public void addFilterConnectorInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
-//        BLangConnectionInit connectorInitNode = (BLangConnectionInit) TreeBuilder.createConnectionInitNode();
-//        connectorInitNode.pos = pos;
-//        connectorInitNode.addWS(ws);
-//        connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
-//        if (exprAvailable) {
-//            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-//            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
-//            connectorInitNode.addWS(commaWsStack.pop());
-//        }
-//        this.connectorInitNodeStack.push(connectorInitNode);
-//    }
 
     private void addStmtToCurrentBlock(StatementNode statement) {
         this.blockNodeStack.peek().addStatement(statement);
@@ -997,9 +978,6 @@ public class BLangPackageBuilder {
         /* end of connector definition header, so let's populate 
          * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
-//        if (!this.varStack.empty()) {
-//            connectorNode.setFilteredParamter(this.varStack.pop());
-//        }
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(connectorNode::addParameter);
         }
