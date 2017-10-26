@@ -72,6 +72,7 @@ public class TaskScheduler {
             if (interval > 0) {
                 //Schedule the task
                 executorService.scheduleAtFixedRate(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
+                ctx.startTrackWorker();
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT + delay + "] and interval ["
                             + interval + "] MILLISECONDS");
@@ -135,6 +136,7 @@ public class TaskScheduler {
             if (delay != -1) {
                 //Schedule the task
                 executorService.schedule(schedulerFunc, delay, TimeUnit.MILLISECONDS);
+                ctx.startTrackWorker();
                 //Get the execution life time.
                 long period = executorServiceMap.get(taskId) != null ? executorServiceMap.get(taskId).getLifeTime()
                         : 0L;
@@ -202,6 +204,8 @@ public class TaskScheduler {
                     if (onTriggerFunction != null && sPeriod > 0) {
                         triggerAppointment(ctx, taskId, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
                                 onErrorFunction);
+                    } else {
+                        ctx.endTrackWorker();
                     }
                 } else {
                     throw new SchedulingFailedException("Unable to stop the task");

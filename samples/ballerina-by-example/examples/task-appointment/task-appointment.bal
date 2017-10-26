@@ -53,8 +53,6 @@ function main (string[] args) {
     if(appointmentSchedulerErrorMessage != "") {
         logger:error("Appointment scheduling failed: " + appointmentSchedulerErrorMessage);
     }
-
-    system:sleep(600000);
 }
 
 function cleanup () returns (any) {

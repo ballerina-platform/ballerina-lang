@@ -27,8 +27,6 @@ function main (string[] args) {
     if (timerSchedulerErrorMessage != "null" && timerSchedulerErrorMessage != "") {
         logger:error("Timer scheduling failed: " + timerSchedulerErrorMessage);
     }
-
-    system:sleep(100000);
 }
 
 function testFunction () {
