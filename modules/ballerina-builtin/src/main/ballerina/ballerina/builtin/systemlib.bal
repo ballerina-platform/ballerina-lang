@@ -1,4 +1,4 @@
-package ballerina.builtin.systemlib;
+package ballerina.builtin;
 
 @Description { value:"Prints a 'any' value to the STDOUT"}
 @Param { value:"a: any value to be printed" }

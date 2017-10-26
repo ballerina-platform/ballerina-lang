@@ -101,6 +101,7 @@ public class Compiler {
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
+        // TODO : Improve this.
         desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
@@ -111,14 +112,16 @@ public class Compiler {
     }
 
     private BLangPackage loadBuiltInPackage() {
-        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        BLangPackage builtInCorePkg = getBuiltInPackage(Names.BUILTIN_CORE_PACKAGE);
         symbolTable.createErrorTypes();
         symbolTable.loadOperators();
-        // Load other built-in packages.
-        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_DOCS_PACKAGE), builtInPkg);
-        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_SYSTEM_PACKAGE), builtInPkg);
-        mergeIntoBuiltinPackage(getBuiltInPackage(Names.BUILTIN_STRING_PACKAGE), builtInPkg);
+        // Load built-in packages.
+        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
+        builtInCorePkg.getStructs().forEach(s -> {
+            builtInPkg.getStructs().add(s);
+            builtInPkg.topLevelNodes.add(s);
+        });
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }
 
@@ -184,29 +187,6 @@ public class Compiler {
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
-    }
-
-    private void mergeIntoBuiltinPackage(BLangPackage source, BLangPackage builtInPkg) {
-        source.getAnnotations().forEach(a -> {
-            builtInPkg.getAnnotations().add(a);
-            builtInPkg.topLevelNodes.add(a);
-        });
-        source.getGlobalVariables().forEach(g -> {
-            builtInPkg.getGlobalVariables().add(g);
-            builtInPkg.topLevelNodes.add(g);
-        });
-        source.getNamespaceDeclarations().forEach(n -> {
-            builtInPkg.getNamespaceDeclarations().add(n);
-            builtInPkg.topLevelNodes.add(n);
-        });
-        source.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
-        source.getFunctions().forEach(f -> {
-            builtInPkg.getFunctions().add(f);
-            builtInPkg.topLevelNodes.add(f);
-        });
     }
 
     private BLangPackage getBuiltInPackage(Name name) {

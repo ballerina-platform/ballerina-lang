@@ -1,4 +1,4 @@
-package ballerina.builtin;
+package ballerina.builtin.core;
 
 public struct error {
     string msg;
@@ -29,14 +29,3 @@ public struct TypeConversionError {
     string targetType;
 }
 
-public struct NullReferenceException {
-    string msg;
-    error cause;
-    stackFrame[] stackTrace;
-}
-
-public struct IllegalStateException {
-    string msg;
-    error cause;
-    stackFrame[] stackTrace;
-}

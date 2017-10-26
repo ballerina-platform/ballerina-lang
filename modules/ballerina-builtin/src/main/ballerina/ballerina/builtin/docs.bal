@@ -1,4 +1,4 @@
-package ballerina.builtin.docs;
+package ballerina.builtin;
 
 public annotation Description {
     string value;

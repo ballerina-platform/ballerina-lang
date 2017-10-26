@@ -32,6 +32,7 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BUILTIN_PACKAGE = new Name("ballerina.builtin");
+    public static final Name BUILTIN_CORE_PACKAGE = new Name("ballerina.builtin.core");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
@@ -43,11 +44,6 @@ public class Names {
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name CONNECTOR = new Name("connector");
-
-    // Built in Names.
-    public static final Name BUILTIN_DOCS_PACKAGE = new Name("ballerina.builtin.docs");
-    public static final Name BUILTIN_SYSTEM_PACKAGE = new Name("ballerina.builtin.systemlib");
-    public static final Name BUILTIN_STRING_PACKAGE = new Name("ballerina.builtin.stringlib");
 
     public CompilerContext context;
 
