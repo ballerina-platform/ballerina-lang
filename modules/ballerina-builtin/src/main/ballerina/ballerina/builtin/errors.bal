@@ -3,11 +3,11 @@ package ballerina.builtin;
 public struct NullReferenceException {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
 }
 
 public struct IllegalStateException {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
 }

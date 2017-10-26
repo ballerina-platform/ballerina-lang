@@ -48,7 +48,7 @@ public class BLangVMErrors {
     public static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
     public static final String STRUCT_TYPE_CONVERSION_ERROR = "TypeConversionError";
-    public static final String STRUCT_FRAME = "stackFrame";
+    public static final String STRUCT_FRAME = "StackFrame";
 
 
     /**
