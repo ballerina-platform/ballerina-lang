@@ -563,7 +563,7 @@ public class WorkspaceUtils {
         Desugar desugar = Desugar.getInstance(context);
 
         BLangPackage builtInCorePkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+                pkgLoader.loadEntryPackage(Names.BUILTIN_CORE_PACKAGE.value))));
         symbolTable.createErrorTypes();
         symbolTable.loadOperators();
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
