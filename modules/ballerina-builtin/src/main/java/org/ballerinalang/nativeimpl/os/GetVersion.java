@@ -43,7 +43,7 @@ public class GetVersion extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String value = System.getProperty(PROPERTY_NAME);
         if (value == null) {
-            return getBValues(new BString(BTypes.typeString.getZeroValue()));
+            return getBValues(BTypes.typeString.getZeroValue());
         }
         return getBValues(new BString(value));
     }

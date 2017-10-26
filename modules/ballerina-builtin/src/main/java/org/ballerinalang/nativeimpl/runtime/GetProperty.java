@@ -44,7 +44,7 @@ public class GetProperty extends AbstractNativeFunction {
         String name = getStringArgument(context, 0);
         String value = System.getProperty(name);
         if (value == null) {
-            return getBValues(new BString(BTypes.typeString.getZeroValue()));
+            return getBValues(BTypes.typeString.getZeroValue());
         }
         return getBValues(new BString(value));
     }

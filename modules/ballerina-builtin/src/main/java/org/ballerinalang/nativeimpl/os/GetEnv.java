@@ -44,7 +44,7 @@ public class GetEnv extends AbstractNativeFunction {
         String str = getStringArgument(context, 0);
         String value = System.getenv(str);
         if (value == null) {
-            return getBValues(new BString(BTypes.typeString.getZeroValue()));
+            return getBValues(BTypes.typeString.getZeroValue());
         }
         return getBValues(new BString(value));
     }
