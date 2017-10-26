@@ -10,7 +10,7 @@ public const string arrayLengthsMismatchMessage = " (Array lengths are not the s
 public struct AssertError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string category;
 }
 
