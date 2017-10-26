@@ -43,7 +43,7 @@ public class GetHome extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String value = System.getProperty(PROPERTY_NAME);
         if (value == null) {
-            value = BTypes.typeString.getZeroValue().stringValue();
+            return getBValues(new BString(BTypes.typeString.getZeroValue()));
         }
         return getBValues(new BString(value));
     }

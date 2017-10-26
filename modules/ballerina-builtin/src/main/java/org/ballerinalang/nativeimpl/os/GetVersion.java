@@ -16,6 +16,7 @@
 package org.ballerinalang.nativeimpl.os;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -42,7 +43,7 @@ public class GetVersion extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String value = System.getProperty(PROPERTY_NAME);
         if (value == null) {
-            value = "";
+            return getBValues(new BString(BTypes.typeString.getZeroValue()));
         }
         return getBValues(new BString(value));
     }
