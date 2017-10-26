@@ -71,6 +71,8 @@ public class StackFrame {
     // To support worker return.
     final AtomicBoolean workerReturned = new AtomicBoolean();
     String returnedWorker = "";
+    
+    public StackFrame prevStackFrame;
 
     public StackFrame(PackageInfo packageInfo, int retAddrs, int[] retRegIndexes) {
         this.packageInfo = packageInfo;
