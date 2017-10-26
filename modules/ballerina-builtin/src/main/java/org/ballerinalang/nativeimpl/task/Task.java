@@ -3,9 +3,9 @@ package org.ballerinalang.nativeimpl.task;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Appointment object
+ * Task object
  */
-public class Appointment {
+public class Task {
     private ScheduledExecutorService executorService;
     private Long lifeTime;
 

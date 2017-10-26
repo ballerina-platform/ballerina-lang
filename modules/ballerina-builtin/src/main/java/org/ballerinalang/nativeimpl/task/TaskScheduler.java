@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private static final Log log = LogFactory.getLog(TaskScheduler.class.getName());
-    private static HashMap<Integer, Appointment> executorServiceMap = new HashMap<>();
+    private static HashMap<Integer, Task> executorServiceMap = new HashMap<>();
 
     /**
      * Triggers the timer.
@@ -78,10 +78,10 @@ public class TaskScheduler {
                             + interval + "] MILLISECONDS");
                 }
                 //Add the executor service into the map.
-                Appointment appointment = new Appointment();
-                appointment.setExecutorService(executorService);
-                appointment.setLifeTime(0L);
-                executorServiceMap.put(taskId, appointment);
+                Task task = new Task();
+                task.setExecutorService(executorService);
+                task.setLifeTime(0L);
+                executorServiceMap.put(taskId, task);
             } else {
                 throw new SchedulingFailedException("The vale of interval is invalid");
             }
@@ -116,9 +116,9 @@ public class TaskScheduler {
                 try {
                     if (executorServiceMap.get(taskId) != null && executorServiceMap.get(taskId).getLifeTime() > 0) {
                         //Set the life time to 0 and trigger every minute.
-                        Appointment appointment = executorServiceMap.get(taskId);
-                        appointment.setLifeTime(0L);
-                        executorServiceMap.put(taskId, appointment);
+                        Task task = executorServiceMap.get(taskId);
+                        task.setLifeTime(0L);
+                        executorServiceMap.put(taskId, task);
                         triggerAppointment(ctx, taskId, Constant.NOT_CONSIDERABLE, Constant.NOT_CONSIDERABLE, dayOfWeek,
                                 dayOfMonth, month, onTriggerFunction, onErrorFunction);
                     } else {
@@ -141,19 +141,19 @@ public class TaskScheduler {
                 long period = executorServiceMap.get(taskId) != null ? executorServiceMap.get(taskId).getLifeTime()
                         : 0L;
                 //Add the executor service into the map.
-                Appointment appointment = new Appointment();
-                appointment.setExecutorService(executorService);
+                Task task = new Task();
+                task.setExecutorService(executorService);
                 if (period > 0) {
                     //Calculate the actual execution lifetime from the delay and calculated value.
                     period = delay + period;
-                    appointment.setLifeTime(period);
-                    executorServiceMap.put(taskId, appointment);
+                    task.setLifeTime(period);
+                    executorServiceMap.put(taskId, task);
                     //Trigger stop if the execution lifetime > 0.
                     stopExecution(taskId, period, ctx, minute, hour, dayOfWeek, dayOfMonth, month, onTriggerFunction,
                             onErrorFunction);
                 } else {
-                    appointment.setLifeTime(0L);
-                    executorServiceMap.put(taskId, appointment);
+                    task.setLifeTime(0L);
+                    executorServiceMap.put(taskId, task);
                 }
                 if (log.isDebugEnabled()) {
                     log.debug(Constant.PREFIX_APPOINTMENT + taskId + Constant.DELAY_HINT + delay + "] MILLISECONDS "
@@ -491,9 +491,9 @@ public class TaskScheduler {
                                                           int month) {
         if (minute == Constant.NOT_CONSIDERABLE && hour > Constant.NOT_CONSIDERABLE) {
             //If the hour has considerable value and minute is -1, set the execution lifetime to 59 minutes.
-            Appointment appointment = new Appointment();
-            appointment.setLifeTime(Constant.LIFETIME);
-            executorServiceMap.put(taskId, appointment);
+            Task task = new Task();
+            task.setLifeTime(Constant.LIFETIME);
+            executorServiceMap.put(taskId, task);
         }
         if (month > Constant.NOT_CONSIDERABLE) {
             if (executionStartTime.get(Calendar.MONTH) < month) {
