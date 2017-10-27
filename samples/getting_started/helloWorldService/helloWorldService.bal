@@ -11,5 +11,4 @@ service<http> helloWorld {
         resp.setStringPayload("Hello, World!");
         resp.send();
     }
-    
 }

@@ -1,4 +1,3 @@
-import ballerina.lang.jsons;
 import ballerina.net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
@@ -13,7 +12,7 @@ service<http> Ecommerce {
         println("Product ID " + productId);
         println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
-        println(jsons:toString(responseJson));
+        println(responseJson.toString());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -27,7 +26,7 @@ service<http> Ecommerce {
         println("Product ID " + productId);
         println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
-        println(jsons:toString(responseJson));
+        println(responseJson.toString());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -41,7 +40,7 @@ service<http> Ecommerce {
         println("Product ID " + productId);
         println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
-        println(jsons:toString(responseJson));
+        println(responseJson.toString());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -58,7 +57,7 @@ service<http> Ecommerce {
         println("Product ID " + productId);
         println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
-        println(jsons:toString(responseJson));
+        println(responseJson.toString());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -77,7 +76,7 @@ service<http> Ecommerce {
         println ("Product ID " + prdID);
         println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
-        println (jsons:toString (responseJson));
+        println (responseJson.toString ());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -94,7 +93,7 @@ service<http> Ecommerce {
         println("Product ID " + productId);
         println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
-        println(jsons:toString(responseJson));
+        println(responseJson.toString());
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -176,4 +175,20 @@ service<http> echo111 {
     basePath:"/noResource"
 }
 service<http> echo112 {
+}
+
+@http:configuration {
+    basePath:"hello/"
+}
+service<http> serviceHello {
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test/"
+    }
+    resource productsInfo (http:Request req, http:Response res) {
+        json responseJson = {"echo":"sanitized"};
+        res.setJsonPayload(responseJson);
+        res.send();
+    }
 }

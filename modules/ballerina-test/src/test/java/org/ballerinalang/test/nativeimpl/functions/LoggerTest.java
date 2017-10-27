@@ -24,8 +24,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -45,7 +43,7 @@ public class LoggerTest {
     private PrintStream original;
     private CompileResult result;
 
-    @BeforeTest
+//    @BeforeTest
     public void setup() {
         original = System.err;
         System.setErr(new PrintStream(consoleOutput));
@@ -55,7 +53,7 @@ public class LoggerTest {
         result = BCompileUtil.compile("test-src/natives/utils/logger/log-api.bal");
     }
 
-    @AfterTest
+//    @AfterTest
     public void cleanup() {
         System.setErr(original);
     }

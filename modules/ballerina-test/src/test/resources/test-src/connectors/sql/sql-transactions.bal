@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.datatables;
 
 struct ResultCount {
     int COUNTVAL;
@@ -24,8 +23,8 @@ function testLocalTransacton () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -54,8 +53,8 @@ function testTransactonRollback () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -87,8 +86,8 @@ function testTransactonAbort () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -120,8 +119,8 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -155,8 +154,8 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     ResultCount rs;
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -181,8 +180,8 @@ function testTransactonCommitted () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -224,8 +223,8 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -249,8 +248,8 @@ function testTransactonWithoutHandlers () (int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -288,8 +287,8 @@ function testLocalTransactionFailed () (string, int) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                           registrationID = 111", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -334,8 +333,8 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     a = a + " afterTrx";
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
