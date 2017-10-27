@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 function testMultiInteractions(int k) (int){
     return test(k);
 }
@@ -33,4 +32,3 @@ function test (int k) (int q) {
     }
 
 }
-

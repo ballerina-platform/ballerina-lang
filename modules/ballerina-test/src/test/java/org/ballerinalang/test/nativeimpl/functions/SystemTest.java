@@ -143,26 +143,6 @@ public class SystemTest {
         }
     }
 
-    @Test
-    public void testFunctionTimes() {
-        BValue[] args = {};
-        BValue[] bValues = BRunUtil.invoke(compileResult, "testTimeFunctions", args);
-        // We are not expecting boolean log in event list.
-        Assert.assertEquals(bValues.length, 3, "Return values didn't match.");
-        Assert.assertTrue(bValues[0] != null);
-        Assert.assertTrue(bValues[1] != null);
-        Assert.assertTrue(bValues[2] != null);
-    }
-
-    @Test
-    public void testFunctionDate() {
-        BValue[] args = {};
-        BValue[] bValues = BRunUtil.invoke(compileResult, "testDateFunction", args);
-        // We are not expecting boolean log in event list.
-        Assert.assertEquals(bValues.length, 1, "Return values didn't match.");
-        Assert.assertTrue(bValues[0] != null);
-    }
-
     @Test(description = "Test new line character in string")
     public void testNewlineCharacter() {
         ByteArrayOutputStream out = null;
