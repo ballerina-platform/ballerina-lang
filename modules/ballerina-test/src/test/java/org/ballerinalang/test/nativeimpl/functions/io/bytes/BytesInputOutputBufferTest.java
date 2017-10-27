@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
@@ -47,7 +48,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Reads files into multiple iterations")
-    public void multiReadFile() throws IOException {
+    public void multiReadFile() throws IOException, URISyntaxException {
         int initialReadLimit = 3;
         int secondLapReadLimit = 3;
         int thirdLapReadLimit = 3;
@@ -75,7 +76,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Reads file which has varying buffer sizes")
-    public void varyingBufferSizeTest() throws IOException {
+    public void varyingBufferSizeTest() throws IOException, URISyntaxException {
         final int numberOfBytesInFile = 7;
         final int fixedBufferSize = 15;
         //Number of characters in this file would be 6
@@ -87,7 +88,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Reads bytes which has a fixed buffer for multiple read iterations")
-    public void fixedBufferIterativeRead() throws IOException {
+    public void fixedBufferIterativeRead() throws IOException, URISyntaxException {
         final int numberOfBytesInFile = 7;
         final int fixedBufferSize = 15;
         int readByteLength = -1;
@@ -113,7 +114,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Copy I/O byte file as a stream")
-    public void fileStreamCopyTest() throws IOException {
+    public void fileStreamCopyTest() throws IOException, URISyntaxException {
         final int readLimit = 10000;
         int readByteCount = -1;
         int totalNumberOfBytesRead = 0;
@@ -137,7 +138,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Read bytes from fix buffer into multiple reads")
-    public void multiReadFromFixedBuffer() throws IOException {
+    public void multiReadFromFixedBuffer() throws IOException, URISyntaxException {
 
         int initialReadLimit = 3;
         int secondLapReadLimit = 3;
@@ -166,7 +167,7 @@ public class BytesInputOutputBufferTest {
     }
 
     @Test(description = "Request for bytes more exceeding the available limit")
-    public void requestForExcessBytes() throws IOException {
+    public void requestForExcessBytes() throws IOException, URISyntaxException {
         int requestedLimit = 10;
         int expectedLimit = 6;
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");

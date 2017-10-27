@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
@@ -44,7 +45,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read characters which does not fit to the fixed buffer limit")
-    public void readFussyCharacters() throws IOException {
+    public void readFussyCharacters() throws IOException, URISyntaxException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
@@ -64,7 +65,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Reads characters which are represented with long bytes")
-    public void readLongCharacters() throws IOException {
+    public void readLongCharacters() throws IOException, URISyntaxException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longChars.txt");
@@ -86,7 +87,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read corrupted characters from text")
-    public void readCorruptedCharacters() throws IOException {
+    public void readCorruptedCharacters() throws IOException, URISyntaxException {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText");
@@ -112,7 +113,7 @@ public class CharacterInputOutputBufferTest {
     }
 
     @Test(description = "Read from file which has all corrupted chars")
-    public void readCorruptedCharactersIntoMultipleChannelReads() throws IOException {
+    public void readCorruptedCharactersIntoMultipleChannelReads() throws IOException, URISyntaxException {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText2");
@@ -135,7 +136,7 @@ public class CharacterInputOutputBufferTest {
 
 
     @Test(description = "Read characters into multiple iterations")
-    public void readCharacters() throws IOException {
+    public void readCharacters() throws IOException, URISyntaxException {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");

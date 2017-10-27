@@ -92,7 +92,7 @@ public class OpenChannel extends AbstractNativeChannel {
             try {
                 Files.createDirectories(parent);
             } catch (IOException e) {
-                throw new BallerinaException("Error in writing file");
+                throw new BallerinaException("Error in writing file", e);
             }
         }
     }

@@ -2,6 +2,7 @@ package org.ballerinalang.test.nativeimpl.functions.io.util;
 
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
@@ -23,14 +24,15 @@ public class TestUtil {
      * @param filePath the path to the file.
      * @return the file channel.
      * @throws IOException during I/O error.
+     * @throws URISyntaxException during failure to validate uri syntax.
      */
-    public static ByteChannel openForReading(String filePath) throws IOException {
+    public static ByteChannel openForReading(String filePath) throws IOException, URISyntaxException {
         Set<OpenOption> opts = new HashSet<>();
         opts.add(StandardOpenOption.READ);
         URL fileResource = TestUtil.class.getClassLoader().getResource(filePath);
         ByteChannel channel = null;
         if (null != fileResource) {
-            Path path = Paths.get(fileResource.getPath());
+            Path path = Paths.get(fileResource.toURI());
             channel = Files.newByteChannel(path, opts);
         }
         return channel;

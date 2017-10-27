@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
@@ -46,7 +47,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Reads records from file")
-    public void readRecords() throws IOException {
+    public void readRecords() throws IOException, URISyntaxException {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
@@ -70,7 +71,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Read lengthy records")
-    public void readLongRecord() throws IOException {
+    public void readLongRecord() throws IOException, URISyntaxException {
         int expectedFieldCount = 18;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
@@ -86,7 +87,7 @@ public class RecordInputOutputTest {
     }
 
     @Test(description = "Read records which are not indented properly")
-    public void readNonIndentedRecords() throws IOException {
+    public void readNonIndentedRecords() throws IOException, URISyntaxException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
         Channel channel = new MockByteChannel(byteChannel, 0);

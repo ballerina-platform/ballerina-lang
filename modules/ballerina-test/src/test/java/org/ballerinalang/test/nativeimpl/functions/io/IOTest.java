@@ -30,7 +30,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Tests I/O related functions.
@@ -55,14 +58,18 @@ public class IOTest {
      * @param relativePath the relative file path location.
      * @return the absolute path.
      */
-    private String getAbsoluteFilePath(String relativePath) {
+    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
         URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
-        String path = fileResource.getPath();
-        return path;
+        String pathValue = "";
+        if (null != fileResource) {
+            Path path = Paths.get(fileResource.toURI());
+            pathValue = path.toAbsolutePath().toString();
+        }
+        return pathValue;
     }
 
     @Test(description = "Test 'readBytes' function in ballerina.io package")
-    public void testReadBytes() {
+    public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
         BBlob readBytes;
@@ -96,7 +103,7 @@ public class IOTest {
     }
 
     @Test(description = "Test 'readCharacters' function in ballerina.io package")
-    public void testReadCharacters() {
+    public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
         int numberOfCharactersToRead = 3;
         BString readCharacters;
@@ -129,7 +136,7 @@ public class IOTest {
     }
 
     @Test(description = "Test 'readRecords' function in ballerina.io package")
-    public void testReadRecords() {
+    public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
         int expectedRecordLength = 3;
