@@ -1,7 +1,5 @@
 package ballerina.test;
 
-import ballerina.doc;
-
 public const string assertFailureErrorCategory = "assert-failure";
 
 public const string arraysNotEqualMessage = "Arrays are not equal";
@@ -14,18 +12,18 @@ public struct AssertError {
     string category;
 }
 
-@doc:Description{value:"Creates a AssertError with custom message and category"}
-@doc:Param{value:"errorMessage: Custom message for the ballerina error"}
-@doc:Param{value:"category: error category"}
+@Description{value:"Creates a AssertError with custom message and category"}
+@Param{value:"errorMessage: Custom message for the ballerina error"}
+@Param{value:"category: error category"}
 public function createBallerinaError (string errorMessage, string category) (AssertError) {
     AssertError e = { msg : errorMessage, category : category };
     return e;
 }
 
-@doc:Description{value:"Asserts whether the given condition is true.
+@Description{value:"Asserts whether the given condition is true.
                   If it is not, a AssertError is thrown with the given errorMessage"}
-@doc:Param{value:"condition: Boolean condition to evaluate"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"condition: Boolean condition to evaluate"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertTrue(boolean condition, string errorMessage) {
     if (!condition) {
         if (errorMessage == "") {
@@ -35,10 +33,10 @@ public function assertTrue(boolean condition, string errorMessage) {
     }
 }
 
-@doc:Description{value:"Asserts whether the given condition is false.
+@Description{value:"Asserts whether the given condition is false.
                   If it is not, a AssertError is thrown with the given errorMessage"}
-@doc:Param{value:"condition: Boolean condition to evaluate"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"condition: Boolean condition to evaluate"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertFalse(boolean condition, string errorMessage) {
     if (condition) {
         if (errorMessage == "") {
@@ -48,11 +46,11 @@ public function assertFalse(boolean condition, string errorMessage) {
     }
 }
 
-@doc:Description{value:"Asserts whether the given string values are equal.
+@Description{value:"Asserts whether the given string values are equal.
                   If it is not, a AssertError is thrown with the given errorMessage."}
-@doc:Param{value:"actual: Actual string value"}
-@doc:Param{value:"expected: Expected string value"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual string value"}
+@Param{value:"expected: Expected string value"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertStringEquals(string actual, string expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
@@ -63,11 +61,11 @@ public function assertStringEquals(string actual, string expected, string errorM
     }
 }
 
-@doc:Description{value:"Asserts whether the given integer values are equal.
+@Description{value:"Asserts whether the given integer values are equal.
                   If it is not, a AssertError is thrown with the given errorMessage."}
-@doc:Param{value:"actual: Actual integer value"}
-@doc:Param{value:"expected: Expected integer value"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual integer value"}
+@Param{value:"expected: Expected integer value"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertIntEquals(int actual, int expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
@@ -78,11 +76,11 @@ public function assertIntEquals(int actual, int expected, string errorMessage) {
     }
 }
 
-@doc:Description{value:"Asserts whether the given float values are equal.
+@Description{value:"Asserts whether the given float values are equal.
                   If it is not, a AssertError is thrown with the given errorMessage."}
-@doc:Param{value:"actual: Actual float value"}
-@doc:Param{value:"expected: Expected float value"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual float value"}
+@Param{value:"expected: Expected float value"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertFloatEquals(float actual, float expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
@@ -93,11 +91,11 @@ public function assertFloatEquals(float actual, float expected, string errorMess
     }
 }
 
-@doc:Description{value:"Asserts whether the given boolean values are equal.
+@Description{value:"Asserts whether the given boolean values are equal.
                   If it is not, a AssertError is thrown with the given errorMessage."}
-@doc:Param{value:"actual: Actual boolean value"}
-@doc:Param{value:"expected: Expected boolean value"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual boolean value"}
+@Param{value:"expected: Expected boolean value"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertBooleanEquals(boolean actual, boolean expected, string errorMessage) {
     if (actual != expected) {
         if(errorMessage != ""){
@@ -108,12 +106,12 @@ public function assertBooleanEquals(boolean actual, boolean expected, string err
     }
 }
 
-@doc:Description{value:"Asserts whether the given string arrays are equal.
+@Description{value:"Asserts whether the given string arrays are equal.
                   If it is not, a AssertError is thrown with the given errorMessage
                   including differed string values and array index."}
-@doc:Param{value:"actual: Actual string array"}
-@doc:Param{value:"expected: Expected string array"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual string array"}
+@Param{value:"expected: Expected string array"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertStringArrayEquals(string[] actual, string[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
@@ -140,12 +138,12 @@ public function assertStringArrayEquals(string[] actual, string[] expected, stri
     }
 }
 
-@doc:Description{value:"Asserts whether the given float arrays are equal.
+@Description{value:"Asserts whether the given float arrays are equal.
                   If it is not, a AssertError is thrown with the given errorMessage
                   including differed float values and array index."}
-@doc:Param{value:"actual: Actual float array"}
-@doc:Param{value:"expected: Expected float array"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual float array"}
+@Param{value:"expected: Expected float array"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertFloatArrayEquals(float[] actual, float[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
@@ -172,12 +170,12 @@ public function assertFloatArrayEquals(float[] actual, float[] expected, string 
     }
 }
 
-@doc:Description{value:"Asserts whether the given integer arrays are equal.
+@Description{value:"Asserts whether the given integer arrays are equal.
                   If it is not, a AssertError is thrown with the given errorMessage
                   including differed integer values and array index."}
-@doc:Param{value:"actual: Actual integer array"}
-@doc:Param{value:"expected: Expected integer array"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"actual: Actual integer array"}
+@Param{value:"expected: Expected integer array"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertIntArrayEquals(int[] actual, int[] expected, string errorMessage) {
     if (errorMessage == "") {
         errorMessage = arraysNotEqualMessage;
@@ -204,9 +202,9 @@ public function assertIntArrayEquals(int[] actual, int[] expected, string errorM
     }
 }
 
-@doc:Description{value:"Assert failure is triggered based on user discretion.
+@Description{value:"Assert failure is triggered based on user discretion.
                   AssertError is thrown with the given errorMessage"}
-@doc:Param{value:"errorMessage: Assertion error message"}
+@Param{value:"errorMessage: Assertion error message"}
 public function assertFail(string errorMessage) {
     throw createBallerinaError(errorMessage, assertFailureErrorCategory);
 }
