@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -45,7 +45,7 @@ import java.util.TimeZone;
  */
 public abstract class AbstractTimeFunction extends AbstractNativeFunction {
 
-    public static final String TIME_PACKAGE = "ballerina.lang.time";
+    public static final String TIME_PACKAGE = "ballerina.builtin";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";

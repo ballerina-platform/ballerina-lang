@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the milli second value for the given time.
+ * Get the minute value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "milliSecond",
+        packageName = "ballerina.builtin",
+        functionName = "Time.minute",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time")},
+                          structPackage = "ballerina.builtin")},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class MilliSecond extends AbstractTimeFunction {
+public class Minute extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getMilliSecond(timeStruct))};
+        return new BValue[]{new BInteger(getMinute(timeStruct))};
     }
 }

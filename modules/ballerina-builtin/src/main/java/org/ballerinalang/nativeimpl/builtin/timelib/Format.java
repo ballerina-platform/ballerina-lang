@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,25 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Time to ISO 8601 formatted string.
+ * Convert a Time to string in the given format.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "toString",
+        packageName = "ballerina.builtin",
+        functionName = "Time.format",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time")},
+                          structPackage = "ballerina.builtin"),
+                @Argument(name = "pattern", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ToString extends AbstractTimeFunction {
+public class Format extends AbstractTimeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BString(getDefaultString(timeStruct))};
+        String pattern = getStringArgument(context, 0);
+        return new BValue[]{new BString(getFormattedtString(timeStruct, pattern))};
     }
 }

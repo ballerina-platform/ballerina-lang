@@ -15,35 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.lang.datatables;
+package org.ballerinalang.nativeimpl.builtin.datatablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to check record availability in datatable.
- * ballerina.model.datatables:hasNext(datatable)
+ * Native function to clear connection resources in the datatable.
+ * ballerina.model.datatables:close(datatable)
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatables",
-        functionName = "hasNext",
+        packageName = "ballerina.builtin",
+        functionName = "datatable.close",
         args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasNext extends AbstractNativeFunction {
+public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
-        return getBValues(new BBoolean(dataTable.hasNext(ctx.isInTransaction())));
+        dataTable.close(ctx.isInTransaction());
+        return VOID_RETURN;
     }
 }

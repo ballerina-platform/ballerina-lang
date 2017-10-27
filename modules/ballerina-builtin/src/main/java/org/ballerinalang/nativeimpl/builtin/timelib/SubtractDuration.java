@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,15 +26,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Add given durations to the time.
+ * Subtract given durations from the time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "addDuration",
+        packageName = "ballerina.builtin",
+        functionName = "Time.subtractDuration",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time"),
+                          structPackage = "ballerina.builtin"),
                 @Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
                 @Argument(name = "days", type = TypeKind.INT),
@@ -43,10 +43,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "seconds", type = TypeKind.INT),
                 @Argument(name = "milliseconds", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.lang.time")},
+                                  structPackage = "ballerina.builtin")},
         isPublic = true
 )
-public class AddDuration extends AbstractTimeFunction {
+public class SubtractDuration extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
@@ -59,7 +59,7 @@ public class AddDuration extends AbstractTimeFunction {
         long seconds = getIntArgument(context, 5);
         long milliSeconds = getIntArgument(context, 6);
         return new BValue[] {
-                addDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds)
+                subtractDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds)
         };
     }
 }

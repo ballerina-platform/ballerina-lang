@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.lang.datatables;
+package org.ballerinalang.nativeimpl.builtin.datatablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,24 +24,25 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to clear connection resources in the datatable.
- * ballerina.model.datatables:close(datatable)
+ * Native function to get the current row of a datatable as a struct.
+ * ballerina.model.datatables:next(datatable)
  *
- * @since 0.8.0
+ * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatables",
-        functionName = "close",
+        packageName = "ballerina.builtin",
+        functionName = "datatable.getNext",
         args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
+        returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class GetNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
-        dataTable.close(ctx.isInTransaction());
-        return VOID_RETURN;
+        return getBValues(dataTable.getNext());
     }
 }

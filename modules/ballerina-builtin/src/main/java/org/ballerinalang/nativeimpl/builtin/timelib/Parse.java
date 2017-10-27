@@ -15,35 +15,35 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the day value for the given time.
+ * Get the Time for the given string.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "day",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time")},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        packageName = "ballerina.builtin",
+        functionName = "parse",
+        args = {@Argument(name = "dateString", type = TypeKind.STRING),
+                @Argument(name = "patter", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
+                                  structPackage = "ballerina.builtin")},
         isPublic = true
 )
-public class Day extends AbstractTimeFunction {
+public class Parse extends  AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getDay(timeStruct))};
+        String dateString = getStringArgument(context, 0);
+        String pattern = getStringArgument(context, 1);
+        return new BValue[] { parseTime(context, dateString, pattern) };
     }
 }
