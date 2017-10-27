@@ -678,10 +678,11 @@ public class TaskTest {
     private void oneHourTask(int hour, int ampm) {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
-        modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
+        modifiedTime = setCalendarFields(modifiedTime, ampm, 0, 0, 0, hour);
         int taskId;
         long expectedPeriod;
         long delay = 0;
+        int twentyfourSystemHour = ampm == 1 ? hour + 12 : hour;
         if (currentTime.get(Calendar.HOUR) == hour) {
             long difference = currentTime.getTimeInMillis() - modifiedTime.getTimeInMillis();
             Calendar clonedTime = (Calendar) currentTime.clone();
@@ -695,16 +696,17 @@ public class TaskTest {
         } else {
             expectedPeriod = Constant.LIFETIME + (modifiedTime.getTimeInMillis() - currentTime.getTimeInMillis());
         }
-        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+        BValue[] args = { new BInteger(-1), new BInteger(twentyfourSystemHour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
+        long executionLifeTime = getExecutionLifeTime(taskId);
         Calendar executionTime = Calendar.getInstance();
         try {
-            executionTime = findExecutionTime(taskId, -1, hour, -1, -1, -1);
+            executionTime = findExecutionTime(taskId, -1, twentyfourSystemHour, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
-        if (currentTime.get(Calendar.HOUR) == hour) {
+        if (currentTime.get(Calendar.HOUR) == hour && currentTime.get(Calendar.AM_PM) == ampm) {
             Calendar clonedTime = (Calendar) currentTime.clone();
             clonedTime.add(Calendar.MINUTE, 1);
             clonedTime = setCalendarFields(clonedTime, ampm, 0, 0, -1, -1);
