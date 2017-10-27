@@ -55,7 +55,7 @@ public class GetLocale extends AbstractNativeFunction {
         if (country == null) {
             country = BTypes.typeString.getZeroValue().stringValue();
         }
-        PackageInfo utilsPackageInfo = context.getProgramFile().getPackageInfo("ballerina.utils");
+        PackageInfo utilsPackageInfo = context.getProgramFile().getPackageInfo("ballerina.util");
         StructInfo localeStructInfo = utilsPackageInfo.getStructInfo("Locale");
         return BLangVMStructs.createBStruct(localeStructInfo, language, country);
     }
