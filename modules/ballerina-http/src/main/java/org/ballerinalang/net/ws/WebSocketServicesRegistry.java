@@ -48,6 +48,8 @@ public class WebSocketServicesRegistry {
     // Map<clientServiceName, ServiceEndpoint>
     private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
 
+    private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
+
     private WebSocketServicesRegistry() {
     }
 
@@ -66,9 +68,19 @@ public class WebSocketServicesRegistry {
             registerClientService(service);
         } else {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
-                String basePath = findFullWebSocketUpgradePath(service);
                 Annotation configAnnotation =
                         service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                if (configAnnotation == null) {
+                    slaveEndpoints.put(service.getName(), service);
+                    return;
+                }
+
+                String basePath = findFullWebSocketUpgradePath(service);
+                if (basePath == null) {
+                    slaveEndpoints.put(service.getName(), service);
+                    return;
+                }
+
                 Set<ListenerConfiguration> listenerConfigurationSet =
                         HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
 
@@ -103,11 +115,33 @@ public class WebSocketServicesRegistry {
     public void validateSeverEndpoints() {
         for (Map.Entry<String, Map<String, String>> serviceInterfaceEntry : serviceEndpointsMap.entrySet()) {
             for (Map.Entry<String, String> uriToEndpointNameEntry : serviceInterfaceEntry.getValue().entrySet()) {
-                if (!serviceEndpoints.containsKey(uriToEndpointNameEntry.getValue())) {
-                    throw new BallerinaConnectorException("Could not find a WebSocket service for the service name: " +
-                                                                  uriToEndpointNameEntry.getValue());
+                String serviceName = uriToEndpointNameEntry.getValue();
+                if (!serviceEndpoints.containsKey(serviceName)) {
+                    if (slaveEndpoints.containsKey(serviceName)) {
+                        WebSocketService service = slaveEndpoints.remove(serviceName);
+                        serviceEndpoints.put(serviceName, service);
+                    } else {
+                        throw new BallerinaConnectorException("Could not find a WebSocket service for " +
+                                                                      "the service name: " + serviceName);
+                    }
                 }
             }
+        }
+
+        if (slaveEndpoints.size() > 0) {
+            String errorMsg = "Cannot register following services: \n";
+            for (String serviceName : slaveEndpoints.keySet()) {
+                WebSocketService service = slaveEndpoints.remove(serviceName);
+                if (service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
+                                          Constants.ANNOTATION_CONFIGURATION) == null) {
+                    String msg = "Cannot deploy WebSocket service without configuration annotation";
+                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
+                } else {
+                    String msg = "Cannot deploy WebSocket service without associated path";
+                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
+                }
+            }
+            throw new BallerinaConnectorException(errorMsg);
         }
     }
 
@@ -188,27 +222,18 @@ public class WebSocketServicesRegistry {
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
-
         Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
                 Constants.ANN_NAME_CONFIG);
-        String serviceName = service.getName();
-        String basePath;
+        String basePath = null;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
                     (Constants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
-                    !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeBasePathValue.getStringValue();
-            } else {
-                throw new BallerinaConnectorException("Cannot define WebSocket endpoint without BasePath for service: "
-                                                     + serviceName);
+            if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null
+                    && !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
+                basePath = refactorUri(annotationAttributeBasePathValue.getStringValue());
             }
-        } else {
-            throw new BallerinaConnectorException("Cannot define WebSocket endpoint without BasePath for service: "
-                                                 + serviceName);
         }
-
-        return refactorUri(basePath);
+        return basePath;
     }
 
     /**
