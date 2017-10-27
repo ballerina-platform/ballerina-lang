@@ -4,7 +4,7 @@ import ballerina.utils.logger;
 
 function stopTask (int schedulerTaskId, int interval) returns (string) {
     any stopTaskError = task:stopTask(schedulerTaskId);
-    system:sleep(interval);
+    sleep(interval);
     var stopTaskErrorMessage, castErrorST = (string)stopTaskError;
     if (stopTaskErrorMessage != "") {
         logger:error("Error while stopping the task: " + stopTaskErrorMessage);

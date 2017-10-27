@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.task;
 import ballerina.utils.logger;
 
@@ -18,7 +17,7 @@ function scheduleTimer (int delay, int interval, int sleepInterval) returns (int
         logger:error("Timer scheduling failed: " + timerSchedulerErrorMessage);
     }
 
-    system:sleep(sleepInterval);
+    sleep(sleepInterval);
 
     return schedulerTaskId;
 }

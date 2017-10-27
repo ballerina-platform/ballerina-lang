@@ -1,5 +1,4 @@
 import ballerina.lang.files;
-import ballerina.lang.system;
 import ballerina.task;
 import ballerina.utils.logger;
 
@@ -19,7 +18,7 @@ function scheduleAppointment (int minute, int hour, int dayOfWeek, int dayOfMont
         logger:error("Appointment scheduling failed: " + appointmentSchedulerErrorMessage);
     }
 
-    system:sleep(sleepInterval);
+    sleep(sleepInterval);
 
     return appointmentSchedulerTaskId;
 }
