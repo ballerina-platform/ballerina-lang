@@ -251,7 +251,8 @@ public class TaskScheduler {
         Context newContext = new Context(programFile);
         try {
             //Invoke the onTrigger function.
-            BValue[] error = BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
+            BValue[] error = BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null,
+                    newContext);
             //Call the onError function in case of error.
             if (error[0] != null) {
                 callOnErrorFunction(newContext, programFile, error, onErrorFunction);
@@ -272,13 +273,13 @@ public class TaskScheduler {
      * @param onErrorFunction The function which will be triggered in the error situation.
      */
     private static void callOnErrorFunction(Context newContext, ProgramFile programFile, BValue[]error,
-                                            FunctionRefCPEntry onErrorFunction){
-        if(log.isDebugEnabled()){
+                                            FunctionRefCPEntry onErrorFunction) {
+        if (log.isDebugEnabled()) {
             log.debug("Invoking the onError function");
         }
-        if(onErrorFunction != null){
-            BLangFunctions.invokeFunction(programFile,onErrorFunction.getFunctionInfo(),error,newContext);
-        }else{
+        if (onErrorFunction != null) {
+            BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
+        } else {
             log.error("The onError function is not provided");
         }
     }
