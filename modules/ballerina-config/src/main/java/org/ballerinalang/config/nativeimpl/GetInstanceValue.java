@@ -19,6 +19,7 @@
 package org.ballerinalang.config.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -40,6 +41,10 @@ public class GetInstanceValue extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        String instanceId = this.getStringArgument(context, 0);
+        String configKey = this.getStringArgument(context, 1);
+
+        String instanceValue = ConfigRegistry.getInstanceValue(instanceId, configKey);
         return new BValue[0];
     }
 }

@@ -29,8 +29,8 @@ import java.util.Map;
 public class ConfigRegistry {
 
     private static Map<String, String> cliParams = new HashMap<>();
-    private final Map<String, String> globalConfMap;
-    private final Map<String, Map<String, String>> instancMap;
+    private static Map<String, String> globalConfMap;
+    private static Map<String, Map<String, String>> instancMap;
 
     public ConfigRegistry() {
         Parser parser = new Parser();
@@ -42,8 +42,24 @@ public class ConfigRegistry {
         cliParams = params;
     }
 
+    private void processGlobalValue() {
+
+    }
+
+    private void processInstanceValue() {
+
+    }
 
 
+    public static String getGlobalValue(String configKey) {
 
+        if (globalConfMap.isEmpty() || (globalConfMap.get(configKey) == null)) {
+            return "";
+        }
+        return null;
+    }
 
+    public static String getInstanceValue(String instanceId, String configKey) {
+        return null;
+    }
 }
