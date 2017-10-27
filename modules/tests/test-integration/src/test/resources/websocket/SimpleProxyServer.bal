@@ -1,7 +1,4 @@
-import ballerina.lang.system;
-import ballerina.lang.maps;
 import ballerina.net.ws;
-import ballerina.lang.strings;
 
 @ws:configuration {
     basePath: "/proxy/ws",
@@ -18,7 +15,7 @@ service<ws> SimpleProxyServer {
             ws:Connection  clientConn = c.connect(clientConnectorConfig);
             clientConnMap[con.connectionID] = clientConn;
         } catch (error err) {
-            system:println("Error occcurred : " + err.msg);
+            println("Error occcurred : " + err.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
         }
     }
@@ -31,9 +28,9 @@ service<ws> SimpleProxyServer {
             clientConn.closeConnection(1001, "Client is going away");
             conn.closeConnection(1001, "You told to close your connection");
         } else if (text == "ping") {
-            conn.ping(strings:toBlob(text, "UTF-8"));
+            conn.ping(text.toBlob("UTF-8"));
         } else if (text == "client_ping") {
-            clientConn.ping(strings:toBlob(text, "UTF-8"));
+            clientConn.ping(text.toBlob("UTF-8"));
         } else if (text == "client_ping_req") {
             clientConn.pushText("ping");
         } else if (clientConn != null) {
@@ -52,7 +49,7 @@ service<ws> SimpleProxyServer {
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
         var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
         clientConn.closeConnection(1001, "Client closing connection");
-        maps:remove(clientConnMap, conn.getID());
+        clientConnMap.remove(conn.getID());
     }
 }
 
