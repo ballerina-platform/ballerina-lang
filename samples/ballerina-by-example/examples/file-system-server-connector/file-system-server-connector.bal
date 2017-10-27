@@ -1,5 +1,5 @@
 import ballerina.net.fs;
-import ballerina.lang.system;
+
 import ballerina.lang.messages;
 import ballerina.doc;
 
@@ -18,7 +18,7 @@ service<fs> fileSystem {
     resource fileResource (message m) {
         // The message 'm' contains the URL of a file as its payload.
         // This URL can be then used in conjunction with another connector.
-        system:println(messages:getStringPayload(m));
+        println(messages:getStringPayload(m));
         reply m;
     }
 }

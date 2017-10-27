@@ -12,9 +12,16 @@ $ ws.onclose = function(frame) {console.log(frame)};
 # To send messages
 $ ws.send("hello world");
 
+# Use more advance client to check the ping pong since browser client does not have capability to send pings.
+# But to check the the behavior when server sends a ping message to the browser client use the following command
+$ ws.send("ping");
+
 #To close the connection
 $ ws.close(1000, "I want to go");
 
 # To close connection from server side
 $ ws.send("closeMe");
+
+# To check the connection closure due to connection timeout wait for 120 seconds
+# or change the timeout in configuration annotation
 

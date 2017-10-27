@@ -20,13 +20,11 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.net.uri.QueryParamProcessor;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,11 +45,6 @@ public class HTTPResourceDispatcher {
         try {
             HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
-                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-                    QueryParamProcessor.processQueryParams
-                            ((String) cMsg.getProperty(Constants.QUERY_STR))
-                            .forEach((resourceArgumentValues::put));
-                }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 cMsg.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
                 return resource;
@@ -65,7 +58,7 @@ public class HTTPResourceDispatcher {
                 }
                 return null;
             }
-        } catch (UnsupportedEncodingException | URITemplateException e) {
+        } catch (URITemplateException e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
     }

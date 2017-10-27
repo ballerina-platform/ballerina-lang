@@ -420,22 +420,22 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-                    BNewArray newArray = (BNewArray) sf.refRegs[i];
+
+                    BValue array = sf.refRegs[i];
+                    if (array.getType().getTag() == TypeTags.XML_TAG) {
+                        sf.longRegs[j] = ((BXML) array).length();
+                        break;
+                    } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
+                        if (JSONUtils.isJSONArray((BJSON) array)) {
+                            sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+                        } else {
+                            sf.longRegs[j] = -1;
+                        }
+                        break;
+                    }
+
+                    BNewArray newArray = (BNewArray) array;
                     sf.longRegs[j] = newArray.size();
-                    break;
-                case InstructionCodes.LENGTHOFJSON:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
-                        sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                    } else {
-                        sf.longRegs[j] = -1;
-                        break;
-                    }
                     break;
 
                 case InstructionCodes.TYPELOAD:
@@ -641,9 +641,10 @@ public class BLangVM {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.S2JSONX:
+                case InstructionCodes.XML2S:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -781,6 +782,7 @@ public class BLangVM {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLLOAD:
                     execXMLOpcodes(sf, opcode, operands);
                     break;
                 default:
@@ -1795,6 +1797,20 @@ public class BLangVM {
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
                 break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                long index = sf.longRegs[j];
+                sf.refRegs[k] = xmlVal.getItem(index);
+                break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:
             case InstructionCodes.NEWXMLTEXT:
@@ -2153,42 +2169,6 @@ public class BLangVM {
             case InstructionCodes.JSON2T:
                 convertJSONToStruct(operands, sf);
                 break;
-            case InstructionCodes.XML2JSON:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.toJSON((BXML) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.XML_TNAME, TypeConstants.JSON_TNAME);
-                }
-                break;
-            case InstructionCodes.JSON2XML:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.jsonToXML((BJSON) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
-                }
-                break;
             case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
@@ -2206,6 +2186,28 @@ public class BLangVM {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
                 }
+                break;
+            case InstructionCodes.S2XML:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                try {
+                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.S2JSONX:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(sf.stringRegs[i]);
+                break;
+            case InstructionCodes.XML2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.refRegs[j].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();

@@ -1,10 +1,10 @@
-function successfulXmlCasting()(xml) {
+function successfulXmlCasting()(string) {
   any abc = jsonReturnFunction();
   json jsonVal;
   jsonVal, _ = (json)abc;
-  xml xmlVal;
-  xmlVal, _ = <xml>jsonVal;
-  return xmlVal;
+  string strVal;
+  strVal, _ = (string)jsonVal.PropertyName;
+  return strVal;
 }
 
 function jsonReturnFunction()(json) {

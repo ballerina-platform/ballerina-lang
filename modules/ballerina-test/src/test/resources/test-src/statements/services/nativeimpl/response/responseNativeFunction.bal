@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.xmls;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
     res.addHeader(key, value);
@@ -202,7 +201,7 @@ service<http> helloServer {
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
         xml value = res.getXmlPayload();
-        string name = xmls:getTextValue(value);
+        string name = value.getTextValue();
         res.setStringPayload(name);
         res.send();
     }

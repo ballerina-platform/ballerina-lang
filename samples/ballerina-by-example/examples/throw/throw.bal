@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 struct Record {
@@ -12,7 +11,7 @@ function readRecord (Record value) {
         error err = {msg:"Record is null"};
         throw err;
     }
-    system:println("Record ID: " + value.id + ", value: " + value.name);
+    println("Record ID: " + value.id + ", value: " + value.name);
 }
 
 function main (string[] args) {
