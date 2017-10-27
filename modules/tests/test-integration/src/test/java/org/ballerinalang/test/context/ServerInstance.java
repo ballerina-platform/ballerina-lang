@@ -522,6 +522,12 @@ public class ServerInstance implements Server {
         Utils.deleteFolder(workDir);
     }
 
+    /**
+     * This method returns the pid of the service which is using the provided port
+     * @param httpServerPort port of the service running
+     * @return the pid of the service
+     * @throws BallerinaTestException
+     */
     private String getPidWithLsof(int httpServerPort) throws BallerinaTestException {
         String pid;
         Process tmp = null;
