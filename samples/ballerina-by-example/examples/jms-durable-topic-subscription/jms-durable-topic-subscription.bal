@@ -1,5 +1,5 @@
 import ballerina.lang.messages;
-import ballerina.lang.system;
+
 import ballerina.net.jms;
 import ballerina.doc;
 
@@ -21,6 +21,6 @@ service<jms> jmsService {
         string stringPayload = messages:getStringPayload(m);
 
         // Print the retrieved payload.
-        system:println("Payload: " + stringPayload);
+        println("Payload: " + stringPayload);
     }
 }

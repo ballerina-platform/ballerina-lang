@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.system;
+
 import ballerina.doc;
 
 @http:configuration {
@@ -34,8 +34,8 @@ function main (string[] args) {
     //creates a request
     http:Request req = {};
     http:Response resp = clientConnector.get("/hello/", req);
-    system:println("Response code: " + resp.getStatusCode());
-    system:println("Response: " + resp.getStringPayload());
+    println("Response code: " + resp.getStatusCode());
+    println("Response: " + resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

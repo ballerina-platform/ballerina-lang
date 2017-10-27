@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.xmls;
 import ballerina.doc;
 
 @doc:Description {value:"Consumes and Produces annotations contain MIME types as an array of strings."}
@@ -20,7 +19,8 @@ service<http> infoService {
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
         //Create XML payload and respond back.
-        xml name = xmls:parse("<name>" + nameString + "</name>");
+        string payload = "<name>" + nameString + "</name>";
+        var name, _ = <xml>payload;
         res.setXmlPayload(name);
         res.send();
     }

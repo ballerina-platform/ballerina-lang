@@ -2,6 +2,7 @@ import ballerina.net.http;
 import ballerina.doc;
 
 service<http> passthrough {
+
     @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
     @http:resourceConfig {
         path:"/"

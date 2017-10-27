@@ -26,7 +26,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     int numberOfBytesWritten = 0;
 
     while (readCount != 0) {
-        readContent,readCount = readBytes(src, bytesChunk);
+        readContent, readCount = readBytes(src, bytesChunk);
         numberOfBytesWritten = writeBytes(dst, readContent, 0);
     }
 }

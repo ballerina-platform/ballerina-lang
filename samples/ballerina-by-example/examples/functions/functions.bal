@@ -1,9 +1,8 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"This function takes a string argument."}
-function print (string value) {
-    system:println(value);
+function printValue (string value) {
+    println(value);
 }
 
 @doc:Description {value:"This function takes two int values and return their sum as an int."}
@@ -13,9 +12,9 @@ function add (int a, int b) (int) {
 
 function main (string[] args) {
     // Call a function which prints the given value to the console.
-    print("This is a sample text");
+    printValue("This is a sample text");
 
+    // Directly print a value to the console.
     int result = add(5, 6);
-    system:print(result);
+    print(result);
 }
-

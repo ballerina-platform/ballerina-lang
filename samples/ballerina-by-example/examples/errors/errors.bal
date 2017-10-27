@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"As a best practice, error will be the last return value. It's type should be 'errors:Error', a built-in reference type."}
@@ -17,6 +16,6 @@ function main (string[] args) {
     // Best practice is to check whether an error has occurred.
     var balance, err = getAccountBalance(23);
     if (err != null) {
-        system:println("error: " + err.msg);
+        println("error: " + err.msg);
     }
 }
