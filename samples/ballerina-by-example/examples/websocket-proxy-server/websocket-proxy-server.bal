@@ -1,4 +1,3 @@
-import ballerina.lang.maps;
 import ballerina.doc;
 import ballerina.net.ws;
 
@@ -35,7 +34,7 @@ service<ws> SimpleProxyServer {
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
         var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
         clientConn.closeConnection(frame.statusCode, frame.reason);
-        maps:remove(clientConnMap, conn.getID());
+        clientConnMap.remove(conn.getID());
     }
 }
 
