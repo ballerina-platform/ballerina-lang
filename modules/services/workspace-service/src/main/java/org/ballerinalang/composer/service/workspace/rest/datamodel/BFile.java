@@ -25,11 +25,15 @@ public class BFile {
 
     private String content = "";
 
-    private String fileName = "untitled";
+    private String fileName = "untitled.bal";
 
     private String filePath = "temp";
 
     private String packageName = "";
+
+    private boolean includeTree = false;
+
+    private boolean includePackageInfo = false;
 
     public String getContent() {
         return content;
@@ -61,5 +65,21 @@ public class BFile {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public boolean needTree() {
+        return includeTree;
+    }
+
+    public void setIncludeTree(boolean includeTree) {
+        this.includeTree = includeTree;
+    }
+
+    public boolean needPackageInfo() {
+        return includePackageInfo;
+    }
+
+    public void setIncludePackageInfo(boolean includePackageInfo) {
+        this.includePackageInfo = includePackageInfo;
     }
 }

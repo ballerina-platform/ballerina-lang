@@ -108,11 +108,16 @@ class StructDefinitionItem extends React.Component {
             height: DesignerDefaults.structDefinitionStatement.height,
         };
 
+        let zebraShadeType = '-light';
+        if (this.props.index % 2 === 1) {
+            zebraShadeType = '-dark';
+        }
+
         return (
             <g key={identifier} className="struct-definition-statement">
 
                 <g className="struct-variable-definition-type" >
-                    <rect {...typeCellbox} className="struct-added-value-wrapper" />
+                    <rect {...typeCellbox} className={'struct-added-value-wrapper' + zebraShadeType} />
                     <text
                         x={DesignerDefaults.structDefinition.panelPadding + x}
                         y={y + (DesignerDefaults.structDefinitionStatement.height / 2) + 3}
@@ -123,7 +128,7 @@ class StructDefinitionItem extends React.Component {
                     className="struct-variable-definition-identifier"
                     onClick={() => this.setState({ newIdentifierEditing: true })}
                 >
-                    <rect {...identifierCellBox} className="struct-added-value-wrapper" />
+                    <rect {...identifierCellBox} className={'struct-added-value-wrapper' + zebraShadeType} />
                     <text
                         x={x + DesignerDefaults.structDefinition.panelPadding + columnSize}
                         y={y + DesignerDefaults.structDefinitionStatement.height / 2 + 3}
@@ -169,7 +174,7 @@ class StructDefinitionItem extends React.Component {
                     className="struct-variable-definition-value"
                     onClick={() => this.setState({ newDefaultValueEditing: true })}
                 >
-                    <rect {...defaultValueBox} className="struct-added-value-wrapper" />
+                    <rect {...defaultValueBox} className={'struct-added-value-wrapper' + zebraShadeType} />
                     <text
                         x={x + DesignerDefaults.structDefinition.panelPadding + columnSize * 2}
                         y={y + DesignerDefaults.structDefinitionStatement.height / 2 + 3}
@@ -214,7 +219,7 @@ class StructDefinitionItem extends React.Component {
                     onClick={() => this.deleteStatement(model)}
                     width="30"
                     height="30"
-                    className="struct-delete-icon-wrapper"
+                    className={'struct-delete-icon-wrapper' + zebraShadeType}
                 />
                 <image
                     x={x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset + 9}

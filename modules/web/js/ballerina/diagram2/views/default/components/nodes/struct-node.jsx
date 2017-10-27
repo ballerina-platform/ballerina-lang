@@ -33,6 +33,7 @@ import TreeUtils from './../../../../../model/tree-util';
 import Node from './../../../../../../ballerina/model/tree/node';
 import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
+import FragmentUtils from './../../../../../utils/fragment-utils';
 
 /**
  * @class StructDefinition
@@ -187,6 +188,69 @@ class StructNode extends React.Component {
     }
 
     /**
+     * Open JSON import dialog box and pass callback
+     */
+    onClickJsonImport() {
+        const onImport = (json) => {
+            let refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
+            let currentValue;
+            this.props.model.setFields([], true);
+            refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
+                let currentName
+                if (TreeUtils.isLiteral(ketValPair.getKey())) {
+                    currentName = ketValPair.getKey().getValue().replace(/"/g, '');
+                } else {
+                    currentName = ketValPair.getKey().getVariableName().getValue();
+                }
+                if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
+                    // TODO : Implement anonymous struct generation
+                    return;
+                } else {
+                    currentValue = ketValPair.getValue().getValue();
+                }
+
+                let currentType = 'string';
+                if (this.isInt(currentValue)) {
+                    currentType = 'int';
+                } else if (this.isFloat(currentValue)) {
+                    currentType = 'float';
+                } else if (currentValue === 'true' || currentValue === 'false') {
+                    currentType = 'boolean';
+                }
+                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                  FragmentUtils.createStatementFragment(currentType + ' ' + currentName + ' = ' + currentValue + ';')));
+                this.props.model.addFields(refExpr.getVariable());
+            });
+        };
+        const id = 'composer.dialog.import.struct';
+        const { command: { dispatch } } = this.context;
+        dispatch('popup-dialog', {
+            id,
+            additionalProps: {
+                onImport,
+            },
+        });
+    }
+
+    /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
+    isInt(val) {
+        return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
+    }
+
+    /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
+    isFloat(val) {
+        return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
+    }
+
+    /**
      * Validate identifier name
      * @param {string} identifier - identifier name
      */
@@ -249,6 +313,21 @@ class StructNode extends React.Component {
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
+              <rect
+                  x={x + 480}
+                  y={y - 22}
+                  width={120}
+                  height={20}
+                  className="struct-import-json-button"
+                  onClick={e => this.onClickJsonImport()}
+              />
+              <text
+                  x={x + 485}
+                  y={y - 10}
+                  className="struct-import-json-text"
+                  onClick={e => this.onClickJsonImport()}
+              > {'Import from JSON'}
+              </text>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
                 <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
@@ -330,7 +409,7 @@ class StructNode extends React.Component {
                     y={y + 10}
                     width={25}
                     height={25}
-                    className="struct-added-value-wrapper"
+                    className="struct-added-value-wrapper-light"
                 />
                 <image
                     x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
@@ -397,6 +476,7 @@ class StructNode extends React.Component {
                                         validateIdentifierName={this.validateIdentifierName}
                                         validateDefaultValue={this.validateDefaultValue}
                                         addQuotesToString={this.addQuotesToString}
+                                        index={i}
                                     />
                                 );
                             }
@@ -411,6 +491,10 @@ class StructNode extends React.Component {
 StructNode.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
 };
 
 export default StructNode;

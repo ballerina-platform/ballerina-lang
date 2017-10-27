@@ -1117,7 +1117,8 @@ class TransformExpanded extends React.Component {
     }
 
     updateVariable(varName, statementString, type) {
-        if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type)) {
+        if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type,
+                                                     this.state.vertices)) {
             this.isUpdatingVertices = true;
             this.loadVertices(() => { this.isUpdatingVertices = false; });
             return true;
@@ -1133,7 +1134,7 @@ class TransformExpanded extends React.Component {
     }
 
     render() {
-        const { leftOffset, width, height } = this.props;
+        const { leftOffset } = this.props;
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.inputs;
         const outputNodes = this.props.model.outputs;
