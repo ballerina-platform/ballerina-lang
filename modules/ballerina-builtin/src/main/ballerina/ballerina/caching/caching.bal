@@ -10,7 +10,7 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 @Description {value:"array which stores the caches."}
 Cache[] caches = [];
 
-string scheduleID = createTask();
+string cacheCleanupTaskID = createTask();
 
 @Description {value:"Represents a cache."}
 @Field {value:"name - name of the cache"}
@@ -41,9 +41,19 @@ struct CacheEntry {
 @Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @Return {value:"cache - a new cache"}
 public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (Cache) {
+    // Cache timeout must be a positive value.
+    if (timeOut <= 0) {
+        error e = {msg:"Timeout must be greater than 0."};
+        throw e;
+    }
     // Cache capacity must be a positive value.
     if (capacity <= 0) {
         error e = {msg:"Capacity must be greater than 0."};
+        throw e;
+    }
+    // Cache eviction factor must be between 0.0 and 1.0 inclusive.
+    if (evictionFactor < 0 || evictionFactor > 1) {
+        error e = {msg:"Cache eviction factor must be between 0.0 and 1.0 inclusive."};
         throw e;
     }
 
@@ -61,10 +71,10 @@ public function createCache (string name, int timeOut, int capacity, float evict
 @Param {value:"key - value which should be used as the key"}
 @Param {value:"value - value to be cached"}
 public function <Cache cache> put (string key, any value) {
-    int maxCapacity = cache.capacity;
-    int currentCapacity = cache.entries.length();
+    int cacheCapacity = cache.capacity;
+    int cacheSize = cache.entries.length();
     // if the current cache is full,
-    if (maxCapacity <= currentCapacity) {
+    if (cacheCapacity <= cacheSize) {
         cache.evictCache();
     }
     // Add the new entry
@@ -80,7 +90,7 @@ function <Cache cache> evictCache () {
     int noOfEntriesToBeEvicted = <int>(maxCapacity * evictionFactor);
     int i = 0;
     while (i < noOfEntriesToBeEvicted) {
-        string cacheKey = cache.getLRUCache();
+        string cacheKey = cache.getLRUCacheKey();
         cache.entries.remove(cacheKey);
         i = i + 1;
     }
@@ -108,7 +118,7 @@ public function <Cache c> remove (string key) {
 }
 
 @Description {value:"Removes expired cache entries from all caches."}
-public function cleanCache () returns (error) {
+function runCacheExpiry () returns (error) {
     int currentCacheIndex = 0;
     int cacheSize = lengthof caches;
     // Iterate through all caches.
@@ -163,7 +173,7 @@ public function cleanCache () returns (error) {
 
 @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
 @Return {value:"string - key of the LRU cache entry"}
-function <Cache cache> getLRUCache () (string cacheKey) {
+function <Cache cache> getLRUCacheKey () (string cacheKey) {
     map entries = cache.entries;
     string[] keys = entries.keys();
     cacheKey = "";
@@ -187,12 +197,12 @@ function <Cache cache> getLRUCache () (string cacheKey) {
 @Description {value:"Creates a new cache cleanup task."}
 @Return {value:"string - cache cleanup task ID"}
 function createTask () (string) {
-    function () returns (error) onTriggerFunction = cleanCache;
+    function () returns (error) onTriggerFunction = runCacheExpiry;
     function (error) onErrorFunction = null;
-    var scheduleID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
+    var cacheCleanupTaskID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
     // If task creation failed, throw an error.
     if (schedulerError != null) {
         throw schedulerError;
     }
-    return scheduleID;
+    return cacheCleanupTaskID;
 }
