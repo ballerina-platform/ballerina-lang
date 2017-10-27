@@ -1,4 +1,4 @@
-package ballerina.utils.logger;
+package ballerina.log;
 
 import ballerina.doc;
 
