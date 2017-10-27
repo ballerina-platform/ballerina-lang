@@ -1165,12 +1165,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+    public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        boolean argsAvailable = ctx.connectorInit() != null && ctx.connectorInit().expressionList() != null;
+        boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.addConnectorInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
@@ -1214,14 +1214,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
     }
 
-    @Override
-    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx));
-    }
+//    @Override
+//    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx));
+//    }
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {

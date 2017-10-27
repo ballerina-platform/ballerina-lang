@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 public class BEndpointType extends BType implements ConstrainedType {
 
     public BType constraint;
+    private BType actual;
 
     public BEndpointType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -37,6 +38,14 @@ public class BEndpointType extends BType implements ConstrainedType {
     @Override
     public Type getConstraint() {
         return this.constraint;
+    }
+
+    public BType getActual() {
+        return actual;
+    }
+
+    public void setActual(BType actual) {
+        this.actual = actual;
     }
 
     public String getDesc() {

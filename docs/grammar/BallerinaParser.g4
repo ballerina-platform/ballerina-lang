@@ -233,7 +233,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
+    //|   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -304,9 +304,9 @@ assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
     ;
 
-bindStatement
-    :   BIND expression TO nameReference SEMICOLON
-    ;
+//bindStatement
+//    :   BIND expression TO nameReference SEMICOLON
+//    ;
 
 variableReferenceList
     :   variableReference (COMMA variableReference)*
