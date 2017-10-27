@@ -662,4 +662,23 @@ public final class BXMLItem extends BXML<OMNode> {
                 return ZERO_STRING_VALUE;
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> getItem(long index) {
+        if (index != 0) {
+            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
+        }
+
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int length() {
+        return this.omNode == null ? 0 : 1;
+    }
 }

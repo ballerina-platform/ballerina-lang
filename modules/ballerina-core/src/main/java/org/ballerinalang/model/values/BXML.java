@@ -233,6 +233,20 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract BXML<?> descendants(BString qname);
 
     /**
+     * Get an item from the XML sequence, at the given index.
+     * 
+     * @return Item at the given index in the sequence
+     */
+    public abstract BXML<?> getItem(long index);
+
+    /**
+     * Get the length of this XML sequence.
+     * 
+     * @return length of this XML sequence.
+     */
+    public abstract int length();
+
+    /**
      * {@inheritDoc}
      */
     @Override

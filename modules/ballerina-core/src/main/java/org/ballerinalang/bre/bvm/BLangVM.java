@@ -420,22 +420,22 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-                    BNewArray newArray = (BNewArray) sf.refRegs[i];
+
+                    BValue array = sf.refRegs[i];
+                    if (array.getType().getTag() == TypeTags.XML_TAG) {
+                        sf.longRegs[j] = ((BXML) array).length();
+                        break;
+                    } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
+                        if (JSONUtils.isJSONArray((BJSON) array)) {
+                            sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+                        } else {
+                            sf.longRegs[j] = -1;
+                        }
+                        break;
+                    }
+
+                    BNewArray newArray = (BNewArray) array;
                     sf.longRegs[j] = newArray.size();
-                    break;
-                case InstructionCodes.LENGTHOFJSON:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
-                        sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                    } else {
-                        sf.longRegs[j] = -1;
-                        break;
-                    }
                     break;
 
                 case InstructionCodes.TYPELOAD:
@@ -781,6 +781,7 @@ public class BLangVM {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLLOAD:
                     execXMLOpcodes(sf, opcode, operands);
                     break;
                 default:
@@ -1794,6 +1795,20 @@ public class BLangVM {
                 prefix = StringEscapeUtils.escapeXml11(prefix);
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                long index = sf.longRegs[j];
+                sf.refRegs[k] = xmlVal.getItem(index);
                 break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:

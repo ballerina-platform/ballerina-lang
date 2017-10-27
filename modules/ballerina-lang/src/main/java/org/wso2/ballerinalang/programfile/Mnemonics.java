@@ -184,7 +184,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
-        mnemonics[InstructionCodes.LENGTHOFJSON] = "lengthofjson";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
@@ -249,6 +248,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
         mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
+        mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
     }
 
     public static String getMnem(int opcode) {

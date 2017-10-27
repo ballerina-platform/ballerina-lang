@@ -107,4 +107,21 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangXMLAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = indexExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }
