@@ -308,10 +308,17 @@ public class BLangPackageBuilder {
         addType(constrainedType);
     }
 
-    public void addEndpointType(DiagnosticPos pos, Set<Whitespace> ws, String typeName, String pkgIdentifier) {
+    public void addEndpointType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        constraintType.pos = pos;
+        constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        constraintType.typeName = (BLangIdentifier) nameReference.name;
+        constraintType.addWS(nameReference.ws);
+
         BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
         endpointTypeNode.pos = pos;
-        endpointTypeNode.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
+        endpointTypeNode.constraint = constraintType;
         endpointTypeNode.addWS(ws);
 
         addType(endpointTypeNode);
@@ -1184,6 +1191,28 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(ws);
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
+        addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        ExpressionNode rExprNode = exprNodeStack.pop();
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = pos;
+        varRef.addWS(ws);
+        varRef.addWS(nameReference.ws);
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
+
+
+        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentNode.setExpression(rExprNode);
+        assignmentNode.setDeclaredWithVar(false);
+        assignmentNode.pos = pos;
+        assignmentNode.addWS(ws);
+        assignmentNode.addWS(commaWsStack.pop());
+        assignmentNode.addVariable(varRef);
         addStmtToCurrentBlock(assignmentNode);
     }
 

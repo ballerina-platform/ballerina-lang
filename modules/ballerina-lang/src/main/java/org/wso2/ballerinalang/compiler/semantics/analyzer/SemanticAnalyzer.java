@@ -507,10 +507,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
                     (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE &&
                     (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
-                List<BType> types = typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
-                if (varNode.type.tag == TypeTags.ENDPOINT) {
-                    ((BEndpointType) varNode.type).connectorType = types.get(0);
-                }
+                typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
             }
 
             if (varNode.symbol.flags == Flags.CONST) {

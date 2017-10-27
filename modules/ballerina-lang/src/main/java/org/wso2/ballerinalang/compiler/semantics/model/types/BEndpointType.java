@@ -19,45 +19,27 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.Type;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
- * @since 0.95
+ * @since 0.94
  */
 public class BEndpointType extends BType implements ConstrainedType {
 
-    public BType pkgConstraint;
-    public BType connectorType;
+    public BType constraint;
 
-    public BEndpointType(int tag, BType constraint, BPackageSymbol tsymbol) {
+    public BEndpointType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
-        this.pkgConstraint = constraint;
+        this.constraint = constraint;
     }
 
     @Override
     public Type getConstraint() {
-        return this.pkgConstraint;
+        return this.constraint;
     }
 
     public String getDesc() {
-        return TypeDescriptor.SIG_CONNECTOR + connectorType.tsymbol.pkgID.name
-                + ":" + connectorType.tsymbol.name + ";";
-    }
-
-    @Override
-    public TypeKind getKind() {
-        return TypeKind.ENDPOINT;
-    }
-
-    @Override
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
-    }
-
-    @Override
-    public String toString() {
-        return this.tsymbol.name.value;
+        return TypeDescriptor.SIG_CONNECTOR + constraint.tsymbol.pkgID.name + ":" + constraint.tsymbol.name + ";";
     }
 }

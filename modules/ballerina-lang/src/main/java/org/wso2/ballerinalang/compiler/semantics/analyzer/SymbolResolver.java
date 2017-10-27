@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -327,6 +328,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public List<BInvokableSymbol> getConnectorActionSymbols(Scope scope) {
+        List<BInvokableSymbol> actions = new ArrayList<>();
+        scope.entries.values().forEach(entry -> {
+            while (entry != NOT_FOUND_ENTRY) {
+                if ((entry.symbol.tag & SymTag.ACTION) != SymTag.ACTION) {
+                    entry = entry.next;
+                    continue;
+                }
+
+                actions.add((BInvokableSymbol) entry.symbol);
+                break;
+            }
+        });
+
+        return actions;
+    }
+
     /**
      * Resolve and return the namespaces visible to the given environment, as a map.
      *
@@ -350,13 +368,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpointTypeNode endpointType) {
-        BPackageSymbol pkgSymbol = (BPackageSymbol) resolvePkgSymbol(endpointType.pos, this.env,
-                names.fromIdNode(endpointType.pkgAlias));
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            resultType = symTable.errType;
-            return;
-        }
-        resultType = new BEndpointType(TypeTags.ENDPOINT, pkgSymbol.type, pkgSymbol);
+        BType constraintType = resolveTypeNode(endpointType.constraint, env);
+        resultType = new BEndpointType(TypeTags.ENDPOINT, constraintType, null);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {

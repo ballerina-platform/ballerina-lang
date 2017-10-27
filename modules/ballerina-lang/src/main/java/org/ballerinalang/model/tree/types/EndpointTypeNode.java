@@ -17,17 +17,10 @@
 */
 package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
-
-import java.util.Set;
-
 /**
  * foo:Person
  * @since 0.95
  */
 public interface EndpointTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
-
-    Set<? extends Flag> getFlags();
+    TypeNode getConstraint();
 }

@@ -22,12 +22,14 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -186,7 +189,7 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR) {
-            if (target.tsymbol != source.tsymbol.owner) {
+            if (!checkConnectorEquivalancy(source, ((BEndpointType) target).constraint)) {
                 return false;
             }
         }
@@ -286,6 +289,36 @@ public class Types {
             return false;
         }
 
+        return true;
+    }
+
+    public boolean checkConnectorEquivalancy(BType actualType, BType expType) {
+        if (actualType.tag != TypeTags.CONNECTOR || expType.tag != TypeTags.CONNECTOR) {
+            return false;
+        }
+
+        BConnectorType expConnectorType = (BConnectorType) expType;
+        BConnectorType actualConnectorType = (BConnectorType) actualType;
+
+        // take actions in connectors
+        List<BInvokableSymbol> expActions = symResolver.getConnectorActionSymbols(expConnectorType.tsymbol.scope);
+        List<BInvokableSymbol> actActions = symResolver.getConnectorActionSymbols(actualConnectorType.tsymbol.scope);
+
+        if (expActions.isEmpty() && actActions.isEmpty()) {
+            return true;
+        }
+
+        if (expActions.size() != actActions.size()) {
+            return false;
+        }
+
+        //check every action signatures are matching or not
+        for (BInvokableSymbol expAction : expActions) {
+            if (actActions.stream().filter(v -> checkFunctionTypeEquality((BInvokableType) expAction.type,
+                    (BInvokableType) v.type)).collect(Collectors.toList()).size() != 1) {
+                return false;
+            }
+        }
         return true;
     }
 

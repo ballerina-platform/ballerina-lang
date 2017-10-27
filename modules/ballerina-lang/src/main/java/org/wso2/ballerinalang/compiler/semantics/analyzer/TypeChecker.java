@@ -405,6 +405,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.ENDPOINT:
                 checkActionInvocationExpr(iExpr, (BEndpointType) iExpr.expr.type);
                 break;
+            case TypeTags.CONNECTOR:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, iExpr.expr.type);
+                break;
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -899,15 +902,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BEndpointType endpointType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        Name connectorName = names.fromString(endpointType.connectorType.toString());
-        BPackageSymbol packageSymbol = (BPackageSymbol) endpointType.connectorType.tsymbol.owner;
-        BSymbol connectorSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                connectorName, SymTag.CONNECTOR);
-        if (connectorSymbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorName);
-            resultTypes = getListWithErrorTypes(expTypes.size());
-            return;
-        }
+        Name connectorName = names.fromString(endpointType.constraint.toString());
+        BSymbol connectorSymbol = endpointType.constraint.tsymbol;
 
         Name actionName = names.fromIdNode(iExpr.name);
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,

@@ -17,30 +17,20 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.EndpointTypeNode;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.Set;
 
 /**
  * @since 0.95
  */
 public class BLangEndpointTypeNode extends BLangType implements EndpointTypeNode {
-    public BLangIdentifier pkgAlias;
-    public Set<Flag> flagSet;
+    public BLangType constraint;
 
     @Override
-    public BLangIdentifier getPackageAlias() {
-        return pkgAlias;
-    }
-
-    @Override
-    public Set<? extends Flag> getFlags() {
-        return flagSet;
+    public TypeNode getConstraint() {
+        return constraint;
     }
 
     @Override
@@ -55,7 +45,6 @@ public class BLangEndpointTypeNode extends BLangType implements EndpointTypeNode
 
     @Override
     public String toString() {
-        return "endpoint:"
-                + (pkgAlias != null ? (pkgAlias.value != null ? "Pkg alias: " + pkgAlias.value : "") : "");
+        return "endpoint<" + this.constraint.toString() + ">";
     }
 }

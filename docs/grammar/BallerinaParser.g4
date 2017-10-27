@@ -233,6 +233,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -292,15 +293,19 @@ connectionInit
     ;
 
 endpointDeclaration
-    :   endpointDefinition LEFT_BRACE (expression SEMICOLON)? RIGHT_BRACE
+    :   endpointDefinition LEFT_BRACE ((variableReference | connectionInit) SEMICOLON)? RIGHT_BRACE
     ;
 
 endpointDefinition
-    :   ENDPOINT (LT Identifier? GT) Identifier
+    :   ENDPOINT (LT nameReference GT) Identifier
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression TO nameReference SEMICOLON
     ;
 
 variableReferenceList
