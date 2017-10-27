@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,23 +28,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:trim.
+ * Native function ballerina.model.strings:hasSuffix.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "trim",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "string.hasSuffix",
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "suffix", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Trim extends AbstractNativeFunction {
+public class HasSuffix extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getStringArgument(context, 0);
-        BString trimmedString = new BString(param1.trim());
-        return getBValues(trimmedString);
+        String suffix = getStringArgument(context, 1);
+
+        BBoolean booleanValue = new BBoolean(param1.endsWith(suffix));
+        return getBValues(booleanValue);
     }
 }

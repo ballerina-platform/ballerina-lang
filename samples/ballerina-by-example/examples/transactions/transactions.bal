@@ -3,13 +3,14 @@ import ballerina.data.sql;
 
 function main (string[] args) {
     sql:ClientConnector testDB = create sql:ClientConnector(
-                                 sql:MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
+        sql:MYSQL, "localhost", 3306, "testdb", "root", "root",
+        {maximumPoolSize:5});
     //Create the tables required for the transaction.
     sql:Parameter[] emptyParams = [];
-    testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT, NAME VARCHAR(30))",
-                  emptyParams);
-    testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT, MON_SALARY FLOAT)",
-                  emptyParams);
+    int updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT,
+        NAME VARCHAR(30))", emptyParams);
+    updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT,
+        MON_SALARY FLOAT)", emptyParams);
     //Here is the transaction block. You can use a Try catch here since update action can
     //throw errors due to SQL errors, connection pool errors etc.
     transaction {

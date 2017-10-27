@@ -16,39 +16,37 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Native function ballerina.model.strings:contains.
+ * Native function ballerina.model.strings:toLowerCase.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "contains",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "subString", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        packageName = "ballerina.builtin",
+        functionName = "string.toLowerCase",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Contains extends AbstractNativeFunction {
+public class ToLowerCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getStringArgument(context, 0);
-        String subString = getStringArgument(context, 1);
-
-        BBoolean isContains = new BBoolean(param1.contains(subString));
-        return getBValues(isContains);
-
+        BString lowerCaseString = new BString(param1.toLowerCase(Locale.getDefault()));
+        return getBValues(lowerCaseString);
     }
 }

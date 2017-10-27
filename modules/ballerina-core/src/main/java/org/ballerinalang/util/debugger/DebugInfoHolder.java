@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.debugger;
 
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -46,7 +47,7 @@ public class DebugInfoHolder {
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
     private LineNumberInfo lastLine;
-    private int fp;
+    private StackFrame sf;
 
     public DebugInfoHolder() {
         this.executionSem = new Semaphore(0);
@@ -160,12 +161,12 @@ public class DebugInfoHolder {
         return lastLine;
     }
 
-    public int getFp() {
-        return fp;
+    public StackFrame getSF() {
+        return sf;
     }
 
-    public void setFp(int fp) {
-        this.fp = fp;
+    public void setSF(StackFrame sf) {
+        this.sf = sf;
     }
 
     public void setLastLine(LineNumberInfo lastLine) {
