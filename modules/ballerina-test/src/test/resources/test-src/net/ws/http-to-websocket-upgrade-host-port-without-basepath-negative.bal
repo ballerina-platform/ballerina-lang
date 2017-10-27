@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.net.ws;
 
 @http:configuration {
-    basePath:"/hello",
+    basePath:"/test",
     port:9090,
     webSocket:@http:webSocket {
                   upgradePath:"/ws",
