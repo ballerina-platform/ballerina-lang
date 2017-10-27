@@ -20,6 +20,9 @@
  * Holds operator lattice to be used for ternary, binary and unary operators
  * @class OperatorLattice
  */
+
+import _ from 'lodash';
+
 class OperatorLattice {
 
     /**
@@ -93,11 +96,14 @@ class OperatorLattice {
 
             unaryLatticeJson.forEach((edge) => {
                 if (!edge.visited) {
-                    this._unaryLattice[operator] = {};
+                    this._unaryLattice[operator] = [];
                     if (!edge.visited) {
                         unaryLatticeJson.forEach((targetEdge) => {
                             if (!targetEdge.visited) {
-                                this._unaryLattice[operator][targetEdge.rhType] = targetEdge.retType;
+                                this._unaryLattice[operator].push({
+                                    0: targetEdge.rhType,
+                                    ret: targetEdge.retType,
+                                });
                                 targetEdge.visited = true;
                             }
                         });
@@ -107,13 +113,14 @@ class OperatorLattice {
 
             binaryLatticeJson.forEach((edge) => {
                 if (!edge.visited) {
-                    this._binaryLattice[operator] = {};
+                    this._binaryLattice[operator] = [];
                     binaryLatticeJson.forEach((targetEdge) => {
                         if (!targetEdge.visited) {
-                            if (!this._binaryLattice[operator][targetEdge.lhType]) {
-                                this._binaryLattice[operator][targetEdge.lhType] = {};
-                            }
-                            this._binaryLattice[operator][targetEdge.lhType][targetEdge.rhType] = targetEdge.retType;
+                            this._binaryLattice[operator].push({
+                                0: targetEdge.lhType,
+                                1: targetEdge.rhType,
+                                ret: targetEdge.retType,
+                            });
                             targetEdge.visited = true;
                         }
                     });
@@ -132,30 +139,33 @@ class OperatorLattice {
     }
 
     /**
-     * Get operator compatibility for given types
-     * @param {string} operator operator
-     * @param {string} lhType left hand type
-     * @param {string} rhType right hand type
-     * @param {string} retType return type
+     * Get compatibile types for a given operator's operand
+     * @param {string} operator operator kind
+     * @param {[string]} operandTypes operand types of the operator
+     * @param {string} operandIndex index of the operand to find compatible types
      * @returns {[string]} compatible types
      * @memberof OperatorLattice
      */
-    getCompatibleBinaryTypes(operator, lhType, rhType) {
+    getCompatibleBinaryTypes(operator, operandTypes, operandIndex) {
         if (operator === 'typeof') {
             // typeof is a special binary operator that needs to be handled specially
             // TODO
         }
-        if (lhType && rhType) {
-            return this._binaryLattice[operator][lhType][rhType];
-        } else if (lhType) {
-            return this._binaryLattice[operator][lhType];
-        } else if (rhType) {
-            return this._binaryLattice[operator].filter((edge) => {
-                return (edge[rhType]);
-            });
-        } else {
-            return this._binaryLattice[operator];
+        const opLattice = this._binaryLattice[operator];
+        if (!opLattice) {
+            return undefined;
         }
+
+        const checkIndex = _.without([0, 1], operandIndex);
+
+        return opLattice.filter((edge) => {
+            if ((operandTypes[checkIndex] === edge[checkIndex]) && (edge.ret === operandTypes.ret)) {
+                return true;
+            }
+            return false;
+        }).map((edge) => {
+            return edge[operandIndex];
+        });
     }
 
     /**

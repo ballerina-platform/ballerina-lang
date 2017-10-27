@@ -26,6 +26,7 @@ import WelcomeTabPlugin from './plugins/welcome-tab/plugin';
 import ImportSwaggerPlugin from './plugins/import-swagger/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
+import ImportStructPlugin from './plugins/import-struct/plugin';
 
 export default {
     app: {
@@ -36,6 +37,7 @@ export default {
             TryItPlugin,
             WelcomeTabPlugin,
             ImportSwaggerPlugin,
+            ImportStructPlugin,
         ],
     },
     // provide plugin specific configs - if any.
@@ -89,7 +91,7 @@ export default {
                     image: 'preview_servicechaining',
                 },
                 {
-                    name: 'Restful Service',
+                    name: 'RESTful Service',
                     isFile: false,
                     folder: '/samples/restfulService/restfulservice',
                     path: '/samples/restfulService/restfulservice/samples/productsService.bal',
@@ -103,7 +105,7 @@ export default {
                     image: 'preview_routingServices',
                 },
                 {
-                    name: 'Websocket',
+                    name: 'WebSocket',
                     isFile: false,
                     folder: '/samples/websocket',
                     path: '/samples/websocket/echoserver/server/EchoServer.bal',

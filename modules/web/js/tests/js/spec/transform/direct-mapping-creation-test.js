@@ -112,7 +112,7 @@ describe('Transform Direct Mapping Creation', () => {
             }).catch((error) => {
                 done(error);
             });
-    });
+    }).timeout(5000);
     it('Direct mapping with function args', (done) => {
         const testSource = readSource(testDir, 'direct-with-args');
         const expectedSource = readSource(testDir, 'direct-with-args-expected');
@@ -138,7 +138,7 @@ describe('Transform Direct Mapping Creation', () => {
             }).catch((error) => {
                 done(error);
             });
-    });
+    }).timeout(5000);
     it('Direct mapping with casting and conversion', (done) => {
         const testSource = readSource(testDir, 'direct-with-cast-conversion');
         const expectedSource = readSource(testDir, 'direct-with-cast-conversion-expected');

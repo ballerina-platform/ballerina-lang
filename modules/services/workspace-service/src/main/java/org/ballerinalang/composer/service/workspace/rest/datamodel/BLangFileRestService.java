@@ -76,45 +76,25 @@ public class BLangFileRestService {
     public static final String UNESCAPED_VALUE = "unescapedValue";
 
     @POST
-    @Path("/validate")
+    @Path("/file/validate-and-parse")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateBallerinaSource(BFile bFile) throws IOException {
+    public Response validateAndParseBFile(BFile bFileRequest) throws IOException, InvocationTargetException,
+            IllegalAccessException {
         return Response.status(Response.Status.OK)
-                .entity(validate(bFile))
+                .entity(validateAndParse(bFileRequest))
                 .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
     }
 
     @OPTIONS
-    @Path("/validate")
+    @Path("/file/validate-and-parse")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateOptions() {
+    public Response validateAndParseOptions() {
         return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
                 "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
-
-    @POST
-    @Path("/model/content")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException, InvocationTargetException,
-            IllegalAccessException {
-        String response = parseJsonDataModel(bFile);
-        return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
-    }
-
-    @OPTIONS
-    @Path("/model/content")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response options() {
-        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
-                "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
-    }
-
 
     @POST
     @Path("/model/parse-fragment")
@@ -133,61 +113,6 @@ public class BLangFileRestService {
         return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
                 "true").header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
-    }
-
-    /**
-     * Parses a Ballerina content into a json model. We can provide either a String content or the path to the file.
-     * Data is encapsulated in a BFile object
-     *
-     * @param bFile - Object which holds data about Ballerina content.
-     * @return A string which contains a json model.
-     * @throws IOException
-     */
-    private static String parseJsonDataModel(BFile bFile) throws IOException, InvocationTargetException,
-            IllegalAccessException {
-        String filePath = bFile.getFilePath();
-        String fileName = bFile.getFileName();
-        String content = bFile.getContent();
-    
-        org.wso2.ballerinalang.compiler.tree.BLangPackage model;
-        List<Diagnostic> diagnostics;
-    
-        // Sometimes we are getting Ballerina content without a file in the file-system.
-        if (!Files.exists(Paths.get(filePath, fileName))) {
-            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
-                    CompilerPhase.CODE_ANALYZE);
-            model = ballerinaFile.getBLangPackage();
-            diagnostics = ballerinaFile.getDiagnostics();
-        
-        } else {
-            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
-            model = ballerinaFile.getBLangPackage();
-            diagnostics = ballerinaFile.getDiagnostics();
-        }
-    
-        final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
-    
-        Gson gson = new Gson();
-        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
-        JsonObject result = new JsonObject();
-
-        if (model != null) {
-            BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
-            JsonElement modelElement = generateJSON(compilationUnit);
-            result.add("model", modelElement);
-        }
-        result.add("diagnostics", diagnosticsJson);
-    
-        // Add 'packageInfo' only if there are any packages.
-        Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
-        if (packageInfoJson.isPresent()) {
-            JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
-            result.add("packageInfo", packageInfo);
-        }
-    
-        return result.toString();
     }
 
     public static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
@@ -332,12 +257,12 @@ public class BLangFileRestService {
         if (node instanceof BLangInvocation) {
             JsonArray jsonElements = new JsonArray();
             for (BType returnType : ((BLangInvocation) node).types) {
-                jsonElements.add(returnType.getKind().name());
+                jsonElements.add(returnType.getKind().typeName());
             }
             return jsonElements;
         } else if (type != null) {
             JsonArray jsonElements = new JsonArray();
-            jsonElements.add(type.getKind().name());
+            jsonElements.add(type.getKind().typeName());
             return jsonElements;
         }
         return null;
@@ -350,17 +275,22 @@ public class BLangFileRestService {
     /**
      * Validates a given ballerina input
      *
-     * @param bFile - Object which holds data about Ballerina content.
+     * @param bFileRequest - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private JsonObject validate(BFile bFile) {
-        String fileName = "untitled.bal";
-        String content = bFile.getContent();
-        BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
-                CompilerPhase.CODE_ANALYZE);
-        List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
+    private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException, IllegalAccessException {
+        final String filePath = bFileRequest.getFilePath();
+        final String fileName = bFileRequest.getFileName();
+        final String content = bFileRequest.getContent();
+
+        final BallerinaFile ballerinaFile = Files.exists(Paths.get(filePath, fileName))
+                ? WorkspaceUtils.getBallerinaFile(filePath, fileName)
+                : WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE);
+
+        final BLangPackage model = ballerinaFile.getBLangPackage();
+        final List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
+
         ErrorCategory errorCategory = ErrorCategory.NONE;
-        BLangPackage model = ballerinaFile.getBLangPackage();
         if (!diagnostics.isEmpty()) {
             if (model == null) {
                 errorCategory = ErrorCategory.SYNTAX;
@@ -394,13 +324,23 @@ public class BLangFileRestService {
         JsonObject result = new JsonObject();
         result.add("errors", errors);
 
+        Gson gson = new Gson();
+        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
+        result.add("diagnostics", diagnosticsJson);
+
+        if (model != null && bFileRequest.needTree()) {
+            BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
+                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+            JsonElement modelElement = generateJSON(compilationUnit);
+            result.add("model", modelElement);
+        }
+
         // adding current package info whenever we have a parsed model
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
         // Add 'packageInfo' only if there are any packages.
         Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
-        if (packageInfoJson.isPresent()) {
-            Gson gson = new Gson();
+        if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
             result.add("packageInfo", packageInfo);
         }

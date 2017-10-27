@@ -92,12 +92,11 @@ class TransformNodeManager {
     /**
      * Get the vertex expression by name of the vertex
      * @param {any} name name
-     * @param {any} isField whether a struct field or a variable
      * @returns {Expression} vertex expression
      * @memberof TransformNodeManager
      */
-    getVertexExpression(name, isField) {
-        return TransformFactory.createVariableRefExpression(name);
+    getVertexExpression(name, type) {
+        return TransformFactory.createVariableRefExpression(name, type);
     }
 
     /**
@@ -117,10 +116,10 @@ class TransformNodeManager {
 
         // create source and target expressions
         if (source.endpointKind === 'input') {
-            sourceExpression = this.getVertexExpression(source.name, source.isField);
+            sourceExpression = this.getVertexExpression(source.name, source.type);
         }
         if (target.endpointKind === 'output') {
-            targetExpression = this.getVertexExpression(target.name, target.isField);
+            targetExpression = this.getVertexExpression(target.name, target.type);
         }
 
         // create or modify statements as per the connection.
@@ -448,7 +447,7 @@ class TransformNodeManager {
         return variableDef;
     }
 
-    updateVariable(node, varName, statementString, type) {
+    updateVariable(node, varName, statementString, type, vertices) {
         const variableDefinitionStatement = TransformFactory.createVariableDefFromStatement(statementString);
         let varDefNode = node.body;
         let entities = node.inputs;
@@ -456,46 +455,51 @@ class TransformNodeManager {
             varDefNode = node.parent;
             entities = node.outputs;
         }
-
         if (!variableDefinitionStatement.error) {
             const newVarName = variableDefinitionStatement.getVariableName().value;
-            _.forEach(varDefNode.statements, (child) => {
-                if (TreeUtil.isVariableDef(child)
-                      && child.getVariableName().value === varName) {
-                    varDefNode.replaceStatements(child, variableDefinitionStatement, false);
-                } else if (TreeUtil.isAssignment(child)
-                              && TreeUtil.isSimpleVariableRef(child.expression)
-                              && child.expression.getVariableName().value === varName) {
-                    const variableReferenceExpression = TransformFactory.createVariableRefExpression(newVarName);
-                    child.setExpression(variableReferenceExpression);
-                } else if (TreeUtil.isTransform(child) && type === 'target') {
-                    _.forEach(child.body.statements, (transChild) => {
-                        if (TreeUtil.isAssignment(transChild) && TreeUtil.isSimpleVariableRef(transChild.variables[0])
-                                      && transChild.variables[0].getVariableName().getValue() === varName) {
-                            const variableReferenceExpression = TransformFactory
-                                                                  .createVariableRefExpression(newVarName);
-                            transChild.replaceVariables(transChild.variables[0], variableReferenceExpression);
-                        }
-                    });
+            const isExisting = _.find(vertices, { name: newVarName });
+            if (!isExisting) {
+                _.forEach(varDefNode.statements, (child) => {
+                    if (TreeUtil.isVariableDef(child)
+                          && child.getVariableName().value === varName) {
+                        varDefNode.replaceStatements(child, variableDefinitionStatement, false);
+                    } else if (TreeUtil.isAssignment(child)
+                                  && TreeUtil.isSimpleVariableRef(child.expression)
+                                  && child.expression.getVariableName().value === varName) {
+                        const variableReferenceExpression = TransformFactory.createVariableRefExpression(newVarName);
+                        child.setExpression(variableReferenceExpression);
+                    } else if (TreeUtil.isTransform(child) && type === 'target') {
+                        _.forEach(child.body.statements, (transChild) => {
+                            if (TreeUtil.isAssignment(transChild)
+                                          && TreeUtil.isSimpleVariableRef(transChild.variables[0])
+                                          && transChild.variables[0].getVariableName().getValue() === varName) {
+                                const variableReferenceExpression = TransformFactory
+                                                                      .createVariableRefExpression(newVarName);
+                                transChild.replaceVariables(transChild.variables[0], variableReferenceExpression);
+                            }
+                        });
+                    }
+                });
+                _.forEach(entities, (input, i) => {
+                    if (input === varName) {
+                        entities[i] = newVarName;
+                    }
+                });
+                if (type === 'target') {
+                    node.setOutputs(entities);
+                } else {
+                    node.setInputs(entities);
                 }
-            });
-            _.forEach(entities, (input, i) => {
-                if (input === varName) {
-                    entities[i] = newVarName;
-                }
-            });
-            if (type === 'target') {
-                node.setOutputs(entities);
+                node.trigger('tree-modified', {
+                    origin: node,
+                    type: 'variable-update',
+                    title: `Variable update ${varName}`,
+                    data: {},
+                });
+                return true;
             } else {
-                node.setInputs(entities);
+                return false;
             }
-            node.trigger('tree-modified', {
-                origin: node,
-                type: 'variable-update',
-                title: `Variable update ${varName}`,
-                data: {},
-            });
-            return true;
         } else {
             return false;
         }

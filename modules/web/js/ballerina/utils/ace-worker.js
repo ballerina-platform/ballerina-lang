@@ -56,7 +56,7 @@ ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) =
                     }
                 };
 
-                request.open('POST', newConfig.services.validator.endpoint, true);
+                request.open('POST', newConfig.services.parser.endpoint, true);
                 request.setRequestHeader('Content-type', 'application/json');
                 request.send(JSON.stringify(content));
             } else {
