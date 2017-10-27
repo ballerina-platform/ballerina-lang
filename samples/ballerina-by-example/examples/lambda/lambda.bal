@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function main (string[] args) {
     // Define lambda function in-line to function pointer var.
     function (string, string) returns (string) lambda =
@@ -7,5 +5,5 @@ function main (string[] args) {
                 r = x + y;
                 return;
             };
-    system:println("Output: " + lambda("Hello ", "world.!!!"));
+    println("Output: " + lambda("Hello ", "world.!!!"));
 }

@@ -1,6 +1,5 @@
 import ballerina.net.http;
 import ballerina.doc;
-import ballerina.lang.system;
 
 @http:configuration {
     basePath:"/hello",
@@ -29,8 +28,8 @@ function main (string[] args) {
     //creates a request
     http:Request req = {};
     http:Response resp = clientConnector.get("/hello/", req);
-    system:println("Response code: " + resp.getStatusCode());
-    system:println("Response: " + resp.getStringPayload());
+    println("Response code: " + resp.getStatusCode());
+    println("Response: " + resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

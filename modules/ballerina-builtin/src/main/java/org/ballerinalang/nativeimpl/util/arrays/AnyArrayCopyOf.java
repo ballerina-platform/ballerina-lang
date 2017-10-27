@@ -41,7 +41,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.model.arrays:copyOf(any[], any[]).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
+        packageName = "ballerina.util.arrays",
         functionName = "copyOf",
         args = {@Argument(name = "anyArrayFrom", type = TypeKind.ARRAY, elementType = TypeKind.ANY),
                 @Argument(name = "anyArrayTo", type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
