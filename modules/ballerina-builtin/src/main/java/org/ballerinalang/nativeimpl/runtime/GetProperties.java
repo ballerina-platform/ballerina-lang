@@ -29,7 +29,7 @@ import java.util.Properties;
 /**
  * Native function ballerina.runtime:getProperties.
  *
- * @since 0.95
+ * @since 0.94.1
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",

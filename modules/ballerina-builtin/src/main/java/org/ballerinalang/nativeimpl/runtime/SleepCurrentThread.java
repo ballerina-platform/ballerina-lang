@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 /**
  * Native function ballerina.runtime:sleepCurrentThread.
  *
- * @since 0.95
+ * @since 0.94.1
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",
