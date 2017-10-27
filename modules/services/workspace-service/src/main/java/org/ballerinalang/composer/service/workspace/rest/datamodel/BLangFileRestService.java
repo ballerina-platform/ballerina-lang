@@ -332,12 +332,12 @@ public class BLangFileRestService {
         if (node instanceof BLangInvocation) {
             JsonArray jsonElements = new JsonArray();
             for (BType returnType : ((BLangInvocation) node).types) {
-                jsonElements.add(returnType.getKind().name());
+                jsonElements.add(returnType.getKind().typeName());
             }
             return jsonElements;
         } else if (type != null) {
             JsonArray jsonElements = new JsonArray();
-            jsonElements.add(type.getKind().name());
+            jsonElements.add(type.getKind().typeName());
             return jsonElements;
         }
         return null;

@@ -92,12 +92,11 @@ class TransformNodeManager {
     /**
      * Get the vertex expression by name of the vertex
      * @param {any} name name
-     * @param {any} isField whether a struct field or a variable
      * @returns {Expression} vertex expression
      * @memberof TransformNodeManager
      */
-    getVertexExpression(name, isField) {
-        return TransformFactory.createVariableRefExpression(name);
+    getVertexExpression(name, type) {
+        return TransformFactory.createVariableRefExpression(name, type);
     }
 
     /**
@@ -117,10 +116,10 @@ class TransformNodeManager {
 
         // create source and target expressions
         if (source.endpointKind === 'input') {
-            sourceExpression = this.getVertexExpression(source.name, source.isField);
+            sourceExpression = this.getVertexExpression(source.name, source.type);
         }
         if (target.endpointKind === 'output') {
-            targetExpression = this.getVertexExpression(target.name, target.isField);
+            targetExpression = this.getVertexExpression(target.name, target.type);
         }
 
         // create or modify statements as per the connection.
