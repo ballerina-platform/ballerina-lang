@@ -176,3 +176,19 @@ service<http> echo111 {
 }
 service<http> echo112 {
 }
+
+@http:configuration {
+    basePath:"hello/"
+}
+service<http> serviceHello {
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test/"
+    }
+    resource productsInfo (http:Request req, http:Response res) {
+        json responseJson = {"echo":"sanitized"};
+        res.setJsonPayload(responseJson);
+        res.send();
+    }
+}

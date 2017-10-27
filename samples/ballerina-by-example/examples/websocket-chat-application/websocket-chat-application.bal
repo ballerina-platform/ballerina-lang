@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-import ballerina.lang.maps;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -17,24 +15,24 @@ service<ws> ChatApp {
     }
 
     resource onTextMessage(ws:Connection con, ws:TextFrame frame) {
-        system:println(frame.text);
+        println(frame.text);
         broadcast(consMap, frame.text);
     }
 
     resource onIdleTimeout(ws:Connection con) {
         // Connection is closed due to inactivity after 1 hour
-        system:println("Idle timeout: " + con.getID());
+        println("Idle timeout: " + con.getID());
         con.closeConnection(1000, "Closing connection due to inactivity in chat");
     }
 
     resource onClose(ws:Connection con, ws:CloseFrame frame) {
-        maps:remove(consMap, con.getID());
+        consMap.remove(con.getID());
         broadcast(consMap, "User left");
     }
 }
 
 function broadcast(map consMap, string text) {
-    string[] conKeys = maps:keys(consMap);
+    string[] conKeys = consMap.keys();
     int len = lengthof conKeys;
     int i = 0;
     while (i < len) {

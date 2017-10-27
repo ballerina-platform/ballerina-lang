@@ -1,7 +1,7 @@
 package ballerina.builtin;
 
 @Description { value: "Options struct for JSON to XML conversion "}
-public struct Options {
+public struct jsonOptions {
     string attributePrefix = "@";
     string arrayEntryTag = "item";
 }
@@ -24,4 +24,4 @@ public native function <json j> getKeys() (string[]);
 @Description { value:"Converts a JSON object to a XML representation"}
 @Param { value:"j: A JSON object" }
 @Return { value:"xml: XML value of the converted JSON" }
-public native function <json j> toXML (Options options) (xml);
+public native function <json j> toXML (jsonOptions options) (xml);
