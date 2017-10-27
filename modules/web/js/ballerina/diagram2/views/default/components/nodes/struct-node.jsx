@@ -214,6 +214,8 @@ class StructNode extends React.Component {
                     currentType = 'int';
                 } else if (this.isFloat(currentValue)) {
                     currentType = 'float';
+                } else if (currentValue === 'true' || currentValue === 'false') {
+                    currentType = 'boolean';
                 }
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
                   FragmentUtils.createStatementFragment(currentType + ' ' + currentName + ' = ' + currentValue + ';')));
