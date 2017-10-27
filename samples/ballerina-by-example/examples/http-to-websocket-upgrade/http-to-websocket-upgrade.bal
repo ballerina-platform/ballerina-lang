@@ -6,7 +6,7 @@ import ballerina.doc;
     basePath:"/hello",
     webSocket:@http:webSocket {
                   upgradePath:"/ws",
-                  serviceName:"wsServic"
+                  serviceName:"wsService"
               }
 }
 service<http> httpService {
@@ -23,7 +23,7 @@ service<http> httpService {
     }
 }
 
-@doc:description{value:"Note: When a WebSocket upgrade path is defined in HTTP configuration in WebSocket configuration there can be \n - Full service configuration: There will be two base paths for the same service from either HTTP or WebSocket \n - Without service configuration: WebSocket service will be a slave service of HTTP service. Then only the upgrade path can be there. \n - Configuration without basePath: It will act as a slave service but can configure sub protocols, idle timeout etc..."}
+@doc:Description{value:"Note: When a WebSocket upgrade path is defined in HTTP configuration in WebSocket configuration there can be \n - Full service configuration: There will be two base paths for the same service from either HTTP or WebSocket \n - Without service configuration: WebSocket service will be a slave service of HTTP service. Then only the upgrade path can be there. \n - Configuration without basePath: It will act as a slave service but can configure sub protocols, idle timeout etc..."}
 @ws:configuration {
     basePath:"world/ws",
     subProtocols:["xml, json"],

@@ -1,7 +1,4 @@
 import ballerina.lang.files;
-import ballerina.lang.blobs;
-
-
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.
@@ -9,7 +6,8 @@ function main (string[] args) {
     files:open(target, "w");
 
     //Here's how you can write a string into a file.
-    blob content = "Sample Content".toBlob("utf-8");
+    string contentStr = "Sample Content";
+    blob content = contentStr.toBlob("utf-8");
     files:write(content, target);
     println("file written: /tmp/result.txt");
 

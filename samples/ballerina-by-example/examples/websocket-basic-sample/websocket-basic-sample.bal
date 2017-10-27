@@ -1,4 +1,3 @@
-import ballerina.lang.blobs;
 import ballerina.net.ws;
 import ballerina.doc;
 
