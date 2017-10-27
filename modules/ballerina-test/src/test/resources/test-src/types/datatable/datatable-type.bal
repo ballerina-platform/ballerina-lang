@@ -1,6 +1,5 @@
 import ballerina.data.sql;
 import ballerina.lang.jsons;
-import ballerina.lang.blobs;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -218,10 +217,10 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
         rs, _ = (ResultObject)dataStruct;
 
         blob blobData = rs.BLOB_TYPE;
-        blobValue = blobs:toString(blobData, "UTF-8");
+        blobValue = blobData.toString("UTF-8");
         clob = rs.CLOB_TYPE;
         blob binaryData = rs.BINARY_TYPE;
-        binary = blobs:toString(binaryData, "UTF-8");
+        binary = binaryData.toString("UTF-8");
     }
     testDB.close();
     return;
@@ -292,7 +291,7 @@ function testBlobData () (string blobStringData) {
         rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    blobStringData = blobs:toString(blobData, "UTF-8");
+    blobStringData = blobData.toString("UTF-8");
 
     testDB.close();
     return;
