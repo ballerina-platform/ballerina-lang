@@ -49,3 +49,10 @@ public native function getHmacFromBase64 (string baseString, string keyString, s
 @doc:Return { value:"string: The hashed string" }
 public native function getHmac (string baseString, string keyString, string algorithm) (string);
 
+@doc:Description {value:"Represents the user's locale."}
+@doc:Field {value:"language: language code"}
+@doc:Field {value:"countryCode: country code"}
+public struct Locale {
+    string language;
+    string countryCode;
+}

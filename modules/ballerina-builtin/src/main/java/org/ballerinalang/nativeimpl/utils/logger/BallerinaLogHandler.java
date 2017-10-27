@@ -32,9 +32,8 @@ public class BallerinaLogHandler {
     private static final Logger ballerinaRootLogger = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
     public static Logger getLogger(Context ctx) {
-        String packageDirPath =
-                ctx.getControlStackNew().getStack()[ctx.getControlStackNew().fp - 1].getCallableUnitInfo()
-                        .getPackageInfo().getPkgPath();
+        String packageDirPath = ctx.getControlStackNew().currentFrame.prevStackFrame.getCallableUnitInfo()
+                .getPackageInfo().getPkgPath();
 
         if (".".equals(packageDirPath) || packageDirPath == null) {
             return ballerinaRootLogger;

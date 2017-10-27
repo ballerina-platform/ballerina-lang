@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function successfulXmlCasting()(xml) {
   any abc = jsonReturnFunction();
   json jsonVal;
@@ -16,20 +14,20 @@ function jsonReturnFunction()(json) {
 
 function printlnAnyVal() {
     any val = jsonReturnFunction();
-    system:println(val);
+    println(val);
 }
 
 function printAnyVal() {
     any val = jsonReturnFunction();
-    system:print(val);
+    print(val);
 }
 
 function findBestNativeFunctionPrintln() {
     int val = 8;
-    system:println(val);
+    println(val);
 }
 
 function findBestNativeFunctionPrint() {
     int val = 7;
-    system:print(val);
+    print(val);
 }
