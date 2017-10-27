@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.expressions.identifierliteral;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,8 +35,8 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
-        CompileResult result = BTestUtils.compile("test-src/expressions/identifierliteral", "pkg.main");
-        BValue[] returns = BTestUtils.invoke(result, "pkg.main", "getVarsInOtherPkg");
+        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
+        BValue[] returns = BRunUtil.invoke(result, "pkg.main", "getVarsInOtherPkg");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -49,8 +50,8 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing global vars with identifier literals defined in other packages")
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
-        CompileResult result = BTestUtils.compile("test-src/expressions/identifierliteral", "pkg.main");
-        BValue[] returns = BTestUtils.invoke(result, "pkg.main", "accessStructWithIL");
+        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
+        BValue[] returns = BRunUtil.invoke(result, "pkg.main", "accessStructWithIL");
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);

@@ -20,7 +20,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        Resource resource = HttpDispatcher.findResource(httpCarbonMessage);
+        HttpResource httpResource = HttpDispatcher.findResource(httpCarbonMessage);
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         Map<String, Object> properties = null;
@@ -47,8 +46,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             Object srcHandler = httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
             properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit(resource, properties, signatureParams);
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
+        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage, signatureParams[0]);
         future.setConnectorFutureListener(futureListener);
     }

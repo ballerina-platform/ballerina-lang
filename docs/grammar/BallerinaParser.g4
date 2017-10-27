@@ -165,10 +165,15 @@ typeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
+    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
+    ;
+
+anonStructTypeName
+    : STRUCT structBody
     ;
 
 valueTypeName
@@ -439,7 +444,7 @@ expressionList
     ;
 
 expressionStmt
-    :   expression SEMICOLON
+    :   variableReference SEMICOLON
     ;
 
 transactionStatement

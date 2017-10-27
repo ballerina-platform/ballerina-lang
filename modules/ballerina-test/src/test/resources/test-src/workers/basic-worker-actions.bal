@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function workerDeclTest() {
    worker wx {
      int a = 20;
@@ -11,7 +9,7 @@ function workerDeclTest() {
 	     int y = 0;
 	     int g = y + 1;
 	   }
-	} join (all) (map results) { system:println(results); }
+	} join (all) (map results) { println(results); }
    }
    worker wy { }
 }
@@ -31,7 +29,7 @@ function forkJoinWithMessageParsingTest() (int) {
 	     a <- w1;
 	     b -> w1;
 	   }
-	} join (all) (map results) { system:println(results); }
+	} join (all) (map results) { println(results); }
 	return x;
 }
 
@@ -52,7 +50,7 @@ function forkJoinWithSingleForkMessages() (int) {
 	     b -> w1;
 	     b -> fork;
 	   }
-	} join (all) (map results) { system:println(results); }
+	} join (all) (map results) { println(results); }
 	return x;
 }
 
@@ -88,7 +86,7 @@ function forkJoinWithMultipleForkMessages() (int) {
 	     b -> w1;
 	     a, b -> fork;
 	   }
-	} join (all) (map results) {  system:println(results);  }
+	} join (all) (map results) {  println(results);  }
 	return x;
 }
 
@@ -114,12 +112,12 @@ function forkJoinWithSomeJoin() (map) {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-	     system:sleep(1000);
+	     sleep(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-	     system:sleep(1000);
+	     sleep(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
@@ -127,7 +125,7 @@ function forkJoinWithSomeJoin() (map) {
 	     int b = 15;
 	     m["x"] = b;
 	   }
-	} join (some 1) (map results) {  system:println(results);  }
+	} join (some 1) (map results) {  println(results);  }
 	return m;
 }
 

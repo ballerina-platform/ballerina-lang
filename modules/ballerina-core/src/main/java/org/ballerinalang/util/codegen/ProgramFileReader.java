@@ -55,6 +55,7 @@ import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -1341,7 +1342,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
-                case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();
@@ -1458,6 +1458,9 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
+                case InstructionCodes.XMLLOAD:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.XML2S:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

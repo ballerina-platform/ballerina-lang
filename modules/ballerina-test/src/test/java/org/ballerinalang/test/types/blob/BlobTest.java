@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.test.types.blob;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,14 +41,14 @@ public class BlobTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/blob/blobTest.bal");
+        result = BCompileUtil.compile("test-src/types/blob/blobTest.bal");
     }
 
 
     @Test(description = "Get string representation of blob")
     public void testToString() throws UnsupportedEncodingException {
         BValue[] args = {new BBlob(content.getBytes("UTF-8")), new BString("UTF-8")};
-        BValue[] returns = BTestUtils.invoke(result, "toString", args);
+        BValue[] returns = BRunUtil.invoke(result, "toString", args);
 
         final String expected = content;
         Assert.assertEquals(returns[0].stringValue(), expected);

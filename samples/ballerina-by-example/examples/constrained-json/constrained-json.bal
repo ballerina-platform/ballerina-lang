@@ -22,6 +22,8 @@ function main (string[] args) {
     // We can assign this Constrained JSON to a JSON. This will allow us to
     // add new elements which are not in the struct.
     json employee = person;
+
+    // After that, we can add new elements to the json.
     employee.profession = "Software Engineer";
     system:println(employee);
 }

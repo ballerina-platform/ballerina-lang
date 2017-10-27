@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.test.statements.returnstmt;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,13 +36,13 @@ public class NamedReturnParameterTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/returnstmt/named-return-positive.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/returnstmt/named-return-positive.bal");
     }
 
     @Test(description = "Test single named return parameter")
     public void testSingleNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testSingleNamedReturnParam", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -52,7 +53,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter with zero return stmt arguments")
     public void testSingleNamedReturnParamDefaultValue() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testSingleNamedReturnParamDefaultValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParamDefaultValue", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -63,7 +64,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments")
     public void testSingleNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -74,7 +75,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments and default values")
     public void testSingleNamedReturnParamDefaultValueZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult,
+        BValue[] returns = BRunUtil.invoke(compileResult,
                 "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -86,7 +87,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTwoNamedReturnParam", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -99,7 +100,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters with default valuse")
     public void testTwoNamedReturnParamDefaultValue() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTwoNamedReturnParamDefaultValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamDefaultValue", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -112,7 +113,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -125,7 +126,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgsDefaultValue() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

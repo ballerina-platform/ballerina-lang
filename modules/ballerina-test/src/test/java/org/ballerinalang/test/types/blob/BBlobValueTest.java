@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.types.blob;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,14 +36,14 @@ public class BBlobValueTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/blob/blob-value.bal");
+        result = BCompileUtil.compile("test-src/types/blob/blob-value.bal");
     }
 
     @Test(description = "Test blob value assignment")
     public void testBlobParameter() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BTestUtils.invoke(result, "testBlobParameter", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBlobParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
@@ -54,7 +55,7 @@ public class BBlobValueTest {
         byte[] bytes1 = "string1".getBytes();
         byte[] bytes2 = "string2".getBytes();
         BValue[] args = {new BBlob(bytes1), new BBlob(bytes2)};
-        BValue[] returns = BTestUtils.invoke(result, "testBlobParameterArray", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBlobParameterArray", args);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         Assert.assertSame(returns[1].getClass(), BBlob.class);
@@ -68,7 +69,7 @@ public class BBlobValueTest {
     public void testBlobGlobalVariable() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BTestUtils.invoke(result, "testGlobalVariable", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
@@ -79,7 +80,7 @@ public class BBlobValueTest {
     public void testBlobField() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BTestUtils.invoke(result, "testBlobField", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBlobField", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];

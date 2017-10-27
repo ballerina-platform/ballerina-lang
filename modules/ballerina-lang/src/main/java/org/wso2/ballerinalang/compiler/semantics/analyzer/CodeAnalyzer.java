@@ -756,15 +756,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.TERNARY_EXPR) {
+            List<BLangExpression> expList = new ArrayList<>();
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).expr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).thenExpr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).elseExpr)));
+            return expList.toArray(new BLangExpression[expList.size()]);
         } else if (expression.getKind() == NodeKind.BINARY_EXPR) {
-                List<BLangExpression> expList = new ArrayList<>();
-                expList.addAll(Arrays.asList(
-                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
-                expList.addAll(Arrays.asList(
-                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
-                return expList.toArray(new BLangExpression[expList.size()]);
+            List<BLangExpression> expList = new ArrayList<>();
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
+            return expList.toArray(new BLangExpression[expList.size()]);
         } else if (expression.getKind() == NodeKind.UNARY_EXPR) {
-                return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
+            return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {

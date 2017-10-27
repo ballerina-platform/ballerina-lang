@@ -28,7 +28,9 @@ public enum CompilerOptionName {
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
-    COMPILER_PHASE("compilerPhase");
+    COMPILER_PHASE("compilerPhase"),
+
+    SKIP_PACKAGE_VALIDATION("skipPackageValidation");
 
     public final String name;
 

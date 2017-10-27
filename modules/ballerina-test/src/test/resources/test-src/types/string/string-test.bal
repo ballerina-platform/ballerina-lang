@@ -1,55 +1,55 @@
 import ballerina.lang.strings;
 
 function contains(string source, string substring) (boolean) {
-    return strings:contains(source, substring);
+    return source.contains(substring);
 }
 
 function equalsIgnoreCase(string s1, string s2) (boolean) {
-    return strings:equalsIgnoreCase(s1, s2);
+    return s1.equalsIgnoreCase(s2);
 }
 
 function hasPrefix(string s, string prefix) (boolean) {
-    return strings:hasPrefix(s, prefix);
+    return s.hasPrefix(prefix);
 }
 
 function hasSuffix(string s, string suffix) (boolean) {
-    return strings:hasSuffix(s, suffix);
+    return s.hasSuffix(suffix);
 }
 
 function indexOf(string s, string str) (int) {
-    return strings:indexOf(s, str);
+    return s.indexOf(str);
 }
 
 function lastIndexOf(string s, string str) (int) {
-    return strings:lastIndexOf(s, str);
+    return s.lastIndexOf(str);
 }
 
 function replace(string s, string source, string target) (string) {
-    return strings:replace(s, source, target);
+    return s.replace(source, target);
 }
 
 function replaceAll(string s, string source, string target) (string) {
-    return strings:replaceAll(s, source, target);
+    return s.replaceAll(source, target);
 }
 
 function replaceFirst(string s, string source, string target) (string) {
-    return strings:replaceFirst(s, source, target);
+    return s.replaceFirst(source, target);
 }
 
 function subString(string s, int from, int to) (string) {
-    return strings:subString(s, from, to);
+    return s.subString(from, to);
 }
 
 function toLowerCase(string s) (string) {
-    return strings:toLowerCase(s);
+    return s.toLowerCase();
 }
 
 function toUpperCase(string s) (string) {
-    return strings:toUpperCase(s);
+    return s.toUpperCase();
 }
 
 function trim(string s) (string) {
-    return strings:trim(s);
+    return s.trim();
 }
 
 function intValueOf(int i) (string) {
@@ -77,17 +77,17 @@ function jsonValueOf(json j) (string) {
 }
 
 function length(string j) (int) {
-    return strings:length(j);
+    return j.length();
 }
 
 function unescape(string j) (string) {
-    return strings:unescape(j);
+    return j.unescape();
 }
 
 function split(string j, string k) (string[]) {
-    return strings:split(j, k);
+    return j.split(k);
 }
 
 function toBlob(string l, string m) (blob) {
-    return strings:toBlob(l, m);
+    return l.toBlob(m);
 }

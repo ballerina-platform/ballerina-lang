@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.datatables;
 
 struct ResultCount {
     int COUNTVAL;
@@ -11,10 +10,10 @@ function testLocalTransacton () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
     } aborted {
@@ -24,8 +23,8 @@ function testLocalTransacton () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -40,9 +39,9 @@ function testTransactonRollback () (int returnVal, int count) {
     sql:Parameter[] parameters = [];
     try {
         transaction {
-            testDB.update("Insert into Customers (firstName,lastName,registrationID,
+            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
-            testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
+            _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
         } aborted {
             returnVal = -1;
@@ -54,8 +53,8 @@ function testTransactonRollback () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -87,8 +86,8 @@ function testTransactonAbort () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -120,8 +119,8 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -155,8 +154,8 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     ResultCount rs;
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -170,9 +169,9 @@ function testTransactonCommitted () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
-        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
     } committed {
         returnVal = 1;
@@ -181,8 +180,8 @@ function testTransactonCommitted () (int returnVal, int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -197,10 +196,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } committed {
@@ -210,10 +209,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     }
 
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } aborted {
@@ -224,8 +223,8 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -238,10 +237,10 @@ function testTransactonWithoutHandlers () (int count) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
     transaction {
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
-        testDB.update("Insert into Customers
+        _ = testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
     }
@@ -249,8 +248,8 @@ function testTransactonWithoutHandlers () (int count) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -267,10 +266,10 @@ function testLocalTransactionFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-            testDB.update("Insert into Customers
+            _ = testDB.update("Insert into Customers
                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 111, 5000.75, 'USA')",
                parameters);
-            testDB.update("Insert into Customers2
+            _ = testDB.update("Insert into Customers2
                (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 111, 5000.75, 'USA')",
                                        parameters);
         } failed {
@@ -288,8 +287,8 @@ function testLocalTransactionFailed () (string, int) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                           registrationID = 111", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -307,15 +306,15 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-                testDB.update("Insert into Customers
+                _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             if (i == 2 ){
-                testDB.update("Insert into Customers
+                _ = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             } else {
-                testDB.update("Insert into Customers2
+                _ = testDB.update("Insert into Customers2
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             }
@@ -334,8 +333,8 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     a = a + " afterTrx";
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", parameters);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }

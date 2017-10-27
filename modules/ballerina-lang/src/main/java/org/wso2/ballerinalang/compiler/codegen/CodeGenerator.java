@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -861,6 +862,23 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(xmlIndexAccessExpr.expr, this.env);
+        int varRefRegIndex = xmlIndexAccessExpr.expr.regIndex;
+
+        genNode(xmlIndexAccessExpr.indexExpr, this.env);
+        int indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
+
+        int elementRegIndex = ++regIndexes.tRef;
+        emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        xmlIndexAccessExpr.regIndex = elementRegIndex;
+        this.varAssignment = variableStore;
+    }
+
+    @Override
     public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
@@ -1443,9 +1461,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (defaultWorker) {
-                if (invokableNode.workers.size() > 0) {
-                    this.emit(InstructionCodes.WRKSTART);
+            if (defaultWorker && invokableNode.workers.size() > 0) {
+                this.emit(InstructionCodes.WRKSTART);
+                if (invokableNode.retParams.size() == 0) {
+                    this.emit(InstructionCodes.RET);
+                } else {
+                    this.emit(InstructionCodes.HALT);
                 }
             }
         }

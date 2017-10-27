@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.test.types.any;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,17 +43,15 @@ public class BAnyTypeNativeSuccessScenariosTest {
     @BeforeClass
     public void setup() {
         original = System.out;
-        result = BTestUtils.compile("test-src/types/any/any-type-native-success.bal");
+        result = BCompileUtil.compile("test-src/types/any/any-type-native-success.bal");
     }
 
-    @Test(description = "Test json value in any type get casted to xml in two steps")
-    public void testJsonInAnyCastToX() {
-        BValue[] returns = BTestUtils.invoke(result, "successfulXmlCasting", new BValue[0]);
+    @Test(description = "Test json value in any type get casted to string in two steps")
+    public void testJsonInAnyCastToString() {
+        BValue[] returns = BRunUtil.invoke(result, "successfulXmlCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        BXML xmlVal = (BXML) returns[0];
-        Assert.assertTrue(xmlVal.stringValue().contains("<PropertyName>Value</PropertyName>"),
-                          "Invalid xml value returned.");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Value", "Invalid xml value returned.");
     }
 
 
@@ -61,7 +60,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "printlnAnyVal", new BValue[0]);
+            BRunUtil.invoke(result, "printlnAnyVal", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
                               "Invalid xml printed");
         } finally {
@@ -75,7 +74,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "printAnyVal", new BValue[0]);
+            BRunUtil.invoke(result, "printAnyVal", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
@@ -89,7 +88,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "findBestNativeFunctionPrintln", new BValue[0]);
+            BRunUtil.invoke(result, "findBestNativeFunctionPrintln", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "8\n", "Invalid int value printed");
         } finally {
             outContent.close();
@@ -102,7 +101,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "findBestNativeFunctionPrint", new BValue[0]);
+            BRunUtil.invoke(result, "findBestNativeFunctionPrint", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "7", "Invalid int value printed");
         } finally {
             outContent.close();

@@ -18,11 +18,12 @@
 
 package org.ballerinalang.test.types.constant;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,12 +37,12 @@ public class ConstantAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/constant/access", "main");
+        compileResult = BCompileUtil.compile(this, "test-src/types/constant/access", "main");
     }
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "main", "accessConstantFromOtherPkg");
+        BValue[] returns = BRunUtil.invoke(compileResult, "main", "accessConstantFromOtherPkg");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
@@ -49,7 +50,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "main", "assignConstFromOtherPkgToGlobalVar");
+        BValue[] returns = BRunUtil.invoke(compileResult, "main", "assignConstFromOtherPkgToGlobalVar");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
@@ -57,7 +58,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "main", "getNegativeConstants");
+        BValue[] returns = BRunUtil.invoke(compileResult, "main", "getNegativeConstants");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -71,7 +72,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning float to int in constants")
     public void floatIntConversion() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "main", "floatIntConversion");
+        BValue[] returns = BRunUtil.invoke(compileResult, "main", "floatIntConversion");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);

@@ -110,10 +110,9 @@ public class HttpConnectionManager {
             if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
                 throw new BallerinaConnectorException("Conflicting configuration detected for listener " +
                         "configuration id " + listenerConfig.getId());
-            } else {
-                httpServerConnectorContext.incrementReferenceCount();
-                return httpServerConnectorContext.getServerConnector();
             }
+            httpServerConnectorContext.incrementReferenceCount();
+            return httpServerConnectorContext.getServerConnector();
         }
 
         if (isHTTPTraceLoggerEnabled()) {
@@ -217,16 +216,15 @@ public class HttpConnectionManager {
 
     private boolean checkForConflicts(ListenerConfiguration listenerConfiguration,
             HttpServerConnectorContext context) {
-        if (context != null) {
-            if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
-                ListenerConfiguration config = context.getListenerConfiguration();
-                if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
-                        || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
-                        || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
-                    return true;
-                }
-            } else {
-                return false;
+        if (context == null) {
+            return false;
+        }
+        if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
+            ListenerConfiguration config = context.getListenerConfiguration();
+            if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
+                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
+                    || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
+                return true;
             }
         }
         return false;
@@ -236,10 +234,9 @@ public class HttpConnectionManager {
         HttpServerConnectorContext context = serverConnectorPool.get(connectorId);
         if (context.getReferenceCount() == 1) {
             return context.getServerConnector().stop();
-        } else {
-            context.decrementReferenceCount();
-            return false;
         }
+        context.decrementReferenceCount();
+        return false;
     }
 
     public WebSocketClientConnector getWebSocketClientConnector(WsClientConnectorConfig configuration) {
@@ -256,18 +253,19 @@ public class HttpConnectionManager {
 
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
         int noOfExceptions = startupSyncer.getExceptions().size();
-        if (noOfExceptions > 0) {
-            PrintStream console = System.err;
+        if (noOfExceptions <= 0) {
+            return;
+        }
+        PrintStream console = System.err;
 
-            startupSyncer.getExceptions().forEach((connectorId, e) -> {
-                console.println("ballerina: " + makeFirstLetterLowerCase(e.getMessage()) + ": [" + connectorId + "]");
-            });
-            
-            if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
-                // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
-                // connectors have started properly and we can terminate the runtime
-                throw new BallerinaConnectorException("failed to start the server connectors");
-            }
+        startupSyncer.getExceptions().forEach((connectorId, e) -> {
+            console.println("ballerina: " + makeFirstLetterLowerCase(e.getMessage()) + ": [" + connectorId + "]");
+        });
+
+        if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
+            // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
+            // connectors have started properly and we can terminate the runtime
+            throw new BallerinaConnectorException("failed to start the server connectors");
         }
     }
 
@@ -325,6 +323,8 @@ public class HttpConnectionManager {
         }
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
+        int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
+        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {

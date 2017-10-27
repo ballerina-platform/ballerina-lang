@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -545,6 +546,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.ARRAY) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.XML) {
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
         }
 
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
@@ -567,6 +571,15 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         switch (iExpr.expr.type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BLOB:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.MAP:
+            case TypeTags.DATATABLE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);

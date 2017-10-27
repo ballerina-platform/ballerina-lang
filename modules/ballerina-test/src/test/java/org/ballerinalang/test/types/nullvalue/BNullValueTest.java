@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.test.types.nullvalue;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -25,8 +29,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,13 +44,13 @@ public class BNullValueTest {
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
-        negativeResult = BTestUtils.compile("test-src/types/null/null-value-negative.bal");
+        positiveCompileResult = BCompileUtil.compile("test-src/types/null/null-value.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/null/null-value-negative.bal");
     }
 
     @Test(description = "Test null value of a xml")
     public void testXmlNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testXmlNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testXmlNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(5));
@@ -56,7 +58,7 @@ public class BNullValueTest {
 
     @Test(description = "Test null value of a json")
     public void testJsonNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testJsonNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testJsonNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(6));
@@ -64,7 +66,7 @@ public class BNullValueTest {
 
     @Test(description = "Test null value of a struct")
     public void testStructNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testStructNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testStructNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(7));
@@ -72,7 +74,7 @@ public class BNullValueTest {
 
     @Test(description = "Test null value of a connector")
     public void testConnectorNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testConnectorNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testConnectorNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(8));
@@ -80,13 +82,13 @@ public class BNullValueTest {
 
     @Test(description = "Test null value of a connector")
     public void testConnectorNotNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testConnectorNotNull", new BValue[] {});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testConnectorNotNull", new BValue[] {});
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 8);
     }
 
     @Test(description = "Test null value of a array")
     public void testArrayNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testArrayNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(9));
@@ -94,13 +96,13 @@ public class BNullValueTest {
 
     @Test(description = "Test null value of a array")
     public void testArrayNotNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testArrayNotNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayNotNull", new BValue[]{});
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 9);
     }
 
     @Test(description = "Test null value of a map")
     public void testMapNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testMapNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testMapNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(10));
@@ -108,7 +110,7 @@ public class BNullValueTest {
 
     @Test(description = "Test casting a nullified value")
     void testCastingNullValue() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testCastingNull", new BValue[]{null});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testCastingNull", new BValue[]{null});
         Assert.assertEquals(vals[0], null);
 
 //        vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { new BJSON("{}") });
@@ -118,40 +120,40 @@ public class BNullValueTest {
 
     @Test(description = "Test passing null to a function expects a reference type")
     public void testFunctionCallWithNull() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testFunctionCallWithNull", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testFunctionCallWithNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
     @Test(description = "Test comparing null vs null")
     public void testNullLiteralComparison() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullLiteralComparison", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullLiteralComparison", new BValue[]{});
         Assert.assertTrue(vals[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) vals[0]).booleanValue(), true);
     }
 
     @Test(description = "Test comparing null vs null")
     public void testNullLiteralNotEqualComparison() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullLiteralNotEqualComparison", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullLiteralNotEqualComparison", new BValue[]{});
         Assert.assertTrue(vals[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) vals[0]).booleanValue(), false);
     }
 
     @Test(description = "Test returning a null literal")
     public void testReturnNullLiteral() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testReturnNullLiteral", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testReturnNullLiteral", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
 
     @Test(description = "Test null in worker")
     public void testNullInWorker() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
     @Test(description = "Test null in fork-join")
     public void testNullInForkJoin() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertTrue(vals[1] instanceof BJSON);
         Assert.assertEquals(((BJSON) vals[1]).stringValue(), "{}");
@@ -159,7 +161,7 @@ public class BNullValueTest {
 
     @Test(description = "Test array of null values")
     public void testArrayOfNulls() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testArrayOfNulls", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayOfNulls", new BValue[]{});
         BRefValueArray nullArray = (BRefValueArray) vals[0];
         Assert.assertTrue(nullArray.get(0) instanceof BStruct);
         Assert.assertEquals(nullArray.get(1), null);
@@ -170,7 +172,7 @@ public class BNullValueTest {
 
     @Test(description = "Test map of null values")
     public void testMapOfNulls() {
-        BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testMapOfNulls", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testMapOfNulls", new BValue[]{});
         @SuppressWarnings("unchecked")
         BMap<String, BValue> nullMap = (BMap<String, BValue>) vals[0];
         Assert.assertEquals(nullMap.get("x2"), null);
@@ -182,30 +184,30 @@ public class BNullValueTest {
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testNullArrayAccess() {
-        BTestUtils.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
+        BRunUtil.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null map", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testNullMapAccess() {
-        BTestUtils.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
+        BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testActionInNullConenctor() {
-        BTestUtils.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
+        BRunUtil.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 7);
-        BTestUtils.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
-        BTestUtils.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
-        BTestUtils.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
-        BTestUtils.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
-        BTestUtils.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
-        BTestUtils.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
-        BTestUtils.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
+        BAssertUtil.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
+        BAssertUtil.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
+        BAssertUtil.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
+        BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
     }
 }
