@@ -16,32 +16,33 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.maps;
+package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to remove element from the map.
- * ballerina.model.maps:remove(map, string)
+ * Native function to get length of the map.
+ * ballerina.model.map:length()
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.maps",
-        functionName = "remove",
-        args = {@Argument(name = "m", type = TypeKind.MAP),
-                @Argument(name = "key", type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "map.length",
+        args = {@Argument(name = "m", type = TypeKind.MAP)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Remove extends AbstractNativeFunction {
+public class Length extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BMap map = (BMap) getRefArgument(ctx, 0);
-        map.remove(getStringArgument(ctx, 0));
-        return VOID_RETURN;
+        return getBValues(new BInteger(map.size()));
     }
 }
