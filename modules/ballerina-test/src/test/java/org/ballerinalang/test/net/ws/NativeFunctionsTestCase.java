@@ -212,7 +212,7 @@ public class NativeFunctionsTestCase {
         byte[] bytes = {1, 2, 3, 4, 5};
 
         // Test ping
-        BValue[] inputBValuesForPing = {wsConnection, new BBlob(bytes), new BInteger(10)};
+        BValue[] inputBValuesForPing = {wsConnection, new BBlob(bytes)};
         BRunUtil.invoke(compileResult, "testPing", inputBValuesForPing);
         ByteBuffer pingBuffer = session.getBufferReceived();
         Assert.assertTrue(session.isPing());

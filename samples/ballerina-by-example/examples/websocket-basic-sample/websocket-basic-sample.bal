@@ -51,8 +51,7 @@ service<ws> SimpleSecureServer {
 
         if (text == "ping") {
             system:println("Pinging...");
-            int pingTimeoutInSecs = 5;
-            conn.ping(pingData, pingTimeoutInSecs);
+            conn.ping(pingData);
         } else if (text == "closeMe") {
             conn.closeConnection(1001, "You asked me to close connection");
         } else {
@@ -76,13 +75,6 @@ service<ws> SimpleSecureServer {
     @doc:Description {value:"This resource is triggered when a pong message is received"}
     resource onPong(ws:Connection conn, ws:PongFrame frame) {
         system:println("Pong received");
-
-        // Frame is not valid if pong is received without ping
-        // or not received within the timeout defined in ping function
-        if (!frame.valid)  {
-            string  errorMsg = "Received invalid pong message";
-            conn.closeConnection(1001, errorMsg);
-        }
     }
 
     @doc:Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation"}
