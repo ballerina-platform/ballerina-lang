@@ -22,6 +22,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -109,7 +110,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
         // Write <package>.html files
         for (BLangPackage balPackage : packageList) {
             // Sort functions, connectors, structs, type mappers and annotationDefs
-            Collections.sort(balPackage.getFunctions(), Comparator.comparing(f -> f.getReceiver().getName() + f.getName().getValue()));
+            Collections.sort(balPackage.getFunctions(), Comparator.comparing(f -> {
+                return (f.getReceiver() == null ? "" : f.getReceiver().getName()) + f.getName().getValue();
+
+            }));
             Collections.sort(balPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
             Collections.sort(balPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
             Collections.sort(balPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
