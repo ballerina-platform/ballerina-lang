@@ -9,7 +9,7 @@ const int CACHE_CLEANUP_START_DELAY = 0;
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
 @doc:Description {value:"array which stores the caches."}
-cache[] caches = [];
+Cache[] caches = [];
 
 string scheduleID;
 
@@ -19,7 +19,7 @@ string scheduleID;
 @doc:Field {value:"capacity - capacity of the cache"}
 @doc:Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @doc:Field {value:"entries - map which contains the cache entries"}
-public struct cache {
+public struct Cache {
     string name;
     int timeOut;
     int capacity;
@@ -30,7 +30,7 @@ public struct cache {
 @doc:Description {value:"Represents a cache entry"}
 @doc:Field {value:"value - cache value"}
 @doc:Field {value:"lastAccessedTime - last accessed time(in nano seconds) of this value which is used to remove LRU cached values"}
-struct cacheEntry {
+struct CacheEntry {
     any value;
     int lastAccessedTime;
 }
@@ -41,7 +41,7 @@ struct cacheEntry {
 @doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
 @doc:Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @doc:Return {value:"cache - a new cache"}
-public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (cache) {
+public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (Cache) {
     // Cache capacity must be a positive value.
     if (capacity <= 0) {
         error e = {msg:"Capacity must be greater than 0."};
@@ -61,7 +61,7 @@ public function createCache (string name, int timeOut, int capacity, float evict
     }
 
     // Create a new cache.
-    cache c = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
+    Cache c = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     // Get the current total cache count.
     int currentCachesCount = lengthof caches;
     // Add the new cache to the end of the caches array.
@@ -74,7 +74,7 @@ public function createCache (string name, int timeOut, int capacity, float evict
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - value which should be used as the key"}
 @doc:Param {value:"value - value to be cached"}
-public function put (cache c, string key, any value) {
+public function put (Cache c, string key, any value) {
     int maxCapacity = c.capacity;
     int currentCapacity = c.entries.length();
     // if the current cache is full,
@@ -83,11 +83,11 @@ public function put (cache c, string key, any value) {
     }
     // Add the new entry
     int time = currentTime().time;
-    cacheEntry entry = {value:value, lastAccessedTime:time};
+    CacheEntry entry = {value:value, lastAccessedTime:time};
     c.entries[key] = entry;
 }
 
-function evictCache (cache c) {
+function evictCache (Cache c) {
     int maxCapacity = c.capacity;
     float evictionFactor = c.evictionFactor;
     int noOfEntriesToBeEvicted = <int>(maxCapacity * evictionFactor);
@@ -102,12 +102,12 @@ function evictCache (cache c) {
 @doc:Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key which is used to retrieve the cached value"}
-public function get (cache c, string key) returns (any) {
+public function get (Cache c, string key) returns (any) {
     any value = c.entries[key];
     if (value == null) {
         return null;
     }
-    var entry, e = (cacheEntry)value;
+    var entry, e = (CacheEntry)value;
     if (e != null || entry == null) {
         return null;
     }
@@ -118,7 +118,7 @@ public function get (cache c, string key) returns (any) {
 @doc:Description {value:"Removes a cached value from a cache."}
 @doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key of the cache entry which needs to be removed"}
-public function remove (cache c, string key) {
+public function remove (Cache c, string key) {
     c.entries.remove(key);
 }
 
@@ -129,7 +129,7 @@ public function cleanCache () returns (error) {
     // Iterate through all caches.
     while (currentCacheIndex < cacheSize) {
         // Get a cache from the array.
-        cache currentCache = caches[currentCacheIndex];
+        Cache currentCache = caches[currentCacheIndex];
         // If the cache is null, go to next cache.
         if (currentCache == null) {
             next;
@@ -152,7 +152,7 @@ public function cleanCache () returns (error) {
             // Get the current key.
             string key = currentCacheEntriesKeys[currentKeyIndex];
             // Get the corresponding entry from the cache.
-            var entry, _ = (cacheEntry)currentCacheEntries[key];
+            var entry, _ = (CacheEntry)currentCacheEntries[key];
             // Get the current system time.
             int currentSystemTime = currentTime().time;
             // Check whether the cache entry needs to be removed.
@@ -179,7 +179,7 @@ public function cleanCache () returns (error) {
 @doc:Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
 @doc:Param {value:"cache - a cache"}
 @doc:Return {value:"string - key of the LRU cache entry"}
-public function getLRUCache (cache c) (string cacheKey) {
+public function getLRUCache (Cache c) (string cacheKey) {
     map entries = c.entries;
     string[] keys = entries.keys();
     cacheKey = "";
@@ -190,7 +190,7 @@ public function getLRUCache (cache c) (string cacheKey) {
 
     while (index < size) {
         string key = keys[index];
-        var entry, _ = (cacheEntry)entries[key];
+        var entry, _ = (CacheEntry)entries[key];
         if (currentMinimumTime > entry.lastAccessedTime) {
             cacheKey = key;
             currentMinimumTime = entry.lastAccessedTime;

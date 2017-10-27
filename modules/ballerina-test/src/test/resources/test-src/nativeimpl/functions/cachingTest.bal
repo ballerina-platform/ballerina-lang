@@ -2,18 +2,18 @@ import ballerina.caching;
 import ballerina.runtime;
 
 function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) (string, int, int, float) {
-    caching:cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
+    caching:Cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
     return c.name, c.timeOut, c.capacity, c.evictionFactor;
 }
 
 function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int) {
-    caching:cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
+    caching:Cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
     caching:put(c, key, value);
     return c.entries.length();
 }
 
 function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int, string) {
-    caching:cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
+    caching:Cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
     caching:put(c, key, value);
     var value, e = (string)caching:get(c, key);
     if (e != null) {
@@ -23,14 +23,14 @@ function testGet (string name, int timeOut, int capacity, float evictionFactor, 
 }
 
 function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int) {
-    caching:cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
+    caching:Cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
     caching:put(c, key, value);
     caching:remove(c, key);
     return c.entries.length();
 }
 
 function testCacheEviction (string name, int timeOut, int capacity, float evictionFactor) (string[], int) {
-    caching:cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
+    caching:Cache c = caching:createCache(name, timeOut, capacity, evictionFactor);
     caching:put(c, "A", "A");
     caching:put(c, "B", "B");
     caching:put(c, "C", "C");
@@ -46,11 +46,11 @@ function testCacheEviction (string name, int timeOut, int capacity, float evicti
 }
 
 function testCacheClearing () (int, int, int, int, int, int) {
-    caching:cache c1 = caching:createCache("C1", 3000, 10, 0.1);
+    caching:Cache c1 = caching:createCache("C1", 3000, 10, 0.1);
     caching:put(c1, "k1", "v1");
     caching:put(c1, "k2", "v2");
 
-    caching:cache c2 = caching:createCache("C2", 7000, 10, 0.1);
+    caching:Cache c2 = caching:createCache("C2", 7000, 10, 0.1);
     caching:put(c2, "k1", "v1");
     caching:put(c2, "k2", "v2");
 
