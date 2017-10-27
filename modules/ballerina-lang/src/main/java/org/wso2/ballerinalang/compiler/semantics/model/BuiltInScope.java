@@ -31,8 +31,7 @@ public class BuiltInScope extends Scope {
     }
 
     public void define(Name name, BSymbol symbol) {
-        if (symbol.pkgID != null && (Names.BUILTIN_PACKAGE.equals(symbol.pkgID.name) ||
-                Names.BUILTIN_PACKAGE_CORE.equals(symbol.pkgID.name))) {
+        if (symbol.pkgID != null && symbol.pkgID.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             symbol.pkgID.name = Names.BUILTIN_PACKAGE;
         }
         super.define(name, symbol);
