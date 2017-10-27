@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Can be used to check whether a file is a directory
+ * Can be used to check whether a file is a directory.
  *
  * @since 0.94.1
  */

@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Determines whether the user has read access to the specified file
+ * Determines whether the user has write access to the specified file.
  *
  * @since 0.94.1
  */

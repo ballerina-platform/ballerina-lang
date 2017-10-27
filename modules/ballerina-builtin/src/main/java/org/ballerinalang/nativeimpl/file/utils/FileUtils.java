@@ -29,13 +29,13 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.STRUCT_TYPE_TIME;
+import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.STRUCT_TYPE_TIMEZONE;
+import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.TIME_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
-import static org.ballerinalang.nativeimpl.lang.time.AbstractTimeFunction.STRUCT_TYPE_TIME;
-import static org.ballerinalang.nativeimpl.lang.time.AbstractTimeFunction.STRUCT_TYPE_TIMEZONE;
-import static org.ballerinalang.nativeimpl.lang.time.AbstractTimeFunction.TIME_PACKAGE;
 
 /**
  * A util class for handling struct creation

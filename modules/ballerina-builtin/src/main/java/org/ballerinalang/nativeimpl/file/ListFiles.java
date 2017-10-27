@@ -42,7 +42,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileStruct
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
- * Lists the files in the specified directory
+ * Lists the files in the specified directory.
  *
  * @since 0.94.1
  */

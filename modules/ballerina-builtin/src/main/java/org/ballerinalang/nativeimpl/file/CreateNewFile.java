@@ -39,7 +39,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeni
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
- * Creates the file at the path specified in the File struct
+ * Creates the file at the path specified in the File struct.
  *
  * @since 0.94.1
  */

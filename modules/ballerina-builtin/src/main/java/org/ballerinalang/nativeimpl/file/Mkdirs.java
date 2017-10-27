@@ -37,7 +37,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeni
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
- * This function creates the directory structure denoted by the given File struct
+ * This function creates the directory structure denoted by the given File struct.
  *
  * @since 0.94.1
  */

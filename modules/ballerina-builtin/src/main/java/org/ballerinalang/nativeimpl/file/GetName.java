@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Retrieves the name of the file given by the struct
+ * Retrieves the name of the file given by the struct.
  *
  * @since 0.94.1
  */

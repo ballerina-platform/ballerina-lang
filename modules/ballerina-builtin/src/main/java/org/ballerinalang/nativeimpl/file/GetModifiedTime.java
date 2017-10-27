@@ -40,7 +40,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createTimeStruct;
 
 /**
- * Retrieved the last modified time of the specified file
+ * Retrieves the last modified time of the specified file.
  *
  * @since 0.94.1
  */
