@@ -19,7 +19,7 @@ returns (string w1TaskId, string w2TaskId) {
     worker w1 {
         function () returns (error) onTriggerFunction = onTriggerW1;
         string w1TaskIdX;
-        if(w1TaskIdX == ""){
+        if(errMsgW1 == ""){
             w1TaskIdX, _= task:scheduleTimer(onTriggerFunction, null, {delay:w1Delay, interval:w1Interval});
         } else {
             function (error) onErrorFunction = onErrorW1;
@@ -30,7 +30,7 @@ returns (string w1TaskId, string w2TaskId) {
     worker w2 {
         function () returns (error) onTriggerFunction = onTriggerW2;
         string w2TaskIdX;
-        if(w2TaskIdX == ""){
+        if(errMsgW2 == ""){
             w2TaskIdX, _= task:scheduleTimer(onTriggerFunction, null, {delay:w2Delay, interval:w2Interval});
         } else {
             function (error) onErrorFunction = onErrorW2;

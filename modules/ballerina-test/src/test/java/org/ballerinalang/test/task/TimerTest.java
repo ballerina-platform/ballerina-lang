@@ -158,8 +158,7 @@ public class TimerTest {
         assertEquals(((BInteger) counts[1]).intValue(), -1, "Count hasn't been reset");
     }
 
-    //    @Test(description = "Tests running a timer started within workers  where the
-    // onTrigger function generates an error")
+    @Test(description = "Tests running a timer started within workers  where the onTrigger function generates an error")
     public void testExecutionWithWorkersAndErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compile("test-src/task/timer-workers.bal");
         printDiagnostics(timerCompileResult);
