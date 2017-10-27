@@ -163,7 +163,8 @@ class Node extends EventChannel {
 
     entries() {
         const props = [];
-        for (const key of _.pull(Object.keys(this), 'ws', 'viewState', 'id', '_events', 'parent', 'position', 'kind')) {
+        for (const key of _.pull(Object.keys(this)
+            , 'symbolType', 'ws', 'viewState', 'id', '_events', 'parent', 'position', 'kind')) {
             const prop = this[key];
             if (_.isArray(prop)) {
                 if (prop.length > 0 && !(prop[0] instanceof Node)) {
