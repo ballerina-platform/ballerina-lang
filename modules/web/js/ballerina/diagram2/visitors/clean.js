@@ -36,6 +36,9 @@ class Clean {
         node.viewState.components['invocation-arrow'] = undefined;
         // Component relevant to the action invocation
         node.viewState.components.invocation = undefined;
+        node.viewState.errors = {};
+        node.viewState.errorsForImports = {};
+        node.viewState.errorsForGlobals = {};
     }
 
     endVisit(node) {

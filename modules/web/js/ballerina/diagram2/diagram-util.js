@@ -36,6 +36,7 @@ import ActionPositioningUtil from './views/action/positioning-util';
 
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
+import DefaultErrorCollectorUtil from './views/default/error-rendering-util';
 
 
 const components = {};
@@ -56,6 +57,7 @@ const actionPositioningUtil = new ActionPositioningUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
+const defaultErrorCollectorUtil = new DefaultErrorCollectorUtil();
 
 // assign configs to utils.
 defaultPositioningUtil.config = DefaultConfig;
@@ -145,6 +147,11 @@ function getPositioningUtil(mode) {
     }
 }
 
+
+function getErrorCollectorUtil(mode) {
+    return defaultErrorCollectorUtil;
+}
+
 function getWorkerInvocationSyncUtil(mode) {
     return defaultWorkerInvocationSyncUtil;
 }
@@ -205,4 +212,5 @@ export {
     getInvocationArrowPositionUtil,
     getOverlayComponent,
     getWorkerMaxHeight,
+    getErrorCollectorUtil,
 };

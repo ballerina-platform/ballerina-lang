@@ -65,16 +65,9 @@ export default class importDeclarationExpanded extends React.Component {
         let lastImportElementY = topBarBbox.y + topBarHeight;
 
         imports.forEach((importDec, count) => {
-            const itemBBox = {
-                x: bBox.x,
-                y: lastImportElementY,
-                h: importDeclarationHeight,
-                w: importDeclarationWidth,
-            };
-
             importElements.push(<ImportDeclarationItem
                 key={importDec.id}
-                bBox={itemBBox}
+                bBox={importDec.viewState.bBox}
                 importDec={importDec}
                 onDeleteClick={this.props.onDeleteImport}
             />);
@@ -88,13 +81,7 @@ export default class importDeclarationExpanded extends React.Component {
             w: importDeclarationWidth - 10,
         };
 
-        const options = {
-            bBox: textBoxBBox,
-            onChange: () => {},
-            initialValue: '',
-        };
-
-        const totalHeight = topBarHeight + (imports.length*importDeclarationHeight) + importInputHeight
+        const totalHeight = topBarHeight + (imports.length * importDeclarationHeight) + importInputHeight;
 
         return (
             <g className="import-declarations-collection">

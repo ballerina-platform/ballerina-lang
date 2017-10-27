@@ -198,6 +198,57 @@ class PositioningUtil {
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
+        // Imports
+        node.viewState.components.importsBbox = new SimpleBBox();
+        node.viewState.components.importsBbox.x = node.viewState.components.topLevelNodes.x + 35 + 15;
+        node.viewState.components.importsBbox.y = node.viewState.components.topLevelNodes.y;
+        // Imports Expanded
+        node.viewState.components.importsExpandedBbox = new SimpleBBox();
+        node.viewState.components.importsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
+        node.viewState.components.importsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35;
+
+        // Globals
+        node.viewState.components.globalsBbox = new SimpleBBox();
+        node.viewState.components.globalsBbox.x = node.viewState.components.importsBbox.x
+            + 115 + 15;
+        node.viewState.components.globalsBbox.y = node.viewState.components.topLevelNodes.y;
+        // Globals Expanded
+        node.viewState.components.globalsExpandedBbox = new SimpleBBox();
+        node.viewState.components.globalsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
+        node.viewState.components.globalsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35 + 10;
+
+         // Position imports
+        const imports = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isImport(child);
+        });
+        let lastImportElementY = node.viewState.components.importsExpandedBbox.y + 35;
+        imports.forEach((importDec) => {
+            importDec.viewState.bBox.x = node.viewState.components.importsExpandedBbox.x;
+            importDec.viewState.bBox.y = lastImportElementY;
+            importDec.viewState.bBox.h = 30;
+            importDec.viewState.bBox.w = 310;
+            lastImportElementY += 30;
+        });
+
+        // Position the global variables
+        const globals = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isVariable(child);
+        });
+        let lastGlobalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
+        globals.forEach((globalDec) => {
+            globalDec.viewState.bBox.x = node.viewState.components.globalsExpandedBbox.x;
+            globalDec.viewState.bBox.y = lastGlobalElementY;
+            globalDec.viewState.bBox.h = 30;
+            globalDec.viewState.bBox.w = 310;
+            lastGlobalElementY += 30;
+        });
+
+        // Check if package is expanded, position the imports and the globals
+        const packageDefTextWidth = 275;
+        if (node.viewState.packageDefExpanded) {
+            node.viewState.components.importsBbox.x += packageDefTextWidth;
+            node.viewState.components.globalsBbox.x += packageDefTextWidth;
+        }
     }
 
     /**
@@ -438,15 +489,22 @@ class PositioningUtil {
 
         let children = [];
         let connectors = [];
+        let variables = [];
         if (TreeUtil.isService(node)) {
             children = node.getResources();
             connectors = node.filterVariables((statement) => {
                 return TreeUtil.isConnectorDeclaration(statement);
             });
+            variables = node.filterVariables((statement) => {
+                return !TreeUtil.isConnectorDeclaration(statement);
+            });
         } else if (TreeUtil.isConnector(node)) {
             children = node.getActions();
             connectors = node.filterVariableDefs((statement) => {
                 return TreeUtil.isConnectorDeclaration(statement);
+            });
+            variables = node.filterVariableDefs((statement) => {
+                return !TreeUtil.isConnectorDeclaration(statement);
             });
         }
 
@@ -472,7 +530,7 @@ class PositioningUtil {
             viewState.components.connectors.w;
         });
 
-                    // Position Connectors
+        // Position Connectors
         const widthOffsetForConnectors = children.length > 0 ?
                 (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
         let xIndex = viewState.bBox.x + widthOffsetForConnectors;
@@ -489,6 +547,26 @@ class PositioningUtil {
                 }
             });
         }
+
+        // Position the variables which are not connector declarations
+        // Globals
+        node.viewState.components.globalsBbox = new SimpleBBox();
+        node.viewState.components.globalsBbox.x = viewState.components.initFunction.x
+            + 115 + 15;
+        node.viewState.components.globalsBbox.y = viewState.components.initFunction.y;
+        // Globals Expanded
+        node.viewState.components.globalsExpandedBbox = new SimpleBBox();
+        node.viewState.components.globalsExpandedBbox.x = viewState.components.initFunction.x;
+        node.viewState.components.globalsExpandedBbox.y = viewState.components.initFunction.y;
+
+        let lastGlobalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
+        variables.forEach((globalDec) => {
+            globalDec.viewState.bBox.x = node.viewState.components.globalsExpandedBbox.x;
+            globalDec.viewState.bBox.y = lastGlobalElementY;
+            globalDec.viewState.bBox.h = 30;
+            globalDec.viewState.bBox.w = 310;
+            lastGlobalElementY += 30;
+        });
         // Setting the overlay container if its true
         if (viewState.shouldShowConnectorPropertyWindow) {
             viewState.showOverlayContainer = true;
