@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,12 +16,13 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.jsons;
+package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,34 +33,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.model.json:toString.
+ * Native function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
+ * If the JSON is not an object type element, then this method will return an empty array.
+ * 
+ * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "toString",
+        packageName = "ballerina.builtin",
+        functionName = "json.getKeys",
         args = {@Argument(name = "j", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class ToString extends AbstractNativeFunction {
+public class GetKeys extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(ToString.class);
+    private static final Logger log = LoggerFactory.getLogger(GetKeys.class);
 
     @Override
     public BValue[] execute(Context ctx) {
-        String jsonStr = null;
+        BStringArray keys = null;
         try {
             // Accessing Parameters.
             BJSON json = (BJSON) getRefArgument(ctx, 0);
-
-            jsonStr = json.stringValue();
+            keys = JSONUtils.getKeys(json);
             if (log.isDebugEnabled()) {
-                log.debug("Output JSON: " + jsonStr);
+                log.debug("keys: " + keys);
             }
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException("convert json to string", e);
+            ErrorHandler.handleJsonException("get keys from json", e);
         }
 
-        return getBValues(new BString(jsonStr));
+        return getBValues(keys);
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,11 +16,12 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.jsons;
+package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -31,37 +32,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.model.json:Parse.
- * Parses and gets a JSON from a string.
- * 
- * @since 0.90
+ * Native function ballerina.model.json:toString.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "parse",
-        args = {@Argument(name = "jsonStr", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.JSON)},
+        packageName = "ballerina.builtin",
+        functionName = "json.toString",
+        args = {@Argument(name = "j", type = TypeKind.JSON)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Parse extends AbstractNativeFunction {
+public class ToString extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Parse.class);
+    private static final Logger log = LoggerFactory.getLogger(ToString.class);
 
     @Override
     public BValue[] execute(Context ctx) {
-        BJSON json = null;
+        String jsonStr = null;
         try {
             // Accessing Parameters.
-            String jsonStr = getStringArgument(ctx, 0);
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
 
-            json = new BJSON(jsonStr);
+            jsonStr = json.stringValue();
             if (log.isDebugEnabled()) {
-                log.debug("Output JSON: " + json);
+                log.debug("Output JSON: " + jsonStr);
             }
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException("parse json", e);
+            ErrorHandler.handleJsonException("convert json to string", e);
         }
 
-        return getBValues(json);
+        return getBValues(new BString(jsonStr));
     }
 }

@@ -1,6 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.jsons;
-import ballerina.lang.blobs;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -175,7 +173,7 @@ function testToJsonWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             json jsonResult;
             jsonResult, _ = <json>dt;
-            result = jsons:toString(jsonResult);
+            result = jsonResult.toString();
         } aborted {
         returnValue = -1;
     }
@@ -218,10 +216,10 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
         rs, _ = (ResultObject)dataStruct;
 
         blob blobData = rs.BLOB_TYPE;
-        blobValue = blobs:toString(blobData, "UTF-8");
+        blobValue = blobData.toString("UTF-8");
         clob = rs.CLOB_TYPE;
         blob binaryData = rs.BINARY_TYPE;
-        binary = blobs:toString(binaryData, "UTF-8");
+        binary = binaryData.toString("UTF-8");
     }
     testDB.close();
     return;
@@ -292,7 +290,7 @@ function testBlobData () (string blobStringData) {
         rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    blobStringData = blobs:toString(blobData, "UTF-8");
+    blobStringData = blobData.toString("UTF-8");
 
     testDB.close();
     return;
@@ -361,7 +359,7 @@ function testDatatableAutoClose () (int i, string test) {
     datatable dt2 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     var jsonstring,err = <json> dt2;
-    test = jsons:toString(jsonstring);
+    test = jsonstring.toString();
 
     datatable dt3 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);

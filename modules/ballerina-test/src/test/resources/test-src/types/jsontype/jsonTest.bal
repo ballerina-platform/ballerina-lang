@@ -1,17 +1,16 @@
-import ballerina.lang.jsons;
-
 function remove () (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
-    jsons:remove(j, "name");
+    j.remove("name");
     return j;
 }
 
 function toString (json msg) (string) {
-    return jsons:toString(msg);
+    return msg.toString();
 }
 
 function testParse (string jsonStr) (json) {
-    return jsons:parse(jsonStr);
+    var j,_ = <json> jsonStr;
+    return j;
 }
 
 function testGetKeys () (string[], string[], string[], string[]) {
@@ -19,41 +18,41 @@ function testGetKeys () (string[], string[], string[], string[]) {
     json j2 = ["cat", "dog", "horse"];
     json j3 = "Hello";
     json j4 = 5;
-    return jsons:getKeys(j1), jsons:getKeys(j2), jsons:getKeys(j3), jsons:getKeys(j4);
+    return j1.getKeys(), j2.getKeys(), j3.getKeys(), j4.getKeys();
 }
 
 function testToXML (json msg) (xml) {
-    jsons:Options options = {};
-    return jsons:toXML(msg, options);
+    jsonOptions options = {};
+    return msg.toXML(options);
 }
 
 function testToXMLStringValue () (xml) {
-    jsons:Options options = {};
+    jsonOptions options = {};
     json j = "value";
-    return jsons:toXML(j, options);
+    return j.toXML(options);
 }
 
 function testToXMLBooleanValue () (xml) {
-    jsons:Options options = {};
+    jsonOptions options = {};
     json j = true;
-    return jsons:toXML(j, options);
+    return j.toXML(options);
 }
 
 function testToXMLString (json msg) (string) {
-    jsons:Options options = {};
-    xml xmlData = jsons:toXML(msg, options);
+    jsonOptions options = {};
+    xml xmlData = msg.toXML(options);
     string s = <string> xmlData;
     return s;
 }
 
 function testToXMLWithXMLSequence (json msg) (string) {
-    jsons:Options options = {};
-    xml xmlSequence = jsons:toXML(msg, options);
+    jsonOptions options = {};
+    xml xmlSequence = msg.toXML(options);
     string s = <string> xmlSequence;
     return s;
 }
 
 function testToXMLWithOptions (json msg) (xml) {
-    jsons:Options options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
-    return jsons:toXML(msg, options);
+    jsonOptions options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
+    return msg.toXML(options);
 }
