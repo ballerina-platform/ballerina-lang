@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;

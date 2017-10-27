@@ -15,10 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,26 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Change the timezone associated with the given time.
+ * Get the year value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "Time.toTimezone",
+        functionName = "Time.year",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin"),
-                @Argument(name = "zoneId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.builtin")},
+                          structPackage = "ballerina.builtin")},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ToTimezone extends  AbstractTimeFunction {
+public class Year extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        String zoneId = getStringArgument(context, 0);
-        return new BValue[] { changeTimezone(context, timeStruct, zoneId) };
+        return new BValue[]{new BInteger(getYear(timeStruct))};
     }
 }

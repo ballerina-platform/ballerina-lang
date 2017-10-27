@@ -15,11 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,26 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the year,month and date value for the given time.
+ * Convert a Time to ISO 8601 formatted string.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "Time.getDate",
+        functionName = "Time.toString",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetDate extends AbstractTimeFunction {
-
+public class ToString extends AbstractTimeFunction {
     @Override
     public BValue[] execute(Context context) {
+
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
-                new BInteger(getDay(timeStruct)));
+        return new BValue[]{new BString(getDefaultString(timeStruct))};
     }
 }

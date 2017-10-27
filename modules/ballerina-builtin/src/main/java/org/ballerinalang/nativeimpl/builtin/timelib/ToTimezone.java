@@ -15,30 +15,37 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the current local time with local timezone information.
+ * Change the timezone associated with the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "currentTime",
+        functionName = "Time.toTimezone",
+        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
+                          structPackage = "ballerina.builtin"),
+                @Argument(name = "zoneId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
                                   structPackage = "ballerina.builtin")},
         isPublic = true
 )
-public class CurrentTime extends  AbstractTimeFunction {
+public class ToTimezone extends  AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[]{createCurrentTime(context)};
+        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
+        String zoneId = getStringArgument(context, 0);
+        return new BValue[] { changeTimezone(context, timeStruct, zoneId) };
     }
 }

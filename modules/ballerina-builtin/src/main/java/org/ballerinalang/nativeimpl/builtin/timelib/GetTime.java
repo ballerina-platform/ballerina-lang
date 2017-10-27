@@ -15,11 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,23 +27,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Time to ISO 8601 formatted string.
+ * Get the hour, minute, second and millisecond value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "Time.toString",
+        functionName = "Time.getTime",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ToString extends AbstractTimeFunction {
+public class GetTime extends AbstractTimeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BString(getDefaultString(timeStruct))};
+        return getBValues(new BInteger(getHour(timeStruct)), new BInteger(getMinute(timeStruct)),
+                new BInteger(getSecond(timeStruct)), new BInteger(getMilliSecond(timeStruct)));
     }
 }

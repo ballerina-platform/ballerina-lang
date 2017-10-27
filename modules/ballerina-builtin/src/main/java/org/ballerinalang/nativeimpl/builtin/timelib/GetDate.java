@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the hour value for the given time.
+ * Get the year,month and date value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "Time.hour",
+        functionName = "Time.getDate",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Hour extends AbstractTimeFunction {
+public class GetDate extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getHour(timeStruct))};
+        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
+                new BInteger(getDay(timeStruct)));
     }
 }

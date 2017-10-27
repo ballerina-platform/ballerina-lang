@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.time;
+package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the year value for the given time.
+ * Get the day value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "Time.year",
+        functionName = "Time.day",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.builtin")},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Year extends AbstractTimeFunction {
+public class Day extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getYear(timeStruct))};
+        return new BValue[]{new BInteger(getDay(timeStruct))};
     }
 }
