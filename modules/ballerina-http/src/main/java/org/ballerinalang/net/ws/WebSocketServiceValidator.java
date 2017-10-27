@@ -20,6 +20,7 @@ package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -89,7 +90,7 @@ public class WebSocketServiceValidator {
         if (basePath == null && (host != null || port != null)) {
             String msg = String.format("service %s: cannot define host, port configurations without base path",
                                        wsService.getName());
-            throw new BallerinaException(msg);
+            throw new BallerinaConnectorException(msg);
         }
     }
 

@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -164,12 +167,20 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(WebSocketService service) {
-        // TODO: Recorrect the logic behind unregistering service.
-        String basePath = findFullWebSocketUpgradePath(service);
-        String listenerInterface = getListenerInterface(service);
-        if (serviceEndpointsMap.containsKey(listenerInterface)) {
-            serviceEndpointsMap.get(listenerInterface).remove(basePath);
-        }
+        serviceEndpoints.remove(service.getName());
+        serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
+            List<String> uriList = new LinkedList<>();
+            Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
+            uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
+                if (uriToServiceName.getValue().equals(service.getName())) {
+                    uriList.add(uriToServiceName.getKey());
+                }
+            });
+            Iterator<String> uriListIterator = uriList.iterator();
+            while (uriListIterator.hasNext()) {
+                uriToServiceNameMap.remove(uriListIterator.next());
+            }
+        });
     }
 
     /**

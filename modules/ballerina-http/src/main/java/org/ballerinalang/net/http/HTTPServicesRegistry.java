@@ -102,13 +102,14 @@ public class HTTPServicesRegistry {
             servicesOnInterface.put(basePath, service);
 
             // If WebSocket upgrade path is available, then register the name of the WebSocket service.
-            AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_WEBSOCKET);
-            if (webSocketAttr != null) {
-                Annotation webSocketAnn = webSocketAttr.getAnnotation();
-                registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
+            if (annotation != null) {
+                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_WEBSOCKET);
+                if (webSocketAttr != null) {
+                    Annotation webSocketAnn = webSocketAttr.getAnnotation();
+                    registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
+                }
             }
         }
-
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
@@ -167,9 +168,8 @@ public class HTTPServicesRegistry {
     }
 
     private void registerWebSocketUpgradePath(Annotation webSocketAnn, String basePath, String serviceInterface) {
-        String upgradePath =
-                sanitizeBasePath(webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
-
+        String upgradePath = sanitizeBasePath(
+                webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
         String serviceName =
                 webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
