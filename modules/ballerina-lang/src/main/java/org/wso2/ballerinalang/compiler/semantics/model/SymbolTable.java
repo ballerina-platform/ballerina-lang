@@ -185,7 +185,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, null, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -291,6 +291,7 @@ public class SymbolTable {
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
+
         // Unary operator symbols
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
         defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
@@ -300,8 +301,9 @@ public class SymbolTable {
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
 
-        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOFJSON);
+        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
+        defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
 
         defineCastOperators();
         defineConversionOperators();
@@ -353,11 +355,11 @@ public class SymbolTable {
         defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
         defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
         defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
-        defineConversionOperator(jsonType, xmlType, false, InstructionCodes.JSON2XML);
-        defineConversionOperator(xmlType, jsonType, false, InstructionCodes.XML2JSON);
         defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
         defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
+        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
+        defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

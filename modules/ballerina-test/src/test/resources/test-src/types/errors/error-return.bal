@@ -1,7 +1,7 @@
 struct InvalidNameError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string companyName;
 }
 

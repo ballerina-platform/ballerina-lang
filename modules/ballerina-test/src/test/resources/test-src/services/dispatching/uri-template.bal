@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
 
@@ -10,11 +9,11 @@ service<http> Ecommerce {
     }
     resource productsInfo1 (http:Request req, http:Response res, string productId, string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
-        system:println("Order ID " + orderId);
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + regId);
+        println("Order ID " + orderId);
+        println("Product ID " + productId);
+        println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
-        system:println(jsons:toString(responseJson));
+        println(jsons:toString(responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -25,10 +24,10 @@ service<http> Ecommerce {
     }
     resource productsInfo2 (http:Request req, http:Response res, string productId, string regId) {
         json responseJson;
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + regId);
+        println("Product ID " + productId);
+        println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
-        system:println(jsons:toString(responseJson));
+        println(jsons:toString(responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -39,10 +38,10 @@ service<http> Ecommerce {
     }
     resource productsInfo3 (http:Request req, http:Response res, string productId, string regId) {
         json responseJson;
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + regId);
+        println("Product ID " + productId);
+        println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
-        system:println(jsons:toString(responseJson));
+        println(jsons:toString(responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -56,10 +55,10 @@ service<http> Ecommerce {
         map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + rID);
+        println("Product ID " + productId);
+        println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
-        system:println(jsons:toString(responseJson));
+        println(jsons:toString(responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -75,10 +74,10 @@ service<http> Ecommerce {
         string rID;
         prdID, _ = (string)params.prodID;
         rID, _ = (string)params.regID;
-        system:println ("Product ID " + prdID);
-        system:println ("Reg ID " + rID);
+        println ("Product ID " + prdID);
+        println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
-        system:println (jsons:toString (responseJson));
+        println (jsons:toString (responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }
@@ -92,10 +91,10 @@ service<http> Ecommerce {
         map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + rID);
+        println("Product ID " + productId);
+        println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
-        system:println(jsons:toString(responseJson));
+        println(jsons:toString(responseJson));
         res.setJsonPayload(responseJson);
         res.send();
     }

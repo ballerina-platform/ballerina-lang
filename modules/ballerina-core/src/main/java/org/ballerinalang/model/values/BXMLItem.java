@@ -375,7 +375,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> elements(BString qname) {
+    public BXML<?> elements(String qname) {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
@@ -414,7 +414,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> children(BString qname) {
+    public BXML<?> children(String qname) {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
@@ -499,7 +499,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> slice(long startIndex, long endIndex) {
-        if (startIndex > 1 || endIndex > 1) {
+        if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
         
@@ -526,7 +526,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> descendants(BString qname) {
+    public BXML<?> descendants(String qname) {
         List<BXML<?>> descendants = new ArrayList<BXML<?>>();
         switch (nodeType) {
             case ELEMENT:
@@ -661,5 +661,43 @@ public final class BXMLItem extends BXML<OMNode> {
             default:
                 return ZERO_STRING_VALUE;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> getItem(long index) {
+        if (index != 0) {
+            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
+        }
+
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int length() {
+        return this.omNode == null ? 0 : 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeAttribute(String qname) {
+        if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
+            return;
+        }
+
+        OMElement omElement = (OMElement) omNode;
+        OMAttribute attribute = omElement.getAttribute(getQname(qname));
+
+        if (attribute == null) {
+            return;
+        }
+
+        omElement.removeAttribute(attribute);
     }
 }
