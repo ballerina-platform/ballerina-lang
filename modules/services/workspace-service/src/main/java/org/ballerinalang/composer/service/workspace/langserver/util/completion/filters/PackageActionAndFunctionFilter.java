@@ -44,10 +44,10 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         String delimiter = tokenStream.get(delimiterIndex).getText();
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
 
-        if (delimiter.equals(".")) {
+        if (".".equals(delimiter)) {
             // If the delimiter is "." then we are filtering the bound functions for the structs
             returnSymbolsInfoList.addAll(this.getBoundActionAndFunctions(dataModel, symbols, delimiterIndex));
-        } else if (delimiter.equals(":")) {
+        } else if (":".equals(delimiter)) {
             // We are filtering the package functions
             returnSymbolsInfoList.addAll(this.getActionsAndFunctions(dataModel, symbols, delimiterIndex));
         }
@@ -173,7 +173,7 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
                 break;
             }
             String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (tokenString.equals(".") || tokenString.equals(":")) {
+            if (".".equals(tokenString) || ":".equals(tokenString)) {
                 delimiterIndex = searchTokenIndex;
                 break;
             } else if (terminalTokens.contains(tokenString)) {
