@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 
 import org.ballerinalang.bre.Context;
@@ -32,13 +32,13 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 /**
- * Native function ballerina.utils:base64ToBase16Encode.
+ * Native function ballerina.util:base64ToBase16Encode.
  *
  * @since 0.8.0
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.utils",
+        packageName = "ballerina.util",
         functionName = "base64ToBase16Encode",
         args = { @Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = { @ReturnType(type = TypeKind.STRING) },
