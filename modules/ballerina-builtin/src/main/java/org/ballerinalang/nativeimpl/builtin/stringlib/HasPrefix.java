@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,28 +28,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:replaceFirst.
+ * Native function ballerina.model.strings:hasPrefix.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "replaceFirst",
+        packageName = "ballerina.builtin",
+        functionName = "string.hasPrefix",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "replacePattern", type = TypeKind.STRING),
-                @Argument(name = "replaceWith", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+                @Argument(name = "prefix", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class ReplaceFirst extends AbstractNativeFunction {
+public class HasPrefix extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String mainString = getStringArgument(context, 0);
-        String replacePattern = getStringArgument(context, 1);
-        String replaceWith = getStringArgument(context, 2);
+        String param1 = getStringArgument(context, 0);
+        String prefix = getStringArgument(context, 1);
 
-        String replacedString = mainString.replaceFirst(replacePattern, replaceWith);
-        return getBValues(new BString(replacedString));
+        BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
+        return getBValues(booleanValue);
     }
 }
