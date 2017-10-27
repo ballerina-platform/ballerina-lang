@@ -1,17 +1,15 @@
-import ballerina.lang.system;
-
 function main (string[] args) {
 
     int i = 0;
     //This is a basic while loop.
     while (i < 3) {
-        system:println(i);
+        println(i);
         i = i + 1;
     }
 
     int j = 0;
     while (j < 5) {
-        system:println(j);
+        println(j);
         j = j + 1;
 
         //Use the break statement if you want to break the loop.
@@ -27,8 +25,8 @@ function main (string[] args) {
             k = k + 1;
             next;
         }
-                 
-        system:println(k);
+
+        println(k);
         k = k + 1;
     }
 }

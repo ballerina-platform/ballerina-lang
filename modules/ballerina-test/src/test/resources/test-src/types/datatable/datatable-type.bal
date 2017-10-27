@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.jsons;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -174,7 +173,7 @@ function testToJsonWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             json jsonResult;
             jsonResult, _ = <json>dt;
-            result = jsons:toString(jsonResult);
+            result = jsonResult.toString();
         } aborted {
         returnValue = -1;
     }
@@ -360,7 +359,7 @@ function testDatatableAutoClose () (int i, string test) {
     datatable dt2 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     var jsonstring,err = <json> dt2;
-    test = jsons:toString(jsonstring);
+    test = jsonstring.toString();
 
     datatable dt3 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);

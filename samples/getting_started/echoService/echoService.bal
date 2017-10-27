@@ -12,5 +12,4 @@ service<http> echo {
         resp.setStringPayload(payload);
         resp.send();
     }
-    
 }

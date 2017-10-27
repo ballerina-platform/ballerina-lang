@@ -1,21 +1,18 @@
-import ballerina.lang.system;
-import ballerina.lang.xmls;
-
 function main (string[] args) {
     //Create a XML.
-    xml x = xmls:parse("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
+    var x, _ = <xml>("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
                      "<h:name>Anne</h:name>" +
                      "<h:address><h:street>Main</h:street>" +
                      "<h:city>94</h:city></h:address>" +
                      "<h:code><h:item>4</h:item><h:item>8</h:item></h:code>" +
-                        "</h:Store>");
+                     "</h:Store>");
     //Convert to JSON with default attribute prefix and with namespaces.
-    xmls:Options options1 = {};
-    json j1 = xmls:toJSON(x, options1);
-    system:println(j1);
+    xmlOptions options1 = {};
+    json j1 = x.toJSON(options1);
+    println(j1);
 
     //Convert to JSON with custom attribute prefix and without namespaces.
-    xmls:Options options2 = {attributePrefix : "#", preserveNamespaces : false};
-    json j2 = xmls:toJSON(x, options2);
-    system:println(j2);
+    xmlOptions options2 = {attributePrefix:"#", preserveNamespaces:false};
+    json j2 = x.toJSON(options2);
+    println(j2);
 }

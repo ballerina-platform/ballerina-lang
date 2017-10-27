@@ -16,53 +16,50 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.jsons;
+package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 
 /**
- * Native function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
- * If the JSON is not an object type element, then this method will return an empty array.
- * 
- * @since 0.90
+ * Native function ballerina.model.arrays:sort(string[]).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "getKeys",
-        args = {@Argument(name = "j", type = TypeKind.JSON)},
+        packageName = "ballerina.util.arrays",
+        functionName = "sort",
+        args = {@Argument(name = "arr", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetKeys extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetKeys.class);
+public class StringArraySort extends AbstractNativeFunction {
 
     @Override
-    public BValue[] execute(Context ctx) {
-        BStringArray keys = null;
-        try {
-            // Accessing Parameters.
-            BJSON json = (BJSON) getRefArgument(ctx, 0);
-            keys = JSONUtils.getKeys(json);
-            if (log.isDebugEnabled()) {
-                log.debug("keys: " + keys);
-            }
-        } catch (Throwable e) {
-            ErrorHandler.handleJsonException("get keys from json", e);
-        }
+    public BValue[] execute(Context context) {
+        BStringArray array = (BStringArray) getRefArgument(context, 0);
 
-        return getBValues(keys);
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < array.size(); i++) {
+            list.add(i, array.get(i));
+        }
+        Collections.sort(list, Comparator.naturalOrder());
+        BStringArray sortedArray = new BStringArray();
+        int i = 0;
+        while (i < list.size()) {
+            sortedArray.add(i, list.get(i));
+            i++;
+        }
+        return getBValues(sortedArray);
     }
 }

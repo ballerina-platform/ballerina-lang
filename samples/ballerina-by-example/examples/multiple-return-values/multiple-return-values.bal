@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"Here's a function which returns two int values."}
@@ -11,7 +10,6 @@ function main (string[] args) {
     int r;
     //Multiple variable assignment.
     q, r = divideBy10(24);
-    system:println("24/10: " + "quotient=" + q + " " +
-                   "remainder=" + r);
+    println("24/10: " + "quotient=" + q + " " + "remainder=" + r);
 }
 

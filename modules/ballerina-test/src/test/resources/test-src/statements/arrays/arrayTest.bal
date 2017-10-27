@@ -1,4 +1,4 @@
-import ballerina.lang.arrays;
+import ballerina.util.arrays;
 
 function testFloatArrayLength(float[] arg)(int, int){
     float[] defined;

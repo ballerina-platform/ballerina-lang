@@ -4,13 +4,14 @@ import ballerina.net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
+
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090", {});
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource productsInfo(http:Request req, http:Response resp, string prodId) {
+    resource productsInfo (http:Request req, http:Response resp, string prodId) {
         string reqPath = "/productsservice/" + prodId;
         http:Response clientResponse = productsService.get(reqPath, req);
         resp.forward(clientResponse);
@@ -61,5 +62,4 @@ service<http> Ecommerce {
         http:Response clientResponse = productsService.post("/customerservice/customers", req);
         resp.forward(clientResponse);
     }
-    
 }

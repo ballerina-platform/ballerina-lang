@@ -12,7 +12,5 @@ service<http> nasdaqStocksQuote {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
         res.setJsonPayload(payload);
         res.send();
-        
     }
-    
 }
