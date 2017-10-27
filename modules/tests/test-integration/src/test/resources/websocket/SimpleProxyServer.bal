@@ -24,7 +24,6 @@ service<ws> SimpleProxyServer {
     }
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        int pingTimeout = 5;
         var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
         string text = frame.text;
 
@@ -32,9 +31,9 @@ service<ws> SimpleProxyServer {
             clientConn.closeConnection(1001, "Client is going away");
             conn.closeConnection(1001, "You told to close your connection");
         } else if (text == "ping") {
-            conn.ping(strings:toBlob(text, "UTF-8"), pingTimeout);
+            conn.ping(strings:toBlob(text, "UTF-8"));
         } else if (text == "client_ping") {
-            clientConn.ping(strings:toBlob(text, "UTF-8"), pingTimeout);
+            clientConn.ping(strings:toBlob(text, "UTF-8"));
         } else if (text == "client_ping_req") {
             clientConn.pushText("ping");
         } else if (clientConn != null) {
