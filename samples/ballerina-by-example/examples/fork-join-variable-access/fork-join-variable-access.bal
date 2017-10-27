@@ -1,6 +1,4 @@
-import ballerina.doc;
-
-@doc:Description {value:"In scope variables can be accessed within workers of fork-join statement."}
+@Description {value:"In scope variables can be accessed within workers of fork-join statement."}
 function main (string[] args) {
     // Define variables which are visible to the forked workers
     int i = 100;
