@@ -6,7 +6,7 @@ import ballerina.doc;
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 @doc:Param{value:"value: HTTP header value"}
-function addHeader (message m, string key, string value) {
+function addHeader (string m, string key, string value) {
     println("invoked");
 }
 
@@ -14,7 +14,7 @@ function addHeader (message m, string key, string value) {
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 @doc:Return{value:"HTTP header value"}
-function getHeader (message m, string key) (string) {
+function getHeader (string m, string key) (string) {
     println("invoked");
     return "value";
 }
@@ -37,21 +37,19 @@ struct Argument {
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
     @doc:Description{value:"test connector action"}
-    @doc:Param{value:"t: connector object"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response: response object"}
-    action testAction1(TestConnector t, string msg) (message response) {
-        message request;
+    action testAction1(string msg) (string response) {
+        string request;
         response = request;
         return response;
     }
 
     @doc:Description{value:"test connector action2"}
-    @doc:Param{value:"t: connector object"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response2: response object"}
-    action testAction2(TestConnector t, string msg) (message response) {
-        message request;
+    action testAction2(string msg) (string response) {
+        string request;
         return response;
     }
 }

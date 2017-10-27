@@ -18,7 +18,7 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
-import org.ballerinalang.model.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.PrintStream;

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.ballerinalang.model.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.HashMap;
 import java.util.Map;
