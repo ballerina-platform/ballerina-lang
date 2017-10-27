@@ -16,13 +16,12 @@
 package org.ballerinalang.nativeimpl.user;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.BuiltInUtils;
 
 /**
  * Native function ballerina.user:getHome.
@@ -41,10 +40,6 @@ public class GetHome extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String value = System.getProperty(PROPERTY_NAME);
-        if (value == null) {
-            return getBValues(BTypes.typeString.getZeroValue());
-        }
-        return getBValues(new BString(value));
+        return getBValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
     }
 }
