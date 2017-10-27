@@ -42,6 +42,7 @@ class ImportStructDialog extends React.Component {
         this.onImportJson = this.onImportJson.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
         this.textChange = this.textChange.bind(this);
+        this.onValidate = this.onValidate.bind(this);
     }
 
     /**
@@ -59,6 +60,7 @@ class ImportStructDialog extends React.Component {
         this.setState({
             error: '',
             json: '',
+            isValid: false,
             showDialog: false,
         });
     }
@@ -69,6 +71,8 @@ class ImportStructDialog extends React.Component {
     onDialogHide() {
         this.setState({
             error: '',
+            json: '',
+            isValid: false,
             showDialog: false,
         });
     }
@@ -90,6 +94,10 @@ class ImportStructDialog extends React.Component {
         this.setState({ json: newValue });
     }
 
+    onValidate(isValid) {
+        this.setState({ isValid: isValid.length === 0 });
+    }
+
     /**
      * @inheritdoc
      */
@@ -102,6 +110,7 @@ class ImportStructDialog extends React.Component {
                     <Button
                         bsStyle="primary"
                         onClick={this.onImportJson}
+                        disabled={!this.state.isValid || this.state.json === ''}
                     >
                         Import
                     </Button>
@@ -110,11 +119,12 @@ class ImportStructDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-
+                <p>Please enter a valid JSON to generate struct attributes</p>
                 <AceEditor
                     mode='json'
                     theme='monokai'
                     onChange={this.textChange}
+                    onValidate={this.onValidate}
                     value={this.state.json}
                     name='json'
                     editorProps={{
@@ -123,7 +133,7 @@ class ImportStructDialog extends React.Component {
                     setOptions={{
                         showLineNumbers: false,
                     }}
-                    maxLines={Infinity}
+                    maxLines={30}
                     minLines={10}
                     width='auto'
                     showPrintMargin={false}
