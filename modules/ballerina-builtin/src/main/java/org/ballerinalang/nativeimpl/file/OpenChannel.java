@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.lang.files;
+package org.ballerinalang.nativeimpl.file;
 
 
 import org.ballerinalang.bre.Context;
@@ -26,8 +26,6 @@ import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -51,19 +49,13 @@ import java.util.Set;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.files",
+        packageName = "ballerina.file",
         functionName = "openChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.lang.files"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         args = {@Argument(name = "accessMode", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Get streams from a local file")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "file",
-        value = "The File that should be opened")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "accessMode",
-        value = "The mode the file should be opened R/W")})
 public class OpenChannel extends AbstractNativeChannel {
 
     /**
