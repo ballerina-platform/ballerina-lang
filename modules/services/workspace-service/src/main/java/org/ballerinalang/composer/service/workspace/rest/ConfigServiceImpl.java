@@ -118,13 +118,10 @@ public class ConfigServiceImpl {
         swagger.addProperty("endpoint", apiPath + "/service/swagger");
 
         JsonObject parser = new JsonObject();
-        parser.addProperty("endpoint", apiPath + "/ballerina/model/content");
+        parser.addProperty("endpoint", apiPath + "/ballerina/file/validate-and-parse");
 
         JsonObject fragmentParser = new JsonObject();
         fragmentParser.addProperty("endpoint", apiPath + "/ballerina/model/parse-fragment");
-
-        JsonObject validator = new JsonObject();
-        validator.addProperty("endpoint", apiPath + "/ballerina/validate");
 
         JsonObject launcher = new JsonObject();
         launcher.addProperty("endpoint", launcherPath + "/launch");
@@ -159,7 +156,6 @@ public class ConfigServiceImpl {
         services.add("swagger", swagger);
         services.add("parser", parser);
         services.add("fragmentParser", fragmentParser);
-        services.add("validator", validator);
         services.add("launcher", launcher);
         services.add("debugger", debugger);
         services.add("langserver", langserver);

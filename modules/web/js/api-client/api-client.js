@@ -60,31 +60,6 @@ export function fetchConfigs() {
 }
 
 /**
- * Invoke validate service for the given file
- * and returns a promise with found errors
- * @param {File} file
- */
-export function validateFile(file) {
-    const payload = {
-        fileName: file.name,
-        filePath: file.path,
-        packageName: file.packageName,
-        content: file.content,
-    };
-    const endpoint = getServiceEndpoint('validator');
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
-
-    return new Promise((resolve, reject) => {
-        axios.post(endpoint, payload, { headers })
-            .then((response) => {
-                resolve(response.data);
-            }).catch(error => reject(error));
-    });
-}
-
-/**
  * Invoke parser service for the given file
  * and returns a promise with parsed json
  * @param {File} file
@@ -95,6 +70,8 @@ export function parseFile(file) {
         filePath: file.path,
         packageName: file.packageName,
         content: file.content,
+        includeTree: true,
+        includePackageInfo: true,
     };
     const endpoint = getServiceEndpoint('parser');
     const headers = {

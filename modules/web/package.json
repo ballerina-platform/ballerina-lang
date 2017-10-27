@@ -96,7 +96,7 @@
     "react": "^15.6.2",
     "react-ace": "^5.2.0",
     "react-autosuggest": "^9.0.1",
-    "react-bootstrap": "^0.31.1",
+    "react-bootstrap": "^0.31.5",
     "react-collapsible": "^1.4.0",
     "react-contextmenu": "^2.7.0",
     "react-custom-scrollbars": "^4.1.2",

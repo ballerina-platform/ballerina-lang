@@ -65,7 +65,6 @@ class BallerinaFileEditor extends React.Component {
         this.state = {
             initialParsePending: true,
             isASTInvalid: false,
-            validatePending: false,
             parsePending: false,
             swaggerViewTargetService: undefined,
             parseFailed: true,
@@ -519,123 +518,78 @@ class BallerinaFileEditor extends React.Component {
      */
     validateAndParseFile() {
         this.setState({
-            validatePending: true,
             parsePending: true,
         });
         const file = this.props.file;
-        return new Promise((resolve, reject) => {
-            // final state to be passed into resolve
-            const newState = {
-                validatePending: false,
-                parsePending: false,
-            };
-            // first validate the file for syntax errors
-            validateFile(file)
-                .then((data) => {
-                    // keep current package information.
-                    newState.packageInfo = data.packageInfo;
-                    const syntaxErrors = data.errors.filter(({ category }) => {
-                        return category === 'SYNTAX';
-                    });
-                    const runtimeFailures = data.errors.filter(({ category }) => {
-                        return category === 'RUNTIME';
-                    });
-                    this.semanticErrors = data.errors.filter(({ category }) => {
-                        return category === 'SEMANTIC';
-                    });
-                    // if syntax errors are found
-                    if (!_.isEmpty(syntaxErrors) || !_.isEmpty(runtimeFailures)) {
-                        newState.parseFailed = true;
-                        newState.syntaxErrors = syntaxErrors;
-                        newState.validatePending = false;
-                        // keep current AST when in preview view - even though its not valid
-                        if (!this.props.isPreviewViewEnabled) {
-                            newState.model = undefined;
-                        }
-                        // Cannot proceed due to syntax errors.
-                        // Hence resolve now.
-                        resolve(newState);
-                        return;
-                    } else {
-                        // we need to fire a update for this state as soon as we
-                        // receive the validate response to prevent additional
-                        // wait time to some user actions.
-                        // For example: User had a syntax error (and current state represents it) and corrected it in
-                        // source editor. Then he wanted to move design view. If we do not do the update here,
-                        // (meaning if we set newState.syntaxErrors = [] without using setState)
-                        // displaying design view will be delayed until the rest of the logic in this function
-                        // is finished. Instead, we do the update here, so it will switch to design view as soon
-                        // as it knows the syntax is valid. However, the loading overlay will displayed until
-                        // the AST is ready so that render can continue.
-                        this.setState({
-                            validatePending: false,
-                            syntaxErrors: [],
-                        });
+        // final state to be passed into resolve
+        const newState = {
+            parsePending: false,
+        };
+        // try to parse the file
+        return parseFile(file)
+            .then((data) => {
+                // keep current package information.
+                newState.packageInfo = data.packageInfo;
+                const syntaxErrors = data.errors.filter(({ category }) => {
+                    return category === 'SYNTAX';
+                });
+                const runtimeFailures = data.errors.filter(({ category }) => {
+                    return category === 'RUNTIME';
+                });
+                this.semanticErrors = data.errors.filter(({ category }) => {
+                    return category === 'SEMANTIC';
+                });
+                // if syntax errors are found or model is not found
+                if (!_.isEmpty(syntaxErrors)
+                    || !_.isEmpty(runtimeFailures)
+                    || _.isNil(data.model)
+                    || _.isNil(data.model.kind)
+                ) {
+                    newState.parseFailed = true;
+                    newState.syntaxErrors = syntaxErrors;
+                    newState.isASTInvalid = true;
+                    // keep current AST when in preview view - even though its not valid
+                    if (!this.props.isPreviewViewEnabled) {
+                        newState.model = undefined;
+                        // cannot be in a view which depends on AST
+                        // hence forward to source view
+                        newState.activeView = SOURCE_VIEW;
                     }
-                    // if not, continue parsing the file & building AST
-                    parseFile(file)
-                        .then((jsonTree) => {
-                            // something went wrong with the parser
-                            if (_.isNil(jsonTree.model) || _.isNil(jsonTree.model.kind)) {
-                                log.error('Error while parsing the file ' + file.name + '.' + file.extension
-                                    + '. ' + (jsonTree.diagnostics || jsonTree.errorMessage || jsonTree));
-                                // cannot be in a view which depends on AST
-                                newState.parseFailed = true;
-                                newState.isASTInvalid = true;
-                                // keep current AST when in preview view - even though its not valid
-                                if (!this.props.isPreviewViewEnabled) {
-                                    newState.model = undefined;
-                                    // hence forward to source view
-                                    newState.activeView = SOURCE_VIEW;
-                                }
-                                resolve(newState);
-                                this.context.alert.showError('Unexpected error occurred while parsing.');
-                                return;
-                            }
-                            // get ast from json
+                }
+                // if no error found and no model too
+                if ((_.isEmpty(syntaxErrors) && _.isEmpty(runtimeFailures))
+                        && (_.isNil(data.model) || _.isNil(data.model.kind))) {
+                    this.context.alert.showError('Unexpected error occurred while parsing.');
+                } else {
+                    const ast = TreeBuilder.build(data.model);
+                    ast.setFile(file);
+                    this.markBreakpointsOnAST(ast);
+                    // Now we will enrich the model with Semantic errors.
+                    const errorMappingVisitor = new ErrorMappingVisitor();
+                    errorMappingVisitor.setErrorList(this.semanticErrors);
+                    ast.accept(errorMappingVisitor);
+                    // register the listener for ast modifications
+                    ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
+                        this.onASTModified(evt);
+                    });
 
-                            const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
-                            ast.setFile(this.props.file);
-                            this.markBreakpointsOnAST(ast);
-                            // Now we will enrich the model with Semantic errors.
-                            const errorMappingVisitor = new ErrorMappingVisitor();
-                            errorMappingVisitor.setErrorList(this.semanticErrors);
-                            ast.accept(errorMappingVisitor);
-                            // register the listener for ast modifications
-                            ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
-                                this.onASTModified(evt);
-                            });
-
-                            newState.lastRenderedTimestamp = file.lastUpdated;
-                            newState.parseFailed = false;
-                            newState.isASTInvalid = false;
-                            newState.model = ast;
-                            resolve(newState);// TODOX need to remove this.
-                            // TODOX const pkgName = ast.getPackageDefinition().getPackageName();
-                            // update package name of the file
-                            // TODOX file.packageName = pkgName || '.';
-                            // init bal env in background
-                            BallerinaEnvironment.initialize()
-                                .then(() => {
-                                    this.environment.init();
-
-                                    // Resolve now and let rest happen in background
-                                    resolve(newState);
-
-                                    const pkgNode = jsonTree.packageInfo;
-                                    if (!_.isNil(pkgNode)) {
-                                        const pkg = BallerinaEnvFactory.createPackage();
-                                        pkg.initFromJson(pkgNode);
-                                        this.environment.setCurrentPackage(pkg);
-                                    }
-                                    this.update();
-                                })
-                                .catch(reject);
-                        })
-                        .catch(reject);
-                })
-                .catch(reject);
-        });
+                    newState.lastRenderedTimestamp = file.lastUpdated;
+                    newState.parseFailed = false;
+                    newState.isASTInvalid = false;
+                    newState.model = ast;
+                }
+                return BallerinaEnvironment.initialize()
+                    .then(() => {
+                        this.environment.init();
+                        const pkgNode = data.packageInfo;
+                        if (!_.isNil(pkgNode)) {
+                            const pkg = BallerinaEnvFactory.createPackage();
+                            pkg.initFromJson(pkgNode);
+                            this.environment.setCurrentPackage(pkg);
+                        }
+                        return newState;
+                    });
+            });
     }
     markBreakpointsOnAST(ast) {
         const fileName = `${this.props.file.name}.${this.props.file.extension}`;
@@ -686,7 +640,7 @@ class BallerinaFileEditor extends React.Component {
 
         // If there are syntax errors, forward editor to source view - if split view is not active.
         // If split view is active - we will render an overly on top of design view with error list
-        if (!this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)) {
+        if (!_.isEmpty(this.state.syntaxErrors)) {
             if (this.props.isPreviewViewEnabled) {
                 this.state.activeView = DESIGN_VIEW;
             } else {
