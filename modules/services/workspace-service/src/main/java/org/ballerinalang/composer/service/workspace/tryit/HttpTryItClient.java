@@ -30,6 +30,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpCoreContext;
@@ -90,8 +91,12 @@ public class HttpTryItClient extends TryItClient {
                     }
                     
                     // Setting the content type.
-                    httpRequest.setHeader(HttpHeaders.CONTENT_TYPE,
+                    if (StringUtils.isBlank(this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString())) {
+                        httpRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.getMimeType());
+                    } else {
+                        httpRequest.setHeader(HttpHeaders.CONTENT_TYPE,
                                                         this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString());
+                    }
                     
                     // To track how long the request took.
                     long start = System.currentTimeMillis();
@@ -128,8 +133,12 @@ public class HttpTryItClient extends TryItClient {
                     httpEntityRequest.setEntity(postEntity);
                     
                     // Setting the content type.
-                    httpEntityRequest.setHeader(HttpHeaders.CONTENT_TYPE,
-                                                        this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString());
+                    if (StringUtils.isBlank(this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString())) {
+                        httpEntityRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.getMimeType());
+                    } else {
+                        httpEntityRequest.setHeader(HttpHeaders.CONTENT_TYPE,
+                                                    this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString());
+                    }
     
                     // To track how long the request took.
                     long entityRequestStart = System.currentTimeMillis();
