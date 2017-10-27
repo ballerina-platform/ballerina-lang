@@ -1,4 +1,4 @@
-package ballerina.lang.arrays;
+package ballerina.util.arrays;
 
 import ballerina.doc;
 

@@ -42,7 +42,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.model.arrays:copyOfRange(any[], any[], int, int).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
+        packageName = "ballerina.util.arrays",
         functionName = "copyOfRange",
         args = {@Argument(name = "anyArrayFrom", type = TypeKind.ARRAY, elementType = TypeKind.ANY),
                 @Argument(name = "anyArrayTo", type = TypeKind.ARRAY, elementType = TypeKind.ANY),
