@@ -92,7 +92,7 @@ class TransformFactory {
         const operatorLattice = Environment.getOperatorLattice();
         const operatorKind = operator.getOperatorKind();
 
-        let defaultValue = Environment.getDefaultValue('string');
+        let operandType = 'null';
 
         let compatibility;
         if (TreeUtil.isTernaryExpr(operator)) {
@@ -103,15 +103,11 @@ class TransformFactory {
             compatibility = operatorLattice.getCompatibleUnaryTypes(operatorKind, operandTypes, operandIndex);
         }
 
-        if (compatibility) {
-            defaultValue = Environment.getDefaultValue(compatibility);
+        if (compatibility && compatibility.length > 0) {
+            operandType = compatibility[0];
         }
 
-        const fragment = FragmentUtils.createExpressionFragment(defaultValue);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
-        exp.clearWS();
-        return exp;
+        return TransformFactory.createDefaultExpression(operandType);
     }
 
     /**

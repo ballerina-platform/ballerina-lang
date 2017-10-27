@@ -1537,6 +1537,7 @@ class TransformNodeMapper {
                 operandTypes.push(undefined);
             }
         }
+        operandTypes.ret = operator.symbolType[0];
         return operandTypes;
     }
 
