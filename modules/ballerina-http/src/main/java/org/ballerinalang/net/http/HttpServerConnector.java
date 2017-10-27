@@ -92,11 +92,6 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
     @Override
-    public void validateServiceRegistration() throws BallerinaConnectorException {
-        // To nothing
-    }
-
-    @Override
     public void deploymentComplete() throws BallerinaConnectorException {
         HttpUtil.startPendingHttpConnectors();
     }

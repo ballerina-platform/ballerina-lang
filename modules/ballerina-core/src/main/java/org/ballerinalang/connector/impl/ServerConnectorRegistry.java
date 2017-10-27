@@ -101,15 +101,6 @@ public class ServerConnectorRegistry {
     }
 
     /**
-     * Validate server connectors.
-     */
-    public void validateServerConnectors() {
-        for (Map.Entry<String, BallerinaServerConnector> serverConnectorEntry : serverConnectorMap.entrySet()) {
-            serverConnectorEntry.getValue().validateServiceRegistration();
-        }
-    }
-
-    /**
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *
      * @param protocolPkgPath of the server connector.
