@@ -100,7 +100,7 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Import JSON for Struct Definition"
+                title="Import from JSON"
                 actions={
                     <Button
                         bsStyle="primary"
@@ -114,7 +114,7 @@ class ImportStructDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <p>Please enter a valid JSON to generate struct attributes</p>
+                <p>Please enter a valid sample JSON to generate struct definition.</p>
                 <AceEditor
                     mode='json'
                     theme='monokai'
