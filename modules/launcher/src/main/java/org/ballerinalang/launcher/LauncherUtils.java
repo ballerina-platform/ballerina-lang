@@ -67,7 +67,8 @@ public class LauncherUtils {
         } else if (Files.isDirectory(sourcePath) || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             programFile = compile(sourceRootPath, sourcePath);
         } else {
-            throw new BallerinaException("Invalid File Type use .bal");
+            throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
+                    "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
 
         // If there is no main or service entry point, throw an error
