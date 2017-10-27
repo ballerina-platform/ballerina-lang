@@ -35,7 +35,8 @@ export function getMenuDefinitions(plugin) {
             isActive: (appContext) => {
                 return true;
             },
-            command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+            icon: 'export',
+            command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },
     ];

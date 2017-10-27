@@ -25,7 +25,7 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions(plugin) {
     return [
         {
-            id: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+            id: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
         },
         {
             id: COMMANDS.EXPORT_DIAGRAM,

@@ -68,6 +68,9 @@
                     }
                 }
             }
+            & .file-type-list {
+                height: 34px;
+            }
             & a {
                 color: $modal-btn-primary-bgcolor;
                 outline: none;

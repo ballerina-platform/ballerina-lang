@@ -21,14 +21,14 @@ import { COMMANDS, DIALOG } from './constants';
 
 /**
  * Provides command handler definitions of debugger plugin.
- * @param {debugger} debugger plugin instance
+ * @param {plugin} plugin plugin instance
  * @returns {Object[]} command handler definitions.
  *
  */
 export function getHandlerDefinitions(plugin) {
     return [
         {
-            cmdID: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+            cmdID: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
             handler: () => {
                 const { command: { dispatch } } = plugin.appContext;
                 const id = DIALOG.EXPORT_DIAGRAM;

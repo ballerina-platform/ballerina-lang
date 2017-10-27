@@ -17,7 +17,7 @@
  */
 
 export const COMMANDS = {
-    SHOW_IMPORT_SWAGGER_DIALOG: 'show-export-diagram-dialog',
+    SHOW_EXPORT_DIAGRAM_DIALOG: 'show-export-diagram-dialog',
     EXPORT_DIAGRAM: 'export-diagram',
 };
 
