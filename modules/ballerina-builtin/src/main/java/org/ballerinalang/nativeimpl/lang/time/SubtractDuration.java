@@ -31,10 +31,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "subtractDuration",
+        packageName = "ballerina.builtin",
+        functionName = "Time.subtractDuration",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time"),
+                          structPackage = "ballerina.builtin"),
                 @Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
                 @Argument(name = "days", type = TypeKind.INT),
@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "seconds", type = TypeKind.INT),
                 @Argument(name = "milliseconds", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.lang.time")},
+                                  structPackage = "ballerina.builtin")},
         isPublic = true
 )
 public class SubtractDuration extends AbstractTimeFunction {

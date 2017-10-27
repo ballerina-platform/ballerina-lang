@@ -32,11 +32,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.time",
-        functionName = "format",
+        packageName = "ballerina.builtin",
+        functionName = "Time.format",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time"),
-                @Argument(name = "patter", type = TypeKind.STRING)},
+                          structPackage = "ballerina.builtin"),
+                @Argument(name = "pattern", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )

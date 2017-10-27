@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.time;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -471,12 +470,12 @@ function testDateTimeInParameters () (int[]) {
     returnValues[1] = insertCount2;
 
 
-    time:Time currentTime = time:currentTime();
+    Time timeNow = currentTime();
     para1 = {sqlType:"integer", value:3};
-    para2 = {sqlType:"date", value:currentTime};
-    para3 = {sqlType:"time", value:currentTime};
-    para4 = {sqlType:"timestamp", value:currentTime};
-    para5 = {sqlType:"datetime", value:currentTime};
+    para2 = {sqlType:"date", value:timeNow};
+    para3 = {sqlType:"time", value:timeNow};
+    para4 = {sqlType:"timestamp", value:timeNow};
+    para5 = {sqlType:"datetime", value:timeNow};
     parameters = [para1, para2, para3, para4, para5];
 
     int insertCount3 = testDB.update(stmt, parameters);
