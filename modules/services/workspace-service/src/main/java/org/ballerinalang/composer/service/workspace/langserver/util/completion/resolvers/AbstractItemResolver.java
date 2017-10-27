@@ -208,8 +208,16 @@ public abstract class AbstractItemResolver {
      * @return {@link String}
      */
     private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
-        StringBuffer signature = new StringBuffer(bInvokableSymbol.getName() + "(");
-        StringBuffer insertText = new StringBuffer(bInvokableSymbol.getName() + "(");
+        String functionName = bInvokableSymbol.getName().getValue();
+
+        // If there is a receiver symbol, then the name comes with the package name and struct name appended.
+        // Hence we need to remove it
+        if (bInvokableSymbol.receiverSymbol != null) {
+            String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
+            functionName = functionName.replace(receiverType + ".", "");
+        }
+        StringBuffer signature = new StringBuffer(functionName + "(");
+        StringBuffer insertText = new StringBuffer(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {

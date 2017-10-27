@@ -46,9 +46,8 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             // Get the action and function list
-            ArrayList<SymbolInfo> actionFunctionList = actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter
-                            .filterItems(dataModel, symbols, null).get(0), dataModel);
+            ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
+            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
 
             // Populate the completion items
             this.populateCompletionItemList(actionFunctionList, completionItems);
