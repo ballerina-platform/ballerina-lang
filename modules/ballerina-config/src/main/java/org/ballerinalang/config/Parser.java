@@ -22,28 +22,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ConfigRegistry caches configuration properties.
- *
- * @since 0.95
+ * Created by chamil on 10/27/17.
  */
-public class ConfigRegistry {
+public class Parser {
 
-    private static Map<String, String> cliParams = new HashMap<>();
-    private final Map<String, String> globalConfMap;
-    private final Map<String, Map<String, String>> instancMap;
-
-    public ConfigRegistry() {
-        Parser parser = new Parser();
-        globalConfMap = parser.loadGlobalConfiguration();
-        instancMap = parser.loadInstanceConfiguration();
+    public Map<String, String> loadGlobalConfiguration() {
+        Map<String, String> globalConf = new HashMap<>();
+        globalConf.put("a", "b");
+        return globalConf;
     }
 
-    public static void setCLIConfiguration(Map<String, String> params) {
-        cliParams = params;
+    public Map<String, Map<String, String>> loadInstanceConfiguration() {
+        Map<String, Map<String, String>> instancMap = new HashMap<>();
+        Map<String, String> instanceConf = new HashMap<>();
+        instanceConf.put("x", "y");
+        instancMap.put("instance1", instanceConf);
+        return instancMap;
     }
-
-
-
-
-
 }
