@@ -19,8 +19,8 @@
 package org.ballerinalang.nativeimpl.task.stop;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.task",
         functionName = "stopTask",
         args = {@Argument(name = "taskID", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class BalStopTask extends AbstractNativeFunction {
@@ -45,9 +45,9 @@ public class BalStopTask extends AbstractNativeFunction {
         try {
             TaskRegistry.getInstance().stopTask(taskId);
         } catch (Exception e) {
-            return getBValues(new BString(e.getMessage()));
+            return getBValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
-        return getBValues(new BString(""));
+        return getBValues();
     }
 }
 

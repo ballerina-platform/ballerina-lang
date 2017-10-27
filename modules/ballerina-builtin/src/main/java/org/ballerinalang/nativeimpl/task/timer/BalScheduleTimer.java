@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
@@ -40,7 +41,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),
                 @Argument(name = "timerScheduler", type = TypeKind.STRUCT)},
-        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class BalScheduleTimer extends AbstractNativeFunction {
@@ -65,9 +66,9 @@ public class BalScheduleTimer extends AbstractNativeFunction {
         try {
             Timer timer = new Timer(ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             TaskRegistry.getInstance().addTimer(timer);
-            return getBValues(new BString(timer.getId()), new BString(""));
+            return getBValues(new BString(timer.getId()), null);
         } catch (SchedulingException e) {
-            return getBValues(new BString(""), new BString(e.getMessage()));
+            return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }

@@ -35,16 +35,24 @@ package org.ballerinalang.test.task;
  * under the License.
  */
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-//import org.ballerinalang.launcher.util.BCompileUtil;
-//import org.ballerinalang.launcher.util.BRunUtil;
-//import org.ballerinalang.launcher.util.CompileResult;
-//import org.ballerinalang.model.values.BInteger;
-//import org.ballerinalang.model.values.BValue;
-//import org.testng.Assert;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 //
 //import java.io.ByteArrayOutputStream;
 //import java.io.PrintStream;
@@ -56,54 +64,84 @@ package org.ballerinalang.test.task;
  * Tests for Ballerina timer tasks.
  */
 public class TimerTest {
-    /*private CompileResult timerCompileResult;
+    private CompileResult timerCompileResult;
     private CompileResult stopTaskCompileResult;
     private CompileResult timerMWCompileResult;
     private CompileResult timerWithEmptyResponseCompileResult;
     private CompileResult timerWithoutOnErrorFunctionCompileResult;
     private static final Log log = LogFactory.getLog(TimerTest.class);
 
-    private final ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
+    //    private final ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
     private int taskIdEM;
 
     @BeforeClass
     public void setup() {
-        timerCompileResult = BCompileUtil.compile("test-src/task/task-timer.bal");
-        stopTaskCompileResult = BCompileUtil.compile("test-src/task/task-stop.bal");
-        timerMWCompileResult = BCompileUtil.compile("test-src/task/task-timer-multiple-workers.bal");
-        timerWithEmptyResponseCompileResult =
-                BCompileUtil.compile("test-src/task/task-timer-with-empty-response.bal");
-        timerWithoutOnErrorFunctionCompileResult =
-                BCompileUtil.compile("test-src/task/task-timer-without-onErrorFunction.bal");
-
-        System.setErr(new PrintStream(consoleOutput));
+        timerCompileResult = BCompileUtil.compile("test-src/task/simple-timer.bal");
+//        stopTaskCompileResult = BCompileUtil.compile("test-src/task/task-stop.bal");
+//        timerMWCompileResult = BCompileUtil.compile("test-src/task/task-timer-multiple-workers.bal");
+//        timerWithEmptyResponseCompileResult =
+//                BCompileUtil.compile("test-src/task/task-timer-with-empty-response.bal");
+//        timerWithoutOnErrorFunctionCompileResult =
+//                BCompileUtil.compile("test-src/task/task-timer-without-onErrorFunction.bal");
+//
         System.setProperty("java.util.logging.config.file",
                 ClassLoader.getSystemResource("logging.properties").getPath());
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
     }
 
-    @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
-    public void testScheduleTimerWithDelay() {
-        consoleOutput.reset();
-        int taskId;
-        int initialDelay = 1000;
-        int interval = 10000;
-        BValue[] args = {new BInteger(initialDelay), new BInteger(interval), new BInteger(25000)};
-        BValue[] returns = BRunUtil.invoke(timerCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
-        taskId = Integer.parseInt(returns[0].stringValue());
-        String log = getTimerLog(taskId);
-        String firstLogEntry = log.substring(log.indexOf(taskId + Constant.DELAY_HINT));
-        long firstCalculatedDuration = Long.parseLong(firstLogEntry
-                .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(),
-                        firstLogEntry.indexOf("]")));
-        String lastLogEntry = log.substring(log.lastIndexOf(taskId + Constant.DELAY_HINT));
-        long lastCalculatedDuration = Long.parseLong(lastLogEntry
-                .substring((Constant.PREFIX_TIMER + taskId + Constant.DELAY_HINT).length(), lastLogEntry.indexOf("]")));
-        Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(consoleOutput.toString().contains(TestConstant.TIMER_SUCCESS_MESSAGE));
-        Assert.assertTrue(isAcceptable(initialDelay, firstCalculatedDuration));
-        Assert.assertTrue(isAcceptable(interval, lastCalculatedDuration));
+    @Test(description = "Tests running a timer and stopping it")
+    public void testExection() {
+        CompileResult timerCompileResult = BCompileUtil.compile("test-src/task/simple-timer.bal");
+
+        int initialDelay = 500;
+        int interval = 1000;
+        BValue[] returns =
+                BRunUtil.invoke(timerCompileResult, "scheduleTimer",
+                        new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
+        String taskId = returns[0].stringValue();
+        assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
+        assertEquals(returns.length, 2); // There should be no errors
+        assertNull(returns[1], "Ballerina scheduler returned an error");
+        await().atMost(10, SECONDS).until(() -> {
+            BValue[] counts = BRunUtil.invoke(timerCompileResult, "getCount");
+            return ((BInteger) counts[0]).intValue() == 5;
+        });
+
+        // Now let's try stopping the task
+        BValue[] stopResult = BRunUtil.invoke(timerCompileResult, "stopTask", new BValue[]{new BString(taskId)});
+        assertNull(stopResult[0], "Task stopping resulted in an error");
+
+        // One more check to see whether the task really stopped
+        BValue[] counts = BRunUtil.invoke(timerCompileResult, "getCount");
+        assertEquals(((BInteger) counts[0]).intValue(), -1, "Count hasn't been reset");
     }
+
+    @Test(description = "Tests running a timer where the onTrigger function generates an error")
+    public void testWithErrorFn() {
+        CompileResult timerCompileResult = BCompileUtil.compile("test-src/task/timer-error.bal");
+
+        int initialDelay = 500;
+        int interval = 1000;
+        String errMsg = "Timer error";
+        BValue[] returns =
+                BRunUtil.invoke(timerCompileResult, "scheduleTimerWithError",
+                        new BValue[]{new BInteger(initialDelay), new BInteger(interval), new BString(errMsg)});
+        String taskId = returns[0].stringValue();
+        assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
+        assertEquals(returns.length, 2); // There should be no errors
+        assertNull(returns[1], "Ballerina scheduler returned an error");
+        await().atMost(5, SECONDS).until(() -> {
+            BValue[] error = BRunUtil.invoke(timerCompileResult, "getError");
+            return error != null && error[0] != null && !error[0].stringValue().equals("");
+        });
+
+        // Now test whether the onError Ballerina function got called
+        BValue[] error = BRunUtil.invoke(timerCompileResult, "getError");
+        assertNotNull(error[0], "Expected error not returned.");
+        assertEquals(error[0].stringValue(), errMsg, "Expected error message not returned.");
+    }
+
+    /*
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
     public void testScheduleTimerWithoutDelay() {
