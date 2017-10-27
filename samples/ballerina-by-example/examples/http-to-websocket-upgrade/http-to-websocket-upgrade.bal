@@ -2,7 +2,6 @@ import ballerina.net.http;
 import ballerina.net.ws;
 import ballerina.doc;
 
-
 @http:configuration {
     basePath:"/hello",
     webSocket:@http:webSocket {
