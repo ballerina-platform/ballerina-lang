@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.maps;
+package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,11 +32,11 @@ import java.util.Set;
 
 /**
  * Native function to get key arrays from the map.
- * ballerina.model.maps:keys(map)
+ * ballerina.model.map:keys()
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.maps",
-        functionName = "keys",
+        packageName = "ballerina.builtin",
+        functionName = "map.keys",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
