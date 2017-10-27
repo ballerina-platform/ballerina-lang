@@ -1,5 +1,3 @@
-import ballerina.lang.strings;
-
 function contains(string source, string substring) (boolean) {
     return source.contains(substring);
 }
@@ -53,27 +51,27 @@ function trim(string s) (string) {
 }
 
 function intValueOf(int i) (string) {
-    return strings:valueOf(i);
+    return <string>(i);
 }
 
 function floatValueOf(float f) (string) {
-    return strings:valueOf(f);
+    return <string>(f);
 }
 
 function booleanValueOf(boolean b) (string) {
-    return strings:valueOf(b);
+    return <string>(b);
 }
 
 function stringValueOf(string s) (string) {
-    return strings:valueOf(s);
+    return <string>(s);
 }
 
 function xmlValueOf(xml x) (string) {
-    return strings:valueOf(x);
+    return <string>(x);
 }
 
 function jsonValueOf(json j) (string) {
-    return strings:valueOf(j);
+    return j.toString();
 }
 
 function length(string j) (int) {
