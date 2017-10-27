@@ -22,6 +22,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -57,7 +58,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private static final String HTML = ".html";
     private static final String INDEX_HTML = "index.html";
     private static final String UTF_8 = "UTF-8";
-    private static final String DOC_PACKAGE_NAME = "ballerina.doc";
+    private static final String BUILTIN_PACKAGE_NAME = "ballerina.builtin";
 
     private static PrintStream out = System.out;
 
@@ -109,7 +110,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
         // Write <package>.html files
         for (BLangPackage balPackage : packageList) {
             // Sort functions, connectors, structs, type mappers and annotationDefs
-            Collections.sort(balPackage.getFunctions(), Comparator.comparing(f -> f.getName().getValue()));
+            Collections.sort(balPackage.getFunctions(), Comparator.comparing(f -> {
+                return (f.getReceiver() == null ? "" : f.getReceiver().getName()) + f.getName().getValue();
+
+            }));
             Collections.sort(balPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
             Collections.sort(balPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
             Collections.sort(balPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
@@ -362,7 +366,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private boolean isNameEqual(String annotationName, BLangAnnotationAttachment annotation) {
         String pkgPath = annotation.annotationSymbol.pkgID.name.value == null ? currentPkgPath :
                 annotation.annotationSymbol.pkgID.name.value;
-        return DOC_PACKAGE_NAME.equalsIgnoreCase(pkgPath) &&
+        return BUILTIN_PACKAGE_NAME.equalsIgnoreCase(pkgPath) &&
                 annotationName.equalsIgnoreCase(annotation.getAnnotationName().getValue());
     }
 

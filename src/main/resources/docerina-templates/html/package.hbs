@@ -185,10 +185,13 @@
                             <span class="opener">Functions</span>
                             <ul>
                             {{#each functions}}
-                                <li><a href="#{{name}}">{{name}}({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
-                                </li>{{/each}}
+                                <li><a href="#{{name}}">{{#if receiver/typeNode}}[{{typeText receiver/typeNode}}] {{/if}}{{name}}({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
+                                </li>
+                            {{/each}}
                             </ul>
-                        </li>{{/hasFunctions}} {{#hasConnectors}}
+                        </li>
+                        {{/hasFunctions}} 
+                        {{#hasConnectors}}
                         <li>
                             <span class="opener">Connectors</span>
                             <ul>
