@@ -83,7 +83,7 @@ public class Timer {
             BValue[] results =
                     BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
             // If there are results, that mean an error has been returned
-            if (results.length > 0 && results[0] != null) {
+            if (results.length > 0 && results[0] != null && onErrorFunction != null) {
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
             }
         } catch (BLangRuntimeException e) {
