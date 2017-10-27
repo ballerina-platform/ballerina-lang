@@ -1,4 +1,3 @@
-import ballerina.lang.strings;
 import ballerina.net.http;
 
 const string myConst = "MyParam1";
@@ -76,7 +75,8 @@ service<http> actionInvokeService {
 
         boolean actionResponse;
         actionResponse = testConnector.action1();
-        res.setStringPayload(strings:valueOf(actionResponse));
+        string payload = <string> actionResponse;
+        res.setStringPayload(payload);
         res.send();
     }
     
