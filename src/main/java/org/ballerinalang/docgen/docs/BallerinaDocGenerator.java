@@ -21,12 +21,18 @@ package org.ballerinalang.docgen.docs;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -192,23 +198,25 @@ public class BallerinaDocGenerator {
             System.setProperty("skipNatives", "true");
         }
 
+        BLangPackage bLangPackage;
+        
         for (Path path : packagePaths) {
-            // TODO: Remove this and the related constants once these are properly handled in the core
-            if (BAL_BUILTIN.equals(path) || BAL_BUILTIN_CORE.equals(path)) {
-                continue;
-            }
-
             CompilerContext context = new CompilerContext();
             CompilerOptions options = CompilerOptions.getInstance(context);
             options.put(SOURCE_ROOT, sourceRoot);
             options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
             options.put(PRESERVE_WHITESPACE, "false");
 
-            // compile
             Compiler compiler = Compiler.getInstance(context);
-            compiler.compile(getPackageNameFromPath(path));
 
-            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+            // TODO: Remove this and the related constants once these are properly handled in the core
+            if (BAL_BUILTIN.equals(path) || BAL_BUILTIN_CORE.equals(path)) {
+                bLangPackage = loadBuiltInPackage(context);
+            } else {
+                // compile the given file
+                compiler.compile(getPackageNameFromPath(path));
+                bLangPackage = (BLangPackage) compiler.getAST();
+            }
 
             if (bLangPackage == null) {
                 out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
@@ -274,5 +282,27 @@ public class BallerinaDocGenerator {
             sj.add(pathItr.next().toString());
         }
         return sj.toString();
+    }
+
+    private static BLangPackage loadBuiltInPackage(CompilerContext context) {
+        BLangPackage builtInCorePkg = getBuiltInPackage(context, Names.BUILTIN_CORE_PACKAGE);
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        symbolTable.createErrorTypes();
+        symbolTable.loadOperators();
+        // Load built-in packages.
+        BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
+        builtInCorePkg.getStructs().forEach(s -> {
+            builtInPkg.getStructs().add(s);
+            builtInPkg.topLevelNodes.add(s);
+        });
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        return builtInPkg;
+    }
+
+    private static BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
+        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
+        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
     }
 }
