@@ -89,7 +89,7 @@ export default {
                     image: 'preview_servicechaining',
                 },
                 {
-                    name: 'Restful Service',
+                    name: 'RESTful Service',
                     isFile: false,
                     folder: '/samples/restfulService/restfulservice',
                     path: '/samples/restfulService/restfulservice/samples/productsService.bal',
@@ -103,7 +103,7 @@ export default {
                     image: 'preview_routingServices',
                 },
                 {
-                    name: 'Websocket',
+                    name: 'WebSocket',
                     isFile: false,
                     folder: '/samples/websocket',
                     path: '/samples/websocket/echoserver/server/EchoServer.bal',
