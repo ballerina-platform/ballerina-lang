@@ -1,6 +1,4 @@
-import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.lang.time;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -426,8 +424,8 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     datatable dt = testDB.select ("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
                                   params);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount) dataStruct;
         count = rs.COUNTVAL;
     }
@@ -472,12 +470,12 @@ function testDateTimeInParameters () (int[]) {
     returnValues[1] = insertCount2;
 
 
-    time:Time currentTime = time:currentTime();
+    Time timeNow = currentTime();
     para1 = {sqlType:"integer", value:3};
-    para2 = {sqlType:"date", value:currentTime};
-    para3 = {sqlType:"time", value:currentTime};
-    para4 = {sqlType:"timestamp", value:currentTime};
-    para5 = {sqlType:"datetime", value:currentTime};
+    para2 = {sqlType:"date", value:timeNow};
+    para3 = {sqlType:"time", value:timeNow};
+    para4 = {sqlType:"timestamp", value:timeNow};
+    para5 = {sqlType:"datetime", value:timeNow};
     parameters = [para1, para2, para3, para4, para5];
 
     int insertCount3 = testDB.update(stmt, parameters);
@@ -496,8 +494,8 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
     ResultDataType rs;
     datatable dt = testDB.select ("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
                                    where row_id = 1", parameters);
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultDataType) dataStruct;
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
@@ -515,8 +513,8 @@ function testSelectData () (string firstName) {
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", null);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -532,8 +530,8 @@ function testCallProcedure () (string firstName) {
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", null);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -549,8 +547,8 @@ function testCallProcedureWithResultSet () (string firstName) {
     datatable dt = testDB.call ("{call SelectPersonData()}", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -567,8 +565,8 @@ function testQueryParameters () (string firstName) {
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -592,8 +590,8 @@ function testArrayofQueryParameters () (string firstName) {
                     lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -612,8 +610,8 @@ function testBoolArrayofQueryParameters () (int value ) {
 
     datatable dt1 = testDB.select("SELECT blob_type from DataTypeTable where row_id = 1", null);
     blob blobData;
-    while (datatables:hasNext(dt1)) {
-        any dataStruct = datatables:getNext(dt1);
+    while (dt1.hasNext()) {
+        any dataStruct = dt1.getNext();
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
@@ -628,8 +626,8 @@ function testBoolArrayofQueryParameters () (int value ) {
                                   parameters);
     TypeCastError err;
     ResultIntType rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultIntType) dataStruct;
         value = rs.INT_TYPE;
     }
@@ -665,8 +663,8 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     datatable dt = testDB.select ("SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", params);
     ResultArrayType rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultArrayType) dataStruct;
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
@@ -701,8 +699,8 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
     sql:Parameter[] emptyParam = [];
     datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -727,8 +725,8 @@ function testCloseConnectionPool () (int count) {
     datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount) dataStruct;
         count = rs.COUNTVAL;
     }

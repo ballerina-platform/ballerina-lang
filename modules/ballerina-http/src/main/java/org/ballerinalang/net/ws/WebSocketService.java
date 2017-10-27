@@ -107,6 +107,16 @@ public class WebSocketService implements Service {
                                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
+    public BStruct createPingFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_PING_FRAME);
+    }
+
+    public BStruct createPongFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_PONG_FRAME);
+    }
+
     private String[] findNegotiableSubProtocols(Annotation configAnnotation) {
         if (configAnnotation == null) {
             return null;
