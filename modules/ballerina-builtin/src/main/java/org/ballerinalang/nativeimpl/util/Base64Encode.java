@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -31,24 +31,24 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 /**
- * Native function ballerina.utils:base64decode.
+ * Native function ballerina.util:base64encode.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
-        functionName = "base64decode",
+        packageName = "ballerina.util",
+        functionName = "base64encode",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Base64Decode extends AbstractNativeFunction {
+public class Base64Encode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String str = getStringArgument(context, 0);
-        byte[] decode = Base64.getDecoder().decode(str.getBytes(Charset.defaultCharset()));
+        byte[] encodedValue = Base64.getEncoder().encode(str.getBytes(Charset.defaultCharset()));
 
-        return getBValues(new BString(new String(decode, Charset.defaultCharset())));
+        return getBValues(new BString(new String(encodedValue, Charset.defaultCharset())));
     }
 }

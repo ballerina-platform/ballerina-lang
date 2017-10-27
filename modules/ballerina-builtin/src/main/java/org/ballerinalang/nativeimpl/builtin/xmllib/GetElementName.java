@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,25 +24,23 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Check whether the XML sequence contains only a single element.
+ * Get the fully qualified name of the element as a string.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "isSingleton",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.getElementName",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class IsSingleton extends AbstractNativeFunction {
+public class GetElementName extends AbstractNativeFunction {
 
-    private static final String OPERATION = "check xml is singleton";
+    private static final String OPERATION = "get element name in xml";
 
     @Override
     public BValue[] execute(Context ctx) {
@@ -50,7 +48,7 @@ public class IsSingleton extends AbstractNativeFunction {
         try {
             // Accessing Parameters.
             BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.isSingleton();
+            result = xml.getElementName();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

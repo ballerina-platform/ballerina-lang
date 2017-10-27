@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,12 +33,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Native function ballerina.utils:getHash.
+ * Native function ballerina.util:getHash.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
+        packageName = "ballerina.util",
         functionName = "getHash",
         args = { @Argument(name = "baseString", type = TypeKind.STRING),
                  @Argument(name = "algorithm", type = TypeKind.STRING) },

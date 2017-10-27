@@ -16,11 +16,10 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -30,21 +29,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Selects and concatenate all the children of the elements in this sequence that matches the given qualified name.
+ * Slice and return a subsequence of the an XML sequence.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "selectChildren",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
+        packageName = "ballerina.builtin",
+        functionName = "xml.slice",
+        args = { @Argument(name = "startIndex", type = TypeKind.INT),
+                @Argument(name = "endIndex", type = TypeKind.INT) },
+        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 )
-public class SelectChildren extends AbstractNativeFunction {
+public class Slice extends AbstractNativeFunction {
 
-    private static final String OPERATION = "select children from xml";
+    private static final String OPERATION = "slice xml";
 
     @Override
     public BValue[] execute(Context ctx) {
@@ -52,8 +50,9 @@ public class SelectChildren extends AbstractNativeFunction {
         try {
             // Accessing Parameters.
             BXML value = (BXML) getRefArgument(ctx, 0);
-            BString qname = new BString(getStringArgument(ctx, 0));
-            result = value.children(qname);
+            long startIndex = getIntArgument(ctx, 0);
+            long endIndex = getIntArgument(ctx, 1);
+            result = value.slice(startIndex, endIndex);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

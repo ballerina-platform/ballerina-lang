@@ -16,45 +16,39 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Searches in children recursively for elements matching the name and returns a sequence containing them all.
- * Does not search within a matched result.
+ * Check whether the XML sequence contains only a single element.
  * 
- * @since 0.92
+ * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "selectDescendants",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.isSingleton",
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class SelectDescendants extends AbstractNativeFunction {
+public class IsSingleton extends AbstractNativeFunction {
 
-    private static final String OPERATION = "select descendants from xml";
+    private static final String OPERATION = "check xml is singleton";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML<?> value = (BXML<?>) getRefArgument(ctx, 0);
-            BString qname = new BString(getStringArgument(ctx, 0));
-            result = value.descendants(qname);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            result = xml.isSingleton();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

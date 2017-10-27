@@ -1,6 +1,5 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.lang.xmls;
 import ballerina.lang.jsons;
 import ballerina.lang.blobs;
 
@@ -155,7 +154,7 @@ function testToXmlWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             xml xmlResult;
             xmlResult, _ = <xml>dt;
-            result = xmls:toString(xmlResult);
+            result = <string> xmlResult;
         } aborted {
         returnValue = -1;
     }

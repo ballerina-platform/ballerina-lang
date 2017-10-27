@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,25 +37,22 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.utils:getHmac.
+ * Native function ballerina.util:getHmacFromBase64.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
-        functionName = "getHmac",
-        args = {
-                @Argument(name = "baseString", type = TypeKind.STRING),
-                @Argument(name = "keyString", type = TypeKind.STRING),
-                @Argument(name = "algorithm", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
-public class GetHmac extends AbstractNativeFunction {
+        packageName = "ballerina.util",
+        functionName = "getHmacFromBase64",
+        args = { @Argument(name = "baseString", type = TypeKind.STRING),
+                 @Argument(name = "keyString", type = TypeKind.STRING),
+                 @Argument(name = "algorithm", type = TypeKind.STRING) },
+        returnType = { @ReturnType(type = TypeKind.STRING) },
+        isPublic = true)
+public class GetHmacFromBase64 extends AbstractNativeFunction {
 
-    @Override
-    public BValue[] execute(Context context) {
+
+    @Override public BValue[] execute(Context context) {
         String baseString = getStringArgument(context, 0);
         String keyString = getStringArgument(context, 1);
         String algorithm = getStringArgument(context, 2);
@@ -63,29 +60,33 @@ public class GetHmac extends AbstractNativeFunction {
 
         //todo document the supported algorithm
         switch (algorithm) {
-        case "SHA1":
-            hmacAlgorithm = "HmacSHA1";
-            break;
-        case "SHA256":
-            hmacAlgorithm = "HmacSHA256";
-            break;
-        case "MD5":
-            hmacAlgorithm = "HmacMD5";
-            break;
-        default:
-            throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
+            case "SHA1":
+                hmacAlgorithm = "HmacSHA1";
+                break;
+            case "SHA256":
+                hmacAlgorithm = "HmacSHA256";
+                break;
+            case "MD5":
+                hmacAlgorithm = "HmacMD5";
+                break;
+            default:
+                throw new BallerinaException(
+                        "Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
-        String result;
+        String result = "";
         try {
-            byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
+            byte[] keyBytes =
+                    Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
             byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
-            result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)), Charset.defaultCharset());
+            result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)),
+                                Charset.defaultCharset());
         } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
+            throw new BallerinaException(
+                    "Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
                     context);
         }
 

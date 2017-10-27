@@ -22,11 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.odysseus.staxon.json.JsonXMLConfig;
-import de.odysseus.staxon.json.JsonXMLConfigBuilder;
-import de.odysseus.staxon.json.JsonXMLInputFactory;
-import de.odysseus.staxon.json.JsonXMLOutputFactory;
-import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
@@ -54,11 +49,8 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -66,20 +58,7 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stax.StAXResult;
-import javax.xml.transform.stax.StAXSource;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -201,116 +180,6 @@ public class XMLUtils {
         }
 
         return new BXMLSequence(concatSeq);
-    }
-
-    /**
-     * Converts a {@link BXML} to {@link BJSON}.
-     * 
-     * @param xml {@link BXML} to convert
-     * @return converted {@link BJSON} 
-     * @throws BallerinaException for conversion errors
-     */
-    public static BJSON toJSON(BXML<?> xml) throws BallerinaException {
-        InputStream input = new ByteArrayInputStream(xml.stringValue().getBytes(StandardCharsets.UTF_8));
-        InputStream results = null;
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        BJSON json = null;
-
-        JsonXMLConfig config = new JsonXMLConfigBuilder().autoArray(true).autoPrimitive(true).prettyPrint(true).build();
-        try {
-            //Create source (XML).
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
-            Source source = new StAXSource(reader);
-
-            //Create result (JSON).
-            XMLStreamWriter writer = new JsonXMLOutputFactory(config).createXMLStreamWriter(output);
-            Result result = new StAXResult(writer);
-
-            //Copy source to result via "identity transform".
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
-
-            byte[] outputByteArray = output.toByteArray();
-            results = new ByteArrayInputStream(outputByteArray);
-
-        } catch (TransformerConfigurationException e) {
-            throw new BallerinaException("error in parsing the JSON Stream. transformer configuration issue", e);
-        } catch (TransformerException e) {
-            throw new BallerinaException("error in parsing the JSON Stream", e);
-        } catch (XMLStreamException e) {
-            throw new BallerinaException("error in parsing the XML Stream", e);
-        } finally {
-            //As per StAX specification, XMLStreamReader/Writer.close() doesn't close the underlying stream.
-            try {
-                output.close();
-                input.close();
-            } catch (IOException ignore) {
-
-            }
-        }
-        json = new BJSON(results);
-        return json;
-    }
-
-    /**
-     * Converts a {@link BJSON} to {@link BXML}.
-     * 
-     * @param msg {@link BJSON} to convert
-     * @return converted {@link BXML}
-     */
-    public static BXML<?> jsonToXML(BJSON msg) {
-        InputStream input = new ByteArrayInputStream(msg.stringValue().getBytes(StandardCharsets.UTF_8));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).virtualRoot(XML_ROOT).build();
-        BXML<?> result = null;
-
-        XMLEventReader reader = null;
-        XMLEventWriter writer = null;
-        try {
-            reader = new JsonXMLInputFactory(config).createXMLEventReader(input);
-            writer = XMLOutputFactory.newInstance().createXMLEventWriter(output);
-            writer = new PrettyXMLEventWriter(writer);
-            writer.add(reader);
-        } catch (XMLStreamException e) {
-            throw new BallerinaException("Error in parsing the XML Stream", e);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (XMLStreamException ignore) {
-            }
-            try {
-                output.close();
-                input.close();
-            } catch (IOException ignore) {
-            }
-        }
-
-        byte[] xml = output.toByteArray();
-        result = new BXMLItem(new ByteArrayInputStream(xml));
-        return result;
-    }
-
-    /**
-     * Get the singleton value of the xml, for xpath operations.
-     *
-     * @param xml source xml
-     * @return singleton value
-     */
-    public static BXML getSingletonValue(BXML xml) {
-        if (xml instanceof BXMLItem) {
-            return xml;
-        }
-
-        if (!xml.isSingleton().value()) {
-            throw new BallerinaException("cannot execute xpath on a xml sequence");
-        }
-
-        return (BXML) ((BXMLSequence) xml).value().get(0);
     }
 
     /**

@@ -298,15 +298,13 @@ public class XMLAttributesTest {
                 "nsn7xDi:foo3=\"bar3\"/>");
     }
 
-
     @Test
     public void testGetAttributeFromSingletonSeq() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
     }
-    
-    
+
     @Test
     public void testGetAttributeFromLiteral() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromLiteral");

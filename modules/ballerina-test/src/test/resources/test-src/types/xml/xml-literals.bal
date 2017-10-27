@@ -1,5 +1,3 @@
-import ballerina.lang.xmls;
-
 function testXMLTextLiteral() (xml, xml, xml, xml, xml, xml) {
     string v1 = "11";
     string v2 = "22";
@@ -76,7 +74,7 @@ function testElementLiteralWithTemplateChildren()(xml, xml) {
     xml x2 = xml `<lname>Doe</lname>`;
     
     xml x3 = xml `<root>hello {{v2}} good morning {{x1}} {{x2}}. Have a nice day!<foo>123</foo><bar></bar></root>`;
-    xml x4 = xmls:children(x3);
+    xml x4 = x3.children();
     return x3, x4;
 }
 

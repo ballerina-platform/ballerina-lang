@@ -641,9 +641,9 @@ public class BLangVM {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.XML2S:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -2168,42 +2168,6 @@ public class BLangVM {
             case InstructionCodes.JSON2T:
                 convertJSONToStruct(operands, sf);
                 break;
-            case InstructionCodes.XML2JSON:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.toJSON((BXML) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.XML_TNAME, TypeConstants.JSON_TNAME);
-                }
-                break;
-            case InstructionCodes.JSON2XML:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.jsonToXML((BJSON) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
-                }
-                break;
             case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
@@ -2221,6 +2185,23 @@ public class BLangVM {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
                 }
+                break;
+            case InstructionCodes.S2XML:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                try {
+                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.XML2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.refRegs[j].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();

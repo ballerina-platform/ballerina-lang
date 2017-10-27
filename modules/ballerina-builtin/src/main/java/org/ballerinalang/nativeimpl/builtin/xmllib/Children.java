@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,37 +24,35 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the text value of a XML.
+ * Selects and concatenate all the children of the elements in an XML.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "getTextValue",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.children",
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class GetTextValue extends AbstractNativeFunction {
+public class Children extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get text from xml";
+private static final String OPERATION = "get children from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-                result = xml.getTextValue();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            result = value.children();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-        
+
         // Setting output value.
         return getBValues(result);
     }

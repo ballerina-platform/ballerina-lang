@@ -1,5 +1,5 @@
 import ballerina.user;
-import ballerina.utils;
+import ballerina.util;
 
 function testGetHome () (string) {
     return user:getHome();
@@ -18,6 +18,6 @@ function testGetCountry () (string) {
 }
 
 function testGetLocale () (string, string) {
-    utils:Locale locale = user:getLocale();
+    util:Locale locale = user:getLocale();
     return locale.language, locale.countryCode;
 }
