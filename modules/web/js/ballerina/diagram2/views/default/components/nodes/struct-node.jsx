@@ -230,10 +230,20 @@ class StructNode extends React.Component {
         });
     }
 
+    /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
     isInt(val) {
         return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
     }
 
+    /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
     isFloat(val) {
         return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
     }
