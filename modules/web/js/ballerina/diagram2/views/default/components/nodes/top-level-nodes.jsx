@@ -57,7 +57,6 @@ class TopLevelNodes extends React.Component {
         super(props);
         this.packageDefValue = this.getPackageName(this.props.model);
         this.state = {
-            packageDefExpanded: false,
             packageNameEditing: false,
         };
 
@@ -75,9 +74,6 @@ class TopLevelNodes extends React.Component {
     componentWillReceiveProps() {
         const model = this.props.model;
         this.packageDefValue = this.getPackageName(model);
-        if (!this.packageDefValue) {
-            this.setState({ packageDefExpanded: false });
-        }
     }
 
     /**
@@ -93,9 +89,9 @@ class TopLevelNodes extends React.Component {
     onPackageInputBlur() {
         if (!this.packageDefValue || this.packageDefValue.trim().length === 0) {
             this.setState({
-                packageDefExpanded: false,
                 packageNameEditing: false,
             });
+            this.props.model.viewState.packageDefExpanded = false;
         }
         if (this.packageDefValue) {
             const pkgName = `package ${this.packageDefValue};`;
@@ -116,6 +112,7 @@ class TopLevelNodes extends React.Component {
         }
 
         this.setState({ packageNameEditing: false });
+        this.context.editor.update();
     }
 
     /**
@@ -219,10 +216,11 @@ class TopLevelNodes extends React.Component {
      * Called when the package definition icon is clicked
      */
     handlePackageIconClick() {
-        this.setState({ packageDefExpanded: true });
         if (!this.packageDefValue) {
             this.setState({ packageNameEditing: true });
         }
+        this.props.model.viewState.packageDefExpanded = true;
+        this.context.editor.update();
     }
 
     /**
@@ -252,26 +250,10 @@ class TopLevelNodes extends React.Component {
         const importDecViewState = this.props.model.viewState.components.importDeclaration;
         const importsExpandedViewState = this.props.model.viewState.components.importsExpanded;
 
-        const importsBbox = {
-            x: bBox.x + headerHeight + xGutterSize,
-            y: bBox.y,
-        };
-
-        const globalsBbox = {
-            x: importsBbox.x + xGutterSize + 115,
-            y: bBox.y,
-        };
-
-        const expandedImportsBbox = {
-            x: bBox.x,
-            y: bBox.y + headerHeight,
-        };
-
-        const expandedGlobalsBbox = {
-            x: bBox.x,
-            y: bBox.y + headerHeight + yGutterSize,
-        };
-
+        const importsBbox = this.props.model.viewState.components.importsBbox;
+        const globalsBbox = this.props.model.viewState.components.globalsBbox;
+        const expandedImportsBbox = this.props.model.viewState.components.importsExpandedBbox;
+        const expandedGlobalsBbox = this.props.model.viewState.components.globalsExpandedBbox;
         const astRoot = this.props.model;
         const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
         const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
@@ -280,13 +262,11 @@ class TopLevelNodes extends React.Component {
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
             .map(p => ({ name: p.getName() })).sort();
 
-        const packageDefExpanded = this.state.packageDefExpanded
-            || (this.packageDefValue && (this.packageDefValue !== ''));
-
-        if (packageDefExpanded) {
-            importsBbox.x += packageDefTextWidth;
-            globalsBbox.x += packageDefTextWidth;
+        if (this.packageDefValue) {
+            model.viewState.packageDefExpanded = true;
         }
+        const packageDefExpanded = model.viewState.packageDefExpanded
+            || (this.packageDefValue && (this.packageDefValue !== ''));
 
         if (importsExpanded) {
             const {

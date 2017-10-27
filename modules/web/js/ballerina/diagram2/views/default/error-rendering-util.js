@@ -16,15 +16,92 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import SimpleBBox from './../../../model/view/simple-bounding-box';
-import * as DesignerDefaults from './designer-defaults';
-import { panel as defaultPanel} from './designer-defaults';
+import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
+import SemanticErrorRenderingVisitor from './../../../visitors/semantic-errors-rendering-visitor';
 
 class ErrorRenderingUtil {
 
+    getSemanticErrorsOfNode(node) {
+        const semanticErrorRender = new SemanticErrorRenderingVisitor();
+        node.accept(semanticErrorRender);
+        let errors = [];
+        if (semanticErrorRender.getErrors()) {
+            errors = semanticErrorRender.getErrors();
+        }
+        return errors;
+    }
 
+    setErrorToNode(node, errors, errorBbox, placement) {
+        const overlayComponents = {
+            kind: 'SemanticErrorPopup',
+            props: {
+                key: node.getID(),
+                model: node,
+                bBox: errorBbox,
+                errors,
+                placement,
+            },
+        };
+        node.viewState.showErrors = true;
+        node.viewState.errors = overlayComponents;
+    }
+    /**
+     * Calculate error positions of statement nodes
+     * @param node
+     */
+    placeErrorForStatementComponents(node) {
+        if (node.parent &&
+            node.parent.parent &&
+            node.parent.parent.parent &&
+            !TreeUtil.isResource(node.parent.parent) &&
+            (node.parent.parent.parent.initFunction)) {
+            // Do not show errors in the InitFunction of the service
+        } else if (node.parent.kind === 'Service' || node.parent.kind === 'Connector') {
+            const viewState = node.viewState;
+            // Check for errors in the model
+            const errors = this.getSemanticErrorsOfNode(node);
+            if (errors.length > 0) {
+                if (node.parent.viewState.variablesExpanded) {
+                    const errorBbox = new SimpleBBox();
+                    errorBbox.x = viewState.bBox.x;
+                    errorBbox.y = viewState.bBox.y;
+                    this.setErrorToNode(node, errors, errorBbox, 'top');
+                }
+            }
+        } else {
+            const viewState = node.viewState;
+            // Check for errors in the model
+            const errors = this.getSemanticErrorsOfNode(node);
+            if (errors.length > 0) {
+                const errorBbox = new SimpleBBox();
+                if (TreeUtil.isConnectorDeclaration(node)) {
+                    errorBbox.x = viewState.bBox.x;
+                    errorBbox.y = viewState.bBox.y;
+                } else {
+                    errorBbox.x = viewState.components['statement-box'].x;
+                    errorBbox.y = viewState.components['statement-box'].y;
+                }
+                this.setErrorToNode(node, errors, errorBbox, 'top');
+            }
+        }
+    }
+
+    /**
+     * Calculate error positions of compound statement nodes
+     * @param node
+     */
+    placeErrorForCompoundStatementComponents(node) {
+        const viewState = node.viewState;
+        // Check for errors in the model
+        const errors = this.getSemanticErrorsOfNode(node);
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x;
+            errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+    }
 
     /**
      * Calculate error position of Action nodes.
@@ -33,9 +110,11 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForActionNode(node) {
-        // Not implemented.
+        // Here we skip the init action
+        if (node.id !== node.parent.initAction.id) {
+            this.placeErrorForResourceNode(node);
+        }
     }
-
 
 
     /**
@@ -49,7 +128,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of AnnotationAttachment nodes.
      *
@@ -59,7 +137,6 @@ class ErrorRenderingUtil {
     placeErrorForAnnotationAttachmentNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -73,7 +150,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Catch nodes.
      *
@@ -85,7 +161,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of CompilationUnit nodes.
      *
@@ -93,9 +168,100 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForCompilationUnitNode(node) {
-        // Not implemented.
-    }
+        // Position imports
+        const imports = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isImport(child);
+        });
+        imports.forEach((importDec) => {
+            importDec.viewState.errors = {};
+            if (node.viewState.importsExpanded) {
+                // Check for errors in the globals
+                const errors = this.getSemanticErrorsOfNode(importDec);
+                if (errors.length > 0) {
+                    const errorBbox = new SimpleBBox();
+                    errorBbox.x = importDec.viewState.bBox.x;
+                    errorBbox.y = importDec.viewState.bBox.y + 9;
+                    this.setErrorToNode(importDec, errors, errorBbox, 'top');
+                }
+            }
+        });
 
+        // Position the global variables
+        const globals = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isVariable(child);
+        });
+        globals.forEach((globalDec) => {
+            globalDec.viewState.errors = {};
+            if (node.viewState.globalsExpanded) {
+                // Check for errors in the globals
+                const errors = this.getSemanticErrorsOfNode(globalDec);
+                if (errors.length > 0) {
+                    const errorBbox = new SimpleBBox();
+                    errorBbox.x = globalDec.viewState.bBox.x;
+                    errorBbox.y = globalDec.viewState.bBox.y + 9;
+                    this.setErrorToNode(globalDec, errors, errorBbox, 'top');
+                }
+            }
+        });
+
+        // If the globals are not expanded show all the errors of the globals together
+        node.viewState.errorsForGlobals = {};
+        if (!node.viewState.globalsExpanded || node.viewState.globalsExpanded === undefined) {
+            const errorListForGlobals = [];
+            globals.forEach((globalDec) => {
+                const errors = this.getSemanticErrorsOfNode(globalDec);
+                if (errors.length > 0) {
+                    errorListForGlobals.push(errors[0]);
+                }
+            });
+            if (errorListForGlobals.length > 0) {
+                const errorBbox = new SimpleBBox();
+                errorBbox.x = node.viewState.components.globalsBbox.x;
+                errorBbox.y = node.viewState.components.globalsBbox.y;
+                const overlayComponents = {
+                    kind: 'SemanticErrorPopup',
+                    props: {
+                        key: node.getID(),
+                        model: node,
+                        bBox: errorBbox,
+                        errors: errorListForGlobals,
+                        placement: 'bottom',
+                    },
+                };
+                node.viewState.showGlobalErrors = true;
+                node.viewState.errorsForGlobals = overlayComponents;
+            }
+        }
+
+        // If the imports are not expanded show all the errors of the imports together
+        node.viewState.errorsForImports = {};
+        if (!node.viewState.importsExpanded || node.viewState.importsExpanded === undefined) {
+            const errorListForImports = [];
+            imports.forEach((importDec) => {
+                const errors = this.getSemanticErrorsOfNode(importDec);
+                if (errors.length > 0) {
+                    errorListForImports.push(errors[0]);
+                }
+            });
+            if (errorListForImports.length > 0) {
+                const errorBbox = new SimpleBBox();
+                errorBbox.x = node.viewState.components.importsBbox.x;
+                errorBbox.y = node.viewState.components.importsBbox.y;
+                const overlayComponents = {
+                    kind: 'SemanticErrorPopup',
+                    props: {
+                        key: node.getID(),
+                        model: node,
+                        bBox: errorBbox,
+                        errors: errorListForImports,
+                        placement: 'bottom',
+                    },
+                };
+                node.viewState.showImportErrors = true;
+                node.viewState.errorsForImports = overlayComponents;
+            }
+        }
+    }
 
 
     /**
@@ -105,9 +271,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForConnectorNode(node) {
-        // Not implemented.
+        this.placeErrorForServiceNode(node);
     }
-
 
 
     /**
@@ -121,7 +286,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Function nodes.
      *
@@ -129,11 +293,51 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForFunctionNode(node) {
-        // Not implemented.
+        if (!(node.parent.initFunction && node.parent.initFunction === node)) {
+            const viewState = node.viewState;
+            const cmp = viewState.components;
+            // Check for errors in the model
+            const errors = node.errors;
+            if (errors.length > 0) {
+                const errorBbox = new SimpleBBox();
+                errorBbox.x = viewState.bBox.x;
+                errorBbox.y = viewState.bBox.y + cmp.annotation.h;
+                this.setErrorToNode(node, errors, errorBbox, 'top');
+            }
+
+            // Positioning argument parameters
+            if (node.getParameters()) {
+                if (node.getParameters().length > 0) {
+                    for (let i = 0; i < node.getParameters().length; i++) {
+                        const argument = node.getParameters()[i];
+                        this.placeErrorForTitleNode(argument);
+                    }
+                }
+            }
+
+            // Positioning return types
+            if (node.getReturnParameters()) {
+                if (node.getReturnParameters().length > 0) {
+                    for (let i = 0; i < node.getReturnParameters().length; i++) {
+                        const returnType = node.getReturnParameters()[i];
+                        this.placeErrorForTitleNode(returnType);
+                    }
+                }
+            }
+        }
     }
 
-
-
+    placeErrorForTitleNode(parameter) {
+        const viewState = parameter.viewState;
+        // Check for errors in the model
+        const errors = this.getSemanticErrorsOfNode(parameter);
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.bBox.x;
+            errorBbox.y = viewState.bBox.y;
+            this.setErrorToNode(parameter, errors, errorBbox, 'top');
+        }
+    }
     /**
      * Calculate error position of Identifier nodes.
      *
@@ -143,7 +347,6 @@ class ErrorRenderingUtil {
     placeErrorForIdentifierNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -157,7 +360,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Package nodes.
      *
@@ -167,7 +369,6 @@ class ErrorRenderingUtil {
     placeErrorForPackageNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -181,7 +382,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of RecordLiteralKeyValue nodes.
      *
@@ -193,7 +393,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Resource nodes.
      *
@@ -201,9 +400,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForResourceNode(node) {
-        // Not implemented.
+        this.placeErrorForFunctionNode(node);
     }
-
 
 
     /**
@@ -213,9 +411,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForRetryNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -225,9 +422,55 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForServiceNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        // Check for errors in the model
+        const errors = node.errors;
+        node.viewState.errors = {};
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.bBox.x;
+            errorBbox.y = viewState.bBox.y + viewState.components.annotation.h;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+        // If the globals are not expanded show all the errors of the globals together
+        node.viewState.errorsForGlobals = {};
+        if (!node.viewState.variablesExpanded || node.viewState.variablesExpanded === undefined) {
+            const errorListForGlobals = [];
+            let variables = [];
+            if (TreeUtil.isService(node)) {
+                variables = node.filterVariables((statement) => {
+                    return !TreeUtil.isConnectorDeclaration(statement);
+                });
+            } else if (TreeUtil.isConnector(node)) {
+                variables = node.filterVariableDefs((statement) => {
+                    return !TreeUtil.isConnectorDeclaration(statement);
+                });
+            }
+            variables.forEach((globalDec) => {
+                const errorForVar = this.getSemanticErrorsOfNode(globalDec);
+                if (errorForVar.length > 0) {
+                    errorListForGlobals.push(errorForVar[0]);
+                }
+            });
+            if (errorListForGlobals.length > 0) {
+                const errorBbox = new SimpleBBox();
+                errorBbox.x = node.viewState.components.globalsBbox.x - 130;
+                errorBbox.y = node.viewState.components.globalsBbox.y;
+                const overlayComponents = {
+                    kind: 'SemanticErrorPopup',
+                    props: {
+                        key: node.getID(),
+                        model: node,
+                        bBox: errorBbox,
+                        errors: errorListForGlobals,
+                        placement: 'bottom',
+                    },
+                };
+                node.viewState.showGlobalErrors = true;
+                node.viewState.errorsForGlobals = overlayComponents;
+            }
+        }
     }
-
 
 
     /**
@@ -241,7 +484,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Variable nodes.
      *
@@ -251,7 +493,6 @@ class ErrorRenderingUtil {
     placeErrorForVariableNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -265,7 +506,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Xmlns nodes.
      *
@@ -273,9 +513,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForXmlnsNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -289,7 +528,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of AnnotationAttachmentAttributeValue nodes.
      *
@@ -299,7 +537,6 @@ class ErrorRenderingUtil {
     placeErrorForAnnotationAttachmentAttributeValueNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -313,7 +550,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of BinaryExpr nodes.
      *
@@ -323,7 +559,6 @@ class ErrorRenderingUtil {
     placeErrorForBinaryExprNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -337,7 +572,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of FieldBasedAccessExpr nodes.
      *
@@ -347,7 +581,6 @@ class ErrorRenderingUtil {
     placeErrorForFieldBasedAccessExprNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -361,7 +594,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Invocation nodes.
      *
@@ -371,7 +603,6 @@ class ErrorRenderingUtil {
     placeErrorForInvocationNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -385,7 +616,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Literal nodes.
      *
@@ -395,7 +625,6 @@ class ErrorRenderingUtil {
     placeErrorForLiteralNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -409,7 +638,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of SimpleVariableRef nodes.
      *
@@ -419,7 +647,6 @@ class ErrorRenderingUtil {
     placeErrorForSimpleVariableRefNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -433,7 +660,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of TernaryExpr nodes.
      *
@@ -443,7 +669,6 @@ class ErrorRenderingUtil {
     placeErrorForTernaryExprNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -457,7 +682,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of TypeConversionExpr nodes.
      *
@@ -467,7 +691,6 @@ class ErrorRenderingUtil {
     placeErrorForTypeConversionExprNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -481,7 +704,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of XmlQname nodes.
      *
@@ -491,7 +713,6 @@ class ErrorRenderingUtil {
     placeErrorForXmlQnameNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -505,7 +726,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of XmlQuotedString nodes.
      *
@@ -515,7 +735,6 @@ class ErrorRenderingUtil {
     placeErrorForXmlQuotedStringNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -529,7 +748,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of XmlTextLiteral nodes.
      *
@@ -539,7 +757,6 @@ class ErrorRenderingUtil {
     placeErrorForXmlTextLiteralNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -553,7 +770,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of XmlPiLiteral nodes.
      *
@@ -565,7 +781,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Abort nodes.
      *
@@ -573,9 +788,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForAbortNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -585,9 +799,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForAssignmentNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -601,7 +814,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Break nodes.
      *
@@ -609,9 +821,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForBreakNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -621,9 +832,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForNextNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -633,9 +843,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForExpressionStatementNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -645,9 +854,19 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForForkJoinNode(node) {
-        // Not implemented.
-    }
+        const joinStmt = node.getJoinBody();
+        const timeoutStmt = node.getTimeoutBody();
 
+        this.placeErrorForCompoundStatementComponents(node);
+
+        if (joinStmt) {
+            this.placeErrorForCompoundStatementComponents(joinStmt);
+        }
+
+        if (timeoutStmt) {
+            this.placeErrorForCompoundStatementComponents(timeoutStmt);
+        }
+    }
 
 
     /**
@@ -657,9 +876,12 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForIfNode(node) {
-        // Not implemented.
+        const elseStatement = node.elseStatement;
+        this.placeErrorForCompoundStatementComponents(node);
+        if (elseStatement) {
+            this.placeErrorForCompoundStatementComponents(elseStatement);
+        }
     }
-
 
 
     /**
@@ -673,7 +895,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Return nodes.
      *
@@ -681,9 +902,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForReturnNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -697,7 +917,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Throw nodes.
      *
@@ -705,9 +924,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForThrowNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -717,9 +935,32 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForTransactionNode(node) {
-        // Not implemented.
-    }
+        const abortedBody = node.abortedBody;
+        const committedBody = node.committedBody;
+        const failedBody = node.failedBody;
+        const transactionBody = node.transactionBody;
 
+        this.placeErrorForCompoundStatementComponents(node);
+        // Set the position of the transaction body
+        if (transactionBody) {
+            this.placeErrorForCompoundStatementComponents(transactionBody);
+        }
+
+        // Set the position of the failed body
+        if (failedBody) {
+            this.placeErrorForCompoundStatementComponents(failedBody);
+        }
+
+        // Set the position of the aborted body
+        if (abortedBody) {
+            this.placeErrorForCompoundStatementComponents(abortedBody);
+        }
+
+        // Set the position of the aborted body
+        if (committedBody) {
+            this.placeErrorForCompoundStatementComponents(committedBody);
+        }
+    }
 
 
     /**
@@ -733,7 +974,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Try nodes.
      *
@@ -741,9 +981,21 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForTryNode(node) {
-        // Not implemented.
-    }
+        // Position the try node
+        this.placeErrorForCompoundStatementComponents(node);
 
+        const catchBlocks = node.catchBlocks;
+        const finallyBody = node.finallyBody;
+
+        for (let itr = 0; itr < catchBlocks.length; itr++) {
+            // Position the compound statement components of catch block
+            this.placeErrorForCompoundStatementComponents(catchBlocks[itr]);
+        }
+
+        if (finallyBody) {
+            this.placeErrorForCompoundStatementComponents(finallyBody);
+        }
+    }
 
 
     /**
@@ -753,9 +1005,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForVariableDefNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -765,9 +1016,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForWhileNode(node) {
-        // Not implemented.
+        this.placeErrorForCompoundStatementComponents(node);
     }
-
 
 
     /**
@@ -777,9 +1027,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForWorkerReceiveNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -789,9 +1038,8 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForWorkerSendNode(node) {
-        // Not implemented.
+        this.placeErrorForStatementComponents(node);
     }
-
 
 
     /**
@@ -805,7 +1053,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of BuiltInRefType nodes.
      *
@@ -815,7 +1062,6 @@ class ErrorRenderingUtil {
     placeErrorForBuiltInRefTypeNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -829,7 +1075,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of FunctionType nodes.
      *
@@ -839,7 +1084,6 @@ class ErrorRenderingUtil {
     placeErrorForFunctionTypeNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -853,7 +1097,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of ValueType nodes.
      *
@@ -863,7 +1106,6 @@ class ErrorRenderingUtil {
     placeErrorForValueTypeNode(node) {
         // Not implemented.
     }
-
 
 
 }

@@ -21,12 +21,14 @@ import PropTypes from 'prop-types';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
+import ErrorRenderer from './visitors/error-rendering-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import OverlayComponentsRenderingVisitor from '../visitors/overlay-comp-rendering-visitor';
+import ErrorCollectorVisitor from '../visitors/error-collector-visitor';
 import {
     getComponentForNodeArray,
     getSizingUtil,
@@ -34,6 +36,7 @@ import {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
+    getErrorCollectorUtil,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
@@ -58,6 +61,7 @@ class Diagram extends React.Component {
         super(props);
         this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
+        this.errorRenderer = new ErrorRenderer();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
         this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
     }
@@ -112,6 +116,10 @@ class Diagram extends React.Component {
             .setWorkerInvocationPositionSyncUtil(getInvocationArrowPositionUtil(this.props.mode));
         this.props.model.accept(this.invocationArrowPositionVisitor);
 
+        // 7. Now we will visit the model again and collect the errors of each node
+        //    in the tree. We will use ErrorRenderer for this.
+        this.errorRenderer.setErrorUtil(getErrorCollectorUtil(this.props.mode));
+        this.props.model.accept(this.errorRenderer);
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());
@@ -136,6 +144,15 @@ class Diagram extends React.Component {
         if (overlayCompRender.getOverlayComponents()) {
             overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
         }
+
+        // Filter out the errors collected so we can show them near the specific components
+        const errorCollector = new ErrorCollectorVisitor();
+        this.props.model.accept(errorCollector);
+        let errorList = [];
+        if (errorCollector.getErrors()) {
+            errorList = getOverlayComponent(errorCollector.getErrors(), this.props.mode);
+        }
+
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 
@@ -146,6 +163,7 @@ class Diagram extends React.Component {
             bBox={viewState.bBox}
             overlayComponents={overlayComponents}
             annotations={annotations}
+            errorList={errorList}
         >
             { children }
             <TopLevelNodes model={this.props.model} />

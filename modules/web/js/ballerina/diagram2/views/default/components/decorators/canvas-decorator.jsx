@@ -57,6 +57,8 @@ class CanvasDecorator extends React.Component {
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
                 {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
                     this.props.overlayComponents : null }
+                {(this.props.errorList && this.props.errorList.length > 0) ?
+                    this.props.errorList : null }
                 <svg className="svg-container" width={this.props.bBox.w} height={this.props.bBox.h}>
                     <DropZone
                         x="0"
@@ -84,10 +86,12 @@ CanvasDecorator.propTypes = {
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
     overlayComponents: PropTypes.arrayOf(PropTypes.element),
+    errorList: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
     overlayComponents: [],
+    errorList: [],
 };
 export default CanvasDecorator;

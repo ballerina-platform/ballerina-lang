@@ -73,7 +73,7 @@ export default class GlobalExpanded extends React.Component {
 
         const packageScope = this.context.enviornment;
 
-        new ExpressionEditor(bBox, s => {} /*no-op*/, options, packageScope)
+        new ExpressionEditor(bBox, (s) => {} /* no-op*/, options, packageScope)
             .render(this.context.getOverlayContainer());
     }
 
@@ -88,25 +88,19 @@ export default class GlobalExpanded extends React.Component {
         const leftPadding = 10;
         const globalElements = [];
         const editorOuterPadding = 10;
+        const topGutter = 10;
 
         const topBarBbox = {
             x: bBox.x,
-            y: bBox.y,
+            y: bBox.y + topGutter,
         };
 
         let lastGlobalElementY = topBarBbox.y + topBarHeight;
 
         globals.forEach((globalDec) => {
-            const itemBBox = {
-                x: bBox.x,
-                y: lastGlobalElementY,
-                h: globalHeight,
-                w: globalDeclarationWidth,
-            };
-
             globalElements.push(<GlobalItem
                 key={globalDec.id}
-                bBox={itemBBox}
+                bBox={globalDec.viewState.bBox}
                 globalDec={globalDec}
                 getValue={this.props.getValue}
                 onDeleteClick={this.props.onDeleteClick}
@@ -116,19 +110,13 @@ export default class GlobalExpanded extends React.Component {
         });
 
         const textBoxBBox = {
-            x: bBox.x + editorOuterPadding/2,
-            y: lastGlobalElementY + editorOuterPadding/2,
+            x: bBox.x + editorOuterPadding / 2,
+            y: lastGlobalElementY + editorOuterPadding / 2,
             h: globalInputHeight - editorOuterPadding,
             w: globalDeclarationWidth - editorOuterPadding,
         };
 
-        const options = {
-            bBox: textBoxBBox,
-            onChange: () => {},
-            initialValue: '',
-        };
-
-        const totalHeight = topBarHeight + (globals.length*globalHeight) + globalInputHeight;
+        const totalHeight = topBarHeight + (globals.length * globalHeight) + globalInputHeight;
 
         return (
             <g className="global-definitions-collection">
@@ -136,16 +124,28 @@ export default class GlobalExpanded extends React.Component {
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className="global-definitions-topbar-label">
                     {this.props.title}</text>
                 <image
-                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-                    onClick={this.props.onCollapse} xlinkHref={ImageUtil.getSVGIconString('hide')}
-                    x={bBox.x + globalDeclarationWidth - iconSize - 6} y={topBarBbox.y + (topBarHeight - iconSize) / 2}
+                    width={iconSize}
+                    height={iconSize}
+                    className="property-pane-action-button-delete"
+                    onClick={this.props.onCollapse}
+                    xlinkHref={ImageUtil.getSVGIconString('hide')}
+                    x={bBox.x + globalDeclarationWidth - iconSize - 6}
+                    y={topBarBbox.y + (topBarHeight - iconSize) / 2}
                 />
                 {globalElements}
-                <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="add-global-button-background"
-                      />
-                <g onClick={e => {this.openEditor(textBoxBBox)}}>
+                <rect
+                    x={bBox.x}
+                    y={lastGlobalElementY}
+                    height={globalInputHeight}
+                    width={globalDeclarationWidth}
+                    className="add-global-button-background"
+                />
+                <g onClick={(e) => { this.openEditor(textBoxBBox); }}>
                     <rect
-                        x={bBox.x + 7} y={lastGlobalElementY + 7} height={globalInputHeight - 14} width={globalDeclarationWidth - 14}
+                        x={bBox.x + 7}
+                        y={lastGlobalElementY + 7}
+                        height={globalInputHeight - 14}
+                        width={globalDeclarationWidth - 14}
                         className="add-global-button"
                     />
                     <text x={bBox.x + 14} y={lastGlobalElementY + globalInputHeight / 2} className="add-global-button-text" >{this.props.addText}</text>
