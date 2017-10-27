@@ -113,26 +113,35 @@ class TransformPane extends React.Component {
         this.props.changePane(type);
     }
 
+    searchTools(tools) {
+        return tools.filter((tool) => tool.name.toLowerCase().includes(this.props.searchText))
+    }
+
     render() {
+        const isSearching = this.props.searchText.length > 0;
+
         const unaryOpToolGroup = {
             name: 'Unary Operators',
             id: 'unary-operators-tool-group',
             order: 'horizontal',
-            tools: unaryOpTools,
+            tools: this.searchTools(unaryOpTools),
+            collapsed: isSearching,
         };
 
         const binaryOpToolGroup = {
             name: 'Binary Operators',
             id: 'binary-operators-tool-group',
             order: 'horizontal',
-            tools: binaryOpTools,
+            tools: this.searchTools(binaryOpTools),
+            collapsed: isSearching,
         };
 
         const ternaryOpToolGroup = {
             name: 'Ternary Operators',
             id: 'ternary-operators-tool-group',
             order: 'horizontal',
-            tools: ternaryOpTools,
+            tools: this.searchTools(ternaryOpTools),
+            collapsed: isSearching,
         };
 
         return (
@@ -572,6 +581,7 @@ class ToolPaletteView extends React.Component {
                         connectors={connectors}
                         library={library}
                         changePane={this.changePane}
+                        searchText={this.state.search}
                     />}
                     {state === 'connectors' &&
                     <ConnectorPane connectors={connectors} changePane={this.changePane} />}
