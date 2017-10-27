@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description{value:"an Argument"}
@@ -19,5 +18,5 @@ function main (string[] args) {
 @doc:Description{value:"Test struct data type"}
 @doc:Param{value:"argument: Incoming argument"}
 function testStruct(Argument argument) {
-    system:println("Hello, World!");
+    println("Hello, World!");
 }

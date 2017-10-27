@@ -1,14 +1,13 @@
 package foo.bar;
 
 import ballerina.doc;
-import ballerina.lang.system;
 
 @doc:Description{value:"Add HTTP header to the message"}
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 @doc:Param{value:"value: HTTP header value"}
 function addHeader (message m, string key, string value) {
-    system:println("invoked");
+    println("invoked");
 }
 
 @doc:Description{value:"Get HTTP header from the message"}
@@ -16,7 +15,7 @@ function addHeader (message m, string key, string value) {
 @doc:Param{value:"key: HTTP header key"}
 @doc:Return{value:"HTTP header value"}
 function getHeader (message m, string key) (string) {
-    system:println("invoked");
+    println("invoked");
     return "value";
 }
 
