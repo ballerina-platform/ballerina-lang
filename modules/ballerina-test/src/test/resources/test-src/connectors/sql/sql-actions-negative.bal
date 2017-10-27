@@ -1,4 +1,3 @@
-import ballerina.lang.datatables;
 import ballerina.data.sql;
 
 struct ResultCustomers {
@@ -15,8 +14,8 @@ function testSelectData () (string firstName) {
         datatable dt = testDB.select("SELECT  Name from Customers where registrationID = 1", null);
         TypeCastError err;
         ResultCustomers rs;
-        while (datatables:hasNext(dt)) {
-            any dataStruct = datatables:getNext(dt);
+        while (dt.hasNext()) {
+            any dataStruct = dt.getNext();
             rs, err = (ResultCustomers)dataStruct;
             firstName = rs.FIRSTNAME;
         }
@@ -57,8 +56,8 @@ function testCallProcedure () (string firstName) {
         datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null);
         TypeCastError err;
         ResultCustomers rs;
-        while (datatables:hasNext(dt)) {
-            any dataStruct = datatables:getNext(dt);
+        while (dt.hasNext()) {
+            any dataStruct = dt.getNext();
             rs, err = (ResultCustomers)dataStruct;
             firstName = rs.FIRSTNAME;
         }
@@ -115,8 +114,8 @@ function testInvalidArrayofQueryParameters () (string value ) {
         datatable dt = testDB.select("SELECT FirstName from Customers where registrationID in (?)", parameters);
         TypeCastError err;
         ResultCustomers rs;
-        while (datatables:hasNext(dt)) {
-            any dataStruct = datatables:getNext(dt);
+        while (dt.hasNext()) {
+            any dataStruct = dt.getNext();
             rs, err = (ResultCustomers)dataStruct;
             value = rs.FIRSTNAME;
         }

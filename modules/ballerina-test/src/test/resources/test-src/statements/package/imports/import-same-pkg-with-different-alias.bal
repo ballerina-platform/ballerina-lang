@@ -1,9 +1,9 @@
-import ballerina.lang.time;
-import ballerina.lang.time as x;
-import ballerina.lang.time as y;
+import ballerina.net.http;
+import ballerina.net.http as x;
+import ballerina.net.http as y;
 
 function testFunc() {
-    _ = time:currentTime();
-    _ = x:currentTime();
-    _ = y:currentTime();
+    http:ClientConnector httpConnector1 = create http:ClientConnector("https://postman-echo.com", {});
+    x:ClientConnector httpConnector2 = create x:ClientConnector("https://postman-echo.com", {});
+    y:ClientConnector httpConnector3 = create y:ClientConnector("https://postman-echo.com", {});
 }

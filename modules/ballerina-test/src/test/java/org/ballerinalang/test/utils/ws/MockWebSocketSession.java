@@ -58,6 +58,14 @@ public class MockWebSocketSession implements Session {
         return remoteEndpoint.getBufferReceived();
     }
 
+    public boolean isPing() {
+        return remoteEndpoint.isPing();
+    }
+
+    public boolean isPong() {
+        return remoteEndpoint.isPong();
+    }
+
     public void setIsOpen(boolean isOpen) {
         this.isOpen = isOpen;
     }
