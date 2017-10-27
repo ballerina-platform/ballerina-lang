@@ -1,24 +1,23 @@
 package ballerina.caching;
 
-import ballerina.doc;
 import ballerina.task;
 
-@doc:Description {value:"delay in ms which is used to create a new cache cleanup task."}
+@Description {value:"delay in ms which is used to create a new cache cleanup task."}
 const int CACHE_CLEANUP_START_DELAY = 0;
-@doc:Description {value:"interval in ms which is used to create a new cache cleanup task."}
+@Description {value:"interval in ms which is used to create a new cache cleanup task."}
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
-@doc:Description {value:"array which stores the caches."}
+@Description {value:"array which stores the caches."}
 Cache[] caches = [];
 
 string scheduleID;
 
-@doc:Description {value:"Represents a cache."}
-@doc:Field {value:"name - name of the cache"}
-@doc:Field {value:"timeout - timeout of the cache in seconds"}
-@doc:Field {value:"capacity - capacity of the cache"}
-@doc:Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@doc:Field {value:"entries - map which contains the cache entries"}
+@Description {value:"Represents a cache."}
+@Field {value:"name - name of the cache"}
+@Field {value:"timeout - timeout of the cache in seconds"}
+@Field {value:"capacity - capacity of the cache"}
+@Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
+@Field {value:"entries - map which contains the cache entries"}
 public struct Cache {
     string name;
     int timeOut;
@@ -27,20 +26,20 @@ public struct Cache {
     map entries;
 }
 
-@doc:Description {value:"Represents a cache entry"}
-@doc:Field {value:"value - cache value"}
-@doc:Field {value:"lastAccessedTime - last accessed time(in nano seconds) of this value which is used to remove LRU cached values"}
+@Description {value:"Represents a cache entry"}
+@Field {value:"value - cache value"}
+@Field {value:"lastAccessedTime - last accessed time(in nano seconds) of this value which is used to remove LRU cached values"}
 struct CacheEntry {
     any value;
     int lastAccessedTime;
 }
 
-@doc:Description {value:"Creates a new cache."}
-@doc:Param {value:"name - name of the cache"}
-@doc:Param {value:"timeout - timeout of the cache in seconds"}
-@doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
-@doc:Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@doc:Return {value:"cache - a new cache"}
+@Description {value:"Creates a new cache."}
+@Param {value:"name - name of the cache"}
+@Param {value:"timeout - timeout of the cache in seconds"}
+@Param {value:"capacity - capacitry of the cache which should be greater than 0"}
+@Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
+@Return {value:"cache - a new cache"}
 public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (Cache) {
     // Cache capacity must be a positive value.
     if (capacity <= 0) {
@@ -70,9 +69,9 @@ public function createCache (string name, int timeOut, int capacity, float evict
     return cache;
 }
 
-@doc:Description {value:"Adds the given key, value pair to the provided cache."}
-@doc:Param {value:"key - value which should be used as the key"}
-@doc:Param {value:"value - value to be cached"}
+@Description {value:"Adds the given key, value pair to the provided cache."}
+@Param {value:"key - value which should be used as the key"}
+@Param {value:"value - value to be cached"}
 public function <Cache cache> put (string key, any value) {
     int maxCapacity = cache.capacity;
     int currentCapacity = cache.entries.length();
@@ -86,7 +85,7 @@ public function <Cache cache> put (string key, any value) {
     cache.entries[key] = entry;
 }
 
-@doc:Description {value:"Evicts the cache when cache is full."}
+@Description {value:"Evicts the cache when cache is full."}
 function <Cache cache> evictCache () {
     int maxCapacity = cache.capacity;
     float evictionFactor = cache.evictionFactor;
@@ -99,8 +98,8 @@ function <Cache cache> evictCache () {
     }
 }
 
-@doc:Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
-@doc:Param {value:"key - key which is used to retrieve the cached value"}
+@Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
+@Param {value:"key - key which is used to retrieve the cached value"}
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {
@@ -114,13 +113,13 @@ public function <Cache cache> get (string key) returns (any) {
     return entry.value;
 }
 
-@doc:Description {value:"Removes a cached value from a cache."}
-@doc:Param {value:"key - key of the cache entry which needs to be removed"}
+@Description {value:"Removes a cached value from a cache."}
+@Param {value:"key - key of the cache entry which needs to be removed"}
 public function <Cache c> remove (string key) {
     c.entries.remove(key);
 }
 
-@doc:Description {value:"Removes expired cache entries from all caches."}
+@Description {value:"Removes expired cache entries from all caches."}
 public function cleanCache () returns (error) {
     int currentCacheIndex = 0;
     int cacheSize = lengthof caches;
@@ -174,8 +173,8 @@ public function cleanCache () returns (error) {
     return null;
 }
 
-@doc:Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@doc:Return {value:"string - key of the LRU cache entry"}
+@Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
+@Return {value:"string - key of the LRU cache entry"}
 function <Cache cache> getLRUCache () (string cacheKey) {
     map entries = cache.entries;
     string[] keys = entries.keys();
