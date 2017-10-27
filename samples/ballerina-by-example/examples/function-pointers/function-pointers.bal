@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 function test (int x, string s) returns (float f) {
@@ -21,9 +20,9 @@ function getIt () (function (int, string) returns (float) f) {
 
 function main (string[] args) {
     // Value 'test' will serve as a pointer to 'test' function.
-    system:println("Answer: " + foo(10, test));
-    system:println("Answer: " + foo(10, getIt()));
+    println("Answer: " + foo(10, test));
+    println("Answer: " + foo(10, getIt()));
     // Function pointer as a variable;
     function (int, string) returns (float) f = getIt();
-    system:println("Answer: " + foo(10, f));
+    println("Answer: " + foo(10, f));
 }

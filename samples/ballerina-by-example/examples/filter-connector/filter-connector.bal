@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+
 import ballerina.doc;
 
 @doc:Description {value:"This is the base connector we are going to decorate"}
@@ -35,13 +35,13 @@ function main (string[] args) {
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'WSO2'.
     int price = stockQC.getStock("WSO2");
-    system:println(price);
+    println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'IBM'.
     price = stockQC.getStock("IBM");
-    system:println(price);
+    println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a non-cached key 'Ballerina'.
     price = stockQC.getStock("Ballerina");
-    system:println(price);
+    println(price);
 }

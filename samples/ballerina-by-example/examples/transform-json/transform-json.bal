@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"Defining Person struct."}
@@ -34,7 +33,7 @@ service<http> PersonService {
 
         // Print if an error is thrown
         if (err != null) {
-            system:println(err);
+            println(err);
         }
 
         // Define a constant city value as "London".
