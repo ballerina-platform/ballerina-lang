@@ -73,7 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectionInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -492,7 +492,7 @@ public class BLangPackageBuilder {
     }
 
     public void addConnectionInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
-        BLangConnectionInit connectorInitNode = (BLangConnectionInit) TreeBuilder.createConnectionInitNode();
+        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectionInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.addWS(ws);
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();

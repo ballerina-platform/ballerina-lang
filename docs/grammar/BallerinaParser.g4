@@ -288,12 +288,12 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectionInit
+connectorInit
     :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 endpointDeclaration
-    :   endpointDefinition LEFT_BRACE ((variableReference | connectionInit) SEMICOLON)? RIGHT_BRACE
+    :   endpointDefinition LEFT_BRACE ((variableReference | connectorInit) SEMICOLON)? RIGHT_BRACE
     ;
 
 endpointDefinition
@@ -493,7 +493,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   connectionInit                                                      # connectionInitExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression

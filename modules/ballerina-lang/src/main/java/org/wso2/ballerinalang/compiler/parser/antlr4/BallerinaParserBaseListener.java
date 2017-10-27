@@ -760,13 +760,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConnectionInit(BallerinaParser.ConnectionInitContext ctx) { }
+	@Override public void enterConnectorInit(BallerinaParser.ConnectorInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConnectionInit(BallerinaParser.ConnectionInitContext ctx) { }
+	@Override public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1384,6 +1384,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1439,18 +1451,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConnectionInitExpression(BallerinaParser.ConnectionInitExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectionInitExpression(BallerinaParser.ConnectionInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

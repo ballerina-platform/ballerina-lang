@@ -63,7 +63,7 @@ public class BallerinaParser extends Parser {
 		RULE_transformStatementBody = 46, RULE_expressionAssignmentStatement = 47, 
 		RULE_expressionVariableDefinitionStatement = 48, RULE_variableDefinitionStatement = 49, 
 		RULE_mapStructLiteral = 50, RULE_mapStructKeyValue = 51, RULE_arrayLiteral = 52, 
-		RULE_connectionInit = 53, RULE_endpointDeclaration = 54, RULE_endpointDefinition = 55, 
+		RULE_connectorInit = 53, RULE_endpointDeclaration = 54, RULE_endpointDefinition = 55, 
 		RULE_assignmentStatement = 56, RULE_bindStatement = 57, RULE_variableReferenceList = 58, 
 		RULE_ifElseStatement = 59, RULE_ifClause = 60, RULE_elseIfClause = 61, 
 		RULE_elseClause = 62, RULE_iterateStatement = 63, RULE_whileStatement = 64, 
@@ -99,7 +99,7 @@ public class BallerinaParser extends Parser {
 		"annotationAttribute", "annotationAttributeValue", "annotationAttributeArray", 
 		"statement", "transformStatement", "transformStatementBody", "expressionAssignmentStatement", 
 		"expressionVariableDefinitionStatement", "variableDefinitionStatement", 
-		"mapStructLiteral", "mapStructKeyValue", "arrayLiteral", "connectionInit", 
+		"mapStructLiteral", "mapStructKeyValue", "arrayLiteral", "connectorInit", 
 		"endpointDeclaration", "endpointDefinition", "assignmentStatement", "bindStatement", 
 		"variableReferenceList", "ifElseStatement", "ifClause", "elseIfClause", 
 		"elseClause", "iterateStatement", "whileStatement", "nextStatement", "breakStatement", 
@@ -4371,7 +4371,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ConnectionInitContext extends ParserRuleContext {
+	public static class ConnectorInitContext extends ParserRuleContext {
 		public TerminalNode CREATE() { return getToken(BallerinaParser.CREATE, 0); }
 		public UserDefineTypeNameContext userDefineTypeName() {
 			return getRuleContext(UserDefineTypeNameContext.class,0);
@@ -4381,23 +4381,23 @@ public class BallerinaParser extends Parser {
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
-		public ConnectionInitContext(ParserRuleContext parent, int invokingState) {
+		public ConnectorInitContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_connectionInit; }
+		@Override public int getRuleIndex() { return RULE_connectorInit; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectionInit(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectorInit(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectionInit(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorInit(this);
 		}
 	}
 
-	public final ConnectionInitContext connectionInit() throws RecognitionException {
-		ConnectionInitContext _localctx = new ConnectionInitContext(_ctx, getState());
-		enterRule(_localctx, 106, RULE_connectionInit);
+	public final ConnectorInitContext connectorInit() throws RecognitionException {
+		ConnectorInitContext _localctx = new ConnectorInitContext(_ctx, getState());
+		enterRule(_localctx, 106, RULE_connectorInit);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -4442,8 +4442,8 @@ public class BallerinaParser extends Parser {
 		public VariableReferenceContext variableReference() {
 			return getRuleContext(VariableReferenceContext.class,0);
 		}
-		public ConnectionInitContext connectionInit() {
-			return getRuleContext(ConnectionInitContext.class,0);
+		public ConnectorInitContext connectorInit() {
+			return getRuleContext(ConnectorInitContext.class,0);
 		}
 		public EndpointDeclarationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4485,7 +4485,7 @@ public class BallerinaParser extends Parser {
 				case CREATE:
 					{
 					setState(833);
-					connectionInit();
+					connectorInit();
 					}
 					break;
 				default:
@@ -7466,6 +7466,20 @@ public class BallerinaParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
+	public static class ConnectorInitExpressionContext extends ExpressionContext {
+		public ConnectorInitContext connectorInit() {
+			return getRuleContext(ConnectorInitContext.class,0);
+		}
+		public ConnectorInitExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectorInitExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorInitExpression(this);
+		}
+	}
 	public static class BinaryDivMulModExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -7546,20 +7560,6 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSimpleLiteralExpression(this);
-		}
-	}
-	public static class ConnectionInitExpressionContext extends ExpressionContext {
-		public ConnectionInitContext connectionInit() {
-			return getRuleContext(ConnectionInitContext.class,0);
-		}
-		public ConnectionInitExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectionInitExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectionInitExpression(this);
 		}
 	}
 	public static class StringTemplateLiteralExpressionContext extends ExpressionContext {
@@ -7947,11 +7947,11 @@ public class BallerinaParser extends Parser {
 				break;
 			case 10:
 				{
-				_localctx = new ConnectionInitExpressionContext(_localctx);
+				_localctx = new ConnectorInitExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(1261);
-				connectionInit();
+				connectorInit();
 				}
 				break;
 			case 11:

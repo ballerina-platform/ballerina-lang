@@ -1165,12 +1165,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectionInitExpression(BallerinaParser.ConnectionInitExpressionContext ctx) {
+    public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        boolean argsAvailable = ctx.connectionInit() != null && ctx.connectionInit().expressionList() != null;
+        boolean argsAvailable = ctx.connectorInit() != null && ctx.connectorInit().expressionList() != null;
         this.pkgBuilder.addConnectionInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
@@ -1185,7 +1185,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String endpointName = ctx.endpointDefinition().Identifier().getText();
 
-        boolean exprAvailable = ctx.connectionInit() != null || ctx.variableReference() != null;
+        boolean exprAvailable = ctx.connectorInit() != null || ctx.variableReference() != null;
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                 endpointName, exprAvailable);
     }

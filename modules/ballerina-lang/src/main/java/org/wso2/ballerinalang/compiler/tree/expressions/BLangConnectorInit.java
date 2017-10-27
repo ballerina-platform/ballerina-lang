@@ -33,14 +33,14 @@ import java.util.List;
  *
  * @since 0.94
  */
-public class BLangConnectionInit extends BLangExpression implements ConnectorInitNode {
+public class BLangConnectorInit extends BLangExpression implements ConnectorInitNode {
 
     public BLangUserDefinedType connectorType;
     public List<BLangExpression> argsExpr;
     public List<ConnectorInitNode> filterConnectors;
 
 
-    public BLangConnectionInit() {
+    public BLangConnectorInit() {
         argsExpr = new ArrayList<>();
         filterConnectors = new ArrayList<>();
     }
