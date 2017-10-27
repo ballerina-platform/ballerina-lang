@@ -32,7 +32,7 @@ public class Constant {
     // The prefix of appointment log
     public static final String PREFIX_APPOINTMENT = "Appointment ";
     // 59 minutes in milli seconds
-    public static final Long LIFETIME = 59 * 60000L;
+    public static final Long LIFETIME = 60 * 60000L;
     // It always has -1
     public static final int NOT_CONSIDERABLE = -1;
     // It is the pool size. Since only one task is running on a executor service, this is always 1

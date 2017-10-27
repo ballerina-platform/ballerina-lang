@@ -43,7 +43,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.nativeimpl.task.TaskScheduler.calculateDelay;
+import static org.ballerinalang.nativeimpl.task.TaskScheduler.findExecutionTime;
 import static org.ballerinalang.nativeimpl.task.TaskScheduler.getExecutionLifeTime;
 
 /**
@@ -77,22 +77,37 @@ public class TaskTest {
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
     }
 
+    @Test(description = "Test for 'scheduleAppointment' function to trigger now and run every minute in an hour")
+    public void testScheduleAppointmentToStartNowAndRunOneHour() {
+        int taskId;
+        Calendar currentTime = Calendar.getInstance();
+        int hour = currentTime.get(Calendar.HOUR);
+        BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
+                new BInteger(65000) };
+        BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        taskId = Integer.parseInt(returns[0].stringValue());
+        Assert.assertNotEquals(taskId, -1);
+    }
+
     @Test(priority = 1, description = "Test for 'scheduleAppointment' function to trigger every minute")
     public void testScheduleAppointmentEveryMinute() {
         consoleOutput.reset();
-        long expectedDuration = 60000;
+        Calendar currentTime = Calendar.getInstance();
+        Calendar modifiedTime = (Calendar) currentTime.clone();
+        modifiedTime.add(Calendar.MINUTE, 1);
+        modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
         createDirectoryWithFile();
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(130000) };
+                new BInteger(65000) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskIdEM = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskIdEM, -1, -1, -1, -1, -1);
+            executionTime = findExecutionTime(taskIdEM, -1, -1, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskIdEM, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(calculateDifference(modifiedTime, executionTime) % 60000, 0);
         Assert.assertTrue(consoleOutput.toString().contains(TestConstant.APPOINTMENT_SUCCESS_MESSAGE));
     }
 
@@ -103,18 +118,17 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, 0, -1);
         modifiedTime.add(Calendar.HOUR, 1);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 0, -1, -1, -1, -1);
+            executionTime = findExecutionTime(taskId, 0, -1, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every 5th minute")
@@ -126,18 +140,17 @@ public class TaskTest {
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.HOUR, 1);
         }
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(5), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 5, -1, -1, -1, -1);
+            executionTime = findExecutionTime(taskId, 5, -1, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 10AM everyday")
@@ -150,41 +163,43 @@ public class TaskTest {
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 1);
         }
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 0, hour, -1, -1, -1);
+            executionTime = findExecutionTime(taskId, 0, hour, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute on Mondays")
     public void testScheduleAppointmentEveryMinuteOnMondays() {
         int taskId;
         int dayOfWeek = 2;
-        long expectedDuration = 60000;
+        long expectedDuration = 0;
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
-        if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-            expectedDuration = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
+        if (currentTime.get(Calendar.DAY_OF_WEEK) == dayOfWeek) {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
+        } else {
+            modifiedTime = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
+            executionTime = findExecutionTime(taskId, -1, -1, dayOfWeek, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Mondays")
@@ -203,18 +218,17 @@ public class TaskTest {
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 7);
         }
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(14), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 0, 14, dayOfWeek, -1, -1);
+            executionTime = findExecutionTime(taskId, 0, 14, dayOfWeek, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute on tomorrow")
@@ -224,45 +238,49 @@ public class TaskTest {
         Calendar clonedCalendar = (Calendar) currentTime.clone();
         clonedCalendar.add(Calendar.DATE, 1);
         int dayOfWeek = clonedCalendar.get(Calendar.DAY_OF_WEEK);
-        long expectedDuration = 60000;
         Calendar modifiedTime = (Calendar) currentTime.clone();
-        if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-            expectedDuration = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
+        if (currentTime.get(Calendar.DAY_OF_WEEK) == dayOfWeek) {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
+        } else {
+            modifiedTime = modifyTheCalendarAndCalculateTimeByDayOfWeek(modifiedTime, currentTime, dayOfWeek);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
+            executionTime = findExecutionTime(taskId, -1, -1, dayOfWeek, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in January")
     public void testScheduleAppointmentEveryMinuteInJanuary() {
         int taskId;
         int month = 0;
-        long expectedDuration = 60000;
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.MONTH) != month) {
-            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
+            modifiedTime = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
+        } else {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
+            executionTime = findExecutionTime(taskId, -1, -1, -1, -1, month);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger next week the hour is one hour back "
@@ -281,18 +299,17 @@ public class TaskTest {
         if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 7);
         }
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(0), new BInteger(hour), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 0, hour, dayOfWeek, -1, -1);
+            executionTime = findExecutionTime(taskId, 0, hour, dayOfWeek, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger next week. The day of week is "
@@ -306,45 +323,46 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.setTime(clonedCalendar.getTime());
         modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, -1);
+            executionTime = findExecutionTime(taskId, -1, -1, dayOfWeek, -1, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger every minute in next month")
     public void testScheduleAppointmentEveryMinuteInNextMonth() {
         int taskId;
         int month = (Calendar.getInstance()).get(Calendar.MONTH) + 1;
-        long expectedDuration = 60000;
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.MONTH) != month) {
-            expectedDuration = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
+            modifiedTime = modifyTheCalendarAndCalculateTimeByMonth(modifiedTime, currentTime, month);
+        } else {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(month),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, -1, -1, month);
+            executionTime = findExecutionTime(taskId, -1, -1, -1, -1, month);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
-    @Test(description = "Test for 'scheduleAppointment' function to trigger after an hour from current in next month")
-    public void testScheduleAppointmentAfterAnHourInNextMonth() {
+    @Test(description = "Test for 'scheduleAppointment' function to trigger next hour from current in next month")
+    public void testScheduleAppointmentNextHourInNextMonth() {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
         Calendar clonedCalendar = (Calendar) currentTime.clone();
@@ -358,18 +376,17 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.setTime(clonedCalendar.getTime());
         modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(-1),
                 new BInteger(month), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, hour, -1, -1, month);
+            executionTime = findExecutionTime(taskId, -1, hour, -1, -1, month);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger next day of week in next month")
@@ -399,43 +416,43 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.setTime(clonedCalendar.getTime());
         modifiedTime = setCalendarFields(modifiedTime, clonedCalendar.get(Calendar.AM_PM), 0, 0, 0, -1);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(hour), new BInteger(-1), new BInteger(dayOfMonth),
                 new BInteger(month), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, hour, -1, dayOfMonth, month);
+            executionTime = findExecutionTime(taskId, -1, hour, -1, dayOfMonth, month);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger on 31st day")
     public void testScheduleAppointmentOn31st() {
         int taskId;
         int dayOfMonth = 31;
-        long expectedDuration = 60000;
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
             modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
             modifiedTime = modifyTheCalendarByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+        } else {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, -1, -1);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, -1, dayOfMonth, -1);
+            executionTime = findExecutionTime(taskId, -1, -1, -1, dayOfMonth, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 2PM on Tuesdays in January")
@@ -472,48 +489,68 @@ public class TaskTest {
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, hour);
-        if (modifiedTime.before(currentTime)) {
+        long expectedPeriod;
+        long delay = 0;
+        if (currentTime.get(Calendar.HOUR) == hour) {
+            long difference = currentTime.getTimeInMillis() - modifiedTime.getTimeInMillis();
+            Calendar clonedTime = (Calendar) currentTime.clone();
+            clonedTime.add(Calendar.MINUTE, 1);
+            clonedTime = setCalendarFields(clonedTime, 0, 0, 0, -1, -1);
+            long calculatedDelay = clonedTime.getTimeInMillis() - currentTime.getTimeInMillis();
+            expectedPeriod = calculatedDelay + Constant.LIFETIME - difference;
+        } else if (modifiedTime.before(currentTime)) {
             modifiedTime.add(Calendar.DATE, 1);
+            expectedPeriod = Constant.LIFETIME + (modifiedTime.getTimeInMillis() - currentTime.getTimeInMillis());
+        } else {
+            expectedPeriod = Constant.LIFETIME + (modifiedTime.getTimeInMillis() - currentTime.getTimeInMillis());
         }
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(10), new BInteger(-1), new BInteger(-1), new BInteger(-1),
                 new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long period = getExecutionLifeTime(taskId);
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, 10, -1, -1, -1);
+            executionTime = findExecutionTime(taskId, -1, 10, -1, -1, -1);
         } catch (SchedulingFailedException e) {
         }
+        if (currentTime.get(Calendar.HOUR) == hour) {
+            Calendar clonedTime = (Calendar) currentTime.clone();
+            clonedTime.add(Calendar.MINUTE, 1);
+            clonedTime = setCalendarFields(clonedTime, 0, 0, 0, -1, -1);
+            delay = clonedTime.getTimeInMillis() - currentTime.getTimeInMillis();
+        } else {
+            delay = executionTime.getTimeInMillis() - currentTime.getTimeInMillis();
+        }
+        long period = delay + getExecutionLifeTime(taskId);
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
-        Assert.assertTrue(isAcceptable(period, calculatedDuration + Constant.LIFETIME));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
+        Assert.assertTrue(isAcceptable(period, expectedPeriod));
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger 25th of every month")
     public void testScheduleAppointment25thOfEachMonth() {
         int taskId;
         int dayOfMonth = 25;
-        long expectedDuration = 60000;
         Calendar currentTime = Calendar.getInstance();
         Calendar modifiedTime = (Calendar) currentTime.clone();
         if (currentTime.get(Calendar.DAY_OF_MONTH) != dayOfMonth) {
             modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
             modifiedTime = modifyTheCalendarByDayOfMonth(modifiedTime, currentTime, dayOfMonth);
-            expectedDuration = calculateDifference(currentTime, modifiedTime);
+        } else {
+            modifiedTime.add(Calendar.MINUTE, 1);
+            modifiedTime = setCalendarFields(modifiedTime, -1, 0, 0, -1, -1);
         }
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(-1), new BInteger(dayOfMonth),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, -1, dayOfMonth, -1);
+            executionTime = findExecutionTime(taskId, -1, -1, -1, dayOfMonth, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleAppointment' function to trigger at midnight on Mondays "
@@ -535,24 +572,22 @@ public class TaskTest {
         if (modifiedTimeByDOW.before(currentTime)) {
             modifiedTimeByDOW.add(Calendar.DATE, 7);
         }
-        long expectedDurationByDOW = calculateDifference(currentTime, modifiedTimeByDOW);
         modifiedTimeByDOM = setCalendarFields(modifiedTimeByDOM, 0, 0, 0, 0, 0);
         modifiedTimeByDOM = modifyTheCalendarByDayOfMonth(modifiedTimeByDOM, currentTime, dayOfMonth);
-        long expectedDurationByDOM = calculateDifference(currentTime, modifiedTimeByDOM);
-        long expectedDuration =
-                expectedDurationByDOW < expectedDurationByDOM ? expectedDurationByDOW : expectedDurationByDOM;
-
+        Calendar expectedTime = modifiedTimeByDOW.getTimeInMillis() < modifiedTimeByDOM.getTimeInMillis() ?
+                modifiedTimeByDOW :
+                modifiedTimeByDOM;
         BValue[] args = { new BInteger(0), new BInteger(0), new BInteger(dayOfWeek), new BInteger(dayOfMonth),
                 new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, 0, 0, dayOfWeek, dayOfMonth, -1);
+            executionTime = findExecutionTime(taskId, 0, 0, dayOfWeek, dayOfMonth, -1);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), expectedTime.getTimeInMillis());
     }
 
     @Test(description = "Test for 'scheduleTimer' function which is implemented in ballerina.task package")
@@ -590,8 +625,7 @@ public class TaskTest {
         int taskId;
         int interval = 10000;
         BValue[] args = { new BInteger(0), new BInteger(interval), new BInteger(15000) };
-        BValue[] returns = BRunUtil
-                .invoke(timerWithErrorCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(timerWithErrorCompileResult, TestConstant.TIMER_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         Assert.assertNotEquals(taskId, -1);
     }
@@ -684,6 +718,7 @@ public class TaskTest {
         }
         return i;
     }
+
     private void testAppointmentWithDifferentDOW(char c, int days) {
         int taskId;
         Calendar currentTime = Calendar.getInstance();
@@ -704,18 +739,18 @@ public class TaskTest {
         Calendar modifiedTime = (Calendar) currentTime.clone();
         modifiedTime.setTime(clonedCalendar.getTime());
         modifiedTime = setCalendarFields(modifiedTime, 0, 0, 0, 0, 0);
-        long expectedDuration = calculateDifference(currentTime, modifiedTime);
         BValue[] args = { new BInteger(-1), new BInteger(-1), new BInteger(dayOfWeek), new BInteger(-1),
                 new BInteger(month), new BInteger(0) };
-        BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
+        BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION,
+                args);
         taskId = Integer.parseInt(returns[0].stringValue());
-        long calculatedDuration = 0;
+        Calendar executionTime = Calendar.getInstance();
         try {
-            calculatedDuration = calculateDelay(taskId, -1, -1, dayOfWeek, -1, month);
+            executionTime = findExecutionTime(taskId, -1, -1, dayOfWeek, -1, month);
         } catch (SchedulingFailedException e) {
         }
         Assert.assertNotEquals(taskId, -1);
-        Assert.assertTrue(isAcceptable(expectedDuration, calculatedDuration));
+        Assert.assertEquals(executionTime.getTimeInMillis(), modifiedTime.getTimeInMillis());
     }
 
     private void createDirectoryWithFile() {
@@ -726,12 +761,6 @@ public class TaskTest {
         } catch (IOException e) {
             log.error("Unable to create the test file: " + e.getMessage());
         }
-    }
-
-    private long getCalculatedDuration(String scheduler, int taskId, String log) {
-        String logEntry = log.substring(log.lastIndexOf(scheduler + taskId + Constant.DELAY_HINT));
-        return Long.parseLong(
-                logEntry.substring((scheduler + taskId + Constant.DELAY_HINT).length(), logEntry.indexOf("]")));
     }
 
     private boolean isAcceptable(long expectedDuration, long calculatedDuration) {
@@ -753,7 +782,9 @@ public class TaskTest {
         if (hours != -1) {
             calendar.set(Calendar.HOUR, hours);
         }
-        calendar.set(Calendar.MINUTE, minutes);
+        if (minutes != -1) {
+            calendar.set(Calendar.MINUTE, minutes);
+        }
         calendar.set(Calendar.SECOND, seconds);
         calendar.set(Calendar.MILLISECOND, milliseconds);
         if (ampm != -1) {
@@ -775,7 +806,8 @@ public class TaskTest {
         return calendar;
     }
 
-    private long modifyTheCalendarAndCalculateTimeByDayOfWeek(Calendar calendar, Calendar currentTime, int dayOfWeek) {
+    private Calendar modifyTheCalendarAndCalculateTimeByDayOfWeek(Calendar calendar, Calendar currentTime,
+                                                                  int dayOfWeek) {
         if (currentTime.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
             int days = currentTime.get(Calendar.DAY_OF_WEEK) > dayOfWeek ?
                     7 - (currentTime.get(Calendar.DAY_OF_WEEK) - dayOfWeek) :
@@ -785,18 +817,17 @@ public class TaskTest {
             if (calendar.before(currentTime)) {
                 calendar.add(Calendar.DATE, 7);
             }
-            return calculateDifference(currentTime, calendar);
         }
-        return -1;
+        return calendar;
     }
 
-    private long modifyTheCalendarAndCalculateTimeByMonth(Calendar calendar, Calendar currentTime, int month) {
+    private Calendar modifyTheCalendarAndCalculateTimeByMonth(Calendar calendar, Calendar currentTime, int month) {
         if (calendar.get(Calendar.MONTH) > month) {
             calendar.add(Calendar.YEAR, 1);
         }
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DATE, 1);
         calendar = setCalendarFields(calendar, 0, 0, 0, 0, 0);
-        return calculateDifference(currentTime, calendar);
+        return calendar;
     }
 }
