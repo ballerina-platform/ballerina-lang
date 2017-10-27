@@ -61,49 +61,48 @@ public function createCache (string name, int timeOut, int capacity, float evict
     }
 
     // Create a new cache.
-    Cache c = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
+    Cache cache = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     // Get the current total cache count.
     int currentCachesCount = lengthof caches;
     // Add the new cache to the end of the caches array.
-    caches[currentCachesCount] = c;
+    caches[currentCachesCount] = cache;
     // Return the new cache.
-    return c;
+    return cache;
 }
 
 @doc:Description {value:"Adds the given key, value pair to the provided cache."}
-@doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - value which should be used as the key"}
 @doc:Param {value:"value - value to be cached"}
-public function put (Cache c, string key, any value) {
-    int maxCapacity = c.capacity;
-    int currentCapacity = c.entries.length();
+public function <Cache cache> put (string key, any value) {
+    int maxCapacity = cache.capacity;
+    int currentCapacity = cache.entries.length();
     // if the current cache is full,
     if (maxCapacity <= currentCapacity) {
-        evictCache(c);
+        cache.evictCache();
     }
     // Add the new entry
     int time = currentTime().time;
     CacheEntry entry = {value:value, lastAccessedTime:time};
-    c.entries[key] = entry;
+    cache.entries[key] = entry;
 }
 
-function evictCache (Cache c) {
-    int maxCapacity = c.capacity;
-    float evictionFactor = c.evictionFactor;
+@doc:Description {value:"Evicts the cache when cache is full."}
+function <Cache cache> evictCache () {
+    int maxCapacity = cache.capacity;
+    float evictionFactor = cache.evictionFactor;
     int noOfEntriesToBeEvicted = <int>(maxCapacity * evictionFactor);
     int i = 0;
     while (i < noOfEntriesToBeEvicted) {
-        string cacheKey = getLRUCache(c);
-        c.entries.remove(cacheKey);
+        string cacheKey = cache.getLRUCache();
+        cache.entries.remove(cacheKey);
         i = i + 1;
     }
 }
 
 @doc:Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
-@doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key which is used to retrieve the cached value"}
-public function get (Cache c, string key) returns (any) {
-    any value = c.entries[key];
+public function <Cache cache> get (string key) returns (any) {
+    any value = cache.entries[key];
     if (value == null) {
         return null;
     }
@@ -116,13 +115,12 @@ public function get (Cache c, string key) returns (any) {
 }
 
 @doc:Description {value:"Removes a cached value from a cache."}
-@doc:Param {value:"cache - a cache"}
 @doc:Param {value:"key - key of the cache entry which needs to be removed"}
-public function remove (Cache c, string key) {
+public function <Cache c> remove (string key) {
     c.entries.remove(key);
 }
 
-@doc:Description {value:"Clears a cache."}
+@doc:Description {value:"Removes expired cache entries from all caches."}
 public function cleanCache () returns (error) {
     int currentCacheIndex = 0;
     int cacheSize = lengthof caches;
@@ -177,10 +175,9 @@ public function cleanCache () returns (error) {
 }
 
 @doc:Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@doc:Param {value:"cache - a cache"}
 @doc:Return {value:"string - key of the LRU cache entry"}
-public function getLRUCache (Cache c) (string cacheKey) {
-    map entries = c.entries;
+function <Cache cache> getLRUCache () (string cacheKey) {
+    map entries = cache.entries;
     string[] keys = entries.keys();
     cacheKey = "";
     int currentMinimumTime = currentTime().time;
