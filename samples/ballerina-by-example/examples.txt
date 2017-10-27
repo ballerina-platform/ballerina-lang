@@ -57,6 +57,7 @@ Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
 HTTPS Server Connector
+HTTPS Server/Client Connectors
 Log API
 Function Pointers
 Lambda
