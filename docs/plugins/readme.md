@@ -468,10 +468,112 @@ In contrast to menus, tools have two call backs for controlling its state.
 }
 
 ```
-
-## View layer
 ### dialogs
+
+Dialogs are rendered as modals on top of composer, blocking user actions in the background.
+
+A Dialog is a react component identified by a unique id and is composed using the [Dialog](./../../modules/web/src/core/view/Dialog.jsx) component as the base.  [Dialog](./../../modules/web/src/core/view/Dialog.jsx) takes a boolean prop called `show` to decide whether to show the modal or not. In addition to that, it supports several other props such as `title`, `actions`, `error`, 
+`closeAction` and `onHide`, etc.    
+
+To contribute a dialog, a plugin should provide a unique ID, a react component and a prop provider function for the react component.
+
+Step 1 : Create the Dialog Component - [Example](./../../modules/web/src/core/workspace/dialogs/FileOpenDialog.jsx)
+
+```javascript
+import React from 'react';
+// ...
+import Dialog from './../../view/Dialog';
+
+/**
+ * File Open Wizard Dialog
+ * @extends React.Component
+ */
+class FileOpenDialog extends React.Component {
+
+    /**
+     * Called when user hides the dialog
+     */
+    onDialogHide() {
+        this.setState({
+            error: '',
+            showDialog: false,
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    render() {
+        return (
+            <Dialog
+                show={this.state.showDialog}
+                title="Open File"
+                actions={
+                    <Button
+                        bsStyle="primary"
+                        onClick={this.onFileOpen}
+                        disabled={this.state.filePath === ''}
+                    >
+                        Open
+                    </Button>
+                }
+                closeAction
+                onHide={this.onDialogHide}
+                error={this.state.error}
+            >
+            {/* Body Components */}
+            </Dialog>
+        );
+    }
+}
+```
+
+Step 2: Contribute it via plugin - [Example](./../../modules/web/src/core/workspace/plugin.js#L317)
+```javascript
+
+// Open File Dialog Definition
+{
+    id: DIALOG_IDS.OPEN_FILE,
+    component: FileOpenDialog,
+    propsProvider: () => {
+        return {
+            // these props will be available
+            // to component via this.props
+            workspaceManager: this,
+        };
+    },
+}
+
+```
+
+Step 3: To open it, dispatch Layout Command `POPUP_DIALOG` - [Example](./../../modules/web/src/core/workspace/handlers.js#L93)
+```javascript
+
+// Open File Open Dialog
+const { command: { dispatch } } = workspaceManager.appContext;
+const id = DIALOGS.OPEN_FILE;
+const additionalProps = {}; // use this to pass dispatch time props
+dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id, additionalProps });
+
+```
+
 ### views
+
+Similar to [Dialogs](#dialogs), a view is also a react component identified by a unique ID and it takes a prop provider function to create props for the react component at render time.
+
+However, not like [Dialogs](#dialogs), Views can be rendered in one of several available regions within composer layout.
+
+From the several regions available in layout, apart from the regions meant for internal components (header, toolbar, activity bar & editor area), views contributed via other plugins can be rendered in left panel, bottom panel or custom editor tabs regions.
+
+- left panel: This is the region where project explorer is rendered.
+- bottom panel: This is the region where the run console is rendered.
+- custom editor tabs: This is the region where welcome page/ try it is rendered. Unlike other two, contributed custom editor tab views will be rendered among file editing tabs opened in editor area.
+
+Dependening on the target region, a view should/may provide region specific options. For example, left panel views should provide an icon for activity bar and may also provide panel actions to be rendered in top right (Eg: refresh, add folder actions of explorer)
+
+![Layout](./layout.jpg "Composer Layout")
+
+
 ### editors
 
 ## Core plugins and their APIs
