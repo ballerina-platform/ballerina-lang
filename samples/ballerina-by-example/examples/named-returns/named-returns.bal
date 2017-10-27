@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"These names are treated as variables defined at the top of the function."}
@@ -22,12 +21,10 @@ function getDefaultValues () (int a, float b,
 
 function main (string[] args) {
     var q1, r1 = divideBy10(93);
-    system:println("93/10: " + "quotient=" + q1 + " " +
-                   "remainder=" + r1);
+    println("93/10: " + "quotient=" + q1 + " " + "remainder=" + r1);
 
     var q2, r2 = divideBy5(93);
-    system:println("93/5: " + "quotient=" + q2 + " " +
-                   "remainder=" + r2);
+    println("93/5: " + "quotient=" + q2 + " " + "remainder=" + r2);
 
     int a;
     float b;
@@ -35,8 +32,8 @@ function main (string[] args) {
     string d;
     a, b, c, d = getDefaultValues();
 
-    system:println("a: " + a);
-    system:println("b: " + b);
-    system:println("c: " + c);
-    system:println("d: " + d);
+    println("a: " + a);
+    println("b: " + b);
+    println("c: " + c);
+    println("d: " + d);
 }

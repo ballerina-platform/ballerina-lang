@@ -12,7 +12,5 @@ service<http> nyseStockQuote {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         res.setJsonPayload(payload);
         res.send();
-        
     }
-    
 }
