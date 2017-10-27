@@ -49,3 +49,8 @@ struct-variable-definition-value-text*/
     fill: #ffffff;
     cursor: pointer;
 }
+
+.ace_tooltip {
+    transform: translate(0px, -75px);
+    left: 10px !important;
+}

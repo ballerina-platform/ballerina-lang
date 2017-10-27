@@ -78,24 +78,19 @@ class ImportStructDialog extends React.Component {
     }
 
     /**
-     * Updates the state of the dialog modal.
-     * @param {any} { error, selectedNode, filePath }
-     * @memberof ImportStructDialog
+     * [onValidate description]
+     * @param  {array} errors List of validation errors on the editor
      */
-    updateState({ error, selectedNode, filePath }) {
-        this.setState({
-            error,
-            filePath,
-            selectedNode,
-        });
+    onValidate(errors) {
+        this.setState({ isValid: errors.length === 0 });
     }
 
+    /**
+     * Called when user types on the editor.
+     * @param  {string} newValue changed text value
+     */
     textChange(newValue) {
         this.setState({ json: newValue });
-    }
-
-    onValidate(isValid) {
-        this.setState({ isValid: isValid.length === 0 });
     }
 
     /**

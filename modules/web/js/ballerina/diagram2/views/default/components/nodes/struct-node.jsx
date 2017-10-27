@@ -187,11 +187,12 @@ class StructNode extends React.Component {
         this.setState({ canShowAddType: false });
     }
 
+    /**
+     * Open JSON import dialog box and pass callback
+     */
     onClickJsonImport() {
         const onImport = (json) => {
-            let fragment = FragmentUtils.createExpressionFragment(json);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
-            let refExpr = TreeBuilder.build(parsedJson);
+            let refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
             let currentValue;
             this.props.model.setFields([], true);
             refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
@@ -214,10 +215,8 @@ class StructNode extends React.Component {
                 } else if (this.isFloat(currentValue)) {
                     currentType = 'float';
                 }
-                fragment = FragmentUtils.createStatementFragment(currentType + ' ' + currentName
-                                                                  + ' = ' + currentValue + ';');
-                parsedJson = FragmentUtils.parseFragment(fragment);
-                refExpr = TreeBuilder.build(parsedJson);
+                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                  FragmentUtils.createStatementFragment(currentType + ' ' + currentName + ' = ' + currentValue + ';')));
                 this.props.model.addFields(refExpr.getVariable());
             });
         };
