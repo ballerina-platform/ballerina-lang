@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -463,6 +464,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
+    }
+
+    public void visit(BLangTransformer transformerNode) {
+        // TODO
     }
 
     public void visit(BLangVariableDef varDefNode) {

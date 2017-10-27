@@ -538,6 +538,34 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startTransformerDef();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        TerminalNode identifier = ctx.Identifier();
+        String transformerName = identifier == null ? null : identifier.getText();
+        boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        boolean paramsAvailable = ctx.parameterList().size() > 1;
+        this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName, paramsAvailable);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
     }
 

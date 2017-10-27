@@ -42,6 +42,7 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -110,6 +111,10 @@ enumFieldList
 
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    ;
+
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
     ;
 
 attachmentPoint
@@ -226,6 +231,7 @@ xmlLocalName
  annotationAttributeArray
      :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
      ;
+
 
  //============================================================================================================
 // STATEMENTS / BLOCKS

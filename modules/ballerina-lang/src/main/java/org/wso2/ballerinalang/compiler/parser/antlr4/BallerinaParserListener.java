@@ -228,6 +228,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformerDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformerDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code serviceAttachPoint}
 	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree

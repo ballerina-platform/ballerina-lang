@@ -172,6 +172,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTransformer transformerNode) {
+        throw new AssertionError();
+    }
+
     // Statements
     public void visit(BLangBlockStmt blockNode) {
         throw new AssertionError();

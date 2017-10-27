@@ -15,35 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree;
 
 /**
- * @since 0.94
+ * @since 0.96
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
+public interface TransformerNode extends InvokableNode, AnnotatableNode, TopLevelNode {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+  VariableNode getSource();
 
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
+  void setSource(VariableNode receiver);
 
-    XMLNS,
-    OTHER
 }

@@ -177,6 +177,16 @@ public class Symbols {
         return symbol;
     }
     
+    public static BConversionOperatorSymbol createTransformerSymbol(int flags,
+                                                        Name name,
+                                                        PackageID pkgID,
+                                                        BType type,
+                                                        BSymbol owner) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.TRANSFORMER, flags, name, pkgID, type, owner);
+        symbol.kind = SymbolKind.TRANSFORMER;
+        return symbol;
+    }
+
     public static boolean isNative(BSymbol sym) {
         return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
     }

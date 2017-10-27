@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -78,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -189,6 +191,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
 
+        // Define transformer nodes.
+        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
+        
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
 
@@ -390,6 +395,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTransformer transformerNode) {
+        BInvokableSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
+                getTransformerSymbolName(transformerNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        SymbolEnv invokableEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
+        defineInvokableSymbol(transformerNode, transformerSymbol, invokableEnv);
+        ((BInvokableType) transformerSymbol.type).typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+    }
+
+    @Override
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
@@ -562,6 +576,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
+                break;
+            case TRANSFORMER:
+                pkgNode.transformers.add((BLangTransformer) node);
                 break;
         }
     }
@@ -874,6 +891,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return names.fromString(funcNode.receiver.type + "." + funcNode.name.value);
         }
         return names.fromIdNode(funcNode.name);
+    }
+
+    private Name getTransformerSymbolName(BLangTransformer transformerNode) {
+        // TODO handle multi-return transformers
+        return names.fromString(transformerNode.source.type + "." + transformerNode.retParams.get(0).type + "."
+                + transformerNode.name.value);
     }
 
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
