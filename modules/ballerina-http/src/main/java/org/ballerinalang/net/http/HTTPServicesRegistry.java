@@ -114,6 +114,7 @@ public class HTTPServicesRegistry {
 
     /**
      * Removing service from the service registry.
+     *
      * @param service requested service to be removed.
      */
     public void unregisterService(HttpService service) {
@@ -151,27 +152,27 @@ public class HTTPServicesRegistry {
         } else {
             basePath = Constants.DEFAULT_BASE_PATH;
         }
-        return sanitizePath(basePath);
+        return sanitizeBasePath(basePath);
+    }
+
+    private String sanitizeBasePath(String basePath) {
+        basePath = basePath.trim();
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        if (basePath.endsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        return basePath;
     }
 
     private void registerWebSocketUpgradePath(Annotation webSocketAnn, String basePath, String serviceInterface) {
         String upgradePath =
-                sanitizePath(webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
+                sanitizeBasePath(webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
 
         String serviceName =
                 webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
         WebSocketServicesRegistry.getInstance().registerServiceByName(serviceInterface, uri, serviceName);
-    }
-
-    private String sanitizePath(String path) {
-        path = path.trim();
-        if (!path.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            path = Constants.DEFAULT_BASE_PATH.concat(path);
-        }
-        if (path.endsWith(Constants.DEFAULT_BASE_PATH)) {
-            path = path.substring(0, path.length() - 1);
-        }
-        return path;
     }
 }

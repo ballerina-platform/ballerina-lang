@@ -643,6 +643,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.S2XML:
+                case InstructionCodes.S2JSONX:
                 case InstructionCodes.XML2S:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
@@ -2197,6 +2198,11 @@ public class BLangVM {
                     handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
                             TypeConstants.XML_TNAME);
                 }
+                break;
+            case InstructionCodes.S2JSONX:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(sf.stringRegs[i]);
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];

@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.ballerinalang.nativeimpl.lang.jsons;
+package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,11 +37,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "toXML",
+        packageName = "ballerina.builtin",
+        functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.lang.jsons")},
+                          structPackage = "ballerina.builtin")},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
