@@ -1,5 +1,7 @@
+import ballerina.lang.blobs;
 import ballerina.net.ws;
 import ballerina.doc;
+
 
 @doc:Description {value:"This example gives you the basic idea of WebSocket endpoint"}
 @ws:configuration {
@@ -59,7 +61,7 @@ service<ws> SimpleSecureServer {
     resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
         println("\nNew binary message received");
         blob b = frame.data;
-        println("UTF-8 decoded binary message: " +b.toString("UTF-8"));
+        println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
         conn.pushBinary(b);
     }
 

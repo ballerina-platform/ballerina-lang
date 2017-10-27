@@ -22,6 +22,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -99,8 +100,16 @@ public class HTTPServicesRegistry {
                                 + entryListenerInterface);
             }
             servicesOnInterface.put(basePath, service);
-        }
 
+            // If WebSocket upgrade path is available, then register the name of the WebSocket service.
+            if (annotation != null) {
+                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_WEBSOCKET);
+                if (webSocketAttr != null) {
+                    Annotation webSocketAnn = webSocketAttr.getAnnotation();
+                    registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
+                }
+            }
+        }
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
@@ -148,6 +157,7 @@ public class HTTPServicesRegistry {
     }
 
     private String sanitizeBasePath(String basePath) {
+        basePath = basePath.trim();
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
@@ -155,5 +165,14 @@ public class HTTPServicesRegistry {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
         return basePath;
+    }
+
+    private void registerWebSocketUpgradePath(Annotation webSocketAnn, String basePath, String serviceInterface) {
+        String upgradePath = sanitizeBasePath(
+                webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
+        String serviceName =
+                webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
+        String uri = basePath.concat(upgradePath);
+        WebSocketServicesRegistry.getInstance().registerServiceByName(serviceInterface, uri, serviceName);
     }
 }
