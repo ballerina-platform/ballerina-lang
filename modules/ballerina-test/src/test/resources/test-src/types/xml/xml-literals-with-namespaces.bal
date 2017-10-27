@@ -1,5 +1,3 @@
-import ballerina.lang.xmls;
-
 xmlns "http://ballerina.com/b" as ns1; 
 
 function testElementLiteralWithNamespaces()(xml, xml) {
@@ -8,7 +6,7 @@ function testElementLiteralWithNamespaces()(xml, xml) {
     xmlns "http://ballerina.com/c" as ns1; 
 
     xml x1 = xml `<root ns0:id="456"><foo>123</foo><bar ns1:status="complete"></bar></root>`;
-    xml x2 = xmls:children(x1);
+    xml x2 = x1.children();
     return x1, x2;
 }
 

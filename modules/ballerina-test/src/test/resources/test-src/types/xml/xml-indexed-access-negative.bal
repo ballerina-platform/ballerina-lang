@@ -1,8 +1,6 @@
-import ballerina.lang.xmls;
-
 function testInvalidXMLAccessWithIndex() (xml) {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
-    xml x2 = xmls:children(x1[0]);
+    xml x2 = x1[0].children();
 
     x2[1] = xml `<address/>`;
 

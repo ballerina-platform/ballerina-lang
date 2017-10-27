@@ -191,7 +191,8 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
-    int LENGTHOF = 158;
+    int S2XML = 158;
+    int XML2S = 159;
 
     // Type cast
     int I2ANY = 160;
@@ -235,6 +236,7 @@ public interface InstructionCodes {
     int RNEWARRAY = 205;
     int JSONNEWARRAY = 206;
     int ARRAYLEN = 207;
+    int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;

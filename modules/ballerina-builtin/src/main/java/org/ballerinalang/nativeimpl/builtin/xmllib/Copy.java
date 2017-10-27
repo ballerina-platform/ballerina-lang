@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,28 +24,21 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Slice and return a subsequence of the an XML sequence.
- * 
- * @since 0.88
+ * Make a deep copy of an XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "slice",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-            @Argument(name = "startIndex", type = TypeKind.INT),
-            @Argument(name = "endIndex", type = TypeKind.INT)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.copy",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Slice extends AbstractNativeFunction {
+public class Copy extends AbstractNativeFunction {
 
-    private static final String OPERATION = "slice xml";
+private static final String OPERATION = "get children from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
@@ -53,22 +46,11 @@ public class Slice extends AbstractNativeFunction {
         try {
             // Accessing Parameters.
             BXML value = (BXML) getRefArgument(ctx, 0);
-            long startIndex = getIntArgument(ctx, 0);
-            long endIndex = getIntArgument(ctx, 1);
-            
-            if (startIndex < -1) {
-                throw new BallerinaException("invalid start index: " + startIndex);
-            }
-            
-            if (endIndex < -1) {
-                throw new BallerinaException("invalid end index: " + endIndex);
-            }
-            
-            result = value.slice(startIndex, endIndex);
+            result = value.copy();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-        
+
         // Setting output value.
         return getBValues(result);
     }

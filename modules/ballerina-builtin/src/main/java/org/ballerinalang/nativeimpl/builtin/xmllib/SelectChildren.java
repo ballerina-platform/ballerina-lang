@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,18 +29,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Make a deep copy of an XML.
+ * Selects and concatenate all the children of the elements in this sequence that matches the given qualified name.
+ * 
+ * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "copy",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.selectChildren",
+        args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Copy extends AbstractNativeFunction {
+public class SelectChildren extends AbstractNativeFunction {
 
-private static final String OPERATION = "get children from xml";
+    private static final String OPERATION = "select children from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
@@ -48,11 +50,12 @@ private static final String OPERATION = "get children from xml";
         try {
             // Accessing Parameters.
             BXML value = (BXML) getRefArgument(ctx, 0);
-            result = value.copy();
+            String qname = getStringArgument(ctx, 0);
+            result = value.children(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
         return getBValues(result);
     }

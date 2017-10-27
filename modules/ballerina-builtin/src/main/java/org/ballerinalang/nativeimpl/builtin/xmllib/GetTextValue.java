@@ -16,44 +16,39 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Selects and concatenate all the children of the elements in this sequence that matches the given qualified name.
+ * Get the text value of a XML.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "selectChildren",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.getTextValue",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class SelectChildren extends AbstractNativeFunction {
+public class GetTextValue extends AbstractNativeFunction {
 
-    private static final String OPERATION = "select children from xml";
+    private static final String OPERATION = "get text from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            BString qname = new BString(getStringArgument(ctx, 0));
-            result = value.children(qname);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+                result = xml.getTextValue();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,28 +29,30 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the fully qualified name of the element as a string.
+ * Slice and return a subsequence of the an XML sequence.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "getElementName",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        packageName = "ballerina.builtin",
+        functionName = "xml.slice",
+        args = { @Argument(name = "startIndex", type = TypeKind.INT),
+                @Argument(name = "endIndex", type = TypeKind.INT) },
+        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 )
-public class GetElementName extends AbstractNativeFunction {
+public class Slice extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get element name in xml";
+    private static final String OPERATION = "slice xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.getElementName();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            long startIndex = getIntArgument(ctx, 0);
+            long endIndex = getIntArgument(ctx, 1);
+            result = value.slice(startIndex, endIndex);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

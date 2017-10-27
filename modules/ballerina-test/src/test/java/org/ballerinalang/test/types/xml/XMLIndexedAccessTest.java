@@ -47,7 +47,7 @@ public class XMLIndexedAccessTest {
 
     @Test
     public void testInvalidXMLAccessWithIndex() {
-        BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 7, 5);
+        BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
     }
 
     @Test

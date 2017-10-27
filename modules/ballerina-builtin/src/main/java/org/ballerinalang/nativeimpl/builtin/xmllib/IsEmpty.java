@@ -16,48 +16,43 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get all the elements-type items in the given sequence, that matches a given qualified name.
+ * Check whether the XML sequence is empty.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "select",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.isEmpty",
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Select extends AbstractNativeFunction {
+public class IsEmpty extends AbstractNativeFunction {
 
-    private static final String OPERATION = "select elements from xml";
+    private static final String OPERATION = "check xml is empty";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            BString qname = new BString(getStringArgument(ctx, 0));
-            result = value.elements(qname);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            result = xml.isEmpty();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
         return getBValues(result);
     }

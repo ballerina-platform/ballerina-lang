@@ -16,45 +16,44 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Parse a string and get an XML.
+ * Get the type of a XML as a string. If the xml is singleton, type can be one of 
+ * 'element', 'text', 'comment' or 'pi'. Returns an empty string if the xml is not a singleton.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "parse",
-        args = {@Argument(name = "xmlStr", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        packageName = "ballerina.builtin",
+        functionName = "xml.getItemType",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Parse extends AbstractNativeFunction {
+public class GetItemType extends AbstractNativeFunction {
 
-private static final String OPERATION = "parse xml";
+    private static final String OPERATION = "get xml item type";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            String xmlStr = getStringArgument(ctx, 0);
-            result = XMLUtils.parse(xmlStr);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            result = xml.getItemType();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-
+        
         // Setting output value.
         return getBValues(result);
     }

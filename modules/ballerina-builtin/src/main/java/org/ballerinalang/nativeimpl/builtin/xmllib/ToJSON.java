@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.xmls;
+package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,10 +36,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.xmls",
-        functionName = "toJSON",
-        args = {@Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+        packageName = "ballerina.builtin",
+        functionName = "xml.toJSON",
+        args = {@Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.lang.xmls")},
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
