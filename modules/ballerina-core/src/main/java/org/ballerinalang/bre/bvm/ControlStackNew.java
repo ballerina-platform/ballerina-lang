@@ -23,55 +23,25 @@ package org.ballerinalang.bre.bvm;
  * @since 0.8.0
  */
 public class ControlStackNew {
-    public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
-
-    private StackFrame[] stackFrames;
-
-    // Stack frame pointer;
-    public int fp = -1;
 
     public StackFrame currentFrame;
 
-    public ControlStackNew() {
-        stackFrames = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
-    }
-
-    public StackFrame pushFrame(StackFrame frame) {
-        stackFrames[++fp] = frame;
-        currentFrame = frame;
-        return currentFrame;
+    public void pushFrame(StackFrame frame) {
+        frame.prevStackFrame = this.currentFrame;
+        this.currentFrame = frame;
     }
 
     public StackFrame popFrame() {
-        StackFrame poppedFrame = currentFrame;
-        stackFrames[fp] = null;
-        if (fp > 0) {
-            currentFrame = stackFrames[--fp];
-        }  else {
-            currentFrame = null;
-            fp--;
+        StackFrame poppedFrame = this.currentFrame;
+        if (poppedFrame != null) {
+            this.currentFrame = this.currentFrame.prevStackFrame;
+            poppedFrame.markedAsReturned();
         }
-        poppedFrame.markedAsReturned();
         return poppedFrame;
-    }
-
-    public StackFrame peekFrame(int offset) {
-        StackFrame peekFrame = null;
-        if (fp - offset >= 0 && fp - offset < stackFrames.length) {
-            peekFrame = stackFrames[fp - offset];
-        }
-        return peekFrame;
-    }
-
-    public StackFrame getRootFrame() {
-        return stackFrames[0];
     }
 
     public StackFrame getCurrentFrame() {
         return currentFrame;
     }
-
-    public StackFrame[] getStack() {
-        return stackFrames;
-    }
+    
 }

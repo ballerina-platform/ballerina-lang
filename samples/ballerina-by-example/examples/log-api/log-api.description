@@ -1,1 +1,1 @@
-// From version 0.89, a new log API was introduced to facilitate logging in Ballerina. It is available in the ballerina.utils.logger package.
+// From version 0.94.1, the log API is available in the ballerina.log package.

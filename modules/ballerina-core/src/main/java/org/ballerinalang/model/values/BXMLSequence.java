@@ -188,7 +188,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> elements(BString qname) {
+    public BXML<?> elements(String qname) {
         BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
         String qnameStr = getQname(qname).toString();
         int j = 0;
@@ -228,7 +228,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> children(BString qname) {
+    public BXML<?> children(String qname) {
         BRefValueArray elementsSeq = new BRefValueArray();
         QName name = getQname(qname);
         for (int i = 0; i < sequence.size(); i++) {
@@ -295,7 +295,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> slice(long startIndex, long endIndex) {
-        if (startIndex > this.sequence.size() || endIndex > this.sequence.size()) {
+        if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
         
@@ -328,7 +328,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BXML<?> descendants(BString qname) {
+    public BXML<?> descendants(String qname) {
         List<BXML<?>> descendants = new ArrayList<BXML<?>>();
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
@@ -401,5 +401,29 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             copiedVals[i] = ((BXML<?>) sequence.get(i)).copy();
         }
         return new BXMLSequence(new BRefValueArray(copiedVals));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> getItem(long index) {
+        return (BXML<?>) this.sequence.get(index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int length() {
+        return this.sequence.size;
+    }
+
+    @Override
+    public void removeAttribute(String qname) {
+        if (sequence.size() != 1) {
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+        }
+        
+        ((BXMLItem) sequence.get(0)).removeAttribute(qname);
     }
 }

@@ -7,12 +7,12 @@ function main (string[] args) {
     //pool properties.
     sql:ConnectionProperties properties = {maximumPoolSize:5};
     testDB = create sql:ClientConnector(
-             sql:MYSQL, "localhost", 3306, "testdb", "root", "root", properties);
+        sql:MYSQL, "localhost", 3306, "testdb", "root", "root", properties);
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.
     sql:Parameter[] params = [];
-    int ret = testDB.update("CREATE TABLE IF NOT EXISTS STUDENT(ID INT AUTO_INCREMENT,
-                    AGE INT, NAME VARCHAR(255), PRIMARY KEY (ID))", params);
+    int ret = testDB.update("CREATE TABLE IF NOT EXISTS STUDENT(ID INT
+        AUTO_INCREMENT, AGE INT, NAME VARCHAR(255), PRIMARY KEY (ID))", params);
     system:println("Table creation status:" + ret);
 
     //Create a stored procedure using update action.
@@ -74,7 +74,7 @@ function main (string[] args) {
     sql:Parameter pCount = {sqlType:"integer", direction:1};
     sql:Parameter pId = {sqlType:"integer", value:1, direction:2};
     params = [pAge, pCount, pId];
-    testDB.call("{CALL GETCOUNT(?,?,?)}", params);
+    var results = testDB.call("{CALL GETCOUNT(?,?,?)}", params);
     var countValue, _ = (int)pCount.value;
     system:println("Age 10 count:" + countValue);
     var idValue, _ = (int)pId.value;

@@ -1,5 +1,3 @@
-import ballerina.lang.maps;
-
 function mapAccessTest(int x, int y)(int) {
     map testMap = {};
     int xx;
@@ -39,7 +37,7 @@ function testAccessThroughVar() (string) {
 }
 
 function constructString(map m) (string) {
-    string [] keys = maps:keys(m);
+    string [] keys = m.keys();
     int len = lengthof keys;
     int i = 0;
     string returnStr = "";
