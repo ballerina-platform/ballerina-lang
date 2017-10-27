@@ -7,7 +7,7 @@
     "transfer-encoding": "chunked"
   },
   "returnedRequestHeaders": {
-    "Content-Type": "",
+    "Content-Type": "text/plain",
     "Host": "localhost:9595",
     "Connection": "Keep-Alive",
     "User-Agent": "Ballerina Composer",
