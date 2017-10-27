@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.lang.files;
+package org.ballerinalang.nativeimpl.file;
 
 
 import org.ballerinalang.bre.Context;
@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,12 @@ import java.util.Locale;
  * Gets the streams from a local file.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.files",
+        packageName = "ballerina.file",
         functionName = "open",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
+                             structPackage = "ballerina.file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "ballerina.lang.files"), @Argument(name = "accessMode", type = TypeKind.STRING)},
+                structPackage = "ballerina.file"), @Argument(name = "accessMode", type = TypeKind.STRING)},
         isPublic = true
 )
 public class Open extends AbstractNativeFunction {
