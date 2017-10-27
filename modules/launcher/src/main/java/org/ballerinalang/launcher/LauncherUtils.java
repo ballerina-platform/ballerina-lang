@@ -61,18 +61,13 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
         ProgramFile programFile;
-//        } else if (Files.isDirectory(sourcePath)) {
-
         String srcPathStr = sourcePath.toString();
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isDirectory(sourcePath) || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            System.out.println(" DIRECTORY OR BALeee");
             programFile = compile(sourceRootPath, sourcePath);
         } else {
-            System.out.println(" RAN");
-//            System.exit(99);
-            throw new BallerinaException("ERROR ERROR ERROR");
+            throw new BallerinaException("Invalid File Type use .bal");
         }
 
         // If there is no main or service entry point, throw an error
