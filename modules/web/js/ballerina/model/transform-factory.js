@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import log from 'log';
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import TreeUtil from './tree-util';
@@ -39,7 +40,7 @@ class TransformFactory {
         if (type) {
             refExpr.symbolType = [type];
         } else {
-            console.log('Type unknown');
+            log.warn('Type unknown');
         }
         refExpr.clearWS();
         return refExpr;
