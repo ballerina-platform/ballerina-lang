@@ -1,5 +1,3 @@
-import ballerina.lang.strings;
-
 xmlns "http://sample.com/wso2/a1" as ns0;
 xmlns "http://sample.com/wso2/b1" as ns1;
 xmlns "http://sample.com/wso2/c1";
@@ -190,7 +188,8 @@ function testGetAttributeWithQName() (string, string, string) {
 
 function testUsingQNameAsString () (string, string) {
     string s1 = ns0:wso2;
-    string s2 = strings:trim("  " + ns0:ballerina + "  ");
+    string temp = "  " + ns0:ballerina + "  ";
+    string s2 = temp.trim();
     return s1, s2;
 }
 

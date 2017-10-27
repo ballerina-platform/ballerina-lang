@@ -16,38 +16,37 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Native function ballerina.model.strings:hasPrefix.
+ * Native function ballerina.model.strings:toUpperCase.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "hasPrefix",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "prefix", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        packageName = "ballerina.builtin",
+        functionName = "string.toUpperCase",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class HasPrefix extends AbstractNativeFunction {
+public class ToUpperCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getStringArgument(context, 0);
-        String prefix = getStringArgument(context, 1);
-
-        BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
-        return getBValues(booleanValue);
+        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
+        return getBValues(upperCaseString);
     }
 }

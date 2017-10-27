@@ -16,37 +16,35 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Locale;
-
 /**
- * Native function ballerina.model.strings:toLowerCase.
+ * Native function ballerina.model.strings:length.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "toLowerCase",
+        packageName = "ballerina.builtin",
+        functionName = "string.length",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ToLowerCase extends AbstractNativeFunction {
+public class Length extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getStringArgument(context, 0);
-        BString lowerCaseString = new BString(param1.toLowerCase(Locale.getDefault()));
-        return getBValues(lowerCaseString);
+        BInteger intValue = new BInteger(param1.length());
+        return getBValues(intValue);
     }
 }
