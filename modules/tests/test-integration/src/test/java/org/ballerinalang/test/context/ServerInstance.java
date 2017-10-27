@@ -445,7 +445,7 @@ public class ServerInstance implements Server {
         } else {
 
             //reading the process id from ss
-            Process tmp;
+            Process tmp = null;
             try {
                 String[] cmd = { "bash", "-c",
                         "ss -ltnp \'sport = :" + httpServerPort + "\' | grep LISTEN | awk \'{print $6}\'" };
@@ -462,10 +462,14 @@ public class ServerInstance implements Server {
                 }
 
             } catch (Exception e) {
-                throw new BallerinaTestException("Error retrieving the PID : ", e);
+                log.warn("Error occurred while extracting the PID with ss " + e.getMessage());
+                // If ss command fails trying with lsof. MacOS doesn't have ss by default
+                pid = getPidWithLsof(httpServerPort);
+            } finally {
+                if (tmp != null) {
+                    tmp.destroy();
+                }
             }
-
-            tmp.destroy();
         }
         log.info("Server process id in " + Utils.getOSName() + " : " + pid);
         return pid;
@@ -516,5 +520,23 @@ public class ServerInstance implements Server {
     private void deleteWorkDir() {
         File workDir = new File(extractDir);
         Utils.deleteFolder(workDir);
+    }
+
+    private String getPidWithLsof(int httpServerPort) throws BallerinaTestException {
+        String pid;
+        Process tmp = null;
+        try {
+            String[] cmd = { "bash", "-c", "lsof -Pi tcp:" + httpServerPort + " | grep LISTEN | awk \'{print $2}\'" };
+            tmp = Runtime.getRuntime().exec(cmd);
+            pid = readProcessInputStream(tmp.getInputStream());
+
+        } catch (Exception err) {
+            throw new BallerinaTestException("Error retrieving the PID : ", err);
+        } finally {
+            if (tmp != null) {
+                tmp.destroy();
+            }
+        }
+        return pid;
     }
 }
