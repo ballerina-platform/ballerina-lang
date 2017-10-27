@@ -491,8 +491,8 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    public void addConnectionInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
-        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectionInitNode();
+    public void addConnectorInitExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
+        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.addWS(ws);
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();

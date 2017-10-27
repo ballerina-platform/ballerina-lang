@@ -1171,7 +1171,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.connectorInit() != null && ctx.connectorInit().expressionList() != null;
-        this.pkgBuilder.addConnectionInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        this.pkgBuilder.addConnectorInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
     @Override

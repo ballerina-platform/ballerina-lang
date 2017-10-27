@@ -310,7 +310,7 @@ public class TreeBuilder {
         return new BLangLambdaFunction();
     }
 
-    public static ConnectorInitNode createConnectionInitNode() {
+    public static ConnectorInitNode createConnectorInitNode() {
         return new BLangConnectorInit();
     }
 
