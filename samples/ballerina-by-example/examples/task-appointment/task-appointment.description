@@ -1,0 +1,20 @@
+// Appointments are at fixed clock times like Cron job with the following parameters. Please note that, you have to pass null instead of -1.
+int minute
+  default value = -1;         // run every minute
+  other possible values = 0-59 (60th second = 0)
+
+int hour
+  default value = -1;          // run every hour
+  other possible values = 0-23 (mid night 12 = 0)
+
+int dayOfWeek
+  default value = -1;     // run every of the week
+  other possible values = 1-7 (Sunday = 1, Saturday = 7)
+
+int dayOfMonth
+  default value= -1;    // run every day of the month
+  other possible values = 1-31
+
+int month
+  default value = -1;
+  other possible values = 0-11 (Jan = 0)

@@ -1,0 +1,1 @@
+$ ballerina run task-stop.bal <taskId>
