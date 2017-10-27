@@ -7,9 +7,9 @@ package ballerina.builtin;
 public native function <string mainString> equalsIgnoreCase (string anotherString) (boolean);
 
 @Description { value:"Returns a string with all the characters converted to uppercase"}
-@Param { value:"s: The original string argument" }
+@Param { value:"mainString: The original string argument" }
 @Return { value:"string: The string converted to uppercase" }
-public native function <string s> toUpperCase () (string);
+public native function <string mainString> toUpperCase () (string);
 
 @Description { value:"Returns a new string that is the substring of the specified string"}
 @Param { value:"mainString: The original string argument" }
@@ -32,9 +32,9 @@ public native function <string mainString> lastIndexOf (string subString) (int);
 public native function <string mainString> replaceFirst (string replacePattern, string replaceWith) (string);
 
 @Description { value:"Returns the length of the specified string "}
-@Param { value:"s: The original string argument" }
+@Param { value:"mainString: The original string argument" }
 @Return { value:"int: The length of the specified string" }
-public native function <string s> length () (int);
+public native function <string mainString> length () (int);
 
 @Description { value:"Returns a Boolean value indicating whether a string contains the specified substring"}
 @Param { value:"mainString: The original string argument" }
@@ -49,9 +49,9 @@ public native function <string mainString> contains (string subString) (boolean)
 public native function <string mainString> indexOf (string subString) (int);
 
 @Description { value:"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string"}
-@Param { value:"s: The original string argument" }
+@Param { value:"mainString: The original string argument" }
 @Return { value:"string: The derived string" }
-public native function <string s> trim () (string);
+public native function <string mainString> trim () (string);
 
 @Description { value:"Returns a Boolean value indicating whether the string ends with specified suffix"}
 @Param { value:"mainString: The original string argument" }
@@ -60,14 +60,14 @@ public native function <string s> trim () (string);
 public native function <string mainString> hasSuffix (string suffix) (boolean);
 
 @Description { value:"Returns an unescaped string by omitting the escape characters of the original string"}
-@Param { value:"s: The original string argument" }
+@Param { value:"mainString: The original string argument" }
 @Return { value:"string: The derived string" }
-public native function <string s> unescape () (string);
+public native function <string mainString> unescape () (string);
 
 @Description { value:"Returns a string with all the characters converted to lowercase"}
-@Param { value:"s: The original string argument" }
+@Param { value:"mainString: The original string argument" }
 @Return { value:"string: The string converted to lowercase" }
-public native function <string s> toLowerCase () (string);
+public native function <string mainString> toLowerCase () (string);
 
 @Description { value:"Returns a Boolean value indicating whether a string starts with the specified prefix"}
 @Param { value:"mainString: The original string argument" }
@@ -96,7 +96,7 @@ public native function <string mainString> replace (string replacePattern, strin
 public native function <string mainString> split (string regex) (string[]);
 
 @Description { value:"Converts string to a BLOB"}
-@Param { value:"b: string value to be converted" }
+@Param { value:"mainString: string value to be converted" }
 @Param { value:"encoding: Encoding to used in the conversion" }
-@Return { value:"string: BLOB representation of the given String" }
-public native function <string s> toBlob (string encoding) (blob);
+@Return { value:"blob: BLOB representation of the given String" }
+public native function <string mainString> toBlob (string encoding) (blob);
