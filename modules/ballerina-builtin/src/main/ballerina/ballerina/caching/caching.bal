@@ -10,7 +10,7 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 @Description {value:"array which stores the caches."}
 Cache[] caches = [];
 
-string scheduleID;
+string scheduleID = createTask();
 
 @Description {value:"Represents a cache."}
 @Field {value:"name - name of the cache"}
@@ -45,18 +45,6 @@ public function createCache (string name, int timeOut, int capacity, float evict
     if (capacity <= 0) {
         error e = {msg:"Capacity must be greater than 0."};
         throw e;
-    }
-
-    // If a cache cleanup scheduler is not already created, create a new scheduler.
-    if (scheduleID == "") {
-        function () returns (error) onTriggerFunction = cleanCache;
-        function (error) onErrorFunction = null;
-        error schedulerError;
-        scheduleID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
-        // If task creation failed, throw an error.
-        if (schedulerError != null) {
-            throw schedulerError;
-        }
     }
 
     // Create a new cache.
@@ -194,4 +182,17 @@ function <Cache cache> getLRUCache () (string cacheKey) {
         index = index + 1;
     }
     return cacheKey;
+}
+
+@Description {value:"Creates a new cache cleanup task."}
+@Return {value:"string - cache cleanup task ID"}
+function createTask () (string) {
+    function () returns (error) onTriggerFunction = cleanCache;
+    function (error) onErrorFunction = null;
+    var scheduleID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
+    // If task creation failed, throw an error.
+    if (schedulerError != null) {
+        throw schedulerError;
+    }
+    return scheduleID;
 }
