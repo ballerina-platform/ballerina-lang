@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"Workers in ballerina allow users to delegate tasks to a new worker thread."}
@@ -6,6 +5,6 @@ function main (string[] args) {
     worker w1 {
         int iw = 200;
         float kw = 5.44;
-        system:println("[w1] iw: " + iw + " kw: " + kw);
+        println("[w1] iw: " + iw + " kw: " + kw);
     }
 }

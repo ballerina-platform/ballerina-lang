@@ -1,5 +1,3 @@
-import ballerina.lang.strings;
-import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"Defining Employee struct."}
@@ -27,16 +25,16 @@ function main (string[] args) {
     //Transform statement using person as input to transform values of employee which is the output.
     transform {
         // Convert city of person to upper case and assign to address of employee.
-        employee.address = strings:toLowerCase(person.city);
+        employee.address = person.city.toLowerCase();
         // Convert first name of person to lower case and assign to name of employee.
-        employee.name = strings:toLowerCase(person.first_name);
+        employee.name = person.first_name.toLowerCase();
         // Assign age of person to age of employee.
         employee.age = person.age;
     }
 
     //Print employee details.
-    system:println("Employee details : " );
-    system:println("Name : " + employee.name);
-    system:println("Address : " + employee.address);
-    system:println("Age : " + employee.age);
+    println("Employee details : " );
+    println("Name : " + employee.name);
+    println("Address : " + employee.address);
+    println("Age : " + employee.age);
 }

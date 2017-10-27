@@ -1,40 +1,38 @@
-import ballerina.lang.system;
-import ballerina.lang.maps;
 import ballerina.net.ws;
 
 @ws:configuration {
-    basePath: "/chat/ws",
+    basePath:"/chat/ws",
     port:9090,
-    idleTimeoutInSeconds: 3600
+    idleTimeoutInSeconds:3600
 }
 service<ws> ChatApp {
 
     map consMap = {};
 
-    resource onOpen(ws:Connection conn) {
+    resource onOpen (ws:Connection conn) {
         broadcast(consMap, "New client connected");
         consMap[conn.getID()] = conn;
     }
 
-    resource onTextMessage(ws:Connection con, ws:TextFrame frame) {
+    resource onTextMessage (ws:Connection con, ws:TextFrame frame) {
         broadcast(consMap, frame.text);
     }
 
-    resource onIdleTimeout(ws:Connection con) {
+    resource onIdleTimeout (ws:Connection con) {
         // Connection is closed due to inactivity after 1 hour
-        system:println("Idle timeout: " + con.getID());
+        println("Idle timeout: " + con.getID());
         con.closeConnection(1000, "Closing connection due to inactivity in chat");
     }
 
-    resource onClose(ws:Connection con, ws:CloseFrame frame) {
-        maps:remove(consMap, con.getID());
+    resource onClose (ws:Connection con, ws:CloseFrame frame) {
+        consMap.remove(con.getID());
         broadcast(consMap, "User left");
     }
 }
 
-function broadcast(map consMap, string text) {
+function broadcast (map consMap, string text) {
     int i = 0;
-    string[] conKeys = maps:keys(consMap);
+    string[] conKeys = consMap.keys();
     int len = lengthof conKeys;
     while (i < len) {
         var con, e = (ws:Connection)consMap[conKeys[i]];
