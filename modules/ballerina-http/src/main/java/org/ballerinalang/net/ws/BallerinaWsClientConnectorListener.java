@@ -23,6 +23,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMe
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
@@ -56,7 +57,13 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        throw new BallerinaConnectorException("Ping pong messages are not supported!");
+        if (webSocketControlMessage.getControlSignal() == WebSocketControlSignal.PING) {
+            WebSocketDispatcher.dispatchPingMessage(wsService, webSocketControlMessage);
+        } else if (webSocketControlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
+            WebSocketDispatcher.dispatchPongMessage(wsService, webSocketControlMessage);
+        } else {
+            throw new BallerinaConnectorException("Received unknown control signal");
+        }
     }
 
     @Override
