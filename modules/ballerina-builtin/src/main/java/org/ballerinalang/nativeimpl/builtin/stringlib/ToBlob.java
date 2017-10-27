@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,8 +33,8 @@ import java.io.UnsupportedEncodingException;
  * Convert String to Blob.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "toBlob",
+        packageName = "ballerina.builtin",
+        functionName = "string.toBlob",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BLOB)},

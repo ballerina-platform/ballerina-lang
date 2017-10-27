@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,26 +27,29 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Locale;
-
 /**
- * Native function ballerina.model.strings:toUpperCase.
+ * Native function ballerina.model.strings:replace.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "toUpperCase",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "string.replace",
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "replacePattern", type = TypeKind.STRING),
+                @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ToUpperCase extends AbstractNativeFunction {
+public class Replace extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getStringArgument(context, 0);
-        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
-        return getBValues(upperCaseString);
+        String mainString = getStringArgument(context, 0);
+        String replacePattern = getStringArgument(context, 1);
+        String replaceWith = getStringArgument(context, 2);
+
+        String replacedString = mainString.replace(replacePattern, replaceWith);
+        return getBValues(new BString(replacedString));
     }
 }

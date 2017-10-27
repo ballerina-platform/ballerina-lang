@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.expressions.literals;
+package org.ballerinalang.test.types.xml;
 
 
 import org.ballerinalang.launcher.util.BAssertUtil;
@@ -42,13 +42,12 @@ public class XMLLiteralTest {
     CompileResult result;
     CompileResult literalWithNamespacesResult;
     CompileResult negativeResult;
-    
+
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/literals/xml/xml-literals.bal");
-        literalWithNamespacesResult =
-                BCompileUtil.compile("test-src/expressions/literals/xml/xml-literals-with-namespaces.bal");
-         negativeResult = BCompileUtil.compile("test-src/expressions/literals/xml/xml-literals-negative.bal");
+        result = BCompileUtil.compile("test-src/types/xml/xml-literals.bal");
+        literalWithNamespacesResult = BCompileUtil.compile("test-src/types/xml/xml-literals-with-namespaces.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
     }
 
     @Test
@@ -96,12 +95,11 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, 13, "cannot bind prefix 'ns0' to the empty namespace name", 79, 5);
     }
 
-    
     @Test
     public void testCombinedExpressionsAsElementName() {
-        CompileResult negativeRes = BCompileUtil.compile("test-src/expressions/literals/xml/xml-invalid-syntax-1.bal");
-        Assert.assertEquals(negativeRes.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeRes, 0, "invalid token '{{'", 3, 24);
+        CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
     }
      
     @Test
@@ -358,7 +356,7 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),
-                BCompileUtil.readFileAsString("test-src/expressions/literals/xml/sampleXML.txt"));
+                BCompileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,25 +28,28 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:split(string, string).
+ * Native function ballerina.model.strings:replaceAll.
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "split",
+        packageName = "ballerina.builtin",
+        functionName = "string.replaceAll",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "regex", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+                @Argument(name = "replacePattern", type = TypeKind.STRING),
+                @Argument(name = "replaceWith", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Split extends AbstractNativeFunction {
+public class ReplaceAll extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String initialString = getStringArgument(context, 0);
-        String regex = getStringArgument(context, 1);
+        String mainString = getStringArgument(context, 0);
+        String replacePattern = getStringArgument(context, 1);
+        String replaceWith = getStringArgument(context, 2);
 
-        String[] splitArray = initialString.split(regex);
-        BStringArray bSplitArray = new BStringArray(splitArray);
-        return getBValues(bSplitArray);
+        String replacedString = mainString.replaceAll(replacePattern, replaceWith);
+        return getBValues(new BString(replacedString));
     }
 }

@@ -1341,7 +1341,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
-                case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();
@@ -1458,6 +1457,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
+                case InstructionCodes.XMLLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

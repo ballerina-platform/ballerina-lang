@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,28 +28,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:replaceAll.
+ * Native function ballerina.model.strings:contains.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "replaceAll",
+        packageName = "ballerina.builtin",
+        functionName = "string.contains",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "replacePattern", type = TypeKind.STRING),
-                @Argument(name = "replaceWith", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+                @Argument(name = "subString", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class ReplaceAll extends AbstractNativeFunction {
+public class Contains extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String mainString = getStringArgument(context, 0);
-        String replacePattern = getStringArgument(context, 1);
-        String replaceWith = getStringArgument(context, 2);
+        String param1 = getStringArgument(context, 0);
+        String subString = getStringArgument(context, 1);
 
-        String replacedString = mainString.replaceAll(replacePattern, replaceWith);
-        return getBValues(new BString(replacedString));
+        BBoolean isContains = new BBoolean(param1.contains(subString));
+        return getBValues(isContains);
+
     }
 }

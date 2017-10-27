@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.strings;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,23 +28,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:length.
+ * Native function ballerina.model.strings:trim.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "length",
+        packageName = "ballerina.builtin",
+        functionName = "string.trim",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Length extends AbstractNativeFunction {
+public class Trim extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getStringArgument(context, 0);
-        BInteger intValue = new BInteger(param1.length());
-        return getBValues(intValue);
+        BString trimmedString = new BString(param1.trim());
+        return getBValues(trimmedString);
     }
 }

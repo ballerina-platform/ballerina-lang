@@ -22,7 +22,7 @@ function testStringArrayLength(string[] arg)(int, int){
     return lengthof arg , lengthof defined;
 }
 
-function testXMLArrayLength(xml[] arg)(int, int){
+function testXMLArrayLength()(int){
     xml[] defined;
     xml v1;
     xml v2;
@@ -30,7 +30,7 @@ function testXMLArrayLength(xml[] arg)(int, int){
     v2 = xmls:parse("<test>b</test>");
     defined = [v1, v2];
     defined[2] = xmls:parse("<test>c</test>");
-    return lengthof arg , lengthof defined;
+    return lengthof defined;
 }
 
 function testJSONArrayLength()(int, int){
