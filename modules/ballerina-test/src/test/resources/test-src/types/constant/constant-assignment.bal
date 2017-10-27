@@ -1,6 +1,6 @@
-import ballerina.lang.strings;
+import ballerina.os;
 
-const string envVar = getEnv("env_var");
+const string envVar = os:getEnv("env_var");
 const string varFunc = dummyStringFunction();
 const string str = "ballerina is $$$";
 const string varNativeFunc = str.replace("$$$","awesome");
