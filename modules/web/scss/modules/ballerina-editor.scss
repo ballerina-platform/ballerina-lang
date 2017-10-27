@@ -930,10 +930,17 @@
         fill:#333;
     }
     
-    .struct-added-value-wrapper {
-        fill: #f3f3f3;
+    .struct-added-value-wrapper-light {
+            fill: #f3f3f3;
+            stroke-width: 0.5;
+            stroke: #dfdfdf;
+            shape-rendering: crispEdges;
+        }
+
+    .struct-added-value-wrapper-dark {
+        fill: #dcdcdc;
         stroke-width: 0.5;
-        stroke: #dfdfdf;
+        stroke: #cccccc;
         shape-rendering: crispEdges;
     }
     
@@ -943,8 +950,14 @@
         padding: 13px;
     }
     
-    .struct-delete-icon-wrapper {
+    .struct-delete-icon-wrapper-light {
         fill: #f3f3f3;
+        shape-rendering: crispEdges;
+        padding: 13px;
+    }
+
+    .struct-delete-icon-wrapper-dark {
+        fill: #dcdcdc;
         shape-rendering: crispEdges;
         padding: 13px;
     }

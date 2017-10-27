@@ -407,7 +407,7 @@ class StructNode extends React.Component {
                     y={y + 10}
                     width={25}
                     height={25}
-                    className="struct-added-value-wrapper"
+                    className="struct-added-value-wrapper-light"
                 />
                 <image
                     x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
@@ -474,6 +474,7 @@ class StructNode extends React.Component {
                                         validateIdentifierName={this.validateIdentifierName}
                                         validateDefaultValue={this.validateDefaultValue}
                                         addQuotesToString={this.addQuotesToString}
+                                        index={i}
                                     />
                                 );
                             }
