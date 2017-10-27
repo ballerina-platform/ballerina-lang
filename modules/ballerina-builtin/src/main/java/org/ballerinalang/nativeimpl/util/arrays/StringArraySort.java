@@ -37,7 +37,7 @@ import java.util.List;
  * Native function ballerina.model.arrays:sort(string[]).
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
+        packageName = "ballerina.util.arrays",
         functionName = "sort",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
