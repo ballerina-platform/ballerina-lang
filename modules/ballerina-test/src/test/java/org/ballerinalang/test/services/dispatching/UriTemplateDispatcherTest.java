@@ -343,6 +343,18 @@ public class UriTemplateDispatcherTest {
                 "no matching resource found for path : /options/un , method : OPTIONS");
     }
 
+    @Test(description = "Test dispatching with basePath ending with forward slash")
+    public void testBasePathEndingWithSlash() {
+        String path = "/hello/test";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "sanitized"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         BServiceUtil.cleanup(application);

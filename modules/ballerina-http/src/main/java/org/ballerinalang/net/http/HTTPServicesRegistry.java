@@ -106,6 +106,7 @@ public class HTTPServicesRegistry {
 
     /**
      * Removing service from the service registry.
+     *
      * @param service requested service to be removed.
      */
     public void unregisterService(HttpService service) {
@@ -143,8 +144,15 @@ public class HTTPServicesRegistry {
         } else {
             basePath = Constants.DEFAULT_BASE_PATH;
         }
+        return sanitizeBasePath(basePath);
+    }
+
+    private String sanitizeBasePath(String basePath) {
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        if (basePath.endsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
         }
         return basePath;
     }
