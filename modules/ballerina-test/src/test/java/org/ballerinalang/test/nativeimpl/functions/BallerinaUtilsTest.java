@@ -39,7 +39,7 @@ public class BallerinaUtilsTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/utilsTest.bal");
+        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/utilsTest.bal");
     }
 
     @Test

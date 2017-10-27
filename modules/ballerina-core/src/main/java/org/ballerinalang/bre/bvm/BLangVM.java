@@ -235,7 +235,7 @@ public class BLangVM {
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
 
-        while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
+        while (ip >= 0 && ip < code.length && controlStack.currentFrame != null) {
 
             if (isDebugging) {
                 debugging(ip);
@@ -244,7 +244,7 @@ public class BLangVM {
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
             ip++;
-            StackFrame sf = controlStack.getCurrentFrame();
+            StackFrame sf = controlStack.currentFrame;
 
             switch (opcode) {
                 case InstructionCodes.ICONST:
@@ -420,22 +420,22 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-                    BNewArray newArray = (BNewArray) sf.refRegs[i];
+
+                    BValue array = sf.refRegs[i];
+                    if (array.getType().getTag() == TypeTags.XML_TAG) {
+                        sf.longRegs[j] = ((BXML) array).length();
+                        break;
+                    } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
+                        if (JSONUtils.isJSONArray((BJSON) array)) {
+                            sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+                        } else {
+                            sf.longRegs[j] = -1;
+                        }
+                        break;
+                    }
+
+                    BNewArray newArray = (BNewArray) array;
                     sf.longRegs[j] = newArray.size();
-                    break;
-                case InstructionCodes.LENGTHOFJSON:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
-                        sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                    } else {
-                        sf.longRegs[j] = -1;
-                        break;
-                    }
                     break;
 
                 case InstructionCodes.TYPELOAD:
@@ -641,9 +641,9 @@ public class BLangVM {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.XML2S:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -723,48 +723,48 @@ public class BLangVM {
                 case InstructionCodes.IRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
                     break;
                 case InstructionCodes.FRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
                     break;
                 case InstructionCodes.SRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
                     break;
                 case InstructionCodes.BRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
                     break;
                 case InstructionCodes.LRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
                     break;
                 case InstructionCodes.RRET:
                     i = operands[0];
                     j = operands[1];
-                    currentSF = controlStack.getCurrentFrame();
-                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
@@ -781,6 +781,7 @@ public class BLangVM {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLLOAD:
                     execXMLOpcodes(sf, opcode, operands);
                     break;
                 default:
@@ -1795,6 +1796,20 @@ public class BLangVM {
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
                 break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                long index = sf.longRegs[j];
+                sf.refRegs[k] = xmlVal.getItem(index);
+                break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:
             case InstructionCodes.NEWXMLTEXT:
@@ -2153,42 +2168,6 @@ public class BLangVM {
             case InstructionCodes.JSON2T:
                 convertJSONToStruct(operands, sf);
                 break;
-            case InstructionCodes.XML2JSON:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.toJSON((BXML) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.XML_TNAME, TypeConstants.JSON_TNAME);
-                }
-                break;
-            case InstructionCodes.JSON2XML:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                bRefType = sf.refRegs[i];
-                if (bRefType == null) {
-                    sf.refRegs[j] = null;
-                    break;
-                }
-
-                try {
-                    sf.refRegs[j] = XMLUtils.jsonToXML((BJSON) sf.refRegs[i]);
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
-                }
-                break;
             case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
@@ -2206,6 +2185,23 @@ public class BLangVM {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
                 }
+                break;
+            case InstructionCodes.S2XML:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                try {
+                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.XML2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.refRegs[j].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2301,26 +2297,26 @@ public class BLangVM {
                 debugHit(currentExecLine, holder);
                 break;
             case STEP_OVER:
-                if (controlStack.fp == holder.getFp()) {
+                if (controlStack.currentFrame == holder.getSF()) {
                     debugHit(currentExecLine, holder);
                     return;
                 }
                 if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.fp == holder.getFp() - 1) {
+                        && controlStack.currentFrame == holder.getSF().prevStackFrame) {
                     debugHit(currentExecLine, holder);
                     return;
                 }
                 holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.fp != holder.getFp()) {
+                if (controlStack.currentFrame != holder.getSF()) {
                     return;
                 }
                 debugHit(currentExecLine, holder);
                 break;
             case STEP_OUT:
                 holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
-                holder.setFp(holder.getFp() - 1);
+                holder.setSF(holder.getSF().prevStackFrame);
                 interMediateDebugCheck(currentExecLine, holder);
                 break;
             case STEP_OUT_INTMDT:
@@ -2336,7 +2332,7 @@ public class BLangVM {
      * @param holder          Debug info holder.
      */
     private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        if (controlStack.fp != holder.getFp()) {
+        if (controlStack.currentFrame != holder.getSF()) {
             return;
         }
         debugHit(currentExecLine, holder);
@@ -2367,7 +2363,7 @@ public class BLangVM {
      */
     private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
         holder.setLastLine(currentExecLine);
-        holder.setFp(controlStack.fp);
+        holder.setSF(controlStack.currentFrame);
         holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
         holder.waitTillDebuggeeResponds();
     }
@@ -2379,12 +2375,8 @@ public class BLangVM {
         breakPointInfo.setThreadId(context.getThreadId());
 
         int callingIp = current.getIp();
-        for (int i = controlStack.fp; i >= 0; i--) {
-            StackFrame frame = controlStack.getStack()[i];
-            if (frame == null) {
-                continue;
-            }
-
+        StackFrame frame = controlStack.currentFrame;
+        while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
             String functionName = frame.callableUnitInfo.getName();
             LineNumberInfo callingLine = context.getDebugInfoHolder()
@@ -2394,23 +2386,25 @@ public class BLangVM {
             LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
                     .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
             if (localVarAttrInfo == null) {
+                frame = frame.prevStackFrame;
                 continue;
             }
+            final StackFrame fcp = frame;
             localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BInteger(fcp.longLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BFloat(fcp.doubleLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BString(fcp.stringLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
+                    variableInfo.setBValue(new BBoolean(fcp.intLocalVars[localVarInfo
                             .getVariableIndex()] == 1 ? true : false));
                 } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BBlob(fcp.byteLocalVars[localVarInfo.getVariableIndex()]));
                 } else {
-                    variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
+                    variableInfo.setBValue(fcp.refLocalVars[localVarInfo.getVariableIndex()]);
                 }
                 frameInfo.addVariableInfo(variableInfo);
             });
@@ -2419,6 +2413,7 @@ public class BLangVM {
                 callingIp = 0;
             }
             breakPointInfo.addFrameInfo(frameInfo);
+            frame = frame.prevStackFrame;
         }
         return breakPointInfo;
     }
@@ -2547,7 +2542,7 @@ public class BLangVM {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = 3;
         if (retryCountAvailable == 1) {
-            retryCount = (int) controlStack.getCurrentFrame().getLongRegs()[0];
+            retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
             if (retryCount < 0) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
             }
@@ -2575,7 +2570,7 @@ public class BLangVM {
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
+        StackFrame callerSF = controlStack.currentFrame;
 
         WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
         StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -2593,7 +2588,7 @@ public class BLangVM {
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
                              WrkrInteractionArgsCPEntry wrkrIntRefCPEntry) {
-        StackFrame currentFrame = controlStack.getCurrentFrame();
+        StackFrame currentFrame = controlStack.currentFrame;
 
         // Extract the outgoing expressions
         BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
@@ -2610,17 +2605,17 @@ public class BLangVM {
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
         long timeout = Long.MAX_VALUE;
         if (forkjoinInfo.isTimeoutAvailable()) {
-            timeout = this.controlStack.getCurrentFrame().getLongRegs()[0];
+            timeout = this.controlStack.currentFrame.getLongRegs()[0];
         }
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
             Context workerContext = new WorkerContext(this.programFile, context);
             workerContext.blockingInvocation = true;
-            StackFrame callerSF = this.controlStack.getCurrentFrame();
+            StackFrame callerSF = this.controlStack.currentFrame;
             int[] argRegs = forkjoinInfo.getArgRegs();
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(this.controlStack.getCurrentFrame().getCallableUnitInfo(),
+            StackFrame calleeSF = new StackFrame(this.controlStack.currentFrame.getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
@@ -2651,7 +2646,7 @@ public class BLangVM {
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+            this.controlStack.currentFrame.getRefLocalVars()[offsetJoin] = mbMap;
         } else {
             /* timed out */
             this.ip = forkjoinInfo.getTimeoutIp();
@@ -2661,7 +2656,7 @@ public class BLangVM {
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+            this.controlStack.currentFrame.getRefLocalVars()[offsetTimeout] = mbMap;
         }     
     }
     
@@ -2695,15 +2690,15 @@ public class BLangVM {
 
             ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
             StackFrame parentSF = workerContext.parentSF;
-            StackFrame parentCallersSF = parentControlStack.getStack()[parentControlStack.fp - 1];
+            StackFrame parentCallersSF = parentControlStack.currentFrame.prevStackFrame;
 
             copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
             // Switch to parent context
             this.context = workerContext.parent;
             this.controlStack = this.context.getControlStackNew();
             controlStack.popFrame();
-            this.constPool = this.controlStack.getCurrentFrame().packageInfo.getConstPoolEntries();
-            this.code = this.controlStack.getCurrentFrame().packageInfo.getInstructions();
+            this.constPool = this.controlStack.currentFrame.packageInfo.getConstPoolEntries();
+            this.code = this.controlStack.currentFrame.packageInfo.getInstructions();
             ip = parentSF.retAddrs;
         } else {
             String msg = workerContext.parentSF.returnedWorker + " already returned.";
@@ -2716,7 +2711,7 @@ public class BLangVM {
                             WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
-        StackFrame currentFrame = controlStack.getCurrentFrame();
+        StackFrame currentFrame = controlStack.currentFrame;
         copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
                 wrkrIntCPEntry.getbTypes(), passedInValues);
     }
@@ -2862,7 +2857,7 @@ public class BLangVM {
 
     private void handleReturn() {
         StackFrame currentSF = controlStack.popFrame();
-        if (controlStack.fp >= 0) {
+        if (controlStack.currentFrame != null) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
             this.constPool = callersSF.packageInfo.getConstPoolEntries();
@@ -3534,10 +3529,10 @@ public class BLangVM {
 
     private void handleError() {
         int currentIP = ip - 1;
-        StackFrame currentFrame = controlStack.getCurrentFrame();
+        StackFrame currentFrame = controlStack.currentFrame;
         ErrorTableEntry match = null;
 
-        while (controlStack.fp >= 0) {
+        while (controlStack.currentFrame != null) {
             match = ErrorTableEntry.getMatch(currentFrame.packageInfo, currentIP, context.getError());
             if (match != null) {
                 break;
@@ -3545,15 +3540,15 @@ public class BLangVM {
 
             controlStack.popFrame();
             context.setError(currentFrame.errorThrown);
-            if (controlStack.getCurrentFrame() == null) {
+            if (controlStack.currentFrame == null) {
                 break;
             }
 
             currentIP = currentFrame.retAddrs - 1;
-            currentFrame = controlStack.getCurrentFrame();
+            currentFrame = controlStack.currentFrame;
         }
 
-        if (controlStack.getCurrentFrame() == null) {
+        if (controlStack.currentFrame == null) {
             // root level error handling.
             ip = -1;
             if (context.getServiceInfo() == null) {

@@ -52,8 +52,3 @@ function printNewline() {
 function testSleep(int timeoutv) {
     sleep(timeoutv);
 }
-
-function getEnvVar(string varName) {
-    string pathValue = getEnv(varName);
-    print(pathValue);
-}

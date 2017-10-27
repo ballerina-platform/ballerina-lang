@@ -63,6 +63,10 @@ public class WebSocketServiceValidator {
                 validateOnTextMessageResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE)) {
                 validateOnBinaryMessageResource(resource);
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PING)) {
+                validateOnPingResource(resource);
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PONG)) {
+                validateOnPongResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT)) {
                 validateOnIdleTimeoutResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_CLOSE)) {
@@ -122,6 +126,26 @@ public class WebSocketServiceValidator {
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
         validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
                            Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
+
+    }
+
+    private static void validateOnPingResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamDetailsSize(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_PING_FRAME);
+
+    }
+
+    private static void validateOnPongResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamDetailsSize(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_PONG_FRAME);
 
     }
 
