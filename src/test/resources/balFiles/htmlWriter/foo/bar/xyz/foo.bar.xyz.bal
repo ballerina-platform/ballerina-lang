@@ -1,7 +1,6 @@
 package foo.bar.xyz;
 
 import ballerina.doc;
-import ballerina.lang.system;
 
 struct Argument {
     string text;
@@ -13,7 +12,7 @@ struct Argument {
 @doc:Param{value:"m: Incoming message"}
 @doc:Param{value:"key: HTTP header key"}
 function removeHeader (string m, string key) {
-    system:println("invoked");
+    println("invoked");
     Argument arg1 = {text:"arg1", argumentId:1, sentiment:1};
     testStruct(arg1);
 }
@@ -21,7 +20,7 @@ function removeHeader (string m, string key) {
 @doc:Description{value:"Test struct data type"}
 @doc:Param{value:"argument: Incoming argument"}
 function testStruct(Argument argument) {
-    system:println("Hello, World!");
+    println("Hello, World!");
 }
 
 
