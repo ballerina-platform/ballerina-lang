@@ -19,8 +19,9 @@ function main (string[] args) {
     person.city = "Colombo";
     system:println(person);
 
-    // We can cast this constrained json to a json.
-    json employee = (json)person;
+    // We can assign this Constrained JSON to a JSON. This will allow us to
+    // add new elements which are not in the struct.
+    json employee = person;
     // After that, we can add new elements to the json.
     employee.profession = "Software Engineer";
     system:println(employee);
