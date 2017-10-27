@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -60,154 +62,92 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
         this.configuration = configuration;
     }
 
-    private class ClientConnectorListener implements HttpConnectorListener {
-        String requestValue = "test";
-        HTTPCarbonMessage request;
-
-        public ClientConnectorListener(String requestValue, HTTPCarbonMessage request) {
-            this.requestValue = requestValue;
-            this.request = request;
-        }
-
-        @Override
-        public void onMessage(HTTPCarbonMessage httpResponse) {
-            int length = httpResponse.getFullMessageLength();
-            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
-
-            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-            byteBufferList.forEach(buf -> byteBuffer.put(buf));
-            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-            if (requestValue != null) {
-                byte[] array = new byte[0];
-                try {
-                    array = responseValue.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-
-                }
-
-                ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                byteBuff.put(array);
-                byteBuff.flip();
-                HTTPCarbonMessage httpCarbonMessage = httpResponse.cloneCarbonMessageWithOutData();
-                if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                    httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-                }
-                httpCarbonMessage.addMessageBody(byteBuff);
-                httpCarbonMessage.setEndOfMsgAdded(true);
-
-//                HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(carbonMessage);
-                try {
-                    request.respond(httpCarbonMessage);
-                } catch (ServerConnectorException e) {
-                    logger.error("Error occurred during message notification: " + e.getMessage());
-                }
-            }
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-
-        }
-    }
-
     @Override
     public void onMessage(HTTPCarbonMessage httpRequest) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int length = httpRequest.getFullMessageLength();
-                    List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                    byteBufferList.forEach(buf -> byteBuffer.put(buf));
-                    String requestValue = new String(byteBuffer.array());
-                    byte[] arry = responseValue.getBytes("UTF-8");
+        executor.execute(() -> {
+            try {
+                int length = httpRequest.getFullMessageLength();
+                List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                byteBufferList.forEach(byteBuffer::put);
+                String requestValue = new String(byteBuffer.array());
+                byte[] arry = responseValue.getBytes("UTF-8");
 
-                    HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                    if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                        newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
-                    }
-                    ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
-                    byteBuffer1.put(arry);
-                    byteBuffer1.flip();
-                    newMsg.addMessageBody(byteBuffer1);
-                    newMsg.setEndOfMsgAdded(true);
-                    newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                    newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
-
-                    Map<String, Object> transportProperties = new HashMap<>();
-                    Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                    if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                        transportProperties = transportPropertiesSet.stream().collect(
-                                Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                    }
-
-                    String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                    SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                       scheme);
-
-                    HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
-                    HttpClientConnector clientConnector =
-                            httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-
-//                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(newMsg);
-                    HttpResponseFuture future = clientConnector.send(newMsg);
-                    future.setHttpConnectorListener(new HttpConnectorListener() {
-                        @Override
-                        public void onMessage(HTTPCarbonMessage httpResponse) {
-                            executor.execute(() -> {
-                                int length = httpResponse.getFullMessageLength();
-                                List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
-
-                                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                                byteBufferList.forEach(buf -> byteBuffer.put(buf));
-                                String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-                                if (requestValue != null) {
-                                    byte[] array = new byte[0];
-                                    try {
-                                        array = responseValue.getBytes("UTF-8");
-                                    } catch (UnsupportedEncodingException e) {
-
-                                    }
-
-                                    ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                                    byteBuff.put(array);
-                                    byteBuff.flip();
-                                    HTTPCarbonMessage httpCarbonMessage = httpResponse
-                                            .cloneCarbonMessageWithOutData();
-                                    if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                        httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
-                                                String.valueOf(array.length));
-                                    }
-                                    httpCarbonMessage.addMessageBody(byteBuff);
-                                    httpCarbonMessage.setEndOfMsgAdded(true);
-
-//                                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil
-//                                            .convertCarbonMessage(carbonMessage);
-                                    try {
-                                        httpRequest.respond(httpCarbonMessage);
-                                    } catch (ServerConnectorException e) {
-                                        logger.error("Error occurred during message notification: "
-                                                + e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-
-                        }
-                    });
-                } catch (UnsupportedEncodingException e) {
-                    logger.error("Encoding is not supported", e);
-                } catch (Exception e) {
-                    logger.error("Failed to send the message to the back-end", e);
-                } finally {
+                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
                 }
-            }
+                ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
+                byteBuffer1.put(arry);
+                byteBuffer1.flip();
+                newMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer1)));
+                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
+                Map<String, Object> transportProperties = new HashMap<>();
+                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
+                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+                    transportProperties = transportPropertiesSet.stream().collect(
+                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+                }
+
+                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
+
+                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                HttpClientConnector clientConnector =
+                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+
+                HttpResponseFuture future = clientConnector.send(newMsg);
+                future.setHttpConnectorListener(new HttpConnectorListener() {
+                    @Override
+                    public void onMessage(HTTPCarbonMessage httpResponse) {
+                        executor.execute(() -> {
+                            int length = httpResponse.getFullMessageLength();
+                            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
+
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                            byteBufferList.forEach(byteBuffer::put);
+                            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            byte[] array = new byte[0];
+                            try {
+                                array = responseValue.getBytes("UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+
+                            }
+
+                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                            byteBuff.put(array);
+                            byteBuff.flip();
+                            HTTPCarbonMessage httpCarbonMessage = httpResponse
+                                    .cloneCarbonMessageWithOutData();
+                            if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                        String.valueOf(array.length));
+                            }
+                            httpCarbonMessage.addHttpContent(
+                                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
+
+                            try {
+                                httpRequest.respond(httpCarbonMessage);
+                            } catch (ServerConnectorException e) {
+                                logger.error("Error occurred during message notification: " + e.getMessage());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+                });
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Encoding is not supported", e);
+            } catch (Exception e) {
+                logger.error("Failed to send the message to the back-end", e);
+            }
         });
 
     }

@@ -50,7 +50,6 @@ public class HttpResponseListener implements HttpConnectorListener {
         sourceContext.channel().eventLoop().execute(() -> {
             boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
 
-            Util.prepareBuiltMessageForTransfer(httpResponseMessage);
             Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
             if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor()
@@ -62,13 +61,6 @@ public class HttpResponseListener implements HttpConnectorListener {
             sourceContext.write(response);
 
             while (true) {
-                if (httpResponseMessage.isEndOfMsgAdded() && httpResponseMessage.isEmpty()) {
-                    ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
-                    }
-                    break;
-                }
                 HttpContent httpContent = httpResponseMessage.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ChannelFuture future = sourceContext.writeAndFlush(httpContent);
@@ -84,6 +76,7 @@ public class HttpResponseListener implements HttpConnectorListener {
                 sourceContext.write(httpContent);
             }
         });
+        Util.prepareBuiltMessageForTransfer(httpResponseMessage);
     }
 
     // Decides whether to close the connection after sending the response

@@ -219,7 +219,6 @@ public class Util {
             MessageDataSource messageDataSource = cMsg.getMessageDataSource();
             if (messageDataSource != null) {
                 messageDataSource.serializeData();
-                cMsg.setEndOfMsgAdded(true);
             }
         }
     }

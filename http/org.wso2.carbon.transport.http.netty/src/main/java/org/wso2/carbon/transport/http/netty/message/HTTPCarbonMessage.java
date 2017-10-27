@@ -94,10 +94,12 @@ public class HTTPCarbonMessage {
         return blockingEntityCollector.getFullMessageLength();
     }
 
+    @Deprecated
     public boolean isEndOfMsgAdded() {
         return blockingEntityCollector.isEndOfMsgAdded();
     }
 
+    @Deprecated
     public void addMessageBody(ByteBuffer msgBody) {
         blockingEntityCollector.addMessageBody(msgBody);
     }
@@ -106,6 +108,7 @@ public class HTTPCarbonMessage {
         blockingEntityCollector.markMessageEnd();
     }
 
+    @Deprecated
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
         blockingEntityCollector.setEndOfMsgAdded(endOfMsgAdded);
     }

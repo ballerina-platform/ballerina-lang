@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -70,7 +72,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
 
                 ByteBuffer byteBuff = ByteBuffer.allocate(length);
-                byteBufferList.forEach(buf -> byteBuff.put(buf));
+                byteBufferList.forEach(byteBuff::put);
                 requestValue = new String(byteBuff.array());
 
                 httpRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
@@ -82,8 +84,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                     byteBuffer.put(array);
                     httpRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                     byteBuffer.flip();
-                    httpRequest.addMessageBody(byteBuffer);
-                    httpRequest.setEndOfMsgAdded(true);
+                    httpRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
                 }
 
                 Map<String, Object> transportProperties = new HashMap<>();
@@ -95,8 +96,8 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 }
 
                 String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
@@ -110,7 +111,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                             List<ByteBuffer> byteBufferList = httpMessage.getFullMessageBody();
 
                             ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                            byteBufferList.forEach(buf -> byteBuffer.put(buf));
+                            byteBufferList.forEach(byteBuffer::put);
                             String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
                             if (requestValue != null) {
                                 byte[] array = new byte[0];
@@ -123,8 +124,8 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                                 byteBuff.put(array);
                                 httpMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                                 byteBuff.flip();
-                                httpMessage.addMessageBody(byteBuff);
-                                httpMessage.setEndOfMsgAdded(true);
+                                httpMessage.addHttpContent(
+                                        new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
                                 try {
                                     httpRequest.respond(httpMessage);
                                 } catch (ServerConnectorException e) {

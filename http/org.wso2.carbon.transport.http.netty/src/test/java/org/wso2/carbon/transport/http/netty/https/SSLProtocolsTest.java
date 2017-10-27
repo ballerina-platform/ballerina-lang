@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty.https;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.DataProvider;
@@ -139,8 +141,7 @@ public class SSLProtocolsTest {
             msg.setProperty("PROTOCOL", scheme);
             msg.setProperty("HOST", TestUtil.TEST_HOST);
             msg.setProperty("HTTP_METHOD", "GET");
-            msg.addMessageBody(byteBuffer);
-            msg.setEndOfMsgAdded(true);
+            msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);

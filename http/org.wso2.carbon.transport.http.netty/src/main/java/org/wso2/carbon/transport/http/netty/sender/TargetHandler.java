@@ -83,8 +83,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     targetRespMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        targetRespMsg.setEndOfMsgAdded(true);
-                        targetRespMsg = null;
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtTargetResponseSending(targetRespMsg);

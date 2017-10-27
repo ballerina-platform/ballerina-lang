@@ -20,9 +20,12 @@
 package org.wso2.carbon.transport.http.netty.contentaware;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -57,10 +60,14 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
                     logger.error("Error occurred during message notification: " + e.getMessage());
                 }
             });
-            while (!(httpRequestMessage.isEmpty() && httpRequestMessage.isEndOfMsgAdded())) {
-                cMsg.addMessageBody(httpRequestMessage.getMessageBody().nioBuffer());
+            while (true) {
+                HttpContent httpContent = httpRequestMessage.getHttpContent();
+                cMsg.addHttpContent(httpContent);
+                if (httpContent instanceof LastHttpContent) {
+                    break;
+                }
             }
-            cMsg.setEndOfMsgAdded(true);
+            cMsg.addHttpContent(new DefaultLastHttpContent());
             httpRequestMessage.release();
         });
     }

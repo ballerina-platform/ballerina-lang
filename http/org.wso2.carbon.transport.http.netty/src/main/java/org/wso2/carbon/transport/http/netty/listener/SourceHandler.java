@@ -90,7 +90,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             notifyRequestListener(sourceReqCmsg, ctx);
             ByteBuf content = ((FullHttpMessage) msg).content();
             sourceReqCmsg.addHttpContent(new DefaultLastHttpContent(content));
-            sourceReqCmsg.setEndOfMsgAdded(true);
             if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                                             .executeAtSourceRequestSending(sourceReqCmsg);
@@ -107,12 +106,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     sourceReqCmsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        sourceReqCmsg.setEndOfMsgAdded(true);
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceRequestSending(sourceReqCmsg);
                         }
-                        sourceReqCmsg = null;
                     }
                 }
             }
