@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.task;
 
 /**
- * TODO: Class level comment.
+ * This exception is thrown when something related to a task fails.
  */
 public class TaskException extends Exception {
     public TaskException() {
