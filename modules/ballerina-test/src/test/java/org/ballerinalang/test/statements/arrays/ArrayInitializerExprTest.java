@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -24,8 +27,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,13 +42,13 @@ public class ArrayInitializerExprTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/arrays/array-initializer-expr.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-initializer-expr.bal");
     }
 
     @Test(description = "Test arrays initializer expression")
     public void testArrayInitExpr() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "arrayInitTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "arrayInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -60,7 +61,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test arrays return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "arrayReturnTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BStringArray.class);
@@ -84,7 +85,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test nested array inline initializing")
     public void testNestedArrayInit() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testNestedArrayInit", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedArrayInit", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
@@ -113,7 +114,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array of maps inline initializing")
     public void testArrayOfMapsInit() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testArrayOfMapsInit", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayOfMapsInit", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
@@ -143,7 +144,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array of maps inline initializing")
     public void testAnyAsArray() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testAnyAsArray", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyAsArray", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
@@ -156,7 +157,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test float array initialization with integer values")
     public void testFloatArrayInitWithIntExpr() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "floatArrayInitWithInt", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "floatArrayInitWithInt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloatArray.class);

@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.test.services.nativeimpl.response;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
@@ -27,11 +31,8 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,13 +52,13 @@ public class ResponseNativeFunctionSuccessTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile(sourceFilePath);
-        serviceResult = EnvironmentInitializer.setupProgramFile(sourceFilePath);
+        result = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test
     public void testAddHeader() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
 
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -67,7 +68,7 @@ public class ResponseNativeFunctionSuccessTest {
         BString key = new BString(headerName);
         BString value = new BString(headerValue);
         BValue[] inputArg = {response, key, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testAddHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -90,7 +91,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testCloneMethod() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -103,7 +104,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setProperty(propertyName, propertyValue);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testClone", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testClone", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -128,7 +129,7 @@ public class ResponseNativeFunctionSuccessTest {
     //TODO Test this with multipart support, not needed for now
     @Test(enabled = false)
     public void testGetBinaryPayloadMethod() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -137,7 +138,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setAlreadyRead(true);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetBinaryPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
@@ -145,7 +146,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetContentLength() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -155,7 +156,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetContentLength", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
@@ -176,14 +177,14 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetHeader() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HttpUtil.addCarbonMsg(response, cMsg);
         BString key = new BString(Constants.CONTENT_TYPE);
 
         BValue[] inputArg = {response, key};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
@@ -204,7 +205,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetJsonPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
@@ -214,7 +215,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetJsonPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BJSON) returnVals[0]).value().get("code").asText(), "123");
@@ -233,7 +234,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetProperty() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
@@ -241,7 +242,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(response, cMsg);
         BString name = new BString(propertyName);
         BValue[] inputArg = {response, name};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetProperty", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
@@ -262,7 +263,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetStringPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -271,7 +272,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setAlreadyRead(true);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
@@ -290,7 +291,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetXmlPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
@@ -299,7 +300,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setAlreadyRead(true);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testGetXmlPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
@@ -318,14 +319,14 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testRemoveHeader() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
         HttpUtil.addCarbonMsg(response, cMsg);
         BString key = new BString(expect);
         BValue[] inputArg = {response, key};
-        BValue[] returnVals = BTestUtils.invoke(result, "testRemoveHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -348,7 +349,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testRemoveAllHeaders() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         String range = "Range";
@@ -356,7 +357,7 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setHeader(range, "bytes=500-999");
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
-        BValue[] returnVals = BTestUtils.invoke(result, "testRemoveAllHeaders", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -387,12 +388,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetContentLength() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         BInteger length = new BInteger(10);
         BValue[] inputArg = {response, length};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetContentLength", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -413,7 +414,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetHeader() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         String range = "Range";
@@ -421,7 +422,7 @@ public class ResponseNativeFunctionSuccessTest {
         BString key = new BString(range);
         BString value = new BString(rangeValue);
         BValue[] inputArg = {response, key, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -431,12 +432,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetJsonPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         BJSON value = new BJSON("{'name':'wso2'}");
         BValue[] inputArg = {response, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetJsonPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -447,7 +448,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetProperty() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         String propertyName = "wso2";
@@ -455,7 +456,7 @@ public class ResponseNativeFunctionSuccessTest {
         BString name = new BString(propertyName);
         BString value = new BString(propertyValue);
         BValue[] inputArg = {response, name, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetProperty", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -486,12 +487,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetStringPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         BString value = new BString("Ballerina");
         BValue[] inputArg = {response, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -502,13 +503,13 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         BXMLItem value = new BXMLItem("<name>Ballerina</name>");
         BValue[] inputArg = {response, value};
-        BValue[] returnVals = BTestUtils.invoke(result, "testSetXmlPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -518,8 +519,19 @@ public class ResponseNativeFunctionSuccessTest {
                 , "Payload is not set properly");
     }
 
+    @Test
+    public void testForwardMethod() {
+        String path = "/hello/14";
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "hello"
+                , "Payload is not set properly");
+    }
+
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(serviceResult);
+        BServiceUtil.cleanup(serviceResult);
     }
 }

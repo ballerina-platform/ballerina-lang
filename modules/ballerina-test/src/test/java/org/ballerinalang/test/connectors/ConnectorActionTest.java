@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.test.connectors;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,15 +34,17 @@ import org.testng.annotations.Test;
  */
 public class ConnectorActionTest {
     CompileResult result;
+    CompileResult resultNegative;
 
     @BeforeClass()
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/connector-actions.bal");
+        result = BCompileUtil.compile("test-src/connectors/connector-actions.bal");
+        resultNegative = BCompileUtil.compile("test-src/connectors/connector-negative.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction1");
+        BValue[] returns = BRunUtil.invoke(result, "testAction1");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -51,14 +55,14 @@ public class ConnectorActionTest {
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction2");
+        BValue[] returns = BRunUtil.invoke(result, "testAction2");
 
         Assert.assertEquals(returns.length, 0);
     }
 
     @Test(description = "Test TestConnector action3")
     public void testConnectorAction3() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction3");
+        BValue[] returns = BRunUtil.invoke(result, "testAction3");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -69,7 +73,7 @@ public class ConnectorActionTest {
 
     @Test(description = "Test TestConnector action2 and action3")
     public void testConnectorAction2andAction3() {
-        BValue[] returns = BTestUtils.invoke(result, "testAction2andAction3");
+        BValue[] returns = BRunUtil.invoke(result, "testAction2andAction3");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -82,7 +86,7 @@ public class ConnectorActionTest {
     public void testConnectorAction4() {
         String inputParam = "inputParam";
         BValue[] functionArgs = new BValue[] { new BString(inputParam) };
-        BValue[] returns = BTestUtils.invoke(result, "testAction4", functionArgs);
+        BValue[] returns = BRunUtil.invoke(result, "testAction4", functionArgs);
 
         Assert.assertEquals(returns.length, 1);
 
@@ -101,7 +105,7 @@ public class ConnectorActionTest {
                 new BString(functionArg1), new BString(functionArg2), new BInteger(functionArg3),
                 new BString(functionArg4)
         };
-        BValue[] returns = BTestUtils.invoke(result, "testAction5", functionArgs);
+        BValue[] returns = BRunUtil.invoke(result, "testAction5", functionArgs);
 
         Assert.assertEquals(returns.length, 3);
 
@@ -128,7 +132,7 @@ public class ConnectorActionTest {
                 new BString(functionArg1), new BString(functionArg2), new BInteger(functionArg3),
                 new BString(functionArg4)
         };
-        BValue[] returns = BTestUtils.invoke(result, "testDotActionInvocation", functionArgs);
+        BValue[] returns = BRunUtil.invoke(result, "testDotActionInvocation", functionArgs);
 
         Assert.assertEquals(returns.length, 3);
 
@@ -149,7 +153,7 @@ public class ConnectorActionTest {
     public void testEmptyParamConnector() {
         String input = "hello";
         BValue[] args = new BValue[] { new BString(input) };
-        BValue[] returns = BTestUtils.invoke(result, "testEmptyParamAction", args);
+        BValue[] returns = BRunUtil.invoke(result, "testEmptyParamAction", args);
         Assert.assertEquals(returns.length, 1);
 
         BString returnStr = (BString) returns[0];
@@ -158,33 +162,56 @@ public class ConnectorActionTest {
 
     }
 
-//    @Test(description = "Test invoking an undefined connector",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "undefined-connector.bal:2: undefined type 'UndefinedConnector'")
-    public void testUndefinedConnector() {
-        BTestUtils.compile("test-src/connectors/undefined-connector.bal");
+    @Test(description = "Test chained execution of connector actions and returning connector from a action")
+    public void testChainedActionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testChainedActionInvocation");
+        Assert.assertEquals(returns.length, 1);
+
+        BInteger returnInt = (BInteger) returns[0];
+        Assert.assertSame(returnInt.getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(returnInt.intValue(), 60, "invalid value returned");
     }
 
-//    @Test(description = "Test invoking an undefined action",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'foo' in " +
-//                    "connector 'TestConnector'")
-    public void testUndefinedAction() {
-        BTestUtils.compile("lang/connectors/undefined-actions.bal");
+    @Test(description = "Test chained execution of connector actions and functions and returning connector from a" +
+            "function")
+    public void testChainedFunctionActionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testChainedFunctionActionInvocation");
+        Assert.assertEquals(returns.length, 1);
+
+        BInteger returnInt = (BInteger) returns[0];
+        Assert.assertSame(returnInt.getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(returnInt.intValue(), 60, "invalid value returned");
     }
 
-//    @Test(description = "Test defining duplicate connector",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "duplicate-connector.bal:11: redeclared symbol 'TestConnector'")
-    public void testDuplicateConnectorDef() {
-        BTestUtils.compile("lang/connectors/duplicate-connector.bal");
+    @Test(description = "Test passing connector as a function parameter")
+    public void testPassConnectorAsFunctionParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testPassConnectorAsFunctionParameter");
+        Assert.assertEquals(returns.length, 1);
+
+        BInteger returnInt = (BInteger) returns[0];
+        Assert.assertSame(returnInt.getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(returnInt.intValue(), 87, "invalid value returned");
     }
 
-//    @Test(description = "Test defining duplicate action",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "duplicate-action.bal:9: redeclared symbol 'foo'")
-    public void testDuplicateAction() {
-        BTestUtils.compile("lang/connectors/duplicate-action.bal");
+    @Test(description = "Test passing connector as a action parameter")
+    public void testPassConnectorAsActionParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testPassConnectorAsActionParameter");
+        Assert.assertEquals(returns.length, 1);
+
+        BInteger returnInt = (BInteger) returns[0];
+        Assert.assertSame(returnInt.getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(returnInt.intValue(), 30, "invalid value returned");
+    }
+
+    @Test(description = "Test connectors with errors")
+    public void testConnectorNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'TestConnector1'", 35, 1);
+        BAssertUtil.validateError(resultNegative, 1, "redeclared symbol 'foo'", 52, 5);
+        BAssertUtil.validateError(resultNegative, 2, "unknown type 'UndefinedConnector'", 2, 5);
+        BAssertUtil.validateError(resultNegative, 3, "undefined connector 'UndefinedConnector'", 2, 40);
+        BAssertUtil.validateError(resultNegative, 4, "undefined action 'foo' in " +
+                "connector 'TestConnector'", 22, 13);
     }
 
 //    @Test(description = "Test defining duplicate action",
@@ -207,18 +234,18 @@ public class ConnectorActionTest {
 //            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:3: invalid action invocation. " +
 //                    "connector variable expected")
     public void testIncorrectActionInvocation() {
-        BTestUtils.compile("lang/connectors/incorrect-action-invocation.bal");
+        BCompileUtil.compile("lang/connectors/incorrect-action-invocation.bal");
     }
 
 //    @Test(description = "Test invalid action invocation",
 //            expectedExceptions = {SemanticException.class },
 //            expectedExceptionsMessageRegExp = "invalid-action-invocation.bal:2: undefined connector 'lk'")
     public void testInvalidActionInvocation() {
-        BTestUtils.compile("lang/connectors/invalid-action-invocation.bal");
+        BCompileUtil.compile("lang/connectors/invalid-action-invocation.bal");
     }
 
 //    @Test(description = "Test action invocation with no arg")
     public void testActionInvocationWithNoArgs() {
-        BTestUtils.compile("lang/connectors/action-invocation-with-no-args.bal");
+        BCompileUtil.compile("lang/connectors/action-invocation-with-no-args.bal");
     }
 }

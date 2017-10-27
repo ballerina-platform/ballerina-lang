@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.test.structs;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,12 +39,12 @@ public class StructTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/structs/struct.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
     }
 
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testCreateStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
@@ -59,7 +60,7 @@ public class StructTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testExpressionAsIndex");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
@@ -74,7 +75,7 @@ public class StructTest {
 
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testStructOfStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "USA");
@@ -82,7 +83,7 @@ public class StructTest {
 
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testReturnStructAttributes");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
@@ -90,14 +91,14 @@ public class StructTest {
 
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testStructExpressionAsIndex");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
 
     @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testDefaultVal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns[0] instanceof BString);
@@ -113,7 +114,7 @@ public class StructTest {
 
     @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testNestedFieldDefaultVal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "default first name");
@@ -127,7 +128,7 @@ public class StructTest {
 
     @Test(description = "Test default value of a nested struct field")
     public void testNestedStructInit() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testNestedStructInit");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedStructInit");
 
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct person = ((BStruct) returns[0]);
@@ -142,7 +143,7 @@ public class StructTest {
 
     @Test(description = "Test negative default values in struct")
     public void testNegativeDefaultValue() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "getStructNegativeValues");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getStructNegativeValues");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -156,7 +157,7 @@ public class StructTest {
 
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "getStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:null, age:25, family:null, " +
                 "parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
     }

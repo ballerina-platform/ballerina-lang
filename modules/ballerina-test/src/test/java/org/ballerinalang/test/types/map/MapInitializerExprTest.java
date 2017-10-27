@@ -17,13 +17,15 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -36,16 +38,25 @@ import org.testng.annotations.Test;
 public class MapInitializerExprTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeResult;
 
     @BeforeTest
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/types/map/map-initializer-expr.bal");
+        compileResult = BCompileUtil.compile("test-src/types/map/map-initializer-expr.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/map/map-literal-negative.bal");
+    }
+
+    @Test
+    public void testMapWithUnsupportedKey() {
+        // testMapWithUnsupportedKey
+        BAssertUtil.validateError(negativeResult, 0,
+                "invalid field name in map literal. identifier or string literal expected", 2, 15);
     }
 
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(compileResult, "mapInitTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
@@ -60,12 +71,12 @@ public class MapInitializerExprTest {
 
     @Test(description = "Test map initializing with different types")
     public void testMultiTypeMapInit() {
-        BTestUtils.compile("test-src/types/map/multi-type-map-initializer.bal");
+        BCompileUtil.compile("test-src/types/map/multi-type-map-initializer.bal");
     }
     
     @Test
     public void testNestedMapInit() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testNestedMapInit", new BValue[] {});
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedMapInit", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
@@ -80,7 +91,7 @@ public class MapInitializerExprTest {
     
     @Test
     public void testMapInitWithJson() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testMapInitWithJson", new BValue[] {});
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapInitWithJson", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
@@ -94,7 +105,7 @@ public class MapInitializerExprTest {
     
     @Test
     public void testComplexMapInit() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testComplexMapInit", new BValue[] {});
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexMapInit", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];

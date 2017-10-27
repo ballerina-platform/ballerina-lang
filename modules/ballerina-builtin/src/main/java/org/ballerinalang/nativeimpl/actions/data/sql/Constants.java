@@ -126,6 +126,4 @@ public final class Constants {
     public static final String STRUCT_TIME = "Time";
     public static final String STRUCT_TIME_PACKAGE = "ballerina.lang.time";
     public static final String URL = "url";
-    public static final String USER = "user";
-    public static final String PASSWORD = "password";
 }

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
@@ -49,21 +48,24 @@ public class CorsHeaderGenerator {
 
         boolean isCorsResponseHeadersAvailable = false;
         Map<String, String> responseHeaders = null;
-        Map<String, List<String>> resourceCors;
+        CorsHeaders resourceCors;
         if (isSimpleRequest) {
-            resourceCors = (Map<String, List<String>>) requestMsg.getProperty(Constants.RESOURCES_CORS);
+            resourceCors = (CorsHeaders) requestMsg.getProperty(Constants.RESOURCES_CORS);
             String origin = requestMsg.getHeader(Constants.ORIGIN);
-            if (origin != null && resourceCors != null) {
-                if ((responseHeaders = processSimpleRequest(origin, resourceCors)) != null) {
-                    isCorsResponseHeadersAvailable = true;
-                }
+            //resourceCors cannot be null here
+            if (origin == null || !resourceCors.isAvailable()) {
+                return;
+            }
+            if ((responseHeaders = processSimpleRequest(origin, resourceCors)) != null) {
+                isCorsResponseHeadersAvailable = true;
             }
         } else {
             String origin = requestMsg.getHeader(Constants.ORIGIN);
-            if (origin != null) {
-                if ((responseHeaders = processPreflightRequest(origin, requestMsg)) != null) {
-                    isCorsResponseHeadersAvailable = true;
-                }
+            if (origin == null) {
+                return;
+            }
+            if ((responseHeaders = processPreflightRequest(origin, requestMsg)) != null) {
+                isCorsResponseHeadersAvailable = true;
             }
         }
         if (isCorsResponseHeadersAvailable) {
@@ -74,7 +76,7 @@ public class CorsHeaderGenerator {
         }
     }
 
-    private static Map<String, String> processSimpleRequest(String origin, Map<String, List<String>> resourceCors) {
+    private static Map<String, String> processSimpleRequest(String origin, CorsHeaders resourceCors) {
         Map<String, String> responseHeaders = new HashMap<>();
         //6.1.1 - There should be an origin
         List<String> requestOrigins = getOriginValues(origin);
@@ -83,7 +85,7 @@ public class CorsHeaderGenerator {
             return null;
         }
         //6.1.2 - check all the origins
-        if (!isEffectiveOrigin(requestOrigins, resourceCors.get(Constants.ALLOW_ORIGIN))) {
+        if (!isEffectiveOrigin(requestOrigins, resourceCors.getAllowOrigins())) {
             bLog.info(action + "not allowed origin");
             return null;
         }
@@ -110,23 +112,23 @@ public class CorsHeaderGenerator {
             return null;
         }
         String requestMethod = requestMethods.get(0);
-        Map<String, List<String>> resourceCors;
-        if ((resourceCors = getResourceCors(cMsg, requestMethod)) == null) {
+        CorsHeaders resourceCors = getResourceCors(cMsg, requestMethod);
+        if (resourceCors == null || !resourceCors.isAvailable()) {
             bLog.info(action + "headers are not declared properly");
             return null;
         }
-        if (!isEffectiveMethod(requestMethod, resourceCors.get(Constants.ALLOW_METHODS))) {
+        if (!isEffectiveMethod(requestMethod, resourceCors.getAllowMethods())) {
             bLog.info(action + "not allowed method");
             return null;
         }
         //6.2.2 - request origin must be on the list or match with *.
-        if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.get(Constants.ALLOW_ORIGIN))) {
+        if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.getAllowOrigins())) {
             bLog.info(action + "not allowed origin");
             return null;
         }
         //6.2.4 - get list of request headers.
         List<String> requestHeaders = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
-        if (!isEffectiveHeader(requestHeaders, resourceCors.get(Constants.ALLOW_HEADERS))) {
+        if (!isEffectiveHeader(requestHeaders, resourceCors.getAllowHeaders())) {
             bLog.info(action + "header field parsing failed");
             return null;
         }
@@ -139,7 +141,7 @@ public class CorsHeaderGenerator {
             responseHeaders.put(Constants.AC_ALLOW_HEADERS, DispatcherUtil.concatValues(requestHeaders, false));
         }
         //6.2.8 - set max-age
-        responseHeaders.put(Constants.AC_MAX_AGE, resourceCors.get(Constants.MAX_AGE).get(0));
+        responseHeaders.put(Constants.AC_MAX_AGE, String.valueOf(resourceCors.getMaxAge()));
         return responseHeaders;
     }
 
@@ -151,7 +153,7 @@ public class CorsHeaderGenerator {
     }
 
     private static boolean isEffectiveHeader(List<String> requestHeaders, List<String> resourceHeaders) {
-        if (resourceHeaders.size() == 0 || requestHeaders == null) {
+        if (resourceHeaders == null || requestHeaders == null) {
             return true;
         } else {
             Set<String> headersSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -172,30 +174,22 @@ public class CorsHeaderGenerator {
         return false;
     }
 
-    private static Map<String, List<String>> getResourceCors(HTTPCarbonMessage cMsg, String requestMethod) {
-        List<Resource> resources = (List<Resource>) cMsg.getProperty(Constants.PREFLIGHT_RESOURCES);
+    private static CorsHeaders getResourceCors(HTTPCarbonMessage cMsg, String requestMethod) {
+        List<HttpResource> resources = (List<HttpResource>) cMsg.getProperty(Constants.PREFLIGHT_RESOURCES);
         if (resources == null) {
             return null;
-        } else {
-            for (Resource resource : resources) {
-                if (DispatcherUtil.getHttpMethods(resource) != null) {
-                    for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                        if (requestMethod.equals(method)) {
-                            return CorsRegistry.getInstance().getCorsHeaders(resource);
-                        }
-                    }
-                }
+        }
+        for (HttpResource resource : resources) {
+            if (resource.getMethods() != null && resource.getMethods().contains(requestMethod)) {
+                return resource.getCorsHeaders();
             }
-            if (requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
-                for (Resource resource : resources) {
-                    if (DispatcherUtil.getHttpMethods(resource) != null) {
-                        for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                            if (method.equals(Constants.HTTP_METHOD_GET)) {
-                                return CorsRegistry.getInstance().getCorsHeaders(resource);
-                            }
-                        }
-                    }
-                }
+        }
+        if (!requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
+            return null;
+        }
+        for (HttpResource resource : resources) {
+            if (resource.getMethods() != null && resource.getMethods().contains(Constants.HTTP_METHOD_GET)) {
+                return resource.getCorsHeaders();
             }
         }
         return null;
@@ -210,19 +204,23 @@ public class CorsHeaderGenerator {
         return null;
     }
 
-    private static void setExposedAllowedHeaders(Map<String, List<String>> resCors, Map<String, String> respHeaders) {
-        List<String> exposeHeaders = resCors.get(Constants.EXPOSE_HEADERS);
+    private static void setExposedAllowedHeaders(CorsHeaders resCors, Map<String, String> respHeaders) {
+        //TODO can cache concatenated expose headers in the resource.
+        List<String> exposeHeaders = resCors.getExposeHeaders();
+        if (exposeHeaders == null) {
+            return;
+        }
         String exposeHeaderResponse = DispatcherUtil.concatValues(exposeHeaders, false);
         if (!exposeHeaderResponse.isEmpty()) {
             respHeaders.put(Constants.AC_EXPOSE_HEADERS, exposeHeaderResponse);
         }
     }
 
-    private static void setAllowOriginAndCredentials(List<String> effectiveOrigins, Map<String, List<String>> resCors
+    private static void setAllowOriginAndCredentials(List<String> effectiveOrigins, CorsHeaders resCors
             , Map<String, String> responseHeaders) {
-        String allowCreds = resCors.get(Constants.ALLOW_CREDENTIALS).get(0);
-        if (allowCreds.equals("true")) {
-            responseHeaders.put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
+        int allowCreds = resCors.getAllowCredentials();
+        if (allowCreds == 1) {
+            responseHeaders.put(Constants.AC_ALLOW_CREDENTIALS, String.valueOf(true));
         }
         responseHeaders.put(Constants.AC_ALLOW_ORIGIN, DispatcherUtil.concatValues(effectiveOrigins, true));
     }

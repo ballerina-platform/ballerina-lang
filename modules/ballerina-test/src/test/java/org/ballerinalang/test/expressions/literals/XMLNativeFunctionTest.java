@@ -19,6 +19,9 @@ package org.ballerinalang.test.expressions.literals;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -27,8 +30,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -48,13 +49,13 @@ public class XMLNativeFunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/literals/xml/xml-native-functions.bal");
+        result = BCompileUtil.compile("test-src/expressions/literals/xml/xml-native-functions.bal");
     }
 
     @Test
     public void testGetString() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()")};
-        BValue[] returns = BTestUtils.invoke(result, "getString", args);
+        BValue[] returns = BRunUtil.invoke(result, "getString", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -67,7 +68,7 @@ public class XMLNativeFunctionTest {
         BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()") };
-        BValue[] returns = BTestUtils.invoke(result, "getString", args);
+        BValue[] returns = BRunUtil.invoke(result, "getString", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -79,7 +80,7 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetNonExistingString() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx/text()")};
-        BValue[] returns = BTestUtils.invoke(result, "getString", args);
+        BValue[] returns = BRunUtil.invoke(result, "getString", args);
 
         Assert.assertEquals(returns[0], null);
     }
@@ -87,13 +88,13 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testGetStringFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
-        BTestUtils.invoke(result, "getString", args);
+        BRunUtil.invoke(result, "getString", args);
     }
 
     @Test
     public void testGetXML() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person")};
-        BValue[] returns = BTestUtils.invoke(result, "getXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "getXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -107,7 +108,7 @@ public class XMLNativeFunctionTest {
         BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person") };
-        BValue[] returns = BTestUtils.invoke(result, "getXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "getXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -124,7 +125,7 @@ public class XMLNativeFunctionTest {
         seq.add(0, new BXMLItem(s1));
         seq.add(1, new BXMLItem(s2));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person") };
-        BValue[] returns = BTestUtils.invoke(result, "getXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "getXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -136,10 +137,10 @@ public class XMLNativeFunctionTest {
     @Test
     public void testGetXMLLarge() {
         // Load large xml
-        l1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/message13k.xml");
+        l1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/message13k.xml");
         BValue[] args = {new BXMLItem(l1),
                 new BString("/persons/person[160]")};
-        BValue[] returns = BTestUtils.invoke(result, "getXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "getXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -153,7 +154,7 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetNonExistingXML() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx")};
-        BValue[] returns = BTestUtils.invoke(result, "getXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "getXML", args);
 
         Assert.assertEquals(returns[0], null);
     }
@@ -161,33 +162,33 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testGetXMLFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
-        BTestUtils.invoke(result, "getXML", args);
+        BRunUtil.invoke(result, "getXML", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromText() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()")};
-        BTestUtils.invoke(result, "getXML", args);
+        BRunUtil.invoke(result, "getXML", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/")};
-        BTestUtils.invoke(result, "getXML", args);
+        BRunUtil.invoke(result, "getXML", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id")};
-        BTestUtils.invoke(result, "getXML", args);
+        BRunUtil.invoke(result, "getXML", args);
     }
 
     @Test
     public void testSetString() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()"), new BString("Peter")};
-        BValue[] returns = BTestUtils.invoke(result, "setString", args);
+        BValue[] returns = BRunUtil.invoke(result, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), "<persons><person><name>Peter" +
                 "</name><address>wso2</address></person></persons>");
@@ -198,7 +199,7 @@ public class XMLNativeFunctionTest {
         BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()"), new BString("Peter")};
-        BValue[] returns = BTestUtils.invoke(result, "setString", args);
+        BValue[] returns = BRunUtil.invoke(result, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), "<persons><person><name>Peter" +
                 "</name><address>wso2</address></person></persons>");
@@ -212,7 +213,7 @@ public class XMLNativeFunctionTest {
         seq.add(0, new BXMLItem(s1));
         seq.add(1, new BXMLItem(s2));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()"), new BString("Peter")};
-        BValue[] returns = BTestUtils.invoke(result, "setString", args);
+        BValue[] returns = BRunUtil.invoke(result, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), "<persons><person><name>Peter" +
                 "</name><address>wso2</address></person></persons>");
@@ -221,7 +222,7 @@ public class XMLNativeFunctionTest {
     @Test
     public void testSetStringToNonExistingElement() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx/text()"), new BString("Peter")};
-        BValue[] returns = BTestUtils.invoke(result, "setString", args);
+        BValue[] returns = BRunUtil.invoke(result, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
@@ -229,14 +230,14 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testSetStringToMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path"), new BString("Peter")};
-        BTestUtils.invoke(result, "setString", args);
+        BRunUtil.invoke(result, "setString", args);
     }
 
     @Test
     public void testSetStringToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageSimple.xml");
+        String a1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/messageSimple.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employee/@id"), new BString("0")};
-        BValue[] returns = BTestUtils.invoke(result, "setString", args);
+        BValue[] returns = BRunUtil.invoke(result, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), "<employee id=\"0\">\n" +
                 "    <name>Parakum</name>\n" +
@@ -248,7 +249,7 @@ public class XMLNativeFunctionTest {
     public void testSetXML() {
         BValue[] args = {new BXMLItem(s2), new BString("/person/name"),
                 new BXMLItem("<name><fname>Jack</fname><lname>Peter</lname></name>")};
-        BValue[] returns = BTestUtils.invoke(result, "setXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "setXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -261,7 +262,7 @@ public class XMLNativeFunctionTest {
     public void testSetXMLToNonExistingElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/xxx"),
                 new BXMLItem("<name><fname>Jack</fname><lname>Peter</lname></name>")};
-        BValue[] returns = BTestUtils.invoke(result, "setXML", args);
+        BValue[] returns = BRunUtil.invoke(result, "setXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -274,20 +275,20 @@ public class XMLNativeFunctionTest {
     public void testSetXMLToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"),
                 new BXMLItem("<name><fname>Jack</fname><lname>Peter</lname></name>")};
-        BTestUtils.invoke(result, "setXML", args);
+        BRunUtil.invoke(result, "setXML", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testSetXMLNullValue() {
         BValue[] args = {new BXMLItem(s2), new BString("/person/name"),
                 null};
-        BTestUtils.invoke(result, "setXML", args);
+        BRunUtil.invoke(result, "setXML", args);
     }
 
     @Test
     public void testAddElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/person"), new BXMLItem("<address>wso2</address>")};
-        BValue[] returns = BTestUtils.invoke(result, "addElement", args);
+        BValue[] returns = BRunUtil.invoke(result, "addElement", args);
 
         Assert.assertEquals(returns[0].stringValue(), "<person><name>Jack</name>" +
                 "<address>wso2</address></person>");
@@ -296,7 +297,7 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToNonExistingElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/xxx"), new BXMLItem("<address>wso2</address>")};
-        BValue[] returns = BTestUtils.invoke(result, "addElement", args);
+        BValue[] returns = BRunUtil.invoke(result, "addElement", args);
 
         Assert.assertEquals(returns[0].stringValue(), s2);
     }
@@ -304,35 +305,35 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testAddElementToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"), new BXMLItem("<address>wso2</address>")};
-        BTestUtils.invoke(result, "addElement", args);
+        BRunUtil.invoke(result, "addElement", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToText() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()"), 
             new BXMLItem("<address>wso2</address>")};
-        BTestUtils.invoke(result, "addElement", args);
+        BRunUtil.invoke(result, "addElement", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BXMLItem("<address>wso2</address>")};
-        BTestUtils.invoke(result, "addElement", args);
+        BRunUtil.invoke(result, "addElement", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), 
                 new BXMLItem("<address>wso2</address>")};
-        BTestUtils.invoke(result, "addElement", args);
+        BRunUtil.invoke(result, "addElement", args);
     }
 
     @Test
     public void testAddAttributeWithXPath() {
         BValue[] args = {new BXMLItem(s2), new BString("/person/name"), new BString("id"), new BString("person123")};
-        BValue[] returns = BTestUtils.invoke(result, "addAttribute", args);
+        BValue[] returns = BRunUtil.invoke(result, "addAttribute", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -343,7 +344,7 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToNonExistingElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/xxx"), new BString("id"), new BString("person123")};
-        BValue[] returns = BTestUtils.invoke(result, "addAttribute", args);
+        BValue[] returns = BRunUtil.invoke(result, "addAttribute", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -354,35 +355,35 @@ public class XMLNativeFunctionTest {
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testAddAttributeToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"), new BString("id"), new BString("person123")};
-        BTestUtils.invoke(result, "addAttribute", args);
+        BRunUtil.invoke(result, "addAttribute", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToText() {
         BValue[] args = {new BXMLItem(s2), new BString("/persons/person/name/text()"), new BString("id"),
                 new BString("person123")};
-        BTestUtils.invoke(result, "addAttribute", args);
+        BRunUtil.invoke(result, "addAttribute", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToDocumentElement() {
-        String d1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
+        String d1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BString("id"), new BString("person123")};
-        BTestUtils.invoke(result, "addAttribute", args);
+        BRunUtil.invoke(result, "addAttribute", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToAttribute() {
-        String a1 = BTestUtils.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
+        String a1 = BCompileUtil.readFileAsString("test-src/expressions/literals/xml/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), new BString("id"),
                 new BString("person123")};
-        BTestUtils.invoke(result, "addAttribute", args);
+        BRunUtil.invoke(result, "addAttribute", args);
     }
 
     @Test
     public void testRemove() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/address")};
-        BValue[] returns = BTestUtils.invoke(result, "remove", args);
+        BValue[] returns = BRunUtil.invoke(result, "remove", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -394,19 +395,19 @@ public class XMLNativeFunctionTest {
     @Test
     public void testRemoveNonExistingElement() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx")};
-        BValue[] returns = BTestUtils.invoke(result, "remove", args);
+        BValue[] returns = BRunUtil.invoke(result, "remove", args);
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testRemoveFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
-        BTestUtils.invoke(result, "remove", args);
+        BRunUtil.invoke(result, "remove", args);
     }
 
     @Test(description = "Test xml element string value replacement")
     public void testSetXmlElementText() {
-        BValue[] returns = BTestUtils.invoke(result, "xmlSetString1");
+        BValue[] returns = BRunUtil.invoke(result, "xmlSetString1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement xmlMessage = (OMElement) ((BXMLItem) returns[0]).value();
@@ -416,7 +417,7 @@ public class XMLNativeFunctionTest {
 
     @Test(description = "Test xml text value replacement")
     public void testSetXmlText() {
-        BValue[] returns = BTestUtils.invoke(result, "xmlSetString2");
+        BValue[] returns = BRunUtil.invoke(result, "xmlSetString2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement xmlMessage = (OMElement) ((BXMLItem) returns[0]).value();
@@ -426,7 +427,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testIsSingleton() {
-        BValue[] returns = BTestUtils.invoke(result, "testIsSingleton");
+        BValue[] returns = BRunUtil.invoke(result, "testIsSingleton");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -437,7 +438,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testIsSingletonWithMultipleChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testIsSingletonWithMultipleChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testIsSingletonWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
@@ -446,7 +447,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testIsEmpty() {
-        BValue[] returns = BTestUtils.invoke(result, "testIsEmpty");
+        BValue[] returns = BRunUtil.invoke(result, "testIsEmpty");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -454,7 +455,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testIsEmptyWithNoElementTextValue() {
-        BValue[] returns = BTestUtils.invoke(result, "testIsEmptyWithNoElementTextValue");
+        BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithNoElementTextValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -462,7 +463,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testIsEmptyWithMultipleChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testIsEmptyWithMultipleChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -470,7 +471,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetItemType() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetItemType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetItemType");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
@@ -484,7 +485,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetItemTypeForElementWithPrefix() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetItemTypeForElementWithPrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testGetItemTypeForElementWithPrefix");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
@@ -492,7 +493,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetItemTypeForElementWithDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetItemTypeForElementWithDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetItemTypeForElementWithDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
@@ -500,7 +501,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetElementName() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementName");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementName");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
@@ -508,7 +509,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementNameWithDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementNameForElementWithDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementNameForElementWithDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
@@ -516,7 +517,7 @@ public class XMLNativeFunctionTest {
 
      @Test
     public void testGetElementNameWithoutNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementNameForElementWithoutNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementNameForElementWithoutNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test/core}name");
@@ -524,7 +525,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetTextValue() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetTextValue");
+        BValue[] returns = BRunUtil.invoke(result, "testGetTextValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "supun");
@@ -532,7 +533,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetTextValueDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetTextValueDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetTextValueDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "supun");
@@ -540,7 +541,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetElements() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElements");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElements");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         
@@ -555,7 +556,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsFromSequence() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsFromSequence");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsFromSequence");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -570,7 +571,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetElementsByName() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByName");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByName");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         
@@ -587,7 +588,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsByNameWithDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNameWithDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameWithDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -604,7 +605,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsByNameWithPrefix() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNameByPrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameByPrefix");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -621,7 +622,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsByNameWithDifferentPrefix() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNameByDifferentPrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameByDifferentPrefix");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -639,7 +640,7 @@ public class XMLNativeFunctionTest {
     @Test
     public void testGetElementsByNameEmptyNamespace() {
         //related issue 3062
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNameEmptyNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameEmptyNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -656,7 +657,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsByNameWithPrefixForDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNamePrefixForDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNamePrefixForDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -673,7 +674,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetElementsByNameWithDifferentNamespaces() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetElementsByNameDifferentNamespaces");
+        BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
@@ -700,7 +701,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testGetChildren");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         
@@ -715,7 +716,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testGetChildrenFromComplexXml() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetChildrenFromComplexXml");
+        BValue[] returns = BRunUtil.invoke(result, "testGetChildrenFromComplexXml");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -730,7 +731,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testGetNonExistingChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testGetNonExistingChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testGetNonExistingChildren");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         
@@ -745,7 +746,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testSelectChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildren");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -761,7 +762,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenWithDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenWithDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -777,7 +778,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenPrefixedDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenPrefixedDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenPrefixedDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -793,7 +794,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenWtihSamePrefix() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenWithSamePrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithSamePrefix");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -809,7 +810,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenWtihDifferentPrefix() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenWithDifferentPrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentPrefix");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -825,7 +826,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenWtihDifferentNamespaces() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenWithDifferentNamespaces");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
@@ -852,7 +853,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testConcat() {
-        BValue[] returns = BTestUtils.invoke(result, "testConcat");
+        BValue[] returns = BRunUtil.invoke(result, "testConcat");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -872,7 +873,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testSetChildren() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildren");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildren");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
         
@@ -898,7 +899,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenWithDefaultNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenDefaultNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenDefaultNamespace");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -928,7 +929,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenWithDifferentNamespaceForAttribute() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -947,7 +948,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenWithPrefixedAttribute() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithPrefixedAttribute");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithPrefixedAttribute");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -970,7 +971,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenSameNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithSameNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithSameNamespace");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -993,7 +994,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenDifferentNamespace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithDifferentNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespace");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -1018,7 +1019,7 @@ public class XMLNativeFunctionTest {
     @Test
     public void testSetChildrenDiffNamespaceWithoutPrefix() {
         //related issue 3074
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithDiffNamespaceWithoutPrefix");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDiffNamespaceWithoutPrefix");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -1041,7 +1042,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenDiffAttribute() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithAttributeDiffNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithAttributeDiffNamespace");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -1065,7 +1066,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenDiffElement() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenWithElementDiffNamespace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithElementDiffNamespace");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -1088,7 +1089,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testCopy() {
-        BValue[] returns = BTestUtils.invoke(result, "testCopy");
+        BValue[] returns = BRunUtil.invoke(result, "testCopy");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         
@@ -1121,7 +1122,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testToString() {
-        BValue[] returns = BTestUtils.invoke(result, "testToString");
+        BValue[] returns = BRunUtil.invoke(result, "testToString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         
@@ -1131,7 +1132,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testStrip() {
-        BValue[] returns = BTestUtils.invoke(result, "testStrip");
+        BValue[] returns = BRunUtil.invoke(result, "testStrip");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         
@@ -1146,7 +1147,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testStripSingleton() {
-        BValue[] returns = BTestUtils.invoke(result, "testStripSingleton");
+        BValue[] returns = BRunUtil.invoke(result, "testStripSingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         
@@ -1156,7 +1157,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testStripEmptySingleton() {
-        BValue[] returns = BTestUtils.invoke(result, "testStripEmptySingleton");
+        BValue[] returns = BRunUtil.invoke(result, "testStripEmptySingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "");
@@ -1166,7 +1167,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testSlice() {
-        BValue[] returns = BTestUtils.invoke(result, "testSlice");
+        BValue[] returns = BRunUtil.invoke(result, "testSlice");
         Assert.assertTrue(returns[0] instanceof BXML);
         
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 3);
@@ -1176,7 +1177,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testSliceAll() {
-        BValue[] returns = BTestUtils.invoke(result, "testSliceAll");
+        BValue[] returns = BRunUtil.invoke(result, "testSliceAll");
         Assert.assertTrue(returns[0] instanceof BXML);
         
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 5);
@@ -1188,26 +1189,26 @@ public class XMLNativeFunctionTest {
             expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
                     "invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
-        BTestUtils.invoke(result, "testSliceInvalidIndex");
+        BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
                     "index out of range: \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
-        BTestUtils.invoke(result, "testSliceOutOfRangeIndex");
+        BRunUtil.invoke(result, "testSliceOutOfRangeIndex");
     }
     
     @Test
     public void testSliceSingleton() {
-        BValue[] returns = BTestUtils.invoke(result, "testSliceSingleton");
+        BValue[] returns = BRunUtil.invoke(result, "testSliceSingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<bookName>Book1</bookName>");
     }
     
     @Test
     public void testXPathOnCopiedXML() {
-        BValue[] returns = BTestUtils.invoke(result, "testXPathOnCopiedXML");
+        BValue[] returns = BRunUtil.invoke(result, "testXPathOnCopiedXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root><bookId>001</bookId><bookAuthor>Author01</bookAuthor>" +
@@ -1217,7 +1218,7 @@ public class XMLNativeFunctionTest {
     
     @Test
     public void testSeqCopy() {
-        BValue[] returns = BTestUtils.invoke(result, "testSeqCopy");
+        BValue[] returns = BRunUtil.invoke(result, "testSeqCopy");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book--><bookName>Book1</bookName>" +
@@ -1228,7 +1229,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSetChildrenToElemntInDefaultNameSpace() {
-        BValue[] returns = BTestUtils.invoke(result, "testSetChildrenToElemntInDefaultNameSpace");
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenToElemntInDefaultNameSpace");
         Assert.assertTrue(returns[0] instanceof BXML);
 
         Assert.assertEquals(returns[0].stringValue(),
@@ -1237,7 +1238,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJsonForValue() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJsonForValue");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonForValue");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "value");
@@ -1245,7 +1246,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJsonForEmptyValue() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJsonForEmptyValue");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonForEmptyValue");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "");
@@ -1253,7 +1254,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJsonForComment() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJsonForComment");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonForComment");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{}");
@@ -1261,7 +1262,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJsonForPI() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJsonForPI");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonForPI");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{}");
@@ -1271,7 +1272,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForSingleElement() {
         String xmlStr = "<key>value</key>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"value\"}");
@@ -1281,7 +1282,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForEmptySingleElement() {
         String xmlStr = "<key/>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"\"}");
@@ -1291,7 +1292,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForSimpleXML() {
         String xmlStr = "<person><name>Jack</name><age>40</age></person>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
@@ -1301,7 +1302,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForXMLWithTwoLevels() {
         String xmlStr = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1312,7 +1313,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForXMLWithThreeLevels() {
         String xmlStr = "<persons><person><test><name>Jack</name><address>wso2</address></test></person></persons>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1323,7 +1324,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonXMLWithSingleElementAndAttributes() {
         String xmlStr = "<name test=\"5\">Jack</name>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"@test\":\"5\",\"#text\":\"Jack\"}}");
@@ -1333,7 +1334,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonXMLWithSingleElementAttributesNamespace() {
         String xmlStr = "<ns0:name test=\"5\" xmlns:ns0=\"http://sample0.com/test\">Jack</ns0:name>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
@@ -1344,7 +1345,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonXMLWithSingleEmptyElementAndAttributes() {
         String xmlStr = "<ns0:name test=\"5\" xmlns:ns0=\"http://sample0.com/test\"></ns0:name>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
@@ -1357,7 +1358,7 @@ public class XMLNativeFunctionTest {
                 + "<street>foo</street><city>94</city><country>true</country></address><codes><item>4</item>"
                 + "<item>8</item><item>9</item></codes></bookStore>\n";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\","
@@ -1369,7 +1370,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonWithXMLInMiddle() {
         String xmlStr = "<person><name>Jack</name><age>40</age><!-- some comment --></person>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
@@ -1379,7 +1380,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonWithSimpleXMLAndAttributes() {
         String xmlStr = "<person id = \"5\"><name>Jack</name><age>40</age></person>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"@id\":\"5\",\"name\":\"Jack\",\"age\":\"40\"}}");
@@ -1389,7 +1390,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonWithMultipleAttributes() {
         String xmlStr = "<person id = \"5\"><name cat = \"A\">Jack</name><age>40</age></person>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1403,7 +1404,7 @@ public class XMLNativeFunctionTest {
                 + "</country></address><codes quality=\"b\"><item>4</item><item>8</item><item>9</item></codes>"
                 + "</bookStore>\n";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1420,7 +1421,7 @@ public class XMLNativeFunctionTest {
                 + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
                 + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"5\","
@@ -1436,7 +1437,7 @@ public class XMLNativeFunctionTest {
                 + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
                 + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithOptions", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithOptions", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\",\"#id\":\"5\","
@@ -1455,7 +1456,7 @@ public class XMLNativeFunctionTest {
                 + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
                 + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
@@ -1476,7 +1477,7 @@ public class XMLNativeFunctionTest {
                 + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
                 + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithoutNamespace", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithoutNamespace", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\","
@@ -1490,7 +1491,7 @@ public class XMLNativeFunctionTest {
                 + "<bookName>book2</bookName><bookId>102</bookId></item><item><bookName>book3</bookName>"
                 + "<bookId>103</bookId></item></books>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1504,7 +1505,7 @@ public class XMLNativeFunctionTest {
                 + "<bookName>book2</bookName><bookId>102</bookId></item></item><item><item><bookName>book3</bookName>"
                 + "<bookId>103</bookId></item></item></books>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -1517,7 +1518,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonWithArray() {
         String xmlStr = "<books><item>book1</item><item>book2</item><item>book3</item></books>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"books\":{\"item\":[\"book1\",\"book2\",\"book3\"]}}");
@@ -1525,7 +1526,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceDistinctKeys() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceDistinctKeys");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceDistinctKeys");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
@@ -1533,7 +1534,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceSimilarKeys() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceSimilarKeys");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceSimilarKeys");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"key\":[\"value1\",\"value2\",\"value3\"]}");
@@ -1541,7 +1542,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithValueArray() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithValueArray");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithValueArray");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\"]");
@@ -1549,7 +1550,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithMultipleElements() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithMultipleElements");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithMultipleElements");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"},"
@@ -1558,7 +1559,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithElementAndText() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithElementAndText");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithElementAndText");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":\"value3\"}]");
@@ -1566,7 +1567,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithElementAndTextArray() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithElementAndTextArray");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithElementAndTextArray");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"]}]");
@@ -1574,7 +1575,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithDifferentElements() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithDifferentElements");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithDifferentElements");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"],"
@@ -1583,7 +1584,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testToJSONWithSequenceWithDifferentComplexElements() {
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithSequenceWithDifferentComplexElements");
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithDifferentComplexElements");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\","
@@ -1598,7 +1599,7 @@ public class XMLNativeFunctionTest {
                 + "<ns2:address xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" "
                 + "ns2:code= \"test\">srilanka</ns2:address></ns0:bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSON", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":"
@@ -1614,7 +1615,7 @@ public class XMLNativeFunctionTest {
                 + "xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" ns2:code= \"test\">"
                 + "srilanka</ns2:address></ns0:bookStore>";
         BValue[] args = { new BXMLItem(xmlStr) };
-        BValue[] returns = BTestUtils.invoke(result, "testToJSONWithoutNamespace", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithoutNamespace", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"10\","
@@ -1624,7 +1625,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectChildrenWithEmptyNs() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectChildrenWithEmptyNs");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithEmptyNs");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -1634,7 +1635,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectElementsWithEmptyNs() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectElementsWithEmptyNs");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectElementsWithEmptyNs");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
@@ -1644,7 +1645,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectDescendants() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectDescendants");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectDescendants");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
         Assert.assertEquals(seq.value().size(), 2);
@@ -1656,7 +1657,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectDescendantsWithEmptyNs() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectDescendantsWithEmptyNs");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsWithEmptyNs");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
         Assert.assertEquals(seq.value().size(), 2);
@@ -1667,7 +1668,7 @@ public class XMLNativeFunctionTest {
 
     @Test
     public void testSelectDescendantsFromSeq() {
-        BValue[] returns = BTestUtils.invoke(result, "testSelectDescendantsFromSeq");
+        BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsFromSeq");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
         Assert.assertEquals(seq.value().size(), 3);
@@ -1682,8 +1683,21 @@ public class XMLNativeFunctionTest {
             expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
             "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
-        BValue[] returns = BTestUtils.invoke(result, "testUpdateAttributeWithDifferentUri");
+        BValue[] returns = BRunUtil.invoke(result, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
+    }
+
+    @Test
+    public void testParseXMLElementWithXMLDeclrEntity() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseXMLElementWithXMLDeclrEntity");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root>hello world</root>");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: failed to parse xml: Unexpected EOF in prolog.*")
+    public void testParseXMLCommentWithXMLDeclrEntity() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
     }
 }

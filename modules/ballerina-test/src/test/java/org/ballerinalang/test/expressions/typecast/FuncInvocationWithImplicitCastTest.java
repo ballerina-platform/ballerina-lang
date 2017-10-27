@@ -18,10 +18,11 @@
 package org.ballerinalang.test.expressions.typecast;
 
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,12 +39,12 @@ public class FuncInvocationWithImplicitCastTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/typecast/func-invocation-with-implicit-cast.bal");
+        result = BCompileUtil.compile("test-src/expressions/typecast/func-invocation-with-implicit-cast.bal");
     }
 
     @Test(description = "Test Function invocation with implicit cast")
     public void testFuncInvocationWithImplicitCast() {
-        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocation", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testImplicitCastInvocation", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -55,7 +56,7 @@ public class FuncInvocationWithImplicitCastTest {
 
     @Test(description = "Test Function invocation with implicit cast, multiple params")
     public void testFunctionInvocationWithImplicitCastMultiParam() {
-        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocationWithMultipleParams", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testImplicitCastInvocationWithMultipleParams", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

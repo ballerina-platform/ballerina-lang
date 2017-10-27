@@ -16,12 +16,14 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,15 +35,15 @@ public class GreaterLessThanOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
-        resultNegative = BTestUtils.
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
+        resultNegative = BCompileUtil.
          compile("test-src/expressions/binaryoperations/greater-less-than-operation-negative.bal");
     }
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
         BValue[] args = {new BInteger(0)};
-        BValue[] returns = BTestUtils.invoke(result, "testIntRanges", args);
+        BValue[] returns = BRunUtil.invoke(result, "testIntRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -51,14 +53,14 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
-        returns = BTestUtils.invoke(result, "testIntRanges", args);
+        returns = BRunUtil.invoke(result, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(200)};
-        returns = BTestUtils.invoke(result, "testIntRanges", args);
+        returns = BRunUtil.invoke(result, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -68,7 +70,7 @@ public class GreaterLessThanOperationTest {
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
         BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = BTestUtils.invoke(result, "testFloatRanges", args);
+        BValue[] returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -78,14 +80,14 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};
-        returns = BTestUtils.invoke(result, "testFloatRanges", args);
+        returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(321.45f)};
-        returns = BTestUtils.invoke(result, "testFloatRanges", args);
+        returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -100,7 +102,7 @@ public class GreaterLessThanOperationTest {
         boolean expectedResult = a > b;
 
         BValue[] args = {new BInteger(a), new BFloat(b)};
-        BValue[] returns = BTestUtils.invoke(result, "testIntAndFloatCompare", args);
+        BValue[] returns = BRunUtil.invoke(result, "testIntAndFloatCompare", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -113,7 +115,7 @@ public class GreaterLessThanOperationTest {
     @Test
     public void testIntGTFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BTestUtils.invoke(result, "intGTFloat", args);
+        BValue[] returns = BRunUtil.invoke(result, "intGTFloat", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -122,7 +124,7 @@ public class GreaterLessThanOperationTest {
     @Test
     public void testFloatGTInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BTestUtils.invoke(result, "floatGTInt", args);
+        BValue[] returns = BRunUtil.invoke(result, "floatGTInt", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -131,13 +133,13 @@ public class GreaterLessThanOperationTest {
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
-        BTestUtils.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 12);
-        BTestUtils.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 12);
-        BTestUtils.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 12);
-        BTestUtils.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 12);
-        BTestUtils.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 12);
-        BTestUtils.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 12);
-        BTestUtils.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
-        BTestUtils.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
+        BAssertUtil.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 12);
+        BAssertUtil.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 12);
+        BAssertUtil.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 12);
+        BAssertUtil.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 12);
+        BAssertUtil.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 12);
+        BAssertUtil.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 12);
+        BAssertUtil.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
+        BAssertUtil.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
     }
 }

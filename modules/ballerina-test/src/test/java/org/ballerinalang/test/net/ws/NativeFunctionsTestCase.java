@@ -18,6 +18,9 @@
 
 package org.ballerinalang.test.net.ws;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -27,8 +30,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -63,7 +64,7 @@ public class NativeFunctionsTestCase {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/net/ws/native-functions-for-connection.bal");
+        compileResult = BCompileUtil.compile("test-src/net/ws/native-functions-for-connection.bal");
         if (compileResult.getDiagnostics().length > 0) {
             String errorsStr = "";
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
@@ -82,7 +83,7 @@ public class NativeFunctionsTestCase {
         upgradeHeaders.put(header1Key, header1Value);
         upgradeHeaders.put(header2Key, header2Value);
 
-        wsConnection = BTestUtils.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
+        wsConnection = BCompileUtil.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
                                                      Constants.STRUCT_WEBSOCKET_CONNECTION);
         wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
         wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, upgradeHeaders);
@@ -91,7 +92,7 @@ public class NativeFunctionsTestCase {
     @Test
     public void testGetID() {
         BValue[] inputBValues = {wsConnection};
-        BValue[] returnBValues = BTestUtils.invoke(compileResult, "testGetID", inputBValues);
+        BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetID", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BString, "Invalid return type");
@@ -103,7 +104,7 @@ public class NativeFunctionsTestCase {
     public void testGetNegotiatedSubProtocols() {
         BValue[] inputBValues = {wsConnection};
         BValue[] returnBValues =
-                BTestUtils.invoke(compileResult, "testGetNegotiatedSubProtocols", inputBValues);
+                BRunUtil.invoke(compileResult, "testGetNegotiatedSubProtocols", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BString, "Invalid return type");
@@ -115,7 +116,7 @@ public class NativeFunctionsTestCase {
     public void testIsSecure() {
         BValue[] inputBValues = {wsConnection};
         BValue[] returnBValues =
-                BTestUtils.invoke(compileResult, "testIsSecure", inputBValues);
+                BRunUtil.invoke(compileResult, "testIsSecure", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BBoolean, "Invalid return type");
@@ -128,7 +129,7 @@ public class NativeFunctionsTestCase {
         session.setIsOpen(true);
         BValue[] inputBValues = {wsConnection};
         BValue[] returnBValues =
-                BTestUtils.invoke(compileResult, "testIsOpen", inputBValues);
+                BRunUtil.invoke(compileResult, "testIsOpen", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BBoolean, "Invalid return type");
@@ -139,7 +140,7 @@ public class NativeFunctionsTestCase {
     @Test
     public void testGetUpgradeHeader() {
         BValue[] inputBValues = {wsConnection, new BString(header1Key)};
-        BValue[] returnBValues = BTestUtils.invoke(compileResult, "testGetUpgradeHeader", inputBValues);
+        BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetUpgradeHeader", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BString, "Invalid return type");
@@ -150,7 +151,7 @@ public class NativeFunctionsTestCase {
     @Test
     public void testGetUpgradeHeaders() {
         BValue[] inputBValues = {wsConnection};
-        BValue[] returnBValues = BTestUtils.invoke(compileResult, "testGetUpgradeHeaders", inputBValues);
+        BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetUpgradeHeaders", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BMap, "Invalid return type");
@@ -163,8 +164,8 @@ public class NativeFunctionsTestCase {
     public void testGetParentConnection() {
         String testSessionID = "test_session_id";
         MockWebSocketSession testSession = new MockWebSocketSession(testSessionID);
-        BStruct testParentWsConnection = BTestUtils.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
-                                                                       Constants.STRUCT_WEBSOCKET_CONNECTION);
+        BStruct testParentWsConnection = BCompileUtil.createAndGetStruct(programFile,
+                Constants.WEBSOCKET_PACKAGE_NAME, Constants.STRUCT_WEBSOCKET_CONNECTION);
         testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
         WebSocketConnectionManager.getInstance().addConnection(testSessionID, testParentWsConnection);
@@ -172,7 +173,7 @@ public class NativeFunctionsTestCase {
         // Test the original WebSocket connection.
         BValue[] inputBValues = {wsConnection};
         BValue[] returnBValues =
-                BTestUtils.invoke(compileResult, "testGetParentConnection", inputBValues);
+                BRunUtil.invoke(compileResult, "testGetParentConnection", inputBValues);
         Assert.assertFalse(returnBValues == null || returnBValues.length == 0
                                    || returnBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnBValues[0] instanceof BStruct, "Invalid return type");
@@ -180,7 +181,7 @@ public class NativeFunctionsTestCase {
 
         // Test the ID of the Parent WebSocket Connection.
         BValue[] inputResultBValues = {resultStruct};
-        BValue[] returnResultBValues = BTestUtils.invoke(compileResult, "testGetID", inputResultBValues);
+        BValue[] returnResultBValues = BRunUtil.invoke(compileResult, "testGetID", inputResultBValues);
         Assert.assertFalse(returnResultBValues == null || returnResultBValues.length == 0
                                    || returnResultBValues[0] == null, "Invalid output");
         Assert.assertTrue(returnResultBValues[0] instanceof BString, "Invalid return type");
@@ -192,7 +193,7 @@ public class NativeFunctionsTestCase {
     public void testPushText() {
         String text = "Test Text";
         BValue[] inputBValues = {wsConnection, new BString(text)};
-        BTestUtils.invoke(compileResult, "testPushText", inputBValues);
+        BRunUtil.invoke(compileResult, "testPushText", inputBValues);
         String testReceived = session.getTextReceived();
         Assert.assertEquals(testReceived, text);
     }
@@ -201,7 +202,7 @@ public class NativeFunctionsTestCase {
     public void testPushBinary() {
         byte[] bytes = {1, 2, 3, 4, 5};
         BValue[] inputBValues = {wsConnection, new BBlob(bytes)};
-        BTestUtils.invoke(compileResult, "testPushBinary", inputBValues);
+        BRunUtil.invoke(compileResult, "testPushBinary", inputBValues);
         ByteBuffer buffer = session.getBufferReceived();
         Assert.assertEquals(buffer.array(), bytes);
     }
@@ -211,7 +212,7 @@ public class NativeFunctionsTestCase {
         int statusCode = 1001;
         String closeReasonStr = "Test reason";
         BValue[] inputBValues = {wsConnection, new BInteger(statusCode), new BString(closeReasonStr)};
-        BTestUtils.invoke(compileResult, "testCloseConnection", inputBValues);
+        BRunUtil.invoke(compileResult, "testCloseConnection", inputBValues);
         Assert.assertFalse(session.isOpen());
         CloseReason closeReason = session.getCloseReason();
         Assert.assertEquals(closeReason.getCloseCode().getCode(), statusCode);

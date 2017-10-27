@@ -17,8 +17,9 @@
 */
 package org.ballerinalang.test.types.any;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,8 +30,8 @@ public class BAnyTypeToIntImplicitCastError {
 
     @Test
     public void testAnyToIntImplicitCast() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-to-int-implicit-cast-negative.bal");
+        CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-to-int-implicit-cast-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
     }
 }

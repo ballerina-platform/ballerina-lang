@@ -18,10 +18,12 @@
 
 package org.ballerinalang.test.statements.variabledef;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,8 +37,8 @@ public class VariableScopeTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variabledef/variable-scope.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-scope-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/variabledef/variable-scope.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/variabledef/variable-scope-negative.bal");
     }
 
     @Test
@@ -54,7 +56,7 @@ public class VariableScopeTest {
 
     private void scopeValue(CompileResult result, String functionName, int a, int b, int c, int expected) {
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c)};
-        BValue[] returns = BTestUtils.invoke(result, functionName, args);
+        BValue[] returns = BRunUtil.invoke(result, functionName, args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
@@ -66,12 +68,12 @@ public class VariableScopeTest {
     public void testVariableScopeNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
         //testVariableIfScope
-        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'k'", 14, 12);
+        BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'k'", 14, 12);
         //testVariableElseScope
-        BTestUtils.validateError(resultNegative, 1, "undefined symbol 'b'", 25, 12);
+        BAssertUtil.validateError(resultNegative, 1, "undefined symbol 'b'", 25, 12);
         //testVariableWhileScope
-        BTestUtils.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
+        BAssertUtil.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
         //testVariableResourceScope
-        BTestUtils.validateError(resultNegative, 3, "undefined symbol 'b'", 46, 17);
+        BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 46, 17);
     }
 }

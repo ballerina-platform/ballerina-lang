@@ -88,3 +88,62 @@ function testDotActionInvocation(string functionArg1, string functionArg2, int f
     s1, s2, i = testConnector.action5(functionArg4);
     return;
 }
+
+connector Foo (string name, int age) {
+    int userAge = 10 + age;
+    string userName = "Ballerina" + name;
+
+    action getUserName () (string) {
+        return userName;
+    }
+
+    action getAge () (int) {
+        return userAge;
+    }
+}
+
+connector Bar (string name) {
+    Foo foo1 = create Foo("saman", 50);
+    string userName = name;
+
+    action returnConnectorFromAction () (Foo) {
+        Foo foo = create Foo(userName, 1);
+        return foo;
+    }
+    action returnFoo()(Foo) {
+        return foo1;
+    }
+
+    action getAgeFromFoo(Foo foo) (int) {
+        return foo.getAge();
+    }
+}
+
+function testChainedActionInvocation()(int) {
+    Bar bar = create Bar("aaaa");
+    return bar.returnFoo().getAge();
+}
+
+function getBar()(Bar) {
+    Bar bar = create Bar("bbbbbb");
+    return bar;
+}
+
+function testChainedFunctionActionInvocation()(int) {
+    return getBar().returnFoo().getAge();
+}
+
+function getAge(Foo foo) (int) {
+    return foo.getAge();
+}
+
+function testPassConnectorAsFunctionParameter() (int) {
+    Foo foo = create Foo("abc", 77);
+    return getAge(foo);
+}
+
+function testPassConnectorAsActionParameter() (int) {
+    Foo foo = create Foo("abc", 20);
+    Bar bar = create Bar("ddd");
+    return bar.getAgeFromFoo(foo);
+}
