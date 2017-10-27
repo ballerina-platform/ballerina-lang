@@ -30,7 +30,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 /**
  * Native function ballerina.user:getLocale.
  *
- * @since 0.95
+ * @since 0.94.1
  */
 @BallerinaFunction(
         packageName = "ballerina.user",

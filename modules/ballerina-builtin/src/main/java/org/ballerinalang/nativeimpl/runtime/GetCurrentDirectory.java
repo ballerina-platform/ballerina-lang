@@ -26,7 +26,7 @@ import org.ballerinalang.util.BuiltInUtils;
 /**
  * Native function ballerina.runtime:getCurrentDirectory.
  *
- * @since 0.95
+ * @since 0.94.1
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",

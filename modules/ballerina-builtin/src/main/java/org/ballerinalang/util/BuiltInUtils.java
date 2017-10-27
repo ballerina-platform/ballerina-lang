@@ -20,7 +20,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * @since 0.94
+ * @since 0.94.1
  */
 public class BuiltInUtils {
 

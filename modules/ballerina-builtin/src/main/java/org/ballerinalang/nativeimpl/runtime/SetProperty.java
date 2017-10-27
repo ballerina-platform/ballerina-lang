@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.runtime:setProperty.
  *
- * @since 0.95
+ * @since 0.94.1
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",
