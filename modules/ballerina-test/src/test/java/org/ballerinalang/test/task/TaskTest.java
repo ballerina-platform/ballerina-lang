@@ -696,8 +696,8 @@ public class TaskTest {
         } else {
             expectedPeriod = Constant.LIFETIME + (modifiedTime.getTimeInMillis() - currentTime.getTimeInMillis());
         }
-        BValue[] args = { new BInteger(-1), new BInteger(twentyfourSystemHour), new BInteger(-1), new BInteger(-1), new BInteger(-1),
-                new BInteger(0) };
+        BValue[] args = { new BInteger(-1), new BInteger(twentyfourSystemHour), new BInteger(-1), new BInteger(-1),
+                new BInteger(-1), new BInteger(0) };
         BValue[] returns = BRunUtil.invoke(appointmentCompileResult, TestConstant.APPOINTMENT_ONTRIGGER_FUNCTION, args);
         taskId = Integer.parseInt(returns[0].stringValue());
         long executionLifeTime = getExecutionLifeTime(taskId);
