@@ -30,5 +30,27 @@ struct-variable-definition-value-text*/
     cursor: pointer;
 }
 
+.struct-import-json-button {
+    fill: #666769;
+    stroke-width: 0.5;
+    stroke: #dfdfdf;
+    shape-rendering: crispEdges;
+    cursor: pointer;
+}
 
+.struct-import-json-text {
+    dominant-baseline: middle;
+    fill: #c4c5c6;
+    cursor: pointer;
+}
 
+.struct-import-json-text:hover {
+    dominant-baseline: middle;
+    fill: #ffffff;
+    cursor: pointer;
+}
+
+.ace_tooltip {
+    transform: translate(0px, -75px);
+    left: 10px !important;
+}
