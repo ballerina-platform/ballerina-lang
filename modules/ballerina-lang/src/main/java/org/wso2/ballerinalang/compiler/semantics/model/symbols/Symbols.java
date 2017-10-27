@@ -177,12 +177,18 @@ public class Symbols {
         return symbol;
     }
     
-    public static BConversionOperatorSymbol createTransformerSymbol(int flags,
-                                                        Name name,
-                                                        PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.TRANSFORMER, flags, name, pkgID, type, owner);
+    public static BTransformerSymbol createTransformerSymbol(int flags,
+                                                             BType sourceType,
+                                                             BType targetType,
+                                                             BType errorType,
+                                                             Name name,
+                                                             PackageID pkgID,
+                                                             BSymbol owner) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, errorType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        boolean safe = errorType == null;
+        BTransformerSymbol symbol = new BTransformerSymbol(name, pkgID, opType, owner, safe);
         symbol.kind = SymbolKind.TRANSFORMER;
         return symbol;
     }

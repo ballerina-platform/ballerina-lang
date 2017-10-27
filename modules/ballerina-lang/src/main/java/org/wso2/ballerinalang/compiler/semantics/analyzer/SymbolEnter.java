@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -396,11 +395,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransformer transformerNode) {
+        validateTransformerMappingTypes(transformerNode);
+
+        BType targetType = transformerNode.retParams.get(0).type;
+        BType errorType = transformerNode.retParams.size() == 1 ? null : transformerNode.retParams.get(1).type;
+        Name name = getTransformerSymbolName(transformerNode);
+
         BInvokableSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
-                getTransformerSymbolName(transformerNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
-        defineInvokableSymbol(transformerNode, transformerSymbol, invokableEnv);
+                transformerNode.source.type, targetType, errorType, name, env.enclPkg.symbol.pkgID, env.scope.owner);
+
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
+        defineInvokableSymbol(transformerNode, transformerSymbol, transformerEnv);
         ((BInvokableType) transformerSymbol.type).typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+
+        // Define transformer source.
+        defineNode(transformerNode.source, transformerEnv);
     }
 
     @Override
@@ -894,14 +903,26 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private Name getTransformerSymbolName(BLangTransformer transformerNode) {
-        // TODO handle multi-return transformers
-        return names.fromString(transformerNode.source.type + "." + transformerNode.retParams.get(0).type + "."
-                + transformerNode.name.value);
+        if (transformerNode.name.value.isEmpty()) {
+            return names.fromString(
+                    "transformer<" + transformerNode.source.type + "," + transformerNode.retParams.get(0).type + ">");
+        }
+        return names.fromIdNode(transformerNode.name);
     }
 
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
                 .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+    }
+
+    private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
+        BType varType = symResolver.resolveTypeNode(transformerNode.source.typeNode, env);
+        transformerNode.source.type = varType;
+
+        transformerNode.retParams.forEach(returnParams -> {
+            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
+            returnParams.type = targetType;
+        });
     }
 
     /**

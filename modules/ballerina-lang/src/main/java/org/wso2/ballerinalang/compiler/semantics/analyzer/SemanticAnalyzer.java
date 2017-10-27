@@ -909,8 +909,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransformer transformerNode) {
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
         transformerNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
             this.analyzeDef(annotationAttachment, transformerEnv);
         });
 
