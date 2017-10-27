@@ -1,5 +1,4 @@
 import ballerina.lang.jsons;
-import ballerina.lang.xmls;
 
 function remove () (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
@@ -43,13 +42,15 @@ function testToXMLBooleanValue () (xml) {
 function testToXMLString (json msg) (string) {
     jsons:Options options = {};
     xml xmlData = jsons:toXML(msg, options);
-    return xmls:toString(xmlData);
+    string s = <string> xmlData;
+    return s;
 }
 
 function testToXMLWithXMLSequence (json msg) (string) {
     jsons:Options options = {};
     xml xmlSequence = jsons:toXML(msg, options);
-    return xmls:toString(xmlSequence);
+    string s = <string> xmlSequence;
+    return s;
 }
 
 function testToXMLWithOptions (json msg) (xml) {

@@ -1,8 +1,8 @@
 package samples.parser;
 
-import ballerina.lang.system;
-import ballerina.lang.system;
+import ballerina.math;
+import ballerina.math;
 
 function testFunc() {
-  system:currentTimeMillis();
+  math:pow(2,2);
 }

@@ -162,7 +162,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @param qname qualified name of the element
      * @return All the elements-type items, that matches a given qualified name, from the this sequence.
      */
-    public abstract BXML<?> elements(BString qname);
+    public abstract BXML<?> elements(String qname);
 
     /**
      * Selects and concatenate all the children sequences of the elements in this sequence.
@@ -179,7 +179,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @param qname qualified name of the children to filter
      * @return All the children that matches the given qualified name, as a sequence
      */
-    public abstract BXML<?> children(BString qname);
+    public abstract BXML<?> children(String qname);
 
     /**
      * Set the children of this XML. Any existing children will be removed.
@@ -230,7 +230,21 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @param qname Qualified name of the descendants to filter
      * @return All the descendants that matches the given qualified name, as a sequence
      */
-    public abstract BXML<?> descendants(BString qname);
+    public abstract BXML<?> descendants(String qname);
+
+    /**
+     * Get an item from the XML sequence, at the given index.
+     * 
+     * @return Item at the given index in the sequence
+     */
+    public abstract BXML<?> getItem(long index);
+
+    /**
+     * Get the length of this XML sequence.
+     * 
+     * @return length of this XML sequence.
+     */
+    public abstract int length();
 
     /**
      * {@inheritDoc}
@@ -290,17 +304,16 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @param qname String representation of qname
      * @return constructed {@link QName}
      */
-    protected QName getQname(BString qname) {
-        String qNameStr = qname.stringValue();
+    protected QName getQname(String qname) {
         String nsUri;
         String localname;
-        int rParenIndex = qNameStr.indexOf('}');
+        int rParenIndex = qname.indexOf('}');
 
-        if (qNameStr.startsWith("{") && rParenIndex > 0) {
-            localname = qNameStr.substring(rParenIndex + 1, qNameStr.length());
-            nsUri = qNameStr.substring(1, rParenIndex);
+        if (qname.startsWith("{") && rParenIndex > 0) {
+            localname = qname.substring(rParenIndex + 1, qname.length());
+            nsUri = qname.substring(1, rParenIndex);
         } else {
-            localname = qNameStr;
+            localname = qname;
             nsUri = "";
         }
 
@@ -328,4 +341,11 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
             addDescendants(descendants, (OMElement) child, qname);
         }
     }
+
+    /**
+     * Remove an attribute from the XML.
+     * 
+     * @param qname Qualified name of the attribute
+     */
+    public abstract void removeAttribute(String qname);
 }
