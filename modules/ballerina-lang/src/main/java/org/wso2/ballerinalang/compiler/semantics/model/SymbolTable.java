@@ -360,6 +360,7 @@ public class SymbolTable {
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
         defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
+        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

@@ -216,6 +216,7 @@ public interface InstructionCodes {
     int NULL2JSON = 181;
 
     int ANY2TYPE = 182;
+    int S2JSONX = 183;
 
 
     // Transactions

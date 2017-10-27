@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.jsons;
+package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,8 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * Remove the element(s) that matches the given key.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "remove",
+        packageName = "ballerina.builtin",
+        functionName = "json.remove",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
