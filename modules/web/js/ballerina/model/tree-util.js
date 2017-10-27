@@ -492,6 +492,19 @@ class TreeUtil extends AbstractTreeUtil {
         return packageDeclaration[0].getPackageNameString();
     }
 
+    /**
+     * @description check whether provided node is a main function.
+     * @param {Node} node - node to check whether it is a main function.
+     * @return {boolean} is given function is a main function.
+     * */
+    isMainFunction(node) {
+        return (node.kind === 'Function'
+            && node.getName().value === 'main'
+            && node.getReturnParameters().length === 0
+            && node.getParameters().length === 1
+            && node.getParameters()[0].typeNode.kind === 'ArrayType'
+            && node.getParameters()[0].typeNode.elementType.typeKind === 'string');
+    }
 }
 
 export default new TreeUtil();
