@@ -67,6 +67,7 @@ public class LauncherUtils {
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isDirectory(sourcePath) || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            System.out.println(" DIRECTORY OR BALeee");
             programFile = compile(sourceRootPath, sourcePath);
         } else {
             System.out.println(" RAN");
