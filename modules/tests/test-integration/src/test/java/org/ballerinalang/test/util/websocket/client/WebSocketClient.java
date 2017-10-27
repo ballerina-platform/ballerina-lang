@@ -218,6 +218,24 @@ public class WebSocketClient {
     }
 
     /**
+     * Check whether handler receives a ping.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPing() {
+        return handler.isPing();
+    }
+
+    /**
+     * Check whether handler receives a pong.
+     *
+     * @return true if a pong is received.
+     */
+    public boolean isPong() {
+        return handler.isPong();
+    }
+
+    /**
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
