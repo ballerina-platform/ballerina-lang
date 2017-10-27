@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.net.ws;
 
 @http:configuration {
-    basePath:"/test",
+    basePath:"/test4",
     webSocket:@http:webSocket {
                   upgradePath:"/ws",
                   serviceName:"wsServic"
