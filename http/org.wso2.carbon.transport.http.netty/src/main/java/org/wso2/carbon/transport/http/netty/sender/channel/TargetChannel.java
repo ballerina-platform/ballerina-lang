@@ -55,6 +55,7 @@ public class TargetChannel {
     private ChannelFuture channelFuture;
     private ConnectionManager connectionManager;
     private boolean isRequestWritten = false;
+    private boolean chunkDisabled = false;
 
     public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
         this.httpClientInitializer = httpClientInitializer;
@@ -106,6 +107,10 @@ public class TargetChannel {
         this.isRequestWritten = isRequestWritten;
     }
 
+    public void setChunkDisabled(boolean chunkDisabled) {
+        this.chunkDisabled = chunkDisabled;
+    }
+
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpResponseFuture) {
         this.setTargetHandler(this.getHTTPClientInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
@@ -148,7 +153,7 @@ public class TargetChannel {
             }
 
 //            Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
-            Util.setupTransferEncodingForRequest(httpCarbonRequest);
+            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
             this.setRequestWritten(true);

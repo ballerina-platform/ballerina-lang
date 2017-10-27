@@ -69,21 +69,26 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
     private Integer currentRedirectCount;
+    private boolean chunkDisabled;
     private HTTPCarbonMessage targetRespMsg;
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
+            , boolean chunkDisabled) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
+        this.chunkDisabled = chunkDisabled;
     }
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
-            ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
+            , boolean chunkDisabled, ChannelHandlerContext originalChannelContext
+            , boolean isIdleHandlerOfTargetChannelRemoved) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
+        this.chunkDisabled = chunkDisabled;
         this.originalChannelContext = originalChannelContext;
         this.isIdleHandlerOfTargetChannelRemoved = isIdleHandlerOfTargetChannelRemoved;
     }
@@ -267,7 +272,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
                 HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
-                Util.setupTransferEncodingForRequest(httpCarbonRequest);
+                Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -661,8 +666,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, originalChannelContext,
-                        isIdleHandlerOfTargetChannelRemoved));
+                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkDisabled
+                        , originalChannelContext, isIdleHandlerOfTargetChannelRemoved));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         registerListener(channelHandlerContext, channelFuture, httpCarbonRequest, httpRequest);

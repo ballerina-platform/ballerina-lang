@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.https;
+package org.wso2.carbon.transport.http.netty.util;
 
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -24,15 +24,15 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * A connector listener for HTTPS
+ * A connector listener for HTTP
  */
-public class HTTPSConnectorListener implements HttpConnectorListener {
+public class HTTPConnectorListener implements HttpConnectorListener {
 
     private HTTPCarbonMessage httpMessage;
     private Throwable throwable;
     private CountDownLatch latch;
 
-    public HTTPSConnectorListener(CountDownLatch latch) {
+    public HTTPConnectorListener(CountDownLatch latch) {
         this.latch = latch;
     }
 

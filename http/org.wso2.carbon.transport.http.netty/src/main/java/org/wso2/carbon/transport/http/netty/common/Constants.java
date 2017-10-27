@@ -293,6 +293,7 @@ public final class Constants {
     public static final int MAX_REDIRECT_COUNT = 5;
 
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
+    public static final String CHUNKED = "chunked";
 
     private Constants() {
     }

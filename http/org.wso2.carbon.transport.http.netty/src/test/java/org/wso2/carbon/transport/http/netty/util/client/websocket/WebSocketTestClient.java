@@ -252,7 +252,23 @@ public class WebSocketTestClient {
        return handler.isOpen();
     }
 
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPingReceived() {
+        return handler.isPingReceived();
+    }
 
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPongReceived() {
+        return handler.isPongReceived();
+    }
 
     /**
      * Shutdown the WebSocket Client.
