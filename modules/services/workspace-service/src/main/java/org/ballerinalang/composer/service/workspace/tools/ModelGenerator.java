@@ -55,6 +55,7 @@ public class ModelGenerator {
         generateSourceFiles(nodes, "node-factory.hbs" , "node-factory.js");
         generateSourceFiles(nodes, "positioning-util.hbs" , "positioning-util.js");
         generateSourceFiles(nodes, "sizing-util.hbs" , "sizing-util.js");
+        generateSourceFiles(nodes, "error-rendering-util.hbs" , "error-rendering-util.js");
     }
 
     public static JsonObject getContext() {
