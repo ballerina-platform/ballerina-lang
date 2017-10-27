@@ -1,14 +1,15 @@
 package ballerina.caching;
 
 import ballerina.task;
+import ballerina.util;
 
 @Description {value:"delay in ms which is used to create a new cache cleanup task."}
 const int CACHE_CLEANUP_START_DELAY = 0;
 @Description {value:"interval in ms which is used to create a new cache cleanup task."}
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
-@Description {value:"array which stores the caches."}
-Cache[] caches = [];
+@Description {value:"Map which stores all of the caches."}
+map cacheMap = {};
 
 string cacheCleanupTaskID = createTask();
 
@@ -59,10 +60,8 @@ public function createCache (string name, int timeOut, int capacity, float evict
 
     // Create a new cache.
     Cache cache = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
-    // Get the current total cache count.
-    int currentCachesCount = lengthof caches;
-    // Add the new cache to the end of the caches array.
-    caches[currentCachesCount] = cache;
+    // Add the new cache to the map.
+    cacheMap[util:uuid()] = cache;
     // Return the new cache.
     return cache;
 }
@@ -120,11 +119,15 @@ public function <Cache c> remove (string key) {
 @Description {value:"Removes expired cache entries from all caches."}
 function runCacheExpiry () returns (error) {
     int currentCacheIndex = 0;
-    int cacheSize = lengthof caches;
+    int cacheSize = cacheMap.length();
     // Iterate through all caches.
     while (currentCacheIndex < cacheSize) {
+        string currentCacheKey = cacheMap.keys()[currentCacheIndex];
         // Get a cache from the array.
-        Cache currentCache = caches[currentCacheIndex];
+        var currentCache, err = (Cache)cacheMap[currentCacheKey];
+        if (err != null) {
+            next;
+        }
         // If the cache is null, go to next cache.
         if (currentCache == null) {
             next;
