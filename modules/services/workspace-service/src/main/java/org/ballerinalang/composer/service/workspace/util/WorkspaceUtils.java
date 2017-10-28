@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -411,6 +412,8 @@ public class WorkspaceUtils {
             receiverType = ((BLangUserDefinedType) typeNode).getTypeName().getValue();
         } else if (typeNode instanceof BLangBuiltInRefTypeNode) {
             receiverType = ((BLangBuiltInRefTypeNode) typeNode).getTypeKind().typeName();
+        } else if (typeNode instanceof BLangValueType) {
+            receiverType = ((BLangValueType) typeNode).getTypeKind().typeName();
         } else {
             return null;
         }
