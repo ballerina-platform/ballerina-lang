@@ -11,7 +11,7 @@ function main (string[] args) {
                        }
               };
     //Convert to XML with default attribute prefix and arrayEntryTag.
-    jsonsOptions options1 = {};
+    jsonOptions options1 = {};
     xml x1 = j1.toXML(options1);
     println(x1);
 
@@ -26,7 +26,7 @@ function main (string[] args) {
                            "codes":["4", "8"]
                        }
               };
-    jsonsOptions options2 = {attributePrefix:"#", arrayEntryTag:"wrapper"};
+    jsonOptions options2 = {attributePrefix:"#", arrayEntryTag:"wrapper"};
     xml x2 = j2.toXML(options2);
     println(x2);
 }

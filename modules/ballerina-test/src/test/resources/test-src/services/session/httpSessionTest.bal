@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.strings;
 
 struct Data {
     string name;
@@ -145,7 +144,7 @@ service<http> counter {
         }
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
-        res.setStringPayload(strings:valueOf(sessionCounter));
+        res.setStringPayload(<string> sessionCounter);
         res.send();
     }
 
@@ -165,7 +164,7 @@ service<http> counter {
         }
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
-        res.setStringPayload(strings:valueOf(sessionCounter));
+        res.setStringPayload(<string>(sessionCounter));
         res.send();
     }
 }
@@ -250,7 +249,7 @@ service<http> sample2 {
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        res.setStringPayload(strings:valueOf(arrsize));
+        res.setStringPayload(<string>(arrsize));
         res.send();
     }
 
@@ -267,7 +266,7 @@ service<http> sample2 {
         session.invalidate();
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        res.setStringPayload(strings:valueOf(arrsize));
+        res.setStringPayload(<string>(arrsize));
         res.send();
     }
 
@@ -280,7 +279,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        res.setStringPayload(strings:valueOf(arrsize));
+        res.setStringPayload(<string>(arrsize));
         res.send();
     }
 
@@ -295,7 +294,7 @@ service<http> sample2 {
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
-        res.setStringPayload(strings:valueOf(arrsize));
+        res.setStringPayload(<string>(arrsize));
         res.send();
     }
 
@@ -331,7 +330,7 @@ service<http> sample2 {
 
         http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
-        res.setStringPayload(strings:valueOf(stat));
+        res.setStringPayload(<string>(stat));
         res.send();
     }
 
@@ -343,7 +342,7 @@ service<http> sample2 {
 
         http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 
@@ -356,7 +355,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getCreationTime();
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 
@@ -368,7 +367,7 @@ service<http> sample2 {
 
         http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 
@@ -381,7 +380,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getLastAccessedTime();
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 
@@ -394,7 +393,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 
@@ -420,7 +419,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
-        res.setStringPayload(strings:valueOf(time));
+        res.setStringPayload(<string>(time));
         res.send();
     }
 }

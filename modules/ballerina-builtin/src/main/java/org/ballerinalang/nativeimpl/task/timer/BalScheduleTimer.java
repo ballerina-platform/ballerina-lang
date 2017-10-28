@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -65,7 +64,6 @@ public class BalScheduleTimer extends AbstractNativeFunction {
 
         try {
             Timer timer = new Timer(ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            TaskRegistry.getInstance().addTimer(timer);
             return getBValues(new BString(timer.getId()), null);
         } catch (SchedulingException e) {
             return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
