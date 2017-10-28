@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
+import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -64,6 +65,7 @@ public class Timer {
         ctx.startTrackWorker();
         this.context = ctx;
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
+        TaskRegistry.getInstance().addTimer(this);
     }
 
     /**
