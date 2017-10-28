@@ -39,6 +39,8 @@ class PackageScopedEnvironment {
         this._packages.push(this._currentPackage);
         this._annotationAttachmentTypes = Environment.getAnnotationAttachmentTypes();
         this._typeLattice = Environment.getTypeLattice();
+        this._builtInPackage = _.find(this._packages, pkg => pkg.getName() === 'ballerina.builtin');
+        this._builtInCurrentPackage;
         this._initialized = true;
     }
 
@@ -56,6 +58,7 @@ class PackageScopedEnvironment {
 
     resetCurrentPackage() {
         this._currentPackage = new Package({ name: 'Current Package' });
+        this._builtInCurrentPackage = null;
     }
 
     setCurrentPackage(pkg) {
@@ -64,6 +67,7 @@ class PackageScopedEnvironment {
              return item.getName() !== 'Current Package'; 
             });
         this._packages.push(pkg);
+        this._builtInCurrentPackage = null;
     }
 
     /**
@@ -89,9 +93,29 @@ class PackageScopedEnvironment {
 
     getPackageByName(packageName) {
         if (!packageName) {
-            return this._currentPackage;
+            return this.getBuiltInCurrentPackage();
         }
         return _.find(this._packages, pckg => pckg.getName() === packageName);
+    }
+
+    /**
+     * Get built in package
+     * @returns built in package
+     * @memberof PackageScopedEnvironment
+     */
+    getBuiltInPackage() {
+        return this._builtInPackage || new Package({ name: 'ballerina.builtin' });
+    }
+
+    /**
+     * Gets complete inscope package inclusive of current package and built in package.
+     * @memberof PackageScopedEnvironment
+     */
+    getBuiltInCurrentPackage() {
+        if (!this._builtInCurrentPackage) {
+            this._builtInCurrentPackage = this.mergePackages(this.getCurrentPackage(), this.getBuiltInPackage());
+        }
+        return this._builtInCurrentPackage;
     }
 
     /**
@@ -129,11 +153,11 @@ class PackageScopedEnvironment {
 
     /**
      * Merge package1 into package2 and returns merged package2
-     * @param {Package} package1 
-     * @param {Package} package2 
+     * @param {Package} package1 package 1
+     * @param {Package} package2 package 2
      * @returns {Package} merged package
      */
-    mergePackages(package1, package2){
+    mergePackages(package1, package2) {
         // merge function definitions
         const pkg1FunctionDefinitions = package1.getFunctionDefinitions();
         const pkg2FunctionDefinitions = package2.getFunctionDefinitions();

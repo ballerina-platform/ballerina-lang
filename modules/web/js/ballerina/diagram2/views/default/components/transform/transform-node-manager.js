@@ -344,9 +344,9 @@ class TransformNodeManager {
      */
     getStructDefinition(packageIdentifier, structName) {
         let pkg;
-        if (packageIdentifier == null) {
+        if (!packageIdentifier) {
             // check both undefined and null
-            pkg = this._environment.getCurrentPackage();
+            pkg = this._environment.getBuiltInCurrentPackage();
         } else {
             pkg = this._environment.getPackageByIdentifier(packageIdentifier);
         }
@@ -374,14 +374,23 @@ class TransformNodeManager {
             let property = {};
             const fieldName = `${name}.${field.getName()}`;
 
-            const innerStruct = this.getStructDefinition(field.getPackageName(), field.getType());
-            if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                property = this.getStructType(fieldName, field.getType(), innerStruct, root);
-            } else {
+            // TODO: handle recursive structs in a better manner.
+            // Currently we will consider it as a primitive field.
+            if (field.getType() === typeName) {
                 property.name = fieldName;
                 property.type = field.getType();
                 property.packageName = field.getPackageName();
                 property.structName = name;
+            } else {
+                const innerStruct = this.getStructDefinition(field.getPackageName(), field.getType());
+                if (!_.isUndefined(innerStruct) && typeName !== property.type) {
+                    property = this.getStructType(fieldName, field.getType(), innerStruct, root);
+                } else {
+                    property.name = fieldName;
+                    property.type = field.getType();
+                    property.packageName = field.getPackageName();
+                    property.structName = name;
+                }
             }
 
             property.isField = true;
