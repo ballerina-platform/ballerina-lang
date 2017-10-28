@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.workspace.langserver.ServerManager;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,6 @@ public class FunctionDefinitionCompletionTest {
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
-    @Test
     public void testFunctionBlockStatementEmptyFirstLine() throws IOException, URISyntaxException {
         String balPath = "definitions" + File.separator + "functions" + File.separator + "blockStmtEmptyFirstLine.bal";
         String expectedResultPath =  "definitions" + File.separator + "functions" + File.separator
@@ -61,7 +59,6 @@ public class FunctionDefinitionCompletionTest {
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
-    @Test
     public void testFunctionBlockStatementNonEmptyFirstLine() throws IOException, URISyntaxException {
         String balPath = "definitions" + File.separator + "functions" + File.separator
                 + "blockStmtNonEmptyFirstLine.bal";

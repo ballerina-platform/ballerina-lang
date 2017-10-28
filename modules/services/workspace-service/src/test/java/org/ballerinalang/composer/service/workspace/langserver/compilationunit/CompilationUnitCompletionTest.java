@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.workspace.langserver.ServerManager;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,6 @@ public class CompilationUnitCompletionTest {
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
-    @Test
     public void testCompilationInitialItems() throws IOException, URISyntaxException {
         String balPath = "compilationunit" + File.separator + "firstLine.bal";
         String expectedResultPath = "compilationunit" + File.separator + "firstLine.exp";
