@@ -478,6 +478,7 @@ class ToolPaletteView extends React.Component {
         let constructs = _.cloneDeep(DefaultTools);
         // get imported packages
         const imports = topLevelNodes.filter(topLevelNode => topLevelNode.kind === 'Import');
+        imports.push({ packageName: [{ value: 'ballerina' }, { value: 'builtin' }] });
         // convert imports to tool groups
         const connectors = [];
         const library = [];
@@ -517,7 +518,8 @@ class ToolPaletteView extends React.Component {
                 state = 'transform';
             }
         } else {
-            const filterOutList = imports.map(item => item.getPackageName());
+            const filterOutList = [];
+            //const filterOutList = imports.map(item => item.getPackageName());
             filterOutList.push('Current Package');
 
             const packages = environment.getFilteredPackages(filterOutList);
