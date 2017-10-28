@@ -37,7 +37,7 @@ class ErrorRenderingUtil {
         const overlayComponents = {
             kind: 'SemanticErrorPopup',
             props: {
-                key: node.getID(),
+                key: node.getID() + '-' + node.kind,
                 model: node,
                 bBox: errorBbox,
                 errors,
@@ -242,7 +242,7 @@ class ErrorRenderingUtil {
                 const overlayComponents = {
                     kind: 'SemanticErrorPopup',
                     props: {
-                        key: node.getID(),
+                        key: node.getID() + '-Globals',
                         model: node,
                         bBox: errorBbox,
                         errors: errorListForGlobals,
@@ -271,7 +271,7 @@ class ErrorRenderingUtil {
                 const overlayComponents = {
                     kind: 'SemanticErrorPopup',
                     props: {
-                        key: node.getID(),
+                        key: node.getID() + '-Imports',
                         model: node,
                         bBox: errorBbox,
                         errors: errorListForImports,
@@ -480,7 +480,7 @@ class ErrorRenderingUtil {
                 const overlayComponents = {
                     kind: 'SemanticErrorPopup',
                     props: {
-                        key: node.getID(),
+                        key: node.getID() + '-Globals',
                         model: node,
                         bBox: errorBbox,
                         errors: errorListForGlobals,
