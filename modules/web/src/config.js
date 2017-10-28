@@ -24,6 +24,7 @@ import HelpPlugin from './plugins/help/plugin';
 import TryItPlugin from './plugins/try-it/plugin';
 import WelcomeTabPlugin from './plugins/welcome-tab/plugin';
 import ImportSwaggerPlugin from './plugins/import-swagger/plugin';
+import ExportDiagramPlugin from './plugins/export-diagram/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
 import ImportStructPlugin from './plugins/import-struct/plugin';
@@ -38,6 +39,7 @@ export default {
             WelcomeTabPlugin,
             ImportSwaggerPlugin,
             ImportStructPlugin,
+            ExportDiagramPlugin,
         ],
     },
     // provide plugin specific configs - if any.

@@ -63,13 +63,14 @@ export function read(targetFilePath) {
  * @param {String} path Path of the folder
  * @param {String} name Name of the file
  * @param {String} content Content of the file
+ * @param {Boolean} isCustomContent is content to be sent custom.
  *
  * @returns {Promise} Resolves file path or reject with error.
  */
-export function createOrUpdate(path, name, content) {
+export function createOrUpdate(path, name, content, isCustomContent) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/write`;
     // FIXME: Refactor backend params
-    const data = `location=${btoa(path)}&configName=${btoa(name)}&config=${
+    const data = isCustomContent ? content : `location=${btoa(path)}&configName=${btoa(name)}&config=${
                             encodeURIComponent(content)}`;
     return axios.post(serviceEP, data, { headers: COMMON_HEADERS })
         .then((response) => {

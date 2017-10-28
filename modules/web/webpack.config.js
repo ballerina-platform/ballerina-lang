@@ -31,45 +31,45 @@ const config = [{
                 },
             ],
         },
-        {
-            test: /\.html$/,
-            use: [{
-                loader: 'html-loader',
-            }],
-        },
-        {
-            test: /\.scss$/,
-            exclude: /node_modules/,
-            loader: 'style-loader!css-loader!sass-loader',
-        },
-        {
-            test: /\.css$/,
-            use: extractCSSBundle.extract({
-                fallback: 'style-loader',
+            {
+                test: /\.html$/,
                 use: [{
-                    loader: 'css-loader',
-                    options: {
-                        sourceMap: true,
-                    },
+                    loader: 'html-loader',
                 }],
-            }),
-        },
-        {
-            test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
-            use: ['url-loader'],
-        },
-        {
-            test: /\.jsx$/,
-            exclude: /(node_modules|modules\/web\/lib\/scss)/,
-            use: [
-                {
-                    loader: 'babel-loader',
-                    query: {
-                        presets: ['es2015', 'react'],
+            },
+            {
+                test: /\.scss$/,
+                exclude: /node_modules/,
+                loader: 'style-loader!css-loader!sass-loader',
+            },
+            {
+                test: /\.css$/,
+                use: extractCSSBundle.extract({
+                    fallback: 'style-loader',
+                    use: [{
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true,
+                        },
+                    }],
+                }),
+            },
+            {
+                test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
+                use: ['url-loader'],
+            },
+            {
+                test: /\.jsx$/,
+                exclude: /(node_modules|modules\/web\/lib\/scss)/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        query: {
+                            presets: ['es2015', 'react'],
+                        },
                     },
-                },
-            ],
-        },
+                ],
+            },
         ],
     },
     plugins: [
@@ -184,15 +184,15 @@ if (process.env.NODE_ENV === 'production') {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
 
-      // React does some optimizations to it if NODE_ENV is set to 'production'
+        // React does some optimizations to it if NODE_ENV is set to 'production'
         'process.env': {
             NODE_ENV: JSON.stringify('production'),
         },
     }));
 
-  // Add UglifyJsPlugin only when we build for production.
-  // uglyfying slows down webpack build so we avoid in when in development
-     config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
+    // Add UglifyJsPlugin only when we build for production.
+    // uglyfying slows down webpack build so we avoid in when in development
+    config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         mangle: {
             keep_fnames: true,
@@ -205,7 +205,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 if (process.env.NODE_ENV === 'test') {
-  // we run tests on nodejs. So compile for nodejs
+    // we run tests on nodejs. So compile for nodejs
     config[0].target = 'node';
     exportConfig = config[0];
 } else if (process.env.NODE_ENV === 'test-source-gen-dev') {
@@ -223,10 +223,10 @@ if (process.env.NODE_ENV === 'test') {
     ];
     exportConfig = testConfig;
 } else if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
-  // we run tests on nodejs. So compile for nodejs
+    // we run tests on nodejs. So compile for nodejs
     config[0].target = 'electron-renderer';
 
-  // reassign entry so it uses the entry point for the electron app
+    // reassign entry so it uses the entry point for the electron app
     config[0].entry = {
         bundle: './src-electron/electron-index.js',
     };
