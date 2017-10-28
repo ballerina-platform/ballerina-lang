@@ -180,6 +180,7 @@ public class BLangVM {
         }
 
         try {
+            traceCode(currentFrame.packageInfo);
             exec();
         } catch (Throwable e) {
             String message;

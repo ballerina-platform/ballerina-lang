@@ -357,6 +357,9 @@ public class ProgramFileReader {
         // Read function info entries in the package
         readFunctionInfoEntries(dataInStream, packageInfo);
 
+        // Read function info entries in the package
+        readTransformerInfoEntries(dataInStream, packageInfo);
+
         // TODO Read annotation info entries
 
         // Resolve unresolved CP entries.
@@ -668,6 +671,41 @@ public class ProgramFileReader {
 
         // Read attributes
         readAttributeInfoEntries(dataInStream, packageInfo, functionInfo);
+    }
+
+    private void readTransformerInfoEntries(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
+        int transformerCount = dataInStream.readShort();
+        for (int i = 0; i < transformerCount; i++) {
+            readTransformerInfo(dataInStream, packageInfo);
+        }
+    }
+
+    private void readTransformerInfo(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
+        int transformerNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry transformerNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerNameCPIndex);
+        TransformerInfo transformerInfo = new TransformerInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
+                transformerNameCPIndex, transformerNameUTF8Entry.getValue());
+        transformerInfo.setPackageInfo(packageInfo);
+        packageInfo.addTransformerInfo(transformerNameUTF8Entry.getValue(), transformerInfo);
+
+        int transformerSigCPIndex = dataInStream.readInt();
+        UTF8CPEntry transformerSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerSigCPIndex);
+        setCallableUnitSignature(transformerInfo, transformerSigUTF8Entry.getValue(), packageInfo);
+
+        // TODO Temp solution.
+        boolean nativeFunc = dataInStream.readByte() == 1;
+        transformerInfo.setNative(nativeFunc);
+
+        int workerDataChannelsLength = dataInStream.readShort();
+        for (int i = 0; i < workerDataChannelsLength; i++) {
+            readWorkerDataChannelEntries(dataInStream, packageInfo, transformerInfo);
+        }
+
+        // Read worker info entries
+        readWorkerInfoEntries(dataInStream, packageInfo, transformerInfo);
+
+        // Read attributes
+        readAttributeInfoEntries(dataInStream, packageInfo, transformerInfo);
     }
 
     public void readWorkerDataChannelEntries(DataInputStream dataInputStream, PackageInfo packageInfo,

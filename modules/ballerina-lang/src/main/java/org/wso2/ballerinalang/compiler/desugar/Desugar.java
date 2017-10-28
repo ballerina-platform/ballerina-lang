@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -178,6 +179,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
         pkgNode.initFunction = rewrite(pkgNode.initFunction);
+        pkgNode.transformers = rewrite(pkgNode.transformers);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -271,6 +273,19 @@ public class Desugar extends BLangNodeVisitor {
         result = varNode;
     }
 
+    public void visit(BLangTransformer transformerNode) {
+        addTransformerReturn(transformerNode);
+        transformerNode.body = rewrite(transformerNode.body);
+        transformerNode.workers = rewrite(transformerNode.workers);
+
+        BInvokableSymbol transformerSymbol = transformerNode.symbol;
+        List<BVarSymbol> params = transformerSymbol.params;
+        params.add(0, transformerNode.source.symbol);
+        BInvokableType transfotrmerType = (BInvokableType) transformerSymbol.type;
+        transfotrmerType.paramTypes.add(0, transformerNode.source.type);
+
+        result = transformerNode;
+    }
 
     // Statements
 
@@ -949,6 +964,24 @@ public class Desugar extends BLangNodeVisitor {
             DiagnosticPos invPos = invokableNode.pos;
             DiagnosticPos pos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
             returnStmt.pos = pos;
+            blockStmt.addStatement(returnStmt);
+        }
+    }
+
+    private void addTransformerReturn(BLangTransformer transformerNode) {
+        //This will only check whether last statement is a return and just add a return statement.
+        //This won't analyse if else blocks etc to see whether return statements are present
+        BLangBlockStmt blockStmt = transformerNode.body;
+        if (transformerNode.workers.size() == 0 && (blockStmt.stmts.size() < 1
+                || blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
+            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+            DiagnosticPos invPos = transformerNode.pos;
+            DiagnosticPos pos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
+            returnStmt.pos = pos;
+            
+            if (!transformerNode.retParams.isEmpty()) {
+                returnStmt.namedReturnVariables = transformerNode.retParams;
+            }
             blockStmt.addStatement(returnStmt);
         }
     }

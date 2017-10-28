@@ -17,6 +17,7 @@
 package org.ballerinalang.test.statements.transform;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,5 +37,6 @@ public class TransformerTest {
     
     @Test(description = "Test empty transformation")
     public void testEmptyTransform() {
+        BRunUtil.invoke(result, "foo");
     }
 }

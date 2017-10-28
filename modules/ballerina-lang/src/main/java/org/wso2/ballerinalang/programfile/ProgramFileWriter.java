@@ -228,7 +228,13 @@ public class ProgramFileWriter {
         // Emit function info entries
         dataOutStream.writeShort(packageInfo.functionInfoMap.size());
         for (FunctionInfo functionInfo : packageInfo.functionInfoMap.values()) {
-            writeFunctionInfo(dataOutStream, functionInfo);
+            writeCallableUnitInfo(dataOutStream, functionInfo);
+        }
+
+        // Emit transformer info entries
+        dataOutStream.writeShort(packageInfo.transformerInfoMap.size());
+        for (TransformerInfo transformerInfo : packageInfo.transformerInfoMap.values()) {
+            writeCallableUnitInfo(dataOutStream, transformerInfo);
         }
 
         // TODO Emit AnnotationInfo entries
@@ -254,31 +260,38 @@ public class ProgramFileWriter {
         }
     }
 
-    private static void writeFunctionInfo(DataOutputStream dataOutStream,
-                                          FunctionInfo functionInfo) throws IOException {
-        dataOutStream.writeInt(functionInfo.nameCPIndex);
-        dataOutStream.writeInt(functionInfo.signatureCPIndex);
+    /**
+     * Write function info and transformer info entries to the compiling file.
+     * 
+     * @param dataOutStream Output stream to write
+     * @param callableUnitInfo Info object of the callable unit
+     * @throws IOException
+     */
+    private static void writeCallableUnitInfo(DataOutputStream dataOutStream,
+                                          CallableUnitInfo callableUnitInfo) throws IOException {
+        dataOutStream.writeInt(callableUnitInfo.nameCPIndex);
+        dataOutStream.writeInt(callableUnitInfo.signatureCPIndex);
 
         // TODO Temp solution
-        boolean b = (functionInfo.flags & Flags.NATIVE) == Flags.NATIVE;
+        boolean b = (callableUnitInfo.flags & Flags.NATIVE) == Flags.NATIVE;
         dataOutStream.writeByte(b ? 1 : 0);
         //dataOutStream.writeInt(functionInfo.flags);
 
-        WorkerDataChannelInfo[] workerDataChannelInfos = functionInfo.getWorkerDataChannelInfo();
+        WorkerDataChannelInfo[] workerDataChannelInfos = callableUnitInfo.getWorkerDataChannelInfo();
         dataOutStream.writeShort(workerDataChannelInfos.length);
         for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
             writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
         }
 
-        WorkerInfo defaultWorker = functionInfo.defaultWorkerInfo;
-        WorkerInfo[] workerInfoEntries = functionInfo.getWorkerInfoEntries();
+        WorkerInfo defaultWorker = callableUnitInfo.defaultWorkerInfo;
+        WorkerInfo[] workerInfoEntries = callableUnitInfo.getWorkerInfoEntries();
         dataOutStream.writeShort(workerInfoEntries.length + 1);
         writeWorkerInfo(dataOutStream, defaultWorker);
         for (WorkerInfo workerInfo : workerInfoEntries) {
             writeWorkerInfo(dataOutStream, workerInfo);
         }
 
-        writeAttributeInfoEntries(dataOutStream, functionInfo.getAttributeInfoEntries());
+        writeAttributeInfoEntries(dataOutStream, callableUnitInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerDataChannelInfo(DataOutputStream dataOutStream,

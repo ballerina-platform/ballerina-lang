@@ -19,6 +19,10 @@ struct Strudent {
     float gpa;
 }
 
+function foo() {
+    int a = 5;
+}
+
 transformer <Person p, Employee e> Foo (int id, int empCode) {
   e.name = p.name;
   e.age = p.age;
