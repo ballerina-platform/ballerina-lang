@@ -113,7 +113,9 @@ class PackageScopedEnvironment {
      */
     getBuiltInCurrentPackage() {
         if (!this._builtInCurrentPackage) {
-            this._builtInCurrentPackage = this.mergePackages(this.getCurrentPackage(), this.getBuiltInPackage());
+            this._builtInCurrentPackage = new Package({ name: 'Current BuiltIn Package' });
+            this._builtInCurrentPackage = this.mergePackages(this.getBuiltInPackage(), this._builtInCurrentPackage);
+            this._builtInCurrentPackage = this.mergePackages(this.getCurrentPackage(), this._builtInCurrentPackage);
         }
         return this._builtInCurrentPackage;
     }
