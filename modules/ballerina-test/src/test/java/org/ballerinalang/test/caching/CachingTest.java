@@ -15,8 +15,10 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.test.nativeimpl.functions;
+package org.ballerinalang.test.caching;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -26,8 +28,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import java.util.Arrays;
 
 /**
  * Test class for caching package.
@@ -36,10 +40,17 @@ public class CachingTest {
 
     private CompileResult compileResult;
     private static final double DELTA = 0.0000000001;
+    private static final Log log = LogFactory.getLog(CachingTest.class);
 
-    @BeforeClass
+    @BeforeTest
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/cachingTest.bal");
+        compileResult = BCompileUtil.compile("test-src/caching/caching-test.bal");
+        printDiagnostics(compileResult);
+    }
+
+    private void printDiagnostics(CompileResult timerCompileResult) {
+        Arrays.asList(timerCompileResult.getDiagnostics()).
+                forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
     }
 
     @Test
@@ -132,7 +143,7 @@ public class CachingTest {
     @Test
     public void testCacheEviction() {
         String cacheName = "userCache";
-        int timeout = 60;
+        int timeout = 200;
         int capacity = 10;
         float evictionFactor = 0.2f;
         BValue[] args = new BValue[4];
@@ -153,23 +164,5 @@ public class CachingTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
         Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
-    }
-
-    @Test
-    public void testCacheClearing() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheClearing");
-        Assert.assertTrue(returns.length == 6);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertTrue(returns[4] instanceof BInteger);
-        Assert.assertTrue(returns[5] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 4);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 2);
     }
 }
