@@ -233,7 +233,8 @@ class BallerinaFileEditor extends React.Component {
             return;
         }
 
-        if (fullPackageName === 'Current Package' || fullPackageName === '') {
+        if (fullPackageName === 'Current Package' || fullPackageName === '' 
+            || fullPackageName === 'ballerina.builtin') {
             return;
         }
 

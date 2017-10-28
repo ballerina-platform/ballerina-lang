@@ -385,7 +385,7 @@ class DefaultNodeFactory {
             functionInvokeString = `${packageName}:`;
         }
         if(functionDef.getReceiverType()){
-            functionInvokeString = `element.`;
+            functionInvokeString = _.toLower(functionDef.getReceiverType()) + 'Ref.';
         }
         const functionParams = functionDef.getParameters().map((param) => {
             return Environment.getDefaultValue(param.type) || 'null';
