@@ -104,6 +104,7 @@ public class Timer {
 
     public void stop() throws TaskException {
         executorService.shutdown();
+        TaskRegistry.getInstance().remove(id);
         context.endTrackWorker();
     }
 
