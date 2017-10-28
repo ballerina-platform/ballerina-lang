@@ -35,6 +35,8 @@ public class Function {
 
     private List<Parameter> returnParams = new ArrayList<Parameter>();
 
+    private String receiverType = null;
+
     public Function name(String name) {
         this.name = name;
         return this;
@@ -141,6 +143,20 @@ public class Function {
     }
 
 
+    /**
+     * Get ReceiverType
+     *
+     * @return receiverType
+     */
+    public String getReceiverType() {
+        return receiverType;
+    }
+
+    public void setReceiverType(String receiverType) {
+        this.receiverType = receiverType;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -154,12 +170,13 @@ public class Function {
                 Objects.equals(this.description, function.description) &&
                 Objects.equals(this.annotations, function.annotations) &&
                 Objects.equals(this.parameters, function.parameters) &&
-                Objects.equals(this.returnParams, function.returnParams);
+                Objects.equals(this.returnParams, function.returnParams) &&
+                Objects.equals(this.receiverType, function.receiverType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, annotations, parameters, returnParams);
+        return Objects.hash(name, description, annotations, parameters, returnParams, receiverType);
     }
 
     @Override
@@ -172,6 +189,7 @@ public class Function {
         sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
         sb.append("    returnParams: ").append(toIndentedString(returnParams)).append("\n");
+        sb.append("    receiverType: ").append(toIndentedString(receiverType)).append("\n");
         sb.append("}");
         return sb.toString();
     }
