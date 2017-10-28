@@ -25,11 +25,13 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Filter the actions and the functions in a package
@@ -90,12 +92,14 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         TokenStream tokenStream = dataModel.getTokenStream();
         String variableName = tokenStream.get(delimiterIndex - 1).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
+        Map<Name, Scope.ScopeEntry> entries = null;
 
         if (variable == null) {
             return actionFunctionList;
         }
 
         String packageID = variable.getScopeEntry().symbol.getType().tsymbol.pkgID.toString();
+        String builtinPkgName = dataModel.getSymbolTable().builtInPackageSymbol.name.getValue();
 
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
             Scope.ScopeEntry scopeEntry = item.getScopeEntry();
@@ -103,8 +107,14 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
                     && scopeEntry.symbol.pkgID.toString().equals(packageID);
         }).findFirst().orElse(null);
 
-        if (packageSymbolInfo != null) {
-            packageSymbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, scopeEntry) -> {
+        if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
+            entries = dataModel.getSymbolTable().builtInPackageSymbol.scope.entries;
+        } else if (packageSymbolInfo != null) {
+            entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
+        }
+
+        if (entries != null) {
+            entries.forEach((name, scopeEntry) -> {
                 if (scopeEntry.symbol instanceof BInvokableSymbol
                         && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
                     String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
