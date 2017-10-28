@@ -101,7 +101,8 @@ public abstract class AbstractItemResolver {
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
         assert bSymbol instanceof BInvokableSymbol;
         BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
-        if (bInvokableSymbol.getName().getValue().equals(".<init>") ||
+        if (bInvokableSymbol.getName().getValue().contains("<")
+                || bInvokableSymbol.getName().getValue().contains("<") ||
                 bInvokableSymbol.getName().getValue().equals("main")) {
             return null;
         }
