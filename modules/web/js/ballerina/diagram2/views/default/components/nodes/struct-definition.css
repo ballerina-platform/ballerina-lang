@@ -50,7 +50,8 @@ struct-variable-definition-value-text*/
     cursor: pointer;
 }
 
-.ace_tooltip {
+.modal-body .ace_tooltip {
     transform: translate(0px, -75px);
     left: 10px !important;
 }
+
