@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.launcher.util;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
@@ -31,8 +32,10 @@ public class CompileResult {
 
     private List<Diagnostic> diagnostics;
     private ProgramFile progFile;
-    private int errorCount = 0;;
-    private int warnCount = 0;;
+    //Used for stateful function invocation.
+    private Context context;
+    private int errorCount = 0;
+    private int warnCount = 0;
 
     public CompileResult() {
         diagnostics = new ArrayList<Diagnostic>();
@@ -70,5 +73,13 @@ public class CompileResult {
 
     public void setProgFile(ProgramFile progFile) {
         this.progFile = progFile;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }
