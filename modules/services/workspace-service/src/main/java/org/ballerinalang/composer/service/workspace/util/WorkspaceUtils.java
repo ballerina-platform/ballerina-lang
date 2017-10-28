@@ -395,23 +395,27 @@ public class WorkspaceUtils {
         }
     }
 
+    /**
+     * Extract receiverType from the function receiver
+     *
+     * @param receiver receiver
+     * @return receiverType
+     */
     private static String getReceiverType(VariableNode receiver) {
         if (receiver == null) {
             return null;
         }
         TypeNode typeNode = receiver.getTypeNode();
-        String nodeKind = null;
+        String receiverType = null;
         if (typeNode instanceof BLangUserDefinedType) {
-            //BLangIdentifier id = ((BLangUserDefinedType) typeNode).getTypeName();
-            nodeKind = ((BLangUserDefinedType) typeNode).getTypeName().getValue();
+            receiverType = ((BLangUserDefinedType) typeNode).getTypeName().getValue();
         } else if (typeNode instanceof BLangBuiltInRefTypeNode) {
-            //TypeKind typeKind = ((BLangBuiltInRefTypeNode) typeNode).getTypeKind();
-            nodeKind = ((BLangBuiltInRefTypeNode) typeNode).getTypeKind().typeName();
+            receiverType = ((BLangBuiltInRefTypeNode) typeNode).getTypeKind().typeName();
         } else {
             return null;
         }
 
-        return nodeKind;
+        return receiverType;
     }
 
     /**
