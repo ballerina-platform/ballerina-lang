@@ -61,6 +61,8 @@ public class BLangJSONModelTest {
         String content = new Scanner(file).useDelimiter("\\Z").next();;
         JsonObject json = new JsonObject();
         json.addProperty("content", content);
+        json.addProperty("includeTree", true);
+        json.addProperty("includePackageInfo", true);
         outputStream.write(json.toString().getBytes());
         outputStream.flush();
         InputStream inputStream = urlConn.getInputStream();
@@ -84,6 +86,8 @@ public class BLangJSONModelTest {
         String content = new Scanner(file).useDelimiter("\\Z").next();;
         JsonObject json = new JsonObject();
         json.addProperty("content", content);
+        json.addProperty("includeTree", true);
+        json.addProperty("includePackageInfo", true);
         outputStream.write(json.toString().getBytes());
         outputStream.flush();
         InputStream inputStream = urlConn.getInputStream();
