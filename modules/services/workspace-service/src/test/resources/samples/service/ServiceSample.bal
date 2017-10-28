@@ -7,8 +7,9 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (message m) {
-        http:convertToResponse(m);
-        response:send(m);
+    resource echo (http:Request req, http:Response resp) {
+        string payload = req.getStringPayload();
+        resp.setStringPayload(payload);
+        resp.send();
     }
 }
