@@ -42,6 +42,9 @@ public class TaskRegistry {
     }
 
     public void addTimer(Timer timer) {
+        if (timers.containsKey(timer.getId())) {
+            throw new IllegalArgumentException("Timer with ID " + timer.getId() + " already exists");
+        }
         timers.put(timer.getId(), timer);
     }
 }
