@@ -32,6 +32,7 @@ class Function {
         this._parameters = _.get(args, 'parameters', []);
         this._returnParams = _.get(args, 'returnParams', []);
         this._fullPackageName = _.get(args, 'fullPackageName', '.');
+        this._receiverType = _.get(args, 'receiverType', '');
     }
 
    /**
@@ -124,6 +125,22 @@ class Function {
         return this._returnParams;
     }
 
+    /**
+    * sets the receiverType
+    * @param {string} receiverType
+    */
+    setReceiverType(receiverType) {
+        this._receiverType = receiverType;
+    }
+
+   /**
+    * returns the receiverType
+    * @returns {string}
+    */
+    getReceiverType() {
+        return this._receiverType;
+    }
+
    /**
     * sets values from a json object
     * @param {Object} jsonNode
@@ -133,6 +150,7 @@ class Function {
         this.setId(jsonNode.name);
         this.setParameters(jsonNode.parameters);
         this.setReturnParams(jsonNode.returnParams);
+        this.setReceiverType(jsonNode.receiverType);
     }
 }
 

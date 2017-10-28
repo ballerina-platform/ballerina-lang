@@ -35,6 +35,8 @@ public class Function {
 
     private List<Parameter> returnParams = new ArrayList<Parameter>();
 
+    private String receiverType = null;
+
     public Function name(String name) {
         this.name = name;
         return this;
@@ -138,6 +140,15 @@ public class Function {
 
     public void setReturnParams(List<Parameter> returnParams) {
         this.returnParams = returnParams;
+    }
+
+
+    public String getReceiverType() {
+        return receiverType;
+    }
+
+    public void setReceiverType(String receiverType) {
+        this.receiverType = receiverType;
     }
 
 
