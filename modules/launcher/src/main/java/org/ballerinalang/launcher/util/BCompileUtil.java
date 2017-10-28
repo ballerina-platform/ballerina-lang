@@ -58,8 +58,37 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BCompileUtil {
 
+    //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
+//    Compile and setup methods
+    /**
+     * Compile and return the semantic errors. Error scenarios cannot use this method.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return compileResult
+     */
+    public static CompileResult compileAndSetup(String sourceFilePath) {
+        CompileResult compileResult = compile(sourceFilePath, CompilerPhase.CODE_GEN);
+        BRunUtil.invokePackageInit(compileResult);
+        return compileResult;
+    }
+
+    /**
+     * Compile and return the semantic errors. Error scenarios cannot use this method.
+     *
+     * @param obj this is to find the original callers location.
+     * @param sourceRoot  root path of the source packages
+     * @param packageName name of the package to compile
+     * @return compileResult
+     */
+    public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
+        CompileResult compileResult = compile(obj, sourceRoot, packageName);
+        BRunUtil.invokePackageInit(compileResult, packageName);
+        return compileResult;
+    }
+
+//    Compile methods
     /**
      * Compile and return the semantic errors.
      *
