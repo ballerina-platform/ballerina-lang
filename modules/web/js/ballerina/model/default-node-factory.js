@@ -381,8 +381,11 @@ class DefaultNodeFactory {
         const { functionDef, packageName, fullPackageName } = args;
 
         let functionInvokeString = '';
-        if (packageName && packageName !== 'Current Package') {
+        if (packageName && packageName !== 'Current Package' && packageName !== "builtin" ) {
             functionInvokeString = `${packageName}:`;
+        }
+        if(functionDef.getReceiverType()){
+            functionInvokeString = `element.`;
         }
         const functionParams = functionDef.getParameters().map((param) => {
             return Environment.getDefaultValue(param.type) || 'null';
