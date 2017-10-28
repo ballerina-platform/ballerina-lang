@@ -139,7 +139,7 @@ class ExportDiagramDialog extends React.Component {
      * @return {string} svg.
      * */
     getSVG() {
-        const tab = $('#bal-file-editor-' + this.props.file.fullPath);
+        const tab = $('#bal-file-editor-' + this.props.file.id);
         const svgElement = tab.find('.svg-container');
         const svgElementClone = tab.find('.svg-container').clone(true);
 
