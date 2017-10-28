@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.doc;
 
 function main (string[] args) {
@@ -9,7 +8,7 @@ function main (string[] args) {
 
     //Invoking a function with identifier literal as a parameter.
     string name = |combine names|(|first name|, |last name|);
-    system:println(name);
+    println(name);
 }
 
 @doc:Description {value:"Sample function defined with function name and input parameter using identifier literals."}
@@ -24,5 +23,3 @@ struct |person record| {
     string |last name|;
     int age;
 }
-
-

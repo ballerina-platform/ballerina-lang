@@ -17,12 +17,9 @@ service<http> headerBasedRouting {
         http:Response clientResponse = {};
         if (nameString == nyseString) {
             clientResponse = nyseEP.post("/stocks", req);
-        }
-        else {
+        } else {
             clientResponse = nasdaqEP.post("/stocks", req);
         }
         resp.forward(clientResponse);
-        
     }
-    
 }

@@ -1499,6 +1499,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
+                case InstructionCodes.S2JSONX:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

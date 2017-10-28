@@ -1,19 +1,32 @@
-import ballerina.lang.system;
-import ballerina.lang.jsons;
-
 function main (string[] args) {
     //Create JSON.
-    json j1 = {"Store":{"@id":"AST","name":"Anne","address":
-                   {"street":"Main","city": "94"},"codes":["4","8"]}};
+    json j1 = {"Store":{
+                           "@id":"AST",
+                           "name":"Anne",
+                           "address":{
+                                         "street":"Main",
+                                         "city":"94"
+                                     },
+                           "codes":["4", "8"]
+                       }
+              };
     //Convert to XML with default attribute prefix and arrayEntryTag.
-    jsons:Options options1 = {};
-    xml x1 = jsons:toXML(j1, options1);
-    system:println(x1);
+    jsonOptions options1 = {};
+    xml x1 = j1.toXML(options1);
+    println(x1);
 
     //Convert to XML with custom attribute prefix and custom array tag.
-    json j2 = {"Store":{"#id":"AST","name":"Anne","address":
-                   {"street":"Main","city": "94"},"codes":["4","8"]}};
-    jsons:Options options2 = {attributePrefix : "#", arrayEntryTag : "wrapper"};
-    xml x2 = jsons:toXML(j2, options2);
-    system:println(x2);
+    json j2 = {"Store":{
+                           "#id":"AST",
+                           "name":"Anne",
+                           "address":{
+                                         "street":"Main",
+                                         "city":"94"
+                                     },
+                           "codes":["4", "8"]
+                       }
+              };
+    jsonOptions options2 = {attributePrefix:"#", arrayEntryTag:"wrapper"};
+    xml x2 = j2.toXML(options2);
+    println(x2);
 }

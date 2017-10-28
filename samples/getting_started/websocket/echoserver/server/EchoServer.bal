@@ -1,6 +1,3 @@
-import ballerina.lang.system;
-import ballerina.lang.strings;
-import ballerina.lang.blobs;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -9,13 +6,13 @@ import ballerina.net.ws;
 }
 service<ws> EchoServer {
 
-    resource onOpen(ws:Connection conn) {
-        system:println("New client : " + conn.getID());
+    resource onOpen (ws:Connection conn) {
+        println("New client : " + conn.getID());
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+    resource onTextMessage (ws:Connection conn, ws:TextFrame frame) {
         string textReceived = frame.text;
-        system:println("Text received: " + textReceived);
+        println("Text received: " + textReceived);
 
         if (textReceived == "closeMe") {
             conn.closeConnection(1001, "You told me to close");
@@ -24,15 +21,15 @@ service<ws> EchoServer {
         }
     }
 
-    resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
+    resource onBinaryMessage (ws:Connection conn, ws:BinaryFrame frame) {
         blob data = frame.data;
-        string text = blobs:toString(data, "UTF-8");
-        system:println("UTF-8 Decoded binary message: " + text);
-        conn.pushBinary(strings:toBlob("You said " + text, "UTF-8"));
+        string text = data.toString("UTF-8");
+        println("UTF-8 Decoded binary message: " + text);
+        conn.pushBinary("You said " + text.toBlob("UTF-8"));
     }
 
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        system:println("Client left the server: " + conn.getID());
-        system:println("Status code: " + frame.statusCode + " reason " + frame.reason);
+    resource onClose (ws:Connection conn, ws:CloseFrame frame) {
+        println("Client left the server: " + conn.getID());
+        println("Status code: " + frame.statusCode + " reason " + frame.reason);
     }
 }

@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class TransformerTest {
 
@@ -32,9 +32,10 @@ public class TransformerTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/transform/transformer-def.bal");
-        Arrays.stream(result.getDiagnostics()).forEach(diag -> System.err.println(diag.getPosition() + diag.getMessage()));
+        PrintStream log = System.err;
+        Arrays.stream(result.getDiagnostics()).forEach(diag -> log.println(diag.getPosition() + diag.getMessage()));
     }
-    
+
     @Test(description = "Test empty transformation")
     public void testEmptyTransform() {
         BRunUtil.invoke(result, "foo");

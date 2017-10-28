@@ -27,6 +27,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
@@ -110,7 +111,17 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    public static void dispatchControlMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+        if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
+            WebSocketDispatcher.dispatchPingMessage(wsService, controlMessage);
+        } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
+            WebSocketDispatcher.dispatchPongMessage(wsService, controlMessage);
+        } else {
+            throw new BallerinaConnectorException("Received unknown control signal");
+        }
+    }
+
+    private static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
         Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             return;
@@ -124,7 +135,7 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    private static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
         Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;

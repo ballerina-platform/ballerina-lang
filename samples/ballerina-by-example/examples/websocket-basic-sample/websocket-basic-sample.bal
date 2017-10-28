@@ -1,4 +1,3 @@
-import ballerina.lang.blobs;
 import ballerina.net.ws;
 import ballerina.doc;
 
@@ -61,7 +60,7 @@ service<ws> SimpleSecureServer {
     resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
         println("\nNew binary message received");
         blob b = frame.data;
-        println("UTF-8 decoded binary message: " + blobs:toString(b, "UTF-8"));
+        println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
         conn.pushBinary(b);
     }
 

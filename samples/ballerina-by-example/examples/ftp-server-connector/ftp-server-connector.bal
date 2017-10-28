@@ -2,8 +2,6 @@ import ballerina.net.ftp;
 import ballerina.lang.messages;
 import ballerina.lang.files;
 import ballerina.lang.blobs;
-import ballerina.lang.strings;
-import ballerina.lang.system;
 
 @ftp:configuration {
     dirURI:"ftp://127.0.0.1/observed-dir/",
@@ -24,15 +22,15 @@ service<ftp> ftpServerConnector {
 
         // Read the specified file and get its string content.
         blob txt = c.read(file);
-        string content = blobs:toString(txt, "UTF-8");
+        string content =txt.toString("UTF-8");
 
         // Print the content of the file to the console.
-        system:println("Content of the file at: " + url);
-        system:println(content);
+        println("Content of the file at: " + url);
+        println(content);
 
         // Append to the content and convert it to a blob.
         content = content + "ballerina";
-        blob output = strings:toBlob(content, "UTF-8");
+        blob output = content.toBlob("UTF-8");
 
         // A File struct for the pointing to the location.
         files:File target = {path:

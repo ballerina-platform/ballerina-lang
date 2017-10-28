@@ -121,12 +121,12 @@ public class WebSocketService implements Service {
         if (configAnnotation == null) {
             return null;
         }
-        AnnAttrValue annAttrsubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
-        if (annAttrsubProtocols == null) {
+        AnnAttrValue annAttrSubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+        if (annAttrSubProtocols == null) {
             return null;
         }
 
-        AnnAttrValue[] subProtocolsInAnnotation = annAttrsubProtocols.getAnnAttrValueArray();
+        AnnAttrValue[] subProtocolsInAnnotation = annAttrSubProtocols.getAnnAttrValueArray();
         String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
         for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
             negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();
