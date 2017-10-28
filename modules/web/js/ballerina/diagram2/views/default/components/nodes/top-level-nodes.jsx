@@ -112,7 +112,14 @@ class TopLevelNodes extends React.Component {
         }
 
         this.setState({ packageNameEditing: false });
-        this.context.editor.update();
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'Package name changed',
+            title: 'Package name changed',
+            data: {
+                node: this.props.model,
+            },
+        });
     }
 
     /**
@@ -220,7 +227,14 @@ class TopLevelNodes extends React.Component {
             this.setState({ packageNameEditing: true });
         }
         this.props.model.viewState.packageDefExpanded = true;
-        this.context.editor.update();
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'Package name changed',
+            title: 'Package name changed',
+            data: {
+                node: this.props.model,
+            },
+        });
     }
 
     /**
