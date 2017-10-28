@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import SemanticErrorRenderingVisitor from './../../../visitors/semantic-errors-rendering-visitor';
@@ -93,8 +94,13 @@ class ErrorRenderingUtil {
      */
     placeErrorForCompoundStatementComponents(node) {
         const viewState = node.viewState;
+        let errors;
+        if (TreeUtil.isIf(node) || TreeUtil.isWhile(node)) {
+            errors = this.getSemanticErrorsOfNode(node.condition);
+        } else {
+            errors = node.errors;
+        }
         // Check for errors in the model
-        const errors = this.getSemanticErrorsOfNode(node);
         if (errors.length > 0) {
             const errorBbox = new SimpleBBox();
             errorBbox.x = viewState.components['statement-box'].x;
@@ -157,7 +163,22 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForCatchNode(node) {
-        // Not implemented.
+        // Errors in the join node
+        let errors = node.errors;
+        let catchParameterError;
+        // Errors in the catch parameter
+        if (node.parameter) {
+            catchParameterError = (this.getSemanticErrorsOfNode(node.parameter));
+        }
+        errors = _.concat(errors, catchParameterError);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x;
+            errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
     }
 
 
@@ -860,14 +881,69 @@ class ErrorRenderingUtil {
         this.placeErrorForCompoundStatementComponents(node);
 
         if (joinStmt) {
-            this.placeErrorForCompoundStatementComponents(joinStmt);
+            this.placeErrorForJoinNode(joinStmt, node.joinResultVar);
         }
 
         if (timeoutStmt) {
-            this.placeErrorForCompoundStatementComponents(timeoutStmt);
+            this.placeErrorForTimeoutNode(timeoutStmt, node.timeOutExpression, node.timeOutVariable);
         }
     }
 
+
+    /**
+     * Calculate error position of Join nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForJoinNode(node, joinResultVar) {
+        // Errors in the join node
+        let errors = node.errors;
+        let joinResultError;
+        // Errors in the join result variable
+        if (joinResultVar) {
+            joinResultError = (this.getSemanticErrorsOfNode(joinResultVar));
+        }
+        errors = _.concat(errors, joinResultError);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x;
+            errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+    }
+
+    /**
+     * Calculate error position of Timeout nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForTimeoutNode(node, timeOutExpression, timeOutVariable) {
+        // Errors in the timeout node
+        let errors = node.errors;
+        let timeOutExpressionError,
+            timeOutVariableError;
+        // Errors in the timeout expression
+        if (timeOutExpression) {
+            timeOutExpressionError = (this.getSemanticErrorsOfNode(timeOutExpression));
+        }
+        // Errors in the timeout variable
+        if (timeOutVariable) {
+            timeOutVariableError = (this.getSemanticErrorsOfNode(timeOutVariable));
+        }
+        errors = _.concat(errors, timeOutExpressionError, timeOutVariableError);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x;
+            errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+    }
 
     /**
      * Calculate error position of If nodes.
@@ -988,15 +1064,31 @@ class ErrorRenderingUtil {
         const finallyBody = node.finallyBody;
 
         for (let itr = 0; itr < catchBlocks.length; itr++) {
-            // Position the compound statement components of catch block
-            this.placeErrorForCompoundStatementComponents(catchBlocks[itr]);
+            this.placeErrorForCatchNode(catchBlocks[itr]);
         }
 
         if (finallyBody) {
-            this.placeErrorForCompoundStatementComponents(finallyBody);
+            this.placeErrorForFinallyNode(finallyBody);
         }
     }
 
+    /**
+     * Calculate error position of finally node.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForFinallyNode(node) {
+        const viewState = node.viewState;
+        const errors = node.errors;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x;
+            errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+    }
 
     /**
      * Calculate error position of VariableDef nodes.
