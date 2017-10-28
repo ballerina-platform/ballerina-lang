@@ -8,7 +8,7 @@ function testCreateCache (string name, int timeOut, int capacity, float eviction
 function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
-    return cache.entries.length();
+    return cache.size();
 }
 
 function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int, string) {
@@ -18,14 +18,14 @@ function testGet (string name, int timeOut, int capacity, float evictionFactor, 
     if (e != null) {
         return -1, "";
     }
-    return cache.entries.length(), value;
+    return cache.size(), value;
 }
 
 function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
     cache.remove(key);
-    return cache.entries.length();
+    return cache.size();
 }
 
 function testCacheEviction (string name, int timeOut, int capacity, float evictionFactor) (string[], int) {
@@ -41,6 +41,6 @@ function testCacheEviction (string name, int timeOut, int capacity, float evicti
     cache.put("I", "I");
     cache.put("J", "J");
     cache.put("K", "K");
-    return cache.entries.keys(), cache.entries.length();
+    return cache.entries.keys(), cache.size();
 }
 

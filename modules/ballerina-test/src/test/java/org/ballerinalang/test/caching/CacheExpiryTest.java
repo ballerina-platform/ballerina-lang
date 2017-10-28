@@ -21,16 +21,16 @@ package org.ballerinalang.test.caching;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.launcher.util.BCompileUtil;
-//import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-//import org.ballerinalang.model.values.BInteger;
-//import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import java.util.Arrays;
 
-//import static org.awaitility.Awaitility.await;
-//import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Tests for cache expiry.
@@ -41,7 +41,7 @@ public class CacheExpiryTest {
 
     @BeforeTest
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/caching/cache-expiry-test.bal");
+        compileResult = BCompileUtil.compileAndSetup("test-src/caching/cache-expiry-test.bal");
         printDiagnostics(compileResult);
     }
 
@@ -52,23 +52,20 @@ public class CacheExpiryTest {
 
     @Test
     public void testCacheExpiry() {
-        /*BRunUtil.invoke(compileResult, "initCache");
+        BRunUtil.invokeStateful(compileResult, "initCache");
 
-        await().atMost(20, SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
-            return ((BInteger) cacheSizes[0]).intValue() == 3;
+        // Check that the cache size gradually decreases due to cache expiry
+        await().atMost(5, SECONDS).until(() -> {
+            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
+            return ((BInteger) cacheSizes[0]).intValue() == 4;
         });
         await().atMost(20, SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
-            return ((BInteger) cacheSizes[0]).intValue() == 2;
+            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
+            return ((BInteger) cacheSizes[0]).intValue() < 4;
         });
-        await().atMost(20, SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
-            return ((BInteger) cacheSizes[0]).intValue() == 1;
-        });
-        await().atMost(20, SECONDS).until(() -> {
-            BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
+        await().atMost(30, SECONDS).until(() -> {
+            BValue[] cacheSizes = BRunUtil.invokeStateful(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 0;
-        });*/
+        });
     }
 }

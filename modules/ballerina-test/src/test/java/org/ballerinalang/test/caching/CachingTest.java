@@ -56,7 +56,7 @@ public class CachingTest {
     @Test
     public void testCreateCache() {
         String cacheName = "userCache";
-        int timeout = 60;
+        int timeout = 20000;
         int capacity = 10;
         float evictionFactor = 0.1f;
         BValue[] args = new BValue[4];
@@ -79,7 +79,7 @@ public class CachingTest {
     @Test
     public void testPut() {
         String cacheName = "userCache";
-        int timeout = 60;
+        int timeout = 20000;
         int capacity = 10;
         float evictionFactor = 0.1f;
         String key = "Ballerina";
@@ -100,7 +100,7 @@ public class CachingTest {
     @Test
     public void testGet() {
         String cacheName = "userCache";
-        int timeout = 60;
+        int timeout = 20000;
         int capacity = 10;
         float evictionFactor = 0.1f;
         String key = "Ballerina";
@@ -123,7 +123,7 @@ public class CachingTest {
     @Test
     public void testRemove() {
         String cacheName = "userCache";
-        int timeout = 60;
+        int timeout = 20000;
         int capacity = 10;
         float evictionFactor = 0.1f;
         String key = "Ballerina";
@@ -143,7 +143,7 @@ public class CachingTest {
     @Test
     public void testCacheEviction() {
         String cacheName = "userCache";
-        int timeout = 200;
+        int timeout = 20000;
         int capacity = 10;
         float evictionFactor = 0.2f;
         BValue[] args = new BValue[4];
