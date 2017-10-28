@@ -248,6 +248,12 @@ class PositioningUtil {
         if (node.viewState.packageDefExpanded) {
             node.viewState.components.importsBbox.x += packageDefTextWidth;
             node.viewState.components.globalsBbox.x += packageDefTextWidth;
+        } else if (node.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
+            const pkgDecNodes = node.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+            if (node.getPackageName(pkgDecNodes[0])) {
+                node.viewState.components.importsBbox.x += packageDefTextWidth;
+                node.viewState.components.globalsBbox.x += packageDefTextWidth;
+            }
         }
     }
 
