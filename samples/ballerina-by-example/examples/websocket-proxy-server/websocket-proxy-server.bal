@@ -1,5 +1,5 @@
-import ballerina.doc;
 import ballerina.net.ws;
+import ballerina.doc;
 
 @ws:configuration {
     basePath: "/proxy/ws",

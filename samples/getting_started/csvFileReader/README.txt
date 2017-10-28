@@ -5,11 +5,11 @@ The 'fileReader.bal' will read a sample csv file using record I/O API and will w
 Prerequisites
 =============
 
-The "sample.csv" file is located in the directory $Ballerina_HOME/samples/io/files/ hence ensure that "fileReader.bal"
+The "sample.csv" file is located in the directory $Ballerina_HOME/samples/csvFileReader/files/ hence ensure that "fileReader.bal"
 is executed from $Ballerina_HOME/bin directory
 
 How to run this sample
 ======================
 
-bin$ ./ballerina run ../samples/io/fileReader.bal
+bin$ ./ballerina run ../samples/csvFileReader/fileReader.bal
 
