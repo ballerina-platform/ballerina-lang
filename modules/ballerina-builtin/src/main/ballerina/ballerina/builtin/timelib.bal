@@ -76,12 +76,12 @@ public native function <Time time> weekday()(string);
 public native function <Time time> hour()(int);
 
 @Description {value:"Returns the minute representation of the given time."}
-@Param {value:"time : The time struct which needs to get the minute representation"}
+@Param {value:"time: The time struct which needs to get the minute representation"}
 @Return {value:"int: The minute-of-hour to represent, from 0 to 59."}
 public native function <Time time> minute()(int);
 
 @Description {value:"Returns the second representation of the given time."}
-@Param {value:"time : The time struct which needs to get the second representation"}
+@Param {value:"time: The time struct which needs to get the second representation"}
 @Return {value:"int: The second-of-minute, from 0 to 59."}
 public native function <Time time> second()(int);
 
