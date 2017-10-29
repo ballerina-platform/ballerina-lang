@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -60,8 +59,8 @@ public class HttpResponseListener implements HttpConnectorListener {
                     .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
             sourceContext.write(response);
 
-            while (true) {
-                HttpContent httpContent = httpResponseMessage.getHttpContent();
+            httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
+                    this.sourceContext.channel().eventLoop().execute(() -> {
                 if (httpContent instanceof LastHttpContent) {
                     ChannelFuture future = sourceContext.writeAndFlush(httpContent);
                     if (connectionCloseAfterResponse) {
@@ -71,10 +70,15 @@ public class HttpResponseListener implements HttpConnectorListener {
                         HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtSourceResponseSending(httpResponseMessage);
                     }
-                    break;
+                }
+                if (sourceContext == null) {
+                    System.out.println("============== null");
+                }
+                if (httpContent == null) {
+                    System.out.println("============== httpContent null");
                 }
                 sourceContext.write(httpContent);
-            }
+            }));
         });
         Util.prepareBuiltMessageForTransfer(httpResponseMessage);
     }

@@ -17,9 +17,10 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners;
 
-import org.apache.commons.io.IOUtils;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -34,13 +35,12 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -48,16 +48,19 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * A class which read and write content through streams
+ * Transform message in request and response path
  */
-public class RequestResponseCreationStreamingListener implements HttpConnectorListener {
+public class RequestResponseTransformListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseCreationStreamingListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformListener.class);
 
-    private TransportsConfiguration configuration;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private String responseValue;
+    private String requestValue;
+    private TransportsConfiguration configuration;
 
-    public RequestResponseCreationStreamingListener(TransportsConfiguration configuration) {
+    public RequestResponseTransformListener(String responseValue, TransportsConfiguration configuration) {
+        this.responseValue = responseValue;
         this.configuration = configuration;
     }
 
@@ -65,17 +68,24 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpRequest);
-                InputStream inputStream = streamer.getInputStream();
+                int length = httpRequest.getFullMessageLength();
+                List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
 
-                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
-                byte[] bytes = IOUtils.toByteArray(inputStream);
-                outputStream.write(bytes);
-                outputStream.flush();
-                outputStream.close();
-                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+                ByteBuffer byteBuff = ByteBuffer.allocate(length);
+                byteBufferList.forEach(byteBuff::put);
+                requestValue = new String(byteBuff.array());
+
+                httpRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                httpRequest.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+
+                if (responseValue != null) {
+                    byte[] array = responseValue.getBytes("UTF-8");
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
+                    byteBuffer.put(array);
+                    httpRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                    byteBuffer.flip();
+                    httpRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+                }
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -92,28 +102,35 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(newMsg);
+                HttpResponseFuture future = clientConnector.send(httpRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
-                            HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);
-                            InputStream inputStream = streamer.getInputStream();
+                            int length = httpMessage.getFullMessageLength();
+                            List<ByteBuffer> byteBufferList = httpMessage.getFullMessageBody();
 
-                            HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
-                            OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
-                            try {
-                                byte[] bytes = IOUtils.toByteArray(inputStream);
-                                outputStream.write(bytes);
-                                outputStream.flush();
-                                outputStream.close();
-                            } catch (IOException e) {
-                                throw new RuntimeException("Cannot read Input Stream from Response", e);
-                            }
-                            try {
-                                httpRequest.respond(newMsg);
-                            } catch (ServerConnectorException e) {
-                                logger.error("Error occurred during message notification: " + e.getMessage());
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                            byteBufferList.forEach(byteBuffer::put);
+                            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            if (requestValue != null) {
+                                byte[] array = new byte[0];
+                                try {
+                                    array = responseValue.getBytes("UTF-8");
+                                } catch (UnsupportedEncodingException e) {
+
+                                }
+                                ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                                byteBuff.put(array);
+                                httpMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                                byteBuff.flip();
+                                httpMessage.addHttpContent(
+                                        new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
+                                try {
+                                    httpRequest.respond(httpMessage);
+                                } catch (ServerConnectorException e) {
+                                    logger.error("Error occurred during message notification: " + e.getMessage());
+                                }
                             }
                         });
                     }
@@ -123,7 +140,6 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
                     }
                 });
-
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
             }

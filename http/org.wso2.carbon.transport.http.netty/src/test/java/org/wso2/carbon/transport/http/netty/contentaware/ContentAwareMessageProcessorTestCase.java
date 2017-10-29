@@ -19,14 +19,16 @@
 package org.wso2.carbon.transport.http.netty.contentaware;
 
 import io.netty.handler.codec.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners.RequestResponseCreationListener;
+import org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners.RequestResponseCreationStreamingListener;
+import org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners.RequestResponseTransformListener;
+import org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners.RequestResponseTransformStreamingListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
@@ -45,7 +47,6 @@ import static org.testng.AssertJUnit.assertEquals;
  * A test case for echo message from MessageProcessor level.
  */
 public class ContentAwareMessageProcessorTestCase {
-    private static final Logger log = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
 
     private List<ServerConnector> serverConnectors;
     private HttpConnectorListener httpConnectorListener;
@@ -155,23 +156,23 @@ public class ContentAwareMessageProcessorTestCase {
         }
     }
 
-    @Test
-    public void responseStreamingWithoutBufferingTestCase() {
-        String requestValue = "<A><B><C>Test Message</C></B></A>";
-        try {
-            httpConnectorListener = new ResponseStreamingWithoutBufferingListener();
-            TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            urlConn.setChunkedStreamingMode(-1); // Enable Chunking
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(requestValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running responseStreamingWithoutBufferingTestCase", e);
-        }
-    }
+//    @Test
+//    public void responseStreamingWithoutBufferingTestCase() {
+//        String requestValue = "<A><B><C>Test Message</C></B></A>";
+//        try {
+//            httpConnectorListener = new ResponseStreamingWithoutBufferingListener();
+//            TestUtil.updateMessageProcessor(httpConnectorListener);
+//            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+//            urlConn.setChunkedStreamingMode(-1); // Enable Chunking
+//            TestUtil.writeContent(urlConn, requestValue);
+//            assertEquals(200, urlConn.getResponseCode());
+//            String content = TestUtil.getContent(urlConn);
+//            assertEquals(requestValue, content);
+//            urlConn.disconnect();
+//        } catch (IOException e) {
+//            TestUtil.handleException("IOException occurred while running responseStreamingWithoutBufferingTestCase", e);
+//        }
+//    }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {

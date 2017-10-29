@@ -17,9 +17,10 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners;
 
-import org.apache.commons.io.IOUtils;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -34,13 +35,12 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -48,29 +48,41 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * Streaming processor which reads from same and write to same message
+ * A Message Processor which creates Request and Response
  */
-public class RequestResponseTransformStreamingListener implements HttpConnectorListener {
+public class RequestResponseCreationListener implements HttpConnectorListener {
+    private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private String responseValue;
     private TransportsConfiguration configuration;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RequestResponseTransformStreamingListener(TransportsConfiguration configuration) {
+    public RequestResponseCreationListener(String responseValue, TransportsConfiguration configuration) {
+        this.responseValue = responseValue;
         this.configuration = configuration;
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
+    public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                InputStream inputStream = new HttpMessageDataStreamer(httpRequestMessage).getInputStream();
-                OutputStream outputStream = new HttpMessageDataStreamer(httpRequestMessage).getOutputStream();
-                byte[] bytes = IOUtils.toByteArray(inputStream);
-                outputStream.write(bytes);
-                outputStream.close();
-                httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+                int length = httpRequest.getFullMessageLength();
+                List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                byteBufferList.forEach(byteBuffer::put);
+                String requestValue = new String(byteBuffer.array());
+                byte[] arry = responseValue.getBytes("UTF-8");
+
+                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
+                }
+                ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
+                byteBuffer1.put(arry);
+                byteBuffer1.flip();
+                newMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer1)));
+                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -80,29 +92,46 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
 
                 }
 
-                String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
+                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
                 SenderConfiguration senderConfiguration = HTTPConnectorUtil
                         .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(httpRequestMessage);
+
+                HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            InputStream inputS = new HttpMessageDataStreamer(httpResponse).getInputStream();
-                            OutputStream outputS = new HttpMessageDataStreamer(httpResponse).getOutputStream();
+                            int length = httpResponse.getFullMessageLength();
+                            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
+
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                            byteBufferList.forEach(byteBuffer::put);
+                            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            byte[] array = new byte[0];
                             try {
-                                byte[] bytes = IOUtils.toByteArray(inputS);
-                                outputS.write(bytes);
-                                outputS.close();
-                            } catch (IOException e) {
-                                throw new RuntimeException("Cannot read Input Stream from Response", e);
+                                array = responseValue.getBytes("UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+
                             }
+
+                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                            byteBuff.put(array);
+                            byteBuff.flip();
+                            HTTPCarbonMessage httpCarbonMessage = httpResponse
+                                    .cloneCarbonMessageWithOutData();
+                            if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                        String.valueOf(array.length));
+                            }
+                            httpCarbonMessage.addHttpContent(
+                                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
+
                             try {
-                                httpRequestMessage.respond(httpResponse);
+                                httpRequest.respond(httpCarbonMessage);
                             } catch (ServerConnectorException e) {
                                 logger.error("Error occurred during message notification: " + e.getMessage());
                             }
@@ -114,10 +143,13 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
 
                     }
                 });
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Encoding is not supported", e);
             } catch (Exception e) {
-                logger.error("Error while reading stream", e);
+                logger.error("Failed to send the message to the back-end", e);
             }
         });
+
     }
 
     @Override

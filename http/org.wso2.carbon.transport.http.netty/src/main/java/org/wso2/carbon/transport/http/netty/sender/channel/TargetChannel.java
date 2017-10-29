@@ -18,7 +18,6 @@ package org.wso2.carbon.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -158,19 +157,18 @@ public class TargetChannel {
             this.setRequestWritten(true);
             this.getChannel().write(httpRequest);
 
-            while (true) {
-                HttpContent httpContent = httpCarbonRequest.getHttpContent();
+            httpCarbonRequest.getHttpContentAsync().setMessageListener(httpContent ->
+                    this.channel.eventLoop().execute(() -> {
                 if (httpContent instanceof LastHttpContent) {
                     this.getChannel().writeAndFlush(httpContent);
                     if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetRequestSending(httpCarbonRequest);
                     }
-                    break;
                 } else {
                     this.getChannel().write(httpContent);
                 }
-            }
+            }));
         } catch (Exception e) {
             String msg;
             if (e instanceof NullPointerException) {

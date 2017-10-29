@@ -54,6 +54,7 @@ public class HTTPCarbonMessage {
     private MessagingException messagingException = null;
     private MessageDataSource messageDataSource;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
+    private MessageFuture messageFuture;
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         int soTimeOut = 60;
@@ -71,13 +72,23 @@ public class HTTPCarbonMessage {
     }
 
     public void addHttpContent(HttpContent httpContent) {
-        blockingEntityCollector.addHttpContent(httpContent);
+        if (this.messageFuture != null) {
+            this.messageFuture.notifyMessageListener(httpContent);
+        } else {
+            blockingEntityCollector.addHttpContent(httpContent);
+        }
     }
 
     public HttpContent getHttpContent() {
-        return blockingEntityCollector.getHttpContent();
+        return this.blockingEntityCollector.getHttpContent();
     }
 
+    public MessageFuture getHttpContentAsync() {
+        this.messageFuture = new MessageFuture(this);
+        return messageFuture;
+    }
+
+    @Deprecated
     public ByteBuf getMessageBody() {
         return blockingEntityCollector.getMessageBody();
     }
@@ -209,41 +220,12 @@ public class HTTPCarbonMessage {
      * @return HTTPCarbonMessage
      */
     public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
-        //        HTTPCarbonMessage newCarbonMessage = new HTTPCarbonMessage();
-        //        newCarbonMessage.setBufferContent(this.isBufferContent());
-        //        newCarbonMessage.setWriter(this.getWriter());
-        //        List<Header> transportHeaders = this.getHeaders().getClone();
-        //        newCarbonMessage.setHeaders(transportHeaders);
-
         HTTPCarbonMessage newCarbonMessage = getNewHttpCarbonMessage();
 
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
 
         return newCarbonMessage;
-    }
-
-    /**
-     * Copy the Full carbon message with data
-     *
-     * @return carbonMessage
-     */
-    public HTTPCarbonMessage cloneCarbonMessageWithData() {
-
-        //        HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
-        //        httpCarbonMessage.setBufferContent(this.isBufferContent());
-        //        httpCarbonMessage.setWriter(this.getWriter());
-        //        List<Header> transportHeaders = this.getHeaders().getClone();
-        //        httpCarbonMessage.setHeaders(transportHeaders);
-
-        HTTPCarbonMessage httpCarbonMessage = getNewHttpCarbonMessage();
-
-        Map<String, Object> propertiesMap = this.getProperties();
-        propertiesMap.forEach(httpCarbonMessage::setProperty);
-
-        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
-        httpCarbonMessage.setEndOfMsgAdded(true);
-        return httpCarbonMessage;
     }
 
     private HTTPCarbonMessage getNewHttpCarbonMessage() {
@@ -274,6 +256,22 @@ public class HTTPCarbonMessage {
         return httpCarbonMessage;
     }
 
+    /**
+     * Copy the Full carbon message with data
+     *
+     * @return carbonMessage
+     */
+    public HTTPCarbonMessage cloneCarbonMessageWithData() {
+        HTTPCarbonMessage httpCarbonMessage = getNewHttpCarbonMessage();
+
+        Map<String, Object> propertiesMap = this.getProperties();
+        propertiesMap.forEach(httpCarbonMessage::setProperty);
+
+        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
+        httpCarbonMessage.setEndOfMsgAdded(true);
+        return httpCarbonMessage;
+    }
+
     private List<ByteBuffer> getCopyOfFullMessageBody() {
         List<ByteBuffer> fullMessageBody = getFullMessageBody();
         List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
@@ -290,5 +288,9 @@ public class HTTPCarbonMessage {
     @Override
     protected void finalize() {
         release();
+    }
+
+    public EntityCollector getBlockingEntityCollector() {
+        return blockingEntityCollector;
     }
 }
