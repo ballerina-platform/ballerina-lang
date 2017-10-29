@@ -2,7 +2,7 @@ import ballerina.caching;
 
 function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) (string, int, int, float) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
-    return cache.name, cache.timeOut, cache.capacity, cache.evictionFactor;
+    return cache.name, cache.expiryTimeMillis, cache.capacity, cache.evictionFactor;
 }
 
 function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value) (int) {
