@@ -30,6 +30,8 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile
 import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -52,6 +54,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -81,6 +86,7 @@ public class WorkspaceUtils {
     /**
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file
      * saved in the file-system.
+     *
      * @param filePath - Path to Ballerina file.
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
@@ -98,8 +104,8 @@ public class WorkspaceUtils {
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina content.
      * Ideal use case is generating Ballerina model and Diagnostic information for unsaved Ballerina files.
      *
-     * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
-     * @param source - Ballerina source content that needs to be parsed.
+     * @param fileName      - File name. This can be any arbitrary name as as we haven't save the file yet.
+     * @param source        - Ballerina source content that needs to be parsed.
      * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
@@ -118,7 +124,7 @@ public class WorkspaceUtils {
      * Returns a CompilerContext for the provided fileName and Ballerina source content.
      *
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
-     * @param source - Ballerina source content that needs to be parsed.
+     * @param source   - Ballerina source content that needs to be parsed.
      * @return CompilerContext
      */
     private static CompilerContext prepareCompilerContext(String fileName, String source) {
@@ -134,8 +140,9 @@ public class WorkspaceUtils {
 
     /**
      * Returns an object which contains Ballerina model and Diagnostic information
+     *
      * @param fileName - File name
-     * @param context - CompilerContext
+     * @param context  - CompilerContext
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
     private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context) {
@@ -204,9 +211,10 @@ public class WorkspaceUtils {
 
     /**
      * Get the builtin types
+     *
      * @return {@link List} list of builtin types
      */
-    public static List<SymbolInformation> getBuiltinTypes () {
+    public static List<SymbolInformation> getBuiltinTypes() {
         CompilerContext context = prepareCompilerContext("", "");
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         List<SymbolInformation> symbolInformationList = new ArrayList<>();
@@ -229,16 +237,16 @@ public class WorkspaceUtils {
 
     private static void setDefaultValuesForType(String type, SymbolInformation symbolInfo) {
         switch (type) {
-            case BuiltInType.INT :
+            case BuiltInType.INT:
                 symbolInfo.setDefaultValue(BuiltInType.INT_DEFAULT);
                 break;
-            case BuiltInType.FLOAT :
+            case BuiltInType.FLOAT:
                 symbolInfo.setDefaultValue(BuiltInType.FLOAT_DEFAULT);
                 break;
-            case BuiltInType.STRING :
+            case BuiltInType.STRING:
                 symbolInfo.setDefaultValue(BuiltInType.STRING_DEFAULT);
                 break;
-            case BuiltInType.BOOLEAN :
+            case BuiltInType.BOOLEAN:
                 symbolInfo.setDefaultValue(BuiltInType.BOOLEAN_DEFAULT);
                 break;
             default:
@@ -268,12 +276,13 @@ public class WorkspaceUtils {
 
     /**
      * Add connectors, functions, annotations etc. to packages.
+     *
      * @param packageName package name
-     * @param pkg BLangPackage instance
-     * @param packages packages map
+     * @param pkg         BLangPackage instance
+     * @param packages    packages map
      */
     public static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
-                                       Map<String, ModelPackage> packages) {
+                                      Map<String, ModelPackage> packages) {
         if (pkg != null) {
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
@@ -284,19 +293,20 @@ public class WorkspaceUtils {
 
     /**
      * Extract annotations from ballerina lang
-     * @param packages packages to send
+     *
+     * @param packages   packages to send
      * @param annotation annotation
-     * */
+     */
     private static void extractAnnotation(Map<String, ModelPackage> packages, String packagePath,
                                           BLangAnnotation annotation) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
-        
+
             modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
-        
+
             modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
             packages.put(packagePath, modelPackage);
         }
@@ -304,11 +314,12 @@ public class WorkspaceUtils {
 
     /**
      * Extract connectors from ballerina lang
-     * @param packages packages to send
+     *
+     * @param packages  packages to send
      * @param connector connector
-     * */
+     */
     private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
-                                  BLangConnector connector) {
+                                         BLangConnector connector) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
             List<Parameter> parameters = new ArrayList<>();
@@ -343,10 +354,11 @@ public class WorkspaceUtils {
 
     /**
      * Extract Functions from ballerina lang.
-     * @param packages packages to send.
+     *
+     * @param packages    packages to send.
      * @param packagePath package path
-     * @param function function.
-     * */
+     * @param function    function.
+     */
     private static void extractFunction(Map<String, ModelPackage> packages, String packagePath,
                                         BLangFunction function) {
         if (packages.containsKey(packagePath)) {
@@ -360,8 +372,10 @@ public class WorkspaceUtils {
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
 
+            String receiverType = getReceiverType(function.getReceiver());
+
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters));
+                    annotations, parameters, returnParameters, receiverType));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -374,20 +388,48 @@ public class WorkspaceUtils {
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
 
+            String receiverType = getReceiverType(function.getReceiver());
+
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters));
+                    annotations, parameters, returnParameters, receiverType));
             packages.put(packagePath, modelPackage);
         }
     }
 
     /**
+     * Extract receiverType from the function receiver
+     *
+     * @param receiver receiver
+     * @return receiverType
+     */
+    private static String getReceiverType(VariableNode receiver) {
+        if (receiver == null) {
+            return null;
+        }
+        TypeNode typeNode = receiver.getTypeNode();
+        String receiverType = null;
+        if (typeNode instanceof BLangUserDefinedType) {
+            receiverType = ((BLangUserDefinedType) typeNode).getTypeName().getValue();
+        } else if (typeNode instanceof BLangBuiltInRefTypeNode) {
+            receiverType = ((BLangBuiltInRefTypeNode) typeNode).getTypeKind().typeName();
+        } else if (typeNode instanceof BLangValueType) {
+            receiverType = ((BLangValueType) typeNode).getTypeKind().typeName();
+        } else {
+            return null;
+        }
+
+        return receiverType;
+    }
+
+    /**
      * Extract Structs from ballerina lang.
-     * @param packages packages to send.
+     *
+     * @param packages    packages to send.
      * @param packagePath packagePath.
-     * @param struct struct.
-     * */
+     * @param struct      struct.
+     */
     private static void extractStruct(Map<String, ModelPackage> packages, String packagePath,
-                                          BLangStruct struct) {
+                                      BLangStruct struct) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
             modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields()));
@@ -401,9 +443,10 @@ public class WorkspaceUtils {
 
     /**
      * Add parameters to a list from ballerina lang param list.
-     * @param params params to send.
+     *
+     * @param params            params to send.
      * @param argumentTypeNames argument types
-     * */
+     */
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
@@ -413,9 +456,10 @@ public class WorkspaceUtils {
 
     /**
      * Add annotations to a list from ballerina lang annotation list
-     * @param annotations annotations list to be sent
+     *
+     * @param annotations               annotations list to be sent
      * @param bLangAnnotationAttachment annotations
-     * */
+     */
     private static void addAnnotations(List<AnnotationAttachment> annotations,
                                        List<BLangAnnotationAttachment> bLangAnnotationAttachment) {
         bLangAnnotationAttachment.forEach(annotation -> annotations.add(AnnotationAttachment.
@@ -424,18 +468,20 @@ public class WorkspaceUtils {
 
     /**
      * Add Actions to the connector.
+     *
      * @param actionsList action list to be sent
-     * @param actions native actions retrieve from the connector
-     * */
+     * @param actions     native actions retrieve from the connector
+     */
     private static void addActions(List<Action> actionsList, List<BLangAction> actions) {
         actions.forEach(action -> actionsList.add(extractAction(action)));
     }
 
     /**
      * Extract action details from a connector.
+     *
      * @param action action.
      * @return {Action} action
-     * */
+     */
     private static Action extractAction(BLangAction action) {
         List<Parameter> parameters = new ArrayList<>();
         addParameters(parameters, action.getParameters());
@@ -450,14 +496,15 @@ public class WorkspaceUtils {
 
     /**
      * Create new action
-     * @param name action name
-     * @param params list of params
+     *
+     * @param name         action name
+     * @param params       list of params
      * @param returnParams list of return params
-     * @param annotations list of annotations
+     * @param annotations  list of annotations
      * @return {Action} action
-     * */
+     */
     private static Action createNewAction(String name, List<Parameter> params, List<Parameter> returnParams,
-                                   List<AnnotationAttachment> annotations) {
+                                          List<AnnotationAttachment> annotations) {
         Action action = new Action();
         action.setName(name);
         action.setParameters(params);
@@ -468,10 +515,11 @@ public class WorkspaceUtils {
 
     /**
      * Create new parameter
+     *
      * @param name parameter name
      * @param type parameter type
      * @return {Parameter} parameter
-     * */
+     */
     private static Parameter createNewParameter(String name, String type) {
         Parameter parameter = new Parameter();
         parameter.setType(type);
@@ -481,28 +529,32 @@ public class WorkspaceUtils {
 
     /**
      * Create new function
-     * @param name name of the function
-     * @param annotations list of annotations
-     * @param params list of parameters
+     *
+     * @param name         name of the function
+     * @param annotations  list of annotations
+     * @param params       list of parameters
      * @param returnParams list of return params
      * @return {Function} function
-     * */
+     */
     private static Function createNewFunction(String name, List<AnnotationAttachment> annotations,
-                                              List<Parameter> params, List<Parameter> returnParams) {
+                                              List<Parameter> params, List<Parameter> returnParams,
+                                              String receiverType) {
         Function function = new Function();
         function.setName(name);
         function.setAnnotations(annotations);
         function.setParameters(params);
         function.setReturnParams(returnParams);
+        function.setReceiverType(receiverType);
         return function;
     }
 
     /**
      * Create new struct
-     * @param name name of the struct
-     * @param fields    field definiton statements
+     *
+     * @param name   name of the struct
+     * @param fields field definiton statements
      * @return {Function} function
-     * */
+     */
     private static Struct createNewStruct(String name, List<BLangVariable> fields) {
         Struct struct = new Struct(name);
         fields.forEach((field) -> {
@@ -519,6 +571,7 @@ public class WorkspaceUtils {
 
     /**
      * create a new struct field
+     *
      * @param name name of the field
      * @param type type of the field
      * @return
@@ -530,13 +583,14 @@ public class WorkspaceUtils {
 
     /**
      * Create new connector
-     * @param name name of the connector
-     * @param annotations list of annotation
-     * @param actions list of actions
-     * @param params list of params
+     *
+     * @param name         name of the connector
+     * @param annotations  list of annotation
+     * @param actions      list of actions
+     * @param params       list of params
      * @param returnParams list of return params
      * @return {Connector} connector
-     * */
+     */
     private static Connector createNewConnector(String name, List<AnnotationAttachment> annotations,
                                                 List<Action> actions, List<Parameter> params,
                                                 List<Parameter> returnParams) {
