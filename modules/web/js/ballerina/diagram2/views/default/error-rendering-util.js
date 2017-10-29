@@ -23,6 +23,11 @@ import SemanticErrorRenderingVisitor from './../../../visitors/semantic-errors-r
 
 class ErrorRenderingUtil {
 
+    /**
+     * Get the semantic errors of the node
+     * @param node
+     * @returns {Array}
+     */
     getSemanticErrorsOfNode(node) {
         const semanticErrorRender = new SemanticErrorRenderingVisitor();
         node.accept(semanticErrorRender);
@@ -33,6 +38,13 @@ class ErrorRenderingUtil {
         return errors;
     }
 
+    /**
+     * Position the errors on the node
+     * @param node
+     * @param errors list of errors
+     * @param errorBbox bBox to position the node
+     * @param placement
+     */
     setErrorToNode(node, errors, errorBbox, placement) {
         const overlayComponents = {
             kind: 'SemanticErrorPopup',
@@ -163,7 +175,7 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForCatchNode(node) {
-        // Errors in the join node
+        // Errors in the catch node
         let errors = node.errors;
         let catchParameterError;
         // Errors in the catch parameter
@@ -348,13 +360,17 @@ class ErrorRenderingUtil {
         }
     }
 
+    /**
+     * Place errors on the parameters and the return types
+     * @param parameter
+     */
     placeErrorForTitleNode(parameter) {
         const viewState = parameter.viewState;
         // Check for errors in the model
         const errors = this.getSemanticErrorsOfNode(parameter);
         if (errors.length > 0) {
             const errorBbox = new SimpleBBox();
-            errorBbox.x = viewState.bBox.x;
+            errorBbox.x = viewState.bBox.x + 8;
             errorBbox.y = viewState.bBox.y;
             this.setErrorToNode(parameter, errors, errorBbox, 'top');
         }
@@ -501,7 +517,15 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForStructNode(node) {
-        // Not implemented.
+        const errors = this.getSemanticErrorsOfNode(node);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.bBox.x;
+            errorBbox.y = viewState.bBox.y + viewState.components.annotation.h;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
     }
 
 
