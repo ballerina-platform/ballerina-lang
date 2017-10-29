@@ -1,11 +1,9 @@
-import ballerina.doc;
-
-@doc:Description {value:"This function takes a string argument."}
+@Description {value:"This function takes a string argument."}
 function printValue (string value) {
     println(value);
 }
 
-@doc:Description {value:"This function takes two int values and return their sum as an int."}
+@Description {value:"This function takes two int values and return their sum as an int."}
 function add (int a, int b) (int) {
     return a + b;
 }

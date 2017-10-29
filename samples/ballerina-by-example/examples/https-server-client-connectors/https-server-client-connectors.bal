@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.doc;
 
 @http:configuration {
     basePath:"/hello",
@@ -21,7 +20,7 @@ service<http> helloWorld {
     }
 }
 
-@doc:Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a 1-way ssl connection, client needs to provide trustStoreFile and trustStorePassword."}
+@Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a 1-way ssl connection, client needs to provide trustStoreFile and trustStorePassword."}
 function main (string[] args) {
     http:ClientConnector clientConnector = create
                  http:ClientConnector("https://localhost:9095", getConnectorConfigs());
