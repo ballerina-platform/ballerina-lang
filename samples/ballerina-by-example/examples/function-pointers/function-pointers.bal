@@ -1,18 +1,16 @@
-import ballerina.doc;
-
 function test (int x, string s) returns (float f) {
     var y, _ = <int>s;
     f = x * 1.0 * y;
     return;
 }
 
-@doc:Description {value:"Function pointer as a parameter."}
+@Description {value:"Function pointer as a parameter."}
 function foo (int x, function (int, string) returns (float) bar)
              returns (float) {
     return x * bar(10, "2");
 }
 
-@doc:Description {value:"Function pointer as a return type."}
+@Description {value:"Function pointer as a return type."}
 function getIt () (function (int, string) returns (float) f) {
     f = test;
     return;
