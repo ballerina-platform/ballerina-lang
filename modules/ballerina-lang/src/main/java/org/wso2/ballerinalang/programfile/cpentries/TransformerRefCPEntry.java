@@ -48,7 +48,7 @@ public class TransformerRefCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TransformerRefCPEntry && packageCPIndex == (((TransformerRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((TransformerRefCPEntry) obj).nameCPIndex;
+        return obj instanceof TransformerRefCPEntry && packageCPIndex == (((TransformerRefCPEntry) obj).packageCPIndex)
+                && nameCPIndex == ((TransformerRefCPEntry) obj).nameCPIndex;
     }
 }

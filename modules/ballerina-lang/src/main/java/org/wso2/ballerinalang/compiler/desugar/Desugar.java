@@ -279,6 +279,8 @@ public class Desugar extends BLangNodeVisitor {
         transformerNode.body = rewrite(transformerNode.body);
         transformerNode.workers = rewrite(transformerNode.workers);
 
+        addArgInitExpr(transformerNode, transformerNode.retParams.get(0));
+
         BInvokableSymbol transformerSymbol = transformerNode.symbol;
         List<BVarSymbol> params = transformerSymbol.params;
         params.add(0, transformerNode.source.symbol);
@@ -673,20 +675,22 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeConversionExpr conversionExpr) {
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
 
+        // Built-in conversion
         if (conversionExpr.conversionSymbol.tag != SymTag.TRANSFORMER) {
             result = conversionExpr;
             return;
         }
 
+        // Named transformer invocation
         if (conversionExpr.transformerInvocation != null) {
-            result = conversionExpr.transformerInvocation;
-
-            result = new BLangTransformerInvocation(conversionExpr.pos, Lists.of(conversionExpr.expr),
+            // add the rExpr as the first argument
+            conversionExpr.transformerInvocation.argExprs.add(conversionExpr.expr);
+            result = new BLangTransformerInvocation(conversionExpr.pos, conversionExpr.transformerInvocation.argExprs,
                     conversionExpr.transformerInvocation.symbol, conversionExpr.types);
-
             return;
         }
 
+        // Unnamed transformer invocation
         BConversionOperatorSymbol transformerSym = conversionExpr.conversionSymbol;
         BLangTransformerInvocation transformerInvoc = new BLangTransformerInvocation(conversionExpr.pos,
                 Lists.of(conversionExpr.expr), transformerSym, conversionExpr.types);
@@ -990,7 +994,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addTransformerReturn(BLangTransformer transformerNode) {
         //This will only check whether last statement is a return and just add a return statement.
-        //This won't analyse if else blocks etc to see whether return statements are present
+        //This won't analyze if else blocks etc to see whether return statements are present
         BLangBlockStmt blockStmt = transformerNode.body;
         if (transformerNode.workers.size() == 0 && (blockStmt.stmts.size() < 1
                 || blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
@@ -1004,5 +1008,50 @@ public class Desugar extends BLangNodeVisitor {
             }
             blockStmt.addStatement(returnStmt);
         }
+    }
+
+    private void addArgInitExpr(BLangTransformer transformerNode, BLangVariable var) {
+        BLangSimpleVarRef varRef = new BLangLocalVarRef(var.symbol);
+        varRef.lhsVar = true;
+        varRef.pos = var.pos;
+        varRef.type = var.type;
+
+        BLangExpression initExpr = null;
+        switch (var.type.tag) {
+            case TypeTags.MAP:
+                initExpr = new BLangMapLiteral(new ArrayList<>(), var.type);
+                break;
+            case TypeTags.JSON:
+                initExpr = new BLangJSONLiteral(new ArrayList<>(), var.type);
+                break;
+            case TypeTags.STRUCT:
+                initExpr = new BLangStructLiteral(new ArrayList<>(), var.type);
+                break;
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.BLOB:
+                return;
+            case TypeTags.XML:
+                // TODO
+                break;
+            case TypeTags.CONNECTOR:
+                // TODO
+                break;
+            case TypeTags.DATATABLE:
+                // TODO
+                break;
+            default:
+                initExpr = new BLangStructLiteral(new ArrayList<>(), var.type);
+        }
+        initExpr.pos = var.pos;
+
+        BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignStmt.pos = var.pos;
+        assignStmt.addVariable(varRef);
+        assignStmt.expr = initExpr;
+        
+        transformerNode.body.stmts.add(0, assignStmt);
     }
 }

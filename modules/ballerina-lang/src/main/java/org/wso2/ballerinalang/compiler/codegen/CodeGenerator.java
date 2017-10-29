@@ -27,7 +27,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;

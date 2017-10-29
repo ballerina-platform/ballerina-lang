@@ -36,7 +36,6 @@ public class TransformerRefCPEntry implements ConstantPoolEntry {
     private int nameCPIndex;
     private String transformerName;
 
-    // TODO 
     private TransformerInfo transformerInfo;
 
     public TransformerRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String transformerName) {
@@ -81,8 +80,8 @@ public class TransformerRefCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TransformerRefCPEntry && packageCPIndex == (((TransformerRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((TransformerRefCPEntry) obj).nameCPIndex;
+        return obj instanceof TransformerRefCPEntry && packageCPIndex == (((TransformerRefCPEntry) obj).packageCPIndex)
+                && nameCPIndex == ((TransformerRefCPEntry) obj).nameCPIndex;
     }
 
     @Override

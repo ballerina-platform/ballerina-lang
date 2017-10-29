@@ -79,7 +79,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
