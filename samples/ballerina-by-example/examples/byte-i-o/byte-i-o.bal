@@ -1,14 +1,7 @@
 import ballerina.file;
 import ballerina.io;
 
-@Description
-    {value:"This function will return a ByteChannel from a given file location."}
-@Param
-    {value:"filePath:location of the file in the directory path."}
-@Param
-    {value:"permission:specifies whether the file should be opened for reading/writing."}
-@Return
-    {value:"ByteChannel:allows performing I/O operation on file."}
+@Description{value:"This function will return a ByteChannel from a given file location according to the specified file permission whether the file should be opened for reading/writing."}
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     //Here's how the path of the file will be specified
     file:File src = {path:filePath};
@@ -17,16 +10,7 @@ function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     return channel;
 }
 
-@Description
-    {value:"This function will read bytes from a Channel."}
-@Param
-    {value:"channel:ByteChannel for reading content."}
-@Param
-    {value:"numberOfBytes:specifies the number of bytes which should be read."}
-@Return
-    {value:"blob:byte content read from the channel."}
-@Return
-    {value:"int:number of bytes read."}
+@Description{value:"This function will read the specified number of bytes from the given Channel."}
 function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
     blob bytes;
     int numberOfBytesRead;
@@ -35,28 +19,14 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
     return bytes, numberOfBytesRead;
 }
 
-@Description
-    {value:"This function will write bytes to a Channel."}
-@Param
-    {value:"channel:ByteChannel for writing content."}
-@Param
-    {value:"content:byte content which should be written to channel."}
-@Param
-    {value:"startOffset:if the content should be written with an offset."}
-@Return
-    {value:"int:number of bytes written."}
+@Description{value:"This function will write a byte content with the given offset to a Channel."}
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int) {
     //Here's how the bytes are written to the channel.
     int numberOfBytesWritten = channel.writeBytes(content, startOffset);
     return numberOfBytesWritten;
 }
 
-@Description
-    {value:"This function will copy all content from src channel to dst channel."}
-@Param
-    {value:"src:source channel to copy content."}
-@Param
-    {value:"dst:destination the content should be copied to."}
+@Description{value:"This function will copy all content from source channel to a destination channel."}
 function copy (io:ByteChannel src, io:ByteChannel dst) {
     //Specifies the number of bytes which should be read from a single read operation
     int bytesChunk = 10000;
