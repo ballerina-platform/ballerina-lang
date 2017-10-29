@@ -1072,7 +1072,15 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForTransformNode(node) {
-        // Not implemented.
+        const errors = this.getSemanticErrorsOfNode(node);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.bBox.x;
+            errorBbox.y = viewState.bBox.y + 25;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
     }
 
 
