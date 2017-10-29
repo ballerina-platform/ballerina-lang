@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -48,34 +48,29 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * A class which read and write content through streams
+ * Streaming processor which reads from same and write to same message
  */
-public class RequestResponseCreationStreamingListener implements HttpConnectorListener {
+public class RequestResponseTransformStreamingListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseCreationStreamingListener.class);
-
-    private TransportsConfiguration configuration;
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private TransportsConfiguration configuration;
 
-    public RequestResponseCreationStreamingListener(TransportsConfiguration configuration) {
+    public RequestResponseTransformStreamingListener(TransportsConfiguration configuration) {
         this.configuration = configuration;
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             try {
-                HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpRequest);
-                InputStream inputStream = streamer.getInputStream();
-
-                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
+                InputStream inputStream = new HttpMessageDataStreamer(httpRequestMessage).getInputStream();
+                OutputStream outputStream = new HttpMessageDataStreamer(httpRequestMessage).getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
-                outputStream.flush();
                 outputStream.close();
-                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+                httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -85,33 +80,29 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
                 }
 
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
                 SenderConfiguration senderConfiguration = HTTPConnectorUtil
                         .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(newMsg);
+                HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpMessage) {
+                    public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);
-                            InputStream inputStream = streamer.getInputStream();
-
-                            HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
-                            OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
+                            InputStream inputS = new HttpMessageDataStreamer(httpResponse).getInputStream();
+                            OutputStream outputS = new HttpMessageDataStreamer(httpResponse).getOutputStream();
                             try {
-                                byte[] bytes = IOUtils.toByteArray(inputStream);
-                                outputStream.write(bytes);
-                                outputStream.flush();
-                                outputStream.close();
+                                byte[] bytes = IOUtils.toByteArray(inputS);
+                                outputS.write(bytes);
+                                outputS.close();
                             } catch (IOException e) {
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }
                             try {
-                                httpRequest.respond(newMsg);
+                                httpRequestMessage.respond(httpResponse);
                             } catch (ServerConnectorException e) {
                                 logger.error("Error occurred during message notification: " + e.getMessage());
                             }
@@ -123,7 +114,6 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
                     }
                 });
-
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
             }

@@ -46,10 +46,11 @@ public class HttpResponseListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpResponseMessage) {
+        Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
+
         sourceContext.channel().eventLoop().execute(() -> {
             boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
 
-            Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
             if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                         .executeAtSourceResponseReceiving(httpResponseMessage);
@@ -70,14 +71,9 @@ public class HttpResponseListener implements HttpConnectorListener {
                         HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtSourceResponseSending(httpResponseMessage);
                     }
+                } else {
+                    sourceContext.write(httpContent);
                 }
-                if (sourceContext == null) {
-                    System.out.println("============== null");
-                }
-                if (httpContent == null) {
-                    System.out.println("============== httpContent null");
-                }
-                sourceContext.write(httpContent);
             }));
         });
         Util.prepareBuiltMessageForTransfer(httpResponseMessage);

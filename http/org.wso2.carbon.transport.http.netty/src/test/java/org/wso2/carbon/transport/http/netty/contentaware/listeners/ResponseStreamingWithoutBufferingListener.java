@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -53,22 +53,20 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
             cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
             cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-            executor.execute(() -> {
-                try {
-                    httpRequestMessage.respond(cMsg);
-                } catch (ServerConnectorException e) {
-                    logger.error("Error occurred during message notification: " + e.getMessage());
-                }
-            });
+            try {
+                httpRequestMessage.respond(cMsg);
+            } catch (ServerConnectorException e) {
+                logger.error("Error occurred during message notification: " + e.getMessage());
+            }
             while (true) {
                 HttpContent httpContent = httpRequestMessage.getHttpContent();
                 cMsg.addHttpContent(httpContent);
                 if (httpContent instanceof LastHttpContent) {
+                    cMsg.addHttpContent(new DefaultLastHttpContent());
+                    httpRequestMessage.release();
                     break;
                 }
             }
-            cMsg.addHttpContent(new DefaultLastHttpContent());
-            httpRequestMessage.release();
         });
     }
 

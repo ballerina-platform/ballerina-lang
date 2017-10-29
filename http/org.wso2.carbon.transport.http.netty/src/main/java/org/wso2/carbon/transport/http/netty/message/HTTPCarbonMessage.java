@@ -71,11 +71,11 @@ public class HTTPCarbonMessage {
         setBlockingEntityCollector(new BlockingEntityCollector(soTimeOut));
     }
 
-    public void addHttpContent(HttpContent httpContent) {
+    public synchronized void addHttpContent(HttpContent httpContent) {
         if (this.messageFuture != null) {
             this.messageFuture.notifyMessageListener(httpContent);
         } else {
-            blockingEntityCollector.addHttpContent(httpContent);
+            this.blockingEntityCollector.addHttpContent(httpContent);
         }
     }
 
@@ -83,9 +83,9 @@ public class HTTPCarbonMessage {
         return this.blockingEntityCollector.getHttpContent();
     }
 
-    public MessageFuture getHttpContentAsync() {
+    public synchronized MessageFuture getHttpContentAsync() {
         this.messageFuture = new MessageFuture(this);
-        return messageFuture;
+        return this.messageFuture;
     }
 
     @Deprecated

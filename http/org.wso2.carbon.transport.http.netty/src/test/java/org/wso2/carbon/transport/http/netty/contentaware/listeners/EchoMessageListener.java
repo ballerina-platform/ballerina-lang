@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware.serverConnectorListeners;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;

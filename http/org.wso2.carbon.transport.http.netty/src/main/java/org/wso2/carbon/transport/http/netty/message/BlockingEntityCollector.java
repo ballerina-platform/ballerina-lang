@@ -72,6 +72,7 @@ public class BlockingEntityCollector implements EntityCollector {
 
                 if (httpContent instanceof LastHttpContent) {
                     isConsumed.set(true);
+                    httpContentQueue.clear();
                 }
 
                 return httpContent;
@@ -113,6 +114,7 @@ public class BlockingEntityCollector implements EntityCollector {
                     if (httpContent instanceof LastHttpContent) {
                         isEndOfMessageProcessed = true;
                         isConsumed.set(true);
+                        httpContentQueue.clear();
                     }
                     ByteBuf buf = httpContent.content();
                     byteBufferList.add(buf.nioBuffer());

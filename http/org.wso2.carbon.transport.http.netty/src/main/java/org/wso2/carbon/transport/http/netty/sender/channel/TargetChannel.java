@@ -150,8 +150,6 @@ public class TargetChannel {
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                         executeAtTargetRequestReceiving(httpCarbonRequest);
             }
-
-            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
             this.setRequestWritten(true);

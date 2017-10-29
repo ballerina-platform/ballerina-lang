@@ -85,6 +85,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
+            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             TargetChannel targetChannel = connectionManager
                     .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, chunkDisabled
                             , followRedirect, maxRedirectCount);
