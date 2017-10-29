@@ -17,18 +17,27 @@ function main (string[] args) {
         http:Request request = {};
         http:Response mediumResponse = mediumEP.get("/feed/@wso2", request);
         xml feedXML = mediumResponse.getXmlPayload();
-        string title = feedXML.getString("/rss/channel/item[1]/title/text()");
+        string title = feedXML.selectChildren("channel").selectChildren("item")[1].selectChildren("title").getTextValue();
+
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
-        request.setHeader("Authorization", oauthHeader);
+
+        http:Request twitterRequest = {};
+        twitterRequest.setHeader("Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
-        http:Response response = tweeterEP.post(tweetPath, request);
-        println("Successfully tweeted: '" + title + "'");
+        http:Response response = tweeterEP.post(tweetPath, twitterRequest);
+
+        int statusCd = response.getStatusCode();
+        if (statusCd == 200) {
+            println("Successfully tweeted: '" + title + "'");
+        } else {
+            println("Failed to do the tweet: " + statusCd);
+        }
     }
 }
 
 function constructOAuthHeader (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret, string tweetMessage) (string) {
-    string timeStamp = currentTime().toString();
-    string nonceString = util:getRandomString();
+    string timeStamp = <string>(currentTime().time/1000);
+    string nonceString = util:uuid();
     string paramStr = "oauth_consumer_key=" + consumerKey + "&oauth_nonce=" + nonceString + "&oauth_signature_method=HMAC-SHA1&oauth_timestamp=" + timeStamp + "&oauth_token=" + accessToken + "&oauth_version=1.0&status=" + uri:encode(tweetMessage);
     string baseString = "POST&" + uri:encode("https://api.twitter.com/1.1/statuses/update.json") + "&" + uri:encode(paramStr);
     string keyStr = uri:encode(consumerSecret) + "&" + uri:encode(accessTokenSecret);
