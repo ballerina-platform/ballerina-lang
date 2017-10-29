@@ -1,20 +1,7 @@
 import ballerina.file;
 import ballerina.io;
 
-@Description
-    {value:"This function will return a TextRecordChannel from a given file location."}
-@Param
-    {value:"filePath:location of the file in the directory path."}
-@Param
-    {value:"permission:specifies whether the file should be opened for reading/writing."}
-@Param
-    {value:"encoding:character represenation of the content in file i.e UTF-8 ASCCI."}
-@Param
-    {value:"rs:record seperator i.e newline etc."}
-@Param
-    {value:"fs:field seperator i.e comma etc."}
-@Return
-    {value:"TextRecordChannel:allows reading/writing records to/from file."}
+@Description{value:"This function will return a TextRecordChannel from a given file location.The encoding is character represenation of the content in file i.e UTF-8 ASCCI. The rs is record seperator i.e newline etc. and fs is field seperator i.e comma etc."}
 function getFileRecordChannel (string filePath, string permission, string encoding,
                                string rs, string fs) (io:TextRecordChannel) {
     file:File src = {path:filePath};
@@ -24,18 +11,12 @@ function getFileRecordChannel (string filePath, string permission, string encodi
     io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
     //Finally we convert the character channel to record channel
     //to read content as records
-    io:TextRecordChannel textRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
+    io:TextRecordChannel textRecordChannel = characterChannel.
+                                             toTextRecordChannel(rs, fs);
     return textRecordChannel;
 }
 
-@Description
-    {value:"This function will process CSV file and write content back as text with '|'
-    delimiter."}
-@Param
-    {value:"srcRecordChannel:location of the CSV file which should be read."}
-@Param
-    {value:"dstRecordChannel:location of the text file where the records
-    should be written."}
+@Description{value:"This function will process CSV file and write content back as text with '|' delimiter."}
 function process (io:TextRecordChannel srcRecordChannel,
                   io:TextRecordChannel dstRecordChannel) {
     int numberOfFields = -1;
