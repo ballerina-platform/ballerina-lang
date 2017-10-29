@@ -116,6 +116,10 @@
     width: calc(100% - 30px);
 }
 
+.transform-endpoint-receiver .endpoint-type {
+    font-weight: bold;
+}
+
 .transform-source .transform-endpoint-root .endpoint-content {
     margin-right: 65px;
 }
