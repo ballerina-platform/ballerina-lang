@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -176,6 +177,11 @@ public class ProgramFileWriter {
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
+                case CP_ENTRY_TRANSFORMER_REF:
+                    TransformerRefCPEntry transformerRefEntry = (TransformerRefCPEntry) cpEntry;
+                    dataOutStream.writeInt(transformerRefEntry.packageCPIndex);
+                    dataOutStream.writeInt(transformerRefEntry.nameCPIndex);
+                    break;
             }
         }
     }
@@ -272,10 +278,8 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(callableUnitInfo.nameCPIndex);
         dataOutStream.writeInt(callableUnitInfo.signatureCPIndex);
 
-        // TODO Temp solution
         boolean b = (callableUnitInfo.flags & Flags.NATIVE) == Flags.NATIVE;
         dataOutStream.writeByte(b ? 1 : 0);
-        //dataOutStream.writeInt(functionInfo.flags);
 
         WorkerDataChannelInfo[] workerDataChannelInfos = callableUnitInfo.getWorkerDataChannelInfo();
         dataOutStream.writeShort(workerDataChannelInfos.length);

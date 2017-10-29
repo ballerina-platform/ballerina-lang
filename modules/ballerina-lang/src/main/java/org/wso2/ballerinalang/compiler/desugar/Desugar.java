@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -671,7 +672,26 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
-        result = conversionExpr;
+
+        if (conversionExpr.conversionSymbol.tag != SymTag.TRANSFORMER) {
+            result = conversionExpr;
+            return;
+        }
+
+        if (conversionExpr.transformerInvocation != null) {
+            result = conversionExpr.transformerInvocation;
+
+            result = new BLangTransformerInvocation(conversionExpr.pos, Lists.of(conversionExpr.expr),
+                    conversionExpr.transformerInvocation.symbol, conversionExpr.types);
+
+            return;
+        }
+
+        BConversionOperatorSymbol transformerSym = conversionExpr.conversionSymbol;
+        BLangTransformerInvocation transformerInvoc = new BLangTransformerInvocation(conversionExpr.pos,
+                Lists.of(conversionExpr.expr), transformerSym, conversionExpr.types);
+        transformerInvoc.types = transformerSym.type.getReturnTypes();
+        result = transformerInvoc;
     }
 
     @Override

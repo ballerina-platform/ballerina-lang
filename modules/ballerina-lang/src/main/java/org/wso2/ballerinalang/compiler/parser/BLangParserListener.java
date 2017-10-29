@@ -1670,12 +1670,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+    public void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        boolean argsAvailable = ctx.functionInvocation().expressionList() != null;
+        boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
@@ -2074,7 +2074,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx), ctx.functionInvocation() != null);
     }
 
     @Override

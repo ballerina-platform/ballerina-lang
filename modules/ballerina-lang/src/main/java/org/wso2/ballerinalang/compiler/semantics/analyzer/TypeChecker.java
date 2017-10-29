@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -572,20 +573,56 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        // Lookup type conversion operator symbol
-        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-        if (symbol == symTable.notFoundSymbol) {
-            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
-            if (castSymbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        if (conversionExpr.transformerInvocation == null) {
+            // Lookup type conversion operator symbol
+            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            if (symbol == symTable.notFoundSymbol) {
+                // Check whether a transformer is available for the two types
+                symbol = symResolver.resolveTransformer(env, sourceType, targetType);
+                if (symbol == symTable.notFoundSymbol) {
+                    // check whether a casting is possible, to provide user a hint.
+                    BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+                    if (castSymbol == symTable.notFoundSymbol) {
+                        dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType,
+                                targetType);
+                    } else {
+                        dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION,
+                                sourceType, targetType);
+                    }
+                } else {
+                    // We don't need to check for types here, since the transformer is looked-up using the types names
+                    BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
+                    conversionExpr.conversionSymbol = transformerSymbol;
+                    actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                            (BTransformerSymbol) transformerSymbol);
+                }
             } else {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
-                        targetType);
+                BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+                conversionExpr.conversionSymbol = conversionSym;
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-            conversionExpr.conversionSymbol = conversionSym;
-            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
+            BLangInvocation transformerInvocation = conversionExpr.transformerInvocation;
+            BSymbol transformerSymbol = symResolver.lookupSymbol(transformerInvocation.pos, env,
+                    names.fromIdNode(transformerInvocation.pkgAlias), names.fromIdNode(transformerInvocation.name), SymTag.TRANSFORMER);
+            if (transformerSymbol == symTable.notFoundSymbol) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.UNDEFINED_TRANSFORMER, transformerInvocation.name);
+            } else {
+                conversionExpr.conversionSymbol =
+                        (BConversionOperatorSymbol) (transformerInvocation.symbol = transformerSymbol);
+                checkInvocationParamAndReturnType(transformerInvocation);
+
+                // Append type conversion error for safe casts.This is because safe conversions can also be
+                // used with multi returns
+                BInvokableType transformerSymType = ((BInvokableType) transformerSymbol.type);
+                if (conversionExpr.conversionSymbol.safe) {
+                    transformerSymType.retTypes.add(symTable.errTypeConversionType);
+                }
+                transformerInvocation.types = transformerSymType.retTypes;
+                actualTypes = transformerSymType.retTypes;
+
+                // TODO: Validate casting type against transformer return type
+            }
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);

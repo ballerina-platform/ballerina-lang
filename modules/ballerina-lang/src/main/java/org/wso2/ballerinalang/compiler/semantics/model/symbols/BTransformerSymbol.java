@@ -22,23 +22,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
- * @since 0.94
+ * @since 0.94.2
  */
-public class BTransformerSymbol extends BOperatorSymbol {
-
-    public boolean safe;
+public class BTransformerSymbol extends BConversionOperatorSymbol {
 
     public BTransformerSymbol(Name name,
                               PackageID pkgID,
                               BType type,
                               BSymbol owner, 
                               boolean safe) {
-        super(name, pkgID, type, owner, -1);
-        this.safe = safe;
-    }
-
-    public boolean isSafe() {
-        return safe;
+        super(pkgID, type, owner, safe, -1);
+        this.name = name;
+        tag = SymTag.TRANSFORMER;
     }
     
     @Override

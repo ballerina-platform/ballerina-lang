@@ -397,16 +397,16 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangTransformer transformerNode) {
         validateTransformerMappingTypes(transformerNode);
 
-        BType targetType = transformerNode.retParams.get(0).type;
-        BType errorType = transformerNode.retParams.size() == 1 ? null : transformerNode.retParams.get(1).type;
+        boolean safeConversion = transformerNode.retParams.size() == 1;
         Name name = getTransformerSymbolName(transformerNode);
-
         BInvokableSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
-                transformerNode.source.type, targetType, errorType, name, env.enclPkg.symbol.pkgID, env.scope.owner);
+                name, env.enclPkg.symbol.pkgID, null, safeConversion, env.scope.owner);
 
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
         defineInvokableSymbol(transformerNode, transformerSymbol, transformerEnv);
-        ((BInvokableType) transformerSymbol.type).typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+
+        BInvokableType transformerSymType = ((BInvokableType) transformerSymbol.type);
+        transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
 
         // Define transformer source.
         defineNode(transformerNode.source, transformerEnv);
@@ -904,8 +904,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getTransformerSymbolName(BLangTransformer transformerNode) {
         if (transformerNode.name.value.isEmpty()) {
-            return names.fromString(
-                    "transformer<" + transformerNode.source.type + "," + transformerNode.retParams.get(0).type + ">");
+            return names.fromString(Names.TRANSFORMER.value + "." + transformerNode.source.type + "."
+                    + transformerNode.retParams.get(0).type);
         }
         return names.fromIdNode(transformerNode.name);
     }

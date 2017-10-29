@@ -722,12 +722,15 @@ public class BLangPackageBuilder {
         addExpressionNode(typeCastNode);
     }
 
-    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
-        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        if (namedTransformer) {
+            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
+        }
         addExpressionNode(typeConversionNode);
     }
 
@@ -1617,7 +1620,6 @@ public class BLangPackageBuilder {
         xmlAttributeAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(xmlAttributeAccess);
     }
-
 
     public void startTransformerDef() {
         TransformerNode transformerNode = TreeBuilder.createTransformerNode();

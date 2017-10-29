@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 
 /**
- * @since 0.96
+ * @since 0.94.2
  */
 public class BLangTransformer extends BLangInvokableNode implements TransformerNode {
 

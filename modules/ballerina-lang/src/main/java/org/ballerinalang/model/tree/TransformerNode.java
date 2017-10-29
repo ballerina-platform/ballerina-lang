@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree;
 
 /**
- * @since 0.96
+ * @since 0.94.2
  */
 public interface TransformerNode extends InvokableNode, AnnotatableNode, TopLevelNode {
 

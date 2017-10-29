@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -78,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -176,6 +178,7 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -1085,6 +1088,22 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+
+        if (Symbols.isNative(funcSymbol)) {
+            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+        } else {
+            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+        }
+    }
+
+    public void visit(BLangTransformerInvocation iExpr) {
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+
+        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
 
         if (Symbols.isNative(funcSymbol)) {
             emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);

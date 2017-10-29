@@ -79,6 +79,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -87,6 +88,7 @@ import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry.EntryType;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -94,6 +96,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
@@ -478,12 +481,19 @@ public class BLangVM {
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
-                    functionInfo = funcRefCPEntry.getFunctionInfo();
+                    
+                    ConstantPoolEntry cpEntry = constPool[cpIndex];
+                    CallableUnitInfo callableUnitInfo;
+                    if (cpEntry.getEntryType() == EntryType.CP_ENTRY_FUNCTION_REF) {
+                        funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
+                        callableUnitInfo = funcRefCPEntry.getFunctionInfo();
+                    } else {
+                        callableUnitInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
+                    }
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    invokeCallableUnit(callableUnitInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];

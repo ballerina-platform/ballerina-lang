@@ -191,7 +191,11 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public TransformerInfo[] getTransformerInfoEntries() {
         return transformerInfoMap.values().toArray(new TransformerInfo[0]);
     }
-    
+
+    public TransformerInfo getTransformerInfo(String transformerName) {
+        return transformerInfoMap.get(transformerName);
+    }
+
     public int addInstruction(Instruction instruction) {
         instructionList.add(instruction);
         return instructionList.size() - 1;
