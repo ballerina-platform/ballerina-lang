@@ -15,11 +15,11 @@ map cacheMap = {};
 string cacheCleanupTaskID = createCacheCleanupTask();
 
 @Description {value:"Represents a cache."}
-@Field {value:"name - name of the cache"}
-@Field {value:"expiryTimeMillis - cache expiry time in ms"}
-@Field {value:"capacity - capacity of the cache"}
-@Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@Field {value:"entries - map which contains the cache entries"}
+@Field {value:"name: name of the cache"}
+@Field {value:"expiryTimeMillis: cache expiry time in ms"}
+@Field {value:"capacity: capacity of the cache"}
+@Field {value:"evictionFactor: eviction factor to be used for cache eviction"}
+@Field {value:"entries: map which contains the cache entries"}
 public struct Cache {
     string name;
     int expiryTimeMillis;
@@ -29,19 +29,19 @@ public struct Cache {
 }
 
 @Description {value:"Represents a cache entry"}
-@Field {value:"value - cache value"}
-@Field {value:"lastAccessedTime - last accessed time in ms of this value which is used to remove LRU cached values"}
+@Field {value:"value: cache value"}
+@Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
 struct CacheEntry {
     any value;
     int lastAccessedTime;
 }
 
 @Description {value:"Creates a new cache."}
-@Param {value:"name - name of the cache"}
-@Param {value:"expiryTimeMillis - expiryTime of the cache in ms"}
-@Param {value:"capacity - capacitry of the cache which should be greater than 0"}
-@Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@Return {value:"cache - a new cache"}
+@Param {value:"name: name of the cache"}
+@Param {value:"expiryTimeMillis: expiryTime of the cache in ms"}
+@Param {value:"capacity: capacitry of the cache which should be greater than 0"}
+@Param {value:"evictionFactor: eviction factor to be used for cache eviction"}
+@Return {value:"cache: a new cache"}
 public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
     if (expiryTimeMillis <= 0) {
@@ -73,8 +73,8 @@ public function <Cache cache> size () returns (int) {
 }
 
 @Description {value:"Adds the given key, value pair to the provided cache."}
-@Param {value:"key - value which should be used as the key"}
-@Param {value:"value - value to be cached"}
+@Param {value:"key: value which should be used as the key"}
+@Param {value:"value: value to be cached"}
 public function <Cache cache> put (string key, any value) {
     int cacheCapacity = cache.capacity;
     int cacheSize = cache.entries.length();
@@ -102,7 +102,7 @@ function <Cache cache> evictCache () {
 }
 
 @Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
-@Param {value:"key - key which is used to retrieve the cached value"}
+@Param {value:"key: key which is used to retrieve the cached value"}
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {
@@ -117,7 +117,7 @@ public function <Cache cache> get (string key) returns (any) {
 }
 
 @Description {value:"Removes a cached value from a cache."}
-@Param {value:"key - key of the cache entry which needs to be removed"}
+@Param {value:"key: key of the cache entry which needs to be removed"}
 public function <Cache cache> remove (string key) {
     cache.entries.remove(key);
 }
@@ -181,7 +181,7 @@ function runCacheExpiry () returns (error) {
 }
 
 @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@Return {value:"string - key of the LRU cache entry"}
+@Return {value:"string: key of the LRU cache entry"}
 function <Cache cache> getLRUCacheKey () (string cacheKey) {
     map entries = cache.entries;
     string[] keys = entries.keys();
@@ -204,7 +204,7 @@ function <Cache cache> getLRUCacheKey () (string cacheKey) {
 }
 
 @Description {value:"Creates a new cache cleanup task."}
-@Return {value:"string - cache cleanup task ID"}
+@Return {value:"string: cache cleanup task ID"}
 function createCacheCleanupTask () (string) {
     function () returns (error) onTriggerFunction = runCacheExpiry;
     function (error) onErrorFunction = null;
