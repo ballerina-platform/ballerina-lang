@@ -16,13 +16,13 @@ string cacheCleanupTaskID = createCacheCleanupTask();
 
 @Description {value:"Represents a cache."}
 @Field {value:"name - name of the cache"}
-@Field {value:"expiryTime - cache expiry time in ms"}
+@Field {value:"expiryTimeMillis - cache expiry time in ms"}
 @Field {value:"capacity - capacity of the cache"}
 @Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @Field {value:"entries - map which contains the cache entries"}
 public struct Cache {
     string name;
-    int expiryTime;
+    int expiryTimeMillis;
     int capacity;
     float evictionFactor;
     map entries;
@@ -38,13 +38,13 @@ struct CacheEntry {
 
 @Description {value:"Creates a new cache."}
 @Param {value:"name - name of the cache"}
-@Param {value:"expiryTime - expiryTime of the cache in ms"}
+@Param {value:"expiryTimeMillis - expiryTime of the cache in ms"}
 @Param {value:"capacity - capacitry of the cache which should be greater than 0"}
 @Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
 @Return {value:"cache - a new cache"}
-public function createCache (string name, int expiryTime, int capacity, float evictionFactor) returns (Cache) {
+public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
-    if (expiryTime <= 0) {
+    if (expiryTimeMillis <= 0) {
         error e = {msg:"Expiry time must be greater than 0."};
         throw e;
     }
@@ -60,7 +60,7 @@ public function createCache (string name, int expiryTime, int capacity, float ev
     }
 
     // Create a new cache.
-    Cache cache = {name:name, expiryTime:expiryTime, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
+    Cache cache = {name:name, expiryTimeMillis:expiryTimeMillis, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     // Add the new cache to the map.
     cacheMap[util:uuid()] = cache;
     // Return the new cache.
@@ -143,7 +143,7 @@ function runCacheExpiry () returns (error) {
         // Ge the keys in the current cache.
         string[] currentCacheEntriesKeys = currentCacheEntries.keys();
         // Get the expiry time of the current cache
-        int currentCacheExpiryTime = currentCache.expiryTime;
+        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
         int currentKeyIndex = 0;
         int currentCacheSize = lengthof currentCacheEntriesKeys;
