@@ -1,6 +1,4 @@
-import ballerina.doc;
-
-@doc:Description {value:"Defining Person struct."}
+@Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
