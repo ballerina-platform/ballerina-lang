@@ -24,8 +24,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is used to take a Ballerina config file and parse it.
@@ -36,10 +41,18 @@ public class ConfigFileParser {
 
     private static final String configEntryFormat = "([a-zA-Z0-9.])+=([\\ -~])+";
     private static final String instanceIdFormat = "\\[[a-zA-Z0-9]+\\]";
-    private static final String commentOrWSFormat = "[\\t\\ ]*#[\\ -~]*|[\\t\\ ]*"; // to skip comments or whitespace
+    private static final String commentOrWSFormat = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
+    private static final String variableFormat = "\\$(env|sys)\\{([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
+    private static final Pattern variablePattern = Pattern.compile(variableFormat);
+
+    private static final String ENVIRONMENT_VARIABLE = "env";
+    private static final String SYSTEM_PROPERTY = "sys";
 
     private Map<String, String> globalConfigs;
     private Map<String, Map<String, String>> instanceConfigs;
+
+    private List<String> invalidConfigs;
+    private int currentLine;
 
     public ConfigFileParser(File configFile) throws IOException {
         parse(configFile);
@@ -76,45 +89,86 @@ public class ConfigFileParser {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             globalConfigs = new HashMap<>();
             instanceConfigs = new HashMap<>();
+            invalidConfigs = new ArrayList<>();
 
             String line;
-            for (int i = 1; (line = reader.readLine()) != null; i++) {
+            for (currentLine = 1; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(configEntryFormat)) {
                     parseGlobalConfigEntry(line);
                 } else if (line.matches(instanceIdFormat)) {
+                    currentLine++;
                     break;
                 } else if (!line.matches(commentOrWSFormat)) {
-                    throw new BallerinaException("invalid configuration at line #" + i);
+                    accumulateError(currentLine);
                 }
             }
 
             String currentInstance = extractInstanceId(line);
             instanceConfigs.put(currentInstance, new HashMap<>());
 
-            for (int i = 1; (line = reader.readLine()) != null; i++) {
+            for (; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(configEntryFormat)) {
                     parseInstanceConfigEntry(currentInstance, line);
                 } else if (line.matches(instanceIdFormat)) {
                     currentInstance = extractInstanceId(line);
                 } else if (!line.matches(commentOrWSFormat)) {
-                    throw new BallerinaException("invalid configuration at line #" + i);
+                    accumulateError(currentLine);
                 }
+            }
+
+            if (invalidConfigs.size() > 0) {
+                // TODO: Fix this with the API to print to the console
+                PrintStream console = System.out;
+                invalidConfigs.forEach(console::println);
+                throw new BallerinaException("");
             }
         }
     }
 
+    private String parseConfigValue(String value) {
+        Matcher matcher = variablePattern.matcher(value);
+
+        if (!matcher.find()) {
+            if (value.matches("[^\\n]*\\$[^\\n]+")) {
+                accumulateError(currentLine, value);
+            }
+            return value;
+        }
+
+        StringBuilder varReplacedValue = new StringBuilder();
+        int i = 0;
+        do {
+            if (matcher.start() != i) {
+                varReplacedValue.append(value.substring(i, matcher.start()));
+            }
+
+            String varType = matcher.group(1);
+            String key = matcher.group(2);
+            switch (varType) {
+                case ENVIRONMENT_VARIABLE:
+                    varReplacedValue.append(System.getenv(key));
+                    break;
+                case SYSTEM_PROPERTY:
+                    varReplacedValue.append(System.getProperty(key));
+                    break;
+            }
+        } while (matcher.find());
+
+        return varReplacedValue.toString();
+    }
+
     private void parseGlobalConfigEntry(String configEntry) {
         String[] entryParts = getConfigKeyAndValue(configEntry);
-        globalConfigs.put(entryParts[0], entryParts[1]);
+        globalConfigs.put(entryParts[0], parseConfigValue(entryParts[1]));
     }
 
     private void parseInstanceConfigEntry(String instanceId, String configEntry) {
         String[] entryParts = getConfigKeyAndValue(configEntry);
         if (instanceConfigs.containsKey(instanceId)) {
-            instanceConfigs.get(instanceId).put(entryParts[0], entryParts[1]);
+            instanceConfigs.get(instanceId).put(entryParts[0], parseConfigValue(entryParts[1]));
         } else {
             Map<String, String> map = new HashMap<>();
-            map.put(entryParts[0], entryParts[1]);
+            map.put(entryParts[0], parseConfigValue(entryParts[1]));
             instanceConfigs.put(instanceId, map);
         }
     }
@@ -125,5 +179,13 @@ public class ConfigFileParser {
 
     private String extractInstanceId(String id) {
         return id.substring(1, id.length() - 1);
+    }
+
+    private void accumulateError(int lineNum) {
+        invalidConfigs.add("ballerina: invalid configuration at line: " + lineNum);
+    }
+
+    private void accumulateError(int lineNum, String invalidVal) {
+        invalidConfigs.add("ballerina: invalid variable format found at line #" + lineNum + ": " + invalidVal);
     }
 }
