@@ -1,6 +1,4 @@
-import ballerina.doc;
-
-@doc:Description {value:"This function return an 'any' typed value."}
+@Description {value:"This function return an 'any' typed value."}
 function getValue () (any) {
     string name = "cat";
     return name;

@@ -1,6 +1,4 @@
-import ballerina.doc;
-
-@doc:Description {value:"Global variable declaration."}
+@Description {value:"Global variable declaration."}
 int total = 98;
 
 string content = "";

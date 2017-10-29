@@ -66,6 +66,11 @@ public function createCache (string name, int timeOut, int capacity, float evict
     return cache;
 }
 
+@Description {value:"Returns the size of the cache."}
+public function<Cache cache> size() returns (int) {
+    return cache.entries.length();
+}
+
 @Description {value:"Adds the given key, value pair to the provided cache."}
 @Param {value:"key - value which should be used as the key"}
 @Param {value:"value - value to be cached"}
