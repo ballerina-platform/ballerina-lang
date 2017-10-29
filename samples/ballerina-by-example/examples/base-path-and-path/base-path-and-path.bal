@@ -1,11 +1,10 @@
 import ballerina.net.http;
-import ballerina.doc;
 
-@doc:Description {value:"BasePath attribute associates a path to the service."}
+@Description {value:"BasePath attribute associates a path to the service."}
 @http:configuration {basePath:"/foo"}
 service<http> echo {
-    @doc:Description {value:"Post annotation constrains the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
-    @doc:Description {value:"Path attribute associates a sub-path to resource."}
+    @Description {value:"Post annotation constrains the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
+    @Description {value:"Path attribute associates a sub-path to resource."}
     @http:resourceConfig {
         methods:["POST"],
         path:"/bar"

@@ -47,4 +47,10 @@ public class TaskRegistry {
         }
         timers.put(timer.getId(), timer);
     }
+
+    public void remove(String taskId) {
+        if (timers.containsKey(taskId)) {
+            timers.remove(taskId);
+        }
+    }
 }

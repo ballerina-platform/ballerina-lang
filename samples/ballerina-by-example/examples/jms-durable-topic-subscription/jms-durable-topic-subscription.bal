@@ -1,9 +1,8 @@
 import ballerina.lang.messages;
 
 import ballerina.net.jms;
-import ballerina.doc;
 
-@doc:Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
+@Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
 @jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
