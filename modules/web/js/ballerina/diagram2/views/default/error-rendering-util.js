@@ -67,9 +67,11 @@ class ErrorRenderingUtil {
         if (node.parent &&
             node.parent.parent &&
             node.parent.parent.parent &&
-            !TreeUtil.isResource(node.parent.parent) &&
+            !TreeUtil.isResource(node.parent.parent) && !TreeUtil.isAction(node.parent.parent) &&
             (node.parent.parent.parent.initFunction)) {
             // Do not show errors in the InitFunction of the service
+        } else if (TreeUtil.isTransform(node.parent.parent)) {
+            // TODO for transform statements
         } else if (node.parent.kind === 'Service' || node.parent.kind === 'Connector') {
             const viewState = node.viewState;
             // Check for errors in the model
