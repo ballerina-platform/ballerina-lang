@@ -34,9 +34,9 @@ import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.https.HTTPSConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 import org.wso2.carbon.transport.http.netty.util.server.initializers.DumbServerInitializer;
@@ -86,7 +86,7 @@ public class ClientConnectorTimeoutTestCase {
             msg.setEndOfMsgAdded(true);
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 

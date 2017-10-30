@@ -38,6 +38,7 @@ import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.carbon.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
@@ -112,7 +113,7 @@ public class MutualSSLTestCase {
             msg.setEndOfMsgAdded(true);
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 

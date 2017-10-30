@@ -27,6 +27,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -52,6 +53,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
     private boolean isOpen;
+    private boolean isPingReceived;
+    private boolean isPongReceived;
     private CountDownLatch latch;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker, CountDownLatch latch) {
@@ -108,9 +111,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             bufferReceived = binaryFrame.content().nioBuffer();
             logger.debug("WebSocket Client received  binary message: " + bufferReceived.toString());
+        } else if (frame instanceof PingWebSocketFrame) {
+            logger.debug("WebSocket Client received pong");
+            PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
+            isPingReceived = true;
+            bufferReceived = pingFrame.content().nioBuffer();
         } else if (frame instanceof PongWebSocketFrame) {
             logger.debug("WebSocket Client received pong");
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
+            isPongReceived = true;
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
@@ -123,14 +132,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      * @return the text received from the server.
      */
     public String getTextReceived() {
-        return textReceived;
+        String temp = textReceived;
+        textReceived = null;
+        return temp;
     }
 
     /**
      * @return the binary data received from the server.
      */
     public ByteBuffer getBufferReceived() {
-        return bufferReceived;
+        ByteBuffer tempBuffer = bufferReceived;
+        bufferReceived = null;
+        return tempBuffer;
     }
 
     /**
@@ -139,7 +152,31 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      * @return true if connection is still open.
      */
     public boolean isOpen() {
-        return isOpen;
+        boolean isOpenTemp = isOpen;
+        isOpen = false;
+        return isOpenTemp;
+    }
+
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPingReceived() {
+        boolean tmpBln = isPingReceived;
+        isPingReceived = false;
+        return tmpBln;
+    }
+
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPongReceived() {
+        boolean tmpBln = isPongReceived;
+        isPongReceived = false;
+        return tmpBln;
     }
 
     @Override

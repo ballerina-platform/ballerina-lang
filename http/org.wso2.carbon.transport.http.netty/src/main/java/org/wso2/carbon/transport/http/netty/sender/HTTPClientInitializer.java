@@ -17,7 +17,6 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.logging.LogLevel;
@@ -26,6 +25,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
 import javax.net.ssl.SSLEngine;
@@ -42,13 +42,15 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
     private int maxRedirectCount;
+    private boolean chunkDisabled;
 
-    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean followRedirect,  int
-            maxRedirectCount) {
+    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean chunkDisabled
+            , boolean followRedirect, int maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.followRedirect = followRedirect;
         this.maxRedirectCount = maxRedirectCount;
+        this.chunkDisabled = chunkDisabled;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-        ch.pipeline().addLast("compressor", new HttpContentCompressor());
+        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor(chunkDisabled));
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
@@ -71,7 +73,8 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             if (log.isDebugEnabled()) {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
-            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount);
+            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
+                    , chunkDisabled);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         handler = new TargetHandler();

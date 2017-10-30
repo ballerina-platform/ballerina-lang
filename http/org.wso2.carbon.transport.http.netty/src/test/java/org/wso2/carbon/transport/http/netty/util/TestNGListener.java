@@ -26,7 +26,7 @@ import org.testng.TestListenerAdapter;
 import java.io.PrintStream;
 
 /**
- * Test listener for HTTP transport test cases.
+ * Test listener for JMS transport test cases.
  */
 public class TestNGListener extends TestListenerAdapter {
 
