@@ -112,6 +112,7 @@ class ConnectorNode extends React.Component {
         const viewState = model.viewState;
         const bBox = model.viewState.bBox;
         const variables = model.getVariableDefs();
+        const argumentParameters = model.getParameters();
 
         // get the connector name
         const title = model.getName().value;
@@ -138,6 +139,7 @@ class ConnectorNode extends React.Component {
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
+                    argumentParams={argumentParameters}
                 >
                     {
                         viewState.variablesExpanded ?

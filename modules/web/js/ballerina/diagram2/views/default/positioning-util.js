@@ -578,6 +578,32 @@ class PositioningUtil {
             viewState.showOverlayContainer = true;
             OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
         }
+        if (TreeUtil.isConnector(node)) {
+            // Positioning argument parameters
+            if (node.getParameters()) {
+                viewState.components.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
+                    this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
+                    + this.config.panelHeading.iconSize.padding;
+                viewState.components.argParameterHolder.openingParameter.y = viewState.bBox.y +
+                    viewState.components.annotation.h;
+
+                // Positioning the resource parameters
+                let nextXPositionOfParameter = viewState.components.argParameterHolder.openingParameter.x
+                    + viewState.components.argParameterHolder.openingParameter.w;
+                if (node.getParameters().length > 0) {
+                    for (let i = 0; i < node.getParameters().length; i++) {
+                        const argument = node.getParameters()[i];
+                        nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
+                            (viewState.bBox.y + viewState.components.annotation.h));
+                    }
+                }
+
+                // Positioning the closing bracket component of the parameters.
+                viewState.components.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
+                viewState.components.argParameterHolder.closingParameter.y = viewState.bBox.y +
+                    viewState.components.annotation.h;
+            }
+        }
     }
 
 
