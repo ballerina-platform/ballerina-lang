@@ -1,7 +1,6 @@
 import ballerina.data.sql;
-import ballerina.doc;
 
-@doc:Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with sql types."}
+@Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with sql types."}
 struct Employee {
     int id;
     string name;
