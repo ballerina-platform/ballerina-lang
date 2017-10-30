@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -64,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -100,10 +103,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -391,7 +396,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(transformNode);
         Set<String> inputs = new HashSet<>();
         Set<String> outputs = new HashSet<>();
-        validateTransformStatementBody(transformNode.body, inputs, outputs);
+//        validateTransformStatementBody(transformNode.body, inputs, outputs);
         inputs.forEach((k) -> transformNode.addInput(k));
         outputs.forEach((k) -> transformNode.addOutput(k));
     }
@@ -468,6 +473,50 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         // TODO
+        List<BVarSymbol> inputs = new ArrayList<>();
+        inputs.add(transformerNode.source.symbol);
+        transformerNode.params.forEach(param -> inputs.add(param.symbol));
+
+        List<BVarSymbol> outputs = new ArrayList<>();
+        transformerNode.retParams.forEach(param -> outputs.add(param.symbol));
+
+        for (BLangStatement stmt : transformerNode.body.stmts) {
+            switch (stmt.getKind()) {
+                case VARIABLE_DEF:
+                    BLangVariableDef variableDefStmt = (BLangVariableDef) stmt;
+                    inputs.add(variableDefStmt.var.symbol);
+                    break;
+                case ASSIGNMENT:
+                    BLangAssignment assignStmt = (BLangAssignment) stmt;
+                    for (BLangExpression lExpr : assignStmt.varRefs) {
+                        List<BLangExpression> lhsVarRefs = getVariableReferencesFromExpression(lExpr);
+                        lhsVarRefs.forEach(exp -> {
+                            BVarSymbol varSymbol = ((BLangSimpleVarRef) exp).symbol;
+                            if (inputs.contains(varSymbol)) {
+                                this.dlog.error(exp.pos, DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE,
+                                        varSymbol.name);
+                            }
+                        });
+                    }
+
+                    List<BLangExpression> rhsVarRefs = getVariableReferencesFromExpression(assignStmt.expr);
+                    rhsVarRefs.forEach(exp -> {
+                        BVarSymbol varSymbol = ((BLangSimpleVarRef) exp).symbol;
+                        if (outputs.contains(varSymbol)) {
+                            this.dlog.error(exp.pos, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE,
+                                    varSymbol.name);
+                        }
+                    });
+                    break;
+                case EXPRESSION_STATEMENT:
+                case COMMENT:
+                    break;
+                default:
+                    this.dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
+                            stmt.getKind().name().toLowerCase().replace("_", " "));
+                    break;
+            }
+        }
     }
 
     public void visit(BLangVariableDef varDefNode) {
@@ -660,6 +709,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @param inputs    input variable reference expressions map
      * @param outputs   output variable reference expressions map
      */
+    /*
     private void validateTransformStatementBody(BLangBlockStmt blockStmt, Set<String> inputs, Set<String> outputs) {
         Set<String> innerVars = new HashSet<>();
         for (BLangStatement statement : blockStmt.getStatements()) {
@@ -735,7 +785,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         innerVars.forEach(var -> inputs.remove(var));
     }
-
+*/
     private boolean isLiteralExpression(BLangExpression expression) {
         NodeKind expressionKind = expression.getKind();
         return ((expressionKind != NodeKind.LITERAL) && (expressionKind != NodeKind.RECORD_LITERAL_EXPR)
@@ -743,52 +793,123 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                && (expressionKind != NodeKind.STRING_TEMPLATE_LITERAL));
     }
 
-    private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
-        if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            while (!(expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF)) {
-                if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    expression = ((BLangFieldBasedAccess) expression).expr;
-                } else if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                    expression = ((BLangIndexBasedAccess) expression).expr;
+    /**
+     * Extract and return the simple variable references in the given expression.
+     * 
+     * @param expression Expression to extract the simple variable references
+     * @return Simple variable references in the given expression
+     */
+    private List<BLangExpression> getVariableReferencesFromExpression(BLangExpression expression) {
+        List<BLangExpression> expList = new ArrayList<>();
+        Iterator<BLangExpression> exprItr;
+        switch(expression.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                return Lists.of(expression);
+            case FIELD_BASED_ACCESS_EXPR:
+                while (!(expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF)) {
+                    if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                        expression = ((BLangFieldBasedAccess) expression).expr;
+                    } else if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                        expression = ((BLangIndexBasedAccess) expression).expr;
+                    }
                 }
-            }
-            return new BLangExpression[] { expression };
-        } else if (expression.getKind() == NodeKind.INVOCATION) {
-            List<BLangExpression> argExprs = ((BLangInvocation) expression).argExprs;
-            List<BLangExpression> expList = new ArrayList<>();
-            for (BLangExpression arg : argExprs) {
-                BLangExpression[] varRefExps = getVariableReferencesFromExpression(arg);
-                expList.addAll(Arrays.asList(varRefExps));
-            }
-            return expList.toArray(new BLangExpression[expList.size()]);
-        } else if (expression.getKind() == NodeKind.TERNARY_EXPR) {
-            List<BLangExpression> expList = new ArrayList<>();
-            expList.addAll(Arrays.asList(
-                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).expr)));
-            expList.addAll(Arrays.asList(
-                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).thenExpr)));
-            expList.addAll(Arrays.asList(
-                    getVariableReferencesFromExpression(((BLangTernaryExpr) expression).elseExpr)));
-            return expList.toArray(new BLangExpression[expList.size()]);
-        } else if (expression.getKind() == NodeKind.BINARY_EXPR) {
-            List<BLangExpression> expList = new ArrayList<>();
-            expList.addAll(Arrays.asList(
-                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
-            expList.addAll(Arrays.asList(
-                    getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
-            return expList.toArray(new BLangExpression[expList.size()]);
-        } else if (expression.getKind() == NodeKind.UNARY_EXPR) {
-            return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
-        } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-            return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
-        } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {
-            return getVariableReferencesFromExpression(((BLangTypeCastExpr) expression).expr);
-        } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return new BLangExpression[] { expression };
+                return Lists.of(expression);
+            case INVOCATION:
+                BLangInvocation invocationExpr = (BLangInvocation) expression;
+                expList.add(invocationExpr.expr);
+
+                exprItr = invocationExpr.argExprs.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+                break;
+            case TERNARY_EXPR:
+                BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
+                expList.addAll(getVariableReferencesFromExpression(ternaryExpr.expr));
+                expList.addAll(getVariableReferencesFromExpression(ternaryExpr.thenExpr));
+                expList.addAll(getVariableReferencesFromExpression(ternaryExpr.elseExpr));
+                break;
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
+                expList.addAll(getVariableReferencesFromExpression(binaryExpr.rhsExpr));
+                expList.addAll(getVariableReferencesFromExpression(binaryExpr.lhsExpr));
+                break;
+            case UNARY_EXPR:
+                return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
+            case TYPE_CONVERSION_EXPR:
+                BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) expression;
+                expList.addAll(getVariableReferencesFromExpression(conversionExpr.expr));
+                expList.addAll(getVariableReferencesFromExpression(conversionExpr.transformerInvocation));
+                break;      
+            case TYPE_CAST_EXPR:
+                return getVariableReferencesFromExpression(((BLangTypeCastExpr) expression).expr);
+            case RECORD_LITERAL_EXPR:
+                Iterator<BLangRecordKeyValue> keyValPairsItr =
+                        ((BLangRecordLiteral) expression).keyValuePairs.iterator();
+                while (keyValPairsItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(keyValPairsItr.next().valueExpr));
+                }
+                break;
+            case ARRAY_LITERAL_EXPR:
+                exprItr = ((BLangArrayLiteral) expression).exprs.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+                break;
+            case XML_ATTRIBUTE:
+                BLangXMLAttribute xmlAttribute = (BLangXMLAttribute) expression;
+                expList.addAll(getVariableReferencesFromExpression(xmlAttribute.name));
+                expList.addAll(getVariableReferencesFromExpression(xmlAttribute.value));
+            case XML_ATTRIBUTE_ACCESS_EXPR:
+                BLangXMLAttributeAccess xmlAttributeAccess = (BLangXMLAttributeAccess) expression;
+                expList.addAll(getVariableReferencesFromExpression(xmlAttributeAccess.indexExpr));
+                expList.addAll(getVariableReferencesFromExpression(xmlAttributeAccess.expr));
+            case XML_COMMENT_LITERAL:
+                exprItr = ((BLangXMLCommentLiteral) expression).textFragments.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            case XML_ELEMENT_LITERAL:
+                BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) expression;
+                expList.addAll(getVariableReferencesFromExpression(xmlElement.startTagName));
+                expList.addAll(getVariableReferencesFromExpression(xmlElement.endTagName));
+                Iterator<BLangXMLAttribute> attributeItr = xmlElement.attributes.iterator();
+                while (attributeItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(attributeItr.next()));
+                }
+
+                exprItr = xmlElement.children.iterator();
+                while (exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            case XML_PI_LITERAL:
+                BLangXMLProcInsLiteral xmlProcIns = (BLangXMLProcInsLiteral) expression;
+                expList.addAll(getVariableReferencesFromExpression(xmlProcIns.target));
+                exprItr = xmlProcIns.dataFragments.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            case XML_TEXT_LITERAL:
+                exprItr = ((BLangXMLTextLiteral) expression).textFragments.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            case XML_QUOTED_STRING:
+                exprItr = ((BLangXMLQuotedString) expression).textFragments.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            case STRING_TEMPLATE_LITERAL:
+                exprItr = ((BLangStringTemplateLiteral) expression).exprs.iterator();
+                while(exprItr.hasNext()) {
+                    expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
+                }
+            default:
+                break;
         }
-        return new BLangExpression[] {};
+        return expList;
     }
-    
+
     private void initNewWorkerActionSystem() {
         this.workerActionSystemStack.push(new WorkerActionSystem());
     }
@@ -970,5 +1091,4 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
     }
-
 }

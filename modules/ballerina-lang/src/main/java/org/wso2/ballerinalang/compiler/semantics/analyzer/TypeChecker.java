@@ -585,7 +585,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-           actualTypes = checkNamedTransformerInvocation(conversionExpr);
+           actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);
@@ -1221,9 +1221,11 @@ public class TypeChecker extends BLangNodeVisitor {
                         targetType);
             }
         } else {
-            // We don't need to check for types here, since the transformer is looked-up using the types names
             BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
             conversionExpr.conversionSymbol = transformerSymbol;
+            if (conversionExpr.conversionSymbol.safe) {
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+            }
             actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
                     (BTransformerSymbol) transformerSymbol);
         }
@@ -1231,9 +1233,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualTypes;
     }
 
-    private List<BType> checkNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr) {
+    private List<BType> checkNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                                        BType targetType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-
         BLangInvocation transformerInvocation = conversionExpr.transformerInvocation;
         BSymbol transformerSymbol = symResolver.lookupSymbol(transformerInvocation.pos, env,
                 names.fromIdNode(transformerInvocation.pkgAlias), names.fromIdNode(transformerInvocation.name),
@@ -1243,18 +1245,25 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             conversionExpr.conversionSymbol =
                     (BConversionOperatorSymbol) (transformerInvocation.symbol = transformerSymbol);
+
+            // Check the transformer invocation. Expected type for the transformer is the target type
+            // of the cast conversion operator, but not the lhs type.
+            List<BType> prevExpType = expTypes;
+            expTypes = Lists.of(targetType);
             checkInvocationParamAndReturnType(transformerInvocation);
+            expTypes = prevExpType;
 
-            // Append type conversion error for safe casts.This is because safe conversions can also be
-            // used with multi returns
-            BInvokableType transformerSymType = ((BInvokableType) transformerSymbol.type);
-            if (conversionExpr.conversionSymbol.safe) {
-                transformerSymType.retTypes.add(symTable.errTypeConversionType);
+            if (transformerInvocation.type != symTable.errType) {
+                BInvokableType transformerSymType = (BInvokableType) transformerSymbol.type;
+                transformerInvocation.types = transformerSymType.retTypes;
+                actualTypes = new ArrayList<>(transformerSymType.retTypes);
+
+                // Append type conversion error for safe casts.This is because safe conversions can also be
+                // used with multi-returns
+                if (conversionExpr.conversionSymbol.safe) {
+                    actualTypes.add(symTable.errTypeConversionType);
+                }
             }
-            transformerInvocation.types = transformerSymType.retTypes;
-            actualTypes = transformerSymType.retTypes;
-
-            // TODO: Validate casting type against transformer return type
         }
 
         return actualTypes;

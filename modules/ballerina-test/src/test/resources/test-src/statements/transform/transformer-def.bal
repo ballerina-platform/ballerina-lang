@@ -31,7 +31,7 @@ function foo() {
     emp1 = <Employee> p;
     println(emp1);
 
-    Employee emp2 = <Student; Foo(20, 45)> p;
+    Employee emp2 = <Employee; Foo(20, 45)> p;
     println(emp2);
 }
 
@@ -42,6 +42,7 @@ transformer <Person p, Employee e> {
 
 transformer <Person p, Employee e> Foo (int id, int empCode) {
     println(id);
+    id.foo();
     e.name = p.name;
     e.age = p.age;
     e.id = id;

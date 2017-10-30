@@ -1037,7 +1037,7 @@ public class Desugar extends BLangNodeVisitor {
                 // TODO
                 break;
             case TypeTags.CONNECTOR:
-                // TODO
+                // TODO: restrict
                 break;
             case TypeTags.DATATABLE:
                 // TODO
@@ -1051,7 +1051,7 @@ public class Desugar extends BLangNodeVisitor {
         assignStmt.pos = var.pos;
         assignStmt.addVariable(varRef);
         assignStmt.expr = initExpr;
-        
+
         transformerNode.body.stmts.add(0, assignStmt);
     }
 }
