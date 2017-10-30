@@ -530,7 +530,7 @@ parameter
     ;
 
 fieldDefinition
-    :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
+    :   (PRIVATE)? typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
     ;
 
 simpleLiteral
