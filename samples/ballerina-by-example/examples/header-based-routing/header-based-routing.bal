@@ -1,10 +1,9 @@
 import ballerina.net.http;
-import ballerina.doc;
 
-@doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
+@Description {value:"Service is invoke using BasePath value (/hbr)."}
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    @doc:Description {value:"The http:resourceConfig{} annotation with GET method declares the HTTP method."}
+    @Description {value:"The http:resourceConfig{} annotation with GET method declares the HTTP method."}
     @http:resourceConfig {
         methods:["GET"],
         path:"/route"

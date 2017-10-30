@@ -33,7 +33,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.lang.system'", 4, 1);
+        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.math'", 4, 1);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PackageImportTest {
                 .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
-        BAssertUtil.validateError(result, 1, "undefined function 'pow'", 6, 5);
+        BAssertUtil.validateError(result, 1, "too many arguments in call to 'ClientConnector()'", 6, 32);
     }
 
     @Test

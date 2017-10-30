@@ -56,6 +56,9 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
+HTTPS Server Connector
+HTTPS Server/Client Connectors
+HTTP to WebSocket Upgrade
 Log API
 Function Pointers
 Lambda
@@ -64,3 +67,9 @@ WebSocket Chat Application
 WebSocket Proxy Server
 Passthrough
 Mutual SSL
+Caching
+Byte I/O
+Character I/O
+Record I/O
+Math Functions
+Task Timer

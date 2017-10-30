@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function main (string[] args) {
     //Here we assign a 'string' typed value to a variable of type 'any'.
     any a = "Jungle cat";
@@ -8,8 +6,8 @@ function main (string[] args) {
     //Therefore the compiler will enforce you to use multi-return type cast expression.
     var s, castErr = (string)a;
     if(castErr != null) {
-        system:println("error: " + castErr.msg);
+        println("error: " + castErr.msg);
     } else {
-        system:println(s);
+        println(s);
     }    
 }

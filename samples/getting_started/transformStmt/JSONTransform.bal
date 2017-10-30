@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 struct Person {
     string firstName;
     string lastName;
@@ -14,7 +12,7 @@ struct User {
 }
 
 function main (string[] args) {
-    json<Person> p = {firstName: "John",lastName: "Doe",age: 30,city: "London"};
+    json<Person> p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     json<User> u = {};
 
     transform {
@@ -22,8 +20,7 @@ function main (string[] args) {
         u.location = p.city;
         u.age = p.age;
     }
-
-    system:println(u.username);
-    system:println(u.location);
-    system:println(u.age);
+    println(u.username);
+    println(u.location);
+    println(u.age);
 }

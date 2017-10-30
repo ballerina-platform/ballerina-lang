@@ -1,8 +1,4 @@
-import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.lang.xmls;
-import ballerina.lang.jsons;
-import ballerina.lang.blobs;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -155,7 +151,7 @@ function testToXmlWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             xml xmlResult;
             xmlResult, _ = <xml>dt;
-            result = xmls:toString(xmlResult);
+            result = <string> xmlResult;
         } aborted {
         returnValue = -1;
     }
@@ -177,7 +173,7 @@ function testToJsonWithinTransaction () (string, int) {
             datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
             json jsonResult;
             jsonResult, _ = <json>dt;
-            result = jsons:toString(jsonResult);
+            result = jsonResult.toString();
         } aborted {
         returnValue = -1;
     }
@@ -195,8 +191,8 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
     datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitive rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultPrimitive)dataStruct;
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
@@ -215,15 +211,15 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",parameters);
     ResultObject rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultObject)dataStruct;
 
         blob blobData = rs.BLOB_TYPE;
-        blobValue = blobs:toString(blobData, "UTF-8");
+        blobValue = blobData.toString("UTF-8");
         clob = rs.CLOB_TYPE;
         blob binaryData = rs.BINARY_TYPE;
-        binary = blobs:toString(binaryData, "UTF-8");
+        binary = binaryData.toString("UTF-8");
     }
     testDB.close();
     return;
@@ -236,8 +232,8 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
     datatable dt = testDB.select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", parameters);
     ResultMap rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultMap)dataStruct;
 
         int_arr = rs.INT_ARRAY;
@@ -268,8 +264,8 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
     datatable dt = testDB.select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 1", emptyParam);
     ResultDates rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultDates)dataStruct;
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
@@ -287,14 +283,14 @@ function testBlobData () (string blobStringData) {
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", parameters);
     blob blobData;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         ResultBlob rs;
         TypeCastError err;
         rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    blobStringData = blobs:toString(blobData, "UTF-8");
+    blobStringData = blobData.toString("UTF-8");
 
     testDB.close();
     return;
@@ -308,8 +304,8 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
     datatable dt = testDB.select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
            left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", parameters);
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         ResultSetTestAlias rs;
         TypeCastError err;
         rs, err = (ResultSetTestAlias)dataStruct;
@@ -333,8 +329,8 @@ function testBlobInsert () (int i) {
     sql:Parameter[] params = [];
     datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", params);
     blob blobData;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
@@ -354,8 +350,8 @@ function testDatatableAutoClose () (int i, string test) {
     sql:Parameter[] parameters = [];
     datatable dt =testDB.select("SELECT int_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitiveInt rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultPrimitiveInt)dataStruct;
         i = rs.INT_TYPE;
     }
@@ -363,7 +359,7 @@ function testDatatableAutoClose () (int i, string test) {
     datatable dt2 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     var jsonstring,err = <json> dt2;
-    test = jsons:toString(jsonstring);
+    test = jsonstring.toString();
 
     datatable dt3 = testDB.select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
@@ -379,8 +375,8 @@ function testDatatableManualClose () (int data) {
     datatable dt = testDB.select("SELECT int_type from DataTable", parameters);
     ResultPrimitiveInt rs;
     int i = 0;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, _ = (ResultPrimitiveInt)dataStruct;
         int ret = rs.INT_TYPE;
         i = i + 1;
@@ -388,16 +384,16 @@ function testDatatableManualClose () (int data) {
             break;
         }
     }
-    datatables:close(dt);
+    dt.close();
 
     datatable dt2 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitiveInt rs2;
-    while (datatables:hasNext(dt2)) {
-        any dataStruct = datatables:getNext(dt2);
+    while (dt2.hasNext()) {
+        any dataStruct = dt2.getNext();
         rs2, _ = (ResultPrimitiveInt)dataStruct;
         data = rs2.INT_TYPE;
     }
-    datatables:close(dt);
+    dt2.close();
     testDB.close();
     return;
 }
@@ -409,8 +405,8 @@ function testCloseConnectionPool () (int count) {
     datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
     TypeCastError err;
     ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCount) dataStruct;
         count = rs.COUNTVAL;
     }

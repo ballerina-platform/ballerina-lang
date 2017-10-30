@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.datatables;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -21,8 +20,8 @@ function testConnectionPoolProperties () (string firstName) {
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -38,8 +37,8 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -57,8 +56,8 @@ function testConnectorWithDirectUrl () (string firstName) {
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -77,8 +76,8 @@ function testConnectorWithDataSourceClass () (string firstName) {
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -96,8 +95,8 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -117,8 +116,8 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         rs, err = (ResultCustomers)dataStruct;
         firstName = rs.FIRSTNAME;
     }
