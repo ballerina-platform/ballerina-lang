@@ -137,10 +137,14 @@ class TransformRender {
     getConnectionObject(source, target) {
         if (source.isField) {
             source.endpointKind = source.root.endpointKind;
+            source.funcInv = source.root.funcInv;
+            source.index = source.root.index;
         }
 
         if (target.isField) {
             target.endpointKind = target.root.endpointKind;
+            target.funcInv = target.root.funcInv;
+            target.index = target.root.index;
         }
 
         return {
