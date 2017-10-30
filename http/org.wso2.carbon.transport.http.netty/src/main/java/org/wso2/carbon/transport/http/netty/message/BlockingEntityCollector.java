@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -66,18 +67,15 @@ public class BlockingEntityCollector implements EntityCollector {
 
     public HttpContent getHttpContent() {
         try {
-            if (isEndOfMsgAdded() && isEmpty()) {
-                isConsumed.set(true);
-            } else {
-                if (!isConsumed.get()) {
-                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+            if (!isConsumed.get()) {
+                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
 
-                    if (httpContent instanceof LastHttpContent) {
-                        isConsumed.set(true);
-                    }
-
-                    return httpContent;
+                if (httpContent instanceof LastHttpContent) {
+                    isConsumed.set(true);
+                    httpContentQueue.clear();
                 }
+
+                return httpContent;
             }
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving http content from queue.", e);
@@ -91,25 +89,9 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public ByteBuf getMessageBody() {
-        try {
-            if (isEndOfMsgAdded() && isEmpty()) {
-                isConsumed.set(true);
-            } else {
-                if (!isConsumed.get()) {
-                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                    if (httpContent != null) {
-                        ByteBuf buf = httpContent.content();
-                        if (httpContent instanceof LastHttpContent) {
-                            this.endOfMsgAdded.set(true);
-                            isConsumed.set(true);
-                        }
-
-                        return buf;
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            LOG.error("Error while retrieving message body from queue.", e);
+        HttpContent httpContent = getHttpContent();
+        if (httpContent != null) {
+            return httpContent.content();
         }
         return null;
     }
@@ -118,30 +100,26 @@ public class BlockingEntityCollector implements EntityCollector {
     public List<ByteBuffer> getFullMessageBody() {
         List<ByteBuffer> byteBufferList = new ArrayList<>();
 
-        if (isEndOfMsgAdded() && isEmpty()) {
-            isConsumed.set(true);
-            return byteBufferList;
-        } else {
-            if (!isConsumed.get()) {
-                boolean isEndOfMessageProcessed = false;
-                while (!isEndOfMessageProcessed) {
-                    try {
-                        HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                        // This check is to make sure we add the last http content after getClone and avoid adding
-                        // empty content to bytebuf list again and again
-                        if (httpContent instanceof EmptyLastHttpContent) {
-                            break;
-                        }
-
-                        if (httpContent instanceof LastHttpContent) {
-                            isEndOfMessageProcessed = true;
-                            isConsumed.set(true);
-                        }
-                        ByteBuf buf = httpContent.content();
-                        byteBufferList.add(buf.nioBuffer());
-                    } catch (InterruptedException e) {
-                        LOG.error("Error while getting full message body", e);
+        if (!isConsumed.get()) {
+            boolean isEndOfMessageProcessed = false;
+            while (!isEndOfMessageProcessed) {
+                try {
+                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+                    // This check is to make sure we add the last http content after getClone and avoid adding
+                    // empty content to bytebuf list again and again
+                    if (httpContent instanceof EmptyLastHttpContent) {
+                        break;
                     }
+
+                    if (httpContent instanceof LastHttpContent) {
+                        isEndOfMessageProcessed = true;
+                        isConsumed.set(true);
+                        httpContentQueue.clear();
+                    }
+                    ByteBuf buf = httpContent.content();
+                    byteBufferList.add(buf.nioBuffer());
+                } catch (InterruptedException e) {
+                    LOG.error("Error while getting full message body", e);
                 }
             }
         }
@@ -150,60 +128,51 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public void waitAndReleaseAllEntities() {
-        if (isEndOfMsgAdded() && isEmpty()) {
-            isConsumed.set(true);
-        } else {
-            if (!isConsumed.get()) {
-                boolean isEndOfMessageProcessed = false;
-                while (!isEndOfMessageProcessed) {
-                    try {
-                        HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                        // This check is to make sure we add the last http content after getClone and avoid adding
-                        // empty content to bytebuf list again and again
-                        if (httpContent instanceof EmptyLastHttpContent) {
-                            break;
-                        }
-
-                        if (httpContent instanceof LastHttpContent) {
-                            isEndOfMessageProcessed = true;
-                            isConsumed.set(true);
-                        }
-                        httpContent.release();
-                    } catch (InterruptedException e) {
-                        LOG.error("Error while getting full message body", e);
+        if (!isConsumed.get()) {
+            boolean isEndOfMessageProcessed = false;
+            while (!isEndOfMessageProcessed) {
+                try {
+                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+                    // This check is to make sure we add the last http content after getClone and avoid adding
+                    // empty content to bytebuf list again and again
+                    if (httpContent instanceof EmptyLastHttpContent) {
+                        break;
                     }
+
+                    if (httpContent instanceof LastHttpContent) {
+                        isEndOfMessageProcessed = true;
+                        isConsumed.set(false);
+                    }
+                    httpContent.release();
+                } catch (InterruptedException e) {
+                    LOG.error("Error while getting full message body", e);
                 }
-                setEndOfMsgAdded(true);
             }
         }
     }
 
     public int getFullMessageLength() {
         List<HttpContent> contentList = new ArrayList<>();
-        if (isEndOfMsgAdded() && isEmpty()) {
-            return 0;
-        } else {
-            boolean isEndOfMessageProcessed = false;
-            while (!isEndOfMessageProcessed) {
-                try {
-                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                    if ((httpContent instanceof LastHttpContent) || (isEndOfMsgAdded() && httpContentQueue.isEmpty())) {
-                        isEndOfMessageProcessed = true;
-                    }
-                    contentList.add(httpContent);
-
-                } catch (InterruptedException e) {
-                    LOG.error("Error while getting full message length", e);
+        boolean isEndOfMessageProcessed = false;
+        while (!isEndOfMessageProcessed) {
+            try {
+                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+                if ((httpContent instanceof LastHttpContent)) {
+                    isEndOfMessageProcessed = true;
                 }
-            }
-            int size = 0;
-            for (HttpContent httpContent : contentList) {
-                size += httpContent.content().readableBytes();
-                httpContentQueue.add(httpContent);
-            }
+                contentList.add(httpContent);
 
-            return size;
+            } catch (InterruptedException e) {
+                LOG.error("Error while getting full message length", e);
+            }
         }
+        int size = 0;
+        for (HttpContent httpContent : contentList) {
+            size += httpContent.content().readableBytes();
+            httpContentQueue.add(httpContent);
+        }
+
+        return size;
     }
 
     public boolean isEmpty() {
@@ -220,13 +189,14 @@ public class BlockingEntityCollector implements EntityCollector {
 
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
         this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
+        this.httpContentQueue.add(new DefaultLastHttpContent());
     }
 
     @Deprecated
     public synchronized void release() {
     }
 
-    // TODO: Need to move below two to ballarina code
+    // TODO: Need to move below two to ballerina code
     public boolean isAlreadyRead() {
         return alreadyRead.get();
     }

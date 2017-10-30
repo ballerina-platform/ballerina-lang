@@ -18,6 +18,7 @@ package org.wso2.carbon.transport.http.netty.common;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
@@ -25,6 +26,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
@@ -233,7 +235,6 @@ public class Util {
             MessageDataSource messageDataSource = cMsg.getMessageDataSource();
             if (messageDataSource != null) {
                 messageDataSource.serializeData();
-                cMsg.setEndOfMsgAdded(true);
             }
         }
     }
@@ -527,5 +528,15 @@ public class Util {
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
+    }
+
+    /**
+     * Check if a given content is last httpContent.
+     *
+     * @param httpContent new content.
+     * @return true or false.
+     */
+    public static boolean isLastHttpContent(HttpContent httpContent) {
+        return httpContent instanceof LastHttpContent;
     }
 }

@@ -29,15 +29,16 @@ import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HttpCarbonRequest;
 
@@ -57,6 +58,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
+    private HandlerExecutor handlerExecutor;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId)
             throws Exception {
@@ -78,6 +80,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     @SuppressWarnings("unchecked")
@@ -90,29 +93,23 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             notifyRequestListener(sourceReqCmsg, ctx);
             ByteBuf content = ((FullHttpMessage) msg).content();
             sourceReqCmsg.addHttpContent(new DefaultLastHttpContent(content));
-            sourceReqCmsg.setEndOfMsgAdded(true);
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                                            .executeAtSourceRequestSending(sourceReqCmsg);
+            if (handlerExecutor != null) {
+                handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
             }
 
         } else if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
             sourceReqCmsg = setupCarbonMessage(httpRequest);
             notifyRequestListener(sourceReqCmsg, ctx);
-
         } else {
             if (sourceReqCmsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     sourceReqCmsg.addHttpContent(httpContent);
-                    if (msg instanceof LastHttpContent) {
-                        sourceReqCmsg.setEndOfMsgAdded(true);
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtSourceRequestSending(sourceReqCmsg);
+                    if (Util.isLastHttpContent(httpContent)) {
+                        if (handlerExecutor != null) {
+                            handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
                         }
-                        sourceReqCmsg = null;
                     }
                 }
             }
@@ -124,9 +121,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                    executeAtSourceRequestReceiving(httpRequestMsg);
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
         }
 
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -161,9 +157,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // Stop the connector timer
         ctx.close();
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+            handlerExecutor = null;
         }
 
         targetChannelPool.forEach((k, genericObjectPool) -> {
@@ -193,9 +189,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance()
-              .getHandlerExecutor().executeAtSourceRequestReceiving(sourceReqCmsg);
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
         }
 
         sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage);

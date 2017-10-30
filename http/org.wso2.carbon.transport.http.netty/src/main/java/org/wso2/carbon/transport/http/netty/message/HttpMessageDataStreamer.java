@@ -18,7 +18,11 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BufferFactory;
@@ -58,16 +62,16 @@ public class HttpMessageDataStreamer {
         private boolean chunkFinished = true;
         private int limit;
         private ByteBuffer byteBuffer;
-        private ByteBuf byteBuf;
+        private HttpContent httpContent;
 
         @Override
         public int read() throws IOException {
             httpCarbonMessage.setAlreadyRead(true); // TODO: No need to set this again and again
-            if (httpCarbonMessage.isEndOfMsgAdded() && httpCarbonMessage.isEmpty() && chunkFinished) {
+            if ((httpContent instanceof LastHttpContent) && chunkFinished) {
                 return -1;
             } else if (chunkFinished) {
-                byteBuf = httpCarbonMessage.getMessageBody();
-                byteBuffer = byteBuf.nioBuffer();
+                httpContent = httpCarbonMessage.getHttpContent();
+                byteBuffer = httpContent.content().nioBuffer();
                 count = 0;
                 limit = byteBuffer.limit();
                 if (limit == 0) {
@@ -80,7 +84,7 @@ public class HttpMessageDataStreamer {
                 int value = byteBuffer.get() & 0xff;
                 chunkFinished = true;
                 byteBuffer = null;
-                byteBuf.release();
+                httpContent.release();
 
                 return value;
             }
@@ -107,7 +111,7 @@ public class HttpMessageDataStreamer {
                 buffer.put((byte) b);
             } else {
                 buffer.flip();
-                httpCarbonMessage.addMessageBody(buffer);
+                httpCarbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(buffer)));
                 buffer = BufferFactory.getInstance().getBuffer();
                 buffer.put((byte) b);
             }
@@ -117,7 +121,7 @@ public class HttpMessageDataStreamer {
         public void flush() throws IOException {
             if (buffer != null && buffer.position() > 0) {
                 buffer.flip();
-                httpCarbonMessage.addMessageBody(buffer);
+                httpCarbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(buffer)));
                 buffer = BufferFactory.getInstance().getBuffer();
             }
         }
@@ -126,7 +130,7 @@ public class HttpMessageDataStreamer {
         public void close() {
             try {
                 flush();
-                httpCarbonMessage.setEndOfMsgAdded(true);
+                httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
                 super.close();
             } catch (IOException e) {
                 LOG.error("Error while closing output stream but underlying resources are reset", e);
@@ -144,7 +148,7 @@ public class HttpMessageDataStreamer {
         return byteBufferOutputStream;
     }
 
-    public InputStream createInputStreamIfNull() {
+    private InputStream createInputStreamIfNull() {
         if (byteBufferInputStream == null) {
             byteBufferInputStream = new HttpMessageDataStreamer.ByteBufferInputStream();
         }

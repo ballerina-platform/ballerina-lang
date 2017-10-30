@@ -22,13 +22,12 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -39,51 +38,45 @@ public class HttpResponseListener implements HttpConnectorListener {
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
+    private HandlerExecutor handlerExecutor;
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpResponseMessage) {
+        Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
+
         sourceContext.channel().eventLoop().execute(() -> {
             boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
 
-            Util.prepareBuiltMessageForTransfer(httpResponseMessage);
-            Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                        .executeAtSourceResponseReceiving(httpResponseMessage);
+            if (handlerExecutor != null) {
+                handlerExecutor.executeAtSourceResponseReceiving(httpResponseMessage);
             }
 
             final HttpResponse response = Util
                     .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
             sourceContext.write(response);
 
-            while (true) {
-                if (httpResponseMessage.isEndOfMsgAdded() && httpResponseMessage.isEmpty()) {
-                    ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
-                    }
-                    break;
-                }
-                HttpContent httpContent = httpResponseMessage.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
+            httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
+                    this.sourceContext.channel().eventLoop().execute(() -> {
+                if (Util.isLastHttpContent(httpContent)) {
                     ChannelFuture future = sourceContext.writeAndFlush(httpContent);
                     if (connectionCloseAfterResponse) {
                         future.addListener(ChannelFutureListener.CLOSE);
                     }
-                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtSourceResponseSending(httpResponseMessage);
+                    if (handlerExecutor != null) {
+                        handlerExecutor.executeAtSourceResponseSending(httpResponseMessage);
                     }
-                    break;
+                } else {
+                    sourceContext.write(httpContent);
                 }
-                sourceContext.write(httpContent);
-            }
+            }));
         });
+        Util.prepareBuiltMessageForTransfer(httpResponseMessage);
     }
 
     // Decides whether to close the connection after sending the response

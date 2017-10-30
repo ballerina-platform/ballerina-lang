@@ -19,14 +19,17 @@
 package org.wso2.carbon.transport.http.netty.contentaware;
 
 import io.netty.handler.codec.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.RequestResponseCreationListener;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.RequestResponseCreationStreamingListener;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.RequestResponseTransformListener;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.RequestResponseTransformStreamingListener;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.ResponseStreamingWithoutBufferingListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
@@ -45,7 +48,6 @@ import static org.testng.AssertJUnit.assertEquals;
  * A test case for echo message from MessageProcessor level.
  */
 public class ContentAwareMessageProcessorTestCase {
-    private static final Logger log = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
 
     private List<ServerConnector> serverConnectors;
     private HttpConnectorListener httpConnectorListener;

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
@@ -84,6 +85,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
+            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             TargetChannel targetChannel = connectionManager
                     .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, chunkDisabled
                             , followRedirect, maxRedirectCount);
@@ -138,6 +140,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });
+            Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }
