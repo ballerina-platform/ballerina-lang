@@ -29,51 +29,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * This class is used to take a Ballerina config file and parse it.
+ * An extension of the generic AbstractConfigParser to parse ballerina.conf files.
  *
  * @since 0.95
  */
-public class ConfigFileParser {
+public class ConfigFileParser extends AbstractConfigParser {
 
     private static final String configEntryFormat = "([a-zA-Z0-9.])+=([\\ -~])+";
-    private static final String instanceIdFormat = "\\[[a-zA-Z0-9]+\\]";
-    private static final String commentOrWSFormat = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
-    private static final String variableFormat = "\\$(env|sys)\\{([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
-    private static final Pattern variablePattern = Pattern.compile(variableFormat);
-
-    private static final String ENVIRONMENT_VARIABLE = "env";
-    private static final String SYSTEM_PROPERTY = "sys";
-
-    private Map<String, String> globalConfigs;
-    private Map<String, Map<String, String>> instanceConfigs;
 
     private List<String> invalidConfigs;
     private int currentLine;
 
     public ConfigFileParser(File configFile) throws IOException {
         parse(configFile);
-    }
-
-    /**
-     * Returns the parsed global configurations as a map.
-     *
-     * @return Global configurations map
-     */
-    public Map<String, String> getGlobalConfigs() {
-        return globalConfigs;
-    }
-
-    /**
-     * Returns the parsed instance level configurations as a map.
-     *
-     * @return Instance configurations map
-     */
-    public Map<String, Map<String, String>> getInstanceConfigs() {
-        return instanceConfigs;
     }
 
     /**
@@ -87,8 +57,6 @@ public class ConfigFileParser {
      */
     private void parse(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            globalConfigs = new HashMap<>();
-            instanceConfigs = new HashMap<>();
             invalidConfigs = new ArrayList<>();
 
             String line;
@@ -99,7 +67,7 @@ public class ConfigFileParser {
                     currentLine++;
                     break;
                 } else if (!line.matches(commentOrWSFormat)) {
-                    accumulateError(currentLine);
+                    collectConfigError(currentLine);
                 }
             }
 
@@ -112,7 +80,7 @@ public class ConfigFileParser {
                 } else if (line.matches(instanceIdFormat)) {
                     currentInstance = extractInstanceId(line);
                 } else if (!line.matches(commentOrWSFormat)) {
-                    accumulateError(currentLine);
+                    collectConfigError(currentLine);
                 }
             }
 
@@ -123,38 +91,6 @@ public class ConfigFileParser {
                 throw new BallerinaException("");
             }
         }
-    }
-
-    private String parseConfigValue(String value) {
-        Matcher matcher = variablePattern.matcher(value);
-
-        if (!matcher.find()) {
-            if (value.matches("[^\\n]*\\$[^\\n]+")) {
-                accumulateError(currentLine, value);
-            }
-            return value;
-        }
-
-        StringBuilder varReplacedValue = new StringBuilder();
-        int i = 0;
-        do {
-            if (matcher.start() != i) {
-                varReplacedValue.append(value.substring(i, matcher.start()));
-            }
-
-            String varType = matcher.group(1);
-            String key = matcher.group(2);
-            switch (varType) {
-                case ENVIRONMENT_VARIABLE:
-                    varReplacedValue.append(System.getenv(key));
-                    break;
-                case SYSTEM_PROPERTY:
-                    varReplacedValue.append(System.getProperty(key));
-                    break;
-            }
-        } while (matcher.find());
-
-        return varReplacedValue.toString();
     }
 
     private void parseGlobalConfigEntry(String configEntry) {
@@ -177,15 +113,7 @@ public class ConfigFileParser {
         return configEntry.split("=");
     }
 
-    private String extractInstanceId(String id) {
-        return id.substring(1, id.length() - 1);
-    }
-
-    private void accumulateError(int lineNum) {
-        invalidConfigs.add("ballerina: invalid configuration at line: " + lineNum);
-    }
-
-    private void accumulateError(int lineNum, String invalidVal) {
-        invalidConfigs.add("ballerina: invalid variable format found at line #" + lineNum + ": " + invalidVal);
+    private void collectConfigError(int invalidLine) {
+        invalidConfigs.add("ballerina: invalid configuration in ballerina.conf at line: " + invalidLine);
     }
 }
