@@ -103,6 +103,14 @@
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/workspace-service-jar/deployment.yaml
+            </source>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 
     <dependencySets>
