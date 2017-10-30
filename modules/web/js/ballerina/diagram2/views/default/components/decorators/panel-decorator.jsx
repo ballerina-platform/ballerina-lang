@@ -54,6 +54,7 @@ class PanelDecorator extends React.Component {
         this.handleProtocolClick = this.handleProtocolClick.bind(this);
         this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
         this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
+        this.togglePublicPrivateFlag = this.togglePublicPrivateFlag.bind(this);
     }
 
     handleProtocolClick() {
@@ -78,6 +79,18 @@ class PanelDecorator extends React.Component {
 
     onDelete() {
         this.props.model.remove();
+    }
+
+    togglePublicPrivateFlag() {
+        this.props.model.public = !this.props.model.public;
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'modify-node',
+            title: '',
+            data: {
+                node: this.props.model,
+            },
+        });
     }
 
     onTitleClick() {
@@ -156,6 +169,25 @@ class PanelDecorator extends React.Component {
 
         staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
 
+        // Render the public/private toggle flag button only if its a function
+        if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
+            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model)) {
+            // Toggle button for public/private flag
+            const publicPrivateFlagButtonProps = {
+                bBox: {
+                    x: x - (width * 3),
+                    y,
+                    height,
+                    width,
+                },
+                icon: ImageUtil.getSVGIconString(this.props.model.public ? 'public' : 'lock'),
+                tooltip: this.props.model.public ? 'Make private' : 'Make public',
+                onClick: () => this.togglePublicPrivateFlag(),
+                key: `${this.props.model.getID()}-publicPrivateFlag-button`,
+            };
+
+            staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
+        }
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
             rightComponent.props.bBox = {
@@ -206,7 +238,15 @@ class PanelDecorator extends React.Component {
         if (this.props.protocol) {
             protocolOffset = 40;
         }
-
+        let publicPrivateFlagoffset = 0;
+        let allowPublicPrivateFlag = false;
+        if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
+            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model)) {
+            allowPublicPrivateFlag = true;
+            if (this.props.model.public) {
+                publicPrivateFlagoffset = 50;
+            }
+        }
         return (<g className="panel">
             <g className="panel-header">
                 <rect
@@ -221,8 +261,22 @@ class PanelDecorator extends React.Component {
                     title=""
                 />
                 <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
+                {allowPublicPrivateFlag && <g>
+                    <rect
+                        className="publicPrivateRectHolder"
+                        x={bBox.x + 8}
+                        y={bBox.y + annotationBodyHeight}
+                        width='45'
+                        height='30'
+                    />
+                    <text
+                        x={bBox.x + 15}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 4}
+                        className="publicPrivateText"
+                    >{this.props.model.public ? 'public' : null}</text>
+                </g>}
                 <image
-                    x={bBox.x + 8}
+                    x={bBox.x + 15 + publicPrivateFlagoffset}
                     y={bBox.y + 8 + annotationBodyHeight}
                     width={iconSize}
                     height={iconSize}
@@ -230,19 +284,19 @@ class PanelDecorator extends React.Component {
                 />
                 {wsResourceDef && <g>
                     <rect
-                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset}
                         y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                         width={titleWidth.w}
                     />
                     <text
-                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 5}
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset + 5}
                         y={bBox.y + titleHeight / 2 + annotationBodyHeight + 5}
                         className="resourceName"
                     >{titleWidth.text}</text>
                 </g>}
                 {!wsResourceDef &&
                 <EditableText
-                    x={bBox.x + titleHeight + iconSize + protocolOffset}
+                    x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset}
                     y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => {
