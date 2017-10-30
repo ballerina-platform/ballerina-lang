@@ -24,43 +24,26 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * This class is used to take a Ballerina config file and parse it.
+ * An extension of the generic AbstractConfigParser to parse ballerina.conf files.
  *
  * @since 0.95
  */
-public class ConfigFileParser {
+public class ConfigFileParser extends AbstractConfigParser {
 
     private static final String configEntryFormat = "([a-zA-Z0-9.])+=([\\ -~])+";
-    private static final String instanceIdFormat = "\\[[a-zA-Z0-9]+\\]";
-    private static final String commentOrWSFormat = "[\\t\\ ]*#[\\ -~]*|[\\t\\ ]*"; // to skip comments or whitespace
 
-    private Map<String, String> globalConfigs;
-    private Map<String, Map<String, String>> instanceConfigs;
+    private List<String> invalidConfigs;
+    private int currentLine;
 
     public ConfigFileParser(File configFile) throws IOException {
         parse(configFile);
-    }
-
-    /**
-     * Returns the parsed global configurations as a map.
-     *
-     * @return Global configurations map
-     */
-    public Map<String, String> getGlobalConfigs() {
-        return globalConfigs;
-    }
-
-    /**
-     * Returns the parsed instance level configurations as a map.
-     *
-     * @return Instance configurations map
-     */
-    public Map<String, Map<String, String>> getInstanceConfigs() {
-        return instanceConfigs;
     }
 
     /**
@@ -74,47 +57,54 @@ public class ConfigFileParser {
      */
     private void parse(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            globalConfigs = new HashMap<>();
-            instanceConfigs = new HashMap<>();
+            invalidConfigs = new ArrayList<>();
 
             String line;
-            for (int i = 1; (line = reader.readLine()) != null; i++) {
+            for (currentLine = 1; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(configEntryFormat)) {
                     parseGlobalConfigEntry(line);
                 } else if (line.matches(instanceIdFormat)) {
+                    currentLine++;
                     break;
                 } else if (!line.matches(commentOrWSFormat)) {
-                    throw new BallerinaException("invalid configuration at line #" + i);
+                    collectConfigError(currentLine);
                 }
             }
 
             String currentInstance = extractInstanceId(line);
             instanceConfigs.put(currentInstance, new HashMap<>());
 
-            for (int i = 1; (line = reader.readLine()) != null; i++) {
+            for (; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(configEntryFormat)) {
                     parseInstanceConfigEntry(currentInstance, line);
                 } else if (line.matches(instanceIdFormat)) {
                     currentInstance = extractInstanceId(line);
                 } else if (!line.matches(commentOrWSFormat)) {
-                    throw new BallerinaException("invalid configuration at line #" + i);
+                    collectConfigError(currentLine);
                 }
+            }
+
+            if (invalidConfigs.size() > 0) {
+                // TODO: Fix this with the API to print to the console
+                PrintStream console = System.out;
+                invalidConfigs.forEach(console::println);
+                throw new BallerinaException("");
             }
         }
     }
 
     private void parseGlobalConfigEntry(String configEntry) {
         String[] entryParts = getConfigKeyAndValue(configEntry);
-        globalConfigs.put(entryParts[0], entryParts[1]);
+        globalConfigs.put(entryParts[0], parseConfigValue(entryParts[1]));
     }
 
     private void parseInstanceConfigEntry(String instanceId, String configEntry) {
         String[] entryParts = getConfigKeyAndValue(configEntry);
         if (instanceConfigs.containsKey(instanceId)) {
-            instanceConfigs.get(instanceId).put(entryParts[0], entryParts[1]);
+            instanceConfigs.get(instanceId).put(entryParts[0], parseConfigValue(entryParts[1]));
         } else {
             Map<String, String> map = new HashMap<>();
-            map.put(entryParts[0], entryParts[1]);
+            map.put(entryParts[0], parseConfigValue(entryParts[1]));
             instanceConfigs.put(instanceId, map);
         }
     }
@@ -123,7 +113,7 @@ public class ConfigFileParser {
         return configEntry.split("=");
     }
 
-    private String extractInstanceId(String id) {
-        return id.substring(1, id.length() - 1);
+    private void collectConfigError(int invalidLine) {
+        invalidConfigs.add("ballerina: invalid configuration in ballerina.conf at line: " + invalidLine);
     }
 }
