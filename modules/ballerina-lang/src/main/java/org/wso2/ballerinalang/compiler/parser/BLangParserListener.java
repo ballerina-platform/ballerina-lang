@@ -2012,6 +2012,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createTypeCastExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createTypeAccessExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
     @Override
     public void exitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
         if (ctx.exception != null) {

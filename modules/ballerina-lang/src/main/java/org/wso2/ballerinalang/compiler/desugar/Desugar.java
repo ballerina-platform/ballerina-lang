@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -644,7 +645,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
-        result = unaryExpr;
+        if (unaryExpr.expr.getKind() == NodeKind.TYPE_ACCESS_EXPR) {
+            result = unaryExpr.expr;
+        } else {
+            result = unaryExpr;
+        }
     }
 
     @Override
@@ -821,6 +826,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
+    }
+
+    @Override
+    public void visit(BLangTypeAccessExpr accessExpr) {
+        result = accessExpr;
     }
 
     // private functions

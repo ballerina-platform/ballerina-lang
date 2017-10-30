@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -502,18 +504,40 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
     }
 
+    public void visit(BLangTypeAccessExpr accessExpr) {
+        BType actualType = symTable.typeType;
+        accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
+        resultTypes = types.checkTypes(accessExpr, Lists.of(actualType), expTypes);
+    }
+
     public void visit(BLangUnaryExpr unaryExpr) {
-        BType exprType = checkExpr(unaryExpr.expr, env).get(0);
+        BType exprType = null;
+        if (OperatorKind.TYPEOF.equals(unaryExpr.operator) &&
+                unaryExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) unaryExpr.expr;
+            Name varRefName = names.fromIdNode((varRef).variableName);
+            Name pkgAlias = names.fromIdNode((varRef).pkgAlias);
+            BSymbol varRefSybmol = symResolver.lookupSymbol(unaryExpr.pos, env, pkgAlias, varRefName, SymTag.VARIABLE);
+            if (varRefSybmol == symTable.notFoundSymbol) {
+                BLangTypeAccessExpr typeAccessExpr = getTypeAccessExpression(varRef);
+                unaryExpr.expr = typeAccessExpr;
+                exprType = typeAccessExpr.resolvedType;
+            } else {
+                exprType = checkExpr(unaryExpr.expr, env).get(0);
+            }
+        } else {
+            exprType = checkExpr(unaryExpr.expr, env).get(0);
+        }
 
         BType actualType = symTable.errType;
 
         if (exprType != symTable.errType) {
             // Handle typeof operator separately
             if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-                List<BType> paramTypes = Lists.of(unaryExpr.expr.type);
+                List<BType> paramTypes = Lists.of(exprType);
                 List<BType> retTypes = Lists.of(symTable.typeType);
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-                if (unaryExpr.expr.type.tag == TypeTags.ANY) {
+                if (exprType.tag == TypeTags.ANY) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                             symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
@@ -1203,5 +1227,18 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
+    }
+
+    private BLangTypeAccessExpr getTypeAccessExpression(BLangSimpleVarRef varRef) {
+        BLangUserDefinedType userDefinedType = new BLangUserDefinedType();
+        userDefinedType.pkgAlias = varRef.pkgAlias;
+        userDefinedType.typeName = varRef.variableName;
+        userDefinedType.pos = varRef.pos;
+        BLangTypeAccessExpr typeAccessExpr = (BLangTypeAccessExpr) TreeBuilder.createTypeAccessNode();
+        typeAccessExpr.typeNode = userDefinedType;
+        typeAccessExpr.resolvedType = symResolver.resolveTypeNode(userDefinedType, env);
+        typeAccessExpr.pos = varRef.pos;
+        typeAccessExpr.type = symTable.typeType;
+        return typeAccessExpr;
     }
 }

@@ -18,8 +18,37 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.TypeAccessExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
 /**
  * @since 0.95
  */
-public class BLangTypeAccessExpr {
+public class BLangTypeAccessExpr extends BLangExpression implements TypeAccessExpressionNode {
+
+    public BLangType typeNode;
+    public BType resolvedType;
+
+    public BLangType getTypeNode() {
+        return typeNode;
+    }
+
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.TYPE_ACCESS_EXPR;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
