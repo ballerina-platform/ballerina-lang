@@ -18,13 +18,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
@@ -83,7 +83,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (targetRespMsg != null) {
                     HttpContent httpContent = (HttpContent) msg;
                     targetRespMsg.addHttpContent(httpContent);
-                    if (msg instanceof LastHttpContent) {
+                    if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
                             handlerExecutor.executeAtTargetResponseSending(targetRespMsg);
                         }

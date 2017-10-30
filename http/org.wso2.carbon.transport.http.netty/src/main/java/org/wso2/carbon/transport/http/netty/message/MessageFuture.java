@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpContent;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Represents future contents of the message
+ * Represents future contents of the message.
  */
 public class MessageFuture {
 

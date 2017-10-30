@@ -29,12 +29,12 @@ import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -106,7 +106,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     sourceReqCmsg.addHttpContent(httpContent);
-                    if (msg instanceof LastHttpContent) {
+                    if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
                             handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
                         }
