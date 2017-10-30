@@ -60,7 +60,7 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             charChannel.close();
         } catch (Throwable e) {
-            String message = "Failed to close the character channel. " + e.getMessage();
+            String message = "Failed to close the character channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
         return VOID_RETURN;

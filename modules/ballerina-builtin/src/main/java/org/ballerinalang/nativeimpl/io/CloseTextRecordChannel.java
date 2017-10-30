@@ -61,7 +61,7 @@ public class CloseTextRecordChannel extends AbstractNativeFunction {
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             charChannel.close();
         } catch (Throwable e) {
-            String message = "Failed to close the character channel. " + e.getMessage();
+            String message = "Failed to close the text record channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
         return VOID_RETURN;
