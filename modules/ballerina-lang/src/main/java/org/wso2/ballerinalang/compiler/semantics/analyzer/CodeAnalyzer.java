@@ -472,7 +472,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransformer transformerNode) {
-        // TODO
         List<BVarSymbol> inputs = new ArrayList<>();
         inputs.add(transformerNode.source.symbol);
         transformerNode.params.forEach(param -> inputs.add(param.symbol));
@@ -513,7 +512,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     break;
                 default:
                     this.dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
-                            stmt.getKind().name().toLowerCase().replace("_", " "));
+                            stmt.getKind().name().toLowerCase().replace('_', ' '));
                     break;
             }
         }
@@ -802,7 +801,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private List<BLangExpression> getVariableReferencesFromExpression(BLangExpression expression) {
         List<BLangExpression> expList = new ArrayList<>();
         Iterator<BLangExpression> exprItr;
-        switch(expression.getKind()) {
+        switch (expression.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 return Lists.of(expression);
             case FIELD_BASED_ACCESS_EXPR:
@@ -819,7 +818,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 expList.add(invocationExpr.expr);
 
                 exprItr = invocationExpr.argExprs.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
                 break;
@@ -840,7 +839,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) expression;
                 expList.addAll(getVariableReferencesFromExpression(conversionExpr.expr));
                 expList.addAll(getVariableReferencesFromExpression(conversionExpr.transformerInvocation));
-                break;      
+                break;
             case TYPE_CAST_EXPR:
                 return getVariableReferencesFromExpression(((BLangTypeCastExpr) expression).expr);
             case RECORD_LITERAL_EXPR:
@@ -852,7 +851,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 break;
             case ARRAY_LITERAL_EXPR:
                 exprItr = ((BLangArrayLiteral) expression).exprs.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
                 break;
@@ -860,15 +859,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangXMLAttribute xmlAttribute = (BLangXMLAttribute) expression;
                 expList.addAll(getVariableReferencesFromExpression(xmlAttribute.name));
                 expList.addAll(getVariableReferencesFromExpression(xmlAttribute.value));
+                break;
             case XML_ATTRIBUTE_ACCESS_EXPR:
                 BLangXMLAttributeAccess xmlAttributeAccess = (BLangXMLAttributeAccess) expression;
                 expList.addAll(getVariableReferencesFromExpression(xmlAttributeAccess.indexExpr));
                 expList.addAll(getVariableReferencesFromExpression(xmlAttributeAccess.expr));
+                break;
             case XML_COMMENT_LITERAL:
                 exprItr = ((BLangXMLCommentLiteral) expression).textFragments.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             case XML_ELEMENT_LITERAL:
                 BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) expression;
                 expList.addAll(getVariableReferencesFromExpression(xmlElement.startTagName));
@@ -882,28 +884,33 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             case XML_PI_LITERAL:
                 BLangXMLProcInsLiteral xmlProcIns = (BLangXMLProcInsLiteral) expression;
                 expList.addAll(getVariableReferencesFromExpression(xmlProcIns.target));
                 exprItr = xmlProcIns.dataFragments.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             case XML_TEXT_LITERAL:
                 exprItr = ((BLangXMLTextLiteral) expression).textFragments.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             case XML_QUOTED_STRING:
                 exprItr = ((BLangXMLQuotedString) expression).textFragments.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             case STRING_TEMPLATE_LITERAL:
                 exprItr = ((BLangStringTemplateLiteral) expression).exprs.iterator();
-                while(exprItr.hasNext()) {
+                while (exprItr.hasNext()) {
                     expList.addAll(getVariableReferencesFromExpression(exprItr.next()));
                 }
+                break;
             default:
                 break;
         }
