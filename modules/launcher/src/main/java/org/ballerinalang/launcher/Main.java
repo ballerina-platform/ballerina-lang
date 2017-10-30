@@ -24,6 +24,7 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.ConfigProcessor;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -219,7 +220,7 @@ public class Main {
         private boolean httpTraceLogEnabled;
 
         @DynamicParameter(names = "-B", description = "Dynamic parameters go here")
-        private Map<String, String> cliParams = new HashMap<>();
+        private Map<String, String> configCLIParams = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -236,8 +237,8 @@ public class Main {
                 System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
-            if (!cliParams.isEmpty()) {
-                ConfigRegistry.setCLIConfiguration(cliParams);
+            if (!configCLIParams.isEmpty()) {
+                ConfigProcessor.setCLIConfiguration(configCLIParams);
             }
 
             // Enable remote debugging

@@ -16,27 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.config;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.ballerinalang.config.utils;
 
 /**
- * Created by chamil on 10/27/17.
+ * Constants for Configuration API.
  */
-public class Parser {
+public class Constants {
 
-    public Map<String, String> loadGlobalConfiguration() {
-        Map<String, String> globalConf = new HashMap<>();
-        globalConf.put("a", "b");
-        return globalConf;
-    }
-
-    public Map<String, Map<String, String>> loadInstanceConfiguration() {
-        Map<String, Map<String, String>> instancMap = new HashMap<>();
-        Map<String, String> instanceConf = new HashMap<>();
-        instanceConf.put("x", "y");
-        instancMap.put("instance1", instanceConf);
-        return instancMap;
-    }
+    public static final String BALLERINA_CONF = "ballerina.conf";
+    public static final String TRACE_LOG_HTTP = "tracelog.http";
 }

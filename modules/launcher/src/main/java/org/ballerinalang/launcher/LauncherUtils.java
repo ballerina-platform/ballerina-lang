@@ -20,6 +20,7 @@ package org.ballerinalang.launcher;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.config.ConfigProcessor;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
@@ -71,6 +72,12 @@ public class LauncherUtils {
         // If there is no main or service entry point, throw an error
         if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
+        }
+
+        try {
+            ConfigProcessor.processConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException("error reading configuration: " + e.getMessage(), e);
         }
 
         if (runServices || !programFile.isMainEPAvailable()) {

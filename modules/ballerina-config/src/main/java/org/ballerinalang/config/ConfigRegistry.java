@@ -18,48 +18,61 @@
 
 package org.ballerinalang.config;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ConfigRegistry caches configuration properties.
+ * ConfigRegistry caches configuration properties and provide API.
  *
- * @since 0.95
+ * @since 0.94.2
  */
 public class ConfigRegistry {
 
-    private static Map<String, String> cliParams = new HashMap<>();
-    private static Map<String, String> globalConfMap;
-    private static Map<String, Map<String, String>> instancMap;
+    private static Map<String, String> globalConfigs;
+    private static Map<String, Map<String, String>> instanceConfigs;
+    private static String confLocation;
+    private static boolean traceLogEnabled;
 
-    public ConfigRegistry() {
-        Parser parser = new Parser();
-        globalConfMap = parser.loadGlobalConfiguration();
-        instancMap = parser.loadInstanceConfiguration();
+    public static void setGlobalConfigs(Map<String, String> globalConfigMap) {
+        globalConfigs = globalConfigMap;
     }
 
-    public static void setCLIConfiguration(Map<String, String> params) {
-        cliParams = params;
-    }
-
-    private void processGlobalValue() {
-
-    }
-
-    private void processInstanceValue() {
-
-    }
-
-
-    public static String getGlobalValue(String configKey) {
-
-        if (globalConfMap.isEmpty() || (globalConfMap.get(configKey) == null)) {
+    public static String getGlobalConfigValue(String configKey) {
+        if (globalConfigs.isEmpty() || (globalConfigs.get(configKey) == null)) {
             return "";
         }
-        return null;
+        return globalConfigs.get(configKey);
     }
 
-    public static String getInstanceValue(String instanceId, String configKey) {
-        return null;
+    public static void setInstanceConfigs(Map<String, Map<String, String>> instanceConfigMap) {
+        instanceConfigs = instanceConfigMap;
+    }
+
+    public static String getInstanceConfigValue(String instanceId, String configKey) {
+        if (instanceConfigs.isEmpty() || (instanceConfigs.get(instanceId) == null)) {
+            return "";
+        }
+
+        Map<String, String> instanceConfig = instanceConfigs.get(instanceId);
+        String configValue = instanceConfig.get(configKey);
+        if (configValue == null) {
+            return "";
+        }
+        return configValue;
+    }
+
+    public static void setHttpTraceLogEnabled(boolean traceEnabled) {
+        traceLogEnabled = traceEnabled;
+    }
+
+    public static boolean isTraceLogEnabled() {
+        return traceLogEnabled;
+    }
+
+    public static void setConfLocation(String confFileLocation) {
+        confLocation = confFileLocation;
+    }
+
+    public static String getConfLocation() {
+        return confLocation;
     }
 }
