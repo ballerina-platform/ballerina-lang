@@ -275,9 +275,18 @@ class TreeUtil extends AbstractTreeUtil {
         if (!parent) {
             return [];
         }
-        const blockScope = this.isBlock(parent) ? parent : parent.body;
+        let statements;
+        if (this.isConnector(parent)) {
+            statements = _.get(parent, 'variableDefs');
+        } else if (this.isService(parent)) {
+            statements = _.get(parent, 'variables');
+        } else if (this.isBlock(parent)) {
+            statements = _.get(parent, 'statements');
+        } else {
+            statements = _.get(parent.body, 'statements');
+        }
+
         let filteredItems = [];
-        const statements = _.get(blockScope, 'statements');
         if (statements) {
             filteredItems = _.filter(statements, (stmt) => {
                 return this.isConnectorDeclaration(stmt);
