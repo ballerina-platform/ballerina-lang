@@ -167,20 +167,24 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(WebSocketService service) {
-        serviceEndpoints.remove(service.getName());
-        serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
-            List<String> uriList = new LinkedList<>();
-            Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
-            uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
-                if (uriToServiceName.getValue().equals(service.getName())) {
-                    uriList.add(uriToServiceName.getKey());
+        if (serviceEndpoints.containsKey(service.getName())) {
+            serviceEndpoints.remove(service.getName());
+            serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
+                List<String> uriList = new LinkedList<>();
+                Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
+                uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
+                    if (uriToServiceName.getValue().equals(service.getName())) {
+                        uriList.add(uriToServiceName.getKey());
+                    }
+                });
+                Iterator<String> uriListIterator = uriList.iterator();
+                while (uriListIterator.hasNext()) {
+                    uriToServiceNameMap.remove(uriListIterator.next());
                 }
             });
-            Iterator<String> uriListIterator = uriList.iterator();
-            while (uriListIterator.hasNext()) {
-                uriToServiceNameMap.remove(uriListIterator.next());
-            }
-        });
+        } else {
+            clientServices.remove(service.getName());
+        }
     }
 
     /**
