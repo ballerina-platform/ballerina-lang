@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -106,10 +106,10 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                                 byte[] bytes = IOUtils.toByteArray(inputStream);
                                 outputStream.write(bytes);
                                 outputStream.flush();
+                                outputStream.close();
                             } catch (IOException e) {
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }
-                            newMsg.setEndOfMsgAdded(true);
                             try {
                                 httpRequest.respond(newMsg);
                             } catch (ServerConnectorException e) {

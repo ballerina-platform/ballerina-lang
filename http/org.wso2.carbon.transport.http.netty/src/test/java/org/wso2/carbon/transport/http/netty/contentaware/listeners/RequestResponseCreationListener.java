@@ -17,8 +17,10 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -46,18 +48,16 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * Transform message in request and response path
+ * A Message Processor which creates Request and Response
  */
-public class RequestResponseTransformListener implements HttpConnectorListener {
+public class RequestResponseCreationListener implements HttpConnectorListener {
+    private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformListener.class);
-
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
-    private String requestValue;
     private TransportsConfiguration configuration;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RequestResponseTransformListener(String responseValue, TransportsConfiguration configuration) {
+    public RequestResponseCreationListener(String responseValue, TransportsConfiguration configuration) {
         this.responseValue = responseValue;
         this.configuration = configuration;
     }
@@ -68,23 +68,21 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
             try {
                 int length = httpRequest.getFullMessageLength();
                 List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                byteBufferList.forEach(byteBuffer::put);
+                String requestValue = new String(byteBuffer.array());
+                byte[] arry = responseValue.getBytes("UTF-8");
 
-                ByteBuffer byteBuff = ByteBuffer.allocate(length);
-                byteBufferList.forEach(buf -> byteBuff.put(buf));
-                requestValue = new String(byteBuff.array());
-
-                httpRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequest.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
-
-                if (responseValue != null) {
-                    byte[] array = responseValue.getBytes("UTF-8");
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
-                    byteBuffer.put(array);
-                    httpRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-                    byteBuffer.flip();
-                    httpRequest.addMessageBody(byteBuffer);
-                    httpRequest.setEndOfMsgAdded(true);
+                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
                 }
+                ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
+                byteBuffer1.put(arry);
+                byteBuffer1.flip();
+                newMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer1)));
+                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -95,41 +93,47 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 }
 
                 String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(httpRequest);
+
+                HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpMessage) {
+                    public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            int length = httpMessage.getFullMessageLength();
-                            List<ByteBuffer> byteBufferList = httpMessage.getFullMessageBody();
+                            int length = httpResponse.getFullMessageLength();
+                            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
 
                             ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                            byteBufferList.forEach(buf -> byteBuffer.put(buf));
+                            byteBufferList.forEach(byteBuffer::put);
                             String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-                            if (requestValue != null) {
-                                byte[] array = new byte[0];
-                                try {
-                                    array = responseValue.getBytes("UTF-8");
-                                } catch (UnsupportedEncodingException e) {
+                            byte[] array = null;
+                            try {
+                                array = responseValue.getBytes("UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                logger.error("Failed to get the byte array from responseValue", e);
+                            }
 
-                                }
-                                ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                                byteBuff.put(array);
-                                httpMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-                                byteBuff.flip();
-                                httpMessage.addMessageBody(byteBuff);
-                                httpMessage.setEndOfMsgAdded(true);
-                                try {
-                                    httpRequest.respond(httpMessage);
-                                } catch (ServerConnectorException e) {
-                                    logger.error("Error occurred during message notification: " + e.getMessage());
-                                }
+                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                            byteBuff.put(array);
+                            byteBuff.flip();
+                            HTTPCarbonMessage httpCarbonMessage = httpResponse
+                                    .cloneCarbonMessageWithOutData();
+                            if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                        String.valueOf(array.length));
+                            }
+                            httpCarbonMessage.addHttpContent(
+                                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
+
+                            try {
+                                httpRequest.respond(httpCarbonMessage);
+                            } catch (ServerConnectorException e) {
+                                logger.error("Error occurred during message notification: " + e.getMessage());
                             }
                         });
                     }
@@ -139,10 +143,13 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
 
                     }
                 });
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Encoding is not supported", e);
             } catch (Exception e) {
-                logger.error("Error while reading stream", e);
+                logger.error("Failed to send the message to the back-end", e);
             }
         });
+
     }
 
     @Override
