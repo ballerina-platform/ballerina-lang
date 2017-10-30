@@ -15,7 +15,8 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (string) {
     function () returns (error) onTriggerFunction = cleanup;
     function (error e) onErrorFunction = cleanupError;
 
-    taskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval});
+    taskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction,
+                                                    {delay:delay, interval:interval});
     if (schedulerError != null) {
         println("Timer scheduling failed: " + schedulerError.msg) ;
     }

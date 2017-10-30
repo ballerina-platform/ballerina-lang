@@ -20,6 +20,7 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -29,6 +30,105 @@ import org.ballerinalang.util.program.BLangFunctions;
  * @since 0.94
  */
 public class BRunUtil {
+
+//    Methods to run in stateful manner
+    /**
+     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName  Name of the function to invoke
+     * @return return values of the function
+     */
+    public static BValue[] invokeStateful(CompileResult compileResult, String functionName) {
+        BValue[] args = {};
+        return invokeStateful(compileResult, functionName, args);
+    }
+
+    /**
+     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName  Name of the function to invoke
+     * @param args          Input parameters for the function
+     * @return return values of the function
+     */
+    public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        return invokeStateful(compileResult, compileResult.getProgFile().getEntryPkgName(), functionName, args);
+    }
+
+    /**
+     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     *
+     * @param compileResult CompileResult instance
+     * @param packageName   Name of the package to invoke
+     * @param functionName  Name of the function to invoke
+     * @return return values of the function
+     */
+    public static BValue[] invokeStateful(CompileResult compileResult, String packageName, String functionName) {
+        BValue[] args = {};
+        return invokeStateful(compileResult, packageName, functionName, args);
+    }
+
+    /**
+     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     *
+     * @param compileResult CompileResult instance
+     * @param packageName   Name of the package to invoke
+     * @param functionName  Name of the function to invoke
+     * @param args          Input parameters for the function
+     * @return return values of the function
+     */
+    public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
+                                          String functionName, BValue[] args) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        ProgramFile programFile = compileResult.getProgFile();
+        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
+            throw new RuntimeException("Function '" + functionName + "' is not defined");
+        }
+
+        if (functionInfo.getParamTypes().length != args.length) {
+            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        }
+        return BLangFunctions.invokeFunction(programFile, functionInfo, args, compileResult.getContext());
+    }
+
+//    Package init helpers
+    /**
+     * Invoke package init function.
+     *
+     * @param compileResult CompileResult instance
+     */
+    protected static void invokePackageInit(CompileResult compileResult) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        invokePackageInit(compileResult, compileResult.getProgFile().getEntryPkgName());
+    }
+
+    /**
+     * Invoke package init function.
+     *
+     * @param compileResult CompileResult instance
+     * @param packageName   Name of the package to invoke
+     */
+    protected static void invokePackageInit(CompileResult compileResult, String packageName) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        ProgramFile programFile = compileResult.getProgFile();
+        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+        Context context = new Context(programFile);
+        compileResult.setContext(context);
+        BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
+    }
+
     /**
      * Invoke a ballerina function.
      *

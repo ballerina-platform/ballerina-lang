@@ -1,6 +1,4 @@
-import ballerina.doc;
-
-@doc:Description {value:"Here's a function which returns two int values."}
+@Description {value:"Here's a function which returns two int values."}
 function divideBy10 (int d) (int, int) {
     return d / 10, d % 10;
 }

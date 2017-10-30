@@ -3,48 +3,49 @@ package ballerina.caching;
 import ballerina.task;
 import ballerina.util;
 
-@Description {value:"delay in ms which is used to create a new cache cleanup task."}
+@Description {value:"Cache cleanup task starting delay in ms."}
 const int CACHE_CLEANUP_START_DELAY = 0;
-@Description {value:"interval in ms which is used to create a new cache cleanup task."}
+@Description {value:"Cache cleanup task invoking interval in ms."}
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
 map cacheMap = {};
 
-string cacheCleanupTaskID = createTask();
+@Description {value:"Cleanup task ID."}
+string cacheCleanupTaskID = createCacheCleanupTask();
 
 @Description {value:"Represents a cache."}
-@Field {value:"name - name of the cache"}
-@Field {value:"timeout - timeout of the cache in seconds"}
-@Field {value:"capacity - capacity of the cache"}
-@Field {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@Field {value:"entries - map which contains the cache entries"}
+@Field {value:"name: name of the cache"}
+@Field {value:"expiryTimeMillis: cache expiry time in ms"}
+@Field {value:"capacity: capacity of the cache"}
+@Field {value:"evictionFactor: eviction factor to be used for cache eviction"}
+@Field {value:"entries: map which contains the cache entries"}
 public struct Cache {
     string name;
-    int timeOut;
+    int expiryTimeMillis;
     int capacity;
     float evictionFactor;
     map entries;
 }
 
 @Description {value:"Represents a cache entry"}
-@Field {value:"value - cache value"}
-@Field {value:"lastAccessedTime - last accessed time(in nano seconds) of this value which is used to remove LRU cached values"}
+@Field {value:"value: cache value"}
+@Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
 struct CacheEntry {
     any value;
     int lastAccessedTime;
 }
 
 @Description {value:"Creates a new cache."}
-@Param {value:"name - name of the cache"}
-@Param {value:"timeout - timeout of the cache in seconds"}
-@Param {value:"capacity - capacitry of the cache which should be greater than 0"}
-@Param {value:"evictionFactor - eviction factor to be used for cache eviction"}
-@Return {value:"cache - a new cache"}
-public function createCache (string name, int timeOut, int capacity, float evictionFactor) returns (Cache) {
-    // Cache timeout must be a positive value.
-    if (timeOut <= 0) {
-        error e = {msg:"Timeout must be greater than 0."};
+@Param {value:"name: name of the cache"}
+@Param {value:"expiryTimeMillis: expiryTime of the cache in ms"}
+@Param {value:"capacity: capacitry of the cache which should be greater than 0"}
+@Param {value:"evictionFactor: eviction factor to be used for cache eviction"}
+@Return {value:"cache: a new cache"}
+public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
+    // Cache expiry time must be a positive value.
+    if (expiryTimeMillis <= 0) {
+        error e = {msg:"Expiry time must be greater than 0."};
         throw e;
     }
     // Cache capacity must be a positive value.
@@ -59,16 +60,21 @@ public function createCache (string name, int timeOut, int capacity, float evict
     }
 
     // Create a new cache.
-    Cache cache = {name:name, timeOut:timeOut, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
+    Cache cache = {name:name, expiryTimeMillis:expiryTimeMillis, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     // Add the new cache to the map.
     cacheMap[util:uuid()] = cache;
     // Return the new cache.
     return cache;
 }
 
+@Description {value:"Returns the size of the cache."}
+public function <Cache cache> size () returns (int) {
+    return cache.entries.length();
+}
+
 @Description {value:"Adds the given key, value pair to the provided cache."}
-@Param {value:"key - value which should be used as the key"}
-@Param {value:"value - value to be cached"}
+@Param {value:"key: value which should be used as the key"}
+@Param {value:"value: value to be cached"}
 public function <Cache cache> put (string key, any value) {
     int cacheCapacity = cache.capacity;
     int cacheSize = cache.entries.length();
@@ -96,7 +102,7 @@ function <Cache cache> evictCache () {
 }
 
 @Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
-@Param {value:"key - key which is used to retrieve the cached value"}
+@Param {value:"key: key which is used to retrieve the cached value"}
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {
@@ -111,9 +117,9 @@ public function <Cache cache> get (string key) returns (any) {
 }
 
 @Description {value:"Removes a cached value from a cache."}
-@Param {value:"key - key of the cache entry which needs to be removed"}
-public function <Cache c> remove (string key) {
-    c.entries.remove(key);
+@Param {value:"key: key of the cache entry which needs to be removed"}
+public function <Cache cache> remove (string key) {
+    cache.entries.remove(key);
 }
 
 @Description {value:"Removes expired cache entries from all caches."}
@@ -136,8 +142,8 @@ function runCacheExpiry () returns (error) {
         map currentCacheEntries = currentCache.entries;
         // Ge the keys in the current cache.
         string[] currentCacheEntriesKeys = currentCacheEntries.keys();
-        // Get the timeout of the current cache
-        int currentCacheTimeout = currentCache.timeOut;
+        // Get the expiry time of the current cache
+        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
         int currentKeyIndex = 0;
         int currentCacheSize = lengthof currentCacheEntriesKeys;
@@ -154,7 +160,7 @@ function runCacheExpiry () returns (error) {
             // Get the current system time.
             int currentSystemTime = currentTime().time;
             // Check whether the cache entry needs to be removed.
-            if (currentSystemTime >= entry.lastAccessedTime + currentCacheTimeout) {
+            if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
                 cachesToBeRemoved[cachesToBeRemovedIndex] = key;
                 cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
             }
@@ -175,7 +181,7 @@ function runCacheExpiry () returns (error) {
 }
 
 @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@Return {value:"string - key of the LRU cache entry"}
+@Return {value:"string: key of the LRU cache entry"}
 function <Cache cache> getLRUCacheKey () (string cacheKey) {
     map entries = cache.entries;
     string[] keys = entries.keys();
@@ -198,8 +204,8 @@ function <Cache cache> getLRUCacheKey () (string cacheKey) {
 }
 
 @Description {value:"Creates a new cache cleanup task."}
-@Return {value:"string - cache cleanup task ID"}
-function createTask () (string) {
+@Return {value:"string: cache cleanup task ID"}
+function createCacheCleanupTask () (string) {
     function () returns (error) onTriggerFunction = runCacheExpiry;
     function (error) onErrorFunction = null;
     var cacheCleanupTaskID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
