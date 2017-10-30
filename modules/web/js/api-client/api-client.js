@@ -96,6 +96,8 @@ export function parseContent(content) {
         fileName: 'untitle',
         filePath: '/temp',
         packageName: 'test.package',
+        includeTree: true,
+        includePackageInfo: true,
         content,
     };
     const endpoint = getServiceEndpoint('parser');
