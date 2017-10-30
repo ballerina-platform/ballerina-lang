@@ -111,11 +111,11 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                             ByteBuffer byteBuffer = ByteBuffer.allocate(length);
                             byteBufferList.forEach(byteBuffer::put);
                             String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-                            byte[] array = new byte[0];
+                            byte[] array = null;
                             try {
                                 array = responseValue.getBytes("UTF-8");
                             } catch (UnsupportedEncodingException e) {
-
+                                logger.error("Failed to get the byte array from responseValue", e);
                             }
 
                             ByteBuffer byteBuff = ByteBuffer.allocate(array.length);

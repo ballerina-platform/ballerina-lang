@@ -71,6 +71,11 @@ public class HTTPCarbonMessage {
         setBlockingEntityCollector(new BlockingEntityCollector(soTimeOut));
     }
 
+    /**
+     * Add http content to HttpCarbonMessage.
+     *
+     * @param httpContent chunks of the payload.
+     */
     public synchronized void addHttpContent(HttpContent httpContent) {
         if (this.messageFuture != null) {
             this.messageFuture.notifyMessageListener(httpContent);
@@ -79,6 +84,11 @@ public class HTTPCarbonMessage {
         }
     }
 
+    /**
+     * Get the available content of HttpCarbonMessage.
+     *
+     * @return HttpContent.
+     */
     public HttpContent getHttpContent() {
         return this.blockingEntityCollector.getHttpContent();
     }
@@ -93,14 +103,28 @@ public class HTTPCarbonMessage {
         return blockingEntityCollector.getMessageBody();
     }
 
+    /**
+     * Returns the full content of HttpCarbonMessage. This is a blocking method.
+     *
+     * @return entire payload.
+     */
     public List<ByteBuffer> getFullMessageBody() {
         return blockingEntityCollector.getFullMessageBody();
     }
 
+    /**
+     * Check if the payload empty.
+     *
+     * @return true or false.
+     */
     public boolean isEmpty() {
         return blockingEntityCollector.isEmpty();
     }
 
+    /**
+     * Return the length of entire payload. This is a blocking method.
+     * @return the length.
+     */
     public int getFullMessageLength() {
         return blockingEntityCollector.getFullMessageLength();
     }
@@ -132,22 +156,49 @@ public class HTTPCarbonMessage {
         blockingEntityCollector.setAlreadyRead(alreadyRead);
     }
 
+    /**
+     * Returns the header map of the request.
+     *
+     * @return all headers.
+     */
     public HttpHeaders getHeaders() {
         return this.httpMessage.headers();
     }
 
+    /**
+     * Return the value of the given header name.
+     *
+     * @param key name of the header.
+     * @return value of the header.
+     */
     public String getHeader(String key) {
         return httpMessage.headers().get(key);
     }
 
+    /**
+     * Set the header value for the given name.
+     *
+     * @param key header name.
+     * @param value header value.
+     */
     public void setHeader(String key, String value) {
         this.httpMessage.headers().set(key, value);
     }
 
+    /**
+     * Let you set a set of headers.
+     *
+     * @param httpHeaders set of headers that needs to be set.
+     */
     public void setHeaders(HttpHeaders httpHeaders) {
         this.httpMessage.headers().setAll(httpHeaders);
     }
 
+    /**
+     * Remove the header using header name.
+     *
+     * @param key header name.
+     */
     public void removeHeader(String key) {
         httpMessage.headers().remove(key);
     }
@@ -181,7 +232,7 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Get CarbonMessageException
+     * Get CarbonMessageException.
      *
      * @return CarbonMessageException instance related to faulty HTTPCarbonMessage.
      */
@@ -202,10 +253,16 @@ public class HTTPCarbonMessage {
         this.blockingEntityCollector = blockingEntityCollector;
     }
 
+    @Deprecated
     public void release() {
         blockingEntityCollector.release();
     }
 
+    /**
+     * Returns the future responsible for sending back the response.
+     *
+     * @return serverConnectorFuture.
+     */
     public ServerConnectorFuture getHTTPConnectorFuture() {
         return this.serverConnectorFuture;
     }
@@ -215,9 +272,9 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Copy Message properties and transport headers
+     * Copy Message properties and transport headers.
      *
-     * @return HTTPCarbonMessage
+     * @return HTTPCarbonMessage.
      */
     public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
         HTTPCarbonMessage newCarbonMessage = getNewHttpCarbonMessage();
@@ -257,9 +314,9 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Copy the Full carbon message with data
+     * Copy the Full carbon message with data.
      *
-     * @return carbonMessage
+     * @return carbonMessage.
      */
     public HTTPCarbonMessage cloneCarbonMessageWithData() {
         HTTPCarbonMessage httpCarbonMessage = getNewHttpCarbonMessage();
@@ -281,6 +338,10 @@ public class HTTPCarbonMessage {
         return newCopy;
     }
 
+    /**
+     * Wait till the entire payload is received. This is important to avoid data corruption.
+     * Before a set a new set of payload, we need remove the existing ones.
+     */
     public void waitAndReleaseAllEntities() {
         blockingEntityCollector.waitAndReleaseAllEntities();
     }

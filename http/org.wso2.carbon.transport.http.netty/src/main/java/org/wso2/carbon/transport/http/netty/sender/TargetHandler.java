@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -47,12 +48,13 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private HTTPCarbonMessage incomingMsg;
+    private HandlerExecutor handlerExecutor;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
+        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
 
         super.channelActive(ctx);
@@ -65,9 +67,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             if (msg instanceof HttpResponse) {
                 targetRespMsg = setUpCarbonMessage(ctx, msg);
                 // TODO: Revisit all of these after the refactor
-                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                            executeAtTargetResponseReceiving(targetRespMsg);
+                if (handlerExecutor != null) {
+                    handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
                 if (this.httpResponseFuture != null) {
                     try {
@@ -83,9 +84,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     targetRespMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtTargetResponseSending(targetRespMsg);
+                        if (handlerExecutor != null) {
+                            handlerExecutor.executeAtTargetResponseSending(targetRespMsg);
                         }
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
@@ -114,9 +114,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 .getProperty(Constants.EXECUTOR_WORKER_POOL));
         //TODO copy mandatory properties from previous message if needed
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtTargetResponseReceiving(targetRespMsg);
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
         }
 
         return targetRespMsg;
@@ -130,9 +129,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
         connectionManager.invalidateTargetChannel(targetChannel);
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
+            handlerExecutor = null;
         }
     }
 
