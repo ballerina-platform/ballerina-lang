@@ -23,7 +23,7 @@ public annotation configuration attach service<> {
     webSocket webSocket;
 }
 
-public annotation webSocket attach service {
+public annotation webSocket attach service<> {
     string upgradePath;
     string serviceName;
 }
