@@ -92,12 +92,13 @@ public function <Cache cache> put (string key, any value) {
 function <Cache cache> evictCache () {
     int maxCapacity = cache.capacity;
     float evictionFactor = cache.evictionFactor;
-    int noOfEntriesToBeEvicted = <int>(maxCapacity * evictionFactor);
-    int i = 0;
-    while (i < noOfEntriesToBeEvicted) {
-        string cacheKey = cache.getLRUCacheKey();
-        cache.entries.remove(cacheKey);
-        i = i + 1;
+    int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
+    string[] cacheKeys = cache.getLRUCacheKeys(numberOfKeysToEvict);
+
+    int index = 0;
+    while (index < numberOfKeysToEvict) {
+        cache.entries.remove(cacheKeys[index]);
+        index = index + 1;
     }
 }
 
@@ -181,26 +182,44 @@ function runCacheExpiry () returns (error) {
 }
 
 @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@Return {value:"string: key of the LRU cache entry"}
-function <Cache cache> getLRUCacheKey () (string cacheKey) {
+@Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
+function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) (string[]) {
+    string[] cacheKeys = [];
+    int[] timestamps = [];
+
     map entries = cache.entries;
     string[] keys = entries.keys();
-    cacheKey = "";
-    int currentMinimumTime = currentTime().time;
 
     int index = 0;
     int size = lengthof keys;
-
     while (index < size) {
         string key = keys[index];
         var entry, _ = (CacheEntry)entries[key];
-        if (currentMinimumTime > entry.lastAccessedTime) {
-            cacheKey = key;
-            currentMinimumTime = entry.lastAccessedTime;
+        checkAndAdd(numberOfKeysToEvict, cacheKeys, timestamps, key, entry.lastAccessedTime);
+        index = index + 1;
+    }
+    return cacheKeys;
+}
+
+function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
+    int index = 0;
+    while (index < numberOfKeysToEvict) {
+        if (lengthof cacheKeys == index) {
+            cacheKeys[index] = key;
+            timestamps[index] = lastAccessTime;
+            break;
+        } else {
+            if (timestamps[index] > lastAccessTime) {
+                string tempKey = cacheKeys[index];
+                int tempTimeStamp = timestamps[index];
+                cacheKeys[index] = key;
+                timestamps[index] = lastAccessTime;
+                key = tempKey;
+                lastAccessTime = tempTimeStamp;
+            }
         }
         index = index + 1;
     }
-    return cacheKey;
 }
 
 @Description {value:"Creates a new cache cleanup task."}
