@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -216,5 +217,57 @@ public class CachingTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
         Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
+    }
+
+    @Test
+    public void testCacheEviction4() {
+        String cacheName = "userCache";
+        int expiryTime = 20000;
+        int capacity = 5;
+        float evictionFactor = 0.2f;
+        BValue[] args = new BValue[4];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(expiryTime);
+        args[2] = new BInteger(capacity);
+        args[3] = new BFloat(evictionFactor);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction4", args);
+        Assert.assertTrue(returns.length == 2);
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(((BStringArray) returns[0]).get(2), "C");
+        Assert.assertEquals(((BStringArray) returns[0]).get(3), "D");
+        Assert.assertEquals(((BStringArray) returns[0]).get(4), "F");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithZeroExpiryTime() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithZeroExpiryTime");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithNegativeExpiryTime() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithNegativeExpiryTime");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithZeroCapacity() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithZeroCapacity");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithNegativeCapacity() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithNegativeCapacity");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithZeroEvictionFactor() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithZeroEvictionFactor");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithInvalidEvictionFactor() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithInvalidEvictionFactor");
     }
 }
