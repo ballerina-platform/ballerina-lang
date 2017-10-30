@@ -664,6 +664,24 @@ class SizingUtil {
         viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight +
             (viewState.variablesExpanded ? (variables.length *
                 this.config.packageDefinition.importDeclaration.itemHeight) + 35 : 0);
+
+        if (TreeUtil.isConnector(node)) {
+            cmp.argParameterHolder = {};
+            // Creating components for argument parameters
+            if (node.getParameters()) {
+                // Creating component for opening bracket of the parameters view.
+                cmp.argParameterHolder.openingParameter = {};
+                cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
+
+                // Creating component for closing bracket of the parameters view.
+                cmp.argParameterHolder.closingParameter = {};
+                cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
+
+                cmp.heading.w += cmp.argParameterHolder.openingParameter.w
+                    + cmp.argParameterHolder.closingParameter.w
+                    + this.getParameterTypeWidth(node.getParameters()) + 120;
+            }
+        }
         // set the components.
         viewState.components = cmp;
     }
