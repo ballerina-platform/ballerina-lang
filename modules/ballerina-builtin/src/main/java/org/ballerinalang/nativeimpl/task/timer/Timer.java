@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
+import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -64,6 +65,7 @@ public class Timer {
         ctx.startTrackWorker();
         this.context = ctx;
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
+        TaskRegistry.getInstance().addTimer(this);
     }
 
     /**
@@ -83,7 +85,7 @@ public class Timer {
             BValue[] results =
                     BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
             // If there are results, that mean an error has been returned
-            if (results.length > 0 && results[0] != null) {
+            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
             }
         } catch (BLangRuntimeException e) {
@@ -102,6 +104,7 @@ public class Timer {
 
     public void stop() throws TaskException {
         executorService.shutdown();
+        TaskRegistry.getInstance().remove(id);
         context.endTrackWorker();
     }
 

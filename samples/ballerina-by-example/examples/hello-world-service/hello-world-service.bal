@@ -1,9 +1,8 @@
 import ballerina.net.http;
-import ballerina.doc;
 
-@doc:Description {value:"By default Ballerina assumes that the service is to be exposed via HTTP/1.1 using the system default port."}
+@Description {value:"By default Ballerina assumes that the service is to be exposed via HTTP/1.1 using the system default port."}
 service<http> helloWorld {
-    @doc:Description {value:"All resources are invoked with arguments of request and response"}
+    @Description {value:"All resources are invoked with arguments of request and response"}
     resource sayHello (http:Request req, http:Response res) {
         // A util method that can be used to set string payload.
         res.setStringPayload("Hello, World!");

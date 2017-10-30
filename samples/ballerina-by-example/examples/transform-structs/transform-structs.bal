@@ -1,13 +1,11 @@
-import ballerina.doc;
-
-@doc:Description {value:"Defining Employee struct."}
+@Description {value:"Defining Employee struct."}
 struct Employee {
     string name;
     int age;
     string address;
 }
 
-@doc:Description {value:"Defining Person struct."}
+@Description {value:"Defining Person struct."}
 struct Person {
     string first_name;
     string last_name;

@@ -1,13 +1,12 @@
-import ballerina.lang.system;
 import ballerina.task;
 import ballerina.math;
 
 int count;
 
 function main (string[] args) {
-    system:println("Task test");
+    println("Task test");
     string taskId = scheduleTimer(500, 1000, 200000);
-    system:println("Task ID:" + taskId);
+    println("Task ID:" + taskId);
 }
 
 function scheduleTimer (int delay, int interval, int sleepInterval)  (string) {
@@ -16,17 +15,18 @@ function scheduleTimer (int delay, int interval, int sleepInterval)  (string) {
     function () returns (error) onTriggerFunction = cleanup;
     function (error e) onErrorFunction = cleanupError;
 
-    taskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval});
+    taskId, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction,
+                                                    {delay:delay, interval:interval});
     if (schedulerError != null) {
-        system:println("Timer scheduling failed: " + schedulerError.msg) ;
+        println("Timer scheduling failed: " + schedulerError.msg) ;
     }
     return taskId;
 }
 
 function cleanup() returns (error e) {
     count = count + 1;
-    system:println("Cleaning up");
-    system:println(count);
+    println("Cleaning up");
+    println(count);
     if(math:randomInRange(0,10) == 5) {
         e = {msg:"Cleanup error"};
     }
@@ -34,6 +34,6 @@ function cleanup() returns (error e) {
 }
 
 function cleanupError(error e) {
-    system:print("[ERROR] cleanup failed");
-    system:println(e);
+    print("[ERROR] cleanup failed");
+    println(e);
 }
