@@ -162,6 +162,10 @@ public class WorkspaceServiceRunner {
         int debuggerPort = LaunchUtils.getFreePort();
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
+        
+        if (!isCloudMode && null == System.getProperty("msf4j.host")) {
+            System.setProperty("msf4j.host", "127.0.0.1");
+        }
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
         WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
