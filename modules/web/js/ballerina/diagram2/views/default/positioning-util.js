@@ -316,11 +316,15 @@ class PositioningUtil {
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
 
         // ========== Header Positioning ==========
+        let publicPrivateFlagoffset = 0;
+        if (node.public) {
+            publicPrivateFlagoffset = 10;
+        }
         // Positioning argument parameters
         if (node.getParameters()) {
             cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
                 this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding;
+                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset;
             cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
 
             // Positioning the resource parameters
@@ -579,15 +583,19 @@ class PositioningUtil {
             OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
         }
         if (TreeUtil.isConnector(node)) {
+            let publicPrivateFlagoffset = 0;
+            if (node.public) {
+                publicPrivateFlagoffset = 40;
+            }
             // Positioning argument parameters
             if (node.getParameters()) {
                 viewState.components.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
                     this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                    + this.config.panelHeading.iconSize.padding;
+                    + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset;
                 viewState.components.argParameterHolder.openingParameter.y = viewState.bBox.y +
                     viewState.components.annotation.h;
 
-                // Positioning the resource parameters
+                // Positioning the connector parameters
                 let nextXPositionOfParameter = viewState.components.argParameterHolder.openingParameter.x
                     + viewState.components.argParameterHolder.openingParameter.w;
                 if (node.getParameters().length > 0) {

@@ -53,3 +53,9 @@
 .protocol-rect-http{
     fill: #3498db !important;
 }
+.publicPrivateRectHolder{
+    fill-opacity: 0;
+}
+.publicPrivateText{
+    fill: #203f4e;
+}
