@@ -21,45 +21,46 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#close.
+ * Native function ballerina.io#closeCharacterChannel.
  *
- * @since 0.94
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        functionName = "closeCharacterChannel",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class CloseCharacterChannel extends AbstractNativeFunction {
 
     /**
-     * The index of the ByteChannel in ballerina.io#close().
+     * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
      */
-    private static final int BYTE_CHANNEL_INDEX = 0;
+    private static final int CHARACTER_CHANNEL_INDEX = 0;
 
     /**
-     * Closes the byte channel.
-     *
      * <p>
+     * Closes a character channel.
+     * </p>
+     *
      * {@inheritDoc}
      */
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            AbstractChannel byteChannel = (AbstractChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byteChannel.close();
+            channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
+            CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
+            charChannel.close();
         } catch (Throwable e) {
-            String message = "Failed to close the channel. " + e.getMessage();
+            String message = "Failed to close the character channel. " + e.getMessage();
             throw new BallerinaException(message, context);
         }
         return VOID_RETURN;

@@ -133,6 +133,8 @@ public class IOTest {
 
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
+        BRunUtil.invoke(characterInputOutputProgramFile, "close");
+
     }
 
     @Test(description = "Test 'readRecords' function in ballerina.io package")
@@ -165,6 +167,8 @@ public class IOTest {
         records = (BStringArray) returns[0];
 
         Assert.assertEquals(records.length(), 0);
+
+        BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'writeBytes' function in ballerina.io package")
@@ -178,6 +182,8 @@ public class IOTest {
 
         args = new BValue[]{new BBlob(content), new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
+
+        BRunUtil.invoke(bytesInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'writeCharacters' function in ballerina.io package")
@@ -191,6 +197,8 @@ public class IOTest {
 
         args = new BValue[]{new BString(content), new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "writeCharacters", args);
+
+        BRunUtil.invoke(characterInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'writeRecords' function in ballerina.io package")
@@ -206,6 +214,8 @@ public class IOTest {
 
         args = new BValue[]{record};
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
+
+        BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
 }
