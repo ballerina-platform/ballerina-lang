@@ -254,7 +254,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
             if (ifNode.elseStmt != null) {
                 if (!(ifNode.elseStmt instanceof BLangIf)) {
-                    this.blockOwnerStack.push(null);
+                    this.blockOwnerStack.push(ifNode.elseStmt);
                 }
                 acceptNode(ifNode.elseStmt, symbolEnv);
                 if (!(ifNode.elseStmt instanceof BLangIf)) {
