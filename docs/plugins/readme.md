@@ -477,6 +477,17 @@ A Dialog is a react component identified by a unique id and is composed using th
 
 To contribute a dialog, a plugin should provide a unique ID, a react component and a prop provider function for the react component.
 
+```javascript
+
+// dialog definition schema
+{
+    "id": PropTypes.string.isRequired,
+    "component": PropTypes.node.isRequired,
+    "propsProvider": PropTypes.func.isRequired,
+}
+
+```
+
 Step 1 : Create the Dialog Component - [Example](./../../modules/web/src/core/workspace/dialogs/FileOpenDialog.jsx)
 
 ```javascript
@@ -571,10 +582,198 @@ From the several regions available in layout, apart from the regions meant for i
 
 Dependening on the target region, a view should/may provide region specific options. For example, left panel views should provide an icon for activity bar and may also provide panel actions to be rendered in top right (Eg: refresh, add folder actions of explorer)
 
+All the components contributed as views will receive two implicit props called `width` and `height`, which contains the number of pixels the view will consume in screen.
+
 ![Layout](./layout.jpg "Composer Layout")
 
 
+```javascript
+
+// view definition schema
+{
+    "id": PropTypes.string.isRequired,
+    "component": PropTypes.node.isRequired,
+    "propsProvider": PropTypes.func.isRequired,
+    "region":PropTypes.string.isRequired,
+    "regionOptions": PropTypes.object,
+}
+
+```
+
+#### Contributing a View to Left Panel
+
+[Example Explorer View](./../../modules/web/src/core/workspace/plugin.js#L273)
+
+```javascript
+
+{
+    id: VIEW_IDS.EXPLORER,
+    component: WorkspaceExplorer,
+    propsProvider: () => {
+        return {
+            workspaceManager: this,
+        };
+    },
+    region: REGIONS.LEFT_PANEL,
+    // region specific options for left-panel views
+    regionOptions: {
+        activityBarIcon: 'file-browse',
+        panelTitle: 'Explorer',
+        panelActions: [
+            {
+                icon: 'refresh2',
+                isActive: () => {
+                    return true;
+                },
+                handleAction: () => {
+                    const { command: { dispatch } } = this.appContext;
+                    dispatch(COMMAND_IDS.REFRESH_EXPLORER, {});
+                },
+                description: 'Refresh',
+            },
+            {
+                icon: 'add-folder',
+                isActive: () => {
+                    return true;
+                },
+                handleAction: () => {
+                    const { command: { dispatch } } = this.appContext;
+                    dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
+                },
+                description: 'Open Folder',
+            },
+        ],
+    },
+},
+
+```
+
+#### Contributing a View to Bottom Panel
+
+[Example Run Console](./../../modules/web/src/plugins/debugger/plugin.js#L136)
+
+```javascript
+{
+    id: VIEW_IDS.DEBUGGER_CONSOLE,
+    component: DebuggerConsole,
+    propsProvider: () => {
+        LaunchManager.init(this.appContext.services.launcher.endpoint);
+        return {
+            debuggerPlugin: this,
+            LaunchManager,
+        };
+    },
+    region: REGIONS.BOTTOM_PANEL,
+    // region specific options for bottom panel views
+    regionOptions: {
+        panelTitle: 'Console',
+        panelActions: [
+        ],
+    },
+},
+```
+#### Contributing a View as a Custom Editor Tab
+
+[Example Welome Page](./../../modules/web/src/plugins/welcome-tab/plugin.js#L90)
+
+```javascript
+{
+    id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
+    component: WelcomeTab,
+    propsProvider: () => {
+        const { command } = this.appContext;
+        return {
+            createNew: this.createNewHandler.bind(this),
+            openFile: this.openFileHandler.bind(this),
+            openDirectory: this.openDirectoryHandler.bind(this),
+            userGuide: this.config.userGuide,
+            balHome: this.config.balHome,
+            samples: this.config.samples,
+            commandManager: command,
+        };
+    },
+    region: REGIONS.EDITOR_TABS,
+    // region specific options for custom editor tabs
+    regionOptions: {
+        tabTitle: LABELS.WELCOME,
+        customTitleClass: 'welcome-page-tab-title',
+    },
+},
+```
+Unlike left or bottom panel views, cutom editor tab views are not rendered by default. To show them - or render them within editor tabs - you need to dispatach SHOW_VIEW command from layout manager. 
+
+[Example Show Welome Page](./../../modules/web/src/plugins/welcome-tab/handlers.js#L34)
+
+```javascript
+const { command } = plugin.appContext;
+command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEWS.WELCOME_TAB_VIEW_ID });
+```
 ### editors
+
+By contributing an editor for a certain file extension, plugins are able to control what to render in editor tab that is going to be rendered in editor area. ATM, only one editor is contributed via ballerina plugin which is responsible for retrieving bal file content and rendering design/source views in editor area.
+
+In future, if we are going to support editing other file types with composer, we have provided the bare minimum capabilities to bind a custom editor to a file extension. There are plenty of improvements possible with regards to this.
+
+The react component for editor area will implicitely receive below props from composer. Similar to dialogs/other views, they can have a custom prop provider too. 
+
+```javascript
+
+// Implicit props available to editor components
+{
+    "editorModel": PropTypes.objectOf(Editor),
+    "isActive": PropTypes.bool,
+    "file": PropTypes.objectOf(File),
+    "isPreviewViewEnabled":PropTypes.bool,
+    "panelResizeInProgress": PropTypes.object,
+    "width":PropTypes.number,
+    "height": PropTypes.number,
+}
+
+// editor definition schema
+{
+    "id": PropTypes.string.isRequired,
+    "extension": PropTypes.string.isRequired,
+    "component": PropTypes.node.isRequired,
+    "customPropsProvider": PropTypes.func.isRequired,
+    "previewView":PropTypes.shape({
+         "component": PropTypes.node.isRequired,
+         "customPropsProvider": PropTypes.func.isRequired,
+    }),
+    "tabTitleClass": PropTypes.string,
+}
+
+
+```
+
+#### Contributing an editor for a file type
+If the editor supports split view preview, they can provide the component for preview view too. Both component will recevie sampe props.
+It is possible to sync updated content via file instance passed in props.
+
+[Example Ballerina File Editor](./../../modules/web/src/plugins/ballerina/plugin.js#L47)
+```javascript
+
+// Editor Definition for bal files
+{
+    id: EDITOR_ID,
+    extension: 'bal',
+    component: Editor,
+    customPropsProvider: () => {
+        return {
+            ballerinaPlugin: this,
+        };
+    },
+    previewView: {
+        component: SourceEditor,
+        customPropsProvider: () => {
+            return {
+                parseFailed: false,
+            };
+        },
+    },
+    tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
+},
+
+```
 
 ## Core plugins and their APIs
 
