@@ -181,6 +181,42 @@ class WelcomeTabPlugin extends Plugin {
 }
 ```
 
+
+## Core plugins and their APIs
+
+Below are the APIs from core plugins which are available through appContext.
+
+- alert
+    - showInfo(msg) : Displays a info alert on top right 
+    - showSuccess(msg) : Displays a success alert on top right 
+    - showWarning(msg) : Displays a waring alert on top right
+    - showError(msg)  : Displays an error alert on top right
+- command
+    - off(cmdId, handler) : Unregister a command handler 
+    - on(cmdId, handler) : Register a command handler 
+    - dispatch(cmdId, argsObj) : Dispatch a command
+    - getCommands()  : Returns all registered commands
+    - findCommand(cmdId) : Find a command
+- editor
+    - open(file, activate) : Open the given file in editor
+    - getActiveEditor() : Returns active editor instance
+    - getEditorByID(editorId||filePath) : Get editor instance by id/file path
+    - isFileOpenedInEditor(filePath)  : Returns true if the given file is opened in editor
+    - setActiveEditor(editorInstance) : Sets the given editor as the active editor
+    - closeEditor(editorInstance) : Close the given editor instance
+- pref
+    - put(key, value) : put a value to prefs
+    - get(key) : get a value from prefs
+    - history
+        - put(key, value) : put a value to history
+        - get(key) : get a value from history
+- workspace
+    - openFile(filePath) : Open File in workspace in editor tabs (maintains history)
+    - openFolder(filePath) : Open Folder in explorer
+    - closeFile(filePath)
+    - closeFolder(filePath)
+    - goToFileInExplorer(filePath) : Scroll to given file in explorer - if a matching parent folder is opened already
+
 ## Available extension points
 
 > Please note that, as of now, these extension points only allow contributing to higher level components of the Composer. In future we are planning to improve plugins to accept contributions from other plugins. For example, contributing to ballerina tool pallete will become possible after making plugins capable of defining their own extension points. As a first step, we have made basic components of the Composer front end pluggable and we will keep on improving it to allow more flexibility. 
@@ -775,13 +811,35 @@ It is possible to sync updated content via file instance passed in props.
 
 ```
 
-## Core plugins and their APIs
+### APIs available to React Components via React Context
 
-- command
-- layout
-- workspace
-- menu
-- editor
-- preferences
+To all React components contributed via plugins, below APIs are available via react context implicitly.
+
+```javascript
+{
+    "history": PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
+    "command": PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
+    "alert": PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+    }).isRequired,
+    "editor": PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorByID: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+        closeEditor: PropTypes.func,
+    }).isRequired,
+}
+```
+
 
 
