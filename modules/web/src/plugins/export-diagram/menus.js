@@ -32,8 +32,10 @@ export function getMenuDefinitions(plugin) {
             id: MENUS.EXPORT_DIAGRAM_MENU,
             parent: WORKSPACE_MENU.FILE_MENU,
             label: LABELS.EXPORT_DIAGRAM_MENU_TITLE,
-            isActive: (appContext) => {
-                return true;
+            isActive: () => {
+                const { editor } = plugin.appContext;
+                const activeTab = editor.getActiveEditor();
+                return activeTab && activeTab.file;
             },
             icon: 'export',
             command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
