@@ -785,6 +785,16 @@
                 <version>${atomikos-version}</version>
             </dependency>
             <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
                 <version>${apache.mina.core}</version>
@@ -947,7 +957,7 @@
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.2</javax-transaction-version>
         <atomikos-version>3.8.0.wso2v1</atomikos-version>
-        <quartz.version>2.3.0.wso2v1</quartz.version>
+        <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
