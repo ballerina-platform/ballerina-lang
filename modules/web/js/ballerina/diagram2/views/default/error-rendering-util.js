@@ -509,6 +509,18 @@ class ErrorRenderingUtil {
                 node.viewState.errorsForGlobals = overlayComponents;
             }
         }
+        // Positoning errors in parameters for connector nodes
+        if (TreeUtil.isConnector(node)) {
+            // Positioning argument parameters
+            if (node.getParameters()) {
+                if (node.getParameters().length > 0) {
+                    for (let i = 0; i < node.getParameters().length; i++) {
+                        const argument = node.getParameters()[i];
+                        this.placeErrorForTitleNode(argument);
+                    }
+                }
+            }
+        }
     }
 
 
