@@ -1,9 +1,8 @@
 import ballerina.lang.messages;
 
 import ballerina.net.jms;
-import ballerina.doc;
 
-@doc:Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
+@Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
 @jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
