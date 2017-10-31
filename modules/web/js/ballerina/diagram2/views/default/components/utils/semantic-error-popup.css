@@ -69,3 +69,7 @@
     background-color: #e74e52;
     color: #fff;
 }
+
+#semantic-errors-list-popover .list-group-item .line:hover{
+    color: #ff7f51;
+}
