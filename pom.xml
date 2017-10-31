@@ -149,6 +149,16 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -168,5 +178,6 @@
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
         <ballerina.connectors.version>${ballerina.runtime.version}</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
+        <quartz-version>2.3.0</quartz-version>
     </properties>
 </project>
