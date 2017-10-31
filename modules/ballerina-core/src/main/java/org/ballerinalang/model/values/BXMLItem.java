@@ -548,6 +548,7 @@ public final class BXMLItem extends BXML<OMNode> {
     public void serializeData() {
         try {
             this.omNode.serialize(this.outputStream);
+            this.outputStream.close();
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
