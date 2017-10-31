@@ -214,7 +214,7 @@ class PanelDecorator extends React.Component {
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
             rightComponent.props.bBox = {
-                x: x - ((index + 3) * width),
+                x: x - ((index + 4) * width),
                 y,
                 width,
                 height,
