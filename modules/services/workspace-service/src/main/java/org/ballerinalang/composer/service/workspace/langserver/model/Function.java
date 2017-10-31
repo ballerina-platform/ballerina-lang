@@ -162,9 +162,13 @@ public class Function {
      * Returns true if the function is public else false
      * @return
      */
-    public boolean isPublic(){return isPublic;}
+    public boolean isPublic() {
+        return isPublic;
+    }
 
-    public void setPublic(Boolean isPublic){this.isPublic = isPublic;}
+    public void setPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
 
     @Override
     public boolean equals(Object o) {
