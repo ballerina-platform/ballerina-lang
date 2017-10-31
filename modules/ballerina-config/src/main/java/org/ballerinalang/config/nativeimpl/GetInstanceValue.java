@@ -19,11 +19,14 @@
 package org.ballerinalang.config.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.config:getInstanceValue
@@ -33,13 +36,19 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.config",
         functionName = "getInstanceValue",
-        args = {@Argument(name = "property", type = TypeKind.STRING)},
+        args = {@Argument(name = "instance", type = TypeKind.STRING),
+                @Argument(name = "property", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetInstanceValue extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[0];
+        String instanceId = this.getStringArgument(context, 0);
+        String configKey = this.getStringArgument(context, 1);
+
+        String instanceValue = ConfigRegistry.getInstanceConfigValue(instanceId, configKey);
+        return getBValues(new BString(instanceValue));
     }
 }

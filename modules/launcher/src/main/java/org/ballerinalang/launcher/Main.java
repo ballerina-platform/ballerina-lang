@@ -18,11 +18,14 @@
 
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.ConfigProcessor;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
@@ -34,6 +37,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -215,6 +219,9 @@ public class Main {
         @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
         private boolean httpTraceLogEnabled;
 
+        @DynamicParameter(names = "-B", description = "collects flags starting with -B")
+        private Map<String, String> configRuntimeParams = new HashMap<>();
+
         public void execute() {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
@@ -228,6 +235,10 @@ public class Main {
 
             if (httpTraceLogEnabled) {
                 System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
+            }
+
+            if (!configRuntimeParams.isEmpty()) {
+                ConfigProcessor.setRuntimeConfiguration(configRuntimeParams);
             }
 
             // Enable remote debugging
