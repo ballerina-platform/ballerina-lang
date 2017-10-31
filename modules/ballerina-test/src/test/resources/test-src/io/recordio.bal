@@ -18,3 +18,7 @@ function readRecord () (string[]) {
 function writeRecord (string[] fields) {
     textRecordChannel.writeTextRecord(fields);
 }
+
+function close(){
+    textRecordChannel.closeTextRecordChannel();
+}
