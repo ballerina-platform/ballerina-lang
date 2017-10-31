@@ -30,5 +30,6 @@
         <module>http</module>
         <module>jms</module>
         <module>file</module>
+        <module>email</module>
     </modules>
 </project>
