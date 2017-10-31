@@ -1,0 +1,106 @@
+/*
+*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
+package org.ballerinalang.test.nativeimpl.functions;
+
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.Properties;
+
+/**
+ * Test class for runtime package.
+ */
+public class RuntimeTest {
+
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/runtimeTest.bal");
+    }
+
+    @Test
+    public void testSleepCurrentThread() {
+        long startTime = System.currentTimeMillis();
+        BRunUtil.invoke(compileResult, "testSleepCurrentThread");
+        long endTime = System.currentTimeMillis();
+        Assert.assertTrue((endTime - startTime) >= 1000);
+    }
+
+    @Test
+    public void testSetProperty() {
+        String key = "BALLERINA";
+        String value = "ROCKS";
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
+        BRunUtil.invoke(compileResult, "testSetProperty", args);
+        String actualValue = System.getProperty(key);
+        Assert.assertEquals(actualValue, value);
+    }
+
+    @Test
+    public void testGetProperty() {
+        String key = "BALLERINA";
+        String expectedValue = "ROCKS";
+        System.setProperty(key, expectedValue);
+
+        BValue[] args = new BValue[1];
+        args[0] = new BString(key);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetProperty", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testGetProperties() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetProperties");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BString> actualProperties = (BMap) returns[0];
+        Properties expectedProperties = System.getProperties();
+        Assert.assertEquals(actualProperties.size(), expectedProperties.size());
+
+        actualProperties.keySet().forEach(key -> {
+            String property = expectedProperties.getProperty(key);
+            Assert.assertNotNull(property);
+        });
+    }
+
+    @Test
+    public void testGetCurrentDirectory() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCurrentDirectory");
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expectedValue = System.getProperty("user.dir");
+        Assert.assertEquals(returns[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testGetFileEncoding() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileEncoding");
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expectedValue = System.getProperty("file.encoding");
+        Assert.assertEquals(returns[0].stringValue(), expectedValue);
+    }
+}

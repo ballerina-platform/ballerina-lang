@@ -20,6 +20,12 @@ public annotation configuration attach service<> {
     string[] allowHeaders;
     int maxAge;
     string[] exposeHeaders;
+    webSocket webSocket;
+}
+
+public annotation webSocket {
+    string upgradePath;
+    string serviceName;
 }
 
 public annotation resourceConfig attach resource {

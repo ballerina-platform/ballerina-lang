@@ -36,10 +36,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.CodeSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,8 +58,37 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BCompileUtil {
 
+    //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
+//    Compile and setup methods
+    /**
+     * Compile and return the semantic errors. Error scenarios cannot use this method.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return compileResult
+     */
+    public static CompileResult compileAndSetup(String sourceFilePath) {
+        CompileResult compileResult = compile(sourceFilePath, CompilerPhase.CODE_GEN);
+        BRunUtil.invokePackageInit(compileResult);
+        return compileResult;
+    }
+
+    /**
+     * Compile and return the semantic errors. Error scenarios cannot use this method.
+     *
+     * @param obj this is to find the original callers location.
+     * @param sourceRoot  root path of the source packages
+     * @param packageName name of the package to compile
+     * @return compileResult
+     */
+    public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
+        CompileResult compileResult = compile(obj, sourceRoot, packageName);
+        BRunUtil.invokePackageInit(compileResult, packageName);
+        return compileResult;
+    }
+
+//    Compile methods
     /**
      * Compile and return the semantic errors.
      *
@@ -78,9 +110,14 @@ public class BCompileUtil {
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
         try {
             String effectiveSource;
-            Path rootPath = Paths.get(obj.getClass().getProtectionDomain().getCodeSource()
-                    .getLocation().toURI().getPath().concat(sourceRoot));
-            if (Files.isDirectory(Paths.get(packageName))) {
+            CodeSource codeSource = obj.getClass().getProtectionDomain().getCodeSource();
+            URL location = codeSource.getLocation();
+            URI locationUri = location.toURI();
+            Path pathLocation = Paths.get(locationUri);
+            String filePath = concatFileName(sourceRoot, pathLocation);
+            Path rootPath = Paths.get(filePath);
+            Path packagePath = Paths.get(packageName);
+            if (Files.isDirectory(packagePath)) {
                 String[] pkgParts = packageName.split("\\/");
                 List<Name> pkgNameComps = Arrays.stream(pkgParts)
                         .map(part -> {
@@ -101,6 +138,31 @@ public class BCompileUtil {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
+    }
+
+    /**
+     * <p>
+     * concatenates a given filename to the provided path in directory.
+     * </p>
+     * <p>
+     * <b>Note : </b> this function is relevant since in Unix the directory would be separated from backslash and
+     * in unix the folder will be separated from forward slash.
+     * </p>
+     *
+     * @param fileName     name of the file.
+     * @param pathLocation location of the directory.
+     * @return the path with directoryName + file.
+     */
+    private static String concatFileName(String fileName, Path pathLocation) {
+        final String windowsFolderSeparator = "\\";
+        final String unixFolderSeparator = "/";
+        StringBuilder path = new StringBuilder(pathLocation.toAbsolutePath().toString());
+        if (pathLocation.endsWith(windowsFolderSeparator)) {
+            path = path.append(windowsFolderSeparator).append(fileName);
+        } else {
+            path = path.append(unixFolderSeparator).append(fileName);
+        }
+        return path.toString();
     }
 
     /**

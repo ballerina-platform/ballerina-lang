@@ -14,16 +14,13 @@ service<http> contentBasedRouting {
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks", {});
         string nyseString = "nyse";
         json jsonMsg = req.getJsonPayload();
-        var nameString, _ = (string) jsonMsg.name;
+        var nameString, _ = (string)jsonMsg.name;
         http:Response clientResponse = {};
         if (nameString == nyseString) {
             clientResponse = nyseEP.post("/stocks", req);
-        }
-        else {
+        } else {
             clientResponse = nasdaqEP.post("/stocks", req);
         }
         resp.forward(clientResponse);
-
     }
-    
 }

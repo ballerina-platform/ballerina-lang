@@ -1,7 +1,4 @@
-import ballerina.lang.system;
-import ballerina.doc;
-
-@doc:Description {value:"As a best practice, error will be the last return value. It's type should be 'errors:Error', a built-in reference type."}
+@Description {value:"As a best practice, error will be the last return value. It's type should be 'errors:Error', a built-in reference type."}
 function getAccountBalance (int accountID) (int, error) {
     //Here we create an instance of the error struct and return.
     //This logic is used only to explain the concept.
@@ -17,6 +14,6 @@ function main (string[] args) {
     // Best practice is to check whether an error has occurred.
     var balance, err = getAccountBalance(23);
     if (err != null) {
-        system:println("error: " + err.msg);
+        println("error: " + err.msg);
     }
 }

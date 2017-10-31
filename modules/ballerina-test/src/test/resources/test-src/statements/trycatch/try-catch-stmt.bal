@@ -1,21 +1,21 @@
 struct testError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string data;
 }
 
 struct testInputError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string input;
 }
 
@@ -89,8 +89,8 @@ function testUncaughtException(){
     _ = testNestedThrow(1);
 }
 
-function testStackTrace()(stackFrame[]){
-    stackFrame[] trace;
+function testStackTrace()(StackFrame[]){
+    StackFrame[] trace;
     try{
         testUncaughtException();
     } catch (error e) {

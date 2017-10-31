@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.net.http;
 
 function main (string[] args) {
@@ -8,7 +7,7 @@ function main (string[] args) {
     //Send a GET request to the specified endpoint
     http:Response resp = httpConnector.get("/v2/59d590762700000a049cd694", req);
 
-    system:println("Response received for the GET request is : " + resp.getStringPayload());
+    println("Response received for the GET request is : " + resp.getStringPayload());
 }
 
 function getConnectorConfigs () (http:Options) {
