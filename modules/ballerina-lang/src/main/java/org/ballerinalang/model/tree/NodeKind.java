@@ -74,6 +74,7 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     ASSIGNMENT,
+    BIND,
     BLOCK,
     BREAK,
     NEXT,

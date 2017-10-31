@@ -1214,14 +1214,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
     }
 
-//    @Override
-//    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx));
-//    }
+    @Override
+    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx));
+    }
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {

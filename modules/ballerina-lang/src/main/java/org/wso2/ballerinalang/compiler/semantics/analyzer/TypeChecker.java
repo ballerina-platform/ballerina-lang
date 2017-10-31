@@ -904,13 +904,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BEndpointType endpointType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        BSymbol connectorSymbol = endpointType.getActual().tsymbol;
+        BSymbol connectorSymbol = endpointType.constraint.tsymbol;
 
         Name actionName = names.fromIdNode(iExpr.name);
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
                 env, actionName, SymTag.ACTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, endpointType.getActual());
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, endpointType.constraint);
             resultTypes = actualTypes;
             return;
         }

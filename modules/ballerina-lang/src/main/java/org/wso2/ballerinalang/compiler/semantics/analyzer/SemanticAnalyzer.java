@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -507,10 +508,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
                     (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE &&
                     (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
-                List<BType> resTypes = typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
-                if (varNode.symbol.type.tag == TypeTags.ENDPOINT) {
-                    ((BEndpointType) varNode.symbol.type).setActual(resTypes.get(0));
-                }
+                typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
             }
 
             if (varNode.symbol.flags == Flags.CONST) {
@@ -557,6 +555,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkConstantAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    public void visit(BLangBind bindNode) {
+        List<BType> expTypes = new ArrayList<>();
+        // Check each LHS expression.
+        BLangExpression varRef = bindNode.varRef;
+        // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess only.
+        if (varRef.getKind() == NodeKind.INVOCATION) {
+            dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+            expTypes.add(symTable.errType);
+        }
+        ((BLangVariableReference) varRef).lhsVar = true;
+        expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+        checkConstantAssignment(varRef);
+        typeChecker.checkExpr(bindNode.expr, this.env, expTypes);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {

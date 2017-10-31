@@ -188,10 +188,10 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR) {
-            if (!checkConnectorEquivalancy(source, ((BEndpointType) target).constraint)) {
-                return false;
-            }
+        if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
+                && checkConnectorEquivalancy(source, ((BEndpointType) target).constraint)) {
+            //TODO do we need to resolve a nop implicit cast operation?
+            return true;
         }
 
         BSymbol symbol = symResolver.resolveImplicitCastOperator(source, target);
@@ -586,6 +586,8 @@ public class Types {
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalancy(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
             return symTable.notFoundSymbol;

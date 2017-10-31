@@ -71,7 +71,6 @@ LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
 BIND        : 'bind' ;
-//TO          : 'to' ;
 
 // Separators
 

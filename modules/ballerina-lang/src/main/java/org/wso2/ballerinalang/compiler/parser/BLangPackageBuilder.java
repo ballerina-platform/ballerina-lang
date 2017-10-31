@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -1206,14 +1207,13 @@ public class BLangPackageBuilder {
         varRef.variableName = (BLangIdentifier) nameReference.name;
 
 
-        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentNode.setExpression(rExprNode);
-        assignmentNode.setDeclaredWithVar(false);
-        assignmentNode.pos = pos;
-        assignmentNode.addWS(ws);
-        assignmentNode.addWS(commaWsStack.pop());
-        assignmentNode.addVariable(varRef);
-        addStmtToCurrentBlock(assignmentNode);
+        BLangBind bindNode = (BLangBind) TreeBuilder.createBindNode();
+        bindNode.setExpression(rExprNode);
+        bindNode.pos = pos;
+        bindNode.addWS(ws);
+        bindNode.addWS(commaWsStack.pop());
+        bindNode.setVariable(varRef);
+        addStmtToCurrentBlock(bindNode);
     }
 
     public void startWhileStmt() {
