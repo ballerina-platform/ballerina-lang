@@ -62,13 +62,14 @@
     border-radius: 5px;
     margin-right: 5px;
     cursor: pointer;
+    margin-bottom: 3px;
 }
 
 #property-modal .tagInput{
     outline: none;
     border: none;
     color: #232222;
-    width: 40%;
+    width: 88%;
 }
 
 #property-modal .tagLabel{

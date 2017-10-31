@@ -451,7 +451,7 @@ class PropertyWindow extends React.Component {
                     onTagsAdded={event =>
                         this.onTagsAdded(event, key)}
                     removeTagsAdded={this.removeTagsAdded}
-                    placeholder={key.identifier}
+                    placeholder={`${key.identifier} (↵ or comma-separated)`}
                     ref={(node) => { this.node = node; }}
                 />
             </div>
@@ -464,7 +464,7 @@ class PropertyWindow extends React.Component {
      * @param index
      */
     onTagsAdded(event, key) {
-        if (event.keyCode === 13) {
+        if (event.keyCode === 13 || event.keyCode === 188) {
             event.preventDefault();
             const { value } = event.target;
             if (!key.value) {
@@ -474,7 +474,9 @@ class PropertyWindow extends React.Component {
         }
 
         if (key.value.length && event.keyCode === 8) {
-            this.removeTagsAdded(key.value, key.value.length - 1);
+            if (_.includes(key.value, event.target.value) || !event.target.value) {
+                this.removeTagsAdded(key.value, key.value.length - 1);
+            }
         }
         this.forceUpdate();
     }
@@ -498,11 +500,13 @@ class PropertyWindow extends React.Component {
         const breadCrumbContainer = this.breadCrumbs.map((key, index) => {
             if (index === this.breadCrumbs.length - 1) {
                 return (
-                    <li><a className="currentBreadcrumbItem"> {key}</a></li>
+                    <li key={`breadCrumb-${key}`}>
+                        <a className="currentBreadcrumbItem"> {key}</a>
+                    </li>
                 );
             } else {
                 return (
-                    <li><a
+                    <li key={`breadCrumb-${key}`}> <a
                         className="previousBreadcrumbItem"
                         onClick={() => {
                             this.toggleStructView(index);
