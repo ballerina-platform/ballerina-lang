@@ -38,6 +38,6 @@ public class TransformerTest {
 
     @Test(description = "Test empty transformation")
     public void testEmptyTransform() {
-        BRunUtil.invoke(result, "foo");
+//        BRunUtil.invoke(result, "castAndConversionInTransform");
     }
 }

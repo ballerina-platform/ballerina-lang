@@ -1,56 +1,28 @@
 struct Person {
-    string name;
+    string firstName;
+    string lastName;
     int age;
-    int id;
+    string city;
 }
 
 struct Employee {
     string name;
     int age;
-    int id;
-    float salary;
-    int empCode;
+    string address;
 }
 
-struct Student {
-    string name;
-    int age;
-    int id;
-    float gpa;
+function varInTransform() (string, int, string){
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
+    Employee e = <Employee; Foo()> p;
+    return e.name, e.age, e.address;
 }
 
-function bar() {
-    foo();
+function getPrefixedName(string a) (string) {
+    return "";
 }
 
-function foo() {
-    Person p = {name:"supun", age:28};
-    string s;
-    
-    Employee emp1;
-    emp1 = <Employee> p;
-    println(emp1);
-
-    Employee emp2 = <Employee; Foo(20, 45)> p;
-    println(emp2);
-}
-
-transformer <Person p, Employee e> {
-    e.name = p.name;
-    e.age = p.age;
-}
-
-transformer <Person p, Employee e> Foo (int id, int empCode) {
-    println(id);
-    id.foo();
-    e.name = p.name;
-    e.age = p.age;
-    e.id = id;
-    e.empCode = empCode;
-}
-
-transformer <Person p, Student s>  Bar (int id, int empCode) {
-    s.name = p.name;
-    s.age = p.age;
-    s.id = id;
+transformer <Person p, Employee e> Foo() {
+    var temp = getPrefixedName(p.firstName);
+    e.name = temp;
+    temp = p.firstName;
 }

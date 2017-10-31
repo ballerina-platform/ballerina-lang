@@ -683,8 +683,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Named transformer invocation
         if (conversionExpr.transformerInvocation != null) {
-            // add the rExpr as the first argument
-            conversionExpr.transformerInvocation.argExprs.add(conversionExpr.expr);
+            conversionExpr.transformerInvocation = rewrite(conversionExpr.transformerInvocation);
+            // Add the rExpr as the first argument
+            conversionExpr.transformerInvocation.argExprs.add(0, conversionExpr.expr);
             result = new BLangTransformerInvocation(conversionExpr.pos, conversionExpr.transformerInvocation.argExprs,
                     conversionExpr.transformerInvocation.symbol, conversionExpr.types);
             return;
