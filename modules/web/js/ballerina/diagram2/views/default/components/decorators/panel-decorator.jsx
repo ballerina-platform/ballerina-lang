@@ -180,7 +180,7 @@ class PanelDecorator extends React.Component {
                     height,
                     width,
                 },
-                icon: ImageUtil.getSVGIconString(this.props.model.public ? 'public' : 'lock'),
+                icon: ImageUtil.getSVGIconString(this.props.model.public ? 'lock' : 'public'),
                 tooltip: this.props.model.public ? 'Make private' : 'Make public',
                 onClick: () => this.togglePublicPrivateFlag(),
                 key: `${this.props.model.getID()}-publicPrivateFlag-button`,
