@@ -295,6 +295,10 @@ class AbstractTreeUtil {
         return node.kind === 'UserDefinedType';
     }
 
+    isEndpointType(node) {
+        return node.kind === 'EndpointType';
+    }
+
     isValueType(node) {
         return node.kind === 'ValueType';
     }
