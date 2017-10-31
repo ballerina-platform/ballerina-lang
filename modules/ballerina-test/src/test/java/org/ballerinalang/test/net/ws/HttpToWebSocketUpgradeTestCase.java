@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  */
 public class HttpToWebSocketUpgradeTestCase {
 
-    @Test
+    @Test(priority = 0)
     public void testSuccessfulUpgradeEndpointWithConfigAnnotation() {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
@@ -40,7 +40,7 @@ public class HttpToWebSocketUpgradeTestCase {
         BServiceUtil.cleanup(compileResult);
     }
 
-    @Test
+    @Test(priority = 1)
     public void testSuccessfulUpgradeEndpointWithoutConfigAnnotation() {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
@@ -49,7 +49,7 @@ public class HttpToWebSocketUpgradeTestCase {
         BServiceUtil.cleanup(compileResult);
     }
 
-    @Test
+    @Test(priority = 2)
     public void testSuccessfulUpgradeEndpointWithBasePathInBothEndpoints() {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this, "test-src/net/ws/http-to-websocket-upgrade-both-base-paths.bal");
@@ -57,7 +57,7 @@ public class HttpToWebSocketUpgradeTestCase {
         BServiceUtil.cleanup(compileResult);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
+    @Test(priority = 3, expectedExceptions = BallerinaConnectorException.class,
           expectedExceptionsMessageRegExp = "Could not find a WebSocket service for the service name: wsServic")
     public void testWrongServiceName() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
@@ -66,7 +66,7 @@ public class HttpToWebSocketUpgradeTestCase {
         BServiceUtil.cleanup(compileResult);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
+    @Test(priority = 4, expectedExceptions = BallerinaConnectorException.class,
           expectedExceptionsMessageRegExp =
                   "service wsService: cannot define host, port configurations without base path")
     public void testHostPortWithoutBasePath() {

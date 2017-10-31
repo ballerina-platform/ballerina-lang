@@ -37,4 +37,7 @@ function main (string[] args) {
     println("Started to process the file.");
     process(sourceChannel, destinationChannel);
     println("File processing complete.");
+    //Close the created connections
+    sourceChannel.closeCharacterChannel();
+    destinationChannel.closeCharacterChannel();
 }
