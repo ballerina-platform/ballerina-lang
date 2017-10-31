@@ -41,6 +41,8 @@ public class ConfigProcessor {
     private static final Logger log = LoggerFactory.getLogger(ConfigProcessor.class);
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String USER_DIR = "user.dir";
+    private static final String BALLERINA_CONF_DEFAULT_PATH = System.getProperty(USER_DIR) + File.separator +
+            BALLERINA_CONF;
     private static Map<String, String> runtimeParams = new HashMap<>();
     private static Map<String, String> prioritizedGlobalConfigs = new HashMap<>();
     private static Map<String, Map<String, String>> prioritizedInstanceConfigs = new HashMap<>();
