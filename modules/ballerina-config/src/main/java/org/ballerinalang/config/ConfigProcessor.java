@@ -42,8 +42,8 @@ public class ConfigProcessor {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String USER_DIR = "user.dir";
     private static Map<String, String> runtimeParams = new HashMap<>();
-    private static Map<String, String> prioritizedGlobalConfigs;
-    private static Map<String, Map<String, String>> prioritizedInstanceConfigs;
+    private static Map<String, String> prioritizedGlobalConfigs = new HashMap<>();
+    private static Map<String, Map<String, String>> prioritizedInstanceConfigs = new HashMap<>();
 
     /**
      * Sets runtime config properties gathered from user as a map.
@@ -64,15 +64,11 @@ public class ConfigProcessor {
         Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
         Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
 
-        String confFileLocation = getConfigFileLocation(runtimeGlobalConfigs);
-        if (confFileLocation == null) {
+        File confFile = getConfigFile(runtimeGlobalConfigs);
+        if (confFile == null) {
             prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
             prioritizedInstanceConfigs.putAll(runtimeInstanceConfigs);
         } else {
-            File confFile = new File(confFileLocation);
-            if (confFile == null) {
-                throw new BallerinaException("failed to parse ballerina.conf file: " + confFileLocation);
-            }
             ConfigFileParser parser = new ConfigFileParser(confFile);
             Map<String, String> fileGlobalConfigs = parser.getGlobalConfigs();
             Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
@@ -100,9 +96,9 @@ public class ConfigProcessor {
             Map<String, String> runtimeConfigs = runtimeInstanceConfigs.get(instance);
             Map<String, String> fileConfigs = fileInstanceConfigs.get(instance);
 
-            if (fileConfigs.isEmpty()) {
+            if (fileConfigs == null) {
                 prioritizedInstanceConfigs.put(instance, runtimeConfigs);
-            } else if (runtimeConfigs.isEmpty()) {
+            } else if (runtimeConfigs == null) {
                 prioritizedInstanceConfigs.put(instance, fileConfigs);
             } else {
                 fileConfigs.putAll(runtimeConfigs);
@@ -111,11 +107,21 @@ public class ConfigProcessor {
         }
     }
 
-    private static String getConfigFileLocation(Map<String, String> runtimeGlobalConfigs) {
+    private static File getConfigFile(Map<String, String> runtimeGlobalConfigs) {
         String fileLocation = runtimeGlobalConfigs.get(BALLERINA_CONF);
-        if (fileLocation == null) {
-            fileLocation = System.getProperty(USER_DIR);
+        File confFile;
+        if (fileLocation != null) {
+            confFile = new File(fileLocation);
+            if (!confFile.exists()) {
+                throw new BallerinaException("failed to parse ballerina.conf file: " + fileLocation);
+            }
+        } else {
+            fileLocation = System.getProperty(USER_DIR) + File.separator + BALLERINA_CONF;
+            confFile = new File(fileLocation);
+            if (!confFile.exists()) {
+                return null;
+            }
         }
-        return fileLocation;
+        return confFile;
     }
 }
