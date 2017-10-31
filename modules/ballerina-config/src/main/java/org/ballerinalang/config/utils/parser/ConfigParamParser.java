@@ -26,16 +26,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extension of the generic AbstractConfigParser to parse CLI config parameters (i.e: parameters passed as -B<key>=<value>).
+ * Extension of the generic AbstractConfigParser to parse CLI config parameters.
+ * i.e: parameters passed as -B<key>=<value>
  *
  * @since 0.95
  */
 public class ConfigParamParser extends AbstractConfigParser {
 
-    private static final String globalConfigKeyFormat = "[a-zA-Z0-9.]+";
-    private static final String instanceConfigKeyFormat = "(\\[[a-zA-Z0-9]+\\])\\.([a-zA-Z0-9.]+)";
-    private static final String configValueFormat = "[\\ -~]+";
-    private static final Pattern instanceConfigKeyPattern = Pattern.compile(instanceConfigKeyFormat);
+    private static final String GLOBAL_CONFIG_KEY_FORMAT = "[a-zA-Z0-9.]+";
+    private static final String INSTANCE_CONFIG_KEY_FORMAT = "(\\[[a-zA-Z0-9]+\\])\\.([a-zA-Z0-9.]+)";
+    private static final String CONFIG_VALUE_FORMAT = "[\\ -~]+";
+    private static final Pattern INSTANCE_CONFIG_KEY_PATTERN = Pattern.compile(INSTANCE_CONFIG_KEY_FORMAT);
 
     public ConfigParamParser(Map<String, String> cliParams) {
         parse(cliParams);
@@ -43,11 +44,11 @@ public class ConfigParamParser extends AbstractConfigParser {
 
     private void parse(Map<String, String> cliParams) {
         cliParams.forEach((key, val) -> {
-            if (val.matches(configValueFormat)) {
-                if (key.matches(globalConfigKeyFormat)) {
+            if (val.matches(CONFIG_VALUE_FORMAT)) {
+                if (key.matches(GLOBAL_CONFIG_KEY_FORMAT)) {
                     globalConfigs.put(key, parseConfigValue(val));
-                } else if (key.matches(instanceConfigKeyFormat)) {
-                    Matcher matcher = instanceConfigKeyPattern.matcher(key);
+                } else if (key.matches(INSTANCE_CONFIG_KEY_FORMAT)) {
+                    Matcher matcher = INSTANCE_CONFIG_KEY_PATTERN.matcher(key);
                     matcher.find();
 
                     String instanceId = extractInstanceId(matcher.group(1));

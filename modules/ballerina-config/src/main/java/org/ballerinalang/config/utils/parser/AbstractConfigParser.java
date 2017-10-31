@@ -18,6 +18,8 @@
 
 package org.ballerinalang.config.utils.parser;
 
+import org.ballerinalang.util.exceptions.BallerinaException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -31,10 +33,10 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractConfigParser {
 
-    protected static final String instanceIdFormat = "\\[[a-zA-Z0-9]+\\]";
-    protected static final String commentOrWSFormat = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
-    protected static final String variableFormat = "\\$(env|sys)\\{([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
-    protected static final Pattern variablePattern = Pattern.compile(variableFormat);
+    protected static final String INSTANCE_ID_FORMAT = "\\[[a-zA-Z0-9]+\\]";
+    protected static final String COMMENT_OR_WS_FORMAT = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
+    protected static final String VARIABLE_FORMAT = "\\$(env|sys)\\{([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
+    protected static final Pattern VARIABLE_PATTERN = Pattern.compile(VARIABLE_FORMAT);
 
     private static final String ENVIRONMENT_VARIABLE = "env";
     private static final String SYSTEM_PROPERTY = "sys";
@@ -68,7 +70,7 @@ public abstract class AbstractConfigParser {
      * @return
      */
     protected String parseConfigValue(String value) {
-        Matcher matcher = variablePattern.matcher(value);
+        Matcher matcher = VARIABLE_PATTERN.matcher(value);
 
         if (!matcher.find()) {
             return value;
@@ -90,6 +92,8 @@ public abstract class AbstractConfigParser {
                 case SYSTEM_PROPERTY:
                     varReplacedValue.append(System.getProperty(key));
                     break;
+                default:
+                    throw new BallerinaException("invalid config variable type: " + varType);
             }
         } while (matcher.find());
 
