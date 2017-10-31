@@ -659,6 +659,15 @@ class PositioningUtil {
         this.positionStatementComponents(node);
     }
 
+    /**
+     * Calculate position of Transformer nodes.
+     *
+     * @param {object} node Transformer object
+     */
+    positionTransformerNode(node) {
+        // Not implemented.
+    }
+
 
     /**
      * Calculate position of AnnotationAttachmentAttributeValue nodes.

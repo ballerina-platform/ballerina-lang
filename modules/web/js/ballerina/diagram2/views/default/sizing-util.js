@@ -795,6 +795,16 @@ class SizingUtil {
         this.sizeStatement(node.getSource(), node.viewState);
     }
 
+    /**
+     * Calculate dimention of Transformer nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTransformerNode(node) {
+        // Not implemented.
+    }
+
 
     /**
      * Calculate dimention of AnnotationAttachmentAttributeValue nodes.
