@@ -219,8 +219,8 @@ public class Main {
         @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
         private boolean httpTraceLogEnabled;
 
-        @DynamicParameter(names = "-B", description = "Dynamic parameters go here")
-        private Map<String, String> configCLIParams = new HashMap<>();
+        @DynamicParameter(names = "-B", description = "collects flags starting with -B")
+        private Map<String, String> configRuntimeParams = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -237,8 +237,8 @@ public class Main {
                 System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
-            if (!configCLIParams.isEmpty()) {
-                ConfigProcessor.setCLIConfiguration(configCLIParams);
+            if (!configRuntimeParams.isEmpty()) {
+                ConfigProcessor.setRuntimeConfiguration(configRuntimeParams);
             }
 
             // Enable remote debugging

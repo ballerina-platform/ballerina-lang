@@ -44,10 +44,20 @@ public class ConfigProcessor {
     private static Map<String, String> prioritizedGlobalConfigs;
     private static Map<String, Map<String, String>> prioritizedInstanceConfigs;
 
-    public static void setCLIConfiguration(Map<String, String> params) {
+    /**
+     * Sets runtime config properties gathered from user as a map.
+     *
+     * @param params is a map of key value pairs
+     */
+    public static void setRuntimeConfiguration(Map<String, String> params) {
         runtimeParams = params;
     }
 
+    /**
+     * Processes runtime, environment and config file properties.This populates configRegistry with configs based on
+     * the following presedence order. 1. Ballerina runtime properties, 2. External config
+     * (environment vars, etcd or something similar), 3. ballerina.conf file
+     */
     public static void processConfiguration() throws IOException {
         if (runtimeParams.isEmpty()) {
             return;

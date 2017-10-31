@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.config:getInstanceValue
  *
- * @since 0.95
+ * @since 0.94.2
  */
 @BallerinaFunction(
         packageName = "ballerina.config",
