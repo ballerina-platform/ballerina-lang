@@ -17,6 +17,6 @@ curl -v http://localhost:9090/hello
 
 What did it do?
 ===============
-When you ran the sample, you started the helloWorld service. Then you sent a curl request to invoke that service.
+First you started the 'helloWorld' service. Then you sent a curl request to invoke that service.
 The helloWold service received the curl request, created a response message, and sent it back to the client that
 invoked the service: your terminal.
