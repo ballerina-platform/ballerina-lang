@@ -36,13 +36,20 @@ export default class FunctionInv extends React.Component {
             returnsObj.endpointKind = 'return';
         });
 
+        const paramEndpoints = [...func.parameters];
+
+        if (func.receiver) {
+            paramEndpoints.push(func.receiver);
+            func.receiver.endpointKind = 'receiver';
+        }
+
         const functionBody = (
             <div className='function-param-body'>
                 <div className='func-input'>
                     <Tree
                         type='param'
                         makeConnectPoint={recordTargetElement}
-                        endpoints={func.parameters}
+                        endpoints={paramEndpoints}
                         viewId={viewId}
                         onEndpointRemove={onEndpointRemove}
                         onConnectPointMouseEnter={onConnectPointMouseEnter}

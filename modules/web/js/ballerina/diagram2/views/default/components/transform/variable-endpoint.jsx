@@ -58,6 +58,8 @@ export default class VariableEndpoint extends React.Component {
         let iconType = 'fw-variable';
         let className = 'transform-endpoint variable';
 
+        className += ` transform-endpoint-${variable.endpointKind}`
+
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
             className += ' transform-endpoint-struct';
