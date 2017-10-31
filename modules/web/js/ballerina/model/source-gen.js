@@ -503,7 +503,9 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l);
         case 'UserDefinedType':
-            if (node.packageAlias.value && node.typeName.value) {
+            if (node.anonStruct) {
+                return w() + getSourceOf(node.anonStruct).replace(node.anonStruct.name.getValue(), '').trim();
+            } else if (node.packageAlias.value && node.typeName.value) {
                 return w() + node.packageAlias.value + w() + ':' + w()
                  + node.typeName.value;
             } else {

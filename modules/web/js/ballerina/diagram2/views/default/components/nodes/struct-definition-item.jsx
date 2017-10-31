@@ -72,7 +72,11 @@ class StructDefinitionItem extends React.Component {
             case 'ValueTypeNode':
                 return typeNode.typeKind;
             case 'UserDefinedType':
-                return typeNode.typeName.value;
+                if (typeNode.anonStruct) {
+                    return typeNode.anonStruct.getSource().replace(typeNode.anonStruct.name.getValue(), '').trim();
+                } else {
+                    return typeNode.typeName.value;
+                }
             default:
                 return typeNode.typeKind;
         }
