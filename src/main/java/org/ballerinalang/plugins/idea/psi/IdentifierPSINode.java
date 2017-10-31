@@ -302,7 +302,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         return null;
     }
 
-    @NotNull
+    @Nullable
     private PsiReference suggestReferenceType(@NotNull PsiElement parent) {
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
         if (nextVisibleLeaf != null) {
