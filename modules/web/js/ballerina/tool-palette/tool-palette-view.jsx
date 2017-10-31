@@ -407,6 +407,11 @@ class ToolPaletteView extends React.Component {
                     // do not add main function to tool palette
                     return;
                 }
+                // if the function is not public do not add it to the tool palette
+                if (!functionDef.isPublic()) {
+                    // do not private functions to tool palette
+                    return;
+                }
 
                 if (transform) {
                     const packageName = _.last(_.split(pckg.getName(), '.'));

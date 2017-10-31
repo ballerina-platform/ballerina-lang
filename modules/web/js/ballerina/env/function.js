@@ -33,6 +33,7 @@ class Function {
         this._returnParams = _.get(args, 'returnParams', []);
         this._fullPackageName = _.get(args, 'fullPackageName', '.');
         this._receiverType = _.get(args, 'receiverType', '');
+        this._isPublic = _.get(args, 'isPublic', '');
     }
 
    /**
@@ -141,6 +142,22 @@ class Function {
         return this._receiverType;
     }
 
+    /**
+     * sets whether the function is public or not
+     * @param {boolean} isPublic
+     */
+    setPublic(isPublic) {
+        this._isPublic = isPublic;
+    }
+
+    /**
+     * returns if the function is public or not
+     * @returns {boolean}
+     */
+    isPublic() {
+        return this._isPublic;
+    }
+
    /**
     * sets values from a json object
     * @param {Object} jsonNode
@@ -151,6 +168,7 @@ class Function {
         this.setParameters(jsonNode.parameters);
         this.setReturnParams(jsonNode.returnParams);
         this.setReceiverType(jsonNode.receiverType);
+        this.setPublic(jsonNode.isPublic);
     }
 }
 
