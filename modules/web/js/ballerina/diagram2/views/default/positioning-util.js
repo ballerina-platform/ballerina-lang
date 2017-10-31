@@ -167,7 +167,7 @@ class PositioningUtil {
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
             return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child);
+                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child) || TreeUtil.isTransformer(child);
         });
 
         children.forEach((child) => {

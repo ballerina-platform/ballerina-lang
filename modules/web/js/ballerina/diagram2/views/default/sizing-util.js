@@ -802,7 +802,7 @@ class SizingUtil {
      * 
      */
     sizeTransformerNode(node) {
-        // Not implemented.
+        this.sizeFunctionNode(node);
     }
 
 
