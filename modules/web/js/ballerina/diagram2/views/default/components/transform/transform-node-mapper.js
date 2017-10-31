@@ -89,9 +89,7 @@ class TransformNodeMapper {
         const funcNode = target.funcInv;
         const index = target.index;
 
-        if (compatibility.safe) {
-            funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
-        } else {
+        if (!compatibility.safe) {
             sourceExpression = this.getCompatibleSourceExpression(sourceExpression, compatibility.type, target.type);
             let tempVarName = this.getAssignedTempVarName(sourceExpression);
             if (!tempVarName) {
@@ -101,8 +99,14 @@ class TransformNodeMapper {
                 tempVarName = this.assignExpressionToTempVariable(sourceExpression, stmtIndex, false);
             }
             sourceExpression = TransformFactory.createVariableRefExpression(tempVarName);
+        }
+
+        if (target.endpointKind === 'receiver') {
+            funcNode.setExpression(sourceExpression, true);
+        } else {
             funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
         }
+
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
@@ -430,7 +434,11 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(stmt, true);
 
-        target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
+        if (target.endpointKind === 'receiver') {
+            target.funcInv.setExpression(source.funcInv);
+        } else {
+            target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
+        }
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
