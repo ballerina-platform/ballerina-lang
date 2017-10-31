@@ -40,7 +40,8 @@ public class ConfigProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigProcessor.class);
     private static final String BALLERINA_CONF = "ballerina.conf";
-    private static Map<String, String> runtimeParams;
+    private static final String USER_DIR = "user.dir";
+    private static Map<String, String> runtimeParams = new HashMap<>();
     private static Map<String, String> prioritizedGlobalConfigs;
     private static Map<String, Map<String, String>> prioritizedInstanceConfigs;
 
@@ -59,14 +60,11 @@ public class ConfigProcessor {
      * (environment vars, etcd or something similar), 3. ballerina.conf file
      */
     public static void processConfiguration() throws IOException {
-        if (runtimeParams.isEmpty()) {
-            return;
-        }
         ConfigParamParser paramParser = new ConfigParamParser(runtimeParams);
         Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
         Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
 
-        String confFileLocation = runtimeGlobalConfigs.get(BALLERINA_CONF);
+        String confFileLocation = getConfigFileLocation(runtimeGlobalConfigs);
         if (confFileLocation == null) {
             prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
             prioritizedInstanceConfigs.putAll(runtimeInstanceConfigs);
@@ -111,5 +109,13 @@ public class ConfigProcessor {
                 prioritizedInstanceConfigs.put(instance, fileConfigs);
             }
         }
+    }
+
+    private static String getConfigFileLocation(Map<String, String> runtimeGlobalConfigs) {
+        String fileLocation = runtimeGlobalConfigs.get(BALLERINA_CONF);
+        if (fileLocation == null) {
+            fileLocation = System.getProperty(USER_DIR);
+        }
+        return fileLocation;
     }
 }
