@@ -32,6 +32,7 @@ import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackag
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.IOException;
@@ -115,7 +117,8 @@ public class BLangFileRestService {
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
 
-    public static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs)
+            throws InvocationTargetException, IllegalAccessException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -190,6 +193,16 @@ public class BLangFileRestService {
                 continue;
             }
 
+            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
+                IdentifierNode typeNode = (IdentifierNode) prop;
+                Node structNode;
+                if (typeNode.getValue().startsWith("$anonStruct$") &&
+                    (structNode = anonStructs.remove(typeNode.getValue())) != null) {
+                    nodeJson.add("anonStruct", generateJSON(structNode, anonStructs));
+                    continue;
+                }
+            }
+
             if (prop instanceof List && jsonName.equals("types")) {
                 // Currently we don't need any Symbols for the UI. So skipping for now.
                 continue;
@@ -198,14 +211,21 @@ public class BLangFileRestService {
 
             /* Node classes */
             if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop));
+                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs));
             } else if (prop instanceof List) {
                 List listProp = (List) prop;
                 JsonArray listPropJson = new JsonArray();
                 nodeJson.add(jsonName, listPropJson);
                 for (Object listPropItem : listProp) {
                     if (listPropItem instanceof Node) {
-                        listPropJson.add(generateJSON((Node) listPropItem));
+                        /* Remove top level anon func and struct */
+                        if (node.getKind() == NodeKind.COMPILATION_UNIT && listPropItem instanceof BLangStruct
+                                && ((BLangStruct) listPropItem).isAnonymous) {
+                                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
+                                                                ((BLangStruct) listPropItem));
+                            continue;
+                        }
+                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
                     } else {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }
@@ -331,7 +351,7 @@ public class BLangFileRestService {
         if (model != null && bFileRequest.needTree()) {
             BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
-            JsonElement modelElement = generateJSON(compilationUnit);
+            JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
             result.add("model", modelElement);
         }
 
