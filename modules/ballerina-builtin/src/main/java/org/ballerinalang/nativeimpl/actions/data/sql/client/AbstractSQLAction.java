@@ -70,9 +70,6 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
@@ -760,24 +757,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 if (!ballerinaTxManager.isInXATransaction()) {
                     ballerinaTxManager.beginXATransaction();
                 }
-                Transaction tx = ballerinaTxManager.getXATransaction();
-                try {
-                    if (tx != null) {
-                        XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                        XAResource xaResource = xaConn.getXAResource();
-                        tx.enlistResource(xaResource);
-                        conn = xaConn.getConnection();
-                        txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
-                        ballerinaTxManager.registerTransactionContext(connectorId, txContext);
-                    }
-                } catch (SystemException | RollbackException | IllegalStateException e) {
-                    throw new BallerinaException(
-                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
-                }
+                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                XAResource xaResource = xaConn.getXAResource();
+                conn = xaConn.getConnection();
+                txContext = new SQLTransactionContext(conn, true, xaResource);
+                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             } else {
                 conn = datasource.getSQLConnection();
                 conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                txContext = new SQLTransactionContext(conn, false, null);
                 ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
         } else {
