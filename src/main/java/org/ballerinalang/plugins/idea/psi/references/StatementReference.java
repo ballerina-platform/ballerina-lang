@@ -67,7 +67,7 @@ public class StatementReference extends BallerinaElementReference {
             }
             PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
             return BallerinaPsiImplUtil.resolveElementInPackage(containingPackage, identifier, true, true, true,
-                    true, true, true, false);
+                    true, true, true, false, false);
         } else {
             return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
         }
@@ -168,7 +168,7 @@ public class StatementReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
         if (containingPackage != null) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
-                    true);
+                    true, true);
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
         }
         return results;
@@ -185,24 +185,28 @@ public class StatementReference extends BallerinaElementReference {
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
         // Todo - add util method
-        List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, false);
-        functions= functions.stream()
+        List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                false, false);
+        functions = functions.stream()
                 .filter(function -> !BallerinaPsiImplUtil.isAttachedFunction(function))
                 .collect(Collectors.toList());
         results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
-        List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage, false);
+        List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage,
+                false, false);
         results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
                 AddSpaceInsertHandler.INSTANCE));
 
-        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false);
+        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false,
+                false);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
         List<IdentifierPSINode> globalVariables =
-                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage, false);
+                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage, false, false);
         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-        List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage, false);
+        List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage,
+                false, false);
         results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
 
         return results;

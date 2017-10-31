@@ -118,11 +118,11 @@ import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
-    private static List<String> builtInFiles = new LinkedList<>();
+    private static List<String> builtInDirectories = new LinkedList<>();
 
     static {
-        builtInFiles.add("/ballerina/builtin/source.bal");
-        builtInFiles.add("/ballerina/builtin/core/source.bal");
+        builtInDirectories.add("/ballerina/builtin");
+        builtInDirectories.add("/ballerina/builtin/core");
     }
 
     private BallerinaPsiImplUtil() {
@@ -436,43 +436,51 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<IdentifierPSINode> getAllConnectorsFromPackage(@NotNull PsiDirectory packageElement,
-                                                                      boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(packageElement, ConnectorDefinitionNode.class, includePrivate);
+                                                                      boolean includePrivate, boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(packageElement, ConnectorDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
     public static List<IdentifierPSINode> getAllAnnotationsInPackage(@NotNull PsiDirectory packageElement,
-                                                                     boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(packageElement, AnnotationDefinitionNode.class, includePrivate);
+                                                                     boolean includePrivate, boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(packageElement, AnnotationDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
     public static List<IdentifierPSINode> getAllStructsFromPackage(@NotNull PsiDirectory directory,
-                                                                   boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(directory, StructDefinitionNode.class, includePrivate);
+                                                                   boolean includePrivate, boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, StructDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
     public static List<IdentifierPSINode> getAllEnumsFromPackage(@NotNull PsiDirectory directory,
-                                                                 boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(directory, EnumDefinitionNode.class, includePrivate);
+                                                                 boolean includePrivate, boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, EnumDefinitionNode.class, includePrivate, includeBuiltIns);
     }
 
     @NotNull
     public static List<IdentifierPSINode> getAllFunctionsFromPackage(@NotNull PsiDirectory directory,
-                                                                     boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(directory, FunctionDefinitionNode.class, includePrivate);
+                                                                     boolean includePrivate, boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, FunctionDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
-    public static List<IdentifierPSINode> getAllConstantsFromPackage(PsiDirectory directory, boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(directory, ConstantDefinitionNode.class, includePrivate);
+    public static List<IdentifierPSINode> getAllConstantsFromPackage(PsiDirectory directory, boolean includePrivate,
+                                                                     boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, ConstantDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
     public static List<IdentifierPSINode> getAllGlobalVariablesFromPackage(@NotNull PsiDirectory directory,
-                                                                           boolean includePrivate) {
-        return getAllMatchingElementsFromPackage(directory, GlobalVariableDefinitionNode.class, includePrivate);
+                                                                           boolean includePrivate,
+                                                                           boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, GlobalVariableDefinitionNode.class, includePrivate,
+                includeBuiltIns);
     }
 
     @NotNull
@@ -532,7 +540,7 @@ public class BallerinaPsiImplUtil {
     @NotNull
     private static <T extends PsiElement>
     List<IdentifierPSINode> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, @NotNull Class<T> clazz,
-                                                              boolean includePrivate) {
+                                                              boolean includePrivate, boolean includeBuiltIns) {
         Project project = directory.getProject();
         List<IdentifierPSINode> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
@@ -548,18 +556,26 @@ public class BallerinaPsiImplUtil {
             results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
         }
 
-        // Add elements from built-in packages
-        for (String builtInFile : builtInFiles) {
-            VirtualFile file = BallerinaPsiImplUtil.findFileInSDK(project, directory, builtInFile);
-            if (file == null) {
-                return results;
+        if (includeBuiltIns) {
+            // Add elements from built-in packages
+            for (String builtInDirectory : builtInDirectories) {
+                VirtualFile file = BallerinaPsiImplUtil.findFileInSDK(project, directory, builtInDirectory);
+                if (file == null) {
+                    return results;
+                }
+                VirtualFile[] builtInFiles = file.getChildren();
+                for (VirtualFile builtInFile : builtInFiles) {
+                    if (builtInFile.isDirectory() || !"bal".equals(builtInFile.getExtension())) {
+                        continue;
+                    }
+                    // Find the file.
+                    PsiFile psiFile = PsiManager.getInstance(project).findFile(builtInFile);
+                    if (psiFile == null) {
+                        return results;
+                    }
+                    results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
+                }
             }
-            // Find the file.
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile == null) {
-                return results;
-            }
-            results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
         }
         return results;
     }
@@ -1349,10 +1365,10 @@ public class BallerinaPsiImplUtil {
                                                      @NotNull IdentifierPSINode identifier, boolean matchFunctions,
                                                      boolean matchConnectors, boolean matchStructs, boolean matchEnums,
                                                      boolean matchGlobalVariables, boolean matchConstants,
-                                                     boolean includePrivate) {
+                                                     boolean includePrivate, boolean includeBuiltIns) {
         if (matchFunctions) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(aPackage,
-                    includePrivate);
+                    includePrivate, includeBuiltIns);
             for (PsiElement function : functions) {
                 if (function == null) {
                     continue;
@@ -1364,7 +1380,7 @@ public class BallerinaPsiImplUtil {
         }
         if (matchConnectors) {
             List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(aPackage,
-                    includePrivate);
+                    includePrivate, includeBuiltIns);
             for (PsiElement connector : connectors) {
                 if (connector == null) {
                     continue;
@@ -1375,7 +1391,8 @@ public class BallerinaPsiImplUtil {
             }
         }
         if (matchStructs) {
-            List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage, includePrivate);
+            List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage, includePrivate,
+                    includeBuiltIns);
             for (PsiElement struct : structs) {
                 if (struct == null) {
                     continue;
@@ -1386,7 +1403,8 @@ public class BallerinaPsiImplUtil {
             }
         }
         if (matchEnums) {
-            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(aPackage, includePrivate);
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(aPackage, includePrivate,
+                    includeBuiltIns);
             for (PsiElement anEnum : enums) {
                 if (anEnum == null) {
                     continue;
@@ -1398,7 +1416,7 @@ public class BallerinaPsiImplUtil {
         }
         if (matchGlobalVariables) {
             List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(aPackage,
-                    includePrivate);
+                    includePrivate, includeBuiltIns);
             for (PsiElement variable : globalVariables) {
                 if (variable == null) {
                     continue;
@@ -1410,7 +1428,7 @@ public class BallerinaPsiImplUtil {
         }
         if (matchConstants) {
             List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(aPackage,
-                    includePrivate);
+                    includePrivate, includeBuiltIns);
             for (PsiElement constant : constants) {
                 if (constant == null) {
                     continue;
@@ -1582,11 +1600,12 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<IdentifierPSINode> getAllAnnotationAttachmentsForType(@NotNull PsiDirectory packageElement,
                                                                              @NotNull String type,
-                                                                             boolean includePrivate) {
+                                                                             boolean includePrivate,
+                                                                             boolean includeBuiltIns) {
         List<IdentifierPSINode> results = new ArrayList<>();
         // Todo - Do we need to add public to Annotations as well?
         List<IdentifierPSINode> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
-                AnnotationDefinitionNode.class, includePrivate);
+                AnnotationDefinitionNode.class, includePrivate, includeBuiltIns);
         if (annotationDefinitions.isEmpty()) {
             return results;
         }
@@ -2202,7 +2221,7 @@ public class BallerinaPsiImplUtil {
         if (containingPackage != null) {
             ApplicationManager.getApplication().runReadAction(() -> {
                 List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
-                        false);
+                        false, false);
                 for (IdentifierPSINode function : functions) {
                     ProgressManager.checkCanceled();
                     if (!isAttachedFunction(function)) {

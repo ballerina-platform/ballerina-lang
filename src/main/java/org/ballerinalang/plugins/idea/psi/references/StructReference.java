@@ -81,7 +81,7 @@ public class StructReference extends BallerinaElementReference {
             return null;
         }
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false,
-                false, true, false, false, false, true);
+                false, true, false, false, false, true, true);
     }
 
     @Nullable
@@ -93,7 +93,7 @@ public class StructReference extends BallerinaElementReference {
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
         IdentifierPSINode identifier = getElement();
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, true, false,
-                false, false, false);
+                false, false, false, false);
     }
 
     @NotNull
@@ -103,7 +103,7 @@ public class StructReference extends BallerinaElementReference {
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
-        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, true);
+        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, true, true);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
         return results;
     }
@@ -117,7 +117,8 @@ public class StructReference extends BallerinaElementReference {
         }
 
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
-        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false);
+        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false,
+                false);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
         return results;
     }

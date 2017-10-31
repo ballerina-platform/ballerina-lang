@@ -66,7 +66,7 @@ public class EnumReference extends BallerinaElementReference {
             return null;
         }
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
-                false, false, true);
+                false, false, true, true);
     }
 
     @Nullable
@@ -78,7 +78,7 @@ public class EnumReference extends BallerinaElementReference {
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
-                false, false, false);
+                false, false, false, false);
     }
 
     @NotNull
@@ -106,8 +106,7 @@ public class EnumReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
 
         if (containingPackage != null) {
-            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage,
-                    true);
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true, true);
             results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         }
         return results;
@@ -121,7 +120,7 @@ public class EnumReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(resolvedPackage, false);
+        List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(resolvedPackage, false, false);
         results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         return results;
     }

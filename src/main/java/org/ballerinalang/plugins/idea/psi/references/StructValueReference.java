@@ -63,7 +63,7 @@ public class StructValueReference extends BallerinaElementReference {
         }
         // First we try to resolve the reference to following definitions.
         PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
-                true, true, true, true, true);
+                true, true, true, true, true, true);
         if (element != null) {
             return element;
         }
@@ -107,7 +107,7 @@ public class StructValueReference extends BallerinaElementReference {
                     if (mapStructKeyNode.getText().equals(resolvedPackage.getName())) {
 
                         List<IdentifierPSINode> functions =
-                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
+                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false, false);
                         results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
                         Collection<EnumFieldNode> fieldDefinitionNodes =
@@ -116,11 +116,11 @@ public class StructValueReference extends BallerinaElementReference {
                                 (IdentifierPSINode) resolvedElement));
 
                         List<IdentifierPSINode> globalVariables =
-                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false);
+                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false, false);
                         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
                         List<IdentifierPSINode> constants =
-                                BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage, false);
+                                BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage, false, false);
                         results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                     }
                 }
@@ -129,17 +129,19 @@ public class StructValueReference extends BallerinaElementReference {
 
         PsiDirectory currentPackage = originalFile.getParent();
         if (currentPackage != null) {
-            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage, true);
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage,
+                    true, true);
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
-            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(currentPackage, true);
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(currentPackage, true, true);
             results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
 
             List<IdentifierPSINode> globalVariables =
-                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true);
+                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true, true);
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage, true);
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage,
+                    true, true);
             results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
 
