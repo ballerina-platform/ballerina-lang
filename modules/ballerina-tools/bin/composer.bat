@@ -70,8 +70,6 @@ FOR %%C in ("%BALLERINA_HOME%\bin\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!
 
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
-FOR %%D in ("%BALLERINA_HOME%\lib\commons-lang*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\lib\%%~nD%%~xD"
-
 rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
@@ -145,7 +143,7 @@ rem ----------------- Execute The Requested Command ----------------------------
 cd %BALLERINA_HOME%
 
 FOR %%C in ("%BALLERINA_HOME%\resources\composer\services\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\resources\composer\services\%%~nC%%~xC"
-
+FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\%%~nD%%~xD"
 rem ---------- Add jars to classpath ----------------
 
 rem set BALLERINA_CLASSPATH=.\bin\bootstrap;%BALLERINA_CLASSPATH%
