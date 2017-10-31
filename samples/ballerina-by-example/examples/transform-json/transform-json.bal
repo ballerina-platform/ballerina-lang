@@ -1,8 +1,6 @@
 import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.doc;
 
-@doc:Description {value:"Defining Person struct."}
+@Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
@@ -12,14 +10,14 @@ struct Person {
 @http:configuration {
     basePath:"/person"
 }
-@doc:Description {value:"Defining Person service which provides person details."}
+@Description {value:"Defining Person service which provides person details."}
 service<http> PersonService {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    @doc:Description {value:"Defining POST resource for the service to get person details."}
+    @Description {value:"Defining POST resource for the service to get person details."}
     resource getPerson (http:Request req, http:Response res) {
         // Get the JSON payload from the request
         json j = req.getJsonPayload();
@@ -34,7 +32,7 @@ service<http> PersonService {
 
         // Print if an error is thrown
         if (err != null) {
-            system:println(err);
+            println(err);
         }
 
         // Define a constant city value as "London".

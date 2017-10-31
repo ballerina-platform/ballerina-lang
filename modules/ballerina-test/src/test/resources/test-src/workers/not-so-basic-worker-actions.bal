@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function forkJoinWithTimeoutTest1() (map) {
     map m = {};
     fork {
@@ -14,7 +12,7 @@ function forkJoinWithTimeoutTest1() (map) {
 	     int b = 15;
 	     a <- w1;
 	     b -> w1;
-	     system:sleep(5000);
+	     sleep(5000);
 	   }
     } join (all) (map results) { m["x"] = 25; } timeout (1) (map results) { m["x"] = 15; }
     return m;
@@ -30,7 +28,7 @@ function forkJoinWithTimeoutTest2() (map) {
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
-	     system:sleep(100);
+	     sleep(100);
 	   }
     } join (all) (map results) { m["x"] = 25; } timeout (5) (map results) { m["x"] = 15; }
     return m;
@@ -97,16 +95,16 @@ function forkJoinWithSomeSelectedJoin1() (map) {
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-	     system:sleep(2000);
+	     sleep(2000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
 	     int a = 0;
 	     int b = 15;
-         system:sleep(1000);
+         sleep(1000);
 	     m["x"] = b;
 	   }
-	} join (some 1 w2, w3) (map results) {  system:println(results);  }
+	} join (some 1 w2, w3) (map results) {  println(results);  }
 	return m;
 }
 
@@ -134,7 +132,7 @@ function forkJoinWithSomeSelectedJoin2() (map) {
 	     (a * 2) -> w1;
 	     a <- w2;
 	   }
-	} join (some 1 w1, w2, w3) (map results) {  system:println(results);  }
+	} join (some 1 w1, w2, w3) (map results) {  println(results);  }
 	return m;
 }
 
@@ -156,7 +154,7 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     system:sleep(1000);
+	     sleep(1000);
 	   }
 	   worker w3 {
 	     int a = 0;
@@ -164,7 +162,7 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (some 1 w2, w3) (map results) {  system:println(results);  }
+	} join (some 1 w2, w3) (map results) {  println(results);  }
 	return m;
 }
 
@@ -184,10 +182,10 @@ function forkJoinWithSomeSelectedJoin4() (map) {
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
-	     system:sleep(1000);
+	     sleep(1000);
 	     m["x"] = a * 2;
 	   }
-	} join (some 2 w1, w2, w3) (map results) {  system:println(results);  }
+	} join (some 2 w1, w2, w3) (map results) {  println(results);  }
 	return m;
 }
 
@@ -208,7 +206,7 @@ function forkJoinWithSomeSelectedJoin5() (map) {
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
-	     system:sleep(5000);
+	     sleep(5000);
 	     m["x"] = a * 2;
 	     a -> w2;
 	   }
@@ -234,7 +232,7 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     system:sleep(1000);
+	     sleep(1000);
 	     m["x"] = 33;
 	   }
 	   worker w3 {
@@ -243,7 +241,7 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (all w2, w3) (map results) {  system:println(results);  }
+	} join (all w2, w3) (map results) {  println(results);  }
 	return m;
 }
 
@@ -265,7 +263,7 @@ function forkJoinWithAllSelectedJoin2() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     system:sleep(2000);
+	     sleep(2000);
 	     m["x"] = 33;
 	   }
 	   worker w3 {

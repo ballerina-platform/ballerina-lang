@@ -167,8 +167,8 @@ public class JSONTest {
 
     @Test(description = "Get JSON from a malformed string",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: error, message: failed to parse json: " +
-                  "Unrecognized token 'some': was expecting \\('true', 'false' or 'null'\\)\n at \\[Source: some " +
+          expectedExceptionsMessageRegExp = "error: error, message: " +
+                  "unrecognized token 'some': was expecting \\('true', 'false' or 'null'\\)\n at \\[Source: some " +
                   "words " +
                   "without quotes; line: 1, column: 5\\].*")
     public void testParseMalformedString() {

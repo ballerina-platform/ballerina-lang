@@ -107,16 +107,26 @@ public class WebSocketService implements Service {
                                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
+    public BStruct createPingFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_PING_FRAME);
+    }
+
+    public BStruct createPongFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_PONG_FRAME);
+    }
+
     private String[] findNegotiableSubProtocols(Annotation configAnnotation) {
         if (configAnnotation == null) {
             return null;
         }
-        AnnAttrValue annAttrsubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
-        if (annAttrsubProtocols == null) {
+        AnnAttrValue annAttrSubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+        if (annAttrSubProtocols == null) {
             return null;
         }
 
-        AnnAttrValue[] subProtocolsInAnnotation = annAttrsubProtocols.getAnnAttrValueArray();
+        AnnAttrValue[] subProtocolsInAnnotation = annAttrSubProtocols.getAnnAttrValueArray();
         String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
         for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
             negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();

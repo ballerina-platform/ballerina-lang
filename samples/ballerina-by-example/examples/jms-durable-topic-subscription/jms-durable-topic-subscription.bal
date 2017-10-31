@@ -1,9 +1,8 @@
 import ballerina.lang.messages;
-import ballerina.lang.system;
-import ballerina.net.jms;
-import ballerina.doc;
 
-@doc:Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
+import ballerina.net.jms;
+
+@Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
 @jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
@@ -21,6 +20,6 @@ service<jms> jmsService {
         string stringPayload = messages:getStringPayload(m);
 
         // Print the retrieved payload.
-        system:println("Payload: " + stringPayload);
+        println("Payload: " + stringPayload);
     }
 }

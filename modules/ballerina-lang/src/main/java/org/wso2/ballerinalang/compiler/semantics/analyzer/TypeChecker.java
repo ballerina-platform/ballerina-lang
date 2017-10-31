@@ -366,6 +366,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;
+            case TypeTags.XML:
+                if (indexBasedAccessExpr.lhsVar) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
+                indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.intType)).get(0);
+                if (indexExprType.tag == TypeTags.INT) {
+                    actualType = symTable.xmlType;
+                }
+                break;
             case TypeTags.ERROR:
                 // Do nothing
                 break;
@@ -403,6 +413,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.CONNECTOR:
                 checkActionInvocationExpr(iExpr, (BConnectorType) iExpr.expr.type);
+                break;
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BLOB:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.MAP:
+            case TypeTags.DATATABLE:
+                checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             default:
                 // TODO Handle this condition
@@ -504,15 +525,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
             } else {
-                BSymbol symbol;
-                // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
-                // This is because the JSON arrays are internally handled as a normal JSON.
-                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)
-                        && types.getElementType(exprType).tag == TypeTags.JSON) {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
-                } else {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
-                }
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
@@ -847,6 +860,21 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
+    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BType bType) {
+        Name funcName = getFuncSymbolName(iExpr, bType);
+        BPackageSymbol packageSymbol = (BPackageSymbol) bType.tsymbol.owner;
+        BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
+                funcName, SymTag.FUNCTION);
+        if (funcSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            resultTypes = getListWithErrorTypes(expTypes.size());
+            return;
+        }
+
+        iExpr.symbol = funcSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BSymbol funcSymbol = iExpr.symbol;
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
@@ -917,7 +945,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
 
-    private Name getFuncSymbolName(BLangInvocation iExpr, BStructType structType) {
+    private Name getFuncSymbolName(BLangInvocation iExpr, BType structType) {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 

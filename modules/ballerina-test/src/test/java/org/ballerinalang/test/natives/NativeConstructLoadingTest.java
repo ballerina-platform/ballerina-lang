@@ -37,7 +37,7 @@ public class NativeConstructLoadingTest {
 
     @Test
     public void testLoadingExistingFunction() {
-        AbstractNativeFunction function = this.nativeLoader.loadNativeFunction("ballerina.lang.system", "println");
+        AbstractNativeFunction function = this.nativeLoader.loadNativeFunction("ballerina.math", "pow");
         Assert.assertNotNull(function);
         Assert.assertTrue(function.isPublic());
     }

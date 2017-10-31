@@ -448,6 +448,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#anonStructTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#anonStructTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#valueTypeName}.
 	 * @param ctx the parse tree
 	 */

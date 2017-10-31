@@ -32,6 +32,8 @@ public class MockBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     private String textReceived = null;
     private ByteBuffer bufferReceived = null;
+    private boolean isPing;
+    private boolean isPong;
 
     public String getTextReceived() {
         String tmp = textReceived;
@@ -42,6 +44,18 @@ public class MockBasicRemoteEndpoint implements RemoteEndpoint.Basic {
     public ByteBuffer getBufferReceived() {
         ByteBuffer tmp = bufferReceived;
         bufferReceived = null;
+        return tmp;
+    }
+
+    public boolean isPing() {
+        boolean tmp = isPing;
+        isPing = false;
+        return tmp;
+    }
+
+    public boolean isPong() {
+        boolean tmp = isPong;
+        isPong = false;
         return tmp;
     }
 
@@ -96,11 +110,13 @@ public class MockBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendPing(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-
+        bufferReceived = applicationData;
+        isPing = true;
     }
 
     @Override
     public void sendPong(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-
+        bufferReceived = applicationData;
+        isPong = true;
     }
 }
