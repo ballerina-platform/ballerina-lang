@@ -67,11 +67,12 @@ public class BlockingEntityCollector implements EntityCollector {
 
     public HttpContent getHttpContent() {
         try {
-            if (!isConsumed.get()) {
+            if (!isConsumed.get() || !alreadyRead.get()) {
                 HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
 
                 if (httpContent instanceof LastHttpContent) {
                     isConsumed.set(true);
+                    alreadyRead.set(false);
                     httpContentQueue.clear();
                 }
 
@@ -128,7 +129,7 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public void waitAndReleaseAllEntities() {
-        if (!isConsumed.get()) {
+        if (!isConsumed.get() && !alreadyRead.get()) {
             boolean isEndOfMessageProcessed = false;
             while (!isEndOfMessageProcessed) {
                 try {
@@ -141,7 +142,7 @@ public class BlockingEntityCollector implements EntityCollector {
 
                     if (httpContent instanceof LastHttpContent) {
                         isEndOfMessageProcessed = true;
-                        isConsumed.set(false);
+                        isConsumed.set(true);
                     }
                     httpContent.release();
                 } catch (InterruptedException e) {
