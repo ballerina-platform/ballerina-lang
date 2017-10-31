@@ -399,4 +399,12 @@ public class AnnotationTest {
         long status = attachmentInfos[3].getAttributeValue("status").getIntValue();
         Assert.assertEquals(status, 200);
     }
+
+    @Test
+    public void testPrivateFields() {
+        CompileResult result = BCompileUtil.compile("test-src/lang/annotations/fields/private-fields-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "annotation attribute 'pmsg' must be public", 3, 5);
+        BAssertUtil.validateError(result, 1, "annotation attribute 'ipval' must be public", 5, 5);
+    }
 }

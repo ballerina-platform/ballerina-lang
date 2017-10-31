@@ -100,7 +100,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -241,9 +240,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
-                        fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
+        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(
+                Flags.asMask(annotationAttribute.flags), names.fromIdNode(annotationAttribute.name),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationAttributeSymbol.expr = annotationAttribute.expr;
         annotationAttribute.symbol = annotationAttributeSymbol;
         ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
@@ -572,9 +571,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
             BStructType structType = (BStructType) struct.symbol.type;
             structType.fields = struct.fields.stream()
-                    .peek(field -> field.flagSet.add(Flag.PUBLIC))
                     .peek(field -> defineNode(field, structEnv))
-                    .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
+                    .map(fld -> new BStructField(names.fromIdNode(fld.name), fld.type, Symbols.isPublic(fld.symbol)))
                     .collect(Collectors.toList());
         });
     }

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  */
 public class BLangParserListener extends BallerinaParserBaseListener {
     protected static final String KEYWORD_PUBLIC = "public";
+    protected static final String KEYWORD_PRIVATE = "private";
     protected static final String KEYWORD_NATIVE = "native";
 
     private BLangPackageBuilder pkgBuilder;
@@ -2176,11 +2177,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
-        this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                ctx.simpleLiteral() != null, 0);
+            this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                    ctx.simpleLiteral() != null, !KEYWORD_PRIVATE.equals(ctx.getChild(0).getText()));
         } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
             this.pkgBuilder.addVarToAnnotation(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    ctx.simpleLiteral() != null, 0);
+                    ctx.simpleLiteral() != null, !KEYWORD_PRIVATE.equals(ctx.getChild(0).getText()));
         }
     }
 

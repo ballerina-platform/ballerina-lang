@@ -3149,7 +3149,8 @@ public class BLangVM {
 
         for (int i = 0; i < tFields.length; i++) {
             if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
-                    tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
+                    tFields[i].getFieldName().equals(sFields[i].getFieldName()) &&
+                    tFields[i].isPublic == sFields[i].isPublic &&  sFields[i].isPublic) {
                 continue;
             }
             return false;

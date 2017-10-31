@@ -34,14 +34,16 @@ public class StructFieldInfo implements AttributeInfoPool {
 
     public int nameCPIndex;
     public int signatureCPIndex;
+    public int isPublic;
 
     public BType fieldType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructFieldInfo(int nameCPIndex, int signatureCPIndex) {
+    public StructFieldInfo(int nameCPIndex, int signatureCPIndex, int isPublic) {
         this.nameCPIndex = nameCPIndex;
         this.signatureCPIndex = signatureCPIndex;
+        this.isPublic = isPublic;
     }
 
     @Override

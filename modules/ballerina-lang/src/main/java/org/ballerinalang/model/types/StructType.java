@@ -35,6 +35,8 @@ public interface StructType extends ReferenceType {
         Name getName();
 
         Type getType();
+
+        boolean isPublic();
     }
 
     List<? extends Field> getFields();
