@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.input;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
@@ -46,9 +47,9 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private StreamEventConverter[] streamEventConverters;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
 
-    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String
-            queryName) {
-        super(streamId, latencyTracker, queryName);
+    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker,
+                                      String queryName, SiddhiAppContext siddhiAppContext) {
+        super(streamId, latencyTracker, queryName, siddhiAppContext);
         this.processCount = processCount;
         this.queryName = queryName;
         nextProcessors = new Processor[processCount];
@@ -63,7 +64,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName);
+        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName,
+                siddhiAppContext);
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {

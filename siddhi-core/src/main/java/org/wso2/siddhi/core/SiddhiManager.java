@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
@@ -123,6 +124,15 @@ public class SiddhiManager {
      */
     public void setSourceHandlerManager(SourceHandlerManager sourceHandlerManager) {
         this.siddhiContext.setSourceHandlerManager(sourceHandlerManager);
+    }
+
+    /**
+     * Method to set record table handler manager that would create record table handlers for each record table
+     *
+     * @param recordTableHandlerManager Record Table Handler Manager Implementation to be used.
+     */
+    public void setRecordTableHandlerManager(RecordTableHandlerManager recordTableHandlerManager) {
+        this.siddhiContext.setRecordTableHandlerManager(recordTableHandlerManager);
     }
 
     /**

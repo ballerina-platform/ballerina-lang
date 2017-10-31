@@ -33,6 +33,6 @@ public interface StatisticsTrackerFactory {
 
     MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager);
 
-    StatisticsManager createStatisticsManager(List<Element> elements);
+    StatisticsManager createStatisticsManager(String prefix, String siddhiAppName, List<Element> elements);
 
 }

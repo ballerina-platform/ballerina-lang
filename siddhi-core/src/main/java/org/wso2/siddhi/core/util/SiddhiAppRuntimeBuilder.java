@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -104,7 +105,12 @@ public class SiddhiAppRuntimeBuilder {
         if (currentDefinition != null) {
             streamDefinition = (StreamDefinition) currentDefinition;
         }
-        DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, siddhiAppContext);
+        try {
+            DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, siddhiAppContext);
+        } catch (Throwable t) {
+            ExceptionUtil.populateQueryContext(t, streamDefinition, siddhiAppContext);
+            throw t;
+        }
         DefinitionParserHelper.addEventSource(streamDefinition, sourceMap, siddhiAppContext);
         DefinitionParserHelper.addEventSink(streamDefinition, sinkMap, siddhiAppContext);
     }
@@ -162,7 +168,13 @@ public class SiddhiAppRuntimeBuilder {
     }
 
     public String addQuery(QueryRuntime queryRuntime) {
-        queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
+        QueryRuntime oldQueryRuntime = queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
+        if (oldQueryRuntime != null) {
+            throw new SiddhiAppCreationException("Multiple queries with name '" + queryRuntime.getQueryId() +
+                    "' defined in Siddhi App '" + siddhiAppContext.getName() + "'",
+                    queryRuntime.getQuery().getQueryContextStartIndex(),
+                    queryRuntime.getQuery().getQueryContextEndIndex());
+        }
         StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
 
         for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {

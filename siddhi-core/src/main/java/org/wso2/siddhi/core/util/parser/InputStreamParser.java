@@ -78,7 +78,7 @@ public class InputStreamParser {
             boolean batchProcessingAllowed = window != null;      // If stream is from window, allow batch
             // processing
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(),
-                    latencyTracker, queryName);
+                    latencyTracker, queryName, siddhiAppContext);
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
                     siddhiAppContext, executors, streamDefinitionMap,

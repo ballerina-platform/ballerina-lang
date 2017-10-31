@@ -59,7 +59,7 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
-        if (latencyTracker != null) {
+        if (siddhiAppContext.isStatsEnabled() && latencyTracker != null) {
             latencyTracker.markOut();
         }
         if (lockWrapper != null) {

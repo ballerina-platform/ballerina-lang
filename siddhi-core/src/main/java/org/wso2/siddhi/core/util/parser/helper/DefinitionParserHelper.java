@@ -41,10 +41,13 @@ import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.table.record.RecordTableHandler;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.trigger.CronTrigger;
 import org.wso2.siddhi.core.trigger.PeriodicTrigger;
 import org.wso2.siddhi.core.trigger.StartTrigger;
 import org.wso2.siddhi.core.trigger.Trigger;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -172,6 +175,8 @@ public class DefinitionParserHelper {
 
             Table table;
             ConfigReader configReader = null;
+            RecordTableHandlerManager recordTableHandlerManager = null;
+            RecordTableHandler recordTableHandler = null;
             if (annotation != null) {
                 annotation = updateAnnotationRef(annotation, SiddhiConstants.NAMESPACE_STORE, siddhiAppContext);
                 String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -186,6 +191,10 @@ public class DefinitionParserHelper {
                         return tableType;
                     }
                 };
+                recordTableHandlerManager = siddhiAppContext.getSiddhiContext().getRecordTableHandlerManager();
+                if (recordTableHandlerManager != null) {
+                    recordTableHandler = recordTableHandlerManager.generateRecordTableHandler();
+                }
                 table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
                         TableExtensionHolder.getInstance(siddhiAppContext));
                 configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
@@ -194,7 +203,11 @@ public class DefinitionParserHelper {
                 table = new InMemoryTable();
             }
             table.initTable(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
-                    siddhiAppContext);
+                    siddhiAppContext, recordTableHandler);
+            if (recordTableHandler != null) {
+                recordTableHandlerManager.registerRecordTableHandler(recordTableHandler.getElementId(),
+                        recordTableHandler);
+            }
             tableMap.putIfAbsent(tableDefinition.getId(), table);
         }
     }
@@ -222,13 +235,18 @@ public class DefinitionParserHelper {
                 return functionDefinition.getLanguage().toLowerCase();
             }
         };
-        Script script = (Script) SiddhiClassLoader.loadExtensionImplementation(extension,
-                ScriptExtensionHolder.getInstance(siddhiAppContext));
-        ConfigReader configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
-                .generateConfigReader(extension.getNamespace(), extension.getName());
-        script.setReturnType(functionDefinition.getReturnType());
-        script.init(functionDefinition.getId(), functionDefinition.getBody(), configReader);
-        siddhiAppContext.getScriptFunctionMap().put(functionDefinition.getId(), script);
+        try {
+            Script script = (Script) SiddhiClassLoader.loadExtensionImplementation(extension,
+                    ScriptExtensionHolder.getInstance(siddhiAppContext));
+            ConfigReader configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                    .generateConfigReader(extension.getNamespace(), extension.getName());
+            script.setReturnType(functionDefinition.getReturnType());
+            script.init(functionDefinition.getId(), functionDefinition.getBody(), configReader);
+            siddhiAppContext.getScriptFunctionMap().put(functionDefinition.getId(), script);
+        } catch (Throwable t) {
+            ExceptionUtil.populateQueryContext(t, functionDefinition, siddhiAppContext);
+            throw t;
+        }
     }
 
     public static void validateDefinition(TriggerDefinition triggerDefinition) {
@@ -328,11 +346,15 @@ public class DefinitionParserHelper {
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
                     String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
-                    source.init(sourceType, sourceOptionHolder, sourceMapper, transportPropertyNames,
-                            configReader, mapType, mapOptionHolder, attributesHolder.payloadMappings,
-                            attributesHolder.transportMappings, mapperConfigReader, sourceHandler, streamDefinition,
-                            siddhiAppContext);
-
+                    try {
+                        source.init(sourceType, sourceOptionHolder, sourceMapper, transportPropertyNames,
+                                configReader, mapType, mapOptionHolder, attributesHolder.payloadMappings,
+                                attributesHolder.transportMappings, mapperConfigReader, sourceHandler, streamDefinition,
+                                siddhiAppContext);
+                    } catch (Throwable t) {
+                        ExceptionUtil.populateQueryContext(t, sourceAnnotation, siddhiAppContext);
+                        throw t;
+                    }
                     siddhiAppContext.getSnapshotService().addSnapshotable(source.getStreamDefinition().getId(), source);
                     if (sourceHandlerManager != null) {
                         sourceHandlerManager.registerSourceHandler(sourceHandler.getElementId(), sourceHandler);
@@ -487,20 +509,30 @@ public class DefinitionParserHelper {
                                     .loadExtensionImplementation(
                                             strategyExtension, DistributionStrategyExtensionHolder.getInstance
                                                     (siddhiAppContext));
-                            distributionStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
-                                    destinationOptHolders, configReader);
+                            try {
+                                distributionStrategy.init(streamDefinition, transportOptionHolder,
+                                        distributionOptHolder, destinationOptHolders, configReader);
 
-                            ((DistributedTransport) sink).init(streamDefinition, sinkType,
-                                    transportOptionHolder, sinkConfigReader, sinkMapper,
-                                    mapType, mapOptionHolder, sinkHandler,
-                                    payloadElementList, mapperConfigReader, siddhiAppContext,
-                                    destinationOptHolders,
-                                    sinkAnnotation, distributionStrategy,
-                                    supportedDynamicOptions);
+                                ((DistributedTransport) sink).init(streamDefinition, sinkType,
+                                        transportOptionHolder, sinkConfigReader, sinkMapper,
+                                        mapType, mapOptionHolder, sinkHandler,
+                                        payloadElementList, mapperConfigReader, siddhiAppContext,
+                                        destinationOptHolders,
+                                        sinkAnnotation, distributionStrategy,
+                                        supportedDynamicOptions);
+                            } catch (Throwable t) {
+                                ExceptionUtil.populateQueryContext(t, sinkAnnotation, siddhiAppContext);
+                                throw t;
+                            }
                         } else {
-                            sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader, sinkMapper,
-                                    mapType, mapOptionHolder, sinkHandler, payloadElementList, mapperConfigReader,
-                                    siddhiAppContext);
+                            try {
+                                sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader,
+                                        sinkMapper, mapType, mapOptionHolder, sinkHandler, payloadElementList,
+                                        mapperConfigReader, siddhiAppContext);
+                            } catch (Throwable t) {
+                                ExceptionUtil.populateQueryContext(t, sinkAnnotation, siddhiAppContext);
+                                throw t;
+                            }
                         }
 
                         if (sinkHandlerManager != null) {

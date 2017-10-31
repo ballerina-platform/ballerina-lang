@@ -55,11 +55,17 @@ public abstract class AbstractRecordTable extends Table {
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
+    private RecordTableHandler recordTableHandler;
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                      StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext
-                             siddhiAppContext) {
+                             siddhiAppContext, RecordTableHandler recordTableHandler) {
+        if (recordTableHandler != null) {
+            recordTableHandler.init(siddhiAppContext.getElementIdGenerator().createNewId(), tableDefinition,
+                    new RecordTableHandlerCallback(this));
+        }
+        this.recordTableHandler = recordTableHandler;
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
         init(tableDefinition, configReader);
@@ -68,7 +74,7 @@ public abstract class AbstractRecordTable extends Table {
     /**
      * Initializing the Record Table
      *
-     * @param tableDefinition definintion of the table with annotations if any
+     * @param tableDefinition definition of the table with annotations if any
      * @param configReader    this hold the {@link AbstractRecordTable} configuration reader.
      */
     protected abstract void init(TableDefinition tableDefinition, ConfigReader configReader);
@@ -82,12 +88,17 @@ public abstract class AbstractRecordTable extends Table {
     public void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException {
         List<Object[]> records = new ArrayList<>();
         addingEventChunk.reset();
+        long timestamp = 0L;
         while (addingEventChunk.hasNext()) {
             StreamEvent event = addingEventChunk.next();
             records.add(event.getOutputData());
+            timestamp = event.getTimestamp();
         }
-        add(records);
-
+        if (recordTableHandler != null) {
+            recordTableHandler.add(timestamp, records);
+        } else {
+            add(records);
+        }
     }
 
     /**
@@ -110,7 +121,13 @@ public abstract class AbstractRecordTable extends Table {
             findConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
 
-        Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        Iterator<Object[]> records;
+        if (recordTableHandler != null) {
+            records = recordTableHandler.find(matchingEvent.getTimestamp(), findConditionParameterMap,
+                    recordStoreCompiledCondition.compiledCondition);
+        } else {
+            records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        }
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
         if (records != null) {
             while (records.hasNext()) {
@@ -145,7 +162,12 @@ public abstract class AbstractRecordTable extends Table {
                 recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
             containsConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
-        return contains(containsConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        if (recordTableHandler != null) {
+            return recordTableHandler.contains(matchingEvent.getTimestamp(), containsConditionParameterMap,
+                    recordStoreCompiledCondition.compiledCondition);
+        } else {
+            return contains(containsConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        }
     }
 
     /**
@@ -167,6 +189,7 @@ public abstract class AbstractRecordTable extends Table {
                 ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> deleteConditionParameterMaps = new ArrayList<>();
         deletingEventChunk.reset();
+        long timestamp = 0L;
         while (deletingEventChunk.hasNext()) {
             StateEvent stateEvent = deletingEventChunk.next();
 
@@ -177,8 +200,14 @@ public abstract class AbstractRecordTable extends Table {
             }
 
             deleteConditionParameterMaps.add(variableMap);
+            timestamp = stateEvent.getTimestamp();
         }
-        delete(deleteConditionParameterMaps, recordStoreCompiledCondition.compiledCondition);
+        if (recordTableHandler != null) {
+            recordTableHandler.delete(timestamp, deleteConditionParameterMaps, recordStoreCompiledCondition.
+                    compiledCondition);
+        } else {
+            delete(deleteConditionParameterMaps, recordStoreCompiledCondition.compiledCondition);
+        }
     }
 
     /**
@@ -201,6 +230,7 @@ public abstract class AbstractRecordTable extends Table {
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
         updatingEventChunk.reset();
+        long timestamp = 0L;
         while (updatingEventChunk.hasNext()) {
             StateEvent stateEvent = updatingEventChunk.next();
 
@@ -217,9 +247,16 @@ public abstract class AbstractRecordTable extends Table {
                 variableMapForUpdateSet.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
             updateSetParameterMaps.add(variableMapForUpdateSet);
+            timestamp = stateEvent.getTimestamp();
         }
-        update(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
-                recordTableCompiledUpdateSet.getUpdateSetMap(), updateSetParameterMaps);
+        if (recordTableHandler != null) {
+            recordTableHandler.update(timestamp, recordStoreCompiledCondition.compiledCondition,
+                    updateConditionParameterMaps, recordTableCompiledUpdateSet.getUpdateSetMap(),
+                    updateSetParameterMaps);
+        } else {
+            update(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
+                    recordTableCompiledUpdateSet.getUpdateSetMap(), updateSetParameterMaps);
+        }
     }
 
 
@@ -250,6 +287,7 @@ public abstract class AbstractRecordTable extends Table {
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
         List<Object[]> addingRecords = new ArrayList<>();
         updateOrAddingEventChunk.reset();
+        long timestamp = 0L;
         while (updateOrAddingEventChunk.hasNext()) {
             StateEvent stateEvent = updateOrAddingEventChunk.next();
 
@@ -267,9 +305,16 @@ public abstract class AbstractRecordTable extends Table {
             }
             updateSetParameterMaps.add(variableMapForUpdateSet);
             addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
+            timestamp = stateEvent.getTimestamp();
         }
-        updateOrAdd(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
-                recordTableCompiledUpdateSet.getUpdateSetMap(), updateSetParameterMaps, addingRecords);
+        if (recordTableHandler != null) {
+            recordTableHandler.updateOrAdd(timestamp, recordStoreCompiledCondition.compiledCondition,
+                    updateConditionParameterMaps, recordTableCompiledUpdateSet.getUpdateSetMap(),
+                    updateSetParameterMaps, addingRecords);
+        } else {
+            updateOrAdd(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
+                    recordTableCompiledUpdateSet.getUpdateSetMap(), updateSetParameterMaps, addingRecords);
+        }
 
     }
 

@@ -1735,21 +1735,13 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public OutputStream.OutputEventType visitOutput_event_type(@NotNull SiddhiQLParser.Output_event_typeContext ctx) {
 //        output_event_type
-//        : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS
+//        : ALL EVENTS | EXPIRED EVENTS | CURRENT? EVENTS
 //        ;
 
         if (ctx.ALL() != null) {
-            if (ctx.RAW() != null) {
-                return OutputStream.OutputEventType.ALL_RAW_EVENTS;
-            } else {
                 return OutputStream.OutputEventType.ALL_EVENTS;
-            }
         } else if (ctx.EXPIRED() != null) {
-            if (ctx.RAW() != null) {
-                return OutputStream.OutputEventType.EXPIRED_RAW_EVENTS;
-            } else {
                 return OutputStream.OutputEventType.EXPIRED_EVENTS;
-            }
         } else {
             return OutputStream.OutputEventType.CURRENT_EVENTS;
         }

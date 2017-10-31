@@ -489,7 +489,7 @@ public class JoinPartitionTestCase {
                 "" +
                 "partition with (user of outputStream1) " +
                 "begin " +
-                "   @info(name = 'query1') " +
+                "   @info(name = 'query2') " +
                 "   from outputStream1#window.length(1) join twitterStream#window.length(1) " +
                 "   select outputStream1.symbol as symbol, twitterStream.tweet, outputStream1.volume " +
                 "   insert all events into outputStream ;" + "" +

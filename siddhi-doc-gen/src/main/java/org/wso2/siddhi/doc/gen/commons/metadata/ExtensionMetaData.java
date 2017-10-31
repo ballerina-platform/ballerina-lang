@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * POJO for holding extension meta data
  */
-public class ExtensionMetaData {
+public class ExtensionMetaData implements Comparable<ExtensionMetaData> {
     private String name;
     private String namespace;
     private String description;
@@ -85,5 +85,86 @@ public class ExtensionMetaData {
 
     public void setExamples(List<ExampleMetaData> examples) {
         this.examples = examples;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ExtensionMetaData that = (ExtensionMetaData) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
+            return false;
+        }
+        if (description != null ? !description.equals(that.description) : that.description != null) {
+            return false;
+        }
+        if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) {
+            return false;
+        }
+        if (systemParameters != null ? !systemParameters.equals(that.systemParameters) :
+                that.systemParameters != null) {
+            return false;
+        }
+        if (returnAttributes != null ? !returnAttributes.equals(that.returnAttributes) :
+                that.returnAttributes != null) {
+            return false;
+        }
+        return examples != null ? examples.equals(that.examples) : that.examples == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
+        result = 31 * result + (systemParameters != null ? systemParameters.hashCode() : 0);
+        result = 31 * result + (returnAttributes != null ? returnAttributes.hashCode() : 0);
+        result = 31 * result + (examples != null ? examples.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public int compareTo(ExtensionMetaData o) {
+        if (o == null) {
+            return -1;
+        }
+        if (this.equals(o)) {
+            return 0;
+        }
+        int result;
+        if (namespace != null && o.namespace != null) {
+            result = namespace.compareTo(o.namespace);
+        } else if (namespace == null && o.namespace == null) {
+            result = 0;
+        } else if (namespace == null) {
+            return -1;
+        } else {
+            return 1;
+        }
+        if (result == 0) {
+            if (name != null && o.name != null) {
+                result = name.compareTo(o.name);
+            } else if (name == null && o.name == null) {
+                result = 0;
+            } else if (name == null) {
+                return -1;
+            } else {
+                return 1;
+            }
+            if (result == 0) {
+                result = description.compareTo(o.description);
+            }
+        }
+        return result;
     }
 }

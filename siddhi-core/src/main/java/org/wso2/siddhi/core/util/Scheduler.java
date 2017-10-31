@@ -129,7 +129,7 @@ public abstract class Scheduler implements Snapshotable {
             }
             threadBarrier.pass();
             try {
-                if (latencyTracker != null) {
+                if (siddhiAppContext.isStatsEnabled() && latencyTracker != null) {
                     try {
                         latencyTracker.markIn();
                         singleThreadEntryValve.process(streamEventChunk);

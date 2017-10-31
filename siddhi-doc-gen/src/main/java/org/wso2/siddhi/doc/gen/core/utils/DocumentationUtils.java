@@ -69,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * Utility class for getting the meta data for the extension processors in Siddhi
@@ -91,7 +92,7 @@ public class DocumentationUtils {
                                                                List<String> runtimeClasspathElements,
                                                                Log logger)
             throws MojoFailureException, MojoExecutionException {
-        List<NamespaceMetaData> namespaceMetaDataList = new ArrayList<>();
+        List<NamespaceMetaData> namespaceMetaDataList = new ArrayList<NamespaceMetaData>();
         int urlCount = runtimeClasspathElements.size() + 1;     // +1 to include the module's target/classes folder
 
         // Creating a list of URLs with all project dependencies
@@ -120,7 +121,12 @@ public class DocumentationUtils {
         } catch (MalformedURLException e) {
             throw new MojoExecutionException("Invalid classes directory: " + classesDirectory.getAbsolutePath(), e);
         }
-
+        for (NamespaceMetaData aNamespaceMetaData : namespaceMetaDataList) {
+            for (List<ExtensionMetaData> extensionMetaData : aNamespaceMetaData.getExtensionMap().values()) {
+                Collections.sort(extensionMetaData);
+            }
+        }
+        Collections.sort(namespaceMetaDataList);
         return namespaceMetaDataList;
     }
 
@@ -583,7 +589,7 @@ public class DocumentationUtils {
 
                 // Generating metadata and adding the it to the list of relevant extensions
                 addExtensionMetaDataIntoNamespaceList(namespaceMetaDataList, extensionClass, logger);
-            } catch (ClassNotFoundException ignored) {
+            } catch (Throwable ignored) {
                 logger.warn("Ignoring the failed class loading from " + file.getAbsolutePath());
             }
         }
@@ -698,7 +704,7 @@ public class DocumentationUtils {
             if (namespace == null) {
                 namespace = new NamespaceMetaData();
                 namespace.setName(namespaceName);
-                namespace.setExtensionMap(new HashMap<>());
+                namespace.setExtensionMap(new TreeMap<>());
                 namespaceList.add(namespace);
             }
 

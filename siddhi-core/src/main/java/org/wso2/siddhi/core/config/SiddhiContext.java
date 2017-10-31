@@ -22,6 +22,7 @@ import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
@@ -50,6 +51,7 @@ public class SiddhiContext {
     private ConfigManager configManager = null;
     private SinkHandlerManager sinkHandlerManager = null;
     private SourceHandlerManager sourceHandlerManager = null;
+    private RecordTableHandlerManager recordTableHandlerManager = null;
 
     public SiddhiContext() {
         SiddhiExtensionLoader.loadSiddhiExtensions(siddhiExtensions);
@@ -137,5 +139,13 @@ public class SiddhiContext {
 
     public void setSourceHandlerManager(SourceHandlerManager sourceHandlerManager) {
         this.sourceHandlerManager = sourceHandlerManager;
+    }
+
+    public RecordTableHandlerManager getRecordTableHandlerManager() {
+        return recordTableHandlerManager;
+    }
+
+    public void setRecordTableHandlerManager(RecordTableHandlerManager recordTableHandlerManager) {
+        this.recordTableHandlerManager = recordTableHandlerManager;
     }
 }

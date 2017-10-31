@@ -65,9 +65,6 @@ public abstract class Source implements Snapshotable {
         this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.siddhiAppContext = siddhiAppContext;
-        if (sourceHandler != null) {
-            sourceHandler.initSourceHandler(siddhiAppContext.getElementIdGenerator().createNewId(), streamDefinition);
-        }
         init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }

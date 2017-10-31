@@ -44,6 +44,7 @@ import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -227,7 +228,7 @@ public class SiddhiAppRuntime {
 
     private Event[] query(StoreQuery storeQuery, String storeQueryString) {
         try {
-            if (storeQueryLatencyTracker != null) {
+            if (siddhiAppContext.isStatsEnabled() && storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markIn();
             }
             StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
@@ -246,7 +247,7 @@ public class SiddhiAppRuntime {
             }
             throw new StoreQueryCreationException(e.getMessage(), e);
         } finally {
-            if (storeQueryLatencyTracker != null) {
+            if (siddhiAppContext.isStatsEnabled() && storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markOut();
             }
         }
@@ -266,6 +267,10 @@ public class SiddhiAppRuntime {
 
     public Collection<List<Sink>> getSinks() {
         return sinkMap.values();
+    }
+
+    public Collection<Table> getTables() {
+        return tableMap.values();
     }
 
     public synchronized void start() {
@@ -344,6 +349,14 @@ public class SiddhiAppRuntime {
         }
 
         for (Table table : tableMap.values()) {
+            RecordTableHandlerManager recordTableHandlerManager = siddhiAppContext.getSiddhiContext().
+                    getRecordTableHandlerManager();
+            if (recordTableHandlerManager != null) {
+                String elementId = table.getHandler().getElementId();
+                if (elementId != null) {
+                    recordTableHandlerManager.unregisterRecordTableHandler(elementId);
+                }
+            }
             table.shutdown();
         }
 
@@ -385,8 +398,10 @@ public class SiddhiAppRuntime {
             siddhiAppRuntimeMap.remove(siddhiAppContext.getName());
         }
 
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
-            siddhiAppContext.getStatisticsManager().stopReporting();
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            if (siddhiAppContext.isStatsEnabled()) {
+                siddhiAppContext.getStatisticsManager().stopReporting();
+            }
             siddhiAppContext.getStatisticsManager().cleanup();
         }
         running = false;
