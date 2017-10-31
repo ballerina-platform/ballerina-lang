@@ -37,6 +37,8 @@ public class Function {
 
     private String receiverType = null;
 
+    private Boolean isPublic = false;
+
     public Function name(String name) {
         this.name = name;
         return this;
@@ -156,6 +158,13 @@ public class Function {
         this.receiverType = receiverType;
     }
 
+    /**
+     * Returns true if the function is public else false
+     * @return
+     */
+    public boolean isPublic(){return isPublic;}
+
+    public void setPublic(Boolean isPublic){this.isPublic = isPublic;}
 
     @Override
     public boolean equals(Object o) {
@@ -171,7 +180,8 @@ public class Function {
                 Objects.equals(this.annotations, function.annotations) &&
                 Objects.equals(this.parameters, function.parameters) &&
                 Objects.equals(this.returnParams, function.returnParams) &&
-                Objects.equals(this.receiverType, function.receiverType);
+                Objects.equals(this.receiverType, function.receiverType) &&
+                Objects.equals(this.isPublic, function.isPublic);
     }
 
     @Override
@@ -190,6 +200,7 @@ public class Function {
         sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
         sb.append("    returnParams: ").append(toIndentedString(returnParams)).append("\n");
         sb.append("    receiverType: ").append(toIndentedString(receiverType)).append("\n");
+        sb.append("    isPublic: ").append(toIndentedString(isPublic)).append("\n");
         sb.append("}");
         return sb.toString();
     }

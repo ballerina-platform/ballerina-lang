@@ -29,6 +29,7 @@ import org.ballerinalang.composer.service.workspace.langserver.model.StructField
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -374,8 +375,11 @@ public class WorkspaceUtils {
 
             String receiverType = getReceiverType(function.getReceiver());
 
+            // Check if the function is public or not
+            boolean isPublic = function.getFlags().contains(Flag.PUBLIC);
+
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters, receiverType));
+                    annotations, parameters, returnParameters, receiverType, isPublic));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -390,8 +394,11 @@ public class WorkspaceUtils {
 
             String receiverType = getReceiverType(function.getReceiver());
 
+            // Check if the function is public or not
+            boolean isPublic = function.getFlags().contains(Flag.PUBLIC);
+
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters, receiverType));
+                    annotations, parameters, returnParameters, receiverType, isPublic));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -538,13 +545,14 @@ public class WorkspaceUtils {
      */
     private static Function createNewFunction(String name, List<AnnotationAttachment> annotations,
                                               List<Parameter> params, List<Parameter> returnParams,
-                                              String receiverType) {
+                                              String receiverType, boolean isPublic) {
         Function function = new Function();
         function.setName(name);
         function.setAnnotations(annotations);
         function.setParameters(params);
         function.setReturnParams(returnParams);
         function.setReceiverType(receiverType);
+        function.setPublic(isPublic);
         return function;
     }
 
