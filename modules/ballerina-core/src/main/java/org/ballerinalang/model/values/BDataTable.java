@@ -23,9 +23,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
@@ -74,97 +72,8 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext() {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-        for (ColumnDefinition columnDef : columnDefs) {
-            String columnName = columnDef.getName();
-            int sqlType = columnDef.getSQLType();
-            switch (sqlType) {
-            case Types.ARRAY:
-                BMap<BString, BValue> bMapvalue = getDataArray(columnName);
-                bStruct.setRefField(++refRegIndex, bMapvalue);
-                break;
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.NCHAR:
-            case Types.NVARCHAR:
-            case Types.LONGNVARCHAR:
-                String sValue = iterator.getString(columnName);
-                bStruct.setStringField(++stringRegIndex, sValue);
-                break;
-            case Types.BLOB:
-            case Types.BINARY:
-            case Types.VARBINARY:
-            case Types.LONGVARBINARY:
-                BValue bValue = iterator.get(columnName, sqlType);
-                bStruct.setBlobField(++blobRegIndex, ((BBlob) bValue).blobValue());
-                break;
-            case Types.CLOB:
-            case Types.NCLOB:
-            case Types.DATE:
-            case Types.TIME:
-            case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
-            case Types.TIME_WITH_TIMEZONE:
-            case Types.ROWID:
-                BValue strValue = iterator.get(columnName, sqlType);
-                bStruct.setStringField(++stringRegIndex, strValue.stringValue());
-                break;
-            case Types.TINYINT:
-            case Types.SMALLINT:
-            case Types.INTEGER:
-            case Types.BIGINT:
-                long lValue = iterator.getInt(columnName);
-                bStruct.setIntField(++longRegIndex, lValue);
-                break;
-            case Types.REAL:
-            case Types.NUMERIC:
-            case Types.DECIMAL:
-            case Types.FLOAT:
-            case Types.DOUBLE:
-                double fValue = iterator.getFloat(columnName);
-                bStruct.setFloatField(++doubleRegIndex, fValue);
-                break;
-            case Types.BIT:
-            case Types.BOOLEAN:
-                boolean boolValue = iterator.getBoolean(columnName);
-                bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
-                break;
-            default:
-                throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
-            }
-        }
+        iterator.generateNext(columnDefs, bStruct);
         return bStruct;
-    }
-
-    private BMap<BString, BValue> getDataArray(String columnName) {
-        Map<String, Object> arrayMap = iterator.getArray(columnName);
-        BMap<BString, BValue> returnMap = new BMap<>();
-        if (arrayMap != null && !arrayMap.isEmpty()) {
-            for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
-                BString key = new BString(entry.getKey());
-                Object obj = entry.getValue();
-                if (obj instanceof String) {
-                    returnMap.put(key, new BString(String.valueOf(obj)));
-                } else if (obj instanceof Boolean) {
-                    returnMap.put(key, new BBoolean(Boolean.valueOf(obj.toString())));
-                } else if (obj instanceof Integer) {
-                    returnMap.put(key, new BInteger(Integer.parseInt(obj.toString())));
-                } else if (obj instanceof Long) {
-                    returnMap.put(key, new BInteger(Long.parseLong(obj.toString())));
-                } else if (obj instanceof Float) {
-                    returnMap.put(key, new BFloat(Float.parseFloat(obj.toString())));
-                } else if (obj instanceof Double) {
-                    returnMap.put(key, new BFloat(Double.parseDouble(obj.toString())));
-                }
-            }
-        }
-        return returnMap;
     }
 
     private void generateStruct() {
@@ -173,47 +82,23 @@ public class BDataTable implements BRefType<Object> {
         int typeIndex  = 0;
         for (ColumnDefinition columnDef : columnDefs) {
             BType type;
-            switch (columnDef.getSQLType()) {
-            case Types.ARRAY:
+            switch (columnDef.getType()) {
+            case ARRAY:
                 type = BTypes.typeMap;
                 break;
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.NCHAR:
-            case Types.NVARCHAR:
-            case Types.LONGNVARCHAR:
-            case Types.CLOB:
-            case Types.NCLOB:
-            case Types.DATE:
-            case Types.TIME:
-            case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
-            case Types.TIME_WITH_TIMEZONE:
-            case Types.ROWID:
+            case STRING:
                 type = BTypes.typeString;
                 break;
-            case Types.BLOB:
-            case Types.LONGVARBINARY:
-            case Types.BINARY:
-            case Types.VARBINARY:
+            case BLOB:
                 type = BTypes.typeBlob;
                 break;
-            case Types.TINYINT:
-            case Types.SMALLINT:
-            case Types.INTEGER:
-            case Types.BIGINT:
+            case INT:
                 type = BTypes.typeInt;
                 break;
-            case Types.REAL:
-            case Types.NUMERIC:
-            case Types.DECIMAL:
-            case Types.FLOAT:
-            case Types.DOUBLE:
+            case FLOAT:
                 type = BTypes.typeFloat;
                 break;
-            case Types.BIT:
-            case Types.BOOLEAN:
+            case BOOLEAN:
                 type = BTypes.typeBoolean;
                 break;
             default:
