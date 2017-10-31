@@ -802,6 +802,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // If this cast is an unsafe conversion, then there MUST to be two expected types/variables
         // If this is an safe cast, then the error variable is optional
         int expected = expTypes.size();
+        int actual = conversionSymbol.type.getReturnTypes().size();
+        
         List<BType> actualTypes = getListWithErrorTypes(expected);
         if (conversionSymbol.safe && expected == 1) {
             actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
@@ -809,11 +811,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (!conversionSymbol.safe && expected == 1) {
             dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
 
-        } else if (expected == 2) {
+        } else if (expected != actual) {
+            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+        } else {
             actualTypes = conversionSymbol.type.getReturnTypes();
-
-        } else if (expected == 0 || expected > 2) {
-            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);
         }
 
         return actualTypes;
@@ -1256,13 +1257,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (transformerInvocation.type != symTable.errType) {
                 BInvokableType transformerSymType = (BInvokableType) transformerSymbol.type;
                 transformerInvocation.types = transformerSymType.retTypes;
-                actualTypes = new ArrayList<>(transformerSymType.retTypes);
-
-                // Append type conversion error for safe casts.This is because safe conversions can also be
-                // used with multi-returns
-                if (conversionExpr.conversionSymbol.safe) {
-                    actualTypes.add(symTable.errTypeConversionType);
-                }
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                        conversionExpr.conversionSymbol);
             }
         }
 

@@ -47,7 +47,7 @@ transformer <Person p, Employee e> Bar(int age) {
     e.age = age;
 }
 
-function functionsInTransform() (string, int, string){
+function functionsInTransform() (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = <Employee; transformerWithFunction()> p;
     return e.name, e.age, e.address;

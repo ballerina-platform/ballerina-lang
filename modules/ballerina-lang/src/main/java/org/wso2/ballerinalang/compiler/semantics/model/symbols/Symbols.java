@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -177,7 +178,7 @@ public class Symbols {
         return symbol;
     }
     
-    public static BInvokableSymbol createTransformerSymbol(int flags,
+    public static BTransformerSymbol createTransformerSymbol(int flags,
                                                              Name name,
                                                              PackageID pkgID,
                                                              BType type,
@@ -185,6 +186,7 @@ public class Symbols {
                                                              BSymbol owner) {
         BTransformerSymbol symbol = new BTransformerSymbol(name, pkgID, type, owner, safe);
         symbol.kind = SymbolKind.TRANSFORMER;
+        symbol.scope = new Scope(symbol);
         return symbol;
     }
 

@@ -415,7 +415,12 @@ public class SymbolTable {
                                           boolean safe,
                                           int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errTypeConversionType);
+        List<BType> retTypes;
+        if (safe) {
+            retTypes = Lists.of(targetType);
+        } else {
+            retTypes = Lists.of(targetType, this.errTypeConversionType);
+        }
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
                 this.rootPkgSymbol, safe, opcode);

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
@@ -190,11 +191,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
 
-        // Define transformer nodes.
-        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
-        
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
+
+        // Define transformer nodes.
+        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -399,9 +400,22 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean safeConversion = transformerNode.retParams.size() == 1;
         Name name = getTransformerSymbolName(transformerNode);
-        BInvokableSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
+        BTransformerSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
                 name, env.enclPkg.symbol.pkgID, null, safeConversion, env.scope.owner);
+        transformerNode.symbol = transformerSymbol;
 
+        // If this is a default transformer, check whether this transformer conflicts with a built-in conversion
+        if (transformerNode.name.value.isEmpty()) {
+            BType targetType = transformerNode.retParams.get(0).type;
+            BSymbol symbol = symResolver.resolveConversionOperator(transformerNode.source.type, targetType);
+            if (symbol != symTable.notFoundSymbol) {
+                dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_CONFLICTS_WITH_CONVERSION,
+                        transformerNode.source.type, targetType);
+                return;
+            }
+        }
+
+        // Define the transformer
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
         defineInvokableSymbol(transformerNode, transformerSymbol, transformerEnv);
 
@@ -904,8 +918,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getTransformerSymbolName(BLangTransformer transformerNode) {
         if (transformerNode.name.value.isEmpty()) {
-            return names.fromString(Names.TRANSFORMER.value + "." + transformerNode.source.type + "."
-                    + transformerNode.retParams.get(0).type);
+            return names.fromString(Names.TRANSFORMER.value + "<" + transformerNode.source.type + ","
+                    + transformerNode.retParams.get(0).type + ">");
         }
         return names.fromIdNode(transformerNode.name);
     }

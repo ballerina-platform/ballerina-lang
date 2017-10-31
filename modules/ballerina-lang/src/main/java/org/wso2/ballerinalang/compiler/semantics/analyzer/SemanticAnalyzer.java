@@ -916,6 +916,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeStmt(transformerNode.body, transformerEnv);
 
+        // TODO: update this accordingly once the unsafe conversion are supported
+        int returnCount = transformerNode.retParams.size();
+        if (returnCount == 0) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_MUST_HAVE_OUTPUT);
+        } else if (returnCount > 1) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TOO_MANY_OUTPUTS_FOR_TRANSFORMER, 1, returnCount);
+        }
+
         this.processWorkers(transformerNode, transformerEnv);
     }
 

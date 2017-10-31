@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -482,6 +483,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             switch (stmt.getKind()) {
                 case VARIABLE_DEF:
                     BLangVariableDef variableDefStmt = (BLangVariableDef) stmt;
+                    variableDefStmt.var.expr.accept(
+                            new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
                     inputs.add(variableDefStmt.var.symbol);
                     break;
                 case ASSIGNMENT:
@@ -500,10 +503,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
                     break;
                 case EXPRESSION_STATEMENT:
+                    // Here we have assumed that the invocation expression is the only expression-statement available.
+                    // TODO: support other types, once they are implemented.
+                    dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "invocation");
+                    break;
                 case COMMENT:
                     break;
                 default:
-                    this.dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
+                    dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             stmt.getKind().name().toLowerCase().replace('_', ' '));
                     break;
             }
@@ -871,9 +878,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     /**
      * Visit all the nested expressions and validate variable references against a given set of symbols.
+     * This visitor is used to check whether an expression contains inputs/output variables, that are not 
+     * suppose to be there.
      * 
      * @since 0.94.2
-     *
      */
     private class TransformerVarRefValidator extends BLangNodeVisitor {
 
@@ -901,6 +909,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
+                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR) {
+                    dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
+                            "action invocation");
+                }
                 invocationExpr.expr.accept(this);
             }
             invocationExpr.argExprs.forEach(argExpr -> argExpr.accept(this));
@@ -956,11 +968,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         public void visit(BLangConnectorInit connectorInitExpr) {
-            connectorInitExpr.argsExpr.forEach(expr -> expr.accept(this));
+            dlog.error(connectorInitExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "connector init");
         }
 
         public void visit(BLangActionInvocation actionInvocationExpr) {
-            actionInvocationExpr.argExprs.forEach(expr -> expr.accept(this));
+            // We should not reach here. Action invocations are captured as a BLangInvocation expr.
+            throw new IllegalStateException();
         }
 
         public void visit(BLangXMLQName xmlQName) {
@@ -974,9 +987,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public void visit(BLangXMLElementLiteral xmlElementLiteral) {
             xmlElementLiteral.startTagName.accept(this);
-            xmlElementLiteral.endTagName.accept(this);
             xmlElementLiteral.attributes.forEach(attribute -> attribute.accept(this));
             xmlElementLiteral.children.forEach(child -> child.accept(this));
+            if (xmlElementLiteral.endTagName != null) {
+                xmlElementLiteral.endTagName.accept(this);
+            }
         }
 
         public void visit(BLangXMLTextLiteral xmlTextLiteral) {
@@ -1009,14 +1024,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         public void visit(BLangLambdaFunction bLangLambdaFunction) {
-            // TODO
+            // TODO: support for lambda
         }
 
         public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
             xmlAttributeAccessExpr.expr.accept(this);
-            xmlAttributeAccessExpr.indexExpr.accept(this);
+            if (xmlAttributeAccessExpr.indexExpr != null) {
+                xmlAttributeAccessExpr.indexExpr.accept(this);
+            }
         }
-        
+
         public void visit(BLangLiteral literalExpr) {
             // do nothing
         }

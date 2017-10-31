@@ -191,17 +191,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
-    public BSymbol resolveTransformer(DiagnosticPos pos, 
-                                      SymbolEnv env, 
-                                      Name pkgAlias, 
-                                      Name transformerName) {
+    public BSymbol resolveTransformer(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name transformerName) {
         return lookupSymbol(pos, env, pkgAlias, transformerName, SymTag.TRANSFORMER);
     }
 
-    public BSymbol resolveTransformer(SymbolEnv env, 
-                                      BType sourceType,
-                                      BType targetType) {
-        Name transformerName = names.fromString(Names.TRANSFORMER.value + "." + sourceType + "." + targetType);
+    public BSymbol resolveTransformer(SymbolEnv env, BType sourceType, BType targetType) {
+        Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
         return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
     }
     

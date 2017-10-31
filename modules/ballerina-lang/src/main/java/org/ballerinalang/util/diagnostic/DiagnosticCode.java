@@ -67,10 +67,15 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+
+    // Transformer related error codes
     TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
     TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
     INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
-    
+    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
+    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
+    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
+
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
     INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION("incompatible.types.cast.with.suggestion"),
