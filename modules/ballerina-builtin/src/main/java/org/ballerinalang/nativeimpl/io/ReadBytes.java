@@ -79,8 +79,8 @@ public class ReadBytes extends AbstractNativeFunction {
             readByteBlob = new BBlob(readBytes);
             numberOfReadBytes = new BInteger(readBytes.length);
         } catch (Throwable e) {
-            String message = "Error occurred while reading bytes. ";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while reading bytes:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return getBValues(readByteBlob, numberOfReadBytes);
     }

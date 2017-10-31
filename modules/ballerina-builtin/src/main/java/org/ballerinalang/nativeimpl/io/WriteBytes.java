@@ -80,8 +80,8 @@ public class WriteBytes extends AbstractNativeFunction {
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             numberOfBytesWritten = byteChannel.write(content, startOffset);
         } catch (Throwable e) {
-            String message = "Error occurred while writing bytes .";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while writing bytes:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return getBValues(new BInteger(numberOfBytesWritten));
     }
