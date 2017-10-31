@@ -135,7 +135,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + '[' + join(node.expressions, pretty, l, w, '', ',') + w()
                  + ']';
         case 'Assignment':
-            return dent() + (node.declaredWithVar ? w() + 'var' : '')
+            return dent() + (node.declaredWithVar ? w() + 'var' + a(' ') : '')
                  + join(node.variables, pretty, l, w, '', ',') + w(' ') + '=' + a(' ')
                  + getSourceOf(node.expression, pretty, l) + w() + ';';
         case 'BinaryExpr':
