@@ -223,7 +223,9 @@ class BallerinaFileEditor extends React.Component {
             fullPackageName = node.getExpression().getFullPackageName();
         } else if (TreeUtils.isExpressionStatement(node) && TreeUtils.isInvocation(node.getExpression())) {
             fullPackageName = node.getExpression().getFullPackageName();
-        } else if (TreeUtils.isVariableDef(node) && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
+        } else if (TreeUtils.isVariableDef(node)
+            && node.getVariable().getInitialExpression()
+            && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
         } else if (TreeUtils.isConnectorDeclaration(node)) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
