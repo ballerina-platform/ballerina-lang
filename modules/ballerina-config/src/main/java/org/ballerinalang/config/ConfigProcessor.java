@@ -21,8 +21,6 @@ package org.ballerinalang.config;
 import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import java.util.Set;
  */
 public class ConfigProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigProcessor.class);
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String USER_DIR = "user.dir";
     private static final String BALLERINA_CONF_DEFAULT_PATH = System.getProperty(USER_DIR) + File.separator +
@@ -75,9 +72,8 @@ public class ConfigProcessor {
             Map<String, String> fileGlobalConfigs = parser.getGlobalConfigs();
             Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
 
-            createPrioritizedConfigs(runtimeGlobalConfigs, runtimeInstanceConfigs, fileGlobalConfigs
-                    , fileInstanceConfigs);
-
+            createPrioritizedConfigs
+                    (runtimeGlobalConfigs, runtimeInstanceConfigs, fileGlobalConfigs, fileInstanceConfigs);
         }
         ConfigRegistry.setGlobalConfigs(prioritizedGlobalConfigs);
         ConfigRegistry.setInstanceConfigs(prioritizedInstanceConfigs);
@@ -118,8 +114,7 @@ public class ConfigProcessor {
                 throw new BallerinaException("failed to parse ballerina.conf file: " + fileLocation);
             }
         } else {
-            fileLocation = System.getProperty(USER_DIR) + File.separator + BALLERINA_CONF;
-            confFile = new File(fileLocation);
+            confFile = new File(BALLERINA_CONF_DEFAULT_PATH);
             if (!confFile.exists()) {
                 return null;
             }
