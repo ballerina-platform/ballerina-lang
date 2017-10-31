@@ -114,7 +114,7 @@ class TransformPane extends React.Component {
     }
 
     searchTools(tools) {
-        return tools.filter((tool) => tool.name.toLowerCase().includes(this.props.searchText))
+        return tools.filter(tool => tool.name.toLowerCase().includes(this.props.searchText));
     }
 
     render() {
@@ -334,7 +334,7 @@ class ToolPaletteView extends React.Component {
      *
      * @memberof ToolPaletteView
      */
-    package2ToolGroup(pckg, mode = 'both', transform = false) {
+    package2ToolGroup(pckg, mode = 'both', transform = false, currentPackage = false) {
         const withConnectors = (mode === 'both' || mode === 'connectors');
         const withFunctions = (mode === 'both' || mode === 'functions');
         const definitions = [];
@@ -408,7 +408,7 @@ class ToolPaletteView extends React.Component {
                     return;
                 }
                 // if the function is not public do not add it to the tool palette
-                if (!functionDef.isPublic()) {
+                if (!currentPackage && !functionDef.isPublic()) {
                     // do not private functions to tool palette
                     return;
                 }
@@ -474,7 +474,9 @@ class ToolPaletteView extends React.Component {
         const environment = this.context.environment;
         // get the current package
         const currentPackage = environment.getCurrentPackage();
-        let currentTools = this.package2ToolGroup(currentPackage, 'both', this.props.isTransformActive);
+        const isCurrentPackage = true;
+        let currentTools = this.package2ToolGroup(currentPackage, 'both',
+            this.props.isTransformActive, isCurrentPackage);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
