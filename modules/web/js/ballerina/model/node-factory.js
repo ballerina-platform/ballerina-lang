@@ -87,6 +87,7 @@ import BuiltInRefTypeNode from './tree/built-in-ref-type-node';
 import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
+import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
 import TypeNode from './tree/type-node';
 
@@ -806,6 +807,15 @@ class NodeFactory {
         node.typeName = new IdentifierNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
+        return node;
+    }
+
+    createEndpointType(json = {}){
+        json.kind = 'EndpointType';
+        let node = new EndpointTypeNode();
+        node.constraint = new TypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
         return node;
     }
 

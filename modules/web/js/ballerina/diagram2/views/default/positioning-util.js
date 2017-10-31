@@ -1436,6 +1436,14 @@ class PositioningUtil {
 
 
     /**
+     * Calculate position of EndpointType nodes.
+     *
+     * @param {object} node EndpointType object
+     */
+    positionEndpointTypeNode(node) {
+        // Not implemented.
+    }
+    /**
      * Calculate position of ValueType nodes.
      *
      * @param {object} node ValueType object

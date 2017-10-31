@@ -1492,6 +1492,15 @@ class SizingUtil {
         // Not implemented.
     }
 
+    /**
+     * Calculate dimention of EndpointType nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeEndpointTypeNode(node) {
+        // Not implemented.
+    }
 
     /**
      * Calculate dimention of ValueType nodes.

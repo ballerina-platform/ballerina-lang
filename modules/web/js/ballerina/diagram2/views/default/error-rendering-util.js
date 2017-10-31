@@ -1235,6 +1235,19 @@ class ErrorRenderingUtil {
     }
 
 
+
+    /**
+     * Calculate error position of EndpointType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForEndpointTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
     /**
      * Calculate error position of ValueType nodes.
      *
