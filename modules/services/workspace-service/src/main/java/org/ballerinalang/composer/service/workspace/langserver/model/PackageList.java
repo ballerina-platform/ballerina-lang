@@ -16,7 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +96,6 @@ public class PackageList   {
    * Get list.
    * @return list
   **/
-  @ApiModelProperty(value = "")
   public List<ModelPackage> getList() {
     return list;
   }
