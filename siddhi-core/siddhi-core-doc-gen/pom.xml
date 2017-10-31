@@ -64,6 +64,7 @@
                         <extensionRepository>siddhi-execution-geo</extensionRepository>
                         <extensionRepository>siddhi-execution-kalmanfilter</extensionRepository>
                         <extensionRepository>siddhi-execution-approximate</extensionRepository>
+                        <extensionRepository>siddhi-execution-graph</extensionRepository>
                         <extensionRepository>siddhi-io-http</extensionRepository>
                         <extensionRepository>siddhi-io-kafka</extensionRepository>
                         <extensionRepository>siddhi-io-tcp</extensionRepository>
