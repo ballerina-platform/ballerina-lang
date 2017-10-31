@@ -122,7 +122,7 @@ class TreeBuilder {
             node.inTemplateLiteral = true;
         }
 
-        if (parentKind === 'CompilationUnit' && kind === 'Variable') {
+        if (parentKind === 'CompilationUnit' && (kind === 'Variable' || kind === 'Xmlns')) {
             node.global = true;
         }
     }

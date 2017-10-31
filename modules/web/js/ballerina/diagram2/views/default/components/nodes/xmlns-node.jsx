@@ -41,17 +41,32 @@ class XmlnsNode extends React.Component {
         }
     }
 
-    render() {
+    /**
+     * Get the view to render if xmlns is not a global level variable.
+     * @return {XML} if not a global return React component else return null.
+     * */
+    getRenderingView() {
         const model = this.props.model;
         const expression = model.viewState.expression;
+        if (!model.global) {
+            return (
+                <StatementDecorator
+                    model={model}
+                    viewState={model.viewState}
+                    expression={expression}
+                    editorOptions={this.editorOptions}
+                />
+            );
+        }
+        return null;
+    }
 
-        return (
-            <StatementDecorator
-                model={model}
-                viewState={model.viewState}
-                expression={expression}
-                editorOptions={this.editorOptions}
-            />);
+    /**
+     * Render the XMLNS view.
+     * @return {XML} react component.
+     * */
+    render() {
+        return this.getRenderingView();
     }
 }
 
