@@ -89,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -108,7 +107,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -389,16 +387,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.lastStatement = true;
-    }
-
-    @Override
-    public void visit(BLangTransform transformNode) {
-        this.checkStatementExecutionValidity(transformNode);
-        Set<String> inputs = new HashSet<>();
-        Set<String> outputs = new HashSet<>();
-//        validateTransformStatementBody(transformNode.body, inputs, outputs);
-        inputs.forEach((k) -> transformNode.addInput(k));
-        outputs.forEach((k) -> transformNode.addOutput(k));
     }
 
     public void visit(BLangPackageDeclaration pkgDclNode) {

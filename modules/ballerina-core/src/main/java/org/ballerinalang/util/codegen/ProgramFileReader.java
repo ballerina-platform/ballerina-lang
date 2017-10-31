@@ -225,9 +225,9 @@ public class ProgramFileReader {
                 TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgCPIndex,
                         packageRefCPEntry.getPackageName(), cpIndex, transformerName);
 
-                // Find the functionInfo
+                // Find the transformerInfo
                 packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                FunctionInfo transformerInfo = packageInfo.getFunctionInfo(transformerName);
+                TransformerInfo transformerInfo = packageInfo.getTransformerInfo(transformerName);
                 if (transformerInfo == null) {
                     // This must reference to the current package and the current package is not been read yet.
                     // Therefore we add this to the unresolved CP Entry list.
@@ -235,7 +235,7 @@ public class ProgramFileReader {
                     return transformerRefCPEntry;
                 }
 
-                transformerRefCPEntry.setTransformerInfo(packageInfo.getTransformerInfo(transformerName));
+                transformerRefCPEntry.setTransformerInfo(transformerInfo);
                 return transformerRefCPEntry;
 
             case CP_ENTRY_ACTION_REF:
@@ -381,7 +381,7 @@ public class ProgramFileReader {
         // Read function info entries in the package
         readFunctionInfoEntries(dataInStream, packageInfo);
 
-        // Read function info entries in the package
+        // Read transformer info entries in the package
         readTransformerInfoEntries(dataInStream, packageInfo);
 
         // TODO Read annotation info entries

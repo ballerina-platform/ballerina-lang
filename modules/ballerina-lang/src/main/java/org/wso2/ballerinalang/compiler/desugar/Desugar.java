@@ -110,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -414,12 +413,6 @@ public class Desugar extends BLangNodeVisitor {
         transactionNode.committedBody = rewrite(transactionNode.committedBody);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
         result = transactionNode;
-    }
-
-    @Override
-    public void visit(BLangTransform transformNode) {
-        transformNode.body = rewrite(transformNode.body);
-        result = transformNode;
     }
 
     @Override
@@ -1033,18 +1026,13 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.BOOLEAN:
             case TypeTags.BLOB:
-                return;
             case TypeTags.XML:
-                // TODO
-                break;
-            case TypeTags.CONNECTOR:
-                // TODO: restrict
-                break;
+                return;
             case TypeTags.DATATABLE:
-                // TODO
-                break;
+                // TODO: add this once the datatable initializing is supported.
+                return;
             default:
-                initExpr = new BLangStructLiteral(new ArrayList<>(), var.type);
+                break;
         }
         initExpr.pos = var.pos;
 

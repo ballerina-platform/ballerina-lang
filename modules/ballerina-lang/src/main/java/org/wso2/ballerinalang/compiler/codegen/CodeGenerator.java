@@ -123,7 +123,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerRe
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -517,10 +516,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangWorkerReturn returnNode) {
         visitReturnStatementsExprs(returnNode);
         this.emit(InstructionFactory.get(InstructionCodes.WRKRETURN));
-    }
-
-    public void visit(BLangTransform transformNode) {
-        this.genNode(transformNode.body, this.env);
     }
 
     private int typeTagToInstr(int typeTag) {
@@ -1096,18 +1091,18 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransformerInvocation iExpr) {
-        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
-        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        BInvokableSymbol transformerSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, transformerSymbol.pkgID);
+        int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
+        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
 
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
+        int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
 
-        if (Symbols.isNative(funcSymbol)) {
-            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+        if (Symbols.isNative(transformerSymbol)) {
+            emit(InstructionCodes.NCALL, transformerRefCPIndex, transformerCallCPIndex);
         } else {
-            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+            emit(InstructionCodes.CALL, transformerRefCPIndex, transformerCallCPIndex);
         }
     }
 
@@ -1789,18 +1784,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         BInvokableSymbol transformerSymbol = invokable.symbol;
         BInvokableType transformerType = (BInvokableType) transformerSymbol.type;
 
-        // Add function name as an UTFCPEntry to the constant pool
-        int funcNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
+        // Add transformer name as an UTFCPEntry to the constant pool
+        int transformerNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
 
-        TransformerInfo invInfo = new TransformerInfo(currentPackageRefCPIndex, funcNameCPIndex);
-        invInfo.paramTypes = transformerType.paramTypes.toArray(new BType[0]);
-        invInfo.retParamTypes = transformerType.retTypes.toArray(new BType[0]);
-        invInfo.flags = transformerSymbol.flags;
+        TransformerInfo transformerInfo = new TransformerInfo(currentPackageRefCPIndex, transformerNameCPIndex);
+        transformerInfo.paramTypes = transformerType.paramTypes.toArray(new BType[0]);
+        transformerInfo.retParamTypes = transformerType.retTypes.toArray(new BType[0]);
+        transformerInfo.flags = transformerSymbol.flags;
 
-        this.addWorkerInfoEntries(invInfo, invokable.getWorkers());
+        this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
 
-        invInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateSignature(invInfo));
-        this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, invInfo);
+        transformerInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateSignature(transformerInfo));
+        this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {

@@ -232,7 +232,6 @@ xmlLocalName
      :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
      ;
 
-
  //============================================================================================================
 // STATEMENTS / BLOCKS
 
@@ -251,30 +250,10 @@ statement
     |   workerInteractionStatement
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
     |   retryStatement
     |   namespaceDeclarationStatement
-    ;
-
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody* RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
     ;
 
 variableDefinitionStatement

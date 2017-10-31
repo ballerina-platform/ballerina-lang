@@ -42,7 +42,6 @@ TYPE_TYPE       : 'type' ;
 VAR         : 'var' ;
 CREATE      : 'create' ;
 ATTACH      : 'attach' ;
-TRANSFORM   : 'transform' ;
 TRANSFORMER : 'transformer' ;
 IF          : 'if' ;
 ELSE        : 'else' ;

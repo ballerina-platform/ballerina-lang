@@ -39,7 +39,6 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
-    UNDEFINED_TRANSFORMER("undefined.transformer"),
     
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
@@ -69,6 +68,7 @@ public enum DiagnosticCode {
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
     // Transformer related error codes
+    UNDEFINED_TRANSFORMER("undefined.transformer"),
     TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
     TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
     INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),

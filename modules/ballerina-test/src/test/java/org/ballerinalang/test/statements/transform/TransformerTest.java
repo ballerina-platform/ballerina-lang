@@ -275,10 +275,10 @@ public class TransformerTest {
                 92);
         BAssertUtil.validateError(resNegative, 14,
                 "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                103);
+                109);
         BAssertUtil.validateError(resNegative, 15,
                 "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                118);
+                124);
         BAssertUtil.validateError(resNegative, 16,
                 "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block",
                 97, 20);
