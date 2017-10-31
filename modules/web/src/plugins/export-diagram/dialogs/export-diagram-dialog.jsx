@@ -21,13 +21,13 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from 'core/view/Dialog';
 import FileTree from 'core/view/tree-view/FileTree';
 import { createOrUpdate, exists as checkFileExists } from 'core/workspace/fs-util';
 import { DIALOGS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
 
 const FILE_TYPE = 'file';
 
@@ -97,7 +97,7 @@ class ExportDiagramDialog extends React.Component {
         };
 
         checkFileExists(derivedFilePath + derivedFileName)
-            .then(({exists}) => {
+            .then(({ exists }) => {
                 if (!exists) {
                     this.sendPayload(derivedFilePath, derivedFileName, derivedFileType, saveFile);
                 } else {
@@ -143,6 +143,7 @@ class ExportDiagramDialog extends React.Component {
         const svgElement = tab.find('.svg-container');
         const svgElementClone = tab.find('.svg-container').clone(true);
 
+        // Create a svg element with actual height and width of the diagram.
         let svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" 
                 style='fill:rgb(255,255,255);font-family:"Roboto",Arial,Helvetica,sans-serif;
                 font-size:14px;' width="${svgElement.width()}" height="${svgElement.height()}">
@@ -187,7 +188,7 @@ class ExportDiagramDialog extends React.Component {
         };
 
         // we iterating the computed style object and copy the style props and the values
-        for (let property in computedStyleObject) {
+        for (const property in computedStyleObject) {
             // checking if the property and value we get are valid sinse browser have different implementations
             if (stylePropertyValid(property, computedStyleObject[property])) {
                 if (this.filterStyleProperties(property)) {
@@ -338,7 +339,9 @@ class ExportDiagramDialog extends React.Component {
             payload = `location=${btoa(location)}&configName=${btoa(configName)}&config=${encodeURIComponent(config)}`;
             callServer(payload);
         } else if (fileType === 'PNG') {
-            const canvas = $("<canvas width='1541' height='1005'/>")[0];
+            const tab = $('#bal-file-editor-' + this.props.file.id);
+            const svgElement = tab.find('.svg-container');
+            const canvas = $(`<canvas width='${svgElement.width()}' height='${svgElement.height()}'/>`)[0];
             const ctx = canvas.getContext('2d');
             const image = new Image();
             image.onload = function load() {
@@ -444,14 +447,16 @@ class ExportDiagramDialog extends React.Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                    <Scrollbars
+                    <ScrollBarsWithContextAPI
                         style={{
+                            margin: '15px 0 15px 40px',
                             width: 608,
                             height: 500,
                         }}
                         autoHide
                     >
                         <FileTree
+                            activeKey={this.state.filePath}
                             onSelect={
                                 (node) => {
                                     let filePath = node.id;
@@ -468,7 +473,7 @@ class ExportDiagramDialog extends React.Component {
                                 }
                             }
                         />
-                    </Scrollbars>
+                    </ScrollBarsWithContextAPI>
                 </Dialog>
             </div>
         );
