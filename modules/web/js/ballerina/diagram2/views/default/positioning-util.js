@@ -232,7 +232,7 @@ class PositioningUtil {
 
         // Position the global variables
         const globals = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isVariable(child);
+            return TreeUtil.isVariable(child) || TreeUtil.isXmlns(child);
         });
         let lastGlobalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
         globals.forEach((globalDec) => {

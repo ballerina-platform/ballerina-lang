@@ -70,7 +70,7 @@ class ErrorRenderingUtil {
             !TreeUtil.isResource(node.parent.parent) && !TreeUtil.isAction(node.parent.parent) &&
             (node.parent.parent.parent.initFunction)) {
             // Do not show errors in the InitFunction of the service
-        } else if (TreeUtil.isTransform(node.parent.parent)) {
+        } else if (node.parent.parent && TreeUtil.isTransform(node.parent.parent)) {
             // TODO for transform statements
         } else if (node.parent.kind === 'Service' || node.parent.kind === 'Connector') {
             const viewState = node.viewState;
@@ -223,7 +223,7 @@ class ErrorRenderingUtil {
 
         // Position the global variables
         const globals = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isVariable(child);
+            return (TreeUtil.isVariable(child) || TreeUtil.isXmlns(child));
         });
         globals.forEach((globalDec) => {
             globalDec.viewState.errors = {};

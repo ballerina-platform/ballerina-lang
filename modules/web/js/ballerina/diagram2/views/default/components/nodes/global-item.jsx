@@ -102,7 +102,8 @@ export default class GlobalDefinitionItem extends React.Component {
         if (TreeUtils.isService(parentNode) || TreeUtils.isConnector(parentNode)) {
             parentNode = parentNode.parent;
         }
-        if (_.includes(parentNode.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
+        if (_.includes(parentNode.filterTopLevelNodes({ kind: 'Variable' })
+                .concat(parentNode.filterTopLevelNodes({ kind: 'Xmlns' })), this.props.globalDec)) {
             setterFunc = this.setEditedSource;
         }
         const options = {
