@@ -66,11 +66,11 @@ rem ----- update classpath -----------------------------------------------------
 setlocal EnableDelayedExpansion
 cd %BALLERINA_HOME%
 set BALLERINA_CLASSPATH=
-FOR %%C in ("%BALLERINA_HOME%\bin\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\bin\bootstrap\%%~nC%%~xC"
+FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\bre\lib\bootstrap\%%~nC%%~xC"
 
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
-FOR %%D in ("%BALLERINA_HOME%\lib\commons-lang*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\lib\%%~nD%%~xD"
+FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\bre\lib\%%~nD%%~xD"
 
 rem ----- Process the input command -------------------------------------------
 
