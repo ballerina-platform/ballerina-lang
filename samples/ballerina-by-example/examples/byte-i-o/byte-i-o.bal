@@ -49,4 +49,7 @@ function main (string[] args) {
     println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
     copy(sourceChannel, destinationChannel);
     println("File copy completed. The copied file could be located in " + dstFilePath);
+    //Close the created connections
+    sourceChannel.close();
+    destinationChannel.close();
 }

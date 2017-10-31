@@ -46,4 +46,7 @@ function main (string[] args) {
     process(srcRecordChannel, dstRecordChannel);
     println("Processing completed. The processed file could be located in "
             + dstFileName);
+    //Close the text record channel
+    srcRecordChannel.closeTextRecordChannel();
+    dstRecordChannel.closeTextRecordChannel();
 }
