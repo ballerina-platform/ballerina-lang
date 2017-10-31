@@ -18,7 +18,6 @@
 
 package org.ballerinalang.config;
 
-import org.ballerinalang.config.utils.Constants;
 import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,11 +34,12 @@ import java.util.Set;
 /**
  * ConfigProcessor processes runtime, environment and config file configurations.
  *
- * @since 0.94.2
+ * @since 0.95
  */
 public class ConfigProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigProcessor.class);
+    private static final String BALLERINA_CONF = "ballerina.conf";
     private static Map<String, String> runtimeParams;
     private static Map<String, String> prioritizedGlobalConfigs;
     private static Map<String, Map<String, String>> prioritizedInstanceConfigs;
@@ -55,7 +55,7 @@ public class ConfigProcessor {
 
     /**
      * Processes runtime, environment and config file properties.This populates configRegistry with configs based on
-     * the following presedence order. 1. Ballerina runtime properties, 2. External config
+     * the following precedence order. 1. Ballerina runtime properties, 2. External config
      * (environment vars, etcd or something similar), 3. ballerina.conf file
      */
     public static void processConfiguration() throws IOException {
@@ -66,26 +66,23 @@ public class ConfigProcessor {
         Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
         Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
 
-        String confFileLocation = runtimeGlobalConfigs.get(Constants.BALLERINA_CONF);
+        String confFileLocation = runtimeGlobalConfigs.get(BALLERINA_CONF);
         if (confFileLocation == null) {
             prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
             prioritizedInstanceConfigs.putAll(runtimeInstanceConfigs);
         } else {
             File confFile = new File(confFileLocation);
             if (confFile == null) {
-                log.error("Failed to parse: file not found");
-                return;
+                throw new BallerinaException("failed to parse ballerina.conf file: " + confFileLocation);
             }
             ConfigFileParser parser = new ConfigFileParser(confFile);
             Map<String, String> fileGlobalConfigs = parser.getGlobalConfigs();
             Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
 
-            ConfigRegistry.setConfLocation(confFileLocation);
             createPrioritizedConfigs(runtimeGlobalConfigs, runtimeInstanceConfigs, fileGlobalConfigs
                     , fileInstanceConfigs);
 
         }
-        extractSpecialParameters(prioritizedGlobalConfigs);
         ConfigRegistry.setGlobalConfigs(prioritizedGlobalConfigs);
         ConfigRegistry.setInstanceConfigs(prioritizedInstanceConfigs);
     }
@@ -95,8 +92,8 @@ public class ConfigProcessor {
             , Map<String, Map<String, String>> fileInstanceConfigs) {
 
         prioritizedInstanceConfigs = new HashMap<>();
-        prioritizedGlobalConfigs = new HashMap<>(runtimeGlobalConfigs);
-        prioritizedGlobalConfigs.putAll(fileGlobalConfigs);
+        prioritizedGlobalConfigs = new HashMap<>(fileGlobalConfigs);
+        prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
 
         Set<String> instances = new HashSet<>(runtimeInstanceConfigs.keySet());
         instances.addAll(fileInstanceConfigs.keySet());
@@ -107,29 +104,12 @@ public class ConfigProcessor {
 
             if (fileConfigs.isEmpty()) {
                 prioritizedInstanceConfigs.put(instance, runtimeConfigs);
-                break;
             } else if (runtimeConfigs.isEmpty()) {
                 prioritizedInstanceConfigs.put(instance, fileConfigs);
-                break;
             } else {
-                Map<String, String> prioritizedConfigs = new HashMap<>(runtimeConfigs);
-                prioritizedConfigs.putAll(fileConfigs);
-                prioritizedInstanceConfigs.put(instance, prioritizedConfigs);
+                fileConfigs.putAll(runtimeConfigs);
+                prioritizedInstanceConfigs.put(instance, fileConfigs);
             }
-        }
-    }
-
-    private static void extractSpecialParameters(Map<String, String> runtimeConfigs) {
-        String httpTraceLogEnabled = runtimeConfigs.get(Constants.TRACE_LOG_HTTP);
-        boolean traceEnabled = toBoolean(httpTraceLogEnabled);
-        ConfigRegistry.setHttpTraceLogEnabled(traceEnabled);
-    }
-
-    private static boolean toBoolean(String value) {
-        try {
-            return Boolean.parseBoolean(value);
-        } catch (Exception e) {
-            throw new BallerinaException("value: " + value + "cannot be parsed to boolean");
         }
     }
 }

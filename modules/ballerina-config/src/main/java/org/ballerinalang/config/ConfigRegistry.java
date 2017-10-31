@@ -23,14 +23,12 @@ import java.util.Map;
 /**
  * ConfigRegistry caches configuration properties and provide API.
  *
- * @since 0.94.2
+ * @since 0.95
  */
 public class ConfigRegistry {
 
     private static Map<String, String> globalConfigs;
     private static Map<String, Map<String, String>> instanceConfigs;
-    private static String confLocation;
-    private static boolean traceLogEnabled;
 
     /**
      * Sets global config properties as a map.
@@ -81,41 +79,5 @@ public class ConfigRegistry {
             return "";
         }
         return configValue;
-    }
-
-    /**
-     * Sets TraceLogEnabled config properties.
-     *
-     * @param traceEnabled
-     */
-    protected static void setHttpTraceLogEnabled(boolean traceEnabled) {
-        traceLogEnabled = traceEnabled;
-    }
-
-    /**
-     * Returns traceLogEnabled property.
-     *
-     * @return property value
-     */
-    public static boolean isTraceLogEnabled() {
-        return traceLogEnabled;
-    }
-
-    /**
-     * Sets config property file location.
-     *
-     * @param confFileLocation
-     */
-    protected static void setConfLocation(String confFileLocation) {
-        confLocation = confFileLocation;
-    }
-
-    /**
-     * Returns config property file location.
-     *
-     * @return config file location
-     */
-    public static String getConfLocation() {
-        return confLocation;
     }
 }

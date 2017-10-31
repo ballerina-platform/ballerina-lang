@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.config:getGlobalValue
  *
- * @since 0.94.2
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.config",
