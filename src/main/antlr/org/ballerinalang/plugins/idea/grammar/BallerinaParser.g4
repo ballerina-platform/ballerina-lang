@@ -172,6 +172,11 @@ typeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   nameReference
+    |   anonStructTypeName
+    ;
+
+anonStructTypeName
+    : STRUCT LEFT_BRACE structBody RIGHT_BRACE
     ;
 
 valueTypeName
