@@ -430,7 +430,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        /* ignore */
+        BLangVariable lastNonPublicField = null;
+        for (BLangVariable variable : structNode.getFields()) {
+            if (lastNonPublicField == null) {
+                if (!Symbols.isPublic(variable.symbol)) {
+                    lastNonPublicField = variable;
+                }
+                continue;
+            }
+            // All the private fields should declare at the end.
+            if (Symbols.isPublic(variable.symbol)) {
+                this.dlog.error(lastNonPublicField.pos, DiagnosticCode.PRIVATE_STRUCT_FIELD_IN_MIDDLE);
+                lastNonPublicField = null;
+            }
+        }
+
     }
 
     public void visit(BLangEnum enumNode) {

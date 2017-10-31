@@ -253,6 +253,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
+        if (!Symbols.isPublic(annotationAttribute.symbol)) {
+            this.dlog.error(annotationAttribute.pos, DiagnosticCode.NON_PUBLIC_ATTRIBUTE,
+                    annotationAttribute.symbol.name);
+        }
         if (annotationAttribute.expr != null) {
             // Default value exists case, default value should be of simpleLiteral
             BType actualType = this.typeChecker.checkExpr(annotationAttribute.expr, env,

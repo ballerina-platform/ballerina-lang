@@ -42,11 +42,13 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
+    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(int flags,
+                                                                             Name name,
                                                                              PackageID pkgID,
                                                                              BType type,
                                                                              BSymbol owner) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, pkgID, type, owner);
+        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, flags, pkgID,
+                type, owner);
         annotationAttributeSymbol.kind = SymbolKind.ANNOTATION_ATTRIBUTE;
         return annotationAttributeSymbol;
     }

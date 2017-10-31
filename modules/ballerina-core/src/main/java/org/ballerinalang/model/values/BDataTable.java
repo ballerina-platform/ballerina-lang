@@ -220,7 +220,7 @@ public class BDataTable implements BRefType<Object> {
                 type = BTypes.typeNull;
             }
             structTypes[typeIndex] = type;
-            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
+            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName(), true);
             ++typeIndex;
         }
 

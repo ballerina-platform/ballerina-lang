@@ -32,8 +32,8 @@ public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAtt
 
     public BLangExpression expr;
 
-    public BAnnotationAttributeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(ANNOTATION_ATTRIBUTE, 0, name, pkgID, type, owner);
+    public BAnnotationAttributeSymbol(Name name, int flags, PackageID pkgID, BType type, BSymbol owner) {
+        super(ANNOTATION_ATTRIBUTE, flags, name, pkgID, type, owner);
     }
 
     public BLangExpression getDefaultValue() {

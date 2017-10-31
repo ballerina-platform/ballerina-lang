@@ -38,6 +38,7 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    PRIVATE_STRUCT_FIELD_IN_MIDDLE("private.struct.field.in.middle"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
@@ -122,6 +123,7 @@ public enum DiagnosticCode {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
     NO_SUCH_ATTRIBUTE("no.such.attribute"),
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    NON_PUBLIC_ATTRIBUTE("non.public.attribute"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     
     // Parser error diagnostic codes

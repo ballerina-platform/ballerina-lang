@@ -37,14 +37,16 @@ public class StructFieldInfo implements AttributeInfoPool {
     private String typeSignature;
 
     private BType fieldType;
+    private boolean isPublic;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
+    public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature, boolean isPublic) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
         this.signatureCPIndex = signatureCPIndex;
         this.typeSignature = typeSignature;
+        this.isPublic = isPublic;
     }
 
     public int getNameCPIndex() {
@@ -69,6 +71,10 @@ public class StructFieldInfo implements AttributeInfoPool {
 
     public void setFieldType(BType fieldType) {
         this.fieldType = fieldType;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
     }
 
     @Override
