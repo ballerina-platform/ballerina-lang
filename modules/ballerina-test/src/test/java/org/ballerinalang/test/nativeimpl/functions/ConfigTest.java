@@ -1,0 +1,190 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.test.nativeimpl.functions;
+
+import org.ballerinalang.config.ConfigProcessor;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Test Native functions in ballerina.config.
+ */
+public class ConfigTest {
+
+    private CompileResult compileResult;
+    private final String BALLERINA_CONF = "ballerina.conf";
+    private final String USER_DIR = "user.dir";
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/config.bal");
+    }
+
+    @Test(description = "test global method with runtime and custom config file properties")
+    public void testGetGlobalValuesWithRuntime() throws IOException {
+
+        BString key = new BString("ballerina.http.host");
+        BValue[] inputArg = {key};
+        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "10.100.1.201");
+    }
+
+    @Test(description = "test global method with default config file properties")
+    public void testGetGlobalValuesWithDefaultConfigFile() throws IOException {
+
+        BString key = new BString("ballerina.http.host");
+        BValue[] inputArg = {key};
+        String userDir = System.getProperty(USER_DIR);
+        changeUserDir();
+        ConfigProcessor.setRuntimeConfiguration(new HashMap<>());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "10.100.1.205");
+        resetUserDir(userDir);
+    }
+
+    @Test(description = "test global method with runtime, custom config and default file properties")
+    public void testGetGlobalValuesWithAllProperties() throws IOException {
+
+        BString key = new BString("ballerina.http.host");
+        BValue[] inputArg = {key};
+        String userDir = System.getProperty(USER_DIR);
+        changeUserDir();
+        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "10.100.1.201");
+        resetUserDir(userDir);
+    }
+
+    @Test(description = "test get global method with unavailable config")
+    public void testGetGlobalValuesNegative() throws IOException {
+
+        BString key = new BString("ballerina.wso2");
+        BValue[] inputArg = {key};
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "");
+    }
+
+    @Test(description = "test instance method with runtime and custom config file properties")
+    public void testGetInstanceValuesWithRuntime() throws IOException {
+
+        BString id = new BString("http1");
+        BString key = new BString("ballerina.http.port");
+        BValue[] inputArg = {id, key};
+        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "8082");
+    }
+
+    @Test(description = "test instance method with default config file properties")
+    public void testGetInstanceValuesWithDefaultConfigFile() throws IOException {
+
+        BString id = new BString("http1");
+        BString key = new BString("ballerina.http.port");
+        BValue[] inputArg = {id, key};
+        String userDir = System.getProperty(USER_DIR);
+        changeUserDir();
+        ConfigProcessor.setRuntimeConfiguration(new HashMap<>());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "8085");
+        resetUserDir(userDir);
+    }
+
+    @Test(description = "test instance method with runtime, custom and default config file properties")
+    public void testGetInstanceValuesWithAllProperties() throws IOException {
+
+        BString id = new BString("http1");
+        BString key = new BString("ballerina.http.port");
+        BValue[] inputArg = {id, key};
+        String userDir = System.getProperty(USER_DIR);
+        changeUserDir();
+        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "8082");
+        resetUserDir(userDir);
+    }
+
+    @Test(description = "test get Instance method with unavailable config")
+    public void testGetInstanceValuesNegative() throws IOException {
+
+        BString id = new BString("http1");
+        BString key = new BString("ballerina.wso2");
+        BValue[] inputArg = {id, key};
+        ConfigProcessor.processConfiguration();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "");
+    }
+
+    private Map<String, String> getRuntimeProperties() {
+        Map<String, String> runtimeConfigs = new HashMap<>();
+        runtimeConfigs.put(BALLERINA_CONF, getClass().getClassLoader().getResource("datafiles/config/ballerina.conf").getPath());
+        runtimeConfigs.put("ballerina.http.host", "10.100.1.201");
+        runtimeConfigs.put("[http1].ballerina.http.port", "8082");
+        return runtimeConfigs;
+    }
+
+    private void changeUserDir() {
+        System.setProperty("user.dir", getClass().getClassLoader()
+                .getResource("datafiles/config/default").getPath());
+    }
+
+    private void resetUserDir(String userDir) {
+        System.setProperty(USER_DIR, userDir);
+    }
+}
