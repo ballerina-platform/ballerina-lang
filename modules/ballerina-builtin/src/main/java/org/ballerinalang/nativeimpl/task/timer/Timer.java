@@ -20,15 +20,13 @@ package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerContext;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
+import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -80,22 +78,7 @@ public class Timer {
         ProgramFile programFile = parentCtx.getProgramFile();
         //Create new instance of the context and set required properties.
         Context newContext = new WorkerContext(programFile, parentCtx);
-        try {
-            //Invoke the onTrigger function.
-            BValue[] results =
-                    BLangFunctions.invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
-            // If there are results, that mean an error has been returned
-            if (onErrorFunction != null && results.length > 0 && results[0] != null) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
-            }
-        } catch (BLangRuntimeException e) {
-
-            //Call the onError function in case of error.
-            if (onErrorFunction != null) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), newContext);
-            }
-            parentCtx.endTrackWorker();
-        }
+        TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
     }
 
     public String getId() {
@@ -107,5 +90,6 @@ public class Timer {
         TaskRegistry.getInstance().remove(id);
         context.endTrackWorker();
     }
+
 
 }
