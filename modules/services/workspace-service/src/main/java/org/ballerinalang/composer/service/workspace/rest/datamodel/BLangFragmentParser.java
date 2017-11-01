@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 
 /**
  * Utility for parsing BLang source fragments
@@ -129,7 +130,7 @@ public class BLangFragmentParser {
         }
 
         try {
-            return BLangFileRestService.generateJSON(compilationUnit);
+            return BLangFileRestService.generateJSON(compilationUnit, new HashMap<>());
         } catch (InvocationTargetException | IllegalAccessException e) {
             // This should never occur.
             throw new AssertionError("Error while serializing source to JSON.");
