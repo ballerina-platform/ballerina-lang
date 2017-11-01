@@ -416,10 +416,16 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + 'string\u0020`' + join(node.expressions, pretty, l, w, '')
                  + w() + '`';
         case 'Struct':
-            return join(node.annotationAttachments, pretty, l, w, '') + dent()
+            if (node.parent.anonStruct && node.fields) {
+                return dent() + (node.public ? w() + 'public' + a(' ') : '') + w()
+                 + 'struct' + w(' ') + '{' + indent()
+                 + join(node.fields, pretty, l, w, '', ';', true) + outdent() + w() + '}';
+            } else {
+                return join(node.annotationAttachments, pretty, l, w, '') + dent()
                  + (node.public ? w() + 'public' + a(' ') : '') + w() + 'struct'
                  + w(' ') + node.name.value + w(' ') + '{' + indent()
                  + join(node.fields, pretty, l, w, '', ';', true) + outdent() + w() + '}';
+            }
         case 'TernaryExpr':
             return getSourceOf(node.condition, pretty, l) + w() + '?'
                  + getSourceOf(node.thenExpression, pretty, l) + w() + ':'
@@ -504,7 +510,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + getSourceOf(node.expression, pretty, l);
         case 'UserDefinedType':
             if (node.anonStruct) {
-                return w() + getSourceOf(node.anonStruct).replace(node.anonStruct.name.getValue(), '').trim();
+                return getSourceOf(node.anonStruct, pretty, l);
             } else if (node.packageAlias.value && node.typeName.value) {
                 return w() + node.packageAlias.value + w() + ':' + w()
                  + node.typeName.value;

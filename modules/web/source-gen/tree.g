@@ -178,7 +178,7 @@ Service
 SimpleVariableRef
    : <inTemplateLiteral?> {{ <packageAlias.value> : <variableName.value> }}
    | <inTemplateLiteral?> {{                        <variableName.value> }}
-   :                         <packageAlias.value> : <variableName.value>
+   |                         <packageAlias.value> : <variableName.value>
    |                                                <variableName.value>
    ;
 
@@ -186,7 +186,8 @@ StringTemplateLiteral
    : string\u0020` <expressions>* `
 
 Struct
-   : <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
+   : <parent.anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
+   |                <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -230,9 +231,10 @@ UnaryExpr
    ;
 
 UserDefinedType
-   : <packageAlias.value> : <typeName.value>
+   : <anonStruct.source>
+   | <packageAlias.value> : <typeName.value>
    | <typeName.value>
-   | 
+   |
    ;
 
 ValueType
