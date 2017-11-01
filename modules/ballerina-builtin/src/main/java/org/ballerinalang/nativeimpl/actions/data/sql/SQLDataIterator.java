@@ -43,6 +43,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -60,12 +61,15 @@ public class SQLDataIterator implements DataIterator {
     private Statement stmt;
     private ResultSet rs;
     private Calendar utcCalendar;
+    private ArrayList<Integer> columnTypeList;
 
-    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar) throws SQLException {
+    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
+            ArrayList<Integer> columnTypeList) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.utcCalendar = utcCalendar;
+        this.columnTypeList = columnTypeList;
     }
 
     @Override
@@ -180,10 +184,11 @@ public class SQLDataIterator implements DataIterator {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
+        int index = 0;
         try {
             for (BDataTable.ColumnDefinition columnDef : columnDefs) {
                 String columnName = columnDef.getName();
-                int sqlType = columnDef.getSQLType();
+                int sqlType = columnTypeList.get(index);
                 switch (sqlType) {
                 case Types.ARRAY:
                     BMap<BString, BValue> bMapvalue = getDataArray(columnName);
@@ -262,6 +267,7 @@ public class SQLDataIterator implements DataIterator {
                     throw new BallerinaException(
                             "unsupported sql type " + sqlType + " found for the column " + columnName);
                 }
+                ++index;
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in retrieving next value: " + e.getMessage());

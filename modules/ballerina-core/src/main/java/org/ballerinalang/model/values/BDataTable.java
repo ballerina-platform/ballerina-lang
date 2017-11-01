@@ -180,12 +180,10 @@ public class BDataTable implements BRefType<Object> {
 
         private String name;
         private TypeKind mappedType;
-        private int sqlType;
 
-        public ColumnDefinition(String name, TypeKind mappedType, int sqlType) {
+        public ColumnDefinition(String name, TypeKind mappedType) {
             this.name = name;
             this.mappedType = mappedType;
-            this.sqlType = sqlType;
         }
 
         public String getName() {
@@ -195,11 +193,6 @@ public class BDataTable implements BRefType<Object> {
         public TypeKind getType() {
             return mappedType;
         }
-
-        public int getSQLType() {
-            return sqlType;
-        }
-
     }
 
     @Override

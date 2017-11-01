@@ -105,9 +105,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
-                    getColumnDefinitions(rs));
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
+            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -186,9 +184,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
-                        getColumnDefinitions(rs));
-                context.getControlStackNew().getCurrentFrame().returnValues[0] = datatable;
+                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
@@ -364,15 +360,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
+    private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs, ArrayList<Integer> sqlTypeList)
+            throws SQLException {
         ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
             int colType = rsMetaData.getColumnType(i);
+            sqlTypeList.add(colType);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType, colType));
+            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
         }
         return columnDefs;
     }
@@ -772,5 +770,11 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
         return conn;
+    }
+
+    private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
+        ArrayList<Integer> sqlTypes = new ArrayList<>();
+        ArrayList<BDataTable.ColumnDefinition> columnDefinitions = getColumnDefinitions(rs, sqlTypes);
+        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, sqlTypes), columnDefinitions);
     }
 }
