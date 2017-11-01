@@ -180,9 +180,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         }
                     } else {
                         PsiElement prevSibling = parent.getPrevSibling();
-                        variableReference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+                        if (prevSibling != null) {
+                            return new FieldReference(this);
+                        }
                     }
-
                     if (variableReference == null) {
                         return null;
                     }

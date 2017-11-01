@@ -25,12 +25,15 @@ import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -150,6 +153,39 @@ public class FieldReference extends BallerinaElementReference {
         }
         PsiReference reference = previousField.findReferenceAt(0);
         if (reference == null) {
+            PsiElement prevSibling = identifier.getParent().getPrevSibling();
+            if (prevSibling == null) {
+                return new LookupElement[0];
+            }
+            if (prevSibling instanceof VariableReferenceNode) {
+                PsiElement[] children = prevSibling.getChildren();
+                if (children.length <= 0) {
+                    return new LookupElement[0];
+                }
+                PsiElement firstChild = children[0].getFirstChild();
+                if (firstChild == null) {
+                    return new LookupElement[0];
+                }
+                PsiReference functionReference = firstChild.findReferenceAt(firstChild.getTextLength());
+                if (functionReference == null) {
+                    return new LookupElement[0];
+                }
+                PsiElement resolvedElement = functionReference.resolve();
+                if (resolvedElement == null) {
+                    return new LookupElement[0];
+                }
+                PsiElement parent = resolvedElement.getParent();
+                if (parent instanceof FunctionDefinitionNode) {
+                    List<TypeNameNode> returnTypes =
+                            BallerinaPsiImplUtil.getReturnTypes(((FunctionDefinitionNode) parent));
+                    if (returnTypes.size() == 1) {
+                        TypeNameNode typeNameNode = returnTypes.get(0);
+                        reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+                    }
+                }
+            }
+        }
+        if (reference == null) {
             return new LookupElement[0];
         }
 
@@ -184,6 +220,8 @@ public class FieldReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createEnumFieldLookupElements(fieldDefinitionNodes,
                     (IdentifierPSINode) resolvedElement));
             return results.toArray(new LookupElement[results.size()]);
+        }else if (resolvedElementParent instanceof StructDefinitionNode) {
+            structDefinitionNode= ((StructDefinitionNode) resolvedElementParent);
         }
         if (structDefinitionNode == null) {
             return new LookupElement[0];
