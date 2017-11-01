@@ -26,6 +26,7 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code BallerinaTransactionManager} manages local and distributed transactions in ballerina.
@@ -50,11 +51,12 @@ public class BallerinaTransactionManager {
 
     public void registerTransactionContext(String id, BallerinaTransactionContext txContext) {
         transactionContextStore.put(id, txContext);
-        if (txContext.isXAConnection()) {
+        XAResource xaResource = txContext.getXAResource();
+        if (xaResource != null) {
             Transaction tx = getXATransaction();
             try {
                 if (tx != null) {
-                    tx.enlistResource(txContext.getXAResource());
+                    tx.enlistResource(xaResource);
                 }
             } catch (SystemException | RollbackException | IllegalStateException e) {
                 throw new BallerinaException(
@@ -189,7 +191,7 @@ public class BallerinaTransactionManager {
 
     private void commitNonXAConnections() {
         transactionContextStore.forEach((k, v) -> {
-            if (!v.isXAConnection()) {
+            if (v.getXAResource() == null) {
                 v.commit();
             }
         });
@@ -197,7 +199,7 @@ public class BallerinaTransactionManager {
 
     private void rollbackNonXAConnections() {
         transactionContextStore.forEach((k, v) -> {
-            if (!v.isXAConnection()) {
+            if (v.getXAResource() == null) {
                 v.rollback();
             }
         });

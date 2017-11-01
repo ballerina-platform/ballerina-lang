@@ -760,12 +760,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
                 XAResource xaResource = xaConn.getXAResource();
                 conn = xaConn.getConnection();
-                txContext = new SQLTransactionContext(conn, true, xaResource);
+                txContext = new SQLTransactionContext(conn, xaResource);
                 ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             } else {
                 conn = datasource.getSQLConnection();
                 conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn, false, null);
+                txContext = new SQLTransactionContext(conn, null);
                 ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
         } else {

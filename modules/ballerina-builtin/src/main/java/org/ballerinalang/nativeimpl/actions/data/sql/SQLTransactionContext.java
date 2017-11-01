@@ -32,20 +32,14 @@ import javax.transaction.xa.XAResource;
 public class SQLTransactionContext implements BallerinaTransactionContext {
     private Connection conn;
     private XAResource xaResource;
-    private boolean xaConn;
 
-    public SQLTransactionContext(Connection conn, boolean isXAConn, XAResource resource) {
+    public SQLTransactionContext(Connection conn, XAResource resource) {
         this.conn = conn;
-        this.xaConn = isXAConn;
         this.xaResource = resource;
     }
 
     public Connection getConnection() {
         return this.conn;
-    }
-
-    public void updateConnection (Connection conn) {
-        this.conn = conn;
     }
 
     @Override
@@ -78,11 +72,6 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
         } catch (SQLException e) {
             throw new BallerinaException("connection close failed:" + e.getMessage());
         }
-    }
-
-    @Override
-    public boolean isXAConnection() {
-        return this.xaConn;
     }
 
     @Override

@@ -29,6 +29,5 @@ public interface BallerinaTransactionContext {
     void rollback();
     void close();
     void done();
-    boolean isXAConnection();
     XAResource getXAResource();
 }
