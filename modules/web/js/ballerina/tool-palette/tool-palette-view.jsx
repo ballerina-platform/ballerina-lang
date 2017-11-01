@@ -280,6 +280,7 @@ class ToolPaletteView extends React.Component {
         // bind the event handlers to this
         this.onSearchTextChange = this.onSearchTextChange.bind(this);
         this.changePane = this.changePane.bind(this);
+        this.addDyamicTools = this.addDyamicTools.bind(this);
 
         this.state = {
             tab: 'tools',
@@ -324,6 +325,68 @@ class ToolPaletteView extends React.Component {
         return data;
     }
 
+    addDyamicTools(defaultTools) {
+        const environment = this.context.environment;
+        if (environment.getPackages()) {
+            let newToolItem, indexToBeAdded;
+            for (const packageDefintion of environment.getPackages()) {
+                // JMS package
+                if (packageDefintion.getName() === 'ballerina.net.jms') {
+                    newToolItem = {
+                        id: 'jms-service',
+                        name: 'JMS Service',
+                        icon: 'service',
+                        title: 'JMS Service',
+                        nodeFactoryMethod: DefaultNodeFactory.createJMSServiceDef,
+                        description: 'JMS container of resources, each of which defines the logic for'
+                    + ' handling one type of request',
+                    };
+                    defaultTools.tools.forEach((elem, index) => {
+                        if (elem.id === 'constructs_seperator') {
+                            indexToBeAdded = index;
+                        }
+                    });
+                    defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
+                }
+                // FS package
+                else if (packageDefintion.getName() === 'ballerina.net.fs') {
+                    newToolItem = {
+                        id: 'fs-service',
+                        name: 'FS Service',
+                        icon: 'service',
+                        title: 'FS Service',
+                        nodeFactoryMethod: DefaultNodeFactory.createFSServiceDef,
+                        description: ' FS Server Connector can be used to listen to a ' +
+                        'directory in the local file system',
+                    };
+                    defaultTools.tools.forEach((elem, index) => {
+                        if (elem.id === 'constructs_seperator') {
+                            indexToBeAdded = index;
+                        }
+                    });
+                    defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
+                }
+                // FTP package
+                else if (packageDefintion.getName() === 'ballerina.net.ftp') {
+                    newToolItem = {
+                        id: 'ftp-service',
+                        name: 'FTP Service',
+                        icon: 'service',
+                        title: 'FTP Service',
+                        nodeFactoryMethod: DefaultNodeFactory.createFTPServiceDef,
+                        description: 'FS Server Connector can be used to listen to a remote directory',
+                    };
+                    defaultTools.tools.forEach((elem, index) => {
+                        if (elem.id === 'constructs_seperator') {
+                            indexToBeAdded = index;
+                        }
+                    });
+                    defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
+                }
+            }
+        }
+        return defaultTools;
+    }
     /**
      * Convert package to tool group.
      *
@@ -483,6 +546,9 @@ class ToolPaletteView extends React.Component {
         }
         // get the constructs
         let constructs = _.cloneDeep(DefaultTools);
+        if (environment.getPackages().length > 0) {
+            constructs = this.addDyamicTools(constructs);
+        }
         // get imported packages
         const imports = topLevelNodes.filter(topLevelNode => topLevelNode.kind === 'Import');
         imports.push({ packageName: [{ value: 'ballerina' }, { value: 'builtin' }] });
@@ -526,7 +592,7 @@ class ToolPaletteView extends React.Component {
             }
         } else {
             const filterOutList = [];
-            //const filterOutList = imports.map(item => item.getPackageName());
+            // const filterOutList = imports.map(item => item.getPackageName());
             filterOutList.push('Current Package');
 
             const packages = environment.getFilteredPackages(filterOutList);

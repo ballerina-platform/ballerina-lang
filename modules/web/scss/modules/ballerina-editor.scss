@@ -2744,22 +2744,32 @@
     
     }
     
-    /* -------- file ------------*/
-    .protocol-file .protocol-line{
+    /* -------- ftp ------------*/
+    .protocol-ftp .protocol-line{
         stroke: #966c37;
     }
     
-    .protocol-file .protocol-rect{
+    .protocol-ftp .protocol-rect{
         fill: #966c37;
     }
     
-    .protocol-file .panel-heading-decorator{
+    .protocol-ftp .panel-heading-decorator{
         fill: #966c37;
     }
-    
-    .protocol-file .protocol-text{
-        
+
+    /* -------- fs ------------*/
+    .protocol-fs .protocol-line{
+        stroke: #f39c12;
     }
+
+    .protocol-fs .protocol-rect{
+        fill: #f39c12;
+    }
+
+    .protocol-fs .panel-heading-decorator{
+        fill: #f39c12;
+    }
+
 
     .panel-heading-decorator{
         fill: #607D8B !important;

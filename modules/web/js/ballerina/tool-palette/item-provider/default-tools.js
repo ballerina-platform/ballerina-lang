@@ -20,30 +20,30 @@ import DefaultNodeFactory from './../../model/default-node-factory';
 
 const tools = [
     {
-        id: 'service',
-        name: 'HTTP',
-        icon: 'http',
-        title: 'HTTP Service',
-        nodeFactoryMethod: DefaultNodeFactory.createHTTPServiceDef,
-        description: 'Http container of resources, each of which defines the logic for'
-        + ' handling one type of request',
-    },
-    {
-        id: 'service',
-        name: 'WebSocket',
-        icon: 'web-service',
-        title: 'WS Service',
-        nodeFactoryMethod: DefaultNodeFactory.createWSServiceDef,
-        description: 'Web Socket container of resources,'
-        + ' each of which defines the logic for handling one type of request',
-    },
-    {
         id: 'function',
         name: 'Main Function',
         icon: 'main-function',
         title: 'Main Function',
         nodeFactoryMethod: DefaultNodeFactory.createMainFunction,
         description: 'Potential entry point for command line execution',
+    },
+    {
+        id: 'http-service',
+        name: 'HTTP Service',
+        icon: 'http',
+        title: 'HTTP Service',
+        nodeFactoryMethod: DefaultNodeFactory.createHTTPServiceDef,
+        description: 'Http Service is a container of resources, each of which defines the logic for'
+        + ' handling one type of request',
+    },
+    {
+        id: 'ws-service',
+        name: 'WebSocket',
+        icon: 'web-service',
+        title: 'WebSocket Service',
+        nodeFactoryMethod: DefaultNodeFactory.createWSServiceDef,
+        description: 'Web Socket Service is a container of resources,'
+        + ' each of which defines the logic for handling one type of request',
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     {

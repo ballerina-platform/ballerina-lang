@@ -51,7 +51,7 @@ class AddResourceDefinition extends React.Component {
         // Check if service of http
         if (serviceDef.getProtocolPackageIdentifier().value === 'http') {
             const resource = DefaultNodeFactory.createHTTPResource();
-            serviceDef.addResources(resource, thisNodeIndex);
+            serviceDef.addResources(resource, thisNodeIndex, true);
             serviceDef.generateDefaultName(serviceDef, resource);
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'ws') {
             let bBox;
@@ -75,8 +75,27 @@ class AddResourceDefinition extends React.Component {
             };
             this.props.model.viewState.showOverlayContainer = true;
             this.props.model.viewState.overlayContainer = overlayComponents;
-            this.context.editor.update();
+        } else if (serviceDef.getProtocolPackageIdentifier().value === 'jms') {
+            const resource = DefaultNodeFactory.createJMSResource();
+            serviceDef.addResources(resource, thisNodeIndex, true);
+            serviceDef.generateDefaultName(serviceDef, resource);
+        } else if (serviceDef.getProtocolPackageIdentifier().value === 'fs') {
+            const resource = DefaultNodeFactory.createFSResource();
+            serviceDef.addResources(resource, thisNodeIndex, true);
+            serviceDef.generateDefaultName(serviceDef, resource);
+        } else if (serviceDef.getProtocolPackageIdentifier().value === 'ftp') {
+            const resource = DefaultNodeFactory.createFTPResource();
+            serviceDef.addResources(resource, thisNodeIndex, true);
+            serviceDef.generateDefaultName(serviceDef, resource);
         }
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'Resource Added',
+            title: 'Resource added to Service',
+            data: {
+                node: this.props.model,
+            },
+        });
     }
 
     /**
@@ -97,7 +116,7 @@ class AddResourceDefinition extends React.Component {
         }
 
         if (TreeUtil.isService(this.props.model)) {
-            button.x = bBox.x + 12.5 ;
+            button.x = bBox.x + 12.5;
             button.y = bBox.y + bBox.h - 12.5 - 25;
             label.x = button.x + 30;
             label.y = button.y + 12.5;
@@ -118,8 +137,8 @@ class AddResourceDefinition extends React.Component {
                     fill={!_.isEmpty(this.props.model.viewState.overlayContainer) ? '#63605f' : '#a09c9b'}
                 />
                 <image
-                    x={button.x+ 5.5}
-                    y={button.y+ 5.5}
+                    x={button.x + 5.5}
+                    y={button.y + 5.5}
                     width={14}
                     height={14}
                     fill="#fff"
@@ -127,7 +146,7 @@ class AddResourceDefinition extends React.Component {
                     className="add-resource-button-label"
                 />
                 <polygon
-                    points={`${label.x},${label.y} ${label.x + 12.5},${label.y - 12.5} ${label.x + 120},${label.y - 12.5} ${label.x + 120},${label.y + 12.5} ${label.x + 12.5},${label.y + 12.5}`} 
+                    points={`${label.x},${label.y} ${label.x + 12.5},${label.y - 12.5} ${label.x + 120},${label.y - 12.5} ${label.x + 120},${label.y + 12.5} ${label.x + 12.5},${label.y + 12.5}`}
                     fill="#dcdcdc"
                 />
                 <text

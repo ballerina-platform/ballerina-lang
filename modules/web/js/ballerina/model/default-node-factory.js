@@ -77,6 +77,54 @@ class DefaultNodeFactory {
         return node;
     }
 
+    createJMSServiceDef() {
+        const node = getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(
+                `
+    service<jms> service1 {
+        resource echo1 (jms:JMSMessage request) {
+
+        }
+    }
+`,
+            ));
+        node.viewState.shouldShowConnectorPropertyWindow = true;
+        node.setFullPackageName('ballerina.net.jms');
+        return node;
+    }
+
+    createFSServiceDef() {
+        const node = getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(
+                `
+    service<fs> service1 {
+        resource echo1 (fs:FileSystemEvent m) {
+
+        }
+    }
+`,
+            ));
+        node.viewState.shouldShowConnectorPropertyWindow = true;
+        node.setFullPackageName('ballerina.net.fs');
+        return node;
+    }
+
+    createFTPServiceDef() {
+        const node = getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(
+                `
+    service<ftp> service1 {
+        resource echo1 (ftp:FTPServerEvent m) {
+
+        }
+    }
+`,
+            ));
+        node.viewState.shouldShowConnectorPropertyWindow = true;
+        node.setFullPackageName('ballerina.net.ftp');
+        return node;
+    }
+
     /**
      * Create main function
      * @return {Node} function node for main function
@@ -128,6 +176,36 @@ class DefaultNodeFactory {
         return getNodeForFragment(
             FragmentUtils.createServiceResourceFragment(`
                 resource echo1 (http:Request req, http:Response res) {
+
+                }
+            `),
+        );
+    }
+
+    createFSResource() {
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(`
+                resource echo1 (fs:FileSystemEvent m) {
+
+                }
+            `),
+        );
+    }
+
+    createFTPResource() {
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(`
+                resource echo1 (ftp:FTPServerEvent m) {
+
+                }
+            `),
+        );
+    }
+
+    createJMSResource() {
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(`
+                resource echo1 (jms:JMSMessage request) {
 
                 }
             `),

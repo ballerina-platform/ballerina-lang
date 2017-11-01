@@ -90,7 +90,7 @@ class ResourceNode extends React.Component {
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}
                     />);
-            });        
+            });
 
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
         const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
@@ -107,9 +107,19 @@ class ResourceNode extends React.Component {
         tLinkBox.y += annotationBodyHeight;
         const thisNodeIndex = parentNode.getIndexOfResources(this.props.model);
         const resourceSiblings = parentNode.getResources();
-        let showAddResourceBtn = true;
-        if (parentNode.getProtocolPackageIdentifier().value === 'ws' && resourceSiblings.length >= 6) {
-            showAddResourceBtn = false;
+        // For Web sockets
+        let showAddResourceBtnForWS = true;
+        if (parentNode.getProtocolPackageIdentifier().value === 'ws' &&
+            resourceSiblings.length >= 6) {
+            showAddResourceBtnForWS = false;
+        }
+        // For JMS, FTP and FS allow only one resource
+        let showAddResourceForOneResource = true;
+        if ((parentNode.getProtocolPackageIdentifier().value === 'jms' ||
+            parentNode.getProtocolPackageIdentifier().value === 'ftp' ||
+            parentNode.getProtocolPackageIdentifier().value === 'fs')
+            && resourceSiblings.length >= 1) {
+            showAddResourceForOneResource = false;
         }
         return (
             <g>
@@ -162,8 +172,8 @@ class ResourceNode extends React.Component {
                         {connectors}
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtn &&
-                !this.props.model.viewState.collapsed) &&
+                {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtnForWS &&
+                showAddResourceForOneResource && !this.props.model.viewState.collapsed) &&
                 <g
                     className={this.state.style}
                     onMouseOver={this.onMouseOver}
