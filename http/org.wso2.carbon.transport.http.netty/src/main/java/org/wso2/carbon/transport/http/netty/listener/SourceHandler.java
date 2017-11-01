@@ -60,8 +60,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private String interfaceId;
     private HandlerExecutor handlerExecutor;
 
-    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId)
-            throws Exception {
+    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId) throws Exception {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.targetChannelPool = new ConcurrentHashMap<>();
@@ -75,12 +74,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        if (this.handlerExecutor != null) {
+            this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     @SuppressWarnings("unchecked")
@@ -118,7 +116,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
+    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
         if (handlerExecutor != null) {
@@ -187,7 +185,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         serverConnectorFuture.notifyErrorListener(cause);
     }
 
-    protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
+    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
