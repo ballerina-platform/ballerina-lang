@@ -28,12 +28,43 @@ import './service-definition.css';
 import TreeUtil from '../../../../../model/tree-util';
 import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
+import AddActionNode from './add-action-node';
 
 class ActionNode extends React.Component {
+
+    /**
+     * Creates an instance of ActionNode.
+     * @param {Object} props React properties.
+     * @memberof ActionNode
+     */
+    constructor(props) {
+        super(props);
+        this.state = {
+            style: 'hideResourceGroup',
+        };
+        this.onMouseOut = this.onMouseOut.bind(this);
+        this.onMouseOver = this.onMouseOver.bind(this);
+    }
 
     canDropToPanelBody(dragSource) {
         return TreeUtil.isConnectorDeclaration(dragSource)
             || TreeUtil.isWorker(dragSource);
+    }
+
+    /**
+     * Handles the mouse over event of the add action button
+     */
+    onMouseOver() {
+        this.setState({ style: 'showResourceGroup' });
+    }
+
+    /**
+     * Handles the mouse out event of the add action button
+     */
+    onMouseOut() {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
+            this.setState({ style: 'hideResourceGroup' });
+        }
     }
 
     render() {
@@ -73,6 +104,8 @@ class ActionNode extends React.Component {
 
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
+        const parentNode = this.props.model.parent;
+        const thisNodeIndex = parentNode.getIndexOfActions(this.props.model);
         return (
             <g>
                 <PanelDecorator
@@ -123,6 +156,24 @@ class ActionNode extends React.Component {
                         {connectors}
                     </g>
                 </PanelDecorator>
+                {(thisNodeIndex !== parentNode.getActions().length - 1 &&
+                !this.props.model.viewState.collapsed) &&
+                <g
+                    className={this.state.style}
+                    onMouseOver={this.onMouseOver}
+                    onMouseOut={this.onMouseOut}
+                >
+                    <rect
+                        x={bBox.x - 50}
+                        y={bBox.y + bBox.h}
+                        width={bBox.w + 20}
+                        height='50'
+                        fillOpacity="0"
+                        strokeOpacity="0"
+                    />
+                    <AddActionNode model={this.props.model} />
+                </g>
+                }
             </g>);
     }
 }
