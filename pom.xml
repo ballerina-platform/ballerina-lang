@@ -74,6 +74,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-config</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.runtime.version}</version>
             </dependency>
