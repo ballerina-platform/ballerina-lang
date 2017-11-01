@@ -158,7 +158,7 @@ function debuggerHoc(WrappedComponent) {
     };
 
     newComponent.contextTypes = {
-        astRoot: PropTypes.instanceOf(Object).isRequired,
+        astRoot: PropTypes.instanceOf(Object),
     };
 
     return newComponent;

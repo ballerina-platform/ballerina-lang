@@ -530,9 +530,10 @@ class BallerinaFileEditor extends React.Component {
         };
         // try to parse the file
         return parseFile(file)
-            .then((data) => {
+            .then((data = {}) => {
                 // keep current package information.
                 newState.packageInfo = data.packageInfo;
+                data.errors = data.errors || [];
                 const syntaxErrors = data.errors.filter(({ category }) => {
                     return category === 'SYNTAX';
                 });
