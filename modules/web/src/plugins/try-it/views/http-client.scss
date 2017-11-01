@@ -64,12 +64,6 @@
     .http-client-action-wrapper {
         padding: 20px 15px;
         background-color: #333;
-        .btn-success {
-            width: 95px;
-        }
-        .btn i {
-            margin-right: 7px;
-        }
         .react-autosuggest__container {
             float: left;
             color: black;
@@ -225,63 +219,185 @@ hr{
         }
 }
 
-.http-client-select-service-wrapper {
-    padding-left: 15px;
+.http-client-main-wrapper {
     background-color: #333;
-    padding:10px;
+    padding:10px 10px 10px 15px;
     width:auto;
     margin-left: 5px;
-    float: left;
     margin-bottom: 15px;
-    .selectors {
-        float: left;
-        .dropdown-toggle{
-            background-color: #3c3c3c;
-            color: #f1f1f1;
-            text-shadow: none;
-            box-shadow: none;
-            border: 1px solid #575757;
-            width: 200px;
-            margin: 5px 10px;
+    max-width: 900px;
+    .main-wrapper-top {
+        height: 45px;
+        .http-client-request-method-wrapper {
+            float: left;
+            .react-autosuggest__container {
+                .inputContainer {
+                    height: 33px;
+                    padding: 6px;
+                    border: none;
+                    border-bottom: 1px solid #3b3b3b;
+                    input[type=text]{
+                        color: #fff;
+                        background-color: #333;
+                        border: 0px solid #333;
+                        width: 85px;
+                    }
+                    i {
+                        color: #2b7b5e;
+                        cursor: pointer;
+                    }
+                }
+                .react-autosuggest__suggestions-container--open {
+                    background: #585858;
+                    color: #f1f1f1;
+                    ul {
+                        li {
+                            cursor: pointer;
+                        }
+                        li:hover {
+                            font-weight: bold;
+                        }
+                    }
+                }
+            }
         }
-        .dropdown-menu {
-            background: #565656;
-            margin:-5px 10px;
-            padding: 9px 0;
-            height: 34px;
-            width: 200px;
-            border: 0;
-             > li > a {
-                 display: block;
-                 padding: -6px 20px;
-                 clear: both;
-                 font-weight: normal;
-                 line-height: 25px;
-                 white-space: nowrap;
-                 height: 33px;
-                 margin-top: -9px;
-                 background: #585858;
-                 color: #f1f1f1;
+        .http-client-request-url {
+            float: left;
+            padding: 9px 10px 0px 10px;
+            color: #616161;
+        }
+        .selectors {
+            float: left;
+            .dropdown-toggle{
+                background-color: #3c3c3c;
+                color: #f1f1f1;
+                text-shadow: none;
+                box-shadow: none;
+                border: 1px solid #575757;
+                width: 200px;
+                margin: 1px 10px;
+                text-align: left;
+                .caret {
+                    position: absolute;
+                    top: 14px;
+                    right: 10px;
+                }
+            }
+            .dropdown-menu {
+                background: #565656;
+                margin:-5px 10px;
+                padding: 9px 0;
+                height: 34px;
+                width: 200px;
+                border: 0;
+                > li > a {
+                    display: block;
+                    padding: -6px 20px;
+                    clear: both;
+                    font-weight: normal;
+                    line-height: 25px;
+                    white-space: nowrap;
+                    height: 33px;
+                    margin-top: -9px;
+                    background: #585858;
+                    color: #f1f1f1;
+                }
+            }
+        }
+        .react-autosuggest__container {
+            float: left;
+            color: black;
+            position: relative;
+        }
+        .react-autosuggest__input {
+            padding: 1px 10px;
+            border-right: 1px solid #333;
+        }
+        .react-autosuggest__suggestions-container {
+            z-index: 10000;
+            overflow: visible;
+            background: #E2E2E5;
+            width: 187px;
+            position: absolute
+        }
+        .url-separator {
+            float: left;
+            padding-top: 2px;
+            color: #616161;
+            font-size: 23px;
+        }
+        .http-method-separator {
+            float: left;
+            color: #616161;
+            font-size: 26px;
+            padding-left: 12px;
+        }
+    }
+    .main-wrapper-bottom {
+        padding-left: 131px;
+        .http-client-request-url {
+            float: left;
+            padding: 8px 0 7px 7px;
+            color: #616161;
+            border-bottom: 1px solid #3b3b3b;
+        }
+        .input-group {
+            float: left;
+            .http-client-path {
+                padding-left: 0px;
+                width: 459px;
+                color: #fcfcfc;
+                height: 33px;
+                padding: 6px;
+                background-color: #333333;
+                border: none;
+                border-bottom: 1px solid #3b3b3b;
+                box-shadow: none;
+            }
+            .input-group-btn {
+                width: auto;
+                float: left;
+                padding-left: 20px;
+                .btn-success {
+                    color: #fcfcfc;
+                    padding-left: 20px;
+                    padding-right: 20px;
+                    background-color: #398B72;
+                    border-color: #398B72;
+                }
+                .btn-cancel {
+                    color: #000;
+                    padding-left: 20px;
+                    padding-right: 20px;
+                    background-color: #eb6526;
+                    border-color: #eb6526;
+                    span {
+                        padding-left: 5px;
+                    }
+                }
+            }
+            .copy-url-wrapper {
+                position: relative;
+                float: left;
+                padding: 8px 7px 2px 7px;
+                font-size: 16px;
+                background-color: #1c1c1c;
+                cursor: pointer;
+                color: #ddd;
+                .copy-url-notification {
+                    position: absolute;
+                    width: 77px;
+                    bottom: 36px;
+                    left: -22px;
+                    background: #3b3b3b;
+                    padding: 4px;
+                    border: 1px solid black;
+                    border-radius: 5px;
+                    font-size: 10px;
+                }
             }
         }
     }
-    .react-autosuggest__container {
-        float: left;
-        color: black;
-        position: relative;
-    }
-    .react-autosuggest__input {
-        padding: 1px 10px;
-        border-right: 1px solid #333;
-    }
-    .react-autosuggest__suggestions-container {
-        z-index: 10000;
-        overflow: visible;
-        background: #E2E2E5;
-        width: 187px;
-        position: absolute
-    }
-
     input[type=text].header-input{
         margin-left: 5px;
         border: 0.5px solid #333333;
@@ -292,21 +408,9 @@ hr{
         margin-right: 2px;
     }
 
-    input[type=text]{
-        color: #fff;
-        height: 33px;
-        padding: 6px;
-        background-color: #575757;
-        border: none;
-        width: 187px;
-    }
     input[type=text]::-webkit-input-placeholder{
         color: #ccc;
     }
-}
-.http-client-path:focus, .http-client-content-type:focus, .header-input:focus{
-    border: 1px solid #6d6d6d !important;
-    box-shadow: none;
 }
 .response-header-input{
     margin-left: 5px;

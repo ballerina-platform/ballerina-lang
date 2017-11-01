@@ -33,7 +33,7 @@ const HttpServiceDecorator = ({ message, command }) => {
     return (<div className='console-http-service-decorator'>
         <Linkify properties={{ target: '_blank' }}>{message.message}</Linkify>
         <Button
-            bsStyle='primary'
+            bsStyle='try-it'
             disabled={!LaunchManager.active}
             onClick={() => {
                 command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);

@@ -107,6 +107,7 @@ class AutoSuggestHtml extends React.Component {
             inputValue: newValue,
             showAllAtStart: false,
         });
+        this.props.onChange(event);
     }
 
     /**
@@ -261,6 +262,7 @@ class AutoSuggestHtml extends React.Component {
                 shouldRenderSuggestions={() => true}
                 ref={this.storeInputReference}
                 inputProps={inputProps}
+                renderInputComponent={this.props.renderInputComponent}
             />
         );
     }
@@ -277,6 +279,8 @@ AutoSuggestHtml.propTypes = {
     maxWidth: PropTypes.number,
     showAllAtStart: PropTypes.bool,
     disableAutoFocus: PropTypes.bool,
+    renderInputComponent: PropTypes.func,
+    onChange: PropTypes.func,
 };
 
 AutoSuggestHtml.defaultProps = {
@@ -289,6 +293,8 @@ AutoSuggestHtml.defaultProps = {
     maxWidth: 120,
     showAllAtStart: false,
     disableAutoFocus: false,
+    renderInputComponent: undefined,
+    onChange: undefined,
 };
 
 export default AutoSuggestHtml;
