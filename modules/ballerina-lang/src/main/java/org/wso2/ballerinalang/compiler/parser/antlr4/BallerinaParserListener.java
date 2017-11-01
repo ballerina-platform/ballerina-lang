@@ -358,6 +358,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code transformerAttachPoint}
+	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code transformerAttachPoint}
+	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationBody}.
 	 * @param ctx the parse tree
 	 */

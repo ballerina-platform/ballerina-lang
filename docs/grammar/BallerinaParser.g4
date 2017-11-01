@@ -128,6 +128,7 @@ attachmentPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody

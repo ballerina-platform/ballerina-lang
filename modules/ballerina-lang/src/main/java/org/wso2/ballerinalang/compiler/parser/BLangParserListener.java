@@ -761,6 +761,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) {
         if (ctx.exception != null) {
             return;
