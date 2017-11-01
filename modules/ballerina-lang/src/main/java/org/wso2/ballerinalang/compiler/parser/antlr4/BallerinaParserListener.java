@@ -288,18 +288,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code typemapperAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code typemapperAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code structAttachPoint}
 	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
@@ -357,36 +345,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAnnotationBody(BallerinaParser.AnnotationBodyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperSignature}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeMapperSignature(BallerinaParser.TypeMapperSignatureContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperSignature}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeMapperSignature(BallerinaParser.TypeMapperSignatureContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
 	 * @param ctx the parse tree

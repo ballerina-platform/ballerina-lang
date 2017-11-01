@@ -38,7 +38,6 @@ definition
     |   connectorDefinition
     |   structDefinition
     |   enumDefinition
-    |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
@@ -118,7 +117,6 @@ attachmentPoint
      | CONNECTOR                            # connectorAttachPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
-     | TYPEMAPPER                           # typemapperAttachPoint
      | STRUCT                               # structAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
@@ -127,19 +125,6 @@ attachmentPoint
 
 annotationBody
     :  LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
-
-typeMapperDefinition
-    :   NATIVE typeMapperSignature SEMICOLON
-    |   typeMapperSignature typeMapperBody
-    ;
-
-typeMapperSignature
-    :   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS
-    ;
-
-typeMapperBody
-    :   LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 constantDefinition

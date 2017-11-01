@@ -638,25 +638,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPEMAPPER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
     }
 
