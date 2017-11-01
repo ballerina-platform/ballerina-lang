@@ -1211,7 +1211,7 @@ public class BLangPackageBuilder {
         bindNode.setExpression(rExprNode);
         bindNode.pos = pos;
         bindNode.addWS(ws);
-        bindNode.addWS(commaWsStack.pop());
+//        bindNode.addWS(commaWsStack.pop());
         bindNode.setVariable(varRef);
         addStmtToCurrentBlock(bindNode);
     }
