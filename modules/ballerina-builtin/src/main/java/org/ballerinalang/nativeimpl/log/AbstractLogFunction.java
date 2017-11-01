@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils.logger;
+package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.StackFrame;
@@ -38,7 +38,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 public abstract class AbstractLogFunction extends AbstractNativeFunction {
 
     protected BLogRecord createLogRecord(Context ctx, BLogLevel level) {
-        StackFrame stackFrame = ctx.getControlStackNew().getStack()[ctx.getControlStackNew().fp - 1];
+        StackFrame stackFrame = ctx.getControlStackNew().getCurrentFrame().prevStackFrame;
         CallableUnitInfo callableUnitInfo = stackFrame.getCallableUnitInfo();
 
         String packageName = callableUnitInfo.getPackageInfo().getPkgPath();

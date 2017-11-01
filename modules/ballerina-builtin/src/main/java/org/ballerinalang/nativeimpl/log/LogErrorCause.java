@@ -16,36 +16,28 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils.logger;
+package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.BLogger;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.model.utils:logger.
+ * Native function ballerina.log:errorCause.
  *
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils.logger",
+        packageName = "ballerina.log",
         functionName = "errorCause",
-        args = {@Argument(name = "msg", type = TypeEnum.STRING), @Argument(name = "err", type = TypeEnum.STRUCT)},
+        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "msg", value = "Logs the specified value at error level.")})
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = {
-                             @Attribute(name = "msg", value = "The message to be logged."),
-                             @Attribute(name = "err", value = "The error to be logged.")})
 public class LogErrorCause extends AbstractLogFunction {
 
     private static final BLogger logger = new BLogger("ballerina.logger.errorCause", BLogLevel.ERROR);

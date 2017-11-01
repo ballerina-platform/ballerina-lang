@@ -48,7 +48,7 @@ public class Constants {
     public static final String BALLERINA_LOG_FORMAT = "log.format";
 
     // HTTP trace logger
-    public static final String HTTP_TRACELOG = "tracelog.http";
+    public static final String HTTP_TRACELOG = "log.tracelog.http";
     public static final String HTTP_TRACELOG_LEVEL = HTTP_TRACELOG + ".level";
     public static final String HTTP_TRACELOG_USE_PARENT_HANDLERS = HTTP_TRACELOG + ".useParentHandlers";
 

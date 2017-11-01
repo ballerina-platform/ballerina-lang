@@ -19,12 +19,12 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogRecord;
+import org.ballerinalang.logging.BLogger;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,18 +35,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.log",
         functionName = "info",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        args = {@Argument(name = "value", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "msg",
-                                                                              value = "Logs the specified value at " +
-                                                                                      "the info level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
-public class LogInfo extends AbstractNativeFunction {
+public class LogInfo extends AbstractLogFunction {
+
+    private static final BLogger logger = new BLogger("ballerina.logger.info", BLogLevel.INFO);
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).info(getRefArgument(ctx, 0).stringValue());
+        BLogRecord logRecord = createLogRecord(ctx, BLogLevel.INFO);
+        logRecord.setLoggerName("ballerina.logger.info");
+        logger.log(logRecord);
         return VOID_RETURN;
     }
 }

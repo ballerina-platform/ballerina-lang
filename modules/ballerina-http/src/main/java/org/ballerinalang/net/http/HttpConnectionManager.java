@@ -270,7 +270,7 @@ public class HttpConnectionManager {
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        return System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null ? true : false;
+        return System.getProperty(org.ballerinalang.logging.util.Constants.HTTP_TRACELOG) != null ? true : false;
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
