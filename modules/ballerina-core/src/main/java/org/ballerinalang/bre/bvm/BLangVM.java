@@ -2597,6 +2597,9 @@ public class BLangVM {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         StackFrame callerSF = controlStack.currentFrame;
 
+        if (callerSF.refRegs[argRegs[0]] == null) {
+            throw new BallerinaException("action invocation on empty endpoint");
+        }
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
