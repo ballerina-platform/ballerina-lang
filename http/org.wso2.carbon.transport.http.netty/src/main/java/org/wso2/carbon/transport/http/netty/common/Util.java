@@ -201,19 +201,23 @@ public class Util {
         // 3. Check for request Content-Length header
         String requestContentLength = requestDataHolder.getContentLengthHeader();
         if (requestContentLength != null &&
-            (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty()))) {
-            int contentLength = cMsg.getFullMessageLength();
-            if (contentLength > 0) {
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null))) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
+            if (!cMsg.isEmpty()) {
+                int contentLength = cMsg.getFullMessageLength();
+                if (contentLength > 0) {
+                    cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+                }
+                cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+                return;
             }
-            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            return;
         }
 
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
             if (!cMsg.isEmpty()) {
                 int contentLength = cMsg.getFullMessageLength();
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -221,7 +225,6 @@ public class Util {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
-
     }
 
     /**
@@ -235,6 +238,7 @@ public class Util {
             MessageDataSource messageDataSource = cMsg.getMessageDataSource();
             if (messageDataSource != null) {
                 messageDataSource.serializeData();
+                cMsg.setMessageDataSource(null);
             }
         }
     }
