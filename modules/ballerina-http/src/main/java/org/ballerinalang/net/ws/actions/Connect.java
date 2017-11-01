@@ -59,8 +59,6 @@ import javax.websocket.Session;
                           structPackage = Constants.WEBSOCKET_PACKAGE_NAME)
         },
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
-                                  structPackage = "ballerina.net.ws"),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
 )
 public class Connect extends AbstractNativeWsAction {
