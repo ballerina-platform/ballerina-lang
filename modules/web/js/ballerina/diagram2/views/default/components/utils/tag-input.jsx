@@ -67,7 +67,7 @@ class TagInput extends React.Component {
 
     handleInputKeyDown(evt) {
         this.props.onTagsAdded(evt);
-        if (evt.keyCode === 13) {
+        if (evt.keyCode === 13 || evt.keyCode === 188) {
             this.setState(state => ({
                 input: '',
             }));
