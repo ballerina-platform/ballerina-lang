@@ -185,8 +185,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
-            ballerinaFuture.notifyFailure(ex);
+//            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
+            BStruct httpConnectorError = createErrorStruct(context);
+            httpConnectorError.setStringField(0, throwable.getMessage());
+            httpConnectorError.setIntField(0, 504);
+            context.getControlStackNew().getCurrentFrame().returnValues[1] = httpConnectorError;
+            ballerinaFuture.notifySuccess();
         }
 
         private BStruct createResponseStruct(Context context) {
@@ -197,6 +201,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             BStruct bStruct = new BStruct(structType);
 
             return bStruct;
+        }
+
+        private BStruct createErrorStruct(Context context) {
+            PackageInfo sessionPackageInfo = context.getProgramFile()
+                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
+            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
+            BStructType structType = sessionStructInfo.getType();
+            return new BStruct(structType);
         }
     }
 
