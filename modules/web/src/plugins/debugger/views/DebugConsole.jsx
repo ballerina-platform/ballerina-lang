@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import ConsoleDecorators from 'plugins/debugger/views/console-decorators';
 import View from 'core/view/view';
 import { VIEWS } from './../constants';
@@ -35,6 +36,10 @@ class DebuggerConsole extends View {
         this.state = {
             messages: [],
         };
+        this.debouncedSetState = _.debounce((nextState) => {
+            this.setState({ messages: nextState });
+        },
+        400);
     }
     /**
      * React.Component lifecycle hook
@@ -42,15 +47,16 @@ class DebuggerConsole extends View {
      * @memberof DebuggerConsole
      */
     componentDidMount() {
+        let messageCache = [];
         this.props.LaunchManager.on('execution-started', () => {
+            messageCache = [];
             this.setState({
                 messages: [],
             });
         });
         this.props.LaunchManager.on('print-message', (message) => {
-            this.setState({
-                messages: this.state.messages.concat([message]),
-            });
+            messageCache.push(message);
+            this.debouncedSetState(messageCache);
         });
     }
     /**
@@ -74,6 +80,7 @@ class DebuggerConsole extends View {
      * @inheritdoc
      */
     render() {
+        console.log('Rendering console..............');
         const { height } = this.props;
         return (
             <div id="console" style={{ height }}>
@@ -88,5 +95,6 @@ class DebuggerConsole extends View {
         );
     }
 }
+// const throttledDebuggerConsole = throttleRender(500)(DebuggerConsole);
 
 export default DebuggerConsole;

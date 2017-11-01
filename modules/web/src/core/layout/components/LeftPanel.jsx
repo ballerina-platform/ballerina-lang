@@ -112,6 +112,7 @@ class LeftPanelTab extends React.Component {
      * @inheritdoc
      */
     render() {
+        console.log('left panel rendering');
         const { viewDef, width, height, panelResizeInProgress,
                 viewDef: {
                     regionOptions: {

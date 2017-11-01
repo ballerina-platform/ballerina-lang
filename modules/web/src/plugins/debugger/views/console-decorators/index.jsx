@@ -27,7 +27,6 @@ const ConsoleDecorator = (props) => {
     if (props.message.message.startsWith(Constants.HTTP_SERVICE_PREFIX)) {
         decoratedMessage = (<HttpServiceDecorator {...props} />);
     }
-
     return (<div className={props.message.type}>
         {decoratedMessage}
     </div>);
