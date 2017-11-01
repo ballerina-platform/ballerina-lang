@@ -79,7 +79,7 @@ class ConnectorNode extends React.Component {
     /**
      * Handles global variable add event.
      *
-     * @param {ASTNode} addGlobal Variable AST.
+     * @param {ASTNode} value Variable AST.
      * @memberof ServiceNode
      */
     handleAddVariable(value) {
@@ -88,8 +88,12 @@ class ConnectorNode extends React.Component {
         }
         const fragment = FragmentUtils.createStatementFragment(`${value};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const index = this.props.model.getVariableDefs().length - 1;
-        this.props.model.addVariableDefs(TreeBuilder.build(parsedJson), index + 1);
+        if (!parsedJson.error) {
+            const index = this.props.model.getVariableDefs().length - 1;
+            this.props.model.addVariableDefs(TreeBuilder.build(parsedJson), index + 1);
+        } else {
+            this.context.alert.showError('Invalid content provided !');
+        }
     }
 
     /**
@@ -176,6 +180,7 @@ ConnectorNode.propTypes = {
 ConnectorNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
+    alert: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ConnectorNode;
