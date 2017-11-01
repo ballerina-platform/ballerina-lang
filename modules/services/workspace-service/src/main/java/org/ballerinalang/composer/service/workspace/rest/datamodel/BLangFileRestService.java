@@ -198,7 +198,9 @@ public class BLangFileRestService {
                 Node structNode;
                 if (typeNode.getValue().startsWith("$anonStruct$") &&
                     (structNode = anonStructs.remove(typeNode.getValue())) != null) {
-                    nodeJson.add("anonStruct", generateJSON(structNode, anonStructs));
+                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
+                    anonStruct.addProperty("anonStruct", true);
+                    nodeJson.add("anonStruct", anonStruct);
                     continue;
                 }
             }

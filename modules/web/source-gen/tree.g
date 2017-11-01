@@ -186,7 +186,7 @@ StringTemplateLiteral
    : string\u0020` <expressions>* `
 
 Struct
-   : <parent.anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
+   : <anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
    |                <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 

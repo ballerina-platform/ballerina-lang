@@ -416,7 +416,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + 'string\u0020`' + join(node.expressions, pretty, l, w, '')
                  + w() + '`';
         case 'Struct':
-            if (node.parent.anonStruct && node.fields) {
+            if (node.anonStruct && node.fields) {
                 return dent() + (node.public ? w() + 'public' + a(' ') : '') + w()
                  + 'struct' + w(' ') + '{' + indent()
                  + join(node.fields, pretty, l, w, '', ';', true) + outdent() + w() + '}';
