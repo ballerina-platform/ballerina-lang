@@ -17,10 +17,15 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql;
 
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -43,7 +48,6 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -61,15 +65,17 @@ public class SQLDataIterator implements DataIterator {
     private Statement stmt;
     private ResultSet rs;
     private Calendar utcCalendar;
-    private ArrayList<Integer> columnTypeList;
+    private List<ColumnDefinition> columnDefs;
+    private BStructType bStructType;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
-            ArrayList<Integer> columnTypeList) throws SQLException {
+            List<ColumnDefinition> columnDefs) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.utcCalendar = utcCalendar;
-        this.columnTypeList = columnTypeList;
+        this.columnDefs = columnDefs;
+        generateStructType();
     }
 
     @Override
@@ -177,18 +183,19 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public void generateNext(List<BDataTable.ColumnDefinition> columnDefs, BStruct bStruct) {
+    public BStruct generateNext() {
+        BStruct bStruct = new BStruct(bStructType);
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        int index = 0;
         try {
-            for (BDataTable.ColumnDefinition columnDef : columnDefs) {
-                String columnName = columnDef.getName();
-                int sqlType = columnTypeList.get(index);
+            for (ColumnDefinition columnDef : columnDefs) {
+                SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
+                String columnName = def.getName();
+                int sqlType = def.getSqlType();
                 switch (sqlType) {
                 case Types.ARRAY:
                     BMap<BString, BValue> bMapvalue = getDataArray(columnName);
@@ -267,14 +274,18 @@ public class SQLDataIterator implements DataIterator {
                     throw new BallerinaException(
                             "unsupported sql type " + sqlType + " found for the column " + columnName);
                 }
-                ++index;
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in retrieving next value: " + e.getMessage());
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("error in retrieving next value for rowid type: " + e.getCause().getMessage());
         }
-        return;
+        return bStruct;
+    }
+
+    @Override
+    public List<ColumnDefinition> getColumnDefinitions() {
+        return this.columnDefs;
     }
 
     private BMap<BString, BValue> getDataArray(String columnName) {
@@ -300,5 +311,96 @@ public class SQLDataIterator implements DataIterator {
             }
         }
         return returnMap;
+    }
+
+    private void generateStructType() {
+        BType[] structTypes = new BType[columnDefs.size()];
+        BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
+        int typeIndex  = 0;
+        for (ColumnDefinition columnDef : columnDefs) {
+            BType type;
+            switch (columnDef.getType()) {
+            case ARRAY:
+                type = BTypes.typeMap;
+                break;
+            case STRING:
+                type = BTypes.typeString;
+                break;
+            case BLOB:
+                type = BTypes.typeBlob;
+                break;
+            case INT:
+                type = BTypes.typeInt;
+                break;
+            case FLOAT:
+                type = BTypes.typeFloat;
+                break;
+            case BOOLEAN:
+                type = BTypes.typeBoolean;
+                break;
+            default:
+                type = BTypes.typeNull;
+            }
+            structTypes[typeIndex] = type;
+            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
+            ++typeIndex;
+        }
+
+        int[] fieldCount = populateMaxSizes(structTypes);
+        bStructType = new BStructType("RS", null);
+        bStructType.setStructFields(structFields);
+        bStructType.setFieldTypeCount(fieldCount);
+    }
+
+    private static int[] populateMaxSizes(BType[] paramTypes) {
+        int[] maxSizes = new int[6];
+        for (int i = 0; i < paramTypes.length; i++) {
+            BType paramType = paramTypes[i];
+            switch (paramType.getTag()) {
+            case TypeTags.INT_TAG:
+                ++maxSizes[0];
+                break;
+            case TypeTags.FLOAT_TAG:
+                ++maxSizes[1];
+                break;
+            case TypeTags.STRING_TAG:
+                ++maxSizes[2];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                ++maxSizes[3];
+                break;
+            case TypeTags.BLOB_TAG:
+                ++maxSizes[4];
+                break;
+            default:
+                ++maxSizes[5];
+            }
+        }
+        return maxSizes;
+    }
+
+    /**
+     * This represents a column definition for a column in a datatable.
+     */
+    public static class SQLColumnDefinition extends ColumnDefinition {
+
+        private int sqlType;
+
+        public SQLColumnDefinition(String name, TypeKind mappedType, int sqlType) {
+            super(name, mappedType);
+            this.sqlType = sqlType;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public TypeKind getType() {
+            return mappedType;
+        }
+
+        public int getSqlType() {
+            return sqlType;
+        }
     }
 }

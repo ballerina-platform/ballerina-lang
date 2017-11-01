@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.List;
@@ -49,5 +48,7 @@ public interface DataIterator {
 
     Map<String, Object> getArray(String columnName);
 
-    void generateNext(List<BDataTable.ColumnDefinition> columnDefs, BStruct bStruct);
+    BStruct generateNext();
+
+    List<ColumnDefinition> getColumnDefinitions();
 }

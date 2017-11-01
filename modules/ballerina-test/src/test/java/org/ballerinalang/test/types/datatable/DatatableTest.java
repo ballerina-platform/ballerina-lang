@@ -322,6 +322,14 @@ public class DatatableTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
+    @Test(groups = "DatatableTest", description = "Check select methods for primitive types.")
+    public void testMutltipleRows() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

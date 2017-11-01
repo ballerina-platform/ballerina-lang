@@ -21,6 +21,7 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -360,17 +361,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs, ArrayList<Integer> sqlTypeList)
+    private ArrayList<ColumnDefinition> getColumnDefinitions(ResultSet rs)
             throws SQLException {
-        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<>();
+        ArrayList<ColumnDefinition> columnDefs = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
             int colType = rsMetaData.getColumnType(i);
-            sqlTypeList.add(colType);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
+            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
         }
         return columnDefs;
     }
@@ -773,8 +773,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
-        ArrayList<Integer> sqlTypes = new ArrayList<>();
-        ArrayList<BDataTable.ColumnDefinition> columnDefinitions = getColumnDefinitions(rs, sqlTypes);
-        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, sqlTypes), columnDefinitions);
+        ArrayList<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
+        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
     }
 }

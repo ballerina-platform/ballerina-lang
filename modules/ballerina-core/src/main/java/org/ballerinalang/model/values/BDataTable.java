@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 
 import java.util.List;
 import java.util.Map;
@@ -35,13 +33,9 @@ import java.util.Map;
 public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
-    private List<ColumnDefinition> columnDefs;
-    private BStruct bStruct;
 
-    public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
+    public BDataTable(DataIterator dataIterator) {
         this.iterator = dataIterator;
-        this.columnDefs = columnDefs;
-        generateStruct();
     }
 
     @Override
@@ -72,78 +66,8 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext() {
-        iterator.generateNext(columnDefs, bStruct);
-        return bStruct;
+        return iterator.generateNext();
     }
-
-    private void generateStruct() {
-        BType[] structTypes = new BType[columnDefs.size()];
-        BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
-        int typeIndex  = 0;
-        for (ColumnDefinition columnDef : columnDefs) {
-            BType type;
-            switch (columnDef.getType()) {
-            case ARRAY:
-                type = BTypes.typeMap;
-                break;
-            case STRING:
-                type = BTypes.typeString;
-                break;
-            case BLOB:
-                type = BTypes.typeBlob;
-                break;
-            case INT:
-                type = BTypes.typeInt;
-                break;
-            case FLOAT:
-                type = BTypes.typeFloat;
-                break;
-            case BOOLEAN:
-                type = BTypes.typeBoolean;
-                break;
-            default:
-                type = BTypes.typeNull;
-            }
-            structTypes[typeIndex] = type;
-            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
-            ++typeIndex;
-        }
-
-        int[] fieldCount = populateMaxSizes(structTypes);
-        BStructType structType = new BStructType("RS", null);
-        structType.setStructFields(structFields);
-        structType.setFieldTypeCount(fieldCount);
-
-        this.bStruct = new BStruct(structType);
-    }
-
-    private static int[] populateMaxSizes(BType[] paramTypes) {
-        int[] maxSizes = new int[6];
-        for (int i = 0; i < paramTypes.length; i++) {
-            BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                ++maxSizes[0];
-                break;
-            case TypeTags.FLOAT_TAG:
-                ++maxSizes[1];
-                break;
-            case TypeTags.STRING_TAG:
-                ++maxSizes[2];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                ++maxSizes[3];
-                break;
-            case TypeTags.BLOB_TAG:
-                ++maxSizes[4];
-                break;
-            default:
-                ++maxSizes[5];
-            }
-        }
-        return maxSizes;
-    }
-
 
     public String getString(String columnName) {
         return iterator.getString(columnName);
@@ -170,29 +94,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public List<ColumnDefinition> getColumnDefs() {
-        return columnDefs;
-    }
-
-    /**
-     * This represents a column definition for a column in a datatable.
-     */
-    public static class ColumnDefinition {
-
-        private String name;
-        private TypeKind mappedType;
-
-        public ColumnDefinition(String name, TypeKind mappedType) {
-            this.name = name;
-            this.mappedType = mappedType;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public TypeKind getType() {
-            return mappedType;
-        }
+        return iterator.getColumnDefinitions();
     }
 
     @Override
