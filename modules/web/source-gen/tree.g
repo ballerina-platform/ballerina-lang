@@ -213,6 +213,12 @@ Transform
    : transform { <body.source> }
    ;
 
+Transformer
+   : <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> ( <parameters-joined-by,>+ ) { <body.source> }
+   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> (){ <body.source> }
+   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> { <body.source> }
+   ;
+
 Try
    : try { <body.source> } <catchBlocks>*  finally { <finallyBody.source> }
    | try { <body.source> } <catchBlocks>*
