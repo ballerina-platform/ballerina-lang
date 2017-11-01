@@ -106,7 +106,9 @@ class DefaultNodeFactory {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
                 connector ClientConnector(string url) {
+                    action action1(){
 
+                    }
                 }
             `),
         );

@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
@@ -26,6 +27,7 @@ import TreeUtil from '../../../../../model/tree-util';
 import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
+import AddActionNode from './add-action-node';
 
 /**
  * React component for a connector definition.
@@ -42,9 +44,14 @@ class ConnectorNode extends React.Component {
      */
     constructor(props) {
         super(props);
+        this.state = {
+            addAction: false,
+        };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
     }
 
     /**
@@ -105,6 +112,22 @@ class ConnectorNode extends React.Component {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
         this.context.editor.update();
     }
+
+    /**
+     * Handles the mouse enter event on the connector node
+     */
+    onMouseEnter() {
+        this.setState({ addAction: true });
+    }
+
+    /**
+     * Handles the mouse leave event on the connector node
+     */
+    onMouseLeave() {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
+            this.setState({ addAction: false });
+        }
+    }
     /**
      * Renders the view for a connector definition.
      *
@@ -134,7 +157,10 @@ class ConnectorNode extends React.Component {
         const rightComponents = [];
 
         return (
-            <g>
+            <g
+                onMouseLeave={this.onMouseLeave}
+                onMouseEnter={this.onMouseEnter}
+            >
                 <PanelDecorator
                     icon="tool-icons/connector"
                     title={title}
@@ -145,6 +171,9 @@ class ConnectorNode extends React.Component {
                     rightComponents={rightComponents}
                     argumentParams={argumentParameters}
                 >
+                    {this.state.addAction &&
+                    <AddActionNode model={model} />
+                    }
                     {
                         viewState.variablesExpanded ?
                             <GlobalExpanded
