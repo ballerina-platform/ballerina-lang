@@ -69,7 +69,7 @@ public class Option {
         } else if (templateBuilder != null) {
             return (String) templateBuilder.build(dynamicOptions.getEvent());
         } else if (dataIndex != -1) {
-            return (String) dynamicOptions.getEvent().getData(dataIndex);
+            return String.valueOf(dynamicOptions.getEvent().getData(dataIndex));
         } else {
             return null;
         }
@@ -81,7 +81,7 @@ public class Option {
         } else if (templateBuilder != null) {
             return (String) templateBuilder.build(event);
         } else if (dataIndex != -1) {
-            return (String) event.getData(dataIndex);
+            return String.valueOf(event.getData(dataIndex));
         } else {
             return null;
         }
