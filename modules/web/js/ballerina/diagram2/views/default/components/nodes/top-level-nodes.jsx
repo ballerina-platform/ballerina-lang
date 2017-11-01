@@ -376,7 +376,7 @@ class TopLevelNodes extends React.Component {
                             model={this.props.model}
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
-                            addText={'+ Add Global'}
+                            addText={'+ Add Global (i.e. const int i = 0)'}
                             onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
