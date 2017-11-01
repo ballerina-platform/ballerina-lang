@@ -35,6 +35,8 @@ public class BFile {
 
     private boolean includePackageInfo = false;
 
+    private boolean includeProgramDir = false;
+
     public String getContent() {
         return content;
     }
@@ -81,5 +83,13 @@ public class BFile {
 
     public void setIncludePackageInfo(boolean includePackageInfo) {
         this.includePackageInfo = includePackageInfo;
+    }
+
+    public boolean needProgramDir() {
+        return includeProgramDir;
+    }
+
+    public void setIncludeProgramDir(boolean includeProgramDir) {
+        this.includeProgramDir = includeProgramDir;
     }
 }

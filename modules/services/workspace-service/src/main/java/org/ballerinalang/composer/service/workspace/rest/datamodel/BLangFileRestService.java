@@ -44,17 +44,20 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
@@ -343,6 +346,25 @@ public class BLangFileRestService {
         if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
             result.add("packageInfo", packageInfo);
+        }
+
+        if(bFileRequest.needProgramDir() && (model != null && model.pkgDecl != null)) {
+            List<String> pathParts = Arrays.asList(filePath.split(Pattern.quote(File.separator)));
+            List<String> pkgParts = model.pkgDecl.pkgNameComps.stream()
+                    .map(identifier -> identifier.value).collect(Collectors.toList());
+            Collections.reverse(pkgParts);
+            boolean foundProgramDir = true;
+            for (int i = 1; i <= pkgParts.size(); i++) {
+                if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
+                    foundProgramDir = false;
+                    break;
+                }
+            }
+            if (foundProgramDir) {
+                List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
+                String programDir = String.join(File.separator, programDirParts);
+                result.addProperty("programDirPath", programDir);
+            }
         }
 
         return result;
