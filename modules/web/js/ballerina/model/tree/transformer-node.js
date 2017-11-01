@@ -20,6 +20,10 @@ import AbstractTransformerNode from './abstract-tree/transformer-node';
 
 class TransformerNode extends AbstractTransformerNode {
 
+    getSignature() {
+        return 'transformer';
+    }
+
 }
 
 export default TransformerNode;

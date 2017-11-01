@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from '../decorators/panel-decorator';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
-import TreeUtil from '../../../../../model/tree-util';
+import TransformerStatementDecorator from '../transform/transformer-statement-decorator';
 
 class TransformerNode extends React.Component {
 
@@ -30,19 +30,9 @@ class TransformerNode extends React.Component {
 
     render() {
         const model = this.props.model;
-        const bBox = model.viewState.bBox;
-        const name = 'transformer';
         const icons = 'tool-icons/transform';
 
-        return (
-            <PanelDecorator
-                bBox={bBox}
-                title={name}
-                model={this.props.model}
-                icon={icons}
-                dropTarget={this.props.model}
-                canDrop={this.canDropToPanelBody}
-            />);
+        return (<TransformerStatementDecorator viewState={model.viewState} icon={icons} model={model} />);
     }
 }
 
