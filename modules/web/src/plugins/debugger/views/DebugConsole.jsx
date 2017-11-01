@@ -80,7 +80,6 @@ class DebuggerConsole extends View {
      * @inheritdoc
      */
     render() {
-        console.log('Rendering console..............');
         const { height } = this.props;
         return (
             <div id="console" style={{ height }}>
@@ -95,6 +94,5 @@ class DebuggerConsole extends View {
         );
     }
 }
-// const throttledDebuggerConsole = throttleRender(500)(DebuggerConsole);
 
 export default DebuggerConsole;
