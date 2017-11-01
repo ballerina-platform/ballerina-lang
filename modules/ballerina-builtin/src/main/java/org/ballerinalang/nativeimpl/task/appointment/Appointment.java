@@ -19,38 +19,32 @@
 package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerContext;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
-import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 
 /**
  * Represents an appointment.
  */
-public class Appointment implements Job {
+public class Appointment {
     private String id = TaskIdGenerator.generate();
     private Context balParentContext;
-    private FunctionRefCPEntry onTriggerFunction;
-    private FunctionRefCPEntry onErrorFunction;
 
-    public Appointment(Context balParentContext,
-                       String cronExpression, FunctionRefCPEntry onTriggerFunction,
-                       FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+    Appointment(AbstractNativeFunction fn, Context balParentContext,
+                String cronExpression, FunctionRefCPEntry onTriggerFunction,
+                FunctionRefCPEntry onErrorFunction) throws SchedulingException {
         this.balParentContext = balParentContext;
-        this.onTriggerFunction = onTriggerFunction;
-        this.onErrorFunction = onErrorFunction;
         TaskRegistry.getInstance().addAppointment(this);
 
         try {
-            AppointmentManager.getInstance().schedule(id, cronExpression);
+            balParentContext.startTrackWorker();
+            AppointmentManager.getInstance().
+                    schedule(id, fn, AppointmentJob.class,
+                            balParentContext, onTriggerFunction, onErrorFunction, cronExpression);
         } catch (SchedulerException e) {
             throw new SchedulingException(e);
         }
@@ -65,15 +59,5 @@ public class Appointment implements Job {
         // TODO: remove from Quartz schedule
         TaskRegistry.getInstance().remove(id);
         balParentContext.endTrackWorker();
-    }
-
-    @Override
-    public void execute(JobExecutionContext quartContext) throws JobExecutionException {
-//        this.quartzJobKey = quartContext.getJobDetail().getKey();
-
-        ProgramFile programFile = balParentContext.getProgramFile();
-        //Create new instance of the context and set required properties.
-        Context newContext = new WorkerContext(programFile, balParentContext);
-        TaskExecutor.execute(balParentContext, onTriggerFunction, onErrorFunction, programFile, newContext);
     }
 }

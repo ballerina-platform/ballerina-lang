@@ -63,7 +63,7 @@ public class BalScheduleAppointment extends AbstractNativeFunction {
 
         try {
             Appointment appointment =
-                    new Appointment(ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+                    new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             return getBValues(new BString(appointment.getId()), null);
         } catch (SchedulingException e) {
             return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));

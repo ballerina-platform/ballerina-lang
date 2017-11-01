@@ -25,9 +25,9 @@ import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +49,7 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    public Timer(Context ctx, long delay, long interval,
+    public Timer(AbstractNativeFunction fn, Context ctx, long delay, long interval,
                  FunctionRefCPEntry onTriggerFunction,
                  FunctionRefCPEntry onErrorFunction) throws SchedulingException {
 
@@ -58,7 +58,7 @@ public class Timer {
         }
 
         final Runnable schedulerFunc = () -> {
-            callTriggerFunction(ctx, onTriggerFunction, onErrorFunction);
+            callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
         };
         ctx.startTrackWorker();
         this.context = ctx;
@@ -73,12 +73,13 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    private static void callTriggerFunction(Context parentCtx, FunctionRefCPEntry onTriggerFunction,
+    private static void callTriggerFunction(AbstractNativeFunction fn, Context parentCtx,
+                                            FunctionRefCPEntry onTriggerFunction,
                                             FunctionRefCPEntry onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();
         //Create new instance of the context and set required properties.
         Context newContext = new WorkerContext(programFile, parentCtx);
-        TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
+        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
     }
 
     public String getId() {

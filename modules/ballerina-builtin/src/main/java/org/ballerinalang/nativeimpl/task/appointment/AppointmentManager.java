@@ -18,7 +18,12 @@
  */
 package org.ballerinalang.nativeimpl.task.appointment;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.quartz.CronTrigger;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -48,22 +53,28 @@ public class AppointmentManager {
         return instance;
     }
 
-    public void schedule(String taskId, String cronExpression) throws SchedulerException {
-        JobDetail job = newJob(Appointment.class).withIdentity(taskId).build();
+    void schedule(String taskId, AbstractNativeFunction fn, Class<? extends Job> jobClass,
+                  Context balParentContext, FunctionRefCPEntry onTriggerFunction,
+                  FunctionRefCPEntry onErrorFunction, String cronExpression) throws SchedulerException {
+        JobDataMap jobData = new JobDataMap();
+        jobData.put(AppointmentConstants.BALLERINA_FUNCTION, fn);
+        jobData.put(AppointmentConstants.BALLERINA_PARENT_CONTEXT, balParentContext);
+        jobData.put(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION, onTriggerFunction);
+        jobData.put(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION, onErrorFunction);
+        JobDetail job = newJob(jobClass).usingJobData(jobData).withIdentity(taskId).build();
 
         CronTrigger trigger =
-                newTrigger().withIdentity(taskId + ":trigger").withSchedule(cronSchedule(cronExpression))
+                newTrigger().withIdentity(taskId).withSchedule(cronSchedule(cronExpression))
                         .build();
 
         scheduler.scheduleJob(job, trigger);
-//        log.info(job.getKey() + " has been scheduled to run at: " + ft + " and repeat based on expression: "
-//                + trigger.getCronExpression());
 
-        //TODO: need to check whether adding jobs after the scheduler is started works
+        //TODO: [Major issue] need to check whether adding jobs after the scheduler is started works
         scheduler.start();
     }
 
     public void stop(String taskId) {
+//        scheduler.deleteJob(taskId);
 //        scheduler.
     }
 }

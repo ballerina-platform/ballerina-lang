@@ -64,7 +64,7 @@ public class BalScheduleTimer extends AbstractNativeFunction {
         long interval = scheduler.getIntField(1);
 
         try {
-            Timer timer = new Timer(ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+            Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             return getBValues(new BString(timer.getId()), null);
         } catch (SchedulingException e) {
             return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));

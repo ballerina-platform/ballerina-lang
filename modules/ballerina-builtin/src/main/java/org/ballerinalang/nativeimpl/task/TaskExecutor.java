@@ -19,7 +19,9 @@
 package org.ballerinalang.nativeimpl.task;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -31,7 +33,7 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class TaskExecutor {
 
-    public static void execute(Context parentCtx, FunctionRefCPEntry onTriggerFunction,
+    public static void execute(AbstractNativeFunction fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
                                FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
         try {
             //Invoke the onTrigger function.
@@ -46,7 +48,8 @@ public class TaskExecutor {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), newContext);
+                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(),
+                        fn.getBValues(BLangVMErrors.createError(parentCtx, 0, e.getMessage())), newContext);
             }
             parentCtx.endTrackWorker();
         }
