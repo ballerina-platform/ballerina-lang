@@ -69,8 +69,8 @@ public class WriteTextRecord extends AbstractNativeFunction {
                     .TXT_RECORD_CHANNEL_NAME);
             textRecordChannel.write(content);
         } catch (Throwable e) {
-            String message = "Error occurred while writing text record .";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while writing text record:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return VOID_RETURN;
     }

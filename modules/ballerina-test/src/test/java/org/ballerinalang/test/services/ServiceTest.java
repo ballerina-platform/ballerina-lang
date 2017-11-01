@@ -80,6 +80,7 @@ public class ServiceTest {
     @Test
     public void testSetString() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        cMsg.waitAndReleaseAllEntities();
         cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         cMsg.setEndOfMsgAdded(true);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -124,6 +125,7 @@ public class ServiceTest {
     public void testGetStringAfterSetString() {
         HTTPCarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         String stringPayload = "hello";
+        setStringCMsg.waitAndReleaseAllEntities();
         setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
         setStringCMsg.setEndOfMsgAdded(true);
         Services.invokeNew(setStringCMsg);

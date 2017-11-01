@@ -50,7 +50,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class ToCharacterChannel extends AbstractNativeFunction {
     /**
-     * Specifies the index of the character channel  in ballerina.io#toCharacterChannel.
+     * Specifies the index of the character channel in ballerina.io#toCharacterChannel.
      */
     private static final int CHAR_CHANNEL_INDEX = 0;
 
@@ -109,8 +109,8 @@ public class ToCharacterChannel extends AbstractNativeFunction {
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(characterChannel);
         } catch (Throwable e) {
-            String message = "Error occurred while converting byte channel to character channel. ";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return bValues;
     }

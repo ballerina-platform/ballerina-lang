@@ -19,71 +19,50 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#writeCharacters.
+ * Native function ballerina.io#closeCharacterChannel.
  *
- * @since 0.94
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "writeCharacters",
+        functionName = "closeCharacterChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "content", type = TypeKind.STRING),
-                @Argument(name = "startOffset", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class WriteCharacters extends AbstractNativeFunction {
-    /**
-     * Index of the content provided in ballerina.io#writeCharacters
-     */
-    private static final int CONTENT_INDEX = 0;
+public class CloseCharacterChannel extends AbstractNativeFunction {
 
     /**
-     * Index of the character channel in ballerina.io#writeCharacters
+     * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
      */
-    private static final int CHAR_CHANNEL_INDEX = 0;
+    private static final int CHARACTER_CHANNEL_INDEX = 0;
 
     /**
-     * Index of the start offset in ballerina.io#writeCharacters
-     */
-    private static final int START_OFFSET_INDEX = 0;
-
-    /**
-     * Writes characters to a given file.
+     * <p>
+     * Closes a character channel.
+     * </p>
      *
      * {@inheritDoc}
      */
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
-        String content;
-        long startOffset;
-        int numberOfCharactersWritten;
         try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            content = getStringArgument(context, CONTENT_INDEX);
-            startOffset = getIntArgument(context, START_OFFSET_INDEX);
-
-            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-
-            numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
+            channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
+            CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
+            charChannel.close();
         } catch (Throwable e) {
-            String message = "Error occurred while writing characters:" + e.getMessage();
+            String message = "Failed to close the character channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(new BInteger(numberOfCharactersWritten));
+        return VOID_RETURN;
     }
 }
