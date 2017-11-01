@@ -86,12 +86,12 @@ public class TransformerRefCPEntry implements ConstantPoolEntry {
 
     @Override
     public String toString() {
-        return "FunctionRefCPEntry{" +
+        return "TransformerRefCPEntry{" +
                 "packageCPIndex=" + packageCPIndex +
                 ", packagePath='" + packagePath + '\'' +
                 ", nameCPIndex=" + nameCPIndex +
-                ", functionName='" + transformerName + '\'' +
-                ", functionInfo=" + transformerInfo +
+                ", transformerName='" + transformerName + '\'' +
+                ", transformerInfo=" + transformerInfo +
                 '}';
     }
 }

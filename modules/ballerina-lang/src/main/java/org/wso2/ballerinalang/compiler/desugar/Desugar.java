@@ -1032,7 +1032,7 @@ public class Desugar extends BLangNodeVisitor {
                 // TODO: add this once the datatable initializing is supported.
                 return;
             default:
-                break;
+                return;
         }
         initExpr.pos = var.pos;
 

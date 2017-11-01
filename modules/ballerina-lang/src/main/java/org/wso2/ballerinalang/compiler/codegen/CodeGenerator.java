@@ -1099,11 +1099,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
         int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
 
-        if (Symbols.isNative(transformerSymbol)) {
-            emit(InstructionCodes.NCALL, transformerRefCPIndex, transformerCallCPIndex);
-        } else {
-            emit(InstructionCodes.CALL, transformerRefCPIndex, transformerCallCPIndex);
-        }
+        emit(InstructionCodes.CALL, transformerRefCPIndex, transformerCallCPIndex);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {

@@ -39,7 +39,7 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
-    
+
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
