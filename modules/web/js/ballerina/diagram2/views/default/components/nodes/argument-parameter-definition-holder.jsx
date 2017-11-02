@@ -47,7 +47,7 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * */
     addArgumentParameter(input) {
         if (input !== '') {
-            input = input.replace(';', '');
+            input = input.replace(/;$/, '');
             const fragment = FragmentUtils.createArgumentParameterFragment(input);
             const parsedJson = FragmentUtils.parseFragment(fragment);
 
