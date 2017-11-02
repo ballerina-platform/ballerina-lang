@@ -16,6 +16,51 @@
  * under the License.
  */
 
+@mixin dropdown() {
+    position: relative;
+    .dropdown { 
+        .dropdown-toggle{
+            background-color: #333;
+            color: #f1f1f1;
+            text-shadow: none;
+            box-shadow: none;
+            border: 0px solid #333;
+            width: 200px;
+            margin: 1px 10px;
+            text-align: left;
+            border-bottom: 1px solid #3b3b3b;
+            z-index: auto;
+        }
+        .dropdown-menu {
+            background: #565656;
+            margin:-5px 10px;
+            padding: 9px 0;
+            height: 34px;
+            width: 200px;
+            border: 0;
+            > li > a {
+                display: block;
+                padding: -6px 20px;
+                clear: both;
+                font-weight: normal;
+                line-height: 25px;
+                white-space: nowrap;
+                height: 33px;
+                margin-top: -9px;
+                background: #585858;
+                color: #f1f1f1;
+            }
+        }
+    }
+    .fw-down {
+        position: absolute;
+        right: 18px;
+        top: 10px;
+        color: #2b7b5e;
+        cursor: pointer;
+    }
+}
+
 .http-client-wrapper {
     height: 100%;
     border-top: 1px solid #575757;
@@ -92,6 +137,14 @@
             border: .5px solid rgb(51, 51, 51);
             height: 30px;
             background-color: #333333;
+        }
+        .dropdown-wrapper {
+            @include dropdown();
+            width: 220px;
+            .dropdown .dropdown-toggle {
+                background-color: #3c3c3c;
+                border-bottom: 1px solid #363636;
+            }
         }
     }
 }
@@ -268,40 +321,8 @@ hr{
         }
         .selectors {
             float: left;
-            .dropdown-toggle{
-                background-color: #3c3c3c;
-                color: #f1f1f1;
-                text-shadow: none;
-                box-shadow: none;
-                border: 1px solid #575757;
-                width: 200px;
-                margin: 1px 10px;
-                text-align: left;
-                .caret {
-                    position: absolute;
-                    top: 14px;
-                    right: 10px;
-                }
-            }
-            .dropdown-menu {
-                background: #565656;
-                margin:-5px 10px;
-                padding: 9px 0;
-                height: 34px;
-                width: 200px;
-                border: 0;
-                > li > a {
-                    display: block;
-                    padding: -6px 20px;
-                    clear: both;
-                    font-weight: normal;
-                    line-height: 25px;
-                    white-space: nowrap;
-                    height: 33px;
-                    margin-top: -9px;
-                    background: #585858;
-                    color: #f1f1f1;
-                }
+            .dropdown-wrapper {
+                @include dropdown();
             }
         }
         .react-autosuggest__container {
@@ -386,7 +407,7 @@ hr{
                 color: #ddd;
                 .copy-url-notification {
                     position: absolute;
-                    width: 77px;
+                    width: 79px;
                     bottom: 36px;
                     left: -22px;
                     background: #3b3b3b;

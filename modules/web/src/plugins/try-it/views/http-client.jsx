@@ -394,7 +394,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     getHttpMethods() {
-        return ['PUT', 'DELETE', 'OPTIONS', 'HEAD', 'POST', 'GET'];
+        return ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
     }
 
     /**
@@ -536,14 +536,23 @@ class HttpClient extends React.Component {
         }
 
         return (
-            <DropdownButton
-                title={dropdownTitle}
-                key='try-it-service-dropdown'
-                onSelect={this.onServiceSelected}
-                eventKey={this.state.selectedService}
-            >
-                {serviceItems}
-            </DropdownButton>
+            <div className='dropdown-wrapper'>
+                <DropdownButton
+                    title={dropdownTitle}
+                    key='try-it-service-dropdown'
+                    onSelect={this.onServiceSelected}
+                    eventKey={this.state.selectedService}
+                    noCaret
+                >
+                    {serviceItems}
+                </DropdownButton>
+                <i
+                    className="fw fw-down"
+                    onClick={(e) => {
+                        e.currentTarget.previousElementSibling.children[0].click();
+                    }}
+                />
+            </div>
         );
     }
 
@@ -570,13 +579,22 @@ class HttpClient extends React.Component {
             dropdownTitle = this.state.selectedResource.getName().getValue();
         }
 
-        return (<DropdownButton
-            title={dropdownTitle}
-            key='try-it-resource-dropdown'
-            onSelect={this.onResourceSelected}
-        >
-            {resourceItems}
-        </DropdownButton>);
+        return (<div className='dropdown-wrapper'>
+            <DropdownButton
+                title={dropdownTitle}
+                key='try-it-resource-dropdown'
+                onSelect={this.onResourceSelected}
+                noCaret
+            >
+                {resourceItems}
+            </DropdownButton>
+            <i
+                className="fw fw-down"
+                onClick={(e) => {
+                    e.currentTarget.previousElementSibling.children[0].click();
+                }}
+            />
+        </div>);
     }
 
     /**
@@ -774,13 +792,23 @@ class HttpClient extends React.Component {
                 dropdownTitle = this.state.contentType;
             }
 
-            return (<DropdownButton
-                title={dropdownTitle}
-                key='content-type-dropdown'
-                onSelect={this.onContentTypeSelected}
-            >
-                {consumerTypeItems}
-            </DropdownButton>);
+            return (
+                <div className='dropdown-wrapper'>
+                    <DropdownButton
+                        title={dropdownTitle}
+                        key='content-type-dropdown'
+                        onSelect={this.onContentTypeSelected}
+                        noCaret
+                    >
+                        {consumerTypeItems}
+                    </DropdownButton>
+                    <i
+                        className="fw fw-down"
+                        onClick={(e) => {
+                            e.currentTarget.previousElementSibling.children[0].click();
+                        }}
+                    />
+                </div>);
         } else {
             return (<input
                 className='http-client-content-type form-control'
