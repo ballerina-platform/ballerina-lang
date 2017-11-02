@@ -90,6 +90,21 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         Assert.assertEquals(response.getData(), "default", "Message content mismatched");
     }
 
+    @Test(description = "Test simple passthrough test case with 'forward' For GET with URL. /headQuote/forward11")
+    public void testForwardActionWithGET() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("headQuote/forward11"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "wso2", "Message content mismatched");
+    }
+
+    @Test(description = "Test simple passthrough test case with 'forward' For POST with URL. /headQuote/forward22")
+    public void testForwardActionWithPOST() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("headQuote/forward22")
+                , "test", new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "ballerina", "Message content mismatched");
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
