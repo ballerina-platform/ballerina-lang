@@ -105,8 +105,11 @@ public class PackageLoader {
             pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
             pkgEntity = this.packageRepo.loadPackage(pkgId);
         }
+        
+        if (pkgEntity == null) {
+            throw new IllegalArgumentException("valid package not available at '" + sourcePkg + "'");
+        }
 
-        // TODO Implement the support for loading a source package
         return loadPackage(pkgId, pkgEntity);
     }
 
@@ -140,13 +143,15 @@ public class PackageLoader {
         BLangPackage pkgNode;
         BPackageSymbol pSymbol;
 
-        // TODO Handle pkgEntity 
         if (pkgEntity == null) {
-            throw new RuntimeException("cannot find package '" + pkgId + "'");
+            return null;
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
+            if (pkgNode == null) {
+                return null;
+            }
             pSymbol = symbolEnter.definePackage(pkgNode, pkgId);
             pkgNode.symbol = pSymbol;
         } else {
@@ -160,10 +165,6 @@ public class PackageLoader {
     }
 
     private BLangPackage sourceCompile(PackageSource pkgSource) {
-        if (pkgSource.getEntryNames().isEmpty()) {
-            throw new RuntimeException("cannot find any entry in package '" + pkgSource.getPackageId() + "'");
-        }
-
         BLangPackage pkgNode = this.parser.parse(pkgSource);
         return pkgNode;
     }

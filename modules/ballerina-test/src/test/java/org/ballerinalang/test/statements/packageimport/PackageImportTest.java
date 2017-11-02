@@ -84,4 +84,21 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 2, "missing package declaration: expected 'x.y'", 1, 1);
         BAssertUtil.validateError(result, 3, "invalid package declaration: expected 'x.z', found 'x.y.z'", 1, 1);
     }
+    
+    @Test
+    public void testInvalidImport1() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
+        Assert.assertTrue(result.getDiagnostics().length > 0);
+        BAssertUtil.validateError(result, 0, "cannot resolve package 'abcd'", 1, 1);
+    }
+    
+    @Test
+    public void testInvalidImport2() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
+        Assert.assertTrue(result.getDiagnostics().length > 0);
+        BAssertUtil.validateError(result, 0, "cannot resolve package 'foo.x'", 1, 1);
+    }
+    
 }
