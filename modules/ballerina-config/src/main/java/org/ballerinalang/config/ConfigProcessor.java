@@ -75,11 +75,8 @@ public class ConfigProcessor {
             Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
 
             // TODO: make this variable replacement a pluggable process
-            // Give precedence to environment variables
+            // Give precedence to environment and system variables
             lookUpVariables(fileGlobalConfigs, fileInstanceConfigs);
-
-            // Give precedence to system variables, if not overridden by environment variables
-//            lookUpSystemVariables(fileGlobalConfigs, fileInstanceConfigs);
 
             // Add the remaining global configs to the resolved pool
             resolvedGlobalConfigs.putAll(fileGlobalConfigs);
@@ -150,7 +147,7 @@ public class ConfigProcessor {
         if (fileLocation != null) {
             confFile = new File(fileLocation);
             if (!confFile.exists()) {
-                throw new BallerinaException("failed to parse ballerina.conf file: " + fileLocation);
+                throw new BallerinaException("file not found: " + fileLocation);
             }
         } else {
             confFile = new File(BALLERINA_CONF_DEFAULT_PATH);

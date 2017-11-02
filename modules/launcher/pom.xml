@@ -63,7 +63,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
-            <version>0.94.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
