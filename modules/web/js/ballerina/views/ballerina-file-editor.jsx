@@ -111,9 +111,9 @@ class BallerinaFileEditor extends React.Component {
                         this.setState(state);
                     })
                     .catch(error => log.error(error));
-            } else if(originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+            } else if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                 updateUponSourceChange();
-            } else if(originEvtType === UNDO_EVENT || originEvtType === REDO_EVENT) {
+            } else if (originEvtType === UNDO_EVENT || originEvtType === REDO_EVENT) {
                 updateUponUndoRedo();
             } else {
                 // upon code format
@@ -235,7 +235,7 @@ class BallerinaFileEditor extends React.Component {
             return;
         }
 
-        if (fullPackageName === 'Current Package' || fullPackageName === '' 
+        if (fullPackageName === 'Current Package' || fullPackageName === ''
             || fullPackageName === 'ballerina.builtin') {
             return;
         }
@@ -527,6 +527,8 @@ class BallerinaFileEditor extends React.Component {
         // final state to be passed into resolve
         const newState = {
             parsePending: false,
+            parseFailed: false,
+            isASTInvalid: false,
         };
         // try to parse the file
         return parseFile(file)
@@ -560,11 +562,15 @@ class BallerinaFileEditor extends React.Component {
                         newState.activeView = SOURCE_VIEW;
                     }
                 }
+                if (newState.parseFailed && !_.isEmpty(runtimeFailures)) {
+                    this.context.alert.showError('Unexpected error occurred while parsing.'
+                        + runtimeFailures[0].text);
+                }
                 // if no error found and no model too
                 if ((_.isEmpty(syntaxErrors) && _.isEmpty(runtimeFailures))
-                        && (_.isNil(data.model) || _.isNil(data.model.kind))) {
+                    && (_.isNil(data.model) || _.isNil(data.model.kind))) {
                     this.context.alert.showError('Unexpected error occurred while parsing.');
-                } else {
+                } else if (!newState.parseFailed) {
                     const ast = TreeBuilder.build(data.model);
                     ast.setFile(file);
                     this.markBreakpointsOnAST(ast);
@@ -578,8 +584,6 @@ class BallerinaFileEditor extends React.Component {
                     });
 
                     newState.lastRenderedTimestamp = file.lastUpdated;
-                    newState.parseFailed = false;
-                    newState.isASTInvalid = false;
                     newState.model = ast;
                 }
                 return BallerinaEnvironment.initialize()
