@@ -41,12 +41,6 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
         this.varRefs = new ArrayList<>();
     }
 
-    public BLangAssignment(List<BLangExpression> varRefs, BLangExpression expr, boolean declaredWithVar) {
-        this.varRefs = varRefs;
-        this.expr = expr;
-        this.declaredWithVar = declaredWithVar;
-    }
-
     public BLangAssignment(DiagnosticPos pos, List<BLangExpression> varRefs,
                            BLangExpression expr, boolean declaredWithVar) {
         this.pos = pos;

@@ -2598,9 +2598,12 @@ public class BLangVM {
         StackFrame callerSF = controlStack.currentFrame;
 
         if (callerSF.refRegs[argRegs[0]] == null) {
-            throw new BallerinaException("action invocation on empty endpoint");
+            context.setError(BLangVMErrors.createError(this.context, ip, "action invocation on empty endpoint"));
+            handleError();
+            return;
         }
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
+        //TODO find a way to change this to method table
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
 

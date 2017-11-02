@@ -32,3 +32,20 @@ function incompatibleConnectorAssignment() {
         create Foo();
     }
 }
+
+function undefinedConnectorInEndpoint() {
+    endpoint<TestConnector> endp {
+
+    }
+}
+
+function invalidEndpointAssignment() {
+    endpoint<Foo> en {
+
+    }
+    Foo foo = create Foo();
+    en = foo;
+    string ll = "dd";
+    en = ll;
+    en = create Foo();
+}

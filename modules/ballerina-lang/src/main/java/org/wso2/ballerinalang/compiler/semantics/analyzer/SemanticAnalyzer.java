@@ -552,6 +552,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
             checkConstantAssignment(varRef);
+            checkEndpointAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
@@ -590,6 +591,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
             dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+        }
+    }
+
+    private void checkEndpointAssignment(BLangExpression varRef) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+
+        if (varRef.type.tag == TypeTags.ENDPOINT) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_ENDPOINT, varRef);
         }
     }
 

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.Type;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
@@ -39,6 +40,12 @@ public class BEndpointType extends BType implements ConstrainedType {
         return this.constraint;
     }
 
+    @Override
+    public String toString() {
+        return constraint.toString();
+    }
+
+    @Override
     public String getDesc() {
         return TypeDescriptor.SIG_CONNECTOR + constraint.tsymbol.pkgID.name + ":" + constraint.tsymbol.name + ";";
     }

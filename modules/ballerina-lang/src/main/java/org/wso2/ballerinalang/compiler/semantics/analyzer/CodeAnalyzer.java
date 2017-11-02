@@ -475,7 +475,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBind bindNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(bindNode);
     }
 
     public void visit(BLangBreak breakNode) {

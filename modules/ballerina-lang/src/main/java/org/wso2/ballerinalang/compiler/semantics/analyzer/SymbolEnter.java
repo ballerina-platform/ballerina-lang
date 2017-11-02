@@ -198,7 +198,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
 
-        // Define connector action nodes.
+        // Define connector action nodes and params
         defineConnectorMembers(pkgNode.connectors, pkgEnv);
 
         // Define function nodes.
@@ -341,8 +341,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
-        defineConnectorSymbolParams(connectorNode, conSymbol, connectorEnv);
+
         defineBinaryOperator(OperatorKind.EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
                 InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
@@ -582,6 +581,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineConnectorMembers(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
+            defineConnectorSymbolParams(connector, connector.symbol, conEnv);
+
             connector.varDefs.forEach(varDef -> defineNode(varDef.var, conEnv));
             defineConnectorInitFunction(connector, conEnv);
             connector.actions.stream()
