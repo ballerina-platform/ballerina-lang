@@ -91,17 +91,18 @@ public class WorkspaceUtils {
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file
      * saved in the file-system.
      *
-     * @param filePath - Path to Ballerina file.
-     * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
+     *
+     * @param programDir - Path of the program directory
+     * @param compilationUnitName - compilationUnitName name.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFile(String filePath, String fileName) {
+    public static BallerinaFile getBallerinaFile(String programDir, String compilationUnitName) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, filePath);
+        options.put(SOURCE_ROOT, programDir);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        return getBallerinaFile(fileName, context);
+        return getBallerinaFile(compilationUnitName, context);
     }
 
     /**
@@ -160,7 +161,7 @@ public class WorkspaceUtils {
             compiler.compile(fileName);
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
-            catastrophic.msg = "Failed in the runtime parse/analyze";
+            catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
             diagnostics.add(catastrophic);
         }
         ballerinaFile.setBLangPackage((BLangPackage) compiler.getAST());
