@@ -297,6 +297,10 @@ public class Types {
             return false;
         }
 
+        if (isSameType(actualType, expType)) {
+            return true;
+        }
+
         BConnectorType expConnectorType = (BConnectorType) expType;
         BConnectorType actualConnectorType = (BConnectorType) actualType;
 
@@ -314,12 +318,19 @@ public class Types {
 
         //check every action signatures are matching or not
         for (BInvokableSymbol expAction : expActions) {
-            if (actActions.stream().filter(v -> checkFunctionTypeEquality((BInvokableType) expAction.type,
-                    (BInvokableType) v.type)).collect(Collectors.toList()).size() != 1) {
+            if (actActions.stream().filter(v -> checkActionTypeEquality(expAction, v))
+                    .collect(Collectors.toList()).size() != 1) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
+        if (!source.name.equals(target.name)) {
+            return false;
+        }
+        return checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
