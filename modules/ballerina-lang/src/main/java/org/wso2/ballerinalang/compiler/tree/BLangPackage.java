@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -55,7 +56,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction;
     public Set<CompilerPhase> completedPhases;
-
+    public List<BLangTransformer> transformers;
+    
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
 
@@ -69,6 +71,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        this.transformers = new ArrayList<>();
 
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
@@ -123,6 +126,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
     }
+    
+    @Override
+    public List<? extends TransformerNode> getTransformers() {
+        return transformers;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -174,6 +182,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addAnnotation(AnnotationNode annotation) {
         this.annotations.add((BLangAnnotation) annotation);
         this.topLevelNodes.add(annotation);
+    }
+
+    @Override
+    public void addTransformer(TransformerNode transformer) {
+        this.transformers.add((BLangTransformer) transformer);
+        this.topLevelNodes.add(transformer);
     }
 
     @Override
