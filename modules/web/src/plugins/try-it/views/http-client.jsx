@@ -394,7 +394,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     getHttpMethods() {
-        return ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
+        return ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
     }
 
     /**
@@ -524,7 +524,12 @@ class HttpClient extends React.Component {
             return serviceNode.getProtocolPackageIdentifier().getValue() === 'http';
         });
         const serviceItems = serviceNodes.map((serviceNode) => {
-            return (<MenuItem eventKey={serviceNode}>{serviceNode.getName().getValue()}</MenuItem>);
+            return (<MenuItem
+                key={serviceNode.getID()}
+                eventKey={serviceNode}
+            >
+                {serviceNode.getName().getValue()}
+            </MenuItem>);
         });
 
         // Compiling selected value
@@ -538,10 +543,10 @@ class HttpClient extends React.Component {
         return (
             <div className='dropdown-wrapper'>
                 <DropdownButton
+                    id='services-dropdown'
                     title={dropdownTitle}
                     key='try-it-service-dropdown'
                     onSelect={this.onServiceSelected}
-                    eventKey={this.state.selectedService}
                     noCaret
                 >
                     {serviceItems}
@@ -565,7 +570,7 @@ class HttpClient extends React.Component {
         let resourceItems = [];
         if (this.state.selectedService) {
             resourceItems = this.state.selectedService.getResources().map((resourceNode) => {
-                return (<MenuItem eventKey={resourceNode}>
+                return (<MenuItem key={resourceNode.getID()} eventKey={resourceNode}>
                     {resourceNode.getName().getValue()}
                 </MenuItem>);
             });
@@ -581,6 +586,7 @@ class HttpClient extends React.Component {
 
         return (<div className='dropdown-wrapper'>
             <DropdownButton
+                id='resource-dropdown'
                 title={dropdownTitle}
                 key='try-it-resource-dropdown'
                 onSelect={this.onResourceSelected}
@@ -779,7 +785,7 @@ class HttpClient extends React.Component {
         if (this.state.selectedResource && this.state.selectedResource.getConsumeTypes().length > 0) {
             const consumeTypes = this.state.selectedResource.getConsumeTypes();
             const consumerTypeItems = consumeTypes.map((contentType) => {
-                return (<MenuItem eventKey={contentType}>
+                return (<MenuItem key={contentType} eventKey={contentType}>
                     {contentType}
                 </MenuItem>);
             });
@@ -795,6 +801,7 @@ class HttpClient extends React.Component {
             return (
                 <div className='dropdown-wrapper'>
                     <DropdownButton
+                        id='content-types-dropdown'
                         title={dropdownTitle}
                         key='content-type-dropdown'
                         onSelect={this.onContentTypeSelected}
@@ -939,7 +946,7 @@ class HttpClient extends React.Component {
                                     }}
                                     maxLines={Infinity}
                                     minLines={10}
-                                    readOnly='true'
+                                    readOnly
                                     width='auto'
                                     showPrintMargin={false}
                                 />
