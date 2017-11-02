@@ -46,7 +46,6 @@ public class Services {
             Object srcHandler = carbonMessage.getProperty(Constants.SRC_HANDLER);
             properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
         }
-        properties.put(Constants.HTTP_METHOD, carbonMessage.getProperty(Constants.HTTP_METHOD));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, carbonMessage);
         ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
         TestHttpFutureListener futureListener = new TestHttpFutureListener(carbonMessage);
@@ -70,7 +69,6 @@ public class Services {
             Object srcHandler = request.getProperty(Constants.SRC_HANDLER);
             properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
         }
-        properties.put(Constants.HTTP_METHOD, request.getProperty(Constants.HTTP_METHOD));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
 

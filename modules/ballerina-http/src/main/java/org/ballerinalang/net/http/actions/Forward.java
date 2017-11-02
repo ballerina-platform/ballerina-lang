@@ -79,12 +79,12 @@ public class Forward extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-
-        String httpVerb = (String) context.getProperty(Constants.HTTP_METHOD);
-        if (httpVerb == null || "".equals(httpVerb)) {
-            throw new BallerinaException("http method of incoming request is not available");
+        if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
+            throw new BallerinaException("given parameter is not a valid inbound request");
         }
         HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        String httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+
         prepareRequest(bConnector, path, cMsg);
         cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         return cMsg;

@@ -134,6 +134,7 @@ public class Constants {
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
