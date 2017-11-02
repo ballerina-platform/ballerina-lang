@@ -526,7 +526,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     // Resolve symbol for User Defined Type ( converted from BLangSimpleVarRef )
                     BLangTypeofExpr typeAccessExpr = getTypeAccessExpression(varRef);
                     unaryExpr.expr = typeAccessExpr;
-                    exprType = typeAccessExpr.resolvedType;
+                    actualType = typeAccessExpr.type;
+                    resultTypes = types.checkTypes(unaryExpr, Lists.of(actualType), expTypes);
+                    return;
                 } else {
                     // Check type if resolved as BLangSimpleVarRef
                     exprType = checkExpr(unaryExpr.expr, env).get(0);
