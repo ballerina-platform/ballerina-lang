@@ -52,7 +52,7 @@ class ExpressionEditor {
         let expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
             (_.isNil(props.model.getSource()) ? '' : props.model.getSource(true).replace(/(?:\r\n|\r|\n)/g, ' '));
 
-        expression = expression.substr(expression.length - 1) === ';'
+        expression = expression.endsWith(';')
             ? expression.substr(0, expression.length - 1)
             : expression;
 

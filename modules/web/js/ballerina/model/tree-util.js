@@ -408,7 +408,7 @@ class TreeUtil extends AbstractTreeUtil {
             // Get the parent node.
             const expressionParentNode = node.parent;
 
-            source = source.substr(source.length - 1) === ';'
+            source = source.endsWith(';')
                 ? source.substr(0, source.length - 1)
                 : source;
 
