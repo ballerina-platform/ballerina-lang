@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -1191,6 +1192,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         ifCondJumpInstr.setOperand(1, this.nextIP());
         this.genNode(ternaryExpr.elseExpr, this.env);
         endJumpInstr.setOperand(0, this.nextIP());
+    }
+
+    public void visit(BLangTypeofExpr accessExpr) {
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, accessExpr.resolvedType.getDesc());
+        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+        int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+        int opcode;
+        int exprIndex;
+
+        exprIndex = ++regIndexes.tRef;
+        opcode = InstructionCodes.TYPELOAD;
+        emit(opcode, typeCPIndex, exprIndex);
+        accessExpr.regIndex = exprIndex;
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
