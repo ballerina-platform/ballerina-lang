@@ -1405,6 +1405,7 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
+                case InstructionCodes.TCALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

@@ -276,15 +276,14 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTransformer transformerNode) {
         addTransformerReturn(transformerNode);
         transformerNode.body = rewrite(transformerNode.body);
-        transformerNode.workers = rewrite(transformerNode.workers);
 
         addArgInitExpr(transformerNode, transformerNode.retParams.get(0));
 
         BInvokableSymbol transformerSymbol = transformerNode.symbol;
         List<BVarSymbol> params = transformerSymbol.params;
         params.add(0, transformerNode.source.symbol);
-        BInvokableType transfotrmerType = (BInvokableType) transformerSymbol.type;
-        transfotrmerType.paramTypes.add(0, transformerNode.source.type);
+        BInvokableType transformerType = (BInvokableType) transformerSymbol.type;
+        transformerType.paramTypes.add(0, transformerNode.source.type);
 
         result = transformerNode;
     }

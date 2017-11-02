@@ -79,6 +79,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -87,7 +88,6 @@ import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
-import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry.EntryType;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -480,19 +480,12 @@ public class BLangVM {
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
-                    
-                    ConstantPoolEntry cpEntry = constPool[cpIndex];
-                    CallableUnitInfo callableUnitInfo;
-                    if (cpEntry.getEntryType() == EntryType.CP_ENTRY_FUNCTION_REF) {
-                        funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
-                        callableUnitInfo = funcRefCPEntry.getFunctionInfo();
-                    } else {
-                        callableUnitInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
-                    }
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(callableUnitInfo, funcCallCPEntry);
+                    invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];
@@ -601,6 +594,14 @@ public class BLangVM {
                     j = operands[1];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
                     sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
+                    break;
+                case InstructionCodes.TCALL:
+                    cpIndex = operands[0];
+                    TransformerInfo transformerInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeCallableUnit(transformerInfo, funcCallCPEntry);
                     break;
 
                 case InstructionCodes.I2ANY:

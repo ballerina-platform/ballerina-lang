@@ -492,14 +492,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransformer transformerNode) {
-        SymbolEnv funcEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, this.env);
+        SymbolEnv transformerEnv =
+                SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, this.env);
         currentCallableUnitInfo = currentPkgInfo.transformerInfoMap.get(transformerNode.symbol.name.value);
         int annotationAttribNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
         transformerNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
-        visitInvokableNode(transformerNode, currentCallableUnitInfo, funcEnv);
+        visitInvokableNode(transformerNode, currentCallableUnitInfo, transformerEnv);
     }
 
     // Statements
@@ -1099,7 +1100,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
         int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
 
-        emit(InstructionCodes.CALL, transformerRefCPIndex, transformerCallCPIndex);
+        emit(InstructionCodes.TCALL, transformerRefCPIndex, transformerCallCPIndex);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
