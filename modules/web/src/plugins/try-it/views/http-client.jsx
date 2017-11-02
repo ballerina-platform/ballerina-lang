@@ -318,7 +318,10 @@ class HttpClient extends React.Component {
         this.setState({
             waitingForResponse: true,
         });
-        invokeTryIt(this.state, 'http')
+        const stateClone = _.cloneDeep(this.state);
+        delete stateClone.selectedService;
+        delete stateClone.selectedResource;
+        invokeTryIt(stateClone, 'http')
             .then((response) => {
                 if (this.state.waitingForResponse === true) {
                     this.setState({
