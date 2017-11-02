@@ -145,6 +145,7 @@
             <outputDirectory>bre/lib</outputDirectory>
             <scope>runtime</scope>
             <includes>
+                <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
