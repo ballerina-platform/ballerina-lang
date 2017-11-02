@@ -460,7 +460,8 @@ class SizingUtil {
         }
 
         if (viewState.globalsExpanded) {
-            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
+            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
+                .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
 
             height += topGutter + topBarHeight + importInputHeight +
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);

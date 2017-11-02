@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Overlay, Popover } from 'react-bootstrap/lib';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './semantic-error-popup.css';
@@ -41,6 +42,7 @@ class SemanticErrorPopup extends React.Component {
         this.errorListPopoverTarget = undefined;
         this.toggleMouseOut = this.toggleMouseOut.bind(this);
         this.toggleMouseOver = this.toggleMouseOver.bind(this);
+        this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
     }
 
     /**
@@ -59,6 +61,14 @@ class SemanticErrorPopup extends React.Component {
         this.setState({
             displayErrorList: false,
         });
+    }
+
+    /**
+     * Navigates to code line in the source view from the design view node
+     */
+    onJumpToCodeLine() {
+        const { editor } = this.context;
+        editor.goToSource(this.props.model.props.model);
     }
 
     /**
@@ -103,7 +113,8 @@ class SemanticErrorPopup extends React.Component {
                                 return (
                                     <li
                                         key={error.row + error.column + btoa(error.text) + index}
-                                        className="list-group-item semantic-error"
+                                        className="list-group-item"
+                                        onClick={() => this.onJumpToCodeLine()}
                                     >
                                         <div>
                                             <span className="line">line {error.row + ' '}</span>
@@ -157,5 +168,7 @@ class SemanticErrorPopup extends React.Component {
         );
     }
 }
-
+SemanticErrorPopup.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
+};
 export default SemanticErrorPopup;

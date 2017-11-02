@@ -89,9 +89,7 @@ class TransformNodeMapper {
         const funcNode = target.funcInv;
         const index = target.index;
 
-        if (compatibility.safe) {
-            funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
-        } else {
+        if (!compatibility.safe) {
             sourceExpression = this.getCompatibleSourceExpression(sourceExpression, compatibility.type, target.type);
             let tempVarName = this.getAssignedTempVarName(sourceExpression);
             if (!tempVarName) {
@@ -101,8 +99,14 @@ class TransformNodeMapper {
                 tempVarName = this.assignExpressionToTempVariable(sourceExpression, stmtIndex, false);
             }
             sourceExpression = TransformFactory.createVariableRefExpression(tempVarName);
+        }
+
+        if (target.endpointKind === 'receiver') {
+            funcNode.setExpression(sourceExpression, true);
+        } else {
             funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
         }
+
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
@@ -430,7 +434,11 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(stmt, true);
 
-        target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
+        if (target.endpointKind === 'receiver') {
+            target.funcInv.setExpression(source.funcInv);
+        } else {
+            target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
+        }
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -670,13 +678,31 @@ class TransformNodeMapper {
     removeInputToFunctionMapping(source, target) {
         const functionInv = target.funcInv;
 
-        const argExp = functionInv.getArgumentExpressions()[target.index];
+        let argExp;
+
+        if (target.endpointKind === 'receiver') {
+            argExp = functionInv.getExpression();
+        } else {
+            argExp = functionInv.getArgumentExpressions()[target.index];
+        }
+
         const stmt = this.getParentStatement(functionInv);
 
         this.removeTempVariable(argExp, stmt);
 
-        functionInv.replaceArgumentExpressionsByIndex(target.index,
-            TransformFactory.createDefaultExpression(target.type), true);
+        if (target.endpointKind === 'receiver') {
+            const parentStatement = this.getParentStatement(functionInv);
+            const tempReceiverName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR);
+            const valueNode = TransformFactory.createDefaultExpression(target.type);
+            const varDef = TransformFactory.createVariableDef(tempReceiverName, target.type, valueNode.getValue());
+            const varRef = TransformFactory.createVariableRefExpression(tempReceiverName, target.type);
+            const newAssignIndex = this._transformStmt.body.getIndexOfStatements(parentStatement);
+            this._transformStmt.body.addStatements(varDef, newAssignIndex, true);
+            functionInv.setExpression(varRef);
+        } else {
+            functionInv.replaceArgumentExpressionsByIndex(target.index,
+                TransformFactory.createDefaultExpression(target.type), true);
+        }
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -741,8 +767,19 @@ class TransformNodeMapper {
         const assignmentStmt = this.getParentStatement(target.funcInv);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
-        target.funcInv.replaceArgumentExpressions(source.funcInv,
-            TransformFactory.createDefaultExpression(target.type), true);
+        if (target.endpointKind === 'receiver') {
+            const parentStatement = this.getParentStatement(target.funcInv);
+            const tempReceiverName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.VAR);
+            const valueNode = TransformFactory.createDefaultExpression(target.type);
+            const varDef = TransformFactory.createVariableDef(tempReceiverName, target.type, valueNode.getValue());
+            const varRef = TransformFactory.createVariableRefExpression(tempReceiverName, target.type);
+            const newAssignIndex = this._transformStmt.body.getIndexOfStatements(parentStatement);
+            this._transformStmt.body.addStatements(varDef, newAssignIndex, true);
+            target.funcInv.setExpression(varRef);
+        } else {
+            target.funcInv.replaceArgumentExpressions(source.funcInv,
+                TransformFactory.createDefaultExpression(target.type), true);
+        }
 
         const newAssignmentStmt = this.createNewAssignment(source.funcInv);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);

@@ -91,8 +91,12 @@ class ServiceNode extends React.Component {
         }
         const fragment = FragmentUtils.createStatementFragment(`${value};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        const index = this.props.model.getVariables().length - 1;
-        this.props.model.addVariables(TreeBuilder.build(parsedJson), index + 1);
+        if (!parsedJson.error) {
+            const index = this.props.model.getVariables().length - 1;
+            this.props.model.addVariables(TreeBuilder.build(parsedJson), index + 1);
+        } else {
+            this.context.alert.showError('Invalid content provided !');
+        }
     }
 
     /**
@@ -233,6 +237,7 @@ ServiceNode.propTypes = {
 ServiceNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
+    alert: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ServiceNode;

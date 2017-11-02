@@ -43,7 +43,8 @@ class TopLevelNodes extends React.Component {
      * @return {string} the text displayed in the expanded view for the given node
      */
     static getDisplayValue(globalDef) {
-        if (globalDef.parent.filterTopLevelNodes({ kind: 'Variable' }).includes(globalDef)) {
+        if (globalDef.parent.filterTopLevelNodes({ kind: 'Variable' })
+                .concat(globalDef.parent.filterTopLevelNodes({ kind: 'Xmlns' })).includes(globalDef)) {
             return globalDef.getSource();
         }
         return 'invalid value';
@@ -270,7 +271,8 @@ class TopLevelNodes extends React.Component {
         const expandedGlobalsBbox = this.props.model.viewState.components.globalsExpandedBbox;
         const astRoot = this.props.model;
         const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
-        const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
+        const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
+            .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
 
         const packageSuggestions = this.context.environment.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
@@ -374,7 +376,7 @@ class TopLevelNodes extends React.Component {
                             model={this.props.model}
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
-                            addText={'+ Add Global'}
+                            addText={'+ Add Global (i.e. const int i = 0)'}
                             onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}

@@ -49,8 +49,12 @@ class ExpressionEditor {
         this.ballerinaFileEditor = ballerinaFileEditor;
 
         // Get the expression for the statement or expression.
-        const expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
+        let expression = props.getterMethod instanceof Function ? props.getterMethod.call() :
             (_.isNil(props.model.getSource()) ? '' : props.model.getSource(true).replace(/(?:\r\n|\r|\n)/g, ' '));
+
+        expression = expression.endsWith(';')
+            ? expression.substr(0, expression.length - 1)
+            : expression;
 
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;
@@ -150,7 +154,7 @@ class ExpressionEditor {
 
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey('Enter|Shift-Enter', (e) => {
-            const text = this._editor.getSession().getValue();
+            const text = this._editor.getSession().getValue() + ';';
 
             // If setter method is available use it, else use setSource.
             if (props.setterMethod instanceof Function) {
@@ -169,7 +173,7 @@ class ExpressionEditor {
 
         // When the user is typing text we will resize the editor.
         this._editor.on('change', (event) => {
-            const text = this._editor.getSession().getValue();
+            const text = this._editor.getSession().getValue() + ';';
             $(this.expressionEditor).css('width', this.getNecessaryWidth(text));
             this._editor.resize();
         });
@@ -177,7 +181,7 @@ class ExpressionEditor {
         this._editor.on('blur', (event) => {
             try {
                 if (!didSemicolon && !didEnter) {
-                    const text = this._editor.getSession().getValue();
+                    const text = this._editor.getSession().getValue() + ';';
 
                     // If setter method is available use it, else use setSource.
                     if (props.setterMethod instanceof Function) {
@@ -201,16 +205,16 @@ class ExpressionEditor {
         });
 
         // following snipet is to handle adding ";" at the end of statement.
-        this.end_check = /^([^"]|"[^"]*")*?(;)/;
+        this.end_check = /^([^{|"]|[{|"][^[}|"]*[}|"])*?(;)/;
         this._editor.commands.addCommand({
             name: 'semicolon',
             exec: (e) => {
                 // get the value and append ';' to get the end result of the key action
                 const curser = this._editor.selection.getCursor().column;
-                const text = this._editor.getSession().getValue();
+                let text = this._editor.getSession().getValue();
                 const textWithSemicolon = [text.slice(0, curser), ';', text.slice(curser)].join('');
                 if (this.end_check.exec(textWithSemicolon)) {
-
+                    text = text + ';';
                     // If setter method is available use it, else use setSource.
                     if (props.setterMethod instanceof Function) {
                         props.setterMethod.call(props.model, text);

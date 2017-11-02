@@ -55,6 +55,7 @@ class PanelDecorator extends React.Component {
         this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
         this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
         this.togglePublicPrivateFlag = this.togglePublicPrivateFlag.bind(this);
+        this.toggleAnnotations = this.toggleAnnotations.bind(this);
     }
 
     handleProtocolClick() {
@@ -91,6 +92,11 @@ class PanelDecorator extends React.Component {
                 node: this.props.model,
             },
         });
+    }
+
+    toggleAnnotations() {
+        this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
+        this.context.editor.update();
     }
 
     onTitleClick() {
@@ -169,13 +175,30 @@ class PanelDecorator extends React.Component {
 
         staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
 
+        // Creating show annotation button.
+        const annotationButtonProps = {
+            bBox: {
+                x: x - (width * 3),
+                y,
+                height,
+                width,
+            },
+            icon: ImageUtil.getSVGIconString(this.props.model.viewState.showAnnotationContainer ?
+                'annotation-clicked' : 'annotation'),
+            tooltip: this.props.model.viewState.showAnnotationContainer ? 'Hide Annotations' : 'Show Annotation',
+            onClick: () => this.toggleAnnotations(),
+            key: `${this.props.model.getID()}-show-annotation-button`,
+        };
+
+        staticButtons.push(React.createElement(PanelDecoratorButton, annotationButtonProps, null));
+
         // Render the public/private toggle flag button only if its a function
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
             TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model)) {
             // Toggle button for public/private flag
             const publicPrivateFlagButtonProps = {
                 bBox: {
-                    x: x - (width * 3),
+                    x: x - (width * 4),
                     y,
                     height,
                     width,
@@ -191,7 +214,7 @@ class PanelDecorator extends React.Component {
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
             rightComponent.props.bBox = {
-                x: x - ((index + 3) * width),
+                x: x - ((index + 4) * width),
                 y,
                 width,
                 height,
