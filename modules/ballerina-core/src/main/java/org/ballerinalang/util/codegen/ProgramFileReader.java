@@ -49,6 +49,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
@@ -214,6 +215,29 @@ public class ProgramFileReader {
                 functionRefCPEntry.setFunctionInfo(packageInfo.getFunctionInfo(funcName));
                 return functionRefCPEntry;
 
+            case CP_ENTRY_TRANSFORMER_REF:
+                pkgCPIndex = dataInStream.readInt();
+                packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
+
+                cpIndex = dataInStream.readInt();
+                utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
+                String transformerName = utf8CPEntry.getValue();
+                TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgCPIndex,
+                        packageRefCPEntry.getPackageName(), cpIndex, transformerName);
+
+                // Find the transformerInfo
+                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
+                TransformerInfo transformerInfo = packageInfo.getTransformerInfo(transformerName);
+                if (transformerInfo == null) {
+                    // This must reference to the current package and the current package is not been read yet.
+                    // Therefore we add this to the unresolved CP Entry list.
+                    unresolvedCPEntries.add(transformerRefCPEntry);
+                    return transformerRefCPEntry;
+                }
+
+                transformerRefCPEntry.setTransformerInfo(transformerInfo);
+                return transformerRefCPEntry;
+
             case CP_ENTRY_ACTION_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -356,6 +380,9 @@ public class ProgramFileReader {
 
         // Read function info entries in the package
         readFunctionInfoEntries(dataInStream, packageInfo);
+
+        // Read transformer info entries in the package
+        readTransformerInfoEntries(dataInStream, packageInfo);
 
         // TODO Read annotation info entries
 
@@ -668,6 +695,40 @@ public class ProgramFileReader {
 
         // Read attributes
         readAttributeInfoEntries(dataInStream, packageInfo, functionInfo);
+    }
+
+    private void readTransformerInfoEntries(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
+        int transformerCount = dataInStream.readShort();
+        for (int i = 0; i < transformerCount; i++) {
+            readTransformerInfo(dataInStream, packageInfo);
+        }
+    }
+
+    private void readTransformerInfo(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
+        int transformerNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry transformerNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerNameCPIndex);
+        TransformerInfo transformerInfo = new TransformerInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
+                transformerNameCPIndex, transformerNameUTF8Entry.getValue());
+        transformerInfo.setPackageInfo(packageInfo);
+        packageInfo.addTransformerInfo(transformerNameUTF8Entry.getValue(), transformerInfo);
+
+        int transformerSigCPIndex = dataInStream.readInt();
+        UTF8CPEntry transformerSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerSigCPIndex);
+        setCallableUnitSignature(transformerInfo, transformerSigUTF8Entry.getValue(), packageInfo);
+
+        boolean nativeFunc = dataInStream.readByte() == 1;
+        transformerInfo.setNative(nativeFunc);
+
+        int workerDataChannelsLength = dataInStream.readShort();
+        for (int i = 0; i < workerDataChannelsLength; i++) {
+            readWorkerDataChannelEntries(dataInStream, packageInfo, transformerInfo);
+        }
+
+        // Read worker info entries
+        readWorkerInfoEntries(dataInStream, packageInfo, transformerInfo);
+
+        // Read attributes
+        readAttributeInfoEntries(dataInStream, packageInfo, transformerInfo);
     }
 
     public void readWorkerDataChannelEntries(DataInputStream dataInputStream, PackageInfo packageInfo,
@@ -1344,6 +1405,7 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
+                case InstructionCodes.TCALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1518,6 +1580,13 @@ public class ProgramFileReader {
                     String typeSig = typeRefCPEntry.getTypeSig();
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
+                    break;
+                case CP_ENTRY_TRANSFORMER_REF:
+                    TransformerRefCPEntry transformerRefCPEntry = (TransformerRefCPEntry) cpEntry;
+                    packageInfo = programFile.getPackageInfo(transformerRefCPEntry.getPackagePath());
+                    TransformerInfo transformerInfo =
+                            packageInfo.getTransformerInfo(transformerRefCPEntry.getTransformerName());
+                    transformerRefCPEntry.setTransformerInfo(transformerInfo);
                     break;
             default:
                 break;
