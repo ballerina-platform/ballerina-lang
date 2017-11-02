@@ -1,4 +1,4 @@
-#Create a Custom Client Connector
+# Create a Custom Client Connector
 
 Now that you have [written a main program](../tutorials/main-program.md) and [written a passthrough service](../tutorials/passthrough-service.md) for integration scenarios, it is time to write a custom client connector to solve a problem.
 
@@ -10,7 +10,7 @@ This tutorial consists of the following main sections.
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
 
-##About connectors and actions
+## About connectors and actions
 
 When integrating and making a robust application, a need arises to make messaging channels in between various interfaces and weave a structure to encompass them together. When interacting with commonly available interfaces, rather than creating the structure of the messaging channel each and every time through code, it is worth keeping a programmed unit that can be reused. This component interacts with the given interface with ease and less complexity. In a way, such a unit can be described as a facade as it will mask any complexities that exist when interacting with the real interface and can be a facade to any party connecting to the particular interface.
 
