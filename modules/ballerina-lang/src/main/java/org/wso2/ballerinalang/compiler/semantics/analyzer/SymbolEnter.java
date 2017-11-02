@@ -209,6 +209,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
+        // Define transformer params
+        defineTransformerMembers(pkgNode.transformers, pkgEnv);
+
         // Define service resource nodes.
         defineServiceMembers(pkgNode.services, pkgEnv);
 
@@ -417,15 +420,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define the transformer
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
-        defineInvokableSymbol(transformerNode, transformerSymbol, transformerEnv);
 
-        BInvokableType transformerSymType = ((BInvokableType) transformerSymbol.type);
-        transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+        transformerNode.symbol = transformerSymbol;
+        defineSymbol(transformerNode.pos, transformerSymbol);
+        transformerEnv.scope = transformerSymbol.scope;
 
         // Define transformer source.
         defineNode(transformerNode.source, transformerEnv);
     }
-
+    
     @Override
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
@@ -938,6 +941,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         transformerNode.retParams.forEach(returnParams -> {
             BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
             returnParams.type = targetType;
+        });
+    }
+
+    private void defineTransformerMembers(List<BLangTransformer> transformers, SymbolEnv pkgEnv) {
+        transformers.forEach(transformer -> {
+            SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
+            defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
+
+            BInvokableType transformerSymType = ((BInvokableType) transformer.symbol.type);
+            transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
         });
     }
 
