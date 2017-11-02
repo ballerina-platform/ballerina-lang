@@ -56,11 +56,6 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
                 null);
     }
 
-    public void testTransformKeyword() {
-        doCheckResult("test.bal", "function test(){ transform<caret> }", "function test(){ transform {\n    \n} }",
-                null);
-    }
-
     public void testTransactionKeyword() {
         doCheckResult("test.bal", "function test(){ transaction<caret> }", "function test(){ transaction {\n    \n} " +
                 "}", null);

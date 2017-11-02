@@ -97,15 +97,6 @@
         </context>
     </template>
 
-    <template description='Transform Statement' id='ballerina_lang_transform' name='ballerina_lang_transform'
-              toReformat='false' toShortenFQNames='true' value='transform {&#10;    $END$&#10;}'>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
-        </context>
-    </template>
-
     <template description='Transaction clause' id='ballerina_lang_transaction' name='ballerina_lang_transaction'
               toReformat='false' toShortenFQNames='true' value='transaction {&#10;    $END$&#10;}'>
         <context>

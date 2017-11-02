@@ -272,7 +272,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
-        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
+        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transaction",
                 "abort", "aborted", "try", "break", "iterate", "throw", "var");
     }
 
@@ -684,7 +684,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("string");
         expectedLookups.add("test");
         expectedLookups.add("transaction");
-        expectedLookups.add("transform");
         expectedLookups.addAll(XMLNS_TYPE);
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));

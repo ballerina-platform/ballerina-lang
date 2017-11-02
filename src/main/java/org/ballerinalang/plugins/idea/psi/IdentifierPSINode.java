@@ -298,6 +298,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 }
                 reference = identifier.findReferenceAt(identifier.getTextLength());
             }
+            if (reference == null) {
+                reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+            }
         } else {
             reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
         }
