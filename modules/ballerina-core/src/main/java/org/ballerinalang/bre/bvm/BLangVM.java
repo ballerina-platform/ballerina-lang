@@ -719,7 +719,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
