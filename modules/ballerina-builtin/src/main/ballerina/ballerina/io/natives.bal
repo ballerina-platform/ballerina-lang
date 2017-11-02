@@ -41,6 +41,10 @@ public native function <TextRecordChannel channel> closeTextRecordChannel();
 @Return {value:"the characters which will be read"}
 public native function <CharacterChannel channel> readCharacters(int numberOfChars)(string);
 
+@Description {value:"Function to read all characters in the give I/O source"}
+@Return {value:"all characters read"}
+public native function <CharacterChannel channel> readAllCharacters()(string);
+
 @Description {value:"Function to write characters"}
 @Param {value:"content: text content which should be written"}
 @Param {value:"startOffset: if the content needs to be written with an offset"}
@@ -55,6 +59,10 @@ public native function <CharacterChannel channel> closeCharacterChannel();
 @Return { value:"blob: the bytes which were read" }
 @Return {value:"int: number of bytes which were read"}
 public native function <ByteChannel channel> readBytes (int numberOfBytes) (blob, int);
+
+@Description {value:"Function to read all bytes in the given I/O source"}
+@Return {value:"all bytes read from the channel"}
+public native function <ByteChannel channel> readAllBytes()(blob,int);
 
 @Description { value:"Function to write bytes"}
 @Param { value:"content: bytes which should be written" }
