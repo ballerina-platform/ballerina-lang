@@ -61,7 +61,7 @@ sourceNotation
     ;
 
 serviceBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition*
+    :  endpointDeclaration* variableDefinitionStatement* resourceDefinition*
     ;
 
 resourceDefinition
@@ -69,8 +69,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :  connectorDeclarationStmt* statement*
-    |  connectorDeclarationStmt* workerDeclaration+
+    :  endpointDeclaration* statement*
+    |  endpointDeclaration* workerDeclaration+
     ;
 
 functionDefinition
@@ -87,7 +87,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
@@ -158,7 +158,7 @@ workerDeclaration
     ;
 
 workerBody
-    :   connectorDeclarationStmt* statement*
+    :   statement*
     ;
 
 typeName
@@ -236,6 +236,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -278,10 +279,6 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN  expression)? SEMICOLON
     ;
 
-connectorDeclarationStmt
-    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
-    ;
-
 mapStructLiteral
     :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
     ;
@@ -302,21 +299,24 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInitExpression
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+connectorInit
+    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
-filterInitExpression
-    : connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+endpointDeclaration
+    :   ENDPOINT (LT connectorReference GT) Identifier LEFT_BRACE endpointBody RIGHT_BRACE
     ;
 
-filterInitExpressionList
-    : filterInitExpression (COMMA filterInitExpression)*
+endpointBody
+    :   ((variableReference | connectorInit) SEMICOLON)?
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression WITH nameReference SEMICOLON
     ;
 
 variableReferenceList
@@ -499,6 +499,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression

@@ -146,7 +146,7 @@ public class BallerinaBlock extends AbstractBlock {
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
         if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
                 || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                || childElementType == ANNOTATION_BODY) {
+                || childElementType == ANNOTATION_BODY || childElementType == ENDPOINT_BODY) {
             return true;
         }
         return false;

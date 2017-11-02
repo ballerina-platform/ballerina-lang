@@ -232,12 +232,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                 return new FieldReference(this);
                             }
                             PsiElement resolvedElement = reference.resolve();
-                            if (resolvedElement == null
-                                    || !(resolvedElement.getParent() instanceof ConnectorDefinitionNode
-                                    || resolvedElement.getParent() instanceof ConnectorDeclarationStatementNode)) {
+                            if (resolvedElement == null) {
                                 return new FieldReference(this);
                             }
-                            return new ActionInvocationReference(this);
+                            PsiElement resolvedElementParent = resolvedElement.getParent();
+                            if (resolvedElementParent instanceof ConnectorDefinitionNode) {
+                                return new ActionInvocationReference(this);
+                            }
+                            if (resolvedElementParent instanceof VariableDefinitionNode) {
+                                connectorDefinitionNode = BallerinaPsiImplUtil
+                                        .resolveConnectorFromVariableDefinitionNode((resolvedElementParent));
+                                if (connectorDefinitionNode != null) {
+                                    return new ActionInvocationReference(this);
+                                }
+                            }
+                            return new FieldReference(this);
                         } else if (prevVisibleLeaf.getText().matches("[{,]")) {
                             return new StructKeyReference(this);
                         }
@@ -277,10 +286,13 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return null;
         }
         PsiElement definitionNode = resolvedElement.getParent();
-        if (definitionNode instanceof ConnectorDeclarationStatementNode) {
-            return new ActionInvocationReference(this);
+        if (definitionNode instanceof VariableDefinitionNode) {
+            ConnectorDefinitionNode connectorDefinitionNode = BallerinaPsiImplUtil
+                    .resolveConnectorFromVariableDefinitionNode((definitionNode));
+            if (connectorDefinitionNode != null) {
+                return new ActionInvocationReference(this);
+            }
         }
-
         reference = checkAndSuggestReferenceAfterDot();
         if (reference != null) {
             return reference;

@@ -23,6 +23,7 @@ PARAMETER       : 'parameter';
 CONST           : 'const';
 TYPEMAPPER      : 'typemapper';
 WORKER          : 'worker';
+ENDPOINT        : 'endpoint' ;
 XMLNS           : 'xmlns';
 RETURNS         : 'returns';
 VERSION         : 'version';
@@ -69,6 +70,7 @@ RETRY           : 'retry' ;
 LENGTHOF        : 'lengthof' ;
 TYPEOF          : 'typeof' ;
 WITH            : 'with' ;
+BIND            : 'bind' ;
 
 // Separators
 

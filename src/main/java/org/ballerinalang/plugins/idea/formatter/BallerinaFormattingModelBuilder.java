@@ -121,6 +121,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(LPAREN).spaceIf(false)
                 .between(RPAREN, LPAREN).spaceIf(true)
                 .after(AT).spaceIf(false)
+                .between(BIND, EXPRESSION).spaceIf(true)
                 .around(EXPRESSION).spaceIf(false)
                 .around(RETURN_PARAMETERS).spaceIf(true)
                 .around(SENDARROW).spaceIf(true)
@@ -146,7 +147,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
                 .between(XML_LOCAL_NAME, GT).spaceIf(false)
                 .between(NAME_REFERENCE, LBRACE).spaceIf(true)
-                .afterInside(NAME_REFERENCE, CONNECTOR_DECLARATION_STATEMENT).spaceIf(true)
                 .between(VARIABLE_REFERENCE, INDEX).spaceIf(false)
                 .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
                 .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
@@ -175,7 +175,12 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LPAREN, TYPE_MAPPER_DEFINTION).spaceIf(true)
                 .before(INVOCATION).spaceIf(false)
-                .afterInside(IDENTIFIER, INVOCATION).spaceIf(false);
+                .afterInside(IDENTIFIER, INVOCATION).spaceIf(false)
+                .after(BIND).spaceIf(true)
+                .between(LT, CONNECTOR_REFERENCE).spaceIf(false)
+                .between(CONNECTOR_REFERENCE, GT).spaceIf(false)
+                .after(ENDPOINT).spaceIf(false)
+                .between(GT, IDENTIFIER).spaceIf(true);
     }
 
     @Nullable

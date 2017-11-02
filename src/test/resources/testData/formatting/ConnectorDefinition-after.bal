@@ -11,7 +11,7 @@ connector test (string a, string b) {
 }
 
 function main (string[] args) {
-    TestConnector tc = create TestConnector() with IntroductionConnector();
+    TestConnector tc = create TestConnector();
     tc.actionHello("Chanaka");
     tc.actionHello();
 }
