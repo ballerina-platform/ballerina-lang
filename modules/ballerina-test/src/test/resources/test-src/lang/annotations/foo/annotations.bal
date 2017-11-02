@@ -53,3 +53,8 @@ struct Person {
     string name;
     int age;
 }
+
+@doc:Description{value:"User defined transformer: from string to Person"}
+transformer <string s, Person p> Bar(int i) {
+    p.name = s;
+}

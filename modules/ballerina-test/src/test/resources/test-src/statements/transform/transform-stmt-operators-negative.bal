@@ -14,13 +14,14 @@ struct Employee {
 
 function operatorsInTransform() (string, int, boolean){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = {};
     string prefix = "Ms.";
-    transform {
-        e.name = prefix + p.firstName;
-        p.firstName = "Ann";
-        e.retired = (p.age > 60) ? true: false;
-        p.age = 45;
-    }
+    Employee e = <Employee, Foo(prefix)> p;
     return e.name, e.age, e.retired;
+}
+
+transformer <Person p, Employee e> Foo(string prefix) {
+    e.name = prefix + p.firstName;
+    p.firstName = "Ann";
+    e.retired = (p.age > 60) ? true: false;
+    p.age = 45;
 }

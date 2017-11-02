@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -73,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -601,10 +601,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(whileNode.body, env);
     }
 
-    public void visit(BLangTransform transformNode) {
-        analyzeStmt(transformNode.body, env);
-    }
-
     public void visit(BLangConnector connectorNode) {
         BSymbol connectorSymbol = connectorNode.symbol;
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
@@ -902,6 +898,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     throwNode.expr.type);
         }
+    }
+
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
+        transformerNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+            this.analyzeDef(annotationAttachment, transformerEnv);
+        });
+
+        analyzeStmt(transformerNode.body, transformerEnv);
+
+        // TODO: update this accordingly once the unsafe conversion are supported
+        int returnCount = transformerNode.retParams.size();
+        if (returnCount == 0) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_MUST_HAVE_OUTPUT);
+        } else if (returnCount > 1) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TOO_MANY_OUTPUTS_FOR_TRANSFORMER, 1, returnCount);
+        }
+
+        this.processWorkers(transformerNode, transformerEnv);
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {

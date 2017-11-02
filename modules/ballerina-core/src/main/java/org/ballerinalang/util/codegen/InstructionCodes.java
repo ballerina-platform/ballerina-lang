@@ -161,6 +161,7 @@ public interface InstructionCodes {
     int ERRSTORE = 125;
     int FPCALL = 126;
     int FPLOAD = 127;
+    int TCALL = 128;
 
     // Type Conversion related instructions
     int I2F = 130;
