@@ -15,7 +15,7 @@ struct Employee {
 function castAndConversionInTransform() (string, int, string, any){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     any defaultAddress = "New York";
-    Employee e = <Employee; Foo(defaultAddress)> p;
+    Employee e = <Employee, Foo(defaultAddress)> p;
     return e.name, e.age, e.address, e.ageAny;
 }
 

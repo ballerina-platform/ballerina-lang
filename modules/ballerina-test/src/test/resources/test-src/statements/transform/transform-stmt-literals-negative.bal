@@ -13,7 +13,7 @@ function testConstantsInTransform () {
     Person p1 = {};
     json<Person> jsonP1 = {name:"Alice", age:30};
 
-    boolean b = <boolean; Foo(str1, flag1, x1, json1, arr1, map1, jsonP1)> p1;
+    boolean b = <boolean, Foo(str1, flag1, x1, json1, arr1, map1, jsonP1)> p1;
 }
 
 

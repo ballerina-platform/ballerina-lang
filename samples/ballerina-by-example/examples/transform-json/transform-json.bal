@@ -46,7 +46,7 @@ service<http> PersonService {
         string city = "London";
 
         // Convert p of type Person to the response JSON, using the transformer defined earlier.
-        json<Person> response = <json<Person>; Foo(city)> p;
+        json<Person> response = <json<Person>, Foo(city)> p;
 
 
         // Set the new JSON payload to the message.

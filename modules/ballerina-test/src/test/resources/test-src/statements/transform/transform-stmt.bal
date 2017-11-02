@@ -19,13 +19,13 @@ function unnamedTransform() (string, int, string){
 
 function namedTransform() (string, int, string){
     Person p = {firstName:"Jane", lastName:"Doe", age:25, city:"Paris"};
-    Employee e = <Employee; Foo()> p;
+    Employee e = <Employee, Foo()> p;
     return e.name, e.age, e.address;
 }
 
 function namedTransformWithParams() (string, int, string){
     Person p = {firstName:"Jack", lastName:"Doe", age:45, city:"NY"};
-    Employee e = <Employee; Bar(99)> p;
+    Employee e = <Employee, Bar(99)> p;
     return e.name, e.age, e.address;
 }
 
@@ -49,7 +49,7 @@ transformer <Person p, Employee e> Bar(int age) {
 
 function functionsInTransform() (string, int, string) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee; transformerWithFunction()> p;
+    Employee e = <Employee, transformerWithFunction()> p;
     return e.name, e.age, e.address;
 }
 
@@ -61,7 +61,7 @@ transformer <Person p, Employee e> transformerWithFunction() {
 
 function varInTransform() (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee; transformerWithVar()> p;
+    Employee e = <Employee, transformerWithVar()> p;
     return e.name, e.age, e.address;
 }
 
@@ -74,7 +74,7 @@ transformer <Person p, Employee e> transformerWithVar() {
 
 function varDefInTransform() (string, int, string){
     Person p = {firstName:"Jane", lastName:"Doe", age:28, city:"CA"};
-    Employee e = <Employee; transformerWithVarDef()> p;
+    Employee e = <Employee, transformerWithVarDef()> p;
     return e.name, e.age, e.address;
 }
 
@@ -96,7 +96,7 @@ struct Employee_1 {
 function castAndConversionInTransform() (string, int, string, any){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     any defaultAddress = "New York";
-    Employee_1 e = <Employee_1; transformerWithCastAndConversion(defaultAddress)> p;
+    Employee_1 e = <Employee_1, transformerWithCastAndConversion(defaultAddress)> p;
     return e.name, e.age, e.address, e.anyAge;
 }
 

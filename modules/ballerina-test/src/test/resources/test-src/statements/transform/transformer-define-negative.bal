@@ -14,21 +14,21 @@ struct Employee {
 function testTransformer() {
     Person p = {fname:"John", lname:"Doe", age:30, city:"London"};
 
-    Employee e1 = <Person; Foo_1()> p;
+    Employee e1 = <Person, Foo_1()> p;
 
-    Employee e2 = <Person; Foo_1()> p;
+    Employee e2 = <Person, Foo_1()> p;
     
-    Person e3 = <Employee; Foo_1()> p;
+    Person e3 = <Employee, Foo_1()> p;
 
-    Person e4 = <Person; Foo_1()> p;
+    Person e4 = <Person, Foo_1()> p;
     
-    Employee e5 = <string; Foo_1()> p;
+    Employee e5 = <string, Foo_1()> p;
     
     Employee e6;
     string s;
-    e6, s = <Employee; Foo_1()> p;
+    e6, s = <Employee, Foo_1()> p;
     
-    var e6, s, err = <Employee; Foo_1()> p;
+    var e6, s, err = <Employee, Foo_1()> p;
 }
 
 function Foo_1() {

@@ -19,7 +19,7 @@ struct Employee {
 function testTransformWithAllExprs() {
     TestConnector con = create TestConnector();
     Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
-    Employee e1 = <Employee; Foo_1(con)> p;
+    Employee e1 = <Employee, Foo_1(con)> p;
 }
 
 function <Person p1> getPrefixedName_1(Person p2) (string) {
@@ -62,7 +62,7 @@ transformer <Person p, Employee e> Foo_1(TestConnector con) {
     // string template
     string s2 = string `hello {{p.firstname}}`;
         
-    Employee e1 = <Employee; Foo_1(con)> p;
+    Employee e1 = <Employee, Foo_1(con)> p;
 }
 
 transformer <Person p, Employee e> Foo_2(TestConnector con) {

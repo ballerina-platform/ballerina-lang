@@ -17,6 +17,6 @@ public struct Employee {
 
 function testTransformer() (string, int, string) {
     Person p = {fname:"Jane", lname:"Doe", age:25, city:"Paris"};
-    Employee e = <Employee; q:Foo()> p;
+    Employee e = <Employee, q:Foo()> p;
     return e.name, e.age, e.address;
 }

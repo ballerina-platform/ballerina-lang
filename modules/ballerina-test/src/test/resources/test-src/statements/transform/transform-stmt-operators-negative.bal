@@ -15,7 +15,7 @@ struct Employee {
 function operatorsInTransform() (string, int, boolean){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     string prefix = "Ms.";
-    Employee e = <Employee; Foo(prefix)> p;
+    Employee e = <Employee, Foo(prefix)> p;
     return e.name, e.age, e.retired;
 }
 

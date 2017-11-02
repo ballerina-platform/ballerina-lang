@@ -13,7 +13,7 @@ struct Employee {
 
 function oneToOneTransform() (string, int, string){
     Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
-    Employee e = <Employee; Foo()> p;
+    Employee e = <Employee, Foo()> p;
     return e.name, e.age, e.address;
 }
 

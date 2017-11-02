@@ -480,7 +480,7 @@ expression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
-    |   LT typeName (SEMICOLON functionInvocation)? GT expression           # typeConversionExpression
+    |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression

@@ -13,13 +13,13 @@ struct Employee {
 
 function varDefInTransform() (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee; Foo_1()> p;
+    Employee e = <Employee, Foo_1()> p;
     return e.name, e.age, e.address;
 }
 
 function varDefInTransformWithInput() (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee; Foo_2()> p;
+    Employee e = <Employee, Foo_2()> p;
     return e.name, e.age, e.address;
 }
 

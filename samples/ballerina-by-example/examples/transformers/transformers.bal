@@ -43,10 +43,10 @@ function main (string[] args) {
     println(employee);
 
     //Named transformer can be explicitly provided inside the conversion syntax, to convert person to employee
-    employee = <Employee; Foo()> person;
+    employee = <Employee, Foo()> person;
     println(employee);
 
     //Using the named transformer to convert person to empoyee, by passing parameters
-    employee = <Employee; Bar("UK")> person;
+    employee = <Employee, Bar("UK")> person;
     println(employee);
 }

@@ -7624,7 +7624,7 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
+		public TerminalNode COMMA() { return getToken(BallerinaParser.COMMA, 0); }
 		public FunctionInvocationContext functionInvocation() {
 			return getRuleContext(FunctionInvocationContext.class,0);
 		}
@@ -7867,10 +7867,10 @@ public class BallerinaParser extends Parser {
 				typeName(0);
 				setState(1265);
 				_la = _input.LA(1);
-				if (_la==SEMICOLON) {
+				if (_la==COMMA) {
 					{
 					setState(1263);
-					match(SEMICOLON);
+					match(COMMA);
 					setState(1264);
 					functionInvocation();
 					}
@@ -10283,7 +10283,7 @@ public class BallerinaParser extends Parser {
 		"\u04e7\u04ff\3\2\2\2\u04e8\u04ff\5\u009eP\2\u04e9\u04ff\5\30\r\2\u04ea"+
 		"\u04eb\7F\2\2\u04eb\u04ec\5@!\2\u04ec\u04ed\7G\2\2\u04ed\u04ee\5\u00c0"+
 		"a\16\u04ee\u04ff\3\2\2\2\u04ef\u04f0\7V\2\2\u04f0\u04f3\5@!\2\u04f1\u04f2"+
-		"\7@\2\2\u04f2\u04f4\5\u00a6T\2\u04f3\u04f1\3\2\2\2\u04f3\u04f4\3\2\2\2"+
+		"\7C\2\2\u04f2\u04f4\5\u00a6T\2\u04f3\u04f1\3\2\2\2\u04f3\u04f4\3\2\2\2"+
 		"\u04f4\u04f5\3\2\2\2\u04f5\u04f6\7U\2\2\u04f6\u04f7\5\u00c0a\r\u04f7\u04ff"+
 		"\3\2\2\2\u04f8\u04f9\t\3\2\2\u04f9\u04ff\5\u00c0a\13\u04fa\u04fb\7F\2"+
 		"\2\u04fb\u04fc\5\u00c0a\2\u04fc\u04fd\7G\2\2\u04fd\u04ff\3\2\2\2\u04fe"+
