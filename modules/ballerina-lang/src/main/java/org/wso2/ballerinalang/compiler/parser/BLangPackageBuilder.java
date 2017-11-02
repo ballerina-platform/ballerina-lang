@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -89,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -113,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -720,12 +722,23 @@ public class BLangPackageBuilder {
         addExpressionNode(typeCastNode);
     }
 
-    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createTypeAccessExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        typeAccessExpr.pos = pos;
+        typeAccessExpr.addWS(ws);
+        typeAccessExpr.typeNode = (BLangType) typeNodeStack.pop();
+        addExpressionNode(typeAccessExpr);
+    }
+
+    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
-        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        if (namedTransformer) {
+            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
+        }
         addExpressionNode(typeConversionNode);
     }
 
@@ -1590,20 +1603,6 @@ public class BLangPackageBuilder {
         addExpressionNode(stringTemplateLiteral);
     }
 
-    public void startTransformStmt() {
-        startBlock();
-    }
-
-    public void createTransformStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
-        transformNode.pos = pos;
-        BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        transformBlock.pos = pos;
-        transformNode.addWS(ws);
-        transformNode.setBody(transformBlock);
-        addStmtToCurrentBlock(transformNode);
-    }
-
     public void createXmlAttributesRefExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean singleAttribute) {
         BLangXMLAttributeAccess xmlAttributeAccess =
                 (BLangXMLAttributeAccess) TreeBuilder.createXMLAttributeAccessNode();
@@ -1614,6 +1613,41 @@ public class BLangPackageBuilder {
         }
         xmlAttributeAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(xmlAttributeAccess);
+    }
+
+    public void startTransformerDef() {
+        TransformerNode transformerNode = TreeBuilder.createTransformerNode();
+        attachAnnotations(transformerNode);
+        this.invokableNodeStack.push(transformerNode);
+    }
+
+    public void endTransformerDef(DiagnosticPos pos,
+                               Set<Whitespace> ws,
+                               boolean publicFunc,
+                               String name,
+                               boolean paramsAvailable) {
+
+        BLangTransformer transformer = (BLangTransformer) this.invokableNodeStack.pop();
+        transformer.pos = pos;
+        transformer.addWS(ws);
+        transformer.setName(this.createIdentifier(name));
+
+        if (paramsAvailable) {
+            this.varListStack.pop().forEach(transformer::addParameter);
+        }
+
+        // get the source and the target params
+        List<VariableNode> mappingParams = this.varListStack.pop();
+
+        // set the first mapping-param as the source for transformer
+        transformer.setSource(mappingParams.remove(0));
+        mappingParams.forEach(transformer::addReturnParameter);
+
+        if (publicFunc) {
+            transformer.flagSet.add(Flag.PUBLIC);
+        }
+
+        this.compUnit.addTopLevelNode(transformer);
     }
 
     // Private methods
