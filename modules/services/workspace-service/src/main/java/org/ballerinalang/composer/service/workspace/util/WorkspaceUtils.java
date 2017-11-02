@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -459,7 +460,7 @@ public class WorkspaceUtils {
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
-                    item.getTypeNode().type.toString(), item.getTypeNode().type)));
+                    item.getTypeNode().type.toString(), item.getTypeNode())));
         }
     }
 
@@ -529,11 +530,15 @@ public class WorkspaceUtils {
      * @param type parameter type
      * @return {Parameter} parameter
      */
-    private static Parameter createNewParameter(String name, String type, BType bType) {
+    private static Parameter createNewParameter(String name, String type, BLangType typeNode) {
         Parameter parameter = new Parameter();
         parameter.setType(type);
         parameter.setName(name);
-        parameter.setConnector(bType instanceof BConnectorType);
+        BType bType = typeNode.type;
+        if (bType instanceof BConnectorType) {
+            parameter.setPkgAlias(((BLangUserDefinedType) typeNode).pkgAlias.toString());
+            parameter.setConnector(true);
+        }
         return parameter;
     }
 
