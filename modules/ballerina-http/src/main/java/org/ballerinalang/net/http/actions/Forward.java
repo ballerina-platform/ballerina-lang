@@ -70,7 +70,7 @@ public class Forward extends AbstractHTTPAction {
             // Execute the operation
             return executeNonBlockingAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'forward' action in " + Constants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
@@ -79,8 +79,11 @@ public class Forward extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        String httpVerb = (String) context.getProperty(Constants.HTTP_METHOD);
 
+        String httpVerb = (String) context.getProperty(Constants.HTTP_METHOD);
+        if (httpVerb == null || "".equals(httpVerb)) {
+            throw new BallerinaException("http method of incoming request is not available");
+        }
         HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
         prepareRequest(bConnector, path, cMsg);
         cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
