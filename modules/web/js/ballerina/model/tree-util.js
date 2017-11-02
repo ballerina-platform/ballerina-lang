@@ -408,6 +408,10 @@ class TreeUtil extends AbstractTreeUtil {
             // Get the parent node.
             const expressionParentNode = node.parent;
 
+            source = source.substr(source.length - 1) === ';'
+                ? source.substr(0, source.length - 1)
+                : source;
+
             // invoke the fragment util and get the new node.
             const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
             const newExpressionNode = TreeBuilder.build(parseJson, expressionParentNode, expressionParentNode.kind);
