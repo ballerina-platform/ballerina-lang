@@ -45,7 +45,7 @@ public class BDataTable implements BRefType<Object> {
 
     @Override
     public String stringValue() {
-        return null;
+        return "";
     }
 
     @Override
