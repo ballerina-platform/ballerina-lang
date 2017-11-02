@@ -519,11 +519,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) unaryExpr.expr;
                 Name varRefName = names.fromIdNode((varRef).variableName);
                 Name pkgAlias = names.fromIdNode((varRef).pkgAlias);
-                // Resolve symbol for variable reference
+                // Resolve symbol for BLangSimpleVarRef
                 BSymbol varRefSybmol = symResolver.lookupSymbol(unaryExpr.pos, env, pkgAlias,
                         varRefName, SymTag.VARIABLE);
                 if (varRefSybmol == symTable.notFoundSymbol) {
-                    // Resolve symbol for user defined Type ( converted from BLangSimpleVarRef )
+                    // Resolve symbol for User Defined Type ( converted from BLangSimpleVarRef )
                     BLangTypeofExpr typeAccessExpr = getTypeAccessExpression(varRef);
                     unaryExpr.expr = typeAccessExpr;
                     exprType = typeAccessExpr.resolvedType;
