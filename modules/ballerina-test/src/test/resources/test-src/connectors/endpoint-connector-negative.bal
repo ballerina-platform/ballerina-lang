@@ -49,3 +49,12 @@ function invalidEndpointAssignment() {
     en = ll;
     en = create Foo();
 }
+
+function unreachableBind()(string) {
+    endpoint<Foo> en {
+
+    }
+    Foo foo = create Foo();
+    return "dddd";
+    bind foo with en;
+}
