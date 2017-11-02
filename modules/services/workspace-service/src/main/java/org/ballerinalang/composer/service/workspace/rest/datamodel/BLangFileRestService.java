@@ -348,7 +348,7 @@ public class BLangFileRestService {
             result.add("packageInfo", packageInfo);
         }
 
-        if(bFileRequest.needProgramDir() && (model != null && model.pkgDecl != null)) {
+        if (bFileRequest.needProgramDir() && (model != null && model.pkgDecl != null)) {
             List<String> pathParts = Arrays.asList(filePath.split(Pattern.quote(File.separator)));
             List<String> pkgParts = model.pkgDecl.pkgNameComps.stream()
                     .map(identifier -> identifier.value).collect(Collectors.toList());
