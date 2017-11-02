@@ -394,7 +394,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     getHttpMethods() {
-        return ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
+        return ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
     }
 
     /**
@@ -524,7 +524,12 @@ class HttpClient extends React.Component {
             return serviceNode.getProtocolPackageIdentifier().getValue() === 'http';
         });
         const serviceItems = serviceNodes.map((serviceNode) => {
-            return (<MenuItem eventKey={serviceNode}>{serviceNode.getName().getValue()}</MenuItem>);
+            return (<MenuItem
+                key={serviceNode.getID()}
+                eventKey={serviceNode}
+            >
+                {serviceNode.getName().getValue()}
+            </MenuItem>);
         });
 
         // Compiling selected value
@@ -538,10 +543,10 @@ class HttpClient extends React.Component {
         return (
             <div className='dropdown-wrapper'>
                 <DropdownButton
+                    id='services-dropdown'
                     title={dropdownTitle}
                     key='try-it-service-dropdown'
                     onSelect={this.onServiceSelected}
-                    eventKey={this.state.selectedService}
                     noCaret
                 >
                     {serviceItems}
@@ -565,7 +570,7 @@ class HttpClient extends React.Component {
         let resourceItems = [];
         if (this.state.selectedService) {
             resourceItems = this.state.selectedService.getResources().map((resourceNode) => {
-                return (<MenuItem eventKey={resourceNode}>
+                return (<MenuItem key={resourceNode.getID()} eventKey={resourceNode}>
                     {resourceNode.getName().getValue()}
                 </MenuItem>);
             });
@@ -581,6 +586,7 @@ class HttpClient extends React.Component {
 
         return (<div className='dropdown-wrapper'>
             <DropdownButton
+                id='resource-dropdown'
                 title={dropdownTitle}
                 key='try-it-resource-dropdown'
                 onSelect={this.onResourceSelected}
@@ -610,7 +616,7 @@ class HttpClient extends React.Component {
             // Getting service name views
             const servicesDropdown = this.renderServicesDropdown();
             const resourceDropdown = this.renderResourcesDropdown();
-            
+
             return (<div className='row http-client-main-wrapper'>
                 <div className='main-wrapper-top'>
                     <div className='http-client-request-method-wrapper'>
@@ -664,7 +670,7 @@ class HttpClient extends React.Component {
                                 });
                             }}
                         >
-                            <i className="fw fw-copy" />
+                            <i className="fw fw-copy-link" />
                             <div
                                 className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
                             >
@@ -779,7 +785,7 @@ class HttpClient extends React.Component {
         if (this.state.selectedResource && this.state.selectedResource.getConsumeTypes().length > 0) {
             const consumeTypes = this.state.selectedResource.getConsumeTypes();
             const consumerTypeItems = consumeTypes.map((contentType) => {
-                return (<MenuItem eventKey={contentType}>
+                return (<MenuItem key={contentType} eventKey={contentType}>
                     {contentType}
                 </MenuItem>);
             });
@@ -795,6 +801,7 @@ class HttpClient extends React.Component {
             return (
                 <div className='dropdown-wrapper'>
                     <DropdownButton
+                        id='content-types-dropdown'
                         title={dropdownTitle}
                         key='content-type-dropdown'
                         onSelect={this.onContentTypeSelected}
@@ -831,7 +838,7 @@ class HttpClient extends React.Component {
         return (<div className="container-fluid">
             {mainControlComponent}
             <div className="row http-client-wrapper">
-                <div className='col-md-6 http-client-request'>
+                <div className='http-client-request'>
                     <h3>Request</h3>
                     <hr />
                     <div className="form-horizontal">
@@ -851,7 +858,7 @@ class HttpClient extends React.Component {
                         <div className='http-client-body-wrapper'>
                             <span className="section-header">Body</span>
                             <hr />
-                            <div>
+                            <div className="ACE-editor-wrapper">
                                 <AceEditor
                                     mode={this.getRequestBodyMode()}
                                     theme='monokai'
@@ -873,7 +880,7 @@ class HttpClient extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className='col-md-6 http-client-response'>
+                <div className='http-client-response'>
                     <h3>Response</h3>
                     <hr />
                     <div className='http-client-response-attributes'>
@@ -939,7 +946,7 @@ class HttpClient extends React.Component {
                                     }}
                                     maxLines={Infinity}
                                     minLines={10}
-                                    readOnly='true'
+                                    readOnly
                                     width='auto'
                                     showPrintMargin={false}
                                 />

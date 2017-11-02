@@ -18,7 +18,7 @@
 
 @mixin dropdown() {
     position: relative;
-    .dropdown { 
+    .dropdown {
         .dropdown-toggle{
             background-color: #333;
             color: #f1f1f1;
@@ -28,8 +28,11 @@
             width: 200px;
             margin: 1px 10px;
             text-align: left;
-            border-bottom: 1px solid #3b3b3b;
+            border-bottom: 1px solid #555;
             z-index: auto;
+            border-left: 0;
+            border-top: 0;
+            border-right: 0;
         }
         .dropdown-menu {
             background: #565656;
@@ -70,23 +73,27 @@
 }
 
  .http-client-request {
-     float: left;
-     padding-right: 20px;
-     border-right: 1px solid rgb(87, 87, 87);
+     padding-left: 20px;
      height: 100%;
      margin-top: 15px;
+     background: #434343;
+     border-top: 1px solid #333;
+     width: 49%;
+     float: left;
+     margin-right: 20px;
 
     h3{
-        font-size: 18px;
-        border-bottom: 3px solid #f17b31;
         width: 73px;
         padding-bottom: 3px;
+        color: #dcdcdc;
+        font-weight: 400;
+        font-size: 22px;
     }
     input[type=text].header-input{
         margin-left: 5px;
-        border: 0.5px solid #333333;
+        border: 0.5px solid #333;
         height: 30px;
-        background-color: #333333;
+        background-color: #333;
         margin-bottom: 3px;
         width: 46%;
         margin-right: 2px;
@@ -96,15 +103,16 @@
         color: #fff;
         height: 31px;
         padding: 6px;
-        background-color: #575757;
+        background-color: #434343;
         border: none;
+        box-shadow: none;
+        border-bottom: 1px solid #555;
     }
     .request-header-input{
-        margin-left: 5px;
         margin-bottom: 3px;
         margin-right: 2px;
         font-size: 12px;
-        width: 47%;
+        width: 47.5%;
     }
     .http-client-action-wrapper {
         padding: 20px 15px;
@@ -128,15 +136,21 @@
     }
     .http-client-content-type-wrapper{
         margin: 15px 0 15px 0;
+        width: 97%;
         .control-label{
             text-align: left;
             padding-right: 0;
+            padding-left: 0;
+            padding-top: 6px;
+            font-size: 14px;
+            font-weight: 300;
         }
         .http-client-content-type {
             margin-left: 5px;
-            border: .5px solid rgb(51, 51, 51);
+            border-bottom: 1px solid #555555;
             height: 30px;
-            background-color: #333333;
+            background-color: #434343;
+            box-shadow: none;
         }
         .dropdown-wrapper {
             @include dropdown();
@@ -158,6 +172,11 @@
 .http-client-response {
     padding-left: 20px;
     margin-top: 15px;
+    background: #434343;
+    border-top: 1px solid #333;
+    width: 49%;
+    float: left;
+    color: #dcdcdc;
 
     input[type=text].header-input{
         margin-left: 5px;
@@ -177,24 +196,40 @@
         border: none;
     }
 
-
     h3{
-        font-size: 18px;
-        border-bottom: 3px solid #f17b31;
         width: 90px;
         padding-bottom: 3px;
+        color: #dcdcdc;
+        font-weight: 400;
+        font-size: 22px;
     }
 }
 .section-header{
     padding-top: 20px;
-    border-bottom: 1px solid #f17b31;
     font-size: 14px;
     font-weight: 400;
+    color: #1abc9c;
 }
 
 .http-client-headers-wrapper, .http-client-body-wrapper {
     padding-top: 10px;
     margin-bottom: 30px;
+}
+
+.http-client-body-wrapper{
+    .ACE-editor-wrapper{
+        width: 96%;
+        .ace-monokai{
+            background: #252525;
+        }
+        .ace_gutter-cell{
+            background: #272727;
+        }
+        .ace_gutter{
+            background: #2d2d2d;
+        }
+
+    }
 }
 
 .http-client-headers-wrapper .fw {
@@ -278,7 +313,7 @@ hr{
     width:auto;
     margin-left: 5px;
     margin-bottom: 15px;
-    max-width: 900px;
+    max-width: 870px;
     .main-wrapper-top {
         height: 45px;
         .http-client-request-method-wrapper {
@@ -288,7 +323,7 @@ hr{
                     height: 33px;
                     padding: 6px;
                     border: none;
-                    border-bottom: 1px solid #3b3b3b;
+                    border-bottom: 1px solid #555;
                     input[type=text]{
                         color: #fff;
                         background-color: #333;
@@ -360,19 +395,19 @@ hr{
             float: left;
             padding: 8px 0 7px 7px;
             color: #616161;
-            border-bottom: 1px solid #3b3b3b;
+            border-bottom: 1px solid #555;
         }
         .input-group {
             float: left;
+            padding-top:1px ;
             .http-client-path {
-                padding-left: 0px;
                 width: 459px;
                 color: #fcfcfc;
                 height: 33px;
-                padding: 6px;
+                padding:5px 0 7px 1px;
                 background-color: #333333;
                 border: none;
-                border-bottom: 1px solid #3b3b3b;
+                border-bottom: 1px solid #555;
                 box-shadow: none;
             }
             .input-group-btn {
