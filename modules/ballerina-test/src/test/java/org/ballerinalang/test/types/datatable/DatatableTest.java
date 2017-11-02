@@ -306,7 +306,7 @@ public class DatatableTest {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
 
-            BTestUtils.invoke(result, "testPrintandPrintlnDatatable");
+            BRunUtil.invoke(result, "testPrintandPrintlnDatatable");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
