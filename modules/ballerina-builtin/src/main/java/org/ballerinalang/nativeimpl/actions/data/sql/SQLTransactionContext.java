@@ -22,6 +22,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code SQLTransactionContext} transaction context for SQL transactions.
@@ -30,19 +31,15 @@ import java.sql.SQLException;
  */
 public class SQLTransactionContext implements BallerinaTransactionContext {
     private Connection conn;
-    private boolean xaConn;
+    private XAResource xaResource;
 
-    public SQLTransactionContext(Connection conn, boolean isXAConn) {
+    public SQLTransactionContext(Connection conn, XAResource resource) {
         this.conn = conn;
-        this.xaConn = isXAConn;
+        this.xaResource = resource;
     }
 
     public Connection getConnection() {
         return this.conn;
-    }
-
-    public void updateConnection (Connection conn) {
-        this.conn = conn;
     }
 
     @Override
@@ -78,7 +75,12 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
     }
 
     @Override
-    public boolean isXAConnection() {
-        return this.xaConn;
+    public void done() {
+        /* ignore */
+    }
+
+    @Override
+    public XAResource getXAResource() {
+        return this.xaResource;
     }
 }

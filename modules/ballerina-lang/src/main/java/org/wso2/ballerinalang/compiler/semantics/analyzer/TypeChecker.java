@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -576,20 +577,19 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        // Lookup type conversion operator symbol
-        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-        if (symbol == symTable.notFoundSymbol) {
-            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
-            if (castSymbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        if (conversionExpr.transformerInvocation == null) {
+            // Lookup for built-in type conversion operator symbol
+            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            if (symbol == symTable.notFoundSymbol) {
+                // If not found, look for unnamed transformers for the given types
+                actualTypes = checkUnNamedTransformerInvocation(conversionExpr, sourceType, targetType);
             } else {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
-                        targetType);
+                BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+                conversionExpr.conversionSymbol = conversionSym;
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-            conversionExpr.conversionSymbol = conversionSym;
-            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
+           actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);
@@ -806,6 +806,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // If this cast is an unsafe conversion, then there MUST to be two expected types/variables
         // If this is an safe cast, then the error variable is optional
         int expected = expTypes.size();
+        int actual = conversionSymbol.type.getReturnTypes().size();
+        
         List<BType> actualTypes = getListWithErrorTypes(expected);
         if (conversionSymbol.safe && expected == 1) {
             actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
@@ -813,11 +815,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (!conversionSymbol.safe && expected == 1) {
             dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
 
-        } else if (expected == 2) {
+        } else if (expected != actual) {
+            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+        } else {
             actualTypes = conversionSymbol.type.getReturnTypes();
-
-        } else if (expected == 0 || expected > 2) {
-            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);
         }
 
         return actualTypes;
@@ -1205,5 +1206,64 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
+    }
+
+    private List<BType> checkUnNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                                          BType targetType) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+
+        // Check whether a transformer is available for the two types
+        BSymbol symbol = symResolver.resolveTransformer(env, sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            // check whether a casting is possible, to provide user a hint.
+            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+            if (castSymbol == symTable.notFoundSymbol) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+            } else {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
+                        targetType);
+            }
+        } else {
+            BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
+            conversionExpr.conversionSymbol = transformerSymbol;
+            if (conversionExpr.conversionSymbol.safe) {
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+            }
+            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                    (BTransformerSymbol) transformerSymbol);
+        }
+
+        return actualTypes;
+    }
+
+    private List<BType> checkNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                                        BType targetType) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BLangInvocation transformerInvocation = conversionExpr.transformerInvocation;
+        BSymbol transformerSymbol = symResolver.lookupSymbol(transformerInvocation.pos, env,
+                names.fromIdNode(transformerInvocation.pkgAlias), names.fromIdNode(transformerInvocation.name),
+                SymTag.TRANSFORMER);
+        if (transformerSymbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.UNDEFINED_TRANSFORMER, transformerInvocation.name);
+        } else {
+            conversionExpr.conversionSymbol =
+                    (BConversionOperatorSymbol) (transformerInvocation.symbol = transformerSymbol);
+
+            // Check the transformer invocation. Expected type for the transformer is the target type
+            // of the cast conversion operator, but not the lhs type.
+            List<BType> prevExpType = expTypes;
+            expTypes = Lists.of(targetType);
+            checkInvocationParamAndReturnType(transformerInvocation);
+            expTypes = prevExpType;
+
+            if (transformerInvocation.type != symTable.errType) {
+                BInvokableType transformerSymType = (BInvokableType) transformerSymbol.type;
+                transformerInvocation.types = transformerSymType.retTypes;
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                        conversionExpr.conversionSymbol);
+            }
+        }
+
+        return actualTypes;
     }
 }

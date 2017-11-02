@@ -29,16 +29,19 @@ import org.testng.annotations.Test;
  */
 public class LaunchTest {
 
-    @Test(expectedExceptions = { RuntimeException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'xxxx'")
+    @Test(expectedExceptions = {IllegalArgumentException.class }, 
+            expectedExceptionsMessageRegExp = "valid package not available at 'xxxx'")
     public void testRunNonExistingPackage() {
-        BCompileUtil.compile(this, "test-src/launch/", "xxxx");
+        CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "xxxx");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertNull(result.getProgFile());
     }
 
-    @Test(expectedExceptions = { RuntimeException.class },
-            expectedExceptionsMessageRegExp = "cannot find any entry in package 'foo'")
+    @Test
     public void testRunEmptyPackage() {
-        BCompileUtil.compile(this, "test-src/launch/", "foo");
+        CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "foo");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertNull(result.getProgFile());
     }
 
     @Test

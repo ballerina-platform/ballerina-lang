@@ -21,6 +21,7 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -70,9 +71,6 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
@@ -108,9 +106,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
-                    getColumnDefinitions(rs));
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
+            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -189,9 +185,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
-                        getColumnDefinitions(rs));
-                context.getControlStackNew().getCurrentFrame().returnValues[0] = datatable;
+                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
@@ -367,15 +361,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
-        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<>();
+    private ArrayList<ColumnDefinition> getColumnDefinitions(ResultSet rs)
+            throws SQLException {
+        ArrayList<ColumnDefinition> columnDefs = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
             int colType = rsMetaData.getColumnType(i);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType, colType));
+            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
         }
         return columnDefs;
     }
@@ -760,29 +755,25 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 if (!ballerinaTxManager.isInXATransaction()) {
                     ballerinaTxManager.beginXATransaction();
                 }
-                Transaction tx = ballerinaTxManager.getXATransaction();
-                try {
-                    if (tx != null) {
-                        XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                        XAResource xaResource = xaConn.getXAResource();
-                        tx.enlistResource(xaResource);
-                        conn = xaConn.getConnection();
-                        txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
-                        ballerinaTxManager.registerTransactionContext(connectorId, txContext);
-                    }
-                } catch (SystemException | RollbackException | IllegalStateException e) {
-                    throw new BallerinaException(
-                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
-                }
+                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                XAResource xaResource = xaConn.getXAResource();
+                conn = xaConn.getConnection();
+                txContext = new SQLTransactionContext(conn, xaResource);
+                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             } else {
                 conn = datasource.getSQLConnection();
                 conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                txContext = new SQLTransactionContext(conn, null);
                 ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
         return conn;
+    }
+
+    private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
+        ArrayList<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
+        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
     }
 }

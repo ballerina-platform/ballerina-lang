@@ -70,7 +70,8 @@ public class BLangAnnotationAttachmentPoint {
         STRUCT("struct"),
         CONST("const"),
         PARAMETER("parameter"),
-        ANNOTATION("annotation");
+        ANNOTATION("annotation"),
+        TRANSFORMER("transformer");
 
         private String value;
 

@@ -84,7 +84,7 @@ public final class BConnector implements BRefType, StructureType {
 
     @Override
     public String stringValue() {
-        return null;
+        return "";
     }
 
     @Override
