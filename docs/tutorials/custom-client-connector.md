@@ -7,9 +7,10 @@ Now that you have [written a main program](../tutorials/main-program.md) and [wr
 This tutorial consists of the following main sections.
 
 - [About connectors and actions](about-connectors-and-actions)
-- [Create your own connector](create-your-own-connector)
+- [About custom client connectors](about-custom-client-connectors)
+- [Create a custom client connector](create-a-custom-client-connector)
 
-> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
+> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). Use the Quick Tour to also get an understanding of the Ballerina Composer and how it works. it is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
 
 ## About connectors and actions
 
@@ -36,9 +37,9 @@ A connector contains the following syntax in Ballerina.
 
 ```
 
-Any variables declared at the connector level are visible to all actions. The lifetime of the connector also defines the lifetime of the variables and they are of course local to each connector instance.
+Any variables declared at the connector level is visible to all actions. The lifetime of the connector also defines the lifetime of the variables and they are local to each connector instance.
 
-The structure of an action definition is as follows:
+The structure of an action definition is as follows.
 
 ```
 [ActionAnnotations]
@@ -49,7 +50,7 @@ action actionName ([Input parameters]) ([Output parameters]){
 
 The execution semantics of an action are the same as that of a function: it runs using the caller's thread and the caller blocks until the action completes execution.
 
-## Create your own connector
+## About custom client connectors
 
 When creating a custom client connector, you need to be aware of the following.
 
@@ -63,4 +64,13 @@ In order to demonstrate the above aspects, this tutorial uses a connector that c
 - [List repositories for an organization](https://developer.github.com/v3/repos/#list-organization-repositories).
 - [List issues per repository according to the state](https://developer.github.com/v3/issues/#list-issues)
 
-The above can be categorized as the capabilities expected from the connector and three separate actions represent the above.
+The above can be categorized as the capabilities expected from the connector and these are represented by separate actions.
+
+Furthermore, in order to invoke the APIs, an authentication header must be sent that encompasses the base64 encoded value of the username and the token. This is a supportive extension and can be powered by Ballerina itself by using its inbuilt [base64encoder](https://ballerinalang.org/docs/api/0.94.1/ballerina.util.html#base64encode).
+
+After creating the connector, you need to package it in a way that the connector can be distributed. As a comprehensive packaging mechanism is work in progress, currently we will be using the available packaging model to demonstrate the usage of the connector. The reason for using the package is that, when the inbuilt packaging is available, the structure available now can be extended and packaged to a distributable mode.
+
+## Create a custom client connector
+
+This section of the tutorial explains the way a sample custom client connector is built.
+
