@@ -23,6 +23,10 @@ CREATE TABLE IF NOT EXISTS DataTableRep(
 insert into DataTableRep (row_id, int_type) values
   (1, 100);
 /
+insert into DataTableRep (row_id, int_type) values
+  (2, 200);
+/
+
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL,
   blob_type      BLOB(1024),

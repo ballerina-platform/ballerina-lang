@@ -413,3 +413,36 @@ function testCloseConnectionPool () (int count) {
     testDB.close();
     return;
 }
+
+function testPrintandPrintlnDatatable() {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    sql:Parameter[] parameters = [];
+    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+    boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+
+    println(dt);
+    print(dt);
+    testDB.close();
+}
+function testMutltipleRows () (int i1, int i2) {
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+
+    sql:Parameter[] parameters = [];
+    datatable dt = testDB.select("SELECT int_type from DataTableRep", parameters);
+    ResultPrimitiveInt rs1;
+    ResultPrimitiveInt rs2;
+    int i = 0;
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
+        if (i == 0) {
+            rs1, _ = (ResultPrimitiveInt)dataStruct;
+        } else {
+            rs2, _ = (ResultPrimitiveInt)dataStruct;
+        }
+        i = i +1;
+    }
+    testDB.close();
+    return rs1.INT_TYPE, rs2.INT_TYPE;
+}

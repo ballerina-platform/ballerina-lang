@@ -67,7 +67,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
-        return new FSPackageSource(pkgID, path, entryName);
+        try {
+            return new FSPackageSource(pkgID, path, entryName);
+        } catch (FSPackageEntityNotAvailableException e) {
+            return null;
+        }
     }
 
     @Override
@@ -162,13 +166,15 @@ public class GeneralFSPackageRepository implements PackageRepository {
             this.pkgPath = pkgPath;
         }
 
-        public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName) {
+        public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName) 
+                throws FSPackageEntityNotAvailableException {
             this.pkgID = pkgID;
             this.pkgPath = pkgPath;
-            if (!Files.exists(pkgPath.resolve(entryName))) {
-                throw new RuntimeException("The entry name: " + entryName + " does not exist at package: " + pkgID);
+            if (Files.exists(pkgPath.resolve(entryName))) {
+                this.cachedEntryNames = Arrays.asList(entryName);
+            } else {
+                throw new FSPackageEntityNotAvailableException();
             }
-            this.cachedEntryNames = Arrays.asList(entryName);
         }
 
         @Override
@@ -258,5 +264,16 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
     }
+    
+    /**
+     * Represents an FS repository not available scenario.
+     * 
+     * @since 0.94
+     */
+    private class FSPackageEntityNotAvailableException extends Exception {
 
+        private static final long serialVersionUID = 1528033476455781589L;
+        
+    }
+    
 }

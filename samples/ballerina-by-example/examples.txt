@@ -41,7 +41,7 @@ Fork/Join Variable Access
 SQL Connector
 Datatables
 Transactions
-Transform Structs
+Transformers
 Transform JSON
 Strings
 Blob Type

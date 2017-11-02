@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerContext;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
@@ -92,7 +93,8 @@ public class Timer {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), newContext);
+                BValue[] error = new BValue[]{new BString(e.getMessage())};
+                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), error, newContext);
             }
             parentCtx.endTrackWorker();
         }

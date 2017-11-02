@@ -43,6 +43,7 @@ public enum NodeKind {
     VARIABLE,
     WORKER,
     XMLNS,
+    TRANSFORMER,
 
     /* Expressions */
     ANNOTATION_ATTACHMENT_ATTRIBUTE,
@@ -59,6 +60,7 @@ public enum NodeKind {
     SIMPLE_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
+    TYPEOF_EXPRESSION,
     TYPE_CAST_EXPR,
     TYPE_CONVERSION_EXPR,
     UNARY_EXPR,

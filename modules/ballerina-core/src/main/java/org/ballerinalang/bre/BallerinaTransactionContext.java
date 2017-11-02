@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.bre;
 
+import javax.transaction.xa.XAResource;
+
 /**
  * {@code BallerinaTransactionContext} represent the connection context associated with a transaction.
  *
@@ -26,5 +28,6 @@ public interface BallerinaTransactionContext {
     void commit();
     void rollback();
     void close();
-    boolean isXAConnection();
+    void done();
+    XAResource getXAResource();
 }
