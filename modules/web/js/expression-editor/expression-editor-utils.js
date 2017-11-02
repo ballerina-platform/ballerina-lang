@@ -205,7 +205,7 @@ class ExpressionEditor {
         });
 
         // following snipet is to handle adding ";" at the end of statement.
-        this.end_check = /^([^"]|"[^"]*")*?(;)/;
+        this.end_check = /^([^{|"]|[{|"][^[}|"]*[}|"])*?(;)/;
         this._editor.commands.addCommand({
             name: 'semicolon',
             exec: (e) => {
