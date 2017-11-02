@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.nativeimpl.functions.config;
 
-import org.ballerinalang.config.ConfigProcessor;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -55,8 +55,9 @@ public class ConfigTest {
 
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
-        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -69,8 +70,9 @@ public class ConfigTest {
 
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
-        ConfigProcessor.setRuntimeConfiguration(new HashMap<>());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -83,8 +85,9 @@ public class ConfigTest {
 
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
-        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -97,7 +100,9 @@ public class ConfigTest {
 
         BString key = new BString("ballerina.wso2");
         BValue[] inputArg = {key};
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -111,8 +116,9 @@ public class ConfigTest {
         BString id = new BString("http1");
         BString key = new BString("ballerina.http.port");
         BValue[] inputArg = {id, key};
-        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -126,8 +132,9 @@ public class ConfigTest {
         BString id = new BString("http1");
         BString key = new BString("ballerina.http.port");
         BValue[] inputArg = {id, key};
-        ConfigProcessor.setRuntimeConfiguration(new HashMap<>());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -141,8 +148,9 @@ public class ConfigTest {
         BString id = new BString("http1");
         BString key = new BString("ballerina.http.port");
         BValue[] inputArg = {id, key};
-        ConfigProcessor.setRuntimeConfiguration(getRuntimeProperties());
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -156,7 +164,9 @@ public class ConfigTest {
         BString id = new BString("http1");
         BString key = new BString("ballerina.wso2");
         BValue[] inputArg = {id, key};
-        ConfigProcessor.processConfiguration();
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>());
+        registry.loadConfigurations();
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");

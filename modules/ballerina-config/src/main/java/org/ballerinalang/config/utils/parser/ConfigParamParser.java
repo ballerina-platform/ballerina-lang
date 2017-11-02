@@ -20,8 +20,8 @@ package org.ballerinalang.config.utils.parser;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,9 +33,7 @@ import java.util.regex.Pattern;
  */
 public class ConfigParamParser extends AbstractConfigParser {
 
-    private static final String GLOBAL_CONFIG_KEY_FORMAT = "[a-zA-Z0-9.]+";
-    private static final String INSTANCE_CONFIG_KEY_FORMAT = "(\\[[a-zA-Z0-9]+\\])\\.([a-zA-Z0-9.]+)";
-    private static final String CONFIG_VALUE_FORMAT = "[\\ -~]+";
+    private static final String INSTANCE_CONFIG_KEY_FORMAT = "(\\[[a-zA-Z0-9._]+\\])\\.([a-zA-Z0-9._]+)";
     private static final Pattern INSTANCE_CONFIG_KEY_PATTERN = Pattern.compile(INSTANCE_CONFIG_KEY_FORMAT);
 
     public ConfigParamParser(Map<String, String> cliParams) {
@@ -44,27 +42,25 @@ public class ConfigParamParser extends AbstractConfigParser {
 
     private void parse(Map<String, String> cliParams) {
         cliParams.forEach((key, val) -> {
-            if (val.matches(CONFIG_VALUE_FORMAT)) {
-                if (key.matches(GLOBAL_CONFIG_KEY_FORMAT)) {
-                    globalConfigs.put(key, parseConfigValue(val));
-                } else if (key.matches(INSTANCE_CONFIG_KEY_FORMAT)) {
-                    Matcher matcher = INSTANCE_CONFIG_KEY_PATTERN.matcher(key);
-                    matcher.find();
+            if (key.matches(CONFIG_KEY_FORMAT)) {
+                globalConfigs.put(key, parseConfigValue(val));
+            } else if (key.matches(INSTANCE_CONFIG_KEY_FORMAT)) { // Check if key matches the "exact" specified format
+                Matcher matcher = INSTANCE_CONFIG_KEY_PATTERN.matcher(key);
+                matcher.find();
 
-                    String instanceId = extractInstanceId(matcher.group(1));
-                    String configKey = matcher.group(2);
-                    if (instanceConfigs.containsKey(instanceId)) {
-                        instanceConfigs.get(instanceId).put(configKey, parseConfigValue(val));
-                    } else {
-                        Map<String, String> map = new HashMap<>();
-                        map.put(configKey, parseConfigValue(val));
-                        instanceConfigs.put(instanceId, map);
-                    }
+                String instanceId = extractInstanceId(matcher.group(1));
+                String configKey = matcher.group(2);
+                if (instanceConfigs.containsKey(instanceId)) {
+                    instanceConfigs.get(instanceId).put(configKey, parseConfigValue(val));
                 } else {
-                    throw new BallerinaException("invalid configuration parameter key: " + key);
+                    Map<String, String> map = new ConcurrentHashMap<>();
+                    map.put(configKey, parseConfigValue(val));
+                    instanceConfigs.put(instanceId, map);
                 }
             } else {
-                throw new BallerinaException("invalid configuration parameter value: " + val);
+                throw new BallerinaException(
+                        "invalid configuration parameter key: " + key + ", key should conform to " +
+                                CONFIG_KEY_FORMAT + " or " + INSTANCE_CONFIG_KEY_FORMAT);
             }
         });
     }

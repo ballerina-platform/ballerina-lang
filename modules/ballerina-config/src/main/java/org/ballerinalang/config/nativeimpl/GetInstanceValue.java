@@ -48,7 +48,7 @@ public class GetInstanceValue extends AbstractNativeFunction {
         String instanceId = this.getStringArgument(context, 0);
         String configKey = this.getStringArgument(context, 1);
 
-        String instanceValue = ConfigRegistry.getInstanceConfigValue(instanceId, configKey);
+        String instanceValue = ConfigRegistry.getInstance().getInstanceConfigValue(instanceId, configKey);
         return getBValues(new BString(instanceValue));
     }
 }

@@ -57,8 +57,8 @@ public class ConfigParserTest {
         cliParams = new HashMap<>();
         cliParams.put(K_HTTP_HOST, V_HTTP_HOST);
         cliParams.put(K_HTTP_INSTANCES, V_HTTP_INSTANCES);
-        cliParams.put(K_ENV_PATH, "$env{PATH}");
-        cliParams.put(K_BALLERINA_HOME, "$sys{ballerina.home}");
+        cliParams.put(K_ENV_PATH, "${env:PATH}");
+        cliParams.put(K_BALLERINA_HOME, "${sys:ballerina.home}");
         cliParams.put(K_INST1_HTTP_PORT, V_INST1_HTTP_PORT);
         cliParams.put(K_INST2_HTTP_PORT, V_INST2_HTTP_PORT);
     }
@@ -73,15 +73,14 @@ public class ConfigParserTest {
         Map<String, Map<String, String>> instanceConfigs = parser.getInstanceConfigs();
 
         Assert.assertNotNull(globalConfigs);
-        Assert.assertEquals(globalConfigs.size(), 5);
+        Assert.assertEquals(globalConfigs.size(), 4);
         Assert.assertEquals(instanceConfigs.size(), 2);
-        Assert.assertEquals(globalConfigs.get(K_ENV_PATH), V_ENV_PATH);
-        Assert.assertEquals(globalConfigs.get(K_BALLERINA_HOME), V_BAL_TEST_HOME);
+        Assert.assertEquals(globalConfigs.get(K_ENV_PATH), "Path variable: " + V_ENV_PATH);
     }
 
     @Test(expectedExceptions = BallerinaException.class,
           expectedExceptionsMessageRegExp =
-                  "invalid configuration\\(s\\) in ballerina.conf at line\\(s\\): \\[23, 26\\]")
+                  "invalid configuration\\(s\\) in ballerina.conf at line\\(s\\): \\[23, 26\\].*")
     public void testInvalidConfigFile() throws IOException {
         File configFile = new File(
                 getClass().getClassLoader().getResource("datafiles/config/invalid-ballerina.conf").getPath());
@@ -106,14 +105,6 @@ public class ConfigParserTest {
     public void testConfigParamParserInvalidKey() {
         Map<String, String> map = new HashMap<>(cliParams);
         map.put("invalid.$key", "valid-value");
-        new ConfigParamParser(map);
-    }
-
-    @Test(expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = "invalid configuration parameter value.*")
-    public void testConfigParamParserInvalidValue() {
-        Map<String, String> map = new HashMap<>(cliParams);
-        map.put("valid.key", "invalid\tvalue");
         new ConfigParamParser(map);
     }
 }

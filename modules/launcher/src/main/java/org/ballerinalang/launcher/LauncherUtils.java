@@ -20,7 +20,7 @@ package org.ballerinalang.launcher;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.config.ConfigProcessor;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
@@ -78,7 +78,7 @@ public class LauncherUtils {
         }
 
         try {
-            ConfigProcessor.processConfiguration();
+            ConfigRegistry.getInstance().loadConfigurations();
         } catch (IOException e) {
             throw new RuntimeException("error reading configuration: " + e.getMessage(), e);
         }

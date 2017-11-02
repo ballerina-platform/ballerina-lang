@@ -20,8 +20,8 @@ package org.ballerinalang.config.utils.parser;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,21 +33,23 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractConfigParser {
 
-    protected static final String INSTANCE_ID_FORMAT = "\\[[a-zA-Z0-9]+\\]";
+    protected static final String CONFIG_KEY_FORMAT = "([a-zA-Z0-9._]+)";
+    protected static final String INSTANCE_ID_FORMAT = "\\[[a-zA-Z0-9._]+\\]";
     protected static final String COMMENT_OR_WS_FORMAT = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
-    protected static final String VARIABLE_FORMAT = "\\$(env|sys)\\{([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
+    // TODO: rethink this regex
+    protected static final String VARIABLE_FORMAT = "\\$\\{(env|sys):([a-zA-Z_]+[a-zA-Z0-9_\\.]*)\\}";
     protected static final Pattern VARIABLE_PATTERN = Pattern.compile(VARIABLE_FORMAT);
 
     private static final String ENVIRONMENT_VARIABLE = "env";
     private static final String SYSTEM_PROPERTY = "sys";
 
-    protected Map<String, String> globalConfigs = new HashMap<>();
-    protected Map<String, Map<String, String>> instanceConfigs = new HashMap<>();
+    protected Map<String, String> globalConfigs = new ConcurrentHashMap<>();
+    protected Map<String, Map<String, String>> instanceConfigs = new ConcurrentHashMap<>();
 
     /**
      * Returns the parsed global configurations as a map.
      *
-     * @return Global configurations map
+     * @return global The parsed global configurations map
      */
     public Map<String, String> getGlobalConfigs() {
         return globalConfigs;
@@ -56,7 +58,7 @@ public abstract class AbstractConfigParser {
     /**
      * Returns the parsed instance level configurations as a map.
      *
-     * @return Instance configurations map
+     * @return The parsed instance configurations map
      */
     public Map<String, Map<String, String>> getInstanceConfigs() {
         return instanceConfigs;
@@ -66,8 +68,8 @@ public abstract class AbstractConfigParser {
      * This method takes the value of a Ballerina configuration key/value pair and processes it to replace any system or
      * environment variables present.
      *
-     * @param value
-     * @return
+     * @param value The value portion of a config entry to be parsed
+     * @return The parsed config value
      */
     protected String parseConfigValue(String value) {
         Matcher matcher = VARIABLE_PATTERN.matcher(value);
@@ -85,6 +87,7 @@ public abstract class AbstractConfigParser {
 
             String varType = matcher.group(1);
             String key = matcher.group(2);
+            // TODO: look at making this a pluggable process, instead of using a switch
             switch (varType) {
                 case ENVIRONMENT_VARIABLE:
                     varReplacedValue.append(System.getenv(key));
@@ -95,11 +98,19 @@ public abstract class AbstractConfigParser {
                 default:
                     throw new BallerinaException("invalid config variable type: " + varType);
             }
+
+            i = matcher.end();
         } while (matcher.find());
 
         return varReplacedValue.toString();
     }
 
+    /**
+     * Extracts the instance ID from a instance tag (i.e: [http1]).
+     *
+     * @param id The instance ID tag
+     * @return The extracted instance ID
+     */
     protected String extractInstanceId(String id) {
         return id.substring(1, id.length() - 1);
     }

@@ -45,7 +45,7 @@ public class GetGlobalValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String configKey = this.getStringArgument(context, 0);
-        String globalValue = ConfigRegistry.getGlobalConfigValue(configKey);
+        String globalValue = ConfigRegistry.getInstance().getGlobalConfigValue(configKey);
         return getBValues(new BString(globalValue));
     }
 }

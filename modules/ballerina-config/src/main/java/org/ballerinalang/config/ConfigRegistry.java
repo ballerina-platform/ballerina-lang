@@ -18,7 +18,9 @@
 
 package org.ballerinalang.config;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConfigRegistry caches configuration properties and provide API.
@@ -27,25 +29,55 @@ import java.util.Map;
  */
 public class ConfigRegistry {
 
-    private static Map<String, String> globalConfigs;
-    private static Map<String, Map<String, String>> instanceConfigs;
+    private static final ConfigRegistry configRegistry = new ConfigRegistry();
+
+    private Map<String, String> globalConfigs = new ConcurrentHashMap<>();
+    private Map<String, Map<String, String>> instanceConfigs = new ConcurrentHashMap<>();
+
+    private ConfigProcessor confProcessor;
+
+    private ConfigRegistry() {
+        confProcessor = new ConfigProcessor(this);
+    }
+
+    public static ConfigRegistry getInstance() {
+        return configRegistry;
+    }
+
+    /**
+     * Prepares for parsing and loading the configurations by initializing the config processor.
+     *
+     * @param runtimeParams The Ballerina runtime parameters (-B params)
+     */
+    public void initRegistry(Map<String, String> runtimeParams) {
+        confProcessor.setRuntimeConfiguration(runtimeParams);
+    }
+
+    /**
+     * Prompts the config processor to process and load the configurations to the config registry.
+     *
+     * @throws IOException
+     */
+    public void loadConfigurations() throws IOException {
+        confProcessor.processConfiguration();
+    }
 
     /**
      * Sets global config properties as a map.
      *
-     * @param globalConfigMap is a processed map of key value pairs.
+     * @param globalConfigMap Processed map of key value pairs.
      */
-    protected static void setGlobalConfigs(Map<String, String> globalConfigMap) {
-        globalConfigs = globalConfigMap;
+    protected void setGlobalConfigs(Map<String, String> globalConfigMap) {
+        globalConfigs.putAll(globalConfigMap);
     }
 
     /**
      * Returns global config value based on config name.
      *
-     * @param configKey is the configuration.
-     * @return config value
+     * @param configKey The key used to look up a configuration
+     * @return The corresponding config value
      */
-    public static String getGlobalConfigValue(String configKey) {
+    public String getGlobalConfigValue(String configKey) {
         if (globalConfigs.isEmpty() || (globalConfigs.get(configKey) == null)) {
             return "";
         }
@@ -55,20 +87,20 @@ public class ConfigRegistry {
     /**
      * Sets instance config properties as a map.
      *
-     * @param instanceConfigMap is a processed map of key value pairs.
+     * @param instanceConfigMap The final, resolved map of key value pairs.
      */
-    protected static void setInstanceConfigs(Map<String, Map<String, String>> instanceConfigMap) {
-        instanceConfigs = instanceConfigMap;
+    protected void setInstanceConfigs(Map<String, Map<String, String>> instanceConfigMap) {
+        instanceConfigs.putAll(instanceConfigMap);
     }
 
     /**
      * Returns instance config value based on instance id and config name.
      *
-     * @param instanceId is the instance.
-     * @param configKey is the configuration.
-     * @return config value
+     * @param instanceId The ID of the instance whose configurations which need to be looked up
+     * @param configKey The key for the configuration to be looked up
+     * @return The config value
      */
-    public static String getInstanceConfigValue(String instanceId, String configKey) {
+    public String getInstanceConfigValue(String instanceId, String configKey) {
         if (instanceConfigs.isEmpty() || (instanceConfigs.get(instanceId) == null)) {
             return "";
         }

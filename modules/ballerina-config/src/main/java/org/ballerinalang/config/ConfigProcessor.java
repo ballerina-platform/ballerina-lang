@@ -24,10 +24,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConfigProcessor processes runtime, environment and config file configurations.
@@ -39,18 +38,23 @@ public class ConfigProcessor {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String USER_DIR = "user.dir";
     private static final String BALLERINA_CONF_DEFAULT_PATH = System.getProperty(USER_DIR) + File.separator +
-            BALLERINA_CONF;
-    private static Map<String, String> runtimeParams = new HashMap<>();
-    private static Map<String, String> prioritizedGlobalConfigs = new HashMap<>();
-    private static Map<String, Map<String, String>> prioritizedInstanceConfigs = new HashMap<>();
+                                                                                                    BALLERINA_CONF;
+    private Map<String, String> runtimeParams = new ConcurrentHashMap<>();
+    private Map<String, String> resolvedGlobalConfigs = new ConcurrentHashMap<>();
+    private Map<String, Map<String, String>> resolvedInstanceConfigs = new ConcurrentHashMap<>();
+    private ConfigRegistry configRegistry;
+
+    public ConfigProcessor(ConfigRegistry configRegistry) {
+        this.configRegistry = configRegistry;
+    }
 
     /**
      * Sets runtime config properties gathered from user as a map.
      *
-     * @param params is a map of key value pairs
+     * @param params The Ballerina runtime parameters (i.e: -B params)
      */
-    public static void setRuntimeConfiguration(Map<String, String> params) {
-        runtimeParams = params;
+    public void setRuntimeConfiguration(Map<String, String> params) {
+        this.runtimeParams = params;
     }
 
     /**
@@ -58,55 +62,118 @@ public class ConfigProcessor {
      * the following precedence order. 1. Ballerina runtime properties, 2. External config
      * (environment vars, etcd or something similar), 3. ballerina.conf file
      */
-    public static void processConfiguration() throws IOException {
+    public void processConfiguration() throws IOException {
         ConfigParamParser paramParser = new ConfigParamParser(runtimeParams);
         Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
         Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
 
-        File confFile = getConfigFile(runtimeGlobalConfigs);
-        if (confFile == null) {
-            prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
-            prioritizedInstanceConfigs.putAll(runtimeInstanceConfigs);
-        } else {
+        File confFile = getConfigFile(runtimeParams.get(BALLERINA_CONF));
+
+        if (confFile != null) {
             ConfigFileParser parser = new ConfigFileParser(confFile);
             Map<String, String> fileGlobalConfigs = parser.getGlobalConfigs();
             Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
 
-            createPrioritizedConfigs
-                    (runtimeGlobalConfigs, runtimeInstanceConfigs, fileGlobalConfigs, fileInstanceConfigs);
+            // TODO: make this variable replacement a pluggable process
+            // Give precedence to environment variables
+            lookUpEnvironmentVariables(fileGlobalConfigs, fileInstanceConfigs);
+
+            // Give precedence to system variables, if not overridden by environment variables
+            lookUpSystemVariables(fileGlobalConfigs, fileInstanceConfigs);
+
+            // Add the remaining global configs to the resolved pool
+            resolvedGlobalConfigs.putAll(fileGlobalConfigs);
+
+            // Add the remaining configs of each instance config to the resolved pool
+            resolvedInstanceConfigs.forEach((key, val) -> val.putAll(fileInstanceConfigs.get(key)));
+
+            // Add the remaining instance configs to the resolved pool
+            fileInstanceConfigs.forEach((key, val) -> resolvedInstanceConfigs.putIfAbsent(key, val));
         }
-        ConfigRegistry.setGlobalConfigs(prioritizedGlobalConfigs);
-        ConfigRegistry.setInstanceConfigs(prioritizedInstanceConfigs);
-    }
 
-    private static void createPrioritizedConfigs(Map<String, String> runtimeGlobalConfigs
-            , Map<String, Map<String, String>> runtimeInstanceConfigs, Map<String, String> fileGlobalConfigs
-            , Map<String, Map<String, String>> fileInstanceConfigs) {
-
-        prioritizedInstanceConfigs = new HashMap<>();
-        prioritizedGlobalConfigs = new HashMap<>(fileGlobalConfigs);
-        prioritizedGlobalConfigs.putAll(runtimeGlobalConfigs);
-
-        Set<String> instances = new HashSet<>(runtimeInstanceConfigs.keySet());
-        instances.addAll(fileInstanceConfigs.keySet());
-
-        for (String instance : instances) {
-            Map<String, String> runtimeConfigs = runtimeInstanceConfigs.get(instance);
-            Map<String, String> fileConfigs = fileInstanceConfigs.get(instance);
-
-            if (fileConfigs == null) {
-                prioritizedInstanceConfigs.put(instance, runtimeConfigs);
-            } else if (runtimeConfigs == null) {
-                prioritizedInstanceConfigs.put(instance, fileConfigs);
-            } else {
-                fileConfigs.putAll(runtimeConfigs);
-                prioritizedInstanceConfigs.put(instance, fileConfigs);
+        // Merge the runtime configurations with the already resolved configs.
+        // Any configs already resolved and present are overridden.
+        resolvedGlobalConfigs.putAll(runtimeGlobalConfigs);
+        resolvedInstanceConfigs.forEach((key, val) -> {
+            if (runtimeInstanceConfigs.containsKey(key)) {
+                val.putAll(runtimeInstanceConfigs.get(key));
             }
-        }
+        });
+        runtimeInstanceConfigs.forEach((key, val) -> resolvedInstanceConfigs.putIfAbsent(key, val));
+
+        configRegistry.setGlobalConfigs(resolvedGlobalConfigs);
+        configRegistry.setInstanceConfigs(resolvedInstanceConfigs);
     }
 
-    private static File getConfigFile(Map<String, String> runtimeGlobalConfigs) {
-        String fileLocation = runtimeGlobalConfigs.get(BALLERINA_CONF);
+    private void lookUpEnvironmentVariables(Map<String, String> globalConfigs,
+                                            Map<String, Map<String, String>> instanceConfigs) {
+        globalConfigs.keySet().forEach(key -> {
+            String value = System.getenv(convertToEnvVarFormat(key));
+            if (value != null) {
+                // replace the config value if there is an environment variable of the same name
+                resolvedGlobalConfigs.put(key, value);
+                globalConfigs.remove(key);
+            }
+        });
+
+        instanceConfigs.keySet().forEach(instanceId -> {
+            Map<String, String> configInstance = instanceConfigs.get(instanceId);
+            configInstance.keySet().forEach(key -> {
+                String value = System.getenv(convertToEnvVarFormat(key, instanceId));
+                if (value != null) {
+                    // replace the config value if there is an environment variable of the same name
+                    if (resolvedInstanceConfigs.containsKey(instanceId)) {
+                        resolvedInstanceConfigs.get(instanceId).put(key, value);
+                    } else {
+                        Map<String, String> map = new ConcurrentHashMap<>();
+                        map.put(key, value);
+                        resolvedInstanceConfigs.put(instanceId, map);
+                    }
+                    configInstance.remove(key);
+                }
+            });
+        });
+    }
+
+    private void lookUpSystemVariables(Map<String, String> globalConfigs,
+                                       Map<String, Map<String, String>> instanceConfigs) {
+        globalConfigs.keySet().forEach(key -> {
+            String property = System.getProperty(key);
+            if (property != null) {
+                // replace the config value if there is a system property of the same name
+                resolvedGlobalConfigs.put(key, property);
+                globalConfigs.remove(key);
+            }
+        });
+
+        instanceConfigs.keySet().forEach(instanceId -> {
+            Map<String, String> configInstance = instanceConfigs.get(instanceId);
+            configInstance.keySet().forEach(key -> {
+                String property = System.getProperty(key);
+                if (property != null) {
+                    // replace the config value if there is a system property of the same name
+                    if (resolvedInstanceConfigs.containsKey(instanceId)) {
+                        resolvedInstanceConfigs.get(instanceId).put(key, property);
+                    } else {
+                        Map<String, String> map = new ConcurrentHashMap<>();
+                        map.put(key, property);
+                        resolvedInstanceConfigs.put(instanceId, map);
+                    }
+                    configInstance.remove(key);
+                }
+            });
+        });
+    }
+
+    private String convertToEnvVarFormat(String var) {
+        return var.toUpperCase(Locale.ROOT).replace('.', '_');
+    }
+
+    private String convertToEnvVarFormat(String var, String instanceId) {
+        return instanceId.toUpperCase(Locale.ROOT) + "__" + convertToEnvVarFormat(var);
+    }
+
+    private File getConfigFile(String fileLocation) {
         File confFile;
         if (fileLocation != null) {
             confFile = new File(fileLocation);

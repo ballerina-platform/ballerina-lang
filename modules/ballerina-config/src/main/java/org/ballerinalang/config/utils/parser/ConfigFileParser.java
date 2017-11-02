@@ -26,9 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An extension of the generic AbstractConfigParser to parse ballerina.conf files.
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class ConfigFileParser extends AbstractConfigParser {
 
-    private static final String CONFIG_ENTRY_FORMAT = "([a-zA-Z0-9.])+=([\\ -~])+";
+    private static final String CONFIG_ENTRY_FORMAT = CONFIG_KEY_FORMAT + "=(.*)";
 
     private List<Integer> invalidConfigs;
     private int currentLine;
@@ -77,7 +77,7 @@ public class ConfigFileParser extends AbstractConfigParser {
             }
 
             String currentInstance = extractInstanceId(line);
-            instanceConfigs.put(currentInstance, new HashMap<>());
+            instanceConfigs.put(currentInstance, new ConcurrentHashMap<>());
 
             for (; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(CONFIG_ENTRY_FORMAT)) {
@@ -91,7 +91,8 @@ public class ConfigFileParser extends AbstractConfigParser {
 
             if (invalidConfigs.size() > 0) {
                 throw new BallerinaException(
-                        "invalid configuration(s) in ballerina.conf at line(s): " + invalidConfigs.toString());
+                        "invalid configuration(s) in ballerina.conf at line(s): " + invalidConfigs.toString() +
+                                ", config entries should conform to " + CONFIG_ENTRY_FORMAT);
             }
         }
     }
@@ -106,7 +107,7 @@ public class ConfigFileParser extends AbstractConfigParser {
         if (instanceConfigs.containsKey(instanceId)) {
             instanceConfigs.get(instanceId).put(entryParts[0], parseConfigValue(entryParts[1]));
         } else {
-            Map<String, String> map = new HashMap<>();
+            Map<String, String> map = new ConcurrentHashMap<>();
             map.put(entryParts[0], parseConfigValue(entryParts[1]));
             instanceConfigs.put(instanceId, map);
         }

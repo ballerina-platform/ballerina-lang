@@ -24,7 +24,7 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.config.ConfigProcessor;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
@@ -236,9 +236,7 @@ public class Main {
                 System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
-            if (!configRuntimeParams.isEmpty()) {
-                ConfigProcessor.setRuntimeConfiguration(configRuntimeParams);
-            }
+            ConfigRegistry.getInstance().initRegistry(configRuntimeParams);
 
             // Enable remote debugging
             if (null != ballerinaDebugPort) {
