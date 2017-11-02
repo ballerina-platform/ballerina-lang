@@ -97,7 +97,6 @@ class TransformerStatementDecorator extends React.Component {
     }
 
     render() {
-        debugger;
         const { viewState, model, icon } = this.props;
         const bBox = viewState.bBox;
         // const innerZoneHeight = viewState.components['drop-zone'].h;
@@ -235,7 +234,6 @@ class TransformerStatementDecorator extends React.Component {
 
 TransformerStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(TransformerNodeModel).isRequired,
-    expression: PropTypes.string.isRequired,
 };
 
 TransformerStatementDecorator.contextTypes = {

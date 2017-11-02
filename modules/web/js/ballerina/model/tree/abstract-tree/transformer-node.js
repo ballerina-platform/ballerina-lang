@@ -22,7 +22,7 @@ import Node from '../node';
 class AbstractTransformerNode extends Node {
 
 
-    setSource(newValue, silent, title) {
+    setSourceParam(newValue, silent, title) {
         const oldValue = this.source;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.source = newValue;
@@ -43,7 +43,7 @@ class AbstractTransformerNode extends Node {
         }
     }
 
-    getSource() {
+    getSourceParam() {
         return this.source;
     }
 
