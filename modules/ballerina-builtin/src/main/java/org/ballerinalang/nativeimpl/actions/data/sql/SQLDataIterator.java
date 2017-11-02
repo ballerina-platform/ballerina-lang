@@ -193,86 +193,88 @@ public class SQLDataIterator implements DataIterator {
         int refRegIndex = -1;
         try {
             for (ColumnDefinition columnDef : columnDefs) {
-                SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
-                String columnName = def.getName();
-                int sqlType = def.getSqlType();
-                switch (sqlType) {
-                case Types.ARRAY:
-                    BMap<BString, BValue> bMapvalue = getDataArray(columnName);
-                    bStruct.setRefField(++refRegIndex, bMapvalue);
-                    break;
-                case Types.CHAR:
-                case Types.VARCHAR:
-                case Types.LONGVARCHAR:
-                case Types.NCHAR:
-                case Types.NVARCHAR:
-                case Types.LONGNVARCHAR:
-                    String sValue = rs.getString(columnName);
-                    bStruct.setStringField(++stringRegIndex, sValue);
-                    break;
-                case Types.BLOB:
-                case Types.BINARY:
-                case Types.VARBINARY:
-                case Types.LONGVARBINARY:
-                    Blob value = rs.getBlob(columnName);
-                    BBlob bValue = new BBlob(value.getBytes(1L, (int) value.length()));
-                    bStruct.setBlobField(++blobRegIndex, (bValue).blobValue());
-                    break;
-                case Types.CLOB:
-                    String clobValue = SQLDatasourceUtils.getString((rs.getClob(columnName)));
-                    bStruct.setStringField(++stringRegIndex, clobValue);
-                    break;
-                case Types.NCLOB:
-                    String nClobValue = SQLDatasourceUtils.getString(rs.getNClob(columnName));
-                    bStruct.setStringField(++stringRegIndex, nClobValue);
-                    break;
-                case Types.DATE:
-                    String dateValue = SQLDatasourceUtils.getString(rs.getDate(columnName));
-                    bStruct.setStringField(++stringRegIndex, dateValue);
-                    break;
-                case Types.TIME:
-                case Types.TIME_WITH_TIMEZONE:
-                    String timeValue = SQLDatasourceUtils.getString(rs.getTime(columnName, utcCalendar));
-                    bStruct.setStringField(++stringRegIndex, timeValue);
-                    break;
-                case Types.TIMESTAMP:
-                case Types.TIMESTAMP_WITH_TIMEZONE:
-                    String timestmpValue = SQLDatasourceUtils.getString(rs.getTimestamp(columnName, utcCalendar));
-                    bStruct.setStringField(++stringRegIndex, timestmpValue);
-                    break;
-                case Types.ROWID:
-                    BValue strValue = new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
-                    bStruct.setStringField(++stringRegIndex, strValue.stringValue());
-                    break;
-                case Types.TINYINT:
-                case Types.SMALLINT:
-                case Types.INTEGER:
-                    long iValue = rs.getInt(columnName);
-                    bStruct.setIntField(++longRegIndex, iValue);
-                    break;
-                case Types.BIGINT:
-                    long lValue = rs.getLong(columnName);
-                    bStruct.setIntField(++longRegIndex, lValue);
-                    break;
-                case Types.REAL:
-                case Types.NUMERIC:
-                case Types.DECIMAL:
-                case Types.FLOAT:
-                    double fValue = rs.getFloat(columnName);
-                    bStruct.setFloatField(++doubleRegIndex, fValue);
-                    break;
-                case Types.DOUBLE:
-                    double dValue = rs.getDouble(columnName);
-                    bStruct.setFloatField(++doubleRegIndex, dValue);
-                    break;
-                case Types.BIT:
-                case Types.BOOLEAN:
-                    boolean boolValue = rs.getBoolean(columnName);
-                    bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
-                    break;
-                default:
-                    throw new BallerinaException(
-                            "unsupported sql type " + sqlType + " found for the column " + columnName);
+                if (columnDef instanceof SQLColumnDefinition) {
+                    SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
+                    String columnName = def.getName();
+                    int sqlType = def.getSqlType();
+                    switch (sqlType) {
+                    case Types.ARRAY:
+                        BMap<BString, BValue> bMapvalue = getDataArray(columnName);
+                        bStruct.setRefField(++refRegIndex, bMapvalue);
+                        break;
+                    case Types.CHAR:
+                    case Types.VARCHAR:
+                    case Types.LONGVARCHAR:
+                    case Types.NCHAR:
+                    case Types.NVARCHAR:
+                    case Types.LONGNVARCHAR:
+                        String sValue = rs.getString(columnName);
+                        bStruct.setStringField(++stringRegIndex, sValue);
+                        break;
+                    case Types.BLOB:
+                    case Types.BINARY:
+                    case Types.VARBINARY:
+                    case Types.LONGVARBINARY:
+                        Blob value = rs.getBlob(columnName);
+                        BBlob bValue = new BBlob(value.getBytes(1L, (int) value.length()));
+                        bStruct.setBlobField(++blobRegIndex, (bValue).blobValue());
+                        break;
+                    case Types.CLOB:
+                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(columnName)));
+                        bStruct.setStringField(++stringRegIndex, clobValue);
+                        break;
+                    case Types.NCLOB:
+                        String nClobValue = SQLDatasourceUtils.getString(rs.getNClob(columnName));
+                        bStruct.setStringField(++stringRegIndex, nClobValue);
+                        break;
+                    case Types.DATE:
+                        String dateValue = SQLDatasourceUtils.getString(rs.getDate(columnName));
+                        bStruct.setStringField(++stringRegIndex, dateValue);
+                        break;
+                    case Types.TIME:
+                    case Types.TIME_WITH_TIMEZONE:
+                        String timeValue = SQLDatasourceUtils.getString(rs.getTime(columnName, utcCalendar));
+                        bStruct.setStringField(++stringRegIndex, timeValue);
+                        break;
+                    case Types.TIMESTAMP:
+                    case Types.TIMESTAMP_WITH_TIMEZONE:
+                        String timestmpValue = SQLDatasourceUtils.getString(rs.getTimestamp(columnName, utcCalendar));
+                        bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        break;
+                    case Types.ROWID:
+                        BValue strValue = new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
+                        bStruct.setStringField(++stringRegIndex, strValue.stringValue());
+                        break;
+                    case Types.TINYINT:
+                    case Types.SMALLINT:
+                    case Types.INTEGER:
+                        long iValue = rs.getInt(columnName);
+                        bStruct.setIntField(++longRegIndex, iValue);
+                        break;
+                    case Types.BIGINT:
+                        long lValue = rs.getLong(columnName);
+                        bStruct.setIntField(++longRegIndex, lValue);
+                        break;
+                    case Types.REAL:
+                    case Types.NUMERIC:
+                    case Types.DECIMAL:
+                    case Types.FLOAT:
+                        double fValue = rs.getFloat(columnName);
+                        bStruct.setFloatField(++doubleRegIndex, fValue);
+                        break;
+                    case Types.DOUBLE:
+                        double dValue = rs.getDouble(columnName);
+                        bStruct.setFloatField(++doubleRegIndex, dValue);
+                        break;
+                    case Types.BIT:
+                    case Types.BOOLEAN:
+                        boolean boolValue = rs.getBoolean(columnName);
+                        bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                        break;
+                    default:
+                        throw new BallerinaException(
+                                "unsupported sql type " + sqlType + " found for the column " + columnName);
+                    }
                 }
             }
         } catch (SQLException e) {

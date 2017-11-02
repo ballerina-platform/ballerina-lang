@@ -24,7 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
  *
  * @since 0.95.0
  */
-public abstract class ColumnDefinition {
+public class ColumnDefinition {
 
     protected String name;
     protected TypeKind mappedType;
