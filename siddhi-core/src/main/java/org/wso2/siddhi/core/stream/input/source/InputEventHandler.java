@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class InputEventHandler {
     private static final Logger LOG = Logger.getLogger(InputEventHandler.class);
 
     private final ThreadLocal<String[]> trpProperties;
+    private final TimestampGenerator timestampGenerator;
     private String sourceType;
     private SiddhiAppContext siddhiAppContext;
     private InputHandler inputHandler;
@@ -49,12 +51,17 @@ public class InputEventHandler {
         this.sourceType = sourceType;
         this.siddhiAppContext = siddhiAppContext;
         this.inputEventHandlerCallback = inputEventHandlerCallback;
+        this.timestampGenerator = siddhiAppContext.getTimestampGenerator();
     }
 
     public void sendEvent(Event event) throws InterruptedException {
         try {
             String[] transportProperties = trpProperties.get();
             trpProperties.remove();
+            if (event.getTimestamp() == -1) {
+                long currentTimestamp = timestampGenerator.currentTime();
+                event.setTimestamp(currentTimestamp);
+            }
             for (int i = 0; i < transportMapping.size(); i++) {
                 AttributeMapping attributeMapping = transportMapping.get(i);
                 event.getData()[attributeMapping.getPosition()] = transportProperties[i];
@@ -73,9 +80,13 @@ public class InputEventHandler {
         try {
             String[] transportProperties = trpProperties.get();
             trpProperties.remove();
-            for (int i = 0; i < transportMapping.size(); i++) {
-                AttributeMapping attributeMapping = transportMapping.get(i);
-                for (Event event : events) {
+            long currentTimestamp = timestampGenerator.currentTime();
+            for (Event event : events) {
+                if (event.getTimestamp() == -1) {
+                    event.setTimestamp(currentTimestamp);
+                }
+                for (int i = 0; i < transportMapping.size(); i++) {
+                    AttributeMapping attributeMapping = transportMapping.get(i);
                     event.getData()[attributeMapping.getPosition()] = transportProperties[i];
                 }
             }
