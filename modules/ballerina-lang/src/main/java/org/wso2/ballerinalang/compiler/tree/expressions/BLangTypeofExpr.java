@@ -19,7 +19,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.TypeAccessExpressionNode;
+import org.ballerinalang.model.tree.expressions.TypeofExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 /**
  * @since 0.95
  */
-public class BLangTypeAccessExpr extends BLangExpression implements TypeAccessExpressionNode {
+public class BLangTypeofExpr extends BLangExpression implements TypeofExpressionNode {
 
     public BLangType typeNode;
     public BType resolvedType;
@@ -43,7 +43,7 @@ public class BLangTypeAccessExpr extends BLangExpression implements TypeAccessEx
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPE_ACCESS_EXPR;
+        return NodeKind.TYPEOF_EXPRESSION;
     }
 
     @Override

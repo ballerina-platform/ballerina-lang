@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
  *
  * @since 0.95
  */
-public interface TypeAccessExpressionNode extends ExpressionNode {
+public interface TypeofExpressionNode extends ExpressionNode {
 
     TypeNode getTypeNode();
 
