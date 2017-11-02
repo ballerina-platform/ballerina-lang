@@ -664,7 +664,7 @@ class HttpClient extends React.Component {
                                 });
                             }}
                         >
-                            <i className="fw fw-copy" />
+                            <i className="fw fw-copy-link" />
                             <div
                                 className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
                             >
@@ -831,7 +831,7 @@ class HttpClient extends React.Component {
         return (<div className="container-fluid">
             {mainControlComponent}
             <div className="row http-client-wrapper">
-                <div className='col-md-6 http-client-request'>
+                <div className='http-client-request'>
                     <h3>Request</h3>
                     <hr />
                     <div className="form-horizontal">
@@ -851,7 +851,7 @@ class HttpClient extends React.Component {
                         <div className='http-client-body-wrapper'>
                             <span className="section-header">Body</span>
                             <hr />
-                            <div>
+                            <div className="ACE-editor-wrapper">
                                 <AceEditor
                                     mode={this.getRequestBodyMode()}
                                     theme='monokai'
@@ -873,7 +873,7 @@ class HttpClient extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className='col-md-6 http-client-response'>
+                <div className='http-client-response'>
                     <h3>Response</h3>
                     <hr />
                     <div className='http-client-response-attributes'>
