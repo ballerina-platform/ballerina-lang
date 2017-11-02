@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.93.1-SNAPSHOT</version>
+        <version>0.94.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -32,6 +32,11 @@
     <url>http://ballerinalang.org</url>
 
     <dependencies>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -82,6 +87,10 @@
                     <environmentVariables>
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
                     </environmentVariables>
+                    <systemPropertyVariables>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>

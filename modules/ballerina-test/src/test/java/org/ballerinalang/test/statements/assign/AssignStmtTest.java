@@ -175,4 +175,32 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
         BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
     }
+
+    @Test(description = "Test negative assignment statement with cast and conversion with var.")
+    public void testCastAndConversionWithVar() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/assign/var-negative.bal");
+        BAssertUtil.validateError(result, 0, "unknown type 'Foo'", 4, 17);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'bar'", 4, 22);
+        BAssertUtil.validateError(result, 2, "operator '+' not defined for 'TypeCastError' and 'error'", 6, 22);
+        BAssertUtil.validateError(result, 3, "unknown type 'Float'", 11, 17);
+        BAssertUtil.validateError(result, 4, "operator '+' not defined for 'TypeCastError' and 'error'", 13, 22);
+        BAssertUtil.validateError(result, 5, "undefined symbol 'foo'", 17, 25);
+        BAssertUtil.validateError(result, 6, "operator '+' not defined for 'string' and 'error'", 18, 22);
+        BAssertUtil.validateError(result, 7, "operator '+' not defined for 'TypeCastError' and 'error'", 19, 22);
+        BAssertUtil.validateError(result, 8, "unknown type 'Foo'", 23, 17);
+        BAssertUtil.validateError(result, 9, "undefined symbol 'bar'", 23, 22);
+        BAssertUtil.validateError(result, 10, "operator '+' not defined for 'TypeConversionError' and 'error'", 25, 22);
+        BAssertUtil.validateError(result, 11, "unknown type 'Float'", 30, 17);
+        BAssertUtil.validateError(result, 12, "operator '+' not defined for 'TypeConversionError' and 'error'", 32, 22);
+        BAssertUtil.validateError(result, 13, "undefined symbol 'foo'", 36, 25);
+        BAssertUtil.validateError(result, 14, "operator '+' not defined for 'string' and 'error'", 37, 22);
+        BAssertUtil.validateError(result, 15, "operator '+' not defined for 'TypeConversionError' and 'error'", 38, 22);
+        BAssertUtil.validateError(result, 16, "unknown type 'Float'", 42, 20);
+        BAssertUtil.validateError(result, 17, "undefined symbol 'fooo'", 42, 27);
+        BAssertUtil.validateError(result, 18, "assignment count mismatch: expected 3 values, but found 2", 42, 19);
+        BAssertUtil.validateError(result, 19, "assignment count mismatch: expected 3 values, but found 2", 46, 19);
+        BAssertUtil.validateError(result, 20, "assignment count mismatch: expected 3 values, but found 2", 51, 19);
+        BAssertUtil.validateError(result, 21, "unknown type 'Foo'", 55, 14);
+        BAssertUtil.validateError(result, 22, "undefined symbol 'bar'", 55, 19);
+    }
 }

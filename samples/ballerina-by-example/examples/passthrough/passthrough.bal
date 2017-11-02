@@ -1,8 +1,8 @@
 import ballerina.net.http;
-import ballerina.doc;
 
 service<http> passthrough {
-    @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
+
+    @Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
     @http:resourceConfig {
         path:"/"
     }
@@ -19,9 +19,9 @@ service<http> passthrough {
     }
 }
 
-@doc:Description {value:"Sample backend echo service."}
+@Description {value:"Sample backend echo service."}
 service<http> echo {
-    @doc:Description {value:"A common resource for POST, PUT and GET methods."}
+    @Description {value:"A common resource for POST, PUT and GET methods."}
     @http:resourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"

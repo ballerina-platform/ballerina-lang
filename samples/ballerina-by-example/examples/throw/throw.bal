@@ -1,18 +1,15 @@
-import ballerina.lang.system;
-import ballerina.doc;
-
 struct Record {
     int id;
     string name;
 }
 
-@doc:Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
+@Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
 function readRecord (Record value) {
     if (value == null) {
         error err = {msg:"Record is null"};
         throw err;
     }
-    system:println("Record ID: " + value.id + ", value: " + value.name);
+    println("Record ID: " + value.id + ", value: " + value.name);
 }
 
 function main (string[] args) {

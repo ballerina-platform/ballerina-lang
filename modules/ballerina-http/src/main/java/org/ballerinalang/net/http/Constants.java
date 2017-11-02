@@ -82,6 +82,9 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
+    public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
+    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
+    public static final String ANN_WEBSOCKET_ATTR_SERVICE_NAME = "serviceName";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -139,6 +142,7 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
+    public static final int CHUNK_DISABLED_STRUCT_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;

@@ -39,6 +39,7 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangVariable> fields;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public boolean isAnonymous;
 
     public BSymbol symbol;
 

@@ -837,4 +837,12 @@ public class TypeCastExprTest {
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
     }*/
+
+    @Test
+    public void testSameTypeCast() {
+        BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final int expected = 10;
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
 }

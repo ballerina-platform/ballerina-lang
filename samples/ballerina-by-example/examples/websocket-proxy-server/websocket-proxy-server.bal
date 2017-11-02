@@ -1,5 +1,3 @@
-import ballerina.lang.maps;
-import ballerina.doc;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -10,8 +8,8 @@ service<ws> SimpleProxyServer {
 
     map clientConnMap = {};
 
-    @doc:Description {value:"Create a client connection to remote server from ballerina"}
-    @doc:Description {value:"when new client connects to this service endpoint"}
+    @Description {value:"Create a client connection to remote server from ballerina"}
+    @Description {value:"when new client connects to this service endpoint"}
     resource onHandshake(ws:HandshakeConnection con) {
         ws:ClientConnector c = create ws:ClientConnector("wss://echo.websocket.org", "ClientService");
         try {
@@ -35,11 +33,11 @@ service<ws> SimpleProxyServer {
     resource onClose(ws:Connection conn, ws:CloseFrame frame) {
         var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
         clientConn.closeConnection(frame.statusCode, frame.reason);
-        maps:remove(clientConnMap, conn.getID());
+        clientConnMap.remove(conn.getID());
     }
 }
 
-@doc:Description {value:"Client service to receive frames from remote server"}
+@Description {value:"Client service to receive frames from remote server"}
 @ws:clientService {}
 service<ws> ClientService {
 

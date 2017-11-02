@@ -1,7 +1,4 @@
-import ballerina.lang.system;
-import ballerina.doc;
-
-@doc:Description {value:"In scope variables can be accessed within workers of fork-join statement."}
+@Description {value:"In scope variables can be accessed within workers of fork-join statement."}
 function main (string[] args) {
     // Define variables which are visible to the forked workers
     int i = 100;
@@ -49,17 +46,17 @@ function main (string[] args) {
         string q;
         q, _ = (string)r2[0];
         // Print values received from workers within join block
-        system:println("[default worker] within join:
+        println("[default worker] within join:
 Value of integer from W1 is [" + p + "]");
-        system:println("[default worker] within join:
+        println("[default worker] within join:
 Value of string from W1 is [" + l + "]");
-        system:println("[default worker] within join:
+        println("[default worker] within join:
 Value of string from W2 [" + q + "]");
     }
     // Print values after the fork-join statement to check effect on variables.
     // Value type variables have not been changed since they are passed in as a
     // copy of the original variable
-    system:println("[default worker] after fork-join:
+    println("[default worker] after fork-join:
 Value of integer variable is [" + i + "]
 Value of string variable is [" + s + "]");
     // Reference type variables are changed since they have passed in as a
@@ -68,7 +65,7 @@ Value of string variable is [" + s + "]");
     string era;
     name, _ = (string)m["name"];
     era, _ = (string)m["era"];
-    system:println("[default worker] after fork-join:
+    println("[default worker] after fork-join:
 Value of name is [" + name + "]
 Value of era is [" + era + "]");
 }
