@@ -86,6 +86,14 @@ const tools = [
         description: 'Programmable actor which is represented on a sequence diagram'
         + ' as a vertical lifeline of logic to be executed.',
     },
+    {
+        id: 'transformer',
+        name: 'Transformer',
+        icon: 'transformer',
+        title: 'Transformer',
+        nodeFactoryMethod: DefaultNodeFactory.createTransformer,
+        description: 'Custom type conversion for transforming data',
+    },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'main_tool_seperator',
@@ -133,14 +141,6 @@ const tools = [
         title: 'While',
         nodeFactoryMethod: DefaultNodeFactory.createWhile,
         description: 'Provide a way to execute a series of statements as long as a boolean expression is met',
-    },
-    {
-        id: 'Transform',
-        name: 'Transform',
-        icon: 'type-converter',
-        title: 'Transform',
-        nodeFactoryMethod: DefaultNodeFactory.createTransform,
-        description: 'Transform any chosen variables in the enclosing scope',
     },
     {
         id: 'break',

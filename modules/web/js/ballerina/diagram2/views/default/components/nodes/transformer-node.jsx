@@ -30,7 +30,7 @@ class TransformerNode extends React.Component {
 
     render() {
         const model = this.props.model;
-        const icons = 'tool-icons/transform';
+        const icons = 'tool-icons/transformer';
 
         return (<TransformerStatementDecorator viewState={model.viewState} icon={icons} model={model} />);
     }
