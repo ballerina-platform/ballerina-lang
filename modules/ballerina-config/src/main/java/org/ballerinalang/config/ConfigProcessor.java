@@ -24,9 +24,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConfigProcessor processes runtime, environment and config file configurations.
@@ -39,9 +39,9 @@ public class ConfigProcessor {
     private static final String USER_DIR = "user.dir";
     private static final String BALLERINA_CONF_DEFAULT_PATH = System.getProperty(USER_DIR) + File.separator +
                                                                                                     BALLERINA_CONF;
-    private Map<String, String> runtimeParams = new ConcurrentHashMap<>();
-    private Map<String, String> resolvedGlobalConfigs = new ConcurrentHashMap<>();
-    private Map<String, Map<String, String>> resolvedInstanceConfigs = new ConcurrentHashMap<>();
+    private Map<String, String> runtimeParams = new HashMap<>();
+    private Map<String, String> resolvedGlobalConfigs = new HashMap<>();
+    private Map<String, Map<String, String>> resolvedInstanceConfigs = new HashMap<>();
     private ConfigRegistry configRegistry;
 
     public ConfigProcessor(ConfigRegistry configRegistry) {
@@ -76,10 +76,10 @@ public class ConfigProcessor {
 
             // TODO: make this variable replacement a pluggable process
             // Give precedence to environment variables
-            lookUpEnvironmentVariables(fileGlobalConfigs, fileInstanceConfigs);
+            lookUpVariables(fileGlobalConfigs, fileInstanceConfigs);
 
             // Give precedence to system variables, if not overridden by environment variables
-            lookUpSystemVariables(fileGlobalConfigs, fileInstanceConfigs);
+//            lookUpSystemVariables(fileGlobalConfigs, fileInstanceConfigs);
 
             // Add the remaining global configs to the resolved pool
             resolvedGlobalConfigs.putAll(fileGlobalConfigs);
@@ -105,10 +105,11 @@ public class ConfigProcessor {
         configRegistry.setInstanceConfigs(resolvedInstanceConfigs);
     }
 
-    private void lookUpEnvironmentVariables(Map<String, String> globalConfigs,
-                                            Map<String, Map<String, String>> instanceConfigs) {
+    private void lookUpVariables(Map<String, String> globalConfigs, Map<String, Map<String, String>> instanceConfigs) {
         globalConfigs.keySet().forEach(key -> {
             String value = System.getenv(convertToEnvVarFormat(key));
+            value = (value == null) ? System.getProperty(key) : value;
+
             if (value != null) {
                 // replace the config value if there is an environment variable of the same name
                 resolvedGlobalConfigs.put(key, value);
@@ -120,43 +121,14 @@ public class ConfigProcessor {
             Map<String, String> configInstance = instanceConfigs.get(instanceId);
             configInstance.keySet().forEach(key -> {
                 String value = System.getenv(convertToEnvVarFormat(key, instanceId));
+                value = (value == null) ? System.getProperty(key) : value;
                 if (value != null) {
                     // replace the config value if there is an environment variable of the same name
                     if (resolvedInstanceConfigs.containsKey(instanceId)) {
                         resolvedInstanceConfigs.get(instanceId).put(key, value);
                     } else {
-                        Map<String, String> map = new ConcurrentHashMap<>();
+                        Map<String, String> map = new HashMap<>();
                         map.put(key, value);
-                        resolvedInstanceConfigs.put(instanceId, map);
-                    }
-                    configInstance.remove(key);
-                }
-            });
-        });
-    }
-
-    private void lookUpSystemVariables(Map<String, String> globalConfigs,
-                                       Map<String, Map<String, String>> instanceConfigs) {
-        globalConfigs.keySet().forEach(key -> {
-            String property = System.getProperty(key);
-            if (property != null) {
-                // replace the config value if there is a system property of the same name
-                resolvedGlobalConfigs.put(key, property);
-                globalConfigs.remove(key);
-            }
-        });
-
-        instanceConfigs.keySet().forEach(instanceId -> {
-            Map<String, String> configInstance = instanceConfigs.get(instanceId);
-            configInstance.keySet().forEach(key -> {
-                String property = System.getProperty(key);
-                if (property != null) {
-                    // replace the config value if there is a system property of the same name
-                    if (resolvedInstanceConfigs.containsKey(instanceId)) {
-                        resolvedInstanceConfigs.get(instanceId).put(key, property);
-                    } else {
-                        Map<String, String> map = new ConcurrentHashMap<>();
-                        map.put(key, property);
                         resolvedInstanceConfigs.put(instanceId, map);
                     }
                     configInstance.remove(key);

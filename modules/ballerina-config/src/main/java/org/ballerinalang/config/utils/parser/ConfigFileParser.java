@@ -26,9 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An extension of the generic AbstractConfigParser to parse ballerina.conf files.
@@ -77,7 +77,7 @@ public class ConfigFileParser extends AbstractConfigParser {
             }
 
             String currentInstance = extractInstanceId(line);
-            instanceConfigs.put(currentInstance, new ConcurrentHashMap<>());
+            instanceConfigs.put(currentInstance, new HashMap<>());
 
             for (; (line = reader.readLine()) != null; currentLine++) {
                 if (line.matches(CONFIG_ENTRY_FORMAT)) {
@@ -107,7 +107,7 @@ public class ConfigFileParser extends AbstractConfigParser {
         if (instanceConfigs.containsKey(instanceId)) {
             instanceConfigs.get(instanceId).put(entryParts[0], parseConfigValue(entryParts[1]));
         } else {
-            Map<String, String> map = new ConcurrentHashMap<>();
+            Map<String, String> map = new HashMap<>();
             map.put(entryParts[0], parseConfigValue(entryParts[1]));
             instanceConfigs.put(instanceId, map);
         }

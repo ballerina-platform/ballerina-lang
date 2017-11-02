@@ -19,8 +19,8 @@
 package org.ballerinalang.config;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConfigRegistry caches configuration properties and provide API.
@@ -31,8 +31,8 @@ public class ConfigRegistry {
 
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
 
-    private Map<String, String> globalConfigs = new ConcurrentHashMap<>();
-    private Map<String, Map<String, String>> instanceConfigs = new ConcurrentHashMap<>();
+    private Map<String, String> globalConfigs = new HashMap<>();
+    private Map<String, Map<String, String>> instanceConfigs = new HashMap<>();
 
     private ConfigProcessor confProcessor;
 

@@ -20,8 +20,8 @@ package org.ballerinalang.config.utils.parser;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,8 +43,8 @@ public abstract class AbstractConfigParser {
     private static final String ENVIRONMENT_VARIABLE = "env";
     private static final String SYSTEM_PROPERTY = "sys";
 
-    protected Map<String, String> globalConfigs = new ConcurrentHashMap<>();
-    protected Map<String, Map<String, String>> instanceConfigs = new ConcurrentHashMap<>();
+    protected Map<String, String> globalConfigs = new HashMap<>();
+    protected Map<String, Map<String, String>> instanceConfigs = new HashMap<>();
 
     /**
      * Returns the parsed global configurations as a map.

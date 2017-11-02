@@ -20,8 +20,8 @@ package org.ballerinalang.config.utils.parser;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +53,7 @@ public class ConfigParamParser extends AbstractConfigParser {
                 if (instanceConfigs.containsKey(instanceId)) {
                     instanceConfigs.get(instanceId).put(configKey, parseConfigValue(val));
                 } else {
-                    Map<String, String> map = new ConcurrentHashMap<>();
+                    Map<String, String> map = new HashMap<>();
                     map.put(configKey, parseConfigValue(val));
                     instanceConfigs.put(instanceId, map);
                 }
