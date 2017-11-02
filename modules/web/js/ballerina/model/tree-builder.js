@@ -125,6 +125,11 @@ class TreeBuilder {
         if (parentKind === 'CompilationUnit' && (kind === 'Variable' || kind === 'Xmlns')) {
             node.global = true;
         }
+
+        if (node.kind === 'VariableDef' && node.variable.typeNode && node.variable.typeNode.kind === 'EndpointType') {
+            node.variable.endpoint = true;
+            node.endpoint = true;
+        }
     }
 
     static modify(tree, parentKind = null) {

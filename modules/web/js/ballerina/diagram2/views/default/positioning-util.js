@@ -51,8 +51,8 @@ class PositioningUtil {
             } else if (TreeUtil.isAssignment(node) || TreeUtil.isExpressionStatement(node)) {
                 variableRefName = node.expression.expression.variableName.value;
             }
-            const allVisibleConnectorDeclarations = TreeUtil.getAllVisibleConnectorDeclarations(node.parent);
-            const connectorDeclaration = _.find(allVisibleConnectorDeclarations, (varDef) => {
+            const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
+            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
                 return varDef.variable.name.value === variableRefName;
             });
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
@@ -62,22 +62,18 @@ class PositioningUtil {
             dropDown.y = viewState.components['statement-box'].y
                 + (viewState.components['statement-box'].h / 2);
             viewState.components.dropDown = dropDown;
-            if (connectorDeclaration) {
+            if (endpoint) {
                 viewState.components.invocation = {
                     start: undefined,
                     end: undefined,
                 };
                 viewState.components.invocation.start = arrowStartBBox;
-                arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);
+                arrowEndBBox.x = endpoint.viewState.bBox.x + (endpoint.viewState.bBox.w / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
-                if (connectorDeclaration.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(connectorDeclaration);
+                if (endpoint.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpoint);
                 }
-            }
-        } else if (TreeUtil.isConnectorDeclaration(node)) {
-            if (node.viewState.showOverlayContainer) {
-                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
             }
         }
     }
@@ -386,7 +382,7 @@ class PositioningUtil {
         // Position Connectors
         const statements = node.body.statements;
         statements.forEach((statement) => {
-            if (TreeUtil.isConnectorDeclaration(statement)) {
+            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                 statement.viewState.bBox.x = xindex;
                 statement.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
@@ -498,23 +494,23 @@ class PositioningUtil {
         transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
 
         let children = [];
-        let connectors = [];
+        let endpoints = [];
         let variables = [];
         if (TreeUtil.isService(node)) {
             children = node.getResources();
-            connectors = node.filterVariables((statement) => {
-                return TreeUtil.isConnectorDeclaration(statement);
+            endpoints = node.filterVariables((statement) => {
+                return TreeUtil.isEndpointTypeVariableDef(statement);
             });
             variables = node.filterVariables((statement) => {
-                return !TreeUtil.isConnectorDeclaration(statement);
+                return !TreeUtil.isEndpointTypeVariableDef(statement);
             });
         } else if (TreeUtil.isConnector(node)) {
             children = node.getActions();
-            connectors = node.filterVariableDefs((statement) => {
-                return TreeUtil.isConnectorDeclaration(statement);
+            endpoints = node.filterVariableDefs((statement) => {
+                return TreeUtil.isEndpointTypeVariableDef(statement);
             });
             variables = node.filterVariableDefs((statement) => {
-                return !TreeUtil.isConnectorDeclaration(statement);
+                return !TreeUtil.isEndpointTypeVariableDef(statement);
             });
         }
 
@@ -547,8 +543,8 @@ class PositioningUtil {
         const yIndex = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h +
             viewState.components.initFunction.h + 40;
 
-        if (connectors instanceof Array) {
-            connectors.forEach((statement) => {
+        if (endpoints instanceof Array) {
+            endpoints.forEach((statement) => {
                 statement.viewState.bBox.x = xIndex;
                 statement.viewState.bBox.y = yIndex;
                 xIndex += this.config.innerPanel.wrapper.gutter.h + statement.viewState.bBox.w;
@@ -920,7 +916,7 @@ class PositioningUtil {
         const statements = node.getStatements();
         let height = 0;
         statements.forEach((element) => {
-            if (!TreeUtil.isConnectorDeclaration(element)) {
+            if (!TreeUtil.isEndpointTypeVariableDef(element)) {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;

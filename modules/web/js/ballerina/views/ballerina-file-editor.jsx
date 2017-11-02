@@ -227,7 +227,7 @@ class BallerinaFileEditor extends React.Component {
             && node.getVariable().getInitialExpression()
             && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
-        } else if (TreeUtils.isConnectorDeclaration(node)) {
+        } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
         } else if (TreeUtils.isService(node)) {
             fullPackageName = node.getFullPackageName();
@@ -255,7 +255,7 @@ class BallerinaFileEditor extends React.Component {
                 if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
                     || TreeUtils.isAction(immediateParent)) {
                     const connectors = immediateParent.getBody().filterStatements((statement) => {
-                        return TreeUtils.isConnectorDeclaration(statement);
+                        return TreeUtils.isEndpointTypeVariableDef(statement);
                     });
                     connectors.forEach((connector) => {
                         if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
@@ -267,7 +267,7 @@ class BallerinaFileEditor extends React.Component {
                     });
                 } else if (TreeUtils.isService(immediateParent)) {
                     const connectors = immediateParent.filterVariables((statement) => {
-                        return TreeUtils.isConnectorDeclaration(statement);
+                        return TreeUtils.isEndpointTypeVariableDef(statement);
                     });
                     connectors.forEach((connector) => {
                         if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
@@ -279,7 +279,7 @@ class BallerinaFileEditor extends React.Component {
                     });
                 } else if (TreeUtils.isConnector(immediateParent)) {
                     const connectors = immediateParent.filterVariableDefs((statement) => {
-                        return TreeUtils.isConnectorDeclaration(statement);
+                        return TreeUtils.isEndpointTypeVariableDef(statement);
                     });
                     connectors.forEach((connector) => {
                         if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
@@ -322,9 +322,11 @@ class BallerinaFileEditor extends React.Component {
                     paramString = connectorParams.join(', ');
                 }
                 const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
-                const connectorInit = `${pkgStr}${connector.getName()} endpoint1
-                = create ${pkgStr}${connector.getName()}(${paramString});`;
-                const fragment = FragmentUtils.createStatementFragment(connectorInit);
+
+                const connectorInit = `create ${pkgStr}${connector.getName()}(${paramString});`;
+                const constraint = `<${pkgStr}${connector.getName()}>`;
+                const endpointSource = `endpoint ${constraint} endpoint1 {${connectorInit}}`;
+                const fragment = FragmentUtils.createStatementFragment(endpointSource);
                 const parsedJson = FragmentUtils.parseFragment(fragment);
                 const connectorDeclaration = TreeBuilder.build(parsedJson);
                 connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);

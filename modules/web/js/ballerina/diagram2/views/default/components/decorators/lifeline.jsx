@@ -81,8 +81,8 @@ class LifeLine extends React.Component {
 
     handleConnectorProps() {
         const model = this.props.model;
-        // Check if the model is a connector declaration;
-        if (TreeUtils.isConnectorDeclaration(this.props.model)) {
+        // Check if the model is an endpoint
+        if (TreeUtils.isEndpointTypeVariableDef(this.props.model)) {
             let initialExpression = _.get(model, 'variable.InitialExpression');
             if (!initialExpression || !TreeUtils.isConnectorInitExpr(initialExpression)) {
                 initialExpression = TreeUtils.getConnectorInitFromStatement(model);
@@ -131,7 +131,7 @@ class LifeLine extends React.Component {
         }
 
         let iconColor = this.props.iconColor;
-        if (TreeUtils.isConnectorDeclaration(this.props.model)) {
+        if (TreeUtils.isEndpointTypeVariableDef(this.props.model)) {
             if (this.props.model.viewState.showOverlayContainer) {
                 iconColor = '#6f7b96';
             }

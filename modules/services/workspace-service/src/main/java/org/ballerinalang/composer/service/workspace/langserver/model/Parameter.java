@@ -26,6 +26,8 @@ public class Parameter {
 
     private String type = null;
 
+    private boolean isConnector = false;
+
     public Parameter name(String name) {
         this.name = name;
         return this;
@@ -62,6 +64,13 @@ public class Parameter {
         this.type = type;
     }
 
+    public void setConnector(boolean connector) {
+        isConnector = connector;
+    }
+
+    public boolean isConnector() {
+        return isConnector;
+    }
 
     @Override
     public boolean equals(Object o) {

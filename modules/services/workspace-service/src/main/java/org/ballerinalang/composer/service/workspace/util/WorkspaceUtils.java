@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -457,7 +459,7 @@ public class WorkspaceUtils {
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
-                    item.getTypeNode().type.toString())));
+                    item.getTypeNode().type.toString(), item.getTypeNode().type)));
         }
     }
 
@@ -527,10 +529,11 @@ public class WorkspaceUtils {
      * @param type parameter type
      * @return {Parameter} parameter
      */
-    private static Parameter createNewParameter(String name, String type) {
+    private static Parameter createNewParameter(String name, String type, BType bType) {
         Parameter parameter = new Parameter();
         parameter.setType(type);
         parameter.setName(name);
+        parameter.setConnector(bType instanceof BConnectorType);
         return parameter;
     }
 
