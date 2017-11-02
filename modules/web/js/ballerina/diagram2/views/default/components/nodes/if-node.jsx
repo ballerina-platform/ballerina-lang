@@ -22,6 +22,7 @@ import TreeUtil from './../../../../../model/tree-util';
 import IfNodeModel from './../../../../../model/tree/if-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
+import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
 /**
@@ -50,7 +51,10 @@ class IfNode extends React.Component {
      * */
     onAddElseClick() {
         const elseNode = DefaultNodeFactory.createIfElse().getElseStatement().getElseStatement();
-        const parent = this.props.model;
+        const lastElseIf = this.props.model.elseStatement
+            ? this.getLastElseIf(this.props.model.elseStatement)
+            : this.props.model;
+        const parent = !lastElseIf ? this.props.model : lastElseIf;
         elseNode.clearWS();
         parent.setElseStatement(elseNode);
     }
@@ -73,106 +77,92 @@ class IfNode extends React.Component {
     }
 
     /**
+     * Get the last else statement.
+     * @param {Node} elseStmt - current node's else statement.
+     * */
+    getElseStatement(elseStmt) {
+        const elseExist = TreeUtil.isBlock(elseStmt);
+        if (elseExist) {
+            return elseStmt;
+        } else {
+            return elseStmt.elseStatement ?
+                this.getElseStatement(elseStmt.elseStatement)
+                : false;
+        }
+    }
+
+    /**
      * Get the add block button for if and else if.
      * @param {boolean} isElseIfNode - is model else if node.
      * @return {XML} react component.
      * */
     getAddBlockButton(isElseIfNode) {
         const model = this.props.model;
+        let blocksToBeAdded = [];
         // Check whether next node is the Else block or not.
-        const elseExist = model.elseStatement ? TreeUtil.isBlock(model.elseStatement) : false;
+        const elseExist = model.elseStatement ? this.getElseStatement(model.elseStatement) : false;
         // check whether this block is a else if block and it is the last else if.
-        if (isElseIfNode && this.isLastElseIf(model) && !elseExist) {
-            return (
-                <g onClick={this.onAddElseClick}>
-                    <title>Add Else</title>
-                    <rect
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 10}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 4}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
-            );
-        } else if (!isElseIfNode) {
-            return (
-                <g onClick={this.onAddElseIfClick}>
-                    <title>Add a Else If</title>
-                    <rect
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 10}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 4}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
-            );
+        if (!elseExist) {
+            const elseIfBlock = {
+                name: 'Else If',
+                addBlock: this.onAddElseIfClick,
+            };
+
+            const elseBlock = {
+                name: 'Else',
+                addBlock: this.onAddElseClick,
+            };
+
+            blocksToBeAdded.push(elseIfBlock);
+            blocksToBeAdded.push(elseBlock);
+        } else {
+            const elseIfBlock = {
+                name: 'Else If',
+                addBlock: this.onAddElseIfClick,
+            };
+            blocksToBeAdded.push(elseIfBlock);
         }
 
-        return '';
+        if (TreeUtil.isBlock(model.parent)) {
+            return (
+                <AddCompoundBlock
+                    blocksToBeAdded={blocksToBeAdded}
+                    model={model}
+                />
+            );
+        } else {
+            return null;
+        }
     }
 
     /**
-     * Check whether this is the last else if node.
+     * get the last else if node.
      * @param {Node} node - else if node.
-     * @return {boolean} true if this is the last else if, else false.
+     * @return {Node} true if this is the last else if, else false.
      * */
-    isLastElseIf(node) {
+    getLastElseIf(node) {
         const elseStatement = node.elseStatement ? node.elseStatement : false;
         if (TreeUtil.isIf(node.parent) && TreeUtil.isIf(node) && TreeUtil.isIf(elseStatement)) {
-            return this.isLastElseIf(elseStatement);
+            return this.getLastElseIf(elseStatement);
         } else if (TreeUtil.isIf(node.parent)
             && TreeUtil.isIf(node)
-            && (TreeUtil.isBlock(elseStatement) || !elseStatement)
-            && node.id === this.props.model.id) {
-            return true;
+            && (TreeUtil.isBlock(elseStatement) || !elseStatement)) {
+            return node;
         } else {
-            return false;
+            return null;
         }
     }
 
+    /**
+     * Render the component.
+     * @return {XML} react component.
+     * */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = {
             text: model.getCondition().getSource(),
         };
-        // TODOX Fix the else-if check
         const isElseIfNode = TreeUtil.isIf(model.parent);
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
@@ -213,7 +203,7 @@ class IfNode extends React.Component {
                 {this.getAddBlockButton(isElseIfNode)}
 
                 {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp} />
+                <IfNode model={elseComp}/>
                 }
 
                 {elseComp && TreeUtil.isBlock(elseComp) &&
@@ -236,6 +226,7 @@ IfNode.propTypes = {
 
 IfNode.contextTypes = {
     mode: PropTypes.string,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default IfNode;

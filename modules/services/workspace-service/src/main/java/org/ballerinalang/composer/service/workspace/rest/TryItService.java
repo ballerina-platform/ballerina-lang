@@ -23,6 +23,7 @@ import org.ballerinalang.composer.service.workspace.tryit.TryItClientFactory;
 import org.wso2.msf4j.Request;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -84,6 +85,44 @@ public class TryItService {
         }
     }
     
+    /**
+     * Gets the backend url used in try-it executions.
+     * @param request The http request.
+     * @return The url in a json object.
+     */
+    @GET
+    @Path("/url")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUrl(@Context Request request) {
+        try {
+            String hostName = getHostName(request);
+            String hostAndPort = "".equals(LaunchManager.getInstance().getPort()) ? hostName :
+                                 hostName + ":" + LaunchManager.getInstance().getPort();
+            JsonObject response = new JsonObject();
+            response.addProperty("url", hostAndPort);
+        
+            return Response
+                    .status(Response.Status.OK)
+                    .entity(response)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            JsonObject entity = new JsonObject();
+            entity.addProperty("error", e.getMessage());
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(entity)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+    
+    /**
+     * The options in requests.
+     * @return The options in responses.
+     */
     @OPTIONS
     @Path("/{protocol}")
     @Consumes(MediaType.TEXT_PLAIN)

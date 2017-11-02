@@ -68,7 +68,6 @@ public class HttpTryItClient extends TryItClient {
             // Create url for the request.
             String requestUrl = this.buildUrl();
             String httpMethod = this.clientArgs.get(TryItConstants.HTTP_METHOD).getAsString();
-            // TODO : Check if can use HttpEntityEnclosingRequestBase for get, delete as well.
             switch (httpMethod.toLowerCase(Locale.getDefault())) {
                 case "get":
                 case "delete":
@@ -107,49 +106,45 @@ public class HttpTryItClient extends TryItClient {
                     
                     return jsonStringifyResponse(response, localContext.getRequest().getAllHeaders(), requestUrl,
                                                                                                             elapsed);
-                case "post":
-                case "put":
-                case "patch":
+                default:
                     HttpEntityEnclosingRequestBase httpEntityRequest =
-                                new TryItHttpEntityEnclosingRequestBase(httpMethod.toUpperCase(Locale.getDefault()));
-                
+                            new TryItHttpEntityEnclosingRequestBase(httpMethod.toUpperCase(Locale.getDefault()));
+    
                     // Setting the url for the request.
                     httpEntityRequest.setURI(URI.create(requestUrl));
-                    
+    
                     // Setting the request headers.
                     JsonArray getEntityHeaders = this.clientArgs.getAsJsonArray(TryItConstants.REQUEST_HEADERS);
                     for (JsonElement getHeader : getEntityHeaders) {
                         JsonObject header = getHeader.getAsJsonObject();
                         if (StringUtils.isNotBlank(header.get("key").getAsString()) &&
-                                                            StringUtils.isNotBlank(header.get("value").getAsString())) {
+                            StringUtils.isNotBlank(header.get("value").getAsString())) {
                             httpEntityRequest.setHeader(header.get("key").getAsString(),
-                                                                                    header.get("value").getAsString());
+                                    header.get("value").getAsString());
                         }
                     }
-                    
+    
                     // Setting the body of the request.
                     StringEntity postEntity =
-                                    new StringEntity(this.clientArgs.get(TryItConstants.REQUEST_BODY).getAsString());
+                            new StringEntity(this.clientArgs.get(TryItConstants.REQUEST_BODY).getAsString());
                     httpEntityRequest.setEntity(postEntity);
-                    
+    
                     // Setting the content type.
                     if (StringUtils.isBlank(this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString())) {
                         httpEntityRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.getMimeType());
                     } else {
                         httpEntityRequest.setHeader(HttpHeaders.CONTENT_TYPE,
-                                                    this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString());
+                                this.clientArgs.get(TryItConstants.CONTENT_TYPE).getAsString());
                     }
     
                     // To track how long the request took.
                     long entityRequestStart = System.currentTimeMillis();
-                    
+    
                     // Executing the request.
                     HttpResponse entityResponse = client.execute(httpEntityRequest, localContext);
                     long entityRequestDuration = System.currentTimeMillis() - entityRequestStart;
                     return jsonStringifyResponse(entityResponse, localContext.getRequest().getAllHeaders(), requestUrl,
-                                                                                                entityRequestDuration);
-                default:
-                    return null;
+                            entityRequestDuration);
             }
         } catch (java.io.IOException e) {
             throw new TryItException(e.getMessage());
