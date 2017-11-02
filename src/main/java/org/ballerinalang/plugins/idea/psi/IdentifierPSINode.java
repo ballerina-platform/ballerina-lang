@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
 import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
 import org.ballerinalang.plugins.idea.psi.references.InvocationReference;
+import org.ballerinalang.plugins.idea.psi.references.TransformerReference;
 import org.ballerinalang.plugins.idea.psi.references.TypeReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NonNls;
@@ -260,6 +261,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return suggestReferenceTypeForInvocation();
                 case RULE_structReference:
                     return new StructReference(this);
+                case RULE_transformerReference:
+                    return new TransformerReference(this);
                 default:
                     return null;
             }
@@ -277,7 +280,27 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (prevSibling == null) {
             return null;
         }
-        PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        PsiReference reference = null;
+        if (prevSibling instanceof VariableReferenceNode) {
+            InvocationNode invocationNode = PsiTreeUtil.getChildOfType(prevSibling, InvocationNode.class);
+            if (invocationNode != null) {
+                IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
+                if (identifier == null) {
+                    return null;
+                }
+                reference = identifier.findReferenceAt(identifier.getTextLength());
+            }
+            FieldNode fieldNode = PsiTreeUtil.getChildOfType(prevSibling, FieldNode.class);
+            if (fieldNode != null) {
+                IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(fieldNode, IdentifierPSINode.class);
+                if (identifier == null) {
+                    return null;
+                }
+                reference = identifier.findReferenceAt(identifier.getTextLength());
+            }
+        } else {
+            reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        }
         if (reference == null) {
             return null;
         }
@@ -315,17 +338,33 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 reference = prevVisibleLeaf.findReferenceAt(prevVisibleLeaf.getTextLength());
             }
         }
-        if (reference != null) {
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement != null) {
-                PsiElement type = BallerinaPsiImplUtil.getType(((IdentifierPSINode) resolvedElement));
-                if (type != null && (type instanceof BuiltInReferenceTypeNameNode
-                        || type instanceof ValueTypeNameNode)) {
-                    return new TypeReference(this, type);
-                }
+        if (reference == null) {
+            PsiElement prevSibling = getParent().getPrevSibling();
+            if (prevSibling == null) {
+                return null;
             }
+            InvocationNode invocationNode = PsiTreeUtil.getChildOfType(prevSibling, InvocationNode.class);
+            if (invocationNode == null) {
+                return null;
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                return null;
+            }
+            reference = identifier.findReferenceAt(identifier.getTextLength());
         }
-        return null;
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement type = BallerinaPsiImplUtil.getType(((IdentifierPSINode) resolvedElement));
+        if (type == null || (!(type instanceof BuiltInReferenceTypeNameNode) && !(type instanceof ValueTypeNameNode))) {
+            return null;
+        }
+        return new TypeReference(this, type);
     }
 
     @Nullable

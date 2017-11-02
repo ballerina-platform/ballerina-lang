@@ -122,6 +122,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RPAREN, LPAREN).spaceIf(true)
                 .after(AT).spaceIf(false)
                 .between(BIND, EXPRESSION).spaceIf(true)
+                .between(GT, EXPRESSION).spaceIf(true)
                 .around(EXPRESSION).spaceIf(false)
                 .around(RETURN_PARAMETERS).spaceIf(true)
                 .around(SENDARROW).spaceIf(true)
@@ -180,7 +181,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(LT, CONNECTOR_REFERENCE).spaceIf(false)
                 .between(CONNECTOR_REFERENCE, GT).spaceIf(false)
                 .after(ENDPOINT).spaceIf(false)
-                .between(GT, IDENTIFIER).spaceIf(true);
+                .between(GT, IDENTIFIER).spaceIf(true)
+                .after(TRANSFORMER).spaceIf(true)
+                .around(TRANSFORMER_INVOCATION).spaceIf(false);
     }
 
     @Nullable

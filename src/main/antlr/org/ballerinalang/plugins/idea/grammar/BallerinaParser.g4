@@ -50,6 +50,7 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -123,6 +124,10 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    ;
+
 attachmentPoint
      : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
      | RESOURCE                             # resourceAttachPoint
@@ -134,6 +139,7 @@ attachmentPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody
@@ -249,30 +255,10 @@ statement
     |   (triggerWorker | workerReply)
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
     |   retryStatement
     |   namespaceDeclarationStatement
-    ;
-
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   (expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement)*
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
     ;
 
 variableDefinitionStatement
@@ -523,7 +509,7 @@ typeCast
     ;
 
 typeConversion
-    :   LT typeName GT simpleExpression
+    :   LT typeName (SEMICOLON transformerInvocation)? GT expression
     ;
 
 //reusable productions
@@ -550,6 +536,14 @@ structReference
 
 workerReference
     :   Identifier
+    ;
+
+transformerInvocation
+    : transformerReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+transformerReference
+    :   (packageName COLON)? Identifier
     ;
 
 codeBlockBody

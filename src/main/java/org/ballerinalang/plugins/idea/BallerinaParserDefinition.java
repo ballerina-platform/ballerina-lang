@@ -58,8 +58,6 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EndpointBodyNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionAssignmentStatementNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
@@ -106,8 +104,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TimeoutClauseNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
 import org.ballerinalang.plugins.idea.psi.TryCatchStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -157,7 +154,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             ABORT, ABORTED, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
             CREATE, ELSE, ENDPOINT, ENUM, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF,
             NATIVE, NEXT, PACKAGE, PARAMETER, PUBLIC, REPLY, RESOURCE, RETRY, RETURN, RETURNS, SERVICE, SOME, STRUCT,
-            THROW, TIMEOUT, TRANSACTION, TRANSFORM, TRY, TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL,
+            THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL,
             TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE,
             TYPE_ANY, TYPE_TYPE, VERSION, WITH, BooleanLiteral, NullLiteral);
 
@@ -327,14 +324,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ThrowStatementNode(node);
             case BallerinaParser.RULE_annotationAttribute:
                 return new AnnotationAttributeNode(node);
-            case BallerinaParser.RULE_transformStatement:
-                return new TransformStatementNode(node);
-            case BallerinaParser.RULE_transformStatementBody:
-                return new TransformStatementBodyNode(node);
-            case BallerinaParser.RULE_expressionAssignmentStatement:
-                return new ExpressionAssignmentStatementNode(node);
-            case BallerinaParser.RULE_expressionVariableDefinitionStatement:
-                return new ExpressionVariableDefinitionStatementNode(node);
+            case BallerinaParser.RULE_transformerDefinition:
+                return new TransformerDefinitionNode(node);
             case BallerinaParser.RULE_workerReply:
                 return new WorkerReplyNode(node);
             case BallerinaParser.RULE_triggerWorker:

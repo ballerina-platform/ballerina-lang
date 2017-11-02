@@ -100,8 +100,6 @@ public class BallerinaTypes {
     public static final RuleIElementType FAILED_CLAUSE = ruleIElementTypes.get(RULE_failedClause);
     public static final RuleIElementType ABORTED_CLAUSE = ruleIElementTypes.get(RULE_abortedClause);
     public static final RuleIElementType COMMITTED_CLAUSE = ruleIElementTypes.get(RULE_committedClause);
-    public static final RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(RULE_transformStatement);
-    public static final RuleIElementType TRANSFORM_STATEMENT_BODY = ruleIElementTypes.get(RULE_transformStatementBody);
     public static final RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(RULE_xmlLocalName);
     public static final RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(RULE_nameReference);
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
@@ -110,6 +108,7 @@ public class BallerinaTypes {
     public static final RuleIElementType ANNOTATION_REFERENCE = ruleIElementTypes.get(RULE_annotationReference);
     public static final RuleIElementType ENDPOINT_DECLARATION = ruleIElementTypes.get(RULE_endpointDeclaration);
     public static final RuleIElementType ENDPOINT_BODY = ruleIElementTypes.get(RULE_endpointBody);
+    public static final RuleIElementType TRANSFORMER_INVOCATION = ruleIElementTypes.get(RULE_transformerInvocation);
 
     public static final RuleIElementType INDEX = ruleIElementTypes.get(RULE_index);
     public static final RuleIElementType FIELD = ruleIElementTypes.get(RULE_field);
@@ -180,6 +179,7 @@ public class BallerinaTypes {
     public static final TokenIElementType THROW = tokenIElementTypes.get(BallerinaLexer.THROW);
     public static final TokenIElementType TIMEOUT = tokenIElementTypes.get(BallerinaLexer.TIMEOUT);
     public static final TokenIElementType TRANSACTION = tokenIElementTypes.get(BallerinaLexer.TRANSACTION);
+    public static final TokenIElementType TRANSFORMER = tokenIElementTypes.get(BallerinaLexer.TRANSFORMER);
     public static final TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
     public static final TokenIElementType TYPE = tokenIElementTypes.get(BallerinaLexer.TYPE_TYPE);
     public static final TokenIElementType TYPEOF = tokenIElementTypes.get(BallerinaLexer.TYPEOF);

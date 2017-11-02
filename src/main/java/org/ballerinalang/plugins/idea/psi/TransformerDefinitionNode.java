@@ -17,17 +17,36 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
+import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformStatementNode extends ANTLRPsiNode  implements CodeBlockScope {
+import javax.swing.*;
 
-    public TransformStatementNode(@NotNull ASTNode node) {
-        super(node);
+public class TransformerDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition, ParameterContainer {
+
+    public TransformerDefinitionNode(@NotNull ASTNode node) {
+        super(node, BallerinaTypes.IDENTIFIER);
+    }
+
+    @Override
+    public ItemPresentation getPresentation() {
+        return new BallerinaItemPresentation(getNameIdentifier()) {
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return BallerinaIcons.TRANSFORMER;
+            }
+        };
     }
 
     @Nullable

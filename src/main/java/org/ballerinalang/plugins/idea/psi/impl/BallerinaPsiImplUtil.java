@@ -86,7 +86,7 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
@@ -482,6 +482,14 @@ public class BallerinaPsiImplUtil {
                                                                            boolean includePrivate,
                                                                            boolean includeBuiltIns) {
         return getAllMatchingElementsFromPackage(directory, GlobalVariableDefinitionNode.class, includePrivate,
+                includeBuiltIns);
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAllTransformersFromPackage(@NotNull PsiDirectory directory,
+                                                                           boolean includePrivate,
+                                                                           boolean includeBuiltIns) {
+        return getAllMatchingElementsFromPackage(directory, TransformerDefinitionNode.class, includePrivate,
                 includeBuiltIns);
     }
 
@@ -944,11 +952,11 @@ public class BallerinaPsiImplUtil {
             }
         }
 
-        if (scope instanceof TransformStatementNode) {
+        if (scope instanceof TransformerDefinitionNode) {
             Collection<ExpressionVariableDefinitionStatementNode> nodes = PsiTreeUtil.findChildrenOfType(scope,
                     ExpressionVariableDefinitionStatementNode.class);
             for (ExpressionVariableDefinitionStatementNode node : nodes) {
-                ScopeNode closestScope = PsiTreeUtil.getParentOfType(node, TransformStatementNode.class);
+                ScopeNode closestScope = PsiTreeUtil.getParentOfType(node, TransformerDefinitionNode.class);
                 if (closestScope == null || !closestScope.equals(scope)) {
                     continue;
                 }
@@ -2305,6 +2313,19 @@ public class BallerinaPsiImplUtil {
      */
     @Nullable
     public static PsiElement getType(@NotNull IdentifierPSINode identifier) {
+        PsiElement parent = identifier.getParent();
+        // In case of lambda functions or functions attached to types.
+        if (parent instanceof FunctionDefinitionNode) {
+            CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(parent,
+                    CodeBlockParameterNode.class);
+            if (codeBlockParameterNode != null) {
+                TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(codeBlockParameterNode, TypeNameNode.class);
+                if (typeNameNode != null) {
+                    return typeNameNode.getFirstChild();
+                }
+            }
+        }
+
         PsiReference reference = identifier.findReferenceAt(0);
         if (reference != null) {
             // Todo - Do we need to consider this situation?
@@ -2342,7 +2363,6 @@ public class BallerinaPsiImplUtil {
                 return typeNode;
             }
         }
-
         return null;
     }
 
