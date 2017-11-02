@@ -31,7 +31,7 @@ public class WebSocketEmptyConnFutureListener implements ConnectorFutureListener
     }
 
     @Override
-    public void notifyReply(BValue response) {
+    public void notifyReply(BValue... response) {
         //nothing
     }
 
