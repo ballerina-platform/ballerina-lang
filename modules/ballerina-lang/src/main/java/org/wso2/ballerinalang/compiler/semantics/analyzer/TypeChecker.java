@@ -547,7 +547,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         // Lookup type explicit cast operator symbol
-        BSymbol symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+        BSymbol symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType, env.enclPkg.symbol.pkgID);
         if (symbol == symTable.notFoundSymbol) {
             BSymbol conversionSymbol = symResolver.resolveConversionOperator(sourceType, targetType);
             if (conversionSymbol == symTable.notFoundSymbol) {
@@ -575,7 +575,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // Lookup type conversion operator symbol
         BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
-            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType,
+                    env.enclPkg.symbol.pkgID);
             if (castSymbol == symTable.notFoundSymbol) {
                 dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
             } else {

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -117,8 +118,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolveExplicitCastOperator(BType sourceType,
-                                               BType targetType) {
-        return types.getCastOperator(sourceType, targetType);
+                                               BType targetType,
+                                               PackageID pkgID) {
+        return types.getCastOperator(sourceType, targetType, pkgID);
     }
 
     public BSymbol resolveImplicitCastOperator(BType sourceType,

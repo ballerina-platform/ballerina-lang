@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -259,37 +260,71 @@ public class Types {
         return target == source;
     }
 
-    public boolean checkStructEquivalency(BType actualType, BType expType) {
-        if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
-            return false;
-        }
+    public boolean checkStructEquivalency(BType actualType, BType expType, PackageID currentPID) {
+        return CastabilityResult.SAFE == checkStructCastability(actualType, expType, currentPID);
+    }
 
+    private CastabilityResult checkStructCastability(BType actualType, BType expType, PackageID currentPID) {
+        if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
+            return CastabilityResult.CANNOT;
+        }
         BStructType expStructType = (BStructType) expType;
         BStructType actualStructType = (BStructType) actualType;
 
-        for (int i = 0; i < expStructType.fields.size(); i++) {
-            if (!expStructType.fields.get(i).isPublic) {
-                // If expected type's current filed is private, Then we can't match structurally equivalence.
-                return false;
+        boolean inSamePkg = expStructType.tsymbol.pkgID == actualStructType.tsymbol.pkgID &&
+                currentPID == expStructType.tsymbol.pkgID;
+        boolean actualHasPrivateFields = actualStructType.fields.stream().anyMatch(f -> !f.isPublic);
+        boolean expHasPrivateFields = expStructType.fields.stream().anyMatch(f -> !f.isPublic);
+
+        if (inSamePkg || (!actualHasPrivateFields && !expHasPrivateFields)) {
+            // consider all fields are public if both structs in the same package || all fields are public.
+            if (checkStructCastability(actualStructType, expStructType, false) == CastabilityResult.SAFE) {
+                return CastabilityResult.SAFE;
             }
+            // Now check for castability by from expected to actual.
+            if (checkStructCastability(expStructType, actualStructType, false) == CastabilityResult.SAFE) {
+                return CastabilityResult.UNSAFE;
+            }
+            // neither actual nor expected types aren't structurally equivalent.
+            return CastabilityResult.CANNOT;
+        }
+        // Validate for different package structs which has private fields for equivalency.
+        if (expHasPrivateFields) {
+            // if the expected type has at least a private field and both are from different packages,
+            // Then we can't match Struct Equivalency.
+            return CastabilityResult.CANNOT;
+        }
+        // Now check struct equivalency by iterating each element.
+        CastabilityResult result = checkStructCastability(actualStructType, expStructType, true);
+        if (result == CastabilityResult.SAFE || result == CastabilityResult.CANNOT) {
+            return result;
+        }
+        // If previous operation results an UNSAFE and actual type contains a private field, then
+        // expected to actual is not castable. Hence this CANNOT be done.
+        return CastabilityResult.CANNOT;
+    }
+
+    private CastabilityResult checkStructCastability(BStructType actualStructType,
+                                                     BStructType expStructType,
+                                                     boolean checkPrivateFields) {
+        for (int i = 0; i < expStructType.fields.size(); i++) {
             if (i >= actualStructType.fields.size()) {
-                // Actual struct has less fields than expected type's public fields.
-                return false;
+                // Actual struct has less fields than expected type's fields. This can be a unsafe cast.
+                return CastabilityResult.UNSAFE;
             }
             BStructField actualStructField = actualStructType.fields.get(i);
             BStructField expStructField = expStructType.fields.get(i);
-            if (actualStructField.isPublic) {
-                if (expStructField.name.equals(actualStructField.name)
-                        && isSameType(actualStructField.type, expStructField.type)) {
-                    // Check next field.
-                    continue;
+            if (expStructField.name.equals(actualStructField.name)
+                    && isSameType(actualStructField.type, expStructField.type)) {
+                if (checkPrivateFields && !actualStructField.isPublic) {
+                    return CastabilityResult.CANNOT;
                 }
-                return false;
+                // Check next field.
+                continue;
             }
-            // If actual type's current field is private, that mean we have reached to end of type checking fields.
-            return false;
+            return CastabilityResult.UNSAFE;
         }
-        return true;
+        return CastabilityResult.SAFE;
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
@@ -309,11 +344,22 @@ public class Types {
         expr.impCastExpr = implicitCastExpr;
     }
 
-    public BSymbol getCastOperator(BType sourceType, BType targetType) {
+    public BSymbol getCastOperator(BType sourceType, BType targetType, PackageID callerPkg) {
         if (sourceType.tag == TypeTags.ERROR ||
                 targetType.tag == TypeTags.ERROR ||
                 sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+        // handle struct cast specially.
+        if (sourceType.tag == TypeTags.STRUCT && targetType.tag == TypeTags.STRUCT) {
+            CastabilityResult result = checkStructCastability(sourceType, targetType, callerPkg);
+            if (result == CastabilityResult.SAFE) {
+                return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            } else if (result == CastabilityResult.UNSAFE) {
+                return createCastOperatorSymbol(sourceType, targetType, false, InstructionCodes.CHECKCAST);
+            } else {
+                return symTable.notFoundSymbol;
+            }
         }
 
         return targetType.accept(castVisitor, sourceType);
@@ -543,12 +589,6 @@ public class Types {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
 
-            if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT || s.tag == TypeTags.ANY) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            }
-
             return symTable.notFoundSymbol;
         }
 
@@ -722,4 +762,13 @@ public class Types {
             return true;
         }
     };
+
+    /**
+     * @since 0.95
+     */
+    private enum CastabilityResult {
+        SAFE,
+        UNSAFE,
+        CANNOT
+    }
 }

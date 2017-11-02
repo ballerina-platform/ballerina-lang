@@ -687,7 +687,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
-        if (!this.types.checkStructEquivalency(bLangCatch.param.type, symTable.errStructType)) {
+        if (!types.checkStructEquivalency(bLangCatch.param.type, symTable.errStructType, env.enclPkg.symbol.pkgID)) {
             dlog.error(bLangCatch.param.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     bLangCatch.param.type);
         }
@@ -902,7 +902,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangThrow throwNode) {
         this.typeChecker.checkExpr(throwNode.expr, env);
-        if (!types.checkStructEquivalency(throwNode.expr.type, symTable.errStructType)) {
+        if (!types.checkStructEquivalency(throwNode.expr.type, symTable.errStructType, env.enclPkg.symbol.pkgID)) {
             dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     throwNode.expr.type);
         }
