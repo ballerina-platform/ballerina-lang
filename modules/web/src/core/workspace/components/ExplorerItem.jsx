@@ -23,6 +23,7 @@ class ExplorerItem extends React.Component {
         super(...args);
         this.state = {
             disableToolTip: false,
+            forceCollapse: false,
             node: {
                 collapsed: true,
                 id: this.props.folderPath,
@@ -53,7 +54,7 @@ class ExplorerItem extends React.Component {
     componentWillReceiveProps(newProps) {
         if (newProps.activeKey) {
             const node = this.state.node;
-            node.collapsed = false;
+            node.collapsed = this.state.forceCollapse;
             this.setState({
                 node,
             });
@@ -158,7 +159,7 @@ class ExplorerItem extends React.Component {
                         onClick={() => {
                             this.state.node.active = true;
                             this.state.node.collapsed = !this.state.node.collapsed;
-                            this.forceUpdate();
+                            this.state.forceCollapse = this.state.node.collapsed;
                             // un-select child nodes when clicked on root
                             this.props.onSelect(this.state.node);
                         }
