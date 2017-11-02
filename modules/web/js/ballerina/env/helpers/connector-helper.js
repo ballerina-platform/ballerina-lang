@@ -78,12 +78,22 @@ class ConnectorHelper {
                                     structFields = this.getStructDataFields(fullPackageName,
                                         packageDefintion.getStructDefinitions(), structName, structFields);
                                 }
+
+                                let propertyConnectorParams;
+                                if (parameter.isConnector) {
+                                    const cIdentifier = parameter.pkgAlias + ':' + parameter.type;
+                                    propertyConnectorParams = this.getConnectorParameters(environment,
+                                        parameter.pkgAlias, cIdentifier);
+                                }
                                 // Check the bType of each attribute and set the default values accordingly
                                 const keyValuePair = {
                                     identifier: parameter.name,
                                     bType: paramType,
                                     desc: parameter.name,
                                     fields: structFields,
+                                    isConnector: parameter.isConnector,
+                                    connectorParams: propertyConnectorParams,
+                                    pkgAlias: parameter.pkgAlias,
                                     value: this.getDefaultValuesAccordingToBType(parameter.type),
                                     defaultValue: this.getDefaultValuesAccordingToBType(parameter.type),
                                 };

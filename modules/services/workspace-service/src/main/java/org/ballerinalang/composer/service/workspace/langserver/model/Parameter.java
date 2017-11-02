@@ -28,6 +28,8 @@ public class Parameter {
 
     private boolean isConnector = false;
 
+    private String pkgAlias = null;
+
     public Parameter name(String name) {
         this.name = name;
         return this;
@@ -70,6 +72,14 @@ public class Parameter {
 
     public boolean isConnector() {
         return isConnector;
+    }
+
+    public String getPkgAlias() {
+        return pkgAlias;
+    }
+
+    public void setPkgAlias(String pkgAlias) {
+        this.pkgAlias = pkgAlias;
     }
 
     @Override
