@@ -37,7 +37,7 @@ public class EndpointConnectorTest {
 
     @BeforeClass()
     public void setup() {
-//        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
+        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/endpoint-connector-negative.bal");
     }
 
@@ -105,7 +105,8 @@ public class EndpointConnectorTest {
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 7);
-        BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint", 27, 17);
+        BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint",
+                27, 17);
         BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'Bar', found 'Foo'", 32, 9);
         BAssertUtil.validateError(resultNegative, 2, "unknown type 'TestConnector'", 37, 5);
         BAssertUtil.validateError(resultNegative, 3, "cannot assign a value to endpoint 'en'", 47, 5);
