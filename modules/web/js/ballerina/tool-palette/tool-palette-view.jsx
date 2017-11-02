@@ -328,7 +328,8 @@ class ToolPaletteView extends React.Component {
     addDyamicTools(defaultTools) {
         const environment = this.context.environment;
         if (environment.getPackages()) {
-            let newToolItem, indexToBeAdded;
+            let newToolItem,
+                indexToBeAdded;
             for (const packageDefintion of environment.getPackages()) {
                 // JMS package
                 if (packageDefintion.getName() === 'ballerina.net.jms') {
@@ -341,11 +342,7 @@ class ToolPaletteView extends React.Component {
                         description: 'JMS container of resources, each of which defines the logic for'
                     + ' handling one type of request',
                     };
-                    defaultTools.tools.forEach((elem, index) => {
-                        if (elem.id === 'constructs_seperator') {
-                            indexToBeAdded = index;
-                        }
-                    });
+                    indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
                     defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
                 }
                 // FS package
@@ -359,11 +356,7 @@ class ToolPaletteView extends React.Component {
                         description: ' FS Server Connector can be used to listen to a ' +
                         'directory in the local file system',
                     };
-                    defaultTools.tools.forEach((elem, index) => {
-                        if (elem.id === 'constructs_seperator') {
-                            indexToBeAdded = index;
-                        }
-                    });
+                    indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
                     defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
                 }
                 // FTP package
@@ -376,11 +369,7 @@ class ToolPaletteView extends React.Component {
                         nodeFactoryMethod: DefaultNodeFactory.createFTPServiceDef,
                         description: 'FS Server Connector can be used to listen to a remote directory',
                     };
-                    defaultTools.tools.forEach((elem, index) => {
-                        if (elem.id === 'constructs_seperator') {
-                            indexToBeAdded = index;
-                        }
-                    });
+                    indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
                     defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
                 }
             }

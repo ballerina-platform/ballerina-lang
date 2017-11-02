@@ -107,17 +107,15 @@ class ResourceNode extends React.Component {
         tLinkBox.y += annotationBodyHeight;
         const thisNodeIndex = parentNode.getIndexOfResources(this.props.model);
         const resourceSiblings = parentNode.getResources();
+        const protocolPkgIdentifier = parentNode.getProtocolPackageIdentifier().value;
         // For Web sockets
         let showAddResourceBtnForWS = true;
-        if (parentNode.getProtocolPackageIdentifier().value === 'ws' &&
-            resourceSiblings.length >= 6) {
+        if (protocolPkgIdentifier === 'ws' && resourceSiblings.length >= 6) {
             showAddResourceBtnForWS = false;
         }
         // For JMS, FTP and FS allow only one resource
         let showAddResourceForOneResource = true;
-        if ((parentNode.getProtocolPackageIdentifier().value === 'jms' ||
-            parentNode.getProtocolPackageIdentifier().value === 'ftp' ||
-            parentNode.getProtocolPackageIdentifier().value === 'fs')
+        if ((protocolPkgIdentifier === 'jms' || protocolPkgIdentifier === 'ftp' || protocolPkgIdentifier === 'fs')
             && resourceSiblings.length >= 1) {
             showAddResourceForOneResource = false;
         }
@@ -132,7 +130,7 @@ class ResourceNode extends React.Component {
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
-                    packageIdentifier={parentNode.getProtocolPackageIdentifier().value}
+                    packageIdentifier={protocolPkgIdentifier}
                 >
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
