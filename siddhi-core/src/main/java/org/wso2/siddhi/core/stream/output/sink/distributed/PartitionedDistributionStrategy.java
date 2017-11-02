@@ -97,7 +97,7 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
         String partitionKeyValue = partitionOption.getValue(transportOptions);
-        int destinationId = partitionKeyValue.hashCode() % totalDestinationCount;
+        int destinationId = Math.abs(partitionKeyValue.hashCode() % totalDestinationCount);
 
         if (destinationIds.contains(destinationId)) {
             returnValue.clear();
