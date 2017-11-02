@@ -89,6 +89,10 @@ ConstrainedType
    : <type.source> < <constraint.source> >
    ;
 
+EndpointType
+   : < <constraint.source> >
+   ;
+
 ExpressionStatement
    : <expression.source> ;
    ;
@@ -242,7 +246,8 @@ ValueType
    ;
 
 Variable
-   : <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   : <endpoint?>                                                      <typeNode.source> <name.value> { <initialExpression.source> ; }
+   | <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
    | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
    |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
    |           <annotationAttachments>*                               <typeNode.source> <name.value>
@@ -250,6 +255,7 @@ Variable
    ;
 
 VariableDef
+   : <endpoint?> endpoint <variable.source>
    : <variable.source> ;
    ;
 

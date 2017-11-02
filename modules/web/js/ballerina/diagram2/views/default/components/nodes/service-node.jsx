@@ -28,7 +28,7 @@ import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import EndpointDecorator from '../decorators/endpoint-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 
@@ -66,7 +66,7 @@ class ServiceNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource);
+        return TreeUtil.isEndpointTypeVariableDef(dragSource);
     }
 
     /**
@@ -139,9 +139,9 @@ class ServiceNode extends React.Component {
         const title = model.getName().value;
 
         const connectors = variables
-            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+            .filter((element) => { return TreeUtil.isEndpointTypeVariableDef(element); }).map((statement) => {
                 return (
-                    <ConnectorDeclarationDecorator
+                    <EndpointDecorator
                         model={statement}
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}

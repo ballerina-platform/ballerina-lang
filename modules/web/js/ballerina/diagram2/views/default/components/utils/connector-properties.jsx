@@ -69,7 +69,9 @@ class ConnectorPropertiesForm extends React.Component {
         // Get the pkg alias
         const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
         const pkgAlias = initialExpr.connectorType.packageAlias.value || '';
-        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment, pkgAlias);
+        const connectorIdentifier = `${pkgAlias}:${initialExpr.connectorType.typeName.value}`;
+        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment,
+            pkgAlias, connectorIdentifier);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
             if (addedValues.length > 0) {

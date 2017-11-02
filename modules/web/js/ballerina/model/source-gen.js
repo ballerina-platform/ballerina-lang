@@ -188,6 +188,8 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'ConstrainedType':
             return getSourceOf(node.type, pretty, l) + w() + '<'
                  + getSourceOf(node.constraint, pretty, l) + w() + '>';
+        case 'EndpointType':
+            return w() + '<' + getSourceOf(node.constraint, pretty, l) + w() + '>';
         case 'ExpressionStatement':
             return dent() + getSourceOf(node.expression, pretty, l) + w() + ';';
         case 'FieldBasedAccessExpr':
@@ -520,7 +522,12 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'ValueType':
             return w() + node.typeKind;
         case 'Variable':
-            if (node.global && node.annotationAttachments && node.typeNode
+            if (node.endpoint && node.typeNode && node.name.value
+                         && node.initialExpression) {
+                return dent() + dent() + getSourceOf(node.typeNode, pretty, l) + w(' ')
+                 + node.name.value + w() + '{' + indent()
+                 + getSourceOf(node.initialExpression, pretty, l) + w() + ';' + outdent() + w() + '}';
+            } else if (node.global && node.annotationAttachments && node.typeNode
                          && node.name.value && node.initialExpression) {
                 return dent() + join(node.annotationAttachments, pretty, l, w, '')
                  + (node.public ? w() + 'public' : '') + (node.const ? w() + 'const'
@@ -543,7 +550,11 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return getSourceOf(node.typeNode, pretty, l);
             }
         case 'VariableDef':
-            return dent() + getSourceOf(node.variable, pretty, l) + w() + ';';
+            if (node.endpoint && node.variable) {
+                return w() + 'endpoint' + getSourceOf(node.variable, pretty, l);
+            } else {
+                return dent() + getSourceOf(node.variable, pretty, l) + w() + ';';
+            }
         case 'While':
             return dent() + w() + 'while' + w(' ') + '('
                  + getSourceOf(node.condition, pretty, l) + w() + ')' + w(' ') + '{' + indent()

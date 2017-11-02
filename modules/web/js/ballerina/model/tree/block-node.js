@@ -39,7 +39,7 @@ class BlockNode extends AbstractBlockNode {
             isLastStatementReturn = lastStatement ? TreeUtil.isReturn(lastStatement) : false;
             isLastStatementNext = lastStatement ? TreeUtil.isNext(lastStatement) : false;
         }
-        return (node.isStatement && !TreeUtil.isConnectorDeclaration(node) && !isLastStatementReturn
+        return (node.isStatement && !TreeUtil.isEndpointTypeVariableDef(node) && !isLastStatementReturn
             && !isLastStatementNext) || TreeUtil.isXmlns(node);
     }
 
