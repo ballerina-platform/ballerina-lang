@@ -116,7 +116,7 @@ function foo (xml x) (xml) {
 }
 
 function testActionInNullConenctor () {
-    TestConnector testConnector;
+    endpoint<TestConnector> testConnector {}
     string result = testConnector.testAction();
 }
 

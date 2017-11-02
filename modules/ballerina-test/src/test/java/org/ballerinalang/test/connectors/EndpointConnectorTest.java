@@ -104,8 +104,10 @@ public class EndpointConnectorTest {
 
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo'", 27, 17);
+        //TODO try to improve error msg here.
+        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'other', found 'Foo'", 32, 9);
     }
 
 

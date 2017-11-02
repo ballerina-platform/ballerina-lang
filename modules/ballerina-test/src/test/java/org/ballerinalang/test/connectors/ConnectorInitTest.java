@@ -76,7 +76,7 @@ public class ConnectorInitTest {
                 .compile("test-src/connectors/init/invalid/connector-init-arg-type-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
-                "incompatible types: expected 'int', found 'string'", 13, 32);
+                "incompatible types: expected 'int', found 'string'", 14, 28);
     }
 
     @Test(description = "Test connector init with invalid parameter count")
@@ -84,6 +84,6 @@ public class ConnectorInitTest {
         CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/init/invalid/connector-init-arg-count-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "not enough arguments in call to 'Foo()'", 13, 13);
+        BAssertUtil.validateError(resultNegative, 0, "not enough arguments in call to 'Foo()'", 14, 9);
     }
 }

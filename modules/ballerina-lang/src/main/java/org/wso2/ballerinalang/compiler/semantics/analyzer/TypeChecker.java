@@ -906,6 +906,12 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         BSymbol connectorSymbol = endpointType.constraint.tsymbol;
 
+        if (connectorSymbol == symTable.errSymbol || connectorSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorSymbol);
+            resultTypes = getListWithErrorTypes(expTypes.size());
+            return;
+        }
+
         Name actionName = names.fromIdNode(iExpr.name);
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
                 env, actionName, SymTag.ACTION);
