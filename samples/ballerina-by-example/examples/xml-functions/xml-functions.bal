@@ -1,6 +1,3 @@
-import ballerina.lang.system;
-import ballerina.lang.xmls;
-
 function main (string[] args) {
     xml bookName = xml `<name>Book1</name>`;
     xml bookComment = xml `<!--some comment-->`;
@@ -8,52 +5,53 @@ function main (string[] args) {
     xml content = someText + bookName + bookComment;
 
     // Other than the XML literal syntax, XML can be parsed using a string. The string should be a valid XML.
-    xml book = xmls:parse("<book/>");
+    string xmlString = "<book/>";
+    var book, _ = <xml>xmlString;
 
     // Get the type of the XML.
-    system:println(xmls:getItemType(bookComment));
+    println(bookComment.getItemType());
 
     // Get the name of an XML element.
-    system:println(xmls:getElementName(bookName));
+    println(bookName.getElementName());
 
     // Get the text content of an XML.
-    system:println(xmls:getTextValue(bookName));
+    println(bookName.getTextValue());
 
     // Is the XML emtpy?
-    system:println(xmls:isEmpty(content));
+    println(content.isEmpty());
 
     // Does the element have only one element?
-    system:println(xmls:isSingleton(content));
+    println(content.isSingleton());
 
     // Get a subsequence of an XML sequence.
-    xml x = xmls:slice(content, 2, 3);
-    system:println(x);
+    xml x = content.slice(2, 3);
+    println(x);
 
     // All the element-type items from an taken from an XML sequence.
-    x = xmls:elements(content);
-    system:println(x);
+    x = content.elements();
+    println(x);
 
     // An element with a particular name can also be retrieved.
-    x = xmls:select(content, "name");
-    system:println(x);
+    x = content.select("name");
+    println(x);
 
     // Set the children of an XML.
-    xmls:setChildren(book, content);
-    system:println(book);
+    book.setChildren(content);
+    println(book);
 
     // Get all the children of an XML.
-    x = xmls:children(book);
-    system:println(x);
+    x = book.children();
+    println(x);
 
     // Get a particular child of an XML.
-    x = xmls:selectChildren(book, "name");
-    system:println(x);
+    x = book.selectChildren("name");
+    println(x);
 
     // Remove any text items from an XML sequence that are all whitespace.
-    x = xmls:strip(content);
-    system:println(x);
+    x = content.strip();
+    println(x);
 
     // Make a copy of an XML.
-    x = xmls:copy(bookComment);
-    system:println(x);
+    x = bookComment.copy();
+    println(x);
 }

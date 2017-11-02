@@ -117,8 +117,9 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(textRecordChannel);
         } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel. ";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while converting character channel to textRecord channel:"
+                    + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return bValues;
     }

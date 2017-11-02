@@ -1,10 +1,10 @@
-import ballerina.lang.files;
+import ballerina.file;
 import ballerina.io;
 
 io:TextRecordChannel textRecordChannel;
 
 function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
-    files:File src = {path:filePath};
+    file:File src = {path:filePath};
     io:ByteChannel channel = src.openChannel(permission);
     io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
     textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
@@ -17,4 +17,8 @@ function readRecord () (string[]) {
 
 function writeRecord (string[] fields) {
     textRecordChannel.writeTextRecord(fields);
+}
+
+function close(){
+    textRecordChannel.closeTextRecordChannel();
 }

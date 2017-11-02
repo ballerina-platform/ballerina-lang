@@ -81,8 +81,8 @@ public class WriteCharacters extends AbstractNativeFunction {
 
             numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
         } catch (Throwable e) {
-            String message = "Error occurred while writing characters .";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while writing characters:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return getBValues(new BInteger(numberOfCharactersWritten));
     }

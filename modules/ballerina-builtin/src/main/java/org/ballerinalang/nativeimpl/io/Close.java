@@ -46,7 +46,7 @@ public class Close extends AbstractNativeFunction {
     private static final int BYTE_CHANNEL_INDEX = 0;
 
     /**
-     * Reads bytes from a given channel.
+     * Closes the byte channel.
      *
      * <p>
      * {@inheritDoc}
@@ -59,7 +59,7 @@ public class Close extends AbstractNativeFunction {
             AbstractChannel byteChannel = (AbstractChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byteChannel.close();
         } catch (Throwable e) {
-            String message = "Failed to close the channel. " + e.getMessage();
+            String message = "Failed to close the channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
         return VOID_RETURN;

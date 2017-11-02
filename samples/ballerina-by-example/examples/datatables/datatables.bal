@@ -1,9 +1,6 @@
-import ballerina.lang.system;
-import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.doc;
 
-@doc:Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with sql types."}
+@Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with sql types."}
 struct Employee {
     int id;
     string name;
@@ -37,25 +34,25 @@ function main (string[] args) {
     datatable dt = empDB.select("SELECT * from EMPLOYEE", params);
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:getNext(dt);
+    while (dt.hasNext()) {
+        any dataStruct = dt.getNext();
         var rs, _ = (Employee)dataStruct;
-        system:println("Employee:" + rs.id + "|" + rs.name +
-                       "|" + rs.salary + "|" + rs.status +
-                       "|" + rs.birthdate +
-                       "|" + rs.birthtime +
-                       "|" + rs.updated);
+        println("Employee:" + rs.id + "|" + rs.name +
+                "|" + rs.salary + "|" + rs.status +
+                "|" + rs.birthdate +
+                "|" + rs.birthtime +
+                "|" + rs.updated);
     }
 
     //Convert a datatable to JSON.
     dt = empDB.select("SELECT id,name FROM EMPLOYEE", params);
     var jsonRes, _ = <json>dt;
-    system:println(jsonRes);
+    println(jsonRes);
 
     //Convert a datatable to XML.
     dt = empDB.select("SELECT id,name FROM EMPLOYEE", params);
     var xmlRes, _ = <xml>dt;
-    system:println(xmlRes);
+    println(xmlRes);
 
     //Finally close the DB connection.
     empDB.close();

@@ -269,6 +269,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (pkgNode == null) {
                 dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                         importPkgNode.getQualifiedPackageName());
+                return;
             } else {
                 pkgSymbol = pkgNode.symbol;
                 populateInitFunctionInvocation(importPkgNode, pkgSymbol);

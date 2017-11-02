@@ -40,6 +40,8 @@ under the License.
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>
+            <package name="org.ballerinalang.test.task.*"/>
+            <package name="org.ballerinalang.test.caching.*"/>
         </packages>
     </test>
 </suite>
