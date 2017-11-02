@@ -29,6 +29,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
@@ -68,9 +69,9 @@ public class Execute extends AbstractHTTPAction {
         try {
             // Execute the operation
             return executeNonBlockingAction(context, createCarbonMsg(context));
-        } catch (Throwable t) {
+        } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
-                    + ". " + t.getMessage(), context);
+                    + ". " + clientConnectorException.getMessage(), context);
         }
     }
 

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.actions;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -35,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
@@ -45,6 +44,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+
+//import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
@@ -188,7 +189,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 //            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
             BStruct httpConnectorError = createErrorStruct(context);
             httpConnectorError.setStringField(0, throwable.getMessage());
-            httpConnectorError.setIntField(0, 504);
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
+            }
+
             context.getControlStackNew().getCurrentFrame().returnValues[1] = httpConnectorError;
             ballerinaFuture.notifySuccess();
         }
