@@ -76,7 +76,7 @@ public class Parser {
         pkgSource.getPackageSourceEntries()
                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
-                pkgSource.getPackageSourceEntries().get(0).getEntryName()), 1, 1, 1, 1);
+                pkgSource.getName()), 1, 1, 1, 1);
         return pkgNode;
     }
 
