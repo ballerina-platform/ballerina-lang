@@ -71,9 +71,12 @@ public class BStructType extends BType implements StructType {
 
         public BType type;
 
-        public BStructField(Name name, BType type) {
+        public boolean isPublic;
+
+        public BStructField(Name name, BType type, boolean isPublic) {
             this.name = name;
             this.type = type;
+            this.isPublic = isPublic;
         }
 
         @Override
@@ -84,6 +87,11 @@ public class BStructType extends BType implements StructType {
         @Override
         public BType getType() {
             return type;
+        }
+
+        @Override
+        public boolean isPublic() {
+            return isPublic;
         }
     }
 }

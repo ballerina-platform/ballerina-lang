@@ -266,20 +266,29 @@ public class Types {
 
         BStructType expStructType = (BStructType) expType;
         BStructType actualStructType = (BStructType) actualType;
-        if (expStructType.fields.size() > actualStructType.fields.size()) {
-            return false;
-        }
 
         for (int i = 0; i < expStructType.fields.size(); i++) {
-            BStructField expStructField = expStructType.fields.get(i);
-            BStructField actualStructField = actualStructType.fields.get(i);
-            if (expStructField.name.equals(actualStructField.name) &&
-                    isSameType(actualStructField.type, expStructField.type)) {
-                continue;
+            if (!expStructType.fields.get(i).isPublic) {
+                // If expected type's current filed is private, Then we can't match structurally equivalence.
+                return false;
             }
+            if (i >= actualStructType.fields.size()) {
+                // Actual struct has less fields than expected type's public fields.
+                return false;
+            }
+            BStructField actualStructField = actualStructType.fields.get(i);
+            BStructField expStructField = expStructType.fields.get(i);
+            if (actualStructField.isPublic) {
+                if (expStructField.name.equals(actualStructField.name)
+                        && isSameType(actualStructField.type, expStructField.type)) {
+                    // Check next field.
+                    continue;
+                }
+                return false;
+            }
+            // If actual type's current field is private, that mean we have reached to end of type checking fields.
             return false;
         }
-
         return true;
     }
 

@@ -10,6 +10,7 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
+PRIVATE      : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;

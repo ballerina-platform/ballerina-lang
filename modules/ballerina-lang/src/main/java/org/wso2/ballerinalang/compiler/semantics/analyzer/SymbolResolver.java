@@ -313,7 +313,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return entry.symbol;
             } else {
                 dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, entry.symbol.name);
-                return symTable.notFoundSymbol;
+                return entry.symbol;
             }
         }
 

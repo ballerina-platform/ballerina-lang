@@ -374,24 +374,41 @@ public class BLangPackageBuilder {
                                Set<Whitespace> ws,
                                String identifier,
                                boolean exprAvailable,
-                               int annotCount) {
+                               boolean isPublic) {
 
         Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
-        addVar(pos, ws, identifier, exprAvailable, annotCount);
+        addFieldVar(pos, ws, identifier, exprAvailable, isPublic);
     }
 
     public void addVarToAnnotation(DiagnosticPos pos,
                                    Set<Whitespace> ws,
                                    String identifier,
                                    boolean exprAvailable,
-                                   int annotCount) {
+                                   boolean isPublic) {
 
         Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         AnnotationNode annotNode = this.annotationStack.peek();
         annotNode.addWS(wsForSemiColon);
-        addVar(pos, ws, identifier, exprAvailable, annotCount);
+        addFieldVar(pos, ws, identifier, exprAvailable, isPublic);
+    }
+
+    public void addFieldVar(DiagnosticPos pos,
+                            Set<Whitespace> ws,
+                            String identifier,
+                            boolean exprAvailable,
+                            boolean isPublic) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        if (isPublic) {
+            var.flagSet.add(Flag.PUBLIC);
+        }
+        var.pos = pos;
+        if (this.varListStack.empty()) {
+            this.varStack.push(var);
+        } else {
+            this.varListStack.peek().add(var);
+        }
     }
 
 

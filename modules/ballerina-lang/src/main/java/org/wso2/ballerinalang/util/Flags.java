@@ -27,7 +27,7 @@ import java.util.Set;
 public class Flags {
     public static final int PUBLIC = 1;
     public static final int NATIVE = 2;
-    public static final int CONST = 3;
+    public static final int CONST = 4;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
