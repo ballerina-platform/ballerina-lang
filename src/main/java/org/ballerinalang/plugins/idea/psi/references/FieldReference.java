@@ -80,11 +80,27 @@ public class FieldReference extends BallerinaElementReference {
                 prevSibling = PsiTreeUtil.prevVisibleLeaf(prevSibling);
             }
         } else {
-            // If the current statement is correctly resolved, that means all the fields are identified properly.
-            // Get the prevSibling. This is used to resolve the current field.
-            prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+            PsiElement parentPrevSibling = parent.getPrevSibling();
+            if (parentPrevSibling != null) {
+                if (parentPrevSibling instanceof VariableReferenceNode) {
+                    PsiElement[] children = parentPrevSibling.getChildren();
+                    if (children.length <= 0) {
+                        return null;
+                    }
+                    PsiElement firstChild = children[0].getFirstChild();
+                    if (firstChild == null) {
+                        return null;
+                    }
+                    prevSibling = firstChild;
+                } else {
+                    return null;
+                }
+            } else {
+                // If the current statement is correctly resolved, that means all the fields are identified properly.
+                // Get the prevSibling. This is used to resolve the current field.
+                prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+            }
         }
-
         // If the prevSibling is null, we return from this method because we cannot resolve the element.
         if (prevSibling == null) {
             return null;
@@ -220,8 +236,8 @@ public class FieldReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createEnumFieldLookupElements(fieldDefinitionNodes,
                     (IdentifierPSINode) resolvedElement));
             return results.toArray(new LookupElement[results.size()]);
-        }else if (resolvedElementParent instanceof StructDefinitionNode) {
-            structDefinitionNode= ((StructDefinitionNode) resolvedElementParent);
+        } else if (resolvedElementParent instanceof StructDefinitionNode) {
+            structDefinitionNode = ((StructDefinitionNode) resolvedElementParent);
         }
         if (structDefinitionNode == null) {
             return new LookupElement[0];
