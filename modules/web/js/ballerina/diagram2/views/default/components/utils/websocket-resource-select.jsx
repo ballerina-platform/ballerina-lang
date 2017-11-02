@@ -152,7 +152,7 @@ class WebsocketResourceSelect extends React.Component {
             {
                 resourceName: 'onIdleTimeOut',
                 fragment: `
-                resource onIdleTimeOut(Connection conn) {
+                resource onIdleTimeOut(ws:Connection conn) {
 
                 }
             `,
