@@ -610,7 +610,7 @@ class HttpClient extends React.Component {
             // Getting service name views
             const servicesDropdown = this.renderServicesDropdown();
             const resourceDropdown = this.renderResourcesDropdown();
-            
+
             return (<div className='row http-client-main-wrapper'>
                 <div className='main-wrapper-top'>
                     <div className='http-client-request-method-wrapper'>
