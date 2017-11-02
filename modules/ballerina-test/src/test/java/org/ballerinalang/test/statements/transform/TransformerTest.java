@@ -310,7 +310,7 @@ public class TransformerTest {
         BAssertUtil.validateError(resNegative, 11, "too many outputs for transformer: expected 1, found 3", 62, 1);
 
         BAssertUtil.validateError(resNegative, 12, "'connector init' statement is not allowed inside a transformer", 67,
-                25);
+                35);
         BAssertUtil.validateError(resNegative, 13, "'action invocation' statement is not allowed inside a transformer",
                 69, 16);
         BAssertUtil.validateError(resNegative, 14, "'return' statement is not allowed inside a transformer", 71, 5);

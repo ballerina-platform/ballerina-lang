@@ -897,7 +897,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
-                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR) {
+                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR
+                        || invocationExpr.expr.type.tag == TypeTags.ENDPOINT) {
                     dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             "action invocation");
                 }
