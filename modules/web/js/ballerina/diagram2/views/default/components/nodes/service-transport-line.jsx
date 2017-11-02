@@ -37,16 +37,26 @@ class ServiceTransportLine extends React.Component {
     render() {
         const yPosition = this.props.model.viewState.bBox.y + this.props.model.viewState.bBox.h - 25;
         const bBox = this.props.bBox;
-        let showAddResourceBtn = true;
+        // For Web sockets
+        let showAddResourceBtnForWS = true;
         if (this.props.model.getProtocolPackageIdentifier().value === 'ws' && this.props.resources.length >= 6) {
-            showAddResourceBtn = false;
+            showAddResourceBtnForWS = false;
+        }
+        // For JMS, FTP and FS allow only one resource
+        let showAddResourceForOneResource = true;
+        if ((this.props.model.getProtocolPackageIdentifier().value === 'jms' ||
+            this.props.model.getProtocolPackageIdentifier().value === 'ftp' ||
+            this.props.model.getProtocolPackageIdentifier().value === 'fs')
+            && this.props.resources.length >= 1) {
+            showAddResourceForOneResource = false;
         }
         const bodyH = this.props.model.viewState.variablesExpanded ? (this.props.model.viewState.components.body.h +
         (this.props.model.getVariables().length * 30)) :
             this.props.model.viewState.components.body.h - 30;
         return (
             <g>
-                {(this.props.addResource && showAddResourceBtn && this.props.resources.length && !this.props.model.viewState.collapsed) &&
+                {(this.props.addResource && showAddResourceBtnForWS && showAddResourceForOneResource
+                && this.props.resources.length && !this.props.model.viewState.collapsed) &&
                 <g id="resourceProtocolLine">
                     <line
                         x1={bBox.x + 30}

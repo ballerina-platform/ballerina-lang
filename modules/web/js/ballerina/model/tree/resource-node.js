@@ -157,6 +157,30 @@ class ResourceNode extends AbstractResourceNode {
     }
 
     /**
+     * Gets the mime types the resource consumes.
+     * @param {string} [httpPackageAlias='http'] The ballerina.net.http package alias.
+     * @returns {string[]} The supported mime types..
+     * @memberof ResourceDefinition
+     */
+    getConsumeTypes(httpPackageAlias = 'http') {
+        const httpMethods = [];
+        this.getAnnotationAttachments().forEach((annotationNode) => {
+            if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
+                annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
+                annotationNode.getAttributes().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getName() === 'consumes') {
+                        const httpMethodsArray = annotationAttribute.getValue();
+                        httpMethodsArray.getValueArray().forEach((httpMethod) => {
+                            httpMethods.push(_.trim(httpMethod.getValue().getValue(), '"'));
+                        });
+                    }
+                });
+            }
+        });
+        return httpMethods;
+    }
+
+    /**
      * Generates the URL for the resource
      * @returns {string} The url.
      * @memberof ResourceNode

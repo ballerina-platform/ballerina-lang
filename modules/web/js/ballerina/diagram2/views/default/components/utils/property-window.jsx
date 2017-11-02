@@ -399,7 +399,7 @@ class PropertyWindow extends React.Component {
                                     className="fw fw-error errorIcon"
                                     onClick={() => { this.clearStructFieldValues(key, key.fields); }}
                                 />
-                                <span className="errorMsg"> Configure properties for the map </span> </div>
+                                <span className="errorMsg"> Configure properties </span> </div>
                         }
                         <input
                             className={['property-dialog-form-control',

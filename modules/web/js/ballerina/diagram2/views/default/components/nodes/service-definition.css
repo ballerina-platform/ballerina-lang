@@ -19,6 +19,32 @@
     cursor: pointer;
 }
 
+.protocol-jms .protocol-box{
+    fill: #558B2F;
+    cursor: pointer;
+}
+
+.protocol-fs .protocol-box{
+    fill: #f39c12;
+    cursor: pointer;
+}
+
+.protocol-ftp .protocol-box{
+    fill: #966c37;
+    cursor: pointer;
+}
+
+.protocol-jms .add-resource-button{
+    fill: #558B2F;
+}
+
+.protocol-fs .add-resource-button{
+    fill: #f39c12;
+}
+
+.protocol-ftp .add-resource-button{
+    fill: #966c37;
+}
 .protocol-label{
     fill: #fff;
     cursor: pointer;
