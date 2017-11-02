@@ -54,7 +54,7 @@ class TransformFactory {
      * @return {object} statement object
      */
     static createVariableDef(name, type, value) {
-        const fragment = FragmentUtils.createStatementFragment(type + ' ' + name + ' = ' + value + '"";');
+        const fragment = FragmentUtils.createStatementFragment(`${type} ${name} = ${value || ""};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const varDef = TreeBuilder.build(parsedJson);
         varDef.clearWS();
