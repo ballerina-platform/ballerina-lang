@@ -229,7 +229,8 @@ TypeCastExpr
    ;
 
 TypeConversionExpr
-   : < <typeNode.source> > <expression.source>
+   : < <typeNode.source> ; <transformerInvocation.source> > <expression.source>
+   | < <typeNode.source> > <expression.source>
    ;
 
 UnaryExpr

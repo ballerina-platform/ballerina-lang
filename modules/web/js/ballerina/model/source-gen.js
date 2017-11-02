@@ -527,8 +527,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + '(' + getSourceOf(node.typeNode, pretty, l) + w() + ')'
                  + getSourceOf(node.expression, pretty, l);
         case 'TypeConversionExpr':
-            return w() + '<' + getSourceOf(node.typeNode, pretty, l) + w() + '>'
+            if (node.typeNode && node.transformerInvocation && node.expression) {
+                return dent() + w() + '<' + getSourceOf(node.typeNode, pretty, l) + w()
+                 + ';' + getSourceOf(node.transformerInvocation, pretty, l) + w()
+                 + '>' + getSourceOf(node.expression, pretty, l);
+            } else {
+                return w() + '<' + getSourceOf(node.typeNode, pretty, l) + w() + '>'
                  + getSourceOf(node.expression, pretty, l);
+            }
         case 'UnaryExpr':
             return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l);
