@@ -528,9 +528,9 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + getSourceOf(node.expression, pretty, l);
         case 'TypeConversionExpr':
             if (node.typeNode && node.transformerInvocation && node.expression) {
-                return dent() + w() + '<' + getSourceOf(node.typeNode, pretty, l) + w()
-                 + ';' + getSourceOf(node.transformerInvocation, pretty, l) + w()
-                 + '>' + getSourceOf(node.expression, pretty, l);
+                return w() + '<' + getSourceOf(node.typeNode, pretty, l) + w() + ','
+                 + getSourceOf(node.transformerInvocation, pretty, l) + w() + '>'
+                 + getSourceOf(node.expression, pretty, l);
             } else {
                 return w() + '<' + getSourceOf(node.typeNode, pretty, l) + w() + '>'
                  + getSourceOf(node.expression, pretty, l);
