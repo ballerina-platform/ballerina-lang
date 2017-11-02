@@ -208,15 +208,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#enumFieldList}.
+	 * Enter a parse tree produced by {@link BallerinaParser#enumerator}.
 	 * @param ctx the parse tree
 	 */
-	void enterEnumFieldList(BallerinaParser.EnumFieldListContext ctx);
+	void enterEnumerator(BallerinaParser.EnumeratorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#enumFieldList}.
+	 * Exit a parse tree produced by {@link BallerinaParser#enumerator}.
 	 * @param ctx the parse tree
 	 */
-	void exitEnumFieldList(BallerinaParser.EnumFieldListContext ctx);
+	void exitEnumerator(BallerinaParser.EnumeratorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
@@ -311,6 +311,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code enumAttachPoint}
+	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code enumAttachPoint}
+	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code constAttachPoint}
 	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.

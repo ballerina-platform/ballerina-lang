@@ -77,4 +77,24 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangEnumeratorAccessExpr extends BLangFieldBasedAccess {
+
+        public BLangIdentifier enumeratorName;
+
+        public BLangEnumeratorAccessExpr(DiagnosticPos pos, BLangIdentifier enumeratorName,
+                                         BVarSymbol enumeratorSymbol) {
+            this.pos = pos;
+            this.enumeratorName = enumeratorName;
+            this.symbol = enumeratorSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

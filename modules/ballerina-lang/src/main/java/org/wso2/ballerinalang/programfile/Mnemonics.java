@@ -101,6 +101,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
         mnemonics[InstructionCodes.JSONSTORE] = "jsonstore";
 
+        mnemonics[InstructionCodes.ENUMERATORLOAD] = "enumeratorload";
+
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";

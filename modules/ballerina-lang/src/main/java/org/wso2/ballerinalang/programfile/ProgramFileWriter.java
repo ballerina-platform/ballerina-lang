@@ -201,6 +201,13 @@ public class ProgramFileWriter {
             writeStructInfo(dataOutStream, structInfo);
         }
 
+        // Emit enum info entries
+        EnumInfo[] enumInfoEntries = packageInfo.getEnumInfoEntries();
+        dataOutStream.writeShort(enumInfoEntries.length);
+        for (EnumInfo enumInfo : enumInfoEntries) {
+            writeEnumInfo(dataOutStream, enumInfo);
+        }
+
         // Emit Connector info entries
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         dataOutStream.writeShort(connectorInfoEntries.length);
@@ -300,6 +307,20 @@ public class ProgramFileWriter {
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
     }
+
+    private static void writeEnumInfo(DataOutputStream dataOutStream,
+                                        EnumInfo enumInfo) throws IOException {
+        dataOutStream.writeInt(enumInfo.nameCPIndex);
+        EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
+        dataOutStream.writeShort(enumeratorInfoEntries.length);
+        for (EnumeratorInfo enumeratorInfo : enumeratorInfoEntries) {
+            dataOutStream.writeInt(enumeratorInfo.nameCPIndex);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, enumInfo.getAttributeInfoEntries());
+    }
+
 
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {

@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -179,6 +180,8 @@ public class BLangPackageBuilder {
     private Stack<StructNode> structStack = new Stack<>();
 
     private Stack<EnumNode> enumStack = new Stack<>();
+
+    private List<BLangEnumerator> enumeratorList = new ArrayList<>();
 
     private Stack<IdentifierNode> identifierStack = new Stack<>();
 
@@ -945,6 +948,7 @@ public class BLangPackageBuilder {
     public void startEnumDef(DiagnosticPos pos) {
         BLangEnum bLangEnum = (BLangEnum) TreeBuilder.createEnumNode();
         bLangEnum.pos = pos;
+        attachAnnotations(bLangEnum);
         this.enumStack.add(bLangEnum);
     }
 
@@ -952,18 +956,22 @@ public class BLangPackageBuilder {
         BLangEnum enumNode = (BLangEnum) this.enumStack.pop();
         enumNode.name = (BLangIdentifier) this.createIdentifier(identifier);
         if (publicEnum) {
-            enumNode.flags.add(Flag.PUBLIC);
+            enumNode.flagSet.add(Flag.PUBLIC);
         }
 
-        while (!this.identifierStack.empty()) {
-            enumNode.addEnumField(this.identifierStack.pop());
-        }
+        enumeratorList.forEach(enumNode::addEnumerator);
         this.compUnit.addTopLevelNode(enumNode);
+        enumeratorList = new ArrayList<>();
     }
 
-    public void addEnumFieldList(List<String> enumFieldList) {
-        enumFieldList.forEach(identifier -> this.identifierStack.push(this.createIdentifier(identifier)));
+    public void addEnumerator(DiagnosticPos pos, Set<Whitespace> ws, String name) {
+        BLangEnumerator enumerator = (BLangEnumerator) TreeBuilder.createEnumeratorNode();
+        enumerator.pos = pos;
+        enumerator.addWS(ws);
+        enumerator.name = (BLangIdentifier) createIdentifier(name);
+        enumeratorList.add(enumerator);
     }
+
 
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();

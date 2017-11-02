@@ -60,6 +60,10 @@ public interface PackageNode extends Node {
 
     void addStruct(StructNode struct);
 
+    List<? extends EnumNode> getEnums();
+
+    void addEnum(EnumNode enumNode);
+
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);

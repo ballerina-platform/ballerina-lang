@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -314,6 +315,10 @@ public class TreeBuilder {
 
     public static EnumNode createEnumNode() {
         return new BLangEnum();
+    }
+
+    public static EnumNode.Enumerator createEnumeratorNode() {
+        return new BLangEnumerator();
     }
 
     public static ConnectorNode createConnectorNode() {

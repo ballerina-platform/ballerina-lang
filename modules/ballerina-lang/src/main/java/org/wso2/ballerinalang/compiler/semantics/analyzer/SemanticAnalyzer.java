@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -224,6 +226,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         structNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
+            annotationAttachment.accept(this);
+        });
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        enumNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
             annotationAttachment.accept(this);
         });
     }
@@ -548,8 +559,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
+
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+            // Check whether we've got enumerator access expression in the left-hand side.
+            if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                    ((BLangFieldBasedAccess) varRef).expr.type.tag == TypeTags.ENUM) {
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                expTypes.add(symTable.errType);
+                continue;
+            }
+
             checkConstantAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
@@ -950,6 +970,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(simpleVarRef, env);
                 continue;
             }
+
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
                 createdSymbolCount++;

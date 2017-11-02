@@ -492,32 +492,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endEnumDef(ctx.Identifier().getText(), publicEnum);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void enterEnumFieldList(BallerinaParser.EnumFieldListContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitEnumFieldList(BallerinaParser.EnumFieldListContext ctx) {
+    public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        List<String> identifierList = new ArrayList<>();
-        ctx.Identifier().forEach(identifier -> identifierList.add(identifier.getText()));
-        this.pkgBuilder.addEnumFieldList(identifierList);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
+        this.pkgBuilder.addEnumerator(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     /**
@@ -532,13 +513,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
                 ctx.Identifier().getText(), ctx.expression() != null, publicVar);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
     }
 
     /**
@@ -562,26 +536,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
     }
 
     /**
@@ -600,26 +560,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
     }
 
     /**
@@ -638,26 +584,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPEMAPPER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
     }
 
     /**
@@ -672,11 +604,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void enterConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
+    public void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
     }
 
     /**
@@ -695,26 +629,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.PARAMETER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
     }
 
     /**
@@ -739,13 +659,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) {
     }
 
     @Override

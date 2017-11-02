@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -52,6 +53,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangConnector> connectors;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
+    public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction;
     public Set<CompilerPhase> completedPhases;
@@ -68,6 +70,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.connectors = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
+        this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
 
         this.topLevelNodes = new ArrayList<>();
@@ -120,6 +123,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends EnumNode> getEnums() {
+        return enums;
+    }
+
+    @Override
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
     }
@@ -168,6 +176,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addStruct(StructNode struct) {
         this.structs.add((BLangStruct) struct);
         this.topLevelNodes.add(struct);
+    }
+
+    @Override
+    public void addEnum(EnumNode enumNode) {
+        this.enums.add((BLangEnum) enumNode);
+        this.topLevelNodes.add(enumNode);
     }
 
     @Override

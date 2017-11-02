@@ -42,6 +42,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createEnumSymbol(int flags,
+                                               Name name,
+                                               PackageID pkgID,
+                                               BType type,
+                                               BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;    
+    }
+
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,
                                                                              BType type,
