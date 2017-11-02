@@ -1,8 +1,8 @@
-import ballerina.lang.files;
+import ballerina.file;
 import ballerina.io;
 
 function getFileRecordChannel (string filePath, string permission, string encoding, string rs, string fs) (io:TextRecordChannel) {
-    files:File src = {path:filePath};
+    file:File src = {path:filePath};
     io:ByteChannel channel = src.openChannel(permission);
     io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
     io:TextRecordChannel textRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
@@ -19,9 +19,11 @@ function process (io:TextRecordChannel srcRecordChannel, io:TextRecordChannel ds
 }
 
 function main (string[] args) {
-    string srcFileName = "../samples/csvFileReader/files/sample.csv";
-    string dstFileName = "../samples/csvFileReader/files/sampleResponse.txt";
+    string srcFileName = "../samples/csvFileProcessor/files/sample.csv";
+    string dstFileName = "../samples/csvFileProcessor/files/sampleResponse.txt";
     io:TextRecordChannel srcRecordChannel = getFileRecordChannel(srcFileName, "r", "UTF-8", "\\r?\\n", ",");
     io:TextRecordChannel dstRecordChannel = getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
     process(srcRecordChannel, dstRecordChannel);
+    srcRecordChannel.closeTextRecordChannel();
+    dstRecordChannel.closeTextRecordChannel();
 }

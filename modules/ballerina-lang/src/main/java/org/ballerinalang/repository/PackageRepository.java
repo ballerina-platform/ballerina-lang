@@ -43,7 +43,7 @@ public interface PackageRepository {
      *
      * @param pkgId the package identifier
      * @param entryName the entry name
-     * @return the package entity
+     * @return the package entity is returned if it's available, or else, null will be returned.
      */
     PackageEntity loadPackage(PackageID pkgId, String entryName);
     

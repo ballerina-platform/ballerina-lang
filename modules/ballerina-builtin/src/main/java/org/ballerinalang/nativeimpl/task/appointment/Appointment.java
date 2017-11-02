@@ -55,8 +55,7 @@ public class Appointment {
     }
 
     public void stop() throws TaskException {
-//        executorService.shutdown();
-        // TODO: remove from Quartz schedule
+        AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);
         balParentContext.endTrackWorker();
     }

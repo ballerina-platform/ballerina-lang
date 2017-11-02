@@ -25,9 +25,12 @@ import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
@@ -39,11 +42,15 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class AppointmentManager {
     private static final AppointmentManager instance = new AppointmentManager();
 
+    // Ballerina task ID to Quart JobKey map
+    private Map<String, JobKey> quartzJobs = new HashMap<>();
+
     private Scheduler scheduler;
 
     private AppointmentManager() {
         try {
             scheduler = new StdSchedulerFactory().getScheduler();
+            scheduler.start();
         } catch (SchedulerException e) {
             throw new RuntimeException("Appointment manager creation failed", e);
         }
@@ -68,13 +75,16 @@ public class AppointmentManager {
                         .build();
 
         scheduler.scheduleJob(job, trigger);
-
-        //TODO: [Major issue] need to check whether adding jobs after the scheduler is started works
-        scheduler.start();
+        quartzJobs.put(taskId, job.getKey());
     }
 
     public void stop(String taskId) {
-//        scheduler.deleteJob(taskId);
-//        scheduler.
+        if (quartzJobs.containsKey(taskId)) {
+            try {
+                scheduler.deleteJob(quartzJobs.get(taskId));
+            } catch (SchedulerException e) {
+                throw new RuntimeException("Stopping appointment with ID " + taskId + " failed", e);
+            }
+        }
     }
 }

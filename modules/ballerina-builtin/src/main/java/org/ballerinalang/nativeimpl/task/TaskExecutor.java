@@ -35,6 +35,7 @@ public class TaskExecutor {
 
     public static void execute(AbstractNativeFunction fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
                                FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
+        boolean isErrorFnCalled = false;
         try {
             //Invoke the onTrigger function.
             BValue[] results =
@@ -42,12 +43,13 @@ public class TaskExecutor {
                             invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
+                isErrorFnCalled = true;
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
-            if (onErrorFunction != null) {
+            if (onErrorFunction != null && !isErrorFnCalled) {
                 BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(),
                         fn.getBValues(BLangVMErrors.createError(parentCtx, 0, e.getMessage())), newContext);
             }

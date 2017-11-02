@@ -33,6 +33,9 @@ public native function <TextRecordChannel channel> readTextRecord()(string []);
 @Param {value:"records: feilds which are included in the record"}
 public native function <TextRecordChannel channel> writeTextRecord(string [] records);
 
+@Description{value:"Function to close the text record channel"}
+public native function <TextRecordChannel channel> closeTextRecordChannel();
+
 @Description {value:"Function to read characters"}
 @Param {value:"numberOfChars: number of characters which should be read"}
 @Return {value:"the characters which will be read"}
@@ -43,6 +46,9 @@ public native function <CharacterChannel channel> readCharacters(int numberOfCha
 @Param {value:"startOffset: if the content needs to be written with an offset"}
 @Return {value:"int: number of characters written"}
 public native function <CharacterChannel channel> writeCharacters(string content,int startOffset)(int);
+
+@Description {value:"Function to close character channel"}
+public native function <CharacterChannel channel> closeCharacterChannel();
 
 @Description { value:"Function to read bytes"}
 @Param { value:"numberOfBytes: number of bytes which should be read" }

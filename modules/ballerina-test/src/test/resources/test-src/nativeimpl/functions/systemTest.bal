@@ -22,10 +22,34 @@ function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     // output is equal to v1\nv2
 }
 
+function testPrintAndPrintlnConnector() {
+    Foo f1 = create Foo();
+    Foo f2 = create Foo();
+    println(f1);
+    print(f2);
+}
+
+function testPrintAndPrintlnFunctionPointer() {
+    function (int, int) returns (int) addFunction = func1;
+    println(addFunction);
+    print(addFunction);
+}
+
 function printNewline() {
     print("hello\n");
 }
 
 function testSleep(int timeoutv) {
     sleep(timeoutv);
+}
+
+function func1 (int a, int b) (int c) {
+    c = a + b;
+    return;
+}
+
+connector Foo() {
+    action bar() (int) {
+        return 5;
+    }
 }

@@ -182,7 +182,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
              * it should be able to serialize the data out again using the value */
             if (this.value != null) {
                 this.outputStream.write(OBJECT_MAPPER.writeValueAsBytes(this.value));  
-                this.outputStream.flush();
+                this.outputStream.close();
             } else {
                 JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
                 this.datasource.serialize(gen, SERIALIZER_PROVIDER);

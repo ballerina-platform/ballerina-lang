@@ -174,6 +174,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public void serializeData() {
         try {
             outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
+            outputStream.close();
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing data", e);
         }

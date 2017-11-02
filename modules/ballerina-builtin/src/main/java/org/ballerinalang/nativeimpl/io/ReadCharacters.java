@@ -46,12 +46,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadCharacters extends AbstractNativeFunction {
 
     /**
-     * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
+     * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
      */
-    private static final int BYTE_CHANNEL_INDEX = 0;
+    private static final int CHAR_CHANNEL_INDEX = 0;
 
     /**
-     * Specifies the index which holds number of characters in ballerina.lo#readBytes.
+     * Specifies the index which holds number of characters in ballerina.lo#readCharacters.
      */
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
@@ -68,15 +68,15 @@ public class ReadCharacters extends AbstractNativeFunction {
         long numberOfCharacters;
         BString content;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             String readBytes = characterChannel.read((int) numberOfCharacters);
             content = new BString(readBytes);
         } catch (Throwable e) {
-            String message = "Error occurred while reading characters. ";
-            throw new BallerinaException(message + e.getMessage(), context);
+            String message = "Error occurred while reading characters:" + e.getMessage();
+            throw new BallerinaException(message, context);
         }
         return getBValues(content);
     }
