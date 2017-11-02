@@ -45,8 +45,6 @@ import java.net.URL;
 
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
-//import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
@@ -186,7 +184,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-//            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
             BStruct httpConnectorError = createErrorStruct(context);
             httpConnectorError.setStringField(0, throwable.getMessage());
             if (throwable instanceof ClientConnectorException) {
