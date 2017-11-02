@@ -238,6 +238,15 @@ class TransformNodeManager {
 
         const parameters = [];
         const returnParams = [];
+        let receiver;
+
+        if (funcDef.getReceiverType()) {
+            receiver = {
+                name: `${functionInvocationExpression.getID()}:0:receiver`,
+                type: funcDef.getReceiverType(),
+                funcInv: functionInvocationExpression,
+            };
+        }
 
         _.forEach(funcDef.getParameters(), (param, index) => {
             const structDef = this.getStructDefinition(param.packageName, param.type);
@@ -273,6 +282,7 @@ class TransformNodeManager {
         return {
             parameters,
             returnParams,
+            receiver,
         };
     }
 

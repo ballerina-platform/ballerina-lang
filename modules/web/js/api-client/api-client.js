@@ -72,6 +72,7 @@ export function parseFile(file) {
         content: file.content,
         includeTree: true,
         includePackageInfo: true,
+        includeProgramDir: true,
     };
     const endpoint = getServiceEndpoint('parser');
     const headers = {

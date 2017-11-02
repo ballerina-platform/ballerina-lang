@@ -365,14 +365,14 @@ class ExportDiagramDialog extends React.Component {
             <div>
                 <Dialog
                     show={this.state.showDialog}
-                    title="Save Diagram"
+                    title="Export Diagram"
                     actions={
                         <Button
                             bsStyle="primary"
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' && this.state.fileName === ''}
                         >
-                            Save
+                            Export
                         </Button>
                     }
                     closeAction

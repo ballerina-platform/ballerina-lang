@@ -41,8 +41,14 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      * if exist returns true if doesn't return false
      * */
     isExistingGlobalIdentifier(identifier) {
-        return !!_.find(this.filterTopLevelNodes({ kind: 'Variable' }), (child) => {
-            return _.isEqual(child.getName().value, identifier);
+        return !!_.find(this.filterTopLevelNodes({ kind: 'Variable' })
+            .concat(this.filterTopLevelNodes({ kind: 'Xmlns' })), (child) => {
+            if (child.kind === 'Variable') {
+                return _.isEqual(child.getName().value, identifier);
+            } else {
+                return _.isEqual(child.namespaceDeclaration.getPrefix()
+                    ? child.namespaceDeclaration.getPrefix().getValue() : '', identifier);
+            }
         });
     }
 
@@ -95,11 +101,12 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      * @param globalNode
      */
     addGlobal(globalNode, silent) {
-        if (!TreeUtils.isVariable(globalNode)) {
+        if (!TreeUtils.isVariable(globalNode) && !(globalNode.kind === 'Xmlns')) {
             // only constants and global variables can be added at global level
             return;
         }
-        const lastGlobalIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isVariable(node));
+        const lastGlobalIndex = _.findLastIndex(this.getTopLevelNodes(),
+                node => TreeUtils.isVariable(node) || node.kind === 'Xmlns');
         const pkgDeclIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isPackageDeclaration(node));
         const lastImportIndex = _.findLastIndex(this.getTopLevelNodes(), node => TreeUtils.isImport(node));
         let targetIndex = 0; // If there is no a pck node or any import/any global, we'll add it to 0

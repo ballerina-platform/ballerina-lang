@@ -87,9 +87,9 @@ stream.once('open', () => {
                     } else if (getter.match(/^[^?]+\?[^?]+$/)) {
                         const parts = getter.split('?');
                         getter = parts[0];
-                        js.push('(node.' + getter + ' ? ' + wWrapped(getter) +
+                        js.push('(node.' + getter + ' ? ' + wWrapped(parts[1]) +
                             '\'' + parts[1] + '\'' +
-                            wAfterWrapped(getter) + ' : \'\')');
+                            wAfterWrapped(parts[1]) + ' : \'\')');
                         getter = null;
                     } else if (getter.match(/^[^?]+\?$/)) {
                         getter = getter.slice(0, -1);

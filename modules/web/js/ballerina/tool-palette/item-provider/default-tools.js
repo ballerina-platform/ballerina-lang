@@ -70,14 +70,6 @@ const tools = [
         + ' system or a service defined',
     },
     {
-        id: 'connectorAction',
-        name: 'Action',
-        icon: 'dgm-action',
-        title: 'Connector Action',
-        nodeFactoryMethod: DefaultNodeFactory.createConnectorAction,
-        description: 'Operation that can be executed against a connector',
-    },
-    {
         id: 'struct',
         name: 'Struct',
         icon: 'struct',
