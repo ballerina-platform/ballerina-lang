@@ -27,7 +27,7 @@ import PropTypes from 'prop-types';
 class MultiBlockSelect extends React.Component {
     /**
      * Constructor for MultiBlockSelect.
-     * @param {Object} props - properties to render the view.@
+     * @param {Object} props - properties to render the view.
      * */
     constructor(props) {
         super(props);
