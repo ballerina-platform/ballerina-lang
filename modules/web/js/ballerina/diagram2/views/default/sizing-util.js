@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import { getWorkerMaxHeight } from './../../diagram-util';
+import splitVariableDefByLambda from '../../../model/lambda-util';
 
 class SizingUtil {
 
@@ -119,6 +120,23 @@ class SizingUtil {
 
         viewState.expression = textViewState.text;
         viewState.fullExpression = expression;
+    }
+
+    adjustToLambdaSize(node, viewState) {
+        const { sourceFragments, lambdas } = splitVariableDefByLambda(node);
+        viewState.sourceFragments = sourceFragments;
+        viewState.lambdas = lambdas;
+        if (lambdas.length) {
+            viewState.expression = sourceFragments.join('\u0192');
+            viewState.bBox.h = _.sumBy(lambdas, 'viewState.bBox.h') + viewState.components["drop-zone"].h;
+            const maxW = _.maxBy(lambdas, 'viewState.bBox.w').viewState.bBox.w;
+            viewState.bBox.w = maxW;
+            viewState.components['statement-box'].w = viewState.bBox.w;
+
+            for (const lambda of viewState.lambdas) {
+                lambda.viewState.bBox.w = maxW;
+            }
+        }
     }
 
     /**
@@ -1138,6 +1156,7 @@ class SizingUtil {
     sizeAssignmentNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
@@ -1348,6 +1367,7 @@ class SizingUtil {
     sizeReturnNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
@@ -1469,6 +1489,7 @@ class SizingUtil {
     sizeVariableDefNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
