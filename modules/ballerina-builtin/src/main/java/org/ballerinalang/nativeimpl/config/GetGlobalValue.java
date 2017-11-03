@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.config.nativeimpl;
+package org.ballerinalang.nativeimpl.config;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
