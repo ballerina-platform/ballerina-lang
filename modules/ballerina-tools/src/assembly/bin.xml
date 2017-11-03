@@ -123,6 +123,8 @@
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
+                <include>org.quartz-scheduler:quartz</include>
+                <include>org.quartz-scheduler:quartz-jobs</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
