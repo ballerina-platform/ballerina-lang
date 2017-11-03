@@ -21,18 +21,54 @@ import PropTypes from 'prop-types';
 import PanelDecorator from '../decorators/panel-decorator';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
 import TransformerStatementDecorator from '../transform/transformer-statement-decorator';
+import ImageUtil from '../../../../image-util';
 
 class TransformerNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onExpand = this.onExpand.bind(this);
+    }
+
+    onExpand() {
+        const { designView } = this.context;
+        designView.setTransformActive(true, this.props.model);
     }
 
     render() {
         const model = this.props.model;
-        const icons = 'tool-icons/transformer';
+        const icon = 'tool-icons/transformer';
+        const { bBox } = model.viewState;
 
-        return (<TransformerStatementDecorator viewState={model.viewState} icon={icons} model={model} />);
+        const TransFormDetails = ({x, y}) => {
+            const text_x = x;
+            const text_y = y + (bBox.h / 2);
+            const expand_button_x = text_x + model.viewState.titleWidth;
+            const expand_button_y = y;
+
+            return (
+                <g className='statement-body'>
+                    <text x={text_x} y={text_y} className='transform-action'
+                        onClick={e => this.onExpand()}>{model.getSignature()}</text>
+                    <g className='transform-button' onClick={e => this.onExpand()}>
+                        <rect x={expand_button_x}
+                            y={expand_button_y}
+                            width={30}
+                            height={30}
+                            className='transform-action-button'/>
+                        <image className='transform-action-icon'
+                            x={expand_button_x + 8} y={expand_button_y + 8}
+                            width={14}
+                            height={14}
+                            xlinkHref={ImageUtil.getSVGIconString('expand')}>
+                            <title>Expand</title>
+                        </image>
+                    </g>
+                </g>
+            );
+        };
+
+        return (<PanelDecorator bBox={model.viewState.bBox} icon={icon} model={model} headerComponent={TransFormDetails}/>);
     }
 }
 
@@ -42,6 +78,7 @@ TransformerNode.propTypes = {
 
 TransformerNode.contextTypes = {
     mode: PropTypes.string,
+    designView: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default TransformerNode;

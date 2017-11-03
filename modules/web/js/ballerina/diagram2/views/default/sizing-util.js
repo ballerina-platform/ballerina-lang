@@ -836,7 +836,8 @@ class SizingUtil {
         viewState.bBox.h = cmp.heading.h;
 
         const textWidth = this.getTextWidth(node.getSignature());
-        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
+        viewState.titleWidth = textWidth.w;
+        viewState.titleOffset = this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
 
         cmp.parametersPrefixContainer = {};

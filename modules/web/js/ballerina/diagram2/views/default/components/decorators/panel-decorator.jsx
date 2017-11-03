@@ -145,24 +145,26 @@ class PanelDecorator extends React.Component {
         const collapsed = this.props.model.viewState.collapsed || false;
 
         // Creating collapse button.
-        const collapseButtonProps = {
-            bBox: {
-                x: x - width,
-                y,
-                height,
-                width,
-            },
-            icon: (collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up'),
-            onClick: () => this.onCollapseClick(),
-            key: `${this.props.model.getID()}-collapse-button`,
-        };
+        if (!TreeUtils.isTransformer(this.props.model)) {
+            const collapseButtonProps = {
+                bBox: {
+                    x: x - width,
+                    y,
+                    height,
+                    width,
+                },
+                icon: (collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up'),
+                onClick: () => this.onCollapseClick(),
+                key: `${this.props.model.getID()}-collapse-button`,
+            };
 
-        staticButtons.push(React.createElement(PanelDecoratorButton, collapseButtonProps, null));
+            staticButtons.push(React.createElement(PanelDecoratorButton, collapseButtonProps, null));
+        }
 
         // Creating delete button.
         const deleteButtonProps = {
             bBox: {
-                x: x - (width * 2),
+                x: x - (width * (staticButtons.length + 1)),
                 y,
                 height,
                 width,
@@ -176,29 +178,31 @@ class PanelDecorator extends React.Component {
         staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
 
         // Creating show annotation button.
-        const annotationButtonProps = {
-            bBox: {
-                x: x - (width * 3),
-                y,
-                height,
-                width,
-            },
-            icon: ImageUtil.getSVGIconString(this.props.model.viewState.showAnnotationContainer ?
-                'annotation-clicked' : 'annotation'),
-            tooltip: this.props.model.viewState.showAnnotationContainer ? 'Hide Annotations' : 'Show Annotation',
-            onClick: () => this.toggleAnnotations(),
-            key: `${this.props.model.getID()}-show-annotation-button`,
-        };
+        if (!TreeUtils.isTransformer(this.props.model)) {
+            const annotationButtonProps = {
+                bBox: {
+                    x: x - (width * (staticButtons.length + 1)),
+                    y,
+                    height,
+                    width,
+                },
+                icon: ImageUtil.getSVGIconString(this.props.model.viewState.showAnnotationContainer ?
+                    'annotation-clicked' : 'annotation'),
+                tooltip: this.props.model.viewState.showAnnotationContainer ? 'Hide Annotations' : 'Show Annotation',
+                onClick: () => this.toggleAnnotations(),
+                key: `${this.props.model.getID()}-show-annotation-button`,
+            };
 
-        staticButtons.push(React.createElement(PanelDecoratorButton, annotationButtonProps, null));
+            staticButtons.push(React.createElement(PanelDecoratorButton, annotationButtonProps, null));
+        }
 
-        // Render the public/private toggle flag button only if its a function
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
-            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model)) {
+            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
+            TreeUtils.isTransformer(this.props.model)) {
             // Toggle button for public/private flag
             const publicPrivateFlagButtonProps = {
                 bBox: {
-                    x: x - (width * 4),
+                    x: x - (width * (staticButtons.length + 1)),
                     y,
                     height,
                     width,
@@ -236,7 +240,6 @@ class PanelDecorator extends React.Component {
         if (!_.isNil(this.props.model.viewState.components.annotation)) {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
-
         // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const titleWidth = util.getTextWidth(this.state.editingTitle);
 
@@ -269,12 +272,15 @@ class PanelDecorator extends React.Component {
         let publicPrivateFlagoffset = 0;
         let allowPublicPrivateFlag = false;
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
-            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model)) {
+            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
+            TreeUtils.isTransformer(this.props.model)) {
+
             allowPublicPrivateFlag = true;
             if (this.props.model.public) {
                 publicPrivateFlagoffset = 50;
             }
         }
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect
@@ -344,6 +350,12 @@ class PanelDecorator extends React.Component {
                 >
                     {this.state.editingTitle}
                 </EditableText>}
+                { this.props.headerComponent &&
+                    <this.props.headerComponent
+                        x={ bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset }
+                        y={ bBox.y + annotationBodyHeight }
+                    />
+                }
                 {rightHeadingButtons}
                 { this.props.argumentParams &&
                     <ArgumentParameterDefinitionHolder
