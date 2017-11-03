@@ -109,4 +109,9 @@ public interface EntityCollector {
      * This is need to release content before GC
      */
     void waitAndReleaseAllEntities();
+
+    /**
+     * Peek the head of the queue
+     */
+    HttpContent peek();
 }
