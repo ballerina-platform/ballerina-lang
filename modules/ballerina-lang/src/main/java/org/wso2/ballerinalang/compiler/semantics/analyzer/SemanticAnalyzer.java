@@ -553,7 +553,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
             checkConstantAssignment(varRef);
             //TODO endpoint model should be changed(now it's modeled as variable definition statement)
-            checkEndpointAssignment(varRef);
+//            checkEndpointAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
@@ -562,11 +562,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BType> expTypes = new ArrayList<>();
         // Check each LHS expression.
         BLangExpression varRef = bindNode.varRef;
-        // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess only.
-        if (varRef.getKind() == NodeKind.INVOCATION) {
-            dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-            expTypes.add(symTable.errType);
-        }
         ((BLangVariableReference) varRef).lhsVar = true;
         expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
         checkConstantAssignment(varRef);

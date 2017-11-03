@@ -93,3 +93,16 @@ function testEmptyEndpointInvocation()(string) {
     return ep.get("val1");
 }
 
+function testBindWhichGetsConFromFunction()(string) {
+    endpoint<Foo> ep {
+
+    }
+    bind getFoo() with ep;
+    return ep.get("val1");
+}
+
+function getFoo()(Foo) {
+    Foo fo = create Foo();
+    return fo;
+}
+

@@ -194,7 +194,7 @@ public class BNullValueTest {
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: error, message: action invocation on empty endpoint.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testActionInNullConenctor() {
         BRunUtil.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }

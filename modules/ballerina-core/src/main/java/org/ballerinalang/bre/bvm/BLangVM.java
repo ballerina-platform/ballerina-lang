@@ -543,7 +543,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeAction(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -2603,12 +2603,12 @@ public class BLangVM {
 
     }
 
-    public void invokeActionCallableUnit(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         StackFrame callerSF = controlStack.currentFrame;
 
         if (callerSF.refRegs[argRegs[0]] == null) {
-            context.setError(BLangVMErrors.createError(this.context, ip, "action invocation on empty endpoint"));
+            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
             handleError();
             return;
         }
