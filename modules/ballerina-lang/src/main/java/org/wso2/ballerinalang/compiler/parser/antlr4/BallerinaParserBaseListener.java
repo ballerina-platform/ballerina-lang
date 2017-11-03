@@ -724,18 +724,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -772,37 +760,37 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
+	@Override public void enterConnectorInit(BallerinaParser.ConnectorInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
+	@Override public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
+	@Override public void enterEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
+	@Override public void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
+	@Override public void enterEndpointDefinition(BallerinaParser.EndpointDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
+	@Override public void exitEndpointDefinition(BallerinaParser.EndpointDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -815,6 +803,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBindStatement(BallerinaParser.BindStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBindStatement(BallerinaParser.BindStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1379,6 +1379,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

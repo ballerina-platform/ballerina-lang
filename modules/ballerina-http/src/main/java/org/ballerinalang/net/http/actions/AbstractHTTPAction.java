@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.actions;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -35,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
@@ -185,8 +184,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BallerinaConnectorException ex = new BallerinaConnectorException(throwable.getMessage(), throwable);
-            ballerinaFuture.notifyFailure(ex);
+            BStruct httpConnectorError = createErrorStruct(context);
+            httpConnectorError.setStringField(0, throwable.getMessage());
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
+            }
+
+            context.getControlStackNew().getCurrentFrame().returnValues[1] = httpConnectorError;
+            ballerinaFuture.notifySuccess();
         }
 
         private BStruct createResponseStruct(Context context) {
@@ -197,6 +203,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             BStruct bStruct = new BStruct(structType);
 
             return bStruct;
+        }
+
+        private BStruct createErrorStruct(Context context) {
+            PackageInfo sessionPackageInfo = context.getProgramFile()
+                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
+            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
+            BStructType structType = sessionStructInfo.getType();
+            return new BStruct(structType);
         }
     }
 

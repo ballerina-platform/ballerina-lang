@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -571,8 +572,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             checkConstantAssignment(varRef);
+            //TODO endpoint model should be changed(now it's modeled as variable definition statement)
+//            checkEndpointAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    public void visit(BLangBind bindNode) {
+        List<BType> expTypes = new ArrayList<>();
+        // Check each LHS expression.
+        BLangExpression varRef = bindNode.varRef;
+        ((BLangVariableReference) varRef).lhsVar = true;
+        expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+        checkConstantAssignment(varRef);
+        typeChecker.checkExpr(bindNode.expr, this.env, expTypes);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -594,6 +607,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
             dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+        }
+    }
+
+    private void checkEndpointAssignment(BLangExpression varRef) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+
+        if (varRef.type.tag == TypeTags.ENDPOINT) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_ENDPOINT, varRef);
         }
     }
 

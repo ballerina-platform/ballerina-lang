@@ -26,6 +26,7 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -63,9 +64,9 @@ public class Patch extends AbstractHTTPAction {
         try {
             // Execute the operation
             return executeNonBlockingAction(context, createCarbonMsg(context));
-        } catch (Throwable t) {
+        } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
-                    + ". " + t.getMessage(), context);
+                    + ". " + clientConnectorException.getMessage(), context);
         }
     }
 

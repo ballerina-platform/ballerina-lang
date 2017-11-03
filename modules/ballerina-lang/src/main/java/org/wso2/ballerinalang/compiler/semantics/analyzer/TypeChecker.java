@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -433,8 +434,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Then perform arg and param matching
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
+            case TypeTags.ENDPOINT:
+                checkActionInvocationExpr(iExpr, (BEndpointType) iExpr.expr.type);
+                break;
             case TypeTags.CONNECTOR:
-                checkActionInvocationExpr(iExpr, (BConnectorType) iExpr.expr.type);
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, iExpr.expr.type);
                 break;
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
@@ -949,14 +953,12 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BConnectorType connectorType) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BEndpointType endpointType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        Name connectorName = names.fromString(connectorType.toString());
-        BPackageSymbol packageSymbol = (BPackageSymbol) connectorType.tsymbol.owner;
-        BSymbol connectorSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                connectorName, SymTag.CONNECTOR);
-        if (connectorSymbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorName);
+        BSymbol connectorSymbol = endpointType.constraint.tsymbol;
+
+        if (connectorSymbol == symTable.errSymbol || connectorSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorSymbol);
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
@@ -965,7 +967,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
                 env, actionName, SymTag.ACTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, connectorName);
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, endpointType.constraint);
             resultTypes = actualTypes;
             return;
         }

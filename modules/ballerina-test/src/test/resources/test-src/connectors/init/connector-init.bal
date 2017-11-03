@@ -23,9 +23,12 @@ function testConnectorInit (string name, int age) (int, string){
 }
 
 function invokeConnector (Foo myFoo, string name) (int, string) {
+    endpoint<Foo> ep {
+        myFoo;
+    }
     int i;
     string str;
-    str, i = myFoo.getName (name);
+    str, i = ep.getName (name);
     return i, str;
 }
 
@@ -41,11 +44,15 @@ connector Bar(any name, json age) {
 }
  
 function testConnectorInitWithImplicitCastableTypes() (string, int){
+    endpoint<Bar> ep {
+
+    }
     Bar bar;
     string arg1 = "John";
     int arg2 = 40;
     bar = create Bar(arg1, arg2);
-    var a, j = bar.getNameAndAge(arg1, arg2);
+    bind bar with ep;
+    var a, j = ep.getNameAndAge(arg1, arg2);
     
     var s, _ = (string) a;
     var i, _ = (int) j;

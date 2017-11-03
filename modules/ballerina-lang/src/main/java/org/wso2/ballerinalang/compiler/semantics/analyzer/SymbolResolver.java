@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -41,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -400,6 +403,29 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
+     * Method to get all the action symbols of a connector.
+     *
+     * @param scope connector scope to search.
+     * @return action list.
+     */
+    public List<BInvokableSymbol> getConnectorActionSymbols(Scope scope) {
+        List<BInvokableSymbol> actions = new ArrayList<>();
+        scope.entries.values().forEach(entry -> {
+            while (entry != NOT_FOUND_ENTRY) {
+                if ((entry.symbol.tag & SymTag.ACTION) != SymTag.ACTION) {
+                    entry = entry.next;
+                    continue;
+                }
+
+                actions.add((BInvokableSymbol) entry.symbol);
+                break;
+            }
+        });
+
+        return actions;
+    }
+
+    /**
      * Resolve and return the namespaces visible to the given environment, as a map.
      *
      * @param env Environment to get the visible namespaces
@@ -419,6 +445,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
+    }
+
+    public void visit(BLangEndpointTypeNode endpointType) {
+        BType constraintType = resolveTypeNode(endpointType.constraint, env);
+        resultType = new BEndpointType(TypeTags.ENDPOINT, constraintType, null);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {

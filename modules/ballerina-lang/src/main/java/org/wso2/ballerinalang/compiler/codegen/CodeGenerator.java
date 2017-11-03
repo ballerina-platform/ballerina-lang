@@ -1083,6 +1083,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes.tRef;
+        cIExpr.regIndex = connectorRegIndex;
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
 
         List<BLangExpression> argExprs = cIExpr.argsExpr;

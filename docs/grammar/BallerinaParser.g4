@@ -50,7 +50,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -58,8 +58,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE endpointDeclaration* statement* RIGHT_BRACE
+    | LEFT_BRACE endpointDeclaration* workerDeclaration+ RIGHT_BRACE
     ;
 
 
@@ -77,11 +77,11 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -248,6 +248,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -270,10 +271,6 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
-connectorDeclarationStmt
-    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
-    ;
-
 mapStructLiteral
     :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
     ;
@@ -286,21 +283,24 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInitExpression
-    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+connectorInit
+    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
-filterInitExpression
-    : userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+endpointDeclaration
+    :   endpointDefinition LEFT_BRACE ((variableReference | connectorInit) SEMICOLON)? RIGHT_BRACE
     ;
 
-filterInitExpressionList
-    : filterInitExpression (COMMA filterInitExpression)*
+endpointDefinition
+    :   ENDPOINT (LT nameReference GT) Identifier
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression WITH Identifier SEMICOLON
     ;
 
 variableReferenceList
@@ -488,6 +488,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
