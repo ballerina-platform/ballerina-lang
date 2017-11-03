@@ -65,10 +65,6 @@
             <artifactId>docerina</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina.connectors</groupId>
-            <artifactId>connectors</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
