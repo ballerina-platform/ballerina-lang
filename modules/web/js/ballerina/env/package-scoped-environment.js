@@ -130,7 +130,7 @@ class PackageScopedEnvironment {
      */
     getPackageByIdentifier(packageIdentifier) {
         // TODO : this will break when imports have custom identifiers
-        if (_.isEqual(packageIdentifier, 'Current Package')) {
+        if (_.isEqual(packageIdentifier, 'Current Package') || _.isEqual(packageIdentifier, '')) {
             return this._currentPackage;
         }
         return _.find(this._packages, pckg => _.last(_.split(pckg.getName(), '.')) === packageIdentifier);

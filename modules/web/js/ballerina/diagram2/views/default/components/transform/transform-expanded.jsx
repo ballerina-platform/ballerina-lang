@@ -63,7 +63,13 @@ class TransformExpanded extends React.Component {
         };
         this.sourceElements = {};
         this.targetElements = {};
-        // this.loadVertices();
+        this.transformNodeManager = new TransformNodeManager(
+            {
+                typeLattice: context.environment.getTypeLattice(),
+                transformStmt: props.model,
+                environment: context.environment,
+            });
+        this.loadVertices();
 
         this.onSourceSelect = this.onSourceSelect.bind(this);
         this.onTargetSelect = this.onTargetSelect.bind(this);
@@ -91,13 +97,6 @@ class TransformExpanded extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
-
-        this.transformNodeManager = new TransformNodeManager(
-            {
-                typeLattice: context.environment.getTypeLattice(),
-                transformStmt: props.model,
-                environment: context.environment,
-            });
     }
 
     foldEndpoint(key) {
@@ -508,8 +507,8 @@ class TransformExpanded extends React.Component {
                 targetId = `${nodeExpID}:${viewId}`;
             }
 
-            this.drawConnection(sourceId, targetId, folded);   
-        }   
+            this.drawConnection(sourceId, targetId, folded);
+        }
     }
 
     getFoldedEndpointId(exprString, viewId, type = 'source') {
@@ -922,8 +921,9 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     addSource(source) {
-        if (this.isVertexExist(source)) {
-            this.props.model.addInput(source);
+        const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
+        if (vertex) {
+            this.props.model.setSourceParam(this.transformNodeManager.createVariable('source', vertex));
             this.setState({ typedSource: '' });
         }
     }
@@ -934,8 +934,9 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     addTarget(target) {
-        if (this.isVertexExist(target)) {
-            this.props.model.addOutput(target);
+        const vertex = this.state.vertices.filter((val) => { return val === target; })[0];
+        if (vertex) {
+            this.props.model.setReturnParameters([this.transformNodeManager.createVariable('target', vertex)]);
             this.setState({ typedTarget: '' });
         }
     }
@@ -951,100 +952,12 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     loadVertices(callback) {
-        getLangServerClientInstance().then((langServerClient) => {
-            const vertices = [];
-
-            const fileData = this.context.designView.context.editor.props.file;
-            const position = this.props.model.getPosition();
-
-            const options = {
-                textDocument: fileData.content,
-                position: {
-                    line: position.endLine,
-                    character: position.endColumn,
-                },
-                fileName: fileData.name,
-                filePath: fileData.path,
-                packageName: fileData.packageName,
-            };
-
-            langServerClient.getCompletions(options, (response) => {
-                const completions = response.result.filter((completionItem) => {
-                    // all variables have type as 9 as per the declaration in lang server
-                    return (completionItem.kind === 9);
-                });
-                const transformVars = completions.map((completionItem) => {
-                    const typeData = getResolvedTypeData(completionItem);
-                    return ({
-                        type: typeData.typeName,
-                        name: completionItem.label,
-                        pkgName: typeData.packageName,
-                        constraint: typeData.constraint,
-                    });
-                });
-                const varDefinitions = this.props.model.getBody().filterStatements(TreeUtil.isVariableDef);
-                transformVars.forEach((arg) => {
-                    const structDef = this.transformNodeManager.getStructDefinition(arg.pkgName, arg.type);
-
-                    if (structDef) {
-                        arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
-                        const structVar = this.transformNodeManager.getStructType(
-                            arg.name, arg.type, structDef);
-                        vertices.push(structVar);
-                    }
-
-                    if (!structDef) {
-                        const variableType = {};
-                        variableType.name = arg.name;
-                        variableType.displayName = arg.name;
-                        variableType.varDeclarationString = '';
-                        _.forEach(varDefinitions, (varDef) => {
-                            if (variableType.name === varDef.getVariableName().getValue()) {
-                                variableType.varDeclarationString = varDef.getSource();
-                            }
-                        });
-
-                        if (arg.constraint !== undefined) {
-                            variableType.type = arg.type + '<'
-                                        + ((arg.constraint.packageName) ? arg.constraint.packageName + ':' : '')
-                                        + arg.constraint.type + '>';
-                            variableType.constraintType = arg.constraint;
-                            const constraintDef = this.transformNodeManager.getStructDefinition(
-                                arg.constraint.packageName, arg.constraint.type);
-                            if (constraintDef !== undefined) {
-                                const constraintVar = this.transformNodeManager.getStructType(
-                                    arg.name, variableType.type, constraintDef);
-                                // For constraint types, the field types must be the same type as the variable and
-                                // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
-                                // type has to be json and not string. Hence converting all field types to variable
-                                // type.
-                                // TODO : revisit this conversion if ballerina language supports constrained field
-                                // access to be treated as the field type (i.e. as string from the struct field
-                                // and not json)
-                                this.convertFieldType(constraintVar.properties, arg.type);
-
-                                // constraint properties (fields) become variable fields
-                                // variableType.properties = constraint.properties;
-                                // variableType.constraint = constraint;
-                                vertices.push(constraintVar);
-                            }
-                        } else {
-                            variableType.type = arg.type;
-                            vertices.push(variableType);
-                        }
-                    }
-                });
-                // set state with new vertices
-                if (!_.isEqual(vertices, this.state.vertices)) {
-                    this.setState({ vertices });
-                }
-                if (callback) {
-                    callback();
-                }
-            });
-        }).catch((error) => {
-            this.context.alert.showError('Could not initialize transform statement view ' + error);
+        this.context.environment.getTypes().forEach((type) => {
+            this.state.vertices.push(type);
         });
+        if (callback) {
+            callback();
+        }
     }
 
     /**
@@ -1221,7 +1134,7 @@ class TransformExpanded extends React.Component {
         if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type,
                                                      this.state.vertices)) {
             this.isUpdatingVertices = true;
-            // this.loadVertices(() => { this.isUpdatingVertices = false; });
+            this.loadVertices(() => { this.isUpdatingVertices = false; });
             return true;
         } else {
             this.context.alert.showError('Invalid value for variable');
@@ -1298,7 +1211,7 @@ class TransformExpanded extends React.Component {
 
     render() {
         const { leftOffset } = this.props;
-        const vertices = []; // this.state.vertices.filter(vertex => (!vertex.isInner));
+        const vertices = this.state.vertices;
         const sourceNode = this.props.model.getSourceParam();
         const returnNodes = this.props.model.getReturnParameters();
         const paramNodes = this.props.model.getParameters();
@@ -1345,7 +1258,7 @@ class TransformExpanded extends React.Component {
                     <i onClick={this.onClose} className='fw fw-left icon close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        Transform
+                        <b>{this.props.model.getSignature()}</b>
                     </p>
                 </div>
                 <div

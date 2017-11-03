@@ -215,6 +215,10 @@ class AbstractTreeUtil {
         return node.kind === 'Assignment';
     }
 
+    isBind(node) {
+        return node.kind === 'Bind';
+    }
+
     isBlock(node) {
         return node.kind === 'Block';
     }
@@ -301,6 +305,10 @@ class AbstractTreeUtil {
 
     isUserDefinedType(node) {
         return node.kind === 'UserDefinedType';
+    }
+
+    isEndpointType(node) {
+        return node.kind === 'EndpointType';
     }
 
     isValueType(node) {

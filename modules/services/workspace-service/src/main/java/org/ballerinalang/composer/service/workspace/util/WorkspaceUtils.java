@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -56,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -457,7 +460,7 @@ public class WorkspaceUtils {
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
-                    item.getTypeNode().type.toString())));
+                    item.getTypeNode().type.toString(), item.getTypeNode())));
         }
     }
 
@@ -527,10 +530,15 @@ public class WorkspaceUtils {
      * @param type parameter type
      * @return {Parameter} parameter
      */
-    private static Parameter createNewParameter(String name, String type) {
+    private static Parameter createNewParameter(String name, String type, BLangType typeNode) {
         Parameter parameter = new Parameter();
         parameter.setType(type);
         parameter.setName(name);
+        BType bType = typeNode.type;
+        if (bType instanceof BConnectorType) {
+            parameter.setPkgAlias(((BLangUserDefinedType) typeNode).pkgAlias.toString());
+            parameter.setConnector(true);
+        }
         return parameter;
     }
 

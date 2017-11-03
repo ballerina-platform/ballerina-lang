@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
@@ -25,7 +26,7 @@ import LifeLine from '../decorators/lifeline';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import EndpointDecorator from '../decorators/endpoint-decorator';
 
 class FunctionNode extends React.Component {
 
@@ -35,7 +36,7 @@ class FunctionNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource)
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
             || TreeUtil.isWorker(dragSource);
     }
 
@@ -62,9 +63,12 @@ class FunctionNode extends React.Component {
         const returnParameters = this.props.model.getReturnParameters();
 
         const connectors = this.props.model.body.statements
-            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+            .filter((element) => {
+                const typeNode = _.get(element, 'variable.typeNode');
+                return typeNode && TreeUtil.isEndpointType(typeNode);
+            }).map((statement) => {
                 return (
-                    <ConnectorDeclarationDecorator
+                    <EndpointDecorator
                         model={statement}
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}

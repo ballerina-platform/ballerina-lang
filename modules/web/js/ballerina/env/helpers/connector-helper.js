@@ -20,6 +20,9 @@
  *
  * @class ConnectorHelper
  */
+
+import _ from 'lodash';
+
 class ConnectorHelper {
     /**
      * Get the default values of the connector parameters according to the bType
@@ -53,7 +56,7 @@ class ConnectorHelper {
      * @param fullPackageName of the connector
      * @returns {Array}
      */
-    static getConnectorParameters(environment, pkgAlias) {
+    static getConnectorParameters(environment, pkgAlias, connectorIdentifier) {
         const connectorParameters = [];
         for (const packageDefintion of environment.getPackages()) {
             if (environment.getPackageByIdentifier(pkgAlias)) {
@@ -61,26 +64,42 @@ class ConnectorHelper {
                 if (packageDefintion.getName() === fullPackageName) {
                     for (const connector of packageDefintion.getConnectors()) {
                         // Get Connection Properties
-                        connector.getParams().map((parameter) => {
-                            let paramType = parameter.type;
-                            let structFields = [];
-                            if (parameter.type.startsWith(fullPackageName)) {
-                                const structName = parameter.type.split(':')[1];
-                                paramType = 'struct';
-                                structFields = this.getStructDataFields(fullPackageName,
-                                    packageDefintion.getStructDefinitions(), structName, structFields);
-                            }
-                            // Check the bType of each attribute and set the default values accordingly
-                            const keyValuePair = {
-                                identifier: parameter.name,
-                                bType: paramType,
-                                desc: parameter.name,
-                                fields: structFields,
-                                value: this.getDefaultValuesAccordingToBType(parameter.type),
-                                defaultValue: this.getDefaultValuesAccordingToBType(parameter.type),
-                            };
-                            connectorParameters.push(keyValuePair);
-                        });
+                        const pkgName = (packageDefintion.getName() === 'Current Package')
+                            ? '' : packageDefintion.getName();
+                        const identifier = _.last(_.split(pkgName, '.')) + ':' + connector.getName();
+
+                        if (connectorIdentifier === identifier) {
+                            connector.getParams().map((parameter) => {
+                                let paramType = parameter.type;
+                                let structFields = [];
+                                if (parameter.type.startsWith(fullPackageName)) {
+                                    const structName = parameter.type.split(':')[1];
+                                    paramType = 'struct';
+                                    structFields = this.getStructDataFields(fullPackageName,
+                                        packageDefintion.getStructDefinitions(), structName, structFields);
+                                }
+
+                                let propertyConnectorParams;
+                                if (parameter.isConnector) {
+                                    const cIdentifier = parameter.pkgAlias + ':' + parameter.type;
+                                    propertyConnectorParams = this.getConnectorParameters(environment,
+                                        parameter.pkgAlias, cIdentifier);
+                                }
+                                // Check the bType of each attribute and set the default values accordingly
+                                const keyValuePair = {
+                                    identifier: parameter.name,
+                                    bType: paramType,
+                                    desc: parameter.name,
+                                    fields: structFields,
+                                    isConnector: parameter.isConnector,
+                                    connectorParams: propertyConnectorParams,
+                                    pkgAlias: parameter.pkgAlias,
+                                    value: this.getDefaultValuesAccordingToBType(parameter.type),
+                                    defaultValue: this.getDefaultValuesAccordingToBType(parameter.type),
+                                };
+                                connectorParameters.push(keyValuePair);
+                            });
+                        }
                     }
                     break;
                 }

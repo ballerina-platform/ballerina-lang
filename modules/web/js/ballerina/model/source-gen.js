@@ -161,6 +161,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w(' ') + node.operatorKind + a(' ')
                  + getSourceOf(node.rightExpression, pretty, l, replaceLambda);
             }
+        case 'Bind':
+            return dent() + w() + 'bind' + b(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + 'with' + b(' ')
+                 + getSourceOf(node.variable, pretty, l, replaceLambda) + w() + ';';
         case 'Block':
             return join(node.statements, pretty, replaceLambda, l, w, '');
         case 'Break':
@@ -203,6 +207,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'ConstrainedType':
             return getSourceOf(node.type, pretty, l, replaceLambda) + w() + '<'
+                 + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
+        case 'EndpointType':
+            return w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
         case 'ExpressionStatement':
             return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
@@ -606,7 +613,17 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ValueType':
             return w() + node.typeKind;
         case 'Variable':
-            if (node.global && node.annotationAttachments && node.typeNode
+            if (node.endpoint && node.typeNode && node.name.value
+                         && node.initialExpression) {
+                return dent() + dent()
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{' + indent()
+                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w()
+                 + ';' + outdent() + w() + '}';
+            } else if (node.endpoint && node.typeNode && node.name.value) {
+                return dent() + getSourceOf(node.typeNode, pretty, l, replaceLambda)
+                 + w(' ') + node.name.value + w() + '{' + indent() + outdent() + w()
+                 + '}';
+            } else if (node.global && node.annotationAttachments && node.typeNode
                          && node.name.value && node.initialExpression) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
@@ -631,8 +648,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda);
             }
         case 'VariableDef':
-            return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
+            if (node.endpoint && node.variable) {
+                return w() + 'endpoint'
+                 + getSourceOf(node.variable, pretty, l, replaceLambda);
+            } else {
+                return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
                  + w() + ';';
+            }
         case 'While':
             return dent() + w() + 'while' + w(' ') + '('
                  + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{'

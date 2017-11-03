@@ -118,6 +118,15 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createAssignmentStmt,
         description: 'Provide a way to assign a value to a variable accessor',
     },
+    // Need a separate icon for the bind
+    {
+        id: 'Bind',
+        name: 'Bind',
+        icon: 'assign',
+        title: 'Bind',
+        nodeFactoryMethod: DefaultNodeFactory.createBindStmt,
+        description: 'Provide a way to bind a connector to an endpoint',
+    },
     {
         id: 'if',
         name: 'If',

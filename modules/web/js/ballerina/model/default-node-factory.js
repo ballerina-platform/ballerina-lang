@@ -265,17 +265,21 @@ class DefaultNodeFactory {
     createAssignmentStmt() {
         const node = getNodeForFragment(FragmentUtils.createStatementFragment('var a = 1;'));
         // Check if the node is a ConnectorDeclaration
-        if (TreeUtils.isConnectorDeclaration(node)) {
+        if (TreeUtils.isEndpointTypeVariableDef(node)) {
             node.viewState.showOverlayContainer = true;
             return node;
         }
         return node;
     }
 
+    createBindStmt() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment('bind __connector with __endpoint;'));
+    }
+
     createVarDefStmt() {
         const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
         // Check if the node is a ConnectorDeclaration
-        if (TreeUtils.isConnectorDeclaration(node)) {
+        if (TreeUtils.isEndpointTypeVariableDef(node)) {
             node.viewState.showOverlayContainer = true;
             return node;
         }
@@ -435,6 +439,32 @@ class DefaultNodeFactory {
         connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         connectorDeclaration.viewState.showOverlayContainer = true;
         return connectorDeclaration;
+    }
+
+    createEndpoint(args) {
+        const { connector, packageName, fullPackageName } = args;
+
+        // Iterate through the params and create the parenthesis with the default param values
+        let paramString = '';
+        if (connector.getParams()) {
+            const connectorParams = connector.getParams().map((param) => {
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                return defaultValue;
+            });
+            paramString = connectorParams.join(', ')
+        }
+        const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
+        const connectorInit = `create ${pkgStr}${connector.getName()}(${paramString});`;
+        const constraint = `<${pkgStr}${connector.getName()}>`;
+
+        const endpointSource = `endpoint ${constraint} endpoint1 {
+            ${connectorInit}
+        }`;
+        const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
+        return nodeForFragment;
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {

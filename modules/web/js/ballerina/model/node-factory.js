@@ -67,6 +67,7 @@ import XmlCommentLiteralNode from './tree/xml-comment-literal-node';
 import XmlPiLiteralNode from './tree/xml-pi-literal-node';
 import AbortNode from './tree/abort-node';
 import AssignmentNode from './tree/assignment-node';
+import BindNode from './tree/bind-node';
 import BlockNode from './tree/block-node';
 import BreakNode from './tree/break-node';
 import NextNode from './tree/next-node';
@@ -89,6 +90,7 @@ import BuiltInRefTypeNode from './tree/built-in-ref-type-node';
 import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
+import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
 import TypeNode from './tree/type-node';
 
@@ -624,6 +626,16 @@ class NodeFactory {
         return node;
     }
 
+    createBind(json = {}){
+        json.kind = 'Bind';
+        let node = new BindNode();
+        node.variable = new ExpressionNode();
+        node.expression = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createBlock(json = {}) {
         json.kind = 'Block';
         let node = new BlockNode();
@@ -835,6 +847,15 @@ class NodeFactory {
         node.typeName = new IdentifierNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
+        return node;
+    }
+
+    createEndpointType(json = {}){
+        json.kind = 'EndpointType';
+        let node = new EndpointTypeNode();
+        node.constraint = new TypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
         return node;
     }
 

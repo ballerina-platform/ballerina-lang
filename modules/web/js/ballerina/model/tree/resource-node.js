@@ -237,7 +237,7 @@ class ResourceNode extends AbstractResourceNode {
      * @returns {Boolean} True if can be acceped.
      */
     canAcceptDrop(node) {
-        return TreeUtil.isWorker(node) || TreeUtil.isConnectorDeclaration(node);
+        return TreeUtil.isWorker(node) || TreeUtil.isEndpointTypeVariableDef(node);
     }
 
     /**
@@ -255,20 +255,20 @@ class ResourceNode extends AbstractResourceNode {
                 const defaultWorker = node.meta;
                 delete node.meta;
                 const connectors = this.getBody().getStatements()
-                        .filter((statement) => { return TreeUtil.isConnectorDeclaration(statement); });
+                        .filter((statement) => { return TreeUtil.isEndpointTypeVariableDef(statement); });
                 const statements = this.getBody().getStatements()
-                        .filter((statement) => { return !TreeUtil.isConnectorDeclaration(statement); });
+                        .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
                 defaultWorker.getBody().setStatements(statements);
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             this.addWorkers(node, index);
-        } else if (TreeUtil.isConnectorDeclaration(node)) {
+        } else if (TreeUtil.isEndpointTypeVariableDef(node)) {
             // If there are no statements we'll add it to 0
             let index = 0;
             const lastIndexOfConnectors = _.findLastIndex(this.getBody().getStatements(),
-                variable => TreeUtil.isConnectorDeclaration(variable));
+                variable => TreeUtil.isEndpointTypeVariableDef(variable));
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
