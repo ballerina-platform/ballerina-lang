@@ -688,18 +688,6 @@ class TransformExpanded extends React.Component {
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
-        const sourceKeys = Object.keys(this.sourceElements);
-        sourceKeys.forEach((key) => {
-            const { element, input } = this.sourceElements[key];
-            this.mapper.addSource(element, input);
-        });
-
-        const targetKeys = Object.keys(this.targetElements);
-        targetKeys.forEach((key) => {
-            const { element, output } = this.targetElements[key];
-            this.mapper.addTarget(element, output);
-        });
-
         this.props.model.body.getStatements().forEach((statement) => {
             this.createConnection(statement);
         });
@@ -708,6 +696,12 @@ class TransformExpanded extends React.Component {
         this.markConnectedEndpoints();
 
         this.mapper.reposition(this.props.model.getID());
+
+        const sourceKeys = Object.keys(this.sourceElements);
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
+            this.mapper.addSource(element, input, true);
+        });
 
         this.mapper.onConnectionAborted((con, ev) => {
             const targetKeys = Object.keys(this.targetElements);
@@ -1315,6 +1309,10 @@ class TransformExpanded extends React.Component {
         const params = this.getVerticeData(paramNodes);
         const returns = this.getVerticeData(returnNodes);
 
+        source.endpointKind = 'input';
+        params.forEach(p => {p.endpointKind = 'input'});
+        returns.forEach(r => {r.endpointKind = 'output'});
+        
         this.props.model.getBody().getStatements().forEach((stmt) => {
             let stmtExp;
             if (TreeUtil.isAssignment(stmt)) {
