@@ -15,10 +15,11 @@ service<http> headerBasedRouting {
         string nyseString = "nyse";
         string nameString = req.getHeader("name");
         http:Response clientResponse = {};
+        http:HttpConnectorError err;
         if (nameString == nyseString) {
-            clientResponse = nyseEP.post("/stocks", req);
+            clientResponse, err = nyseEP.post("/stocks", req);
         } else {
-            clientResponse = nasdaqEP.post("/stocks", req);
+            clientResponse, err = nasdaqEP.post("/stocks", req);
         }
         resp.forward(clientResponse);
     }
