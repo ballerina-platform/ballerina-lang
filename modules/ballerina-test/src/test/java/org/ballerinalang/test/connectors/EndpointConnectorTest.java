@@ -37,7 +37,7 @@ public class EndpointConnectorTest {
 
     @BeforeClass()
     public void setup() {
-//        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
+        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/endpoint-connector-negative.bal");
     }
 
