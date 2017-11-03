@@ -155,6 +155,7 @@ public class Util {
 
     private static void  setContentLength(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -163,7 +164,7 @@ public class Util {
     }
 
     private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
             cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
     }
