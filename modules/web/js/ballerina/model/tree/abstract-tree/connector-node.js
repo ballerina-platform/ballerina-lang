@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractConnectorNode extends Node {
 
 
-    setFilteredParameter(newValue, silent, title) {
-        const oldValue = this.filteredParameter;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.filteredParameter = newValue;
-
-        this.filteredParameter.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'filteredParameter',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFilteredParameter() {
-        return this.filteredParameter;
-    }
-
-
-
     setVariableDefs(newValue, silent, title) {
         const oldValue = this.variableDefs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

@@ -880,6 +880,19 @@ class ErrorRenderingUtil {
     }
 
 
+
+    /**
+     * Calculate error position of Bind nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForBindNode(node) {
+        // Not implemented.
+    }
+
+
+
     /**
      * Calculate error position of Block nodes.
      *
@@ -1231,6 +1244,19 @@ class ErrorRenderingUtil {
     placeErrorForUserDefinedTypeNode(node) {
         // Not implemented.
     }
+
+
+
+    /**
+     * Calculate error position of EndpointType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForEndpointTypeNode(node) {
+        // Not implemented.
+    }
+
 
 
     /**

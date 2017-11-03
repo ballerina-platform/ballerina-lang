@@ -26,7 +26,7 @@ import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import EndpointDecorator from '../decorators/endpoint-decorator';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import AddActionNode from './add-action-node';
 
@@ -47,7 +47,7 @@ class ActionNode extends React.Component {
     }
 
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource)
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
             || TreeUtil.isWorker(dragSource);
     }
 
@@ -88,9 +88,9 @@ class ActionNode extends React.Component {
 
         const blockNode = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
         const connectors = this.props.model.body.statements
-            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+            .filter((element) => { return TreeUtil.isEndpointTypeVariableDef(element); }).map((statement) => {
                 return (
-                    <ConnectorDeclarationDecorator
+                    <EndpointDecorator
                         model={statement}
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}

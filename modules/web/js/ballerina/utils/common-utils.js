@@ -65,7 +65,7 @@ class CommonUtils {
                 while (true) {
                     const tempNewValue = currentAttributeValue + counter;
                     // Generate unique
-                    if (ASTFactory.isConnectorDeclaration(genArgs.node)) {
+                    if (ASTFactory.isEndpointTypeVariableDef(genArgs.node)) {
                         this.connectorDeclarationVisitor = new ConnectorDeclarationVisitor();
                         let parent = genArgs.node.getParent();
                         while (!ASTFactory.isBallerinaAstRoot(parent)) {

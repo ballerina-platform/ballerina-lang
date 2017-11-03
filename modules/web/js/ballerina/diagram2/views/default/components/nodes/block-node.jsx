@@ -34,7 +34,7 @@ class BlockNode extends React.Component {
     render() {
         const model = this.props.model;
         const withoutConnectors = model.statements
-            .filter((element) => { return !TreeUtil.isConnectorDeclaration(element); });
+            .filter((element) => { return !TreeUtil.isEndpointTypeVariableDef(element); });
         const statements = getComponentForNodeArray(withoutConnectors, this.context.mode);
         return (
             <g className="block-node">

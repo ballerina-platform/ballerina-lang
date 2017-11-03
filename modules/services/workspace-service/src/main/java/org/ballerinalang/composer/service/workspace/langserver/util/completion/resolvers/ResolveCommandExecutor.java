@@ -24,8 +24,10 @@ import org.ballerinalang.composer.service.workspace.langserver.util.completion.r
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleAssignmentStatementContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleAttachmentPointContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
+//import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleExpressionVariableDefStatementContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleStatementContextResolver;
+//import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleTransformStatementBodyContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;

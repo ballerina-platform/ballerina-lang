@@ -26,6 +26,10 @@ public class Parameter {
 
     private String type = null;
 
+    private boolean isConnector = false;
+
+    private String pkgAlias = null;
+
     public Parameter name(String name) {
         this.name = name;
         return this;
@@ -62,6 +66,21 @@ public class Parameter {
         this.type = type;
     }
 
+    public void setConnector(boolean connector) {
+        isConnector = connector;
+    }
+
+    public boolean isConnector() {
+        return isConnector;
+    }
+
+    public String getPkgAlias() {
+        return pkgAlias;
+    }
+
+    public void setPkgAlias(String pkgAlias) {
+        this.pkgAlias = pkgAlias;
+    }
 
     @Override
     public boolean equals(Object o) {
