@@ -15,21 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
-
-import java.util.Set;
+package org.ballerinalang.model.tree.types;
 
 /**
- * transform {
- *
- * }
- * @since 0.94
+ * foo:Person
+ * @since 0.95
  */
-public interface TransformNode extends StatementNode {
-    BlockNode getBody();
-    void setBody(BlockNode body);
-    Set<String> getInputs();
-    Set<String> getOutputs();
-    void addInput(String name);
-    void addOutput(String name);
+public interface EndpointTypeNode extends ReferenceTypeNode {
+    TypeNode getConstraint();
 }

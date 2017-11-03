@@ -3,11 +3,14 @@ import ballerina.net.http;
 int i = 0;
 
 function testForkJoin() (int x, int st){
-    http:ClientConnector c = create http:ClientConnector("http://example.com", {});
+    endpoint<http:ClientConnector> c {
+        create http:ClientConnector("http://example.com", {});
+    }
     fork {
         worker w1 {
             http:Request req = {};
-            http:Response res = c.get("", req);
+            http:Response res;
+            res, _ = c.get("", req);
             int code = res.getStatusCode();
             code -> fork;
         }

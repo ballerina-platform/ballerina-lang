@@ -32,14 +32,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 /**
- * Native function ballerina.model.task:scheduleTimer.
+ * Native function ballerina.task:scheduleTimer.
  */
 @BallerinaFunction(
         packageName = "ballerina.task",
         functionName = "scheduleTimer",
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),
-                @Argument(name = "timerScheduler", type = TypeKind.STRUCT)},
+                @Argument(name = "schedule", type = TypeKind.STRUCT)},
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
@@ -52,7 +52,8 @@ public class BalScheduleTimer extends AbstractNativeFunction {
                 .getCurrentFrame().getRefLocalVars()[0] instanceof BFunctionPointer) {
             onTriggerFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 0)).value();
         } else {
-            return getBValues(new BString(""), new BString("The onTrigger function is not provided"));
+            return getBValues(new BString(""),
+                    BLangVMErrors.createError(ctx, 0, "The onTrigger function is not provided"));
         }
         if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[1] != null && ctx.getControlStackNew()
                 .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
@@ -63,7 +64,7 @@ public class BalScheduleTimer extends AbstractNativeFunction {
         long interval = scheduler.getIntField(1);
 
         try {
-            Timer timer = new Timer(ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+            Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             return getBValues(new BString(timer.getId()), null);
         } catch (SchedulingException e) {
             return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));

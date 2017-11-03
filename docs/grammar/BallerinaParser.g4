@@ -42,6 +42,7 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -49,7 +50,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,8 +58,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE endpointDeclaration* statement* RIGHT_BRACE
+    | LEFT_BRACE endpointDeclaration* workerDeclaration+ RIGHT_BRACE
     ;
 
 
@@ -76,11 +77,11 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -112,6 +113,10 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
+    ;
+
 attachmentPoint
      : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
      | RESOURCE                             # resourceAttachPoint
@@ -123,6 +128,7 @@ attachmentPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody
@@ -161,6 +167,14 @@ typeName
     |   referenceTypeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
+
+builtInTypeName
+     :   TYPE_ANY
+     |   TYPE_TYPE
+     |   valueTypeName
+     |   builtInReferenceTypeName
+     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     ;
 
 referenceTypeName
     :   builtInReferenceTypeName
@@ -233,6 +247,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -245,38 +260,14 @@ statement
     |   workerInteractionStatement
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
     |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody* RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
-    ;
-
 variableDefinitionStatement
     :   typeName Identifier (ASSIGN expression)? SEMICOLON
-    ;
-
-connectorDeclarationStmt
-    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -291,21 +282,24 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInitExpression
-    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+connectorInit
+    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
-filterInitExpression
-    : userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+endpointDeclaration
+    :   endpointDefinition LEFT_BRACE ((variableReference | connectorInit) SEMICOLON)? RIGHT_BRACE
     ;
 
-filterInitExpressionList
-    : filterInitExpression (COMMA filterInitExpression)*
+endpointDefinition
+    :   ENDPOINT (LT nameReference GT) Identifier
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression WITH Identifier SEMICOLON
     ;
 
 variableReferenceList
@@ -493,9 +487,11 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
-    |   LT typeName GT expression                                           # typeConversionExpression
+    |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression

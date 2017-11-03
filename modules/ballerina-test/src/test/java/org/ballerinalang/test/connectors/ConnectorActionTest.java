@@ -206,12 +206,12 @@ public class ConnectorActionTest {
     @Test(description = "Test connectors with errors")
     public void testConnectorNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
-        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'TestConnector1'", 35, 1);
-        BAssertUtil.validateError(resultNegative, 1, "redeclared symbol 'foo'", 52, 5);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'TestConnector1'", 37, 1);
+        BAssertUtil.validateError(resultNegative, 1, "redeclared symbol 'foo'", 54, 5);
         BAssertUtil.validateError(resultNegative, 2, "unknown type 'UndefinedConnector'", 2, 5);
         BAssertUtil.validateError(resultNegative, 3, "undefined connector 'UndefinedConnector'", 2, 40);
         BAssertUtil.validateError(resultNegative, 4, "undefined action 'foo' in " +
-                "connector 'TestConnector'", 22, 13);
+                "connector 'TestConnector'", 24, 13);
     }
 
 //    @Test(description = "Test defining duplicate action",

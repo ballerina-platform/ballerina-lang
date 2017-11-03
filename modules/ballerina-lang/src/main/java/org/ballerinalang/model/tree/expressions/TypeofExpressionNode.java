@@ -15,26 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.model.types.Type;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+package org.ballerinalang.model.tree.expressions;
+
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * @since 0.94
+ * typeof string
+ *
+ * @since 0.95
  */
-public class BConstrainedType extends BType implements ConstrainedType {
+public interface TypeofExpressionNode extends ExpressionNode {
 
-    public BType constraint;
+    TypeNode getTypeNode();
 
-    public BConstrainedType(int tag, BType constraint, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
-        this.constraint = constraint;
-    }
+    void setTypeNode(TypeNode typeNode);
 
-    @Override
-    public Type getConstraint() {
-        return this.constraint;
-    }
 }

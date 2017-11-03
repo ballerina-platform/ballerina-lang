@@ -78,17 +78,17 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWSConnectionStruct(context, session, null);
+                BStruct wsConnection = createWsConnectionStruct(context, session, null);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
                 storeWsConnection(session.getId(), wsConnection);
-                connectorFuture.notifyReply(wsConnection);
+                connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
-                // TODO: This is working since this runs in a single thread. Has to change after changes are done.
-                throw new BallerinaConnectorException(t.getMessage());
-//                connectorFuture.notifyFailure(ex);
+                BStruct wsError = createWsErrorStruct(context, t);
+                context.getControlStackNew().currentFrame.returnValues[1] = wsError;
+                connectorFuture.notifySuccess();
             }
         });
         return connectorFuture;

@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -192,17 +195,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
 
+        // Define transformer nodes.
+        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
+
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
 
+        // Define connector params and type.
+        defineConnectorParams(pkgNode.connectors, pkgEnv);
+
         // Define connector action nodes.
         defineConnectorMembers(pkgNode.connectors, pkgEnv);
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
+
+        // Define transformer params
+        defineTransformerMembers(pkgNode.transformers, pkgEnv);
 
         // Define service resource nodes.
         defineServiceMembers(pkgNode.services, pkgEnv);
@@ -347,8 +359,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
-        defineConnectorSymbolParams(connectorNode, conSymbol, connectorEnv);
+
         defineBinaryOperator(OperatorKind.EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
                 InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
@@ -395,6 +406,38 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        validateTransformerMappingTypes(transformerNode);
+
+        boolean safeConversion = transformerNode.retParams.size() == 1;
+        Name name = getTransformerSymbolName(transformerNode);
+        BTransformerSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
+                name, env.enclPkg.symbol.pkgID, null, safeConversion, env.scope.owner);
+        transformerNode.symbol = transformerSymbol;
+
+        // If this is a default transformer, check whether this transformer conflicts with a built-in conversion
+        if (transformerNode.name.value.isEmpty()) {
+            BType targetType = transformerNode.retParams.get(0).type;
+            BSymbol symbol = symResolver.resolveConversionOperator(transformerNode.source.type, targetType);
+            if (symbol != symTable.notFoundSymbol) {
+                dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_CONFLICTS_WITH_CONVERSION,
+                        transformerNode.source.type, targetType);
+                return;
+            }
+        }
+
+        // Define the transformer
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
+
+        transformerNode.symbol = transformerSymbol;
+        defineSymbol(transformerNode.pos, transformerSymbol);
+        transformerEnv.scope = transformerSymbol.scope;
+
+        // Define transformer source.
+        defineNode(transformerNode.source, transformerEnv);
+    }
+    
     @Override
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
@@ -569,6 +612,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
                 break;
+            case TRANSFORMER:
+                pkgNode.transformers.add((BLangTransformer) node);
+                break;
         }
     }
 
@@ -588,11 +634,19 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineConnectorMembers(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
+
             connector.varDefs.forEach(varDef -> defineNode(varDef.var, conEnv));
             defineConnectorInitFunction(connector, conEnv);
             connector.actions.stream()
                     .peek(action -> action.flagSet.add(Flag.PUBLIC))
                     .forEach(action -> defineNode(action, conEnv));
+        });
+    }
+
+    private void defineConnectorParams(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
+        connectors.forEach(connector -> {
+            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
+            defineConnectorSymbolParams(connector, connector.symbol, conEnv);
         });
     }
 
@@ -750,15 +804,25 @@ public class SymbolEnter extends BLangNodeVisitor {
 //        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
-    private BLangAssignment createAssignmentStmt(BLangVariable variable) {
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variable.expr;
-        assignmentStmt.pos = variable.pos;
+    private StatementNode createAssignmentStmt(BLangVariable variable) {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = variable.pos;
         varRef.variableName = variable.name;
         varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+//        //TODO temporary solution to avoid endpoint assignment until endpoint model changed.
+//        if (variable.typeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
+//            BLangBind bindStmt = (BLangBind) TreeBuilder.createBindNode();
+//            bindStmt.setExpression(variable.expr);
+//            bindStmt.pos = variable.pos;
+//            bindStmt.addWS(variable.getWS());
+//            bindStmt.setVariable(varRef);
+//            return bindStmt;
+//        }
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
     }
@@ -882,9 +946,37 @@ public class SymbolEnter extends BLangNodeVisitor {
         return names.fromIdNode(funcNode.name);
     }
 
+    private Name getTransformerSymbolName(BLangTransformer transformerNode) {
+        if (transformerNode.name.value.isEmpty()) {
+            return names.fromString(Names.TRANSFORMER.value + "<" + transformerNode.source.type + ","
+                    + transformerNode.retParams.get(0).type + ">");
+        }
+        return names.fromIdNode(transformerNode.name);
+    }
+
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
                 .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+    }
+
+    private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
+        BType varType = symResolver.resolveTypeNode(transformerNode.source.typeNode, env);
+        transformerNode.source.type = varType;
+
+        transformerNode.retParams.forEach(returnParams -> {
+            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
+            returnParams.type = targetType;
+        });
+    }
+
+    private void defineTransformerMembers(List<BLangTransformer> transformers, SymbolEnv pkgEnv) {
+        transformers.forEach(transformer -> {
+            SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
+            defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
+
+            BInvokableType transformerSymType = ((BInvokableType) transformer.symbol.type);
+            transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+        });
     }
 
     /**

@@ -18,54 +18,37 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.TransformNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.BindNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 /**
- * @since 0.94
+ * @since 0.95.0
  */
-public class BLangTransform extends BLangStatement implements TransformNode {
-    public BLangBlockStmt body;
-    public Set<String> inputs;
-    public Set<String> outputs;
+public class BLangBind extends BLangStatement implements BindNode {
+    public BLangExpression varRef;
+    public BLangExpression expr;
 
-    public BLangTransform() {
-        this.inputs = new HashSet<>();
-        this.outputs = new HashSet<>();
+    @Override
+    public ExpressionNode getVariable() {
+        return varRef;
     }
 
     @Override
-    public BLangBlockStmt getBody() {
-        return body;
+    public BLangExpression getExpression() {
+        return expr;
     }
 
     @Override
-    public void setBody(BlockNode body) {
-        this.body = (BLangBlockStmt) body;
+    public void setExpression(ExpressionNode expression) {
+        this.expr = (BLangExpression) expression;
     }
 
     @Override
-    public Set<String> getInputs() {
-        return inputs;
-    }
-
-    @Override
-    public void addInput(String name) {
-        this.inputs.add(name);
-    }
-
-    @Override
-    public Set<String> getOutputs() {
-        return outputs;
-    }
-
-    @Override
-    public void addOutput(String name) {
-        this.outputs.add(name);
+    public void setVariable(ExpressionNode variableRef) {
+        this.varRef = (BLangSimpleVarRef) variableRef;
     }
 
     @Override
@@ -75,6 +58,12 @@ public class BLangTransform extends BLangStatement implements TransformNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TRANSFORM;
+        return NodeKind.BIND;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangBind: " + (this.varRef != null ? this.varRef : "") +
+                (this.expr != null ? " = " + this.expr : "");
     }
 }

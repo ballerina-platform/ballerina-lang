@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -73,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -551,8 +552,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
             checkConstantAssignment(varRef);
+            //TODO endpoint model should be changed(now it's modeled as variable definition statement)
+//            checkEndpointAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    public void visit(BLangBind bindNode) {
+        List<BType> expTypes = new ArrayList<>();
+        // Check each LHS expression.
+        BLangExpression varRef = bindNode.varRef;
+        ((BLangVariableReference) varRef).lhsVar = true;
+        expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+        checkConstantAssignment(varRef);
+        typeChecker.checkExpr(bindNode.expr, this.env, expTypes);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -574,6 +587,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
             dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+        }
+    }
+
+    private void checkEndpointAssignment(BLangExpression varRef) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+
+        if (varRef.type.tag == TypeTags.ENDPOINT) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_ENDPOINT, varRef);
         }
     }
 
@@ -599,10 +626,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
-    }
-
-    public void visit(BLangTransform transformNode) {
-        analyzeStmt(transformNode.body, env);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -902,6 +925,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     throwNode.expr.type);
         }
+    }
+
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
+        transformerNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+            this.analyzeDef(annotationAttachment, transformerEnv);
+        });
+
+        analyzeStmt(transformerNode.body, transformerEnv);
+
+        // TODO: update this accordingly once the unsafe conversion are supported
+        int returnCount = transformerNode.retParams.size();
+        if (returnCount == 0) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_MUST_HAVE_OUTPUT);
+        } else if (returnCount > 1) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TOO_MANY_OUTPUTS_FOR_TRANSFORMER, 1, returnCount);
+        }
+
+        this.processWorkers(transformerNode, transformerEnv);
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {

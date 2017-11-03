@@ -102,6 +102,12 @@ public struct ClientConnectorConfig {
     int idleTimeoutInSeconds = -1;
 }
 
+public struct WsConnectorError {
+    string msg;
+    error cause;
+    StackFrame[] stackTrace;
+}
+
 @Description {value:"WebSocket client connector for connecting to WebSocket backend"}
 @Param {value:"url: WebSocket url for the backend"}
 @Param {value:"callbackService: Callback service to listen to the incoming messages from the backend"}
@@ -109,8 +115,9 @@ public connector ClientConnector(string url, string callbackService) {
 
     @Description {value:"Connect to remote endpoint"}
     @Return {value:"Connection: New WebSocket connection for the connected backend"}
-    native action connect(ClientConnectorConfig config) (Connection);
+    native action connect(ClientConnectorConfig config) (Connection, WsConnectorError);
 
     @Description {value:"Connect to remote endpoint with default configuration"}
-    native action connectWithDefault() (Connection);
+    @Return {value:"Connection: New WebSocket connection for the connected backend"}
+    native action connectWithDefault() (Connection, WsConnectorError);
 }
