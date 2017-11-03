@@ -384,3 +384,148 @@ public connector ClientConnector (string serviceUri, Options connectorOptions) {
 	@Return { value:"response: The response message" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
 }
+
+@Description { value:"Http retry connector, this will retry the action in case of network failuires for given number
+of times, waiting given interval inbetween"}
+@Param { value:"c: Client connctor" }
+@Param { value:"retryCount: Number of retry attempts to try" }
+@Param { value:"interval: Retry interval in ms to wait in case of failuire" }
+public connector RetryClient (ClientConnector c, int retryCount, int interval) {
+	endpoint<ClientConnector> ep {
+	    c;
+	}
+
+	@Description { value:"The POST action implementation of the HTTP Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action post (string path, Request req) (Response, HttpConnectorError) {
+	    int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while (i < retryCount) {
+			resp, err = ep.post(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"The HEAD action implementation of the HTTP Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action head (string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.head(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"The PUT action implementation of the HTTP Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action put (string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.put(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
+	@Param { value:"httpVerb: HTTP verb value" }
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action execute (string httpVerb, string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.execute(httpVerb, path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"The PATCH action implementation of the HTTP Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action patch (string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.patch(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"The DELETE action implementation of the HTTP connector"}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action delete (string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.delete(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+
+	@Description { value:"GET action implementation of the HTTP Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	action get (string path, Request req) (Response, HttpConnectorError) {
+		int i = 0;
+		Response resp;
+		HttpConnectorError err;
+		while(i < retryCount) {
+			resp, err = ep.get(path, req);
+			if (err == null && resp != null) {
+				return resp, err;
+			}
+			sleep(interval);
+			i = i + 1;
+		}
+		return resp, err;
+	}
+}
