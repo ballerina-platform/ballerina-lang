@@ -9,7 +9,8 @@ function testForkJoin() (int x, int st){
     fork {
         worker w1 {
             http:Request req = {};
-            http:Response res = c.get("", req);
+            http:Response res;
+            res, _ = c.get("", req);
             int code = res.getStatusCode();
             code -> fork;
         }
