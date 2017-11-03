@@ -27,8 +27,7 @@ ballerina-lang-0.94.1.jar                                                       
 ballerina-launcher-0.94.1.jar                                                   jar            apache2   2311      
 ballerina-logging-0.94.1.jar                                                    jar            apache2   2310      
 ballerina-packerina-0.94.1.jar                                                  jar            apache2   2320      
-carbon-utils                                                                    bundle         apache2
-commons-lang3-3.5.jar                                                           bundle         apache2   2105      
+commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702      
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589      
 connectors-0.94.1.jar                                                           jar            apache2   2319      
@@ -52,12 +51,9 @@ netty-common-4.1.15.Final.jar                                                   
 netty-handler-4.1.15.Final.jar                                                  bundle         apache2   2291      
 netty-resolver-4.1.15.Final.jar                                                 bundle         apache2   2290      
 netty-transport-4.1.15.Final.jar                                                bundle         apache2   2289      
-org.wso2.carbon.config-2.0.0.jar                                                bundle         apache2   12367     
-org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763     
+org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373     
-org.wso2.carbon.secvault-5.0.4.jar                                              bundle         apache2   12364     
-org.wso2.carbon.secvault.ciphertool-5.0.4.jar                                   bundle         apache2   12360     
-org.wso2.carbon.transport.http.netty-6.0.34.jar                                 bundle         apache2   13994     
+org.wso2.carbon.transport.http.netty-6.0.34.jar                                 bundle         apache2   13994
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756     
 slf4j-api-1.7.22.jar                                                            bundle         mit       2078      
 slf4j-jdk14-1.7.22.jar                                                          bundle         mit       2131      
