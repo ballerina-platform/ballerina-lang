@@ -78,7 +78,7 @@ public class BLangJSONModelTest {
 
     @Test
     public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
-        File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
+        File file = new File(getClass().getClassLoader().getResource("samples/transformer/transformer.bal")
                                        .getFile());
         HttpURLConnection urlConn = request("/ballerina/file/validate-and-parse", HttpMethod.POST);
         urlConn.setRequestProperty("Content-Type", "application/json");
@@ -94,7 +94,7 @@ public class BLangJSONModelTest {
         String response = StreamUtil.asString(inputStream);
 
         File fileExpected = new File(
-                getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt-expected.json")
+                getClass().getClassLoader().getResource("samples/transformer/transformer-expected.json")
                           .getFile());
         String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
 
