@@ -3,7 +3,9 @@ import ballerina.net.uri;
 import ballerina.util;
 
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
+    endpoint<http:ClientConnector> tweeterEP {
+        create http:ClientConnector("https://api.twitter.com", {});
+    }
     action tweet (string msg) (http:Response) {
         http:Request request = {};
         http:HttpConnectorError err;
@@ -29,7 +31,9 @@ function constructOAuthHeader (string consumerKey, string consumerSecret, string
 
 }
 function main (string[] args) {
-    Twitter twitterConnector = create Twitter(args[0], args[1], args[2], args[3]);
+    endpoint<Twitter> twitterConnector {
+        create Twitter(args[0], args[1], args[2], args[3]);
+    }
     http:Response tweetResponse = twitterConnector.tweet(args[4]);
     json tweetJSONResponse = tweetResponse.getJsonPayload();
     println(jsons:toString(tweetJSONResponse));
