@@ -83,7 +83,7 @@ stream.once('open', () => {
                         if (wQuoted(getter)) {
                             js.push('b(' + wQuoted(getter) + ')');
                         }
-                        js.push('getSourceOf(node.' + getter + ', pretty, l)');
+                        js.push('getSourceOf(node.' + getter + ', pretty, l, replaceLambda)');
                     } else if (getter.match(/^[^?]+\?[^?]+$/)) {
                         const parts = getter.split('?');
                         getter = parts[0];
@@ -105,7 +105,7 @@ stream.once('open', () => {
                     }
                 } else if (p.match(/^<.*>[*+]$/)) {
                     const getter = p.slice(1, -2).split('-')[0];
-                    const params = ['node.' + getter, 'pretty', 'l', 'w', wQuoted(getter) || '\'\''];
+                    const params = ['node.' + getter, 'pretty', 'replaceLambda', 'l', 'w', wQuoted(getter) || '\'\''];
                     const hasSuffix = p.indexOf('suffixed-by') >= 0;
                     if (p.indexOf('joined-by') >= 0 || hasSuffix) {
                         params.push('\'' + p.substr(-3, 1) + '\'');

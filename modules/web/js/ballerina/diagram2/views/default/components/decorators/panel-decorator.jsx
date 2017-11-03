@@ -252,7 +252,12 @@ class PanelDecorator extends React.Component {
             strokeDasharray: `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`,
         };
 
-        const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
+        let rightHeadingButtons = null;
+        const lambda = this.props.model.lambda;
+        if (!lambda) {
+            rightHeadingButtons =
+                this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
+        }
 
         const isResourceDef = TreeUtils.isResource(this.props.model);
         const wsResourceDef = (isResourceDef && this.props.packageIdentifier === 'ws');
@@ -317,7 +322,7 @@ class PanelDecorator extends React.Component {
                         className="resourceName"
                     >{titleWidth.text}</text>
                 </g>}
-                {!wsResourceDef &&
+                {!wsResourceDef && !lambda &&
                 <EditableText
                     x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset}
                     y={bBox.y + titleHeight / 2 + annotationBodyHeight}

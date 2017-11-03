@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -96,7 +97,9 @@ public class BLangFileRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateAndParseOptions() {
-        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+        return Response.ok()
+                .header("Access-Control-Max-Age", "600 ")
+                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
                 "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
@@ -115,7 +118,9 @@ public class BLangFileRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response optionsParseFragment() {
-        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+        return Response.ok()
+                .header("Access-Control-Max-Age", "600 ")
+                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
                 "true").header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
@@ -224,11 +229,16 @@ public class BLangFileRestService {
                 for (Object listPropItem : listProp) {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
-                        if (node.getKind() == NodeKind.COMPILATION_UNIT && listPropItem instanceof BLangStruct
-                                && ((BLangStruct) listPropItem).isAnonymous) {
-                                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                                                ((BLangStruct) listPropItem));
-                            continue;
+                        if (node.getKind() == NodeKind.COMPILATION_UNIT) {
+                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
+                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
+                                        ((BLangStruct) listPropItem));
+                                continue;
+                            }
+                            if (listPropItem instanceof BLangFunction
+                                    && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
+                                continue;
+                            }
                         }
                         listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
                     } else {
