@@ -16,7 +16,7 @@ service<ws> SimpleProxyServer {
         ws:ClientConnector c = create ws:ClientConnector(remoteUrl, remoteServerCallbackService);
         var clientConn, err = c.connect({parentConnectionID:con.connectionID});
         if (err != null) {
-            println(e.msg);
+            println(err.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
         } else {
             clientConnMap[con.connectionID] = clientConn;
