@@ -201,6 +201,13 @@
                                     <exclude>org.ballerinalang:ballerina-lang</exclude>
                                     <exclude>org.ballerinalang:ballerina-http</exclude>
                                     <exclude>org.wso2.orbit.org.antlr:antlr4-runtime</exclude>
+                                    <exclude>org.apache.ws.commons.axiom:axiom-dom</exclude>
+                                    <exclude>org.wso2.staxon:staxon-core</exclude>
+                                    <exclude>commons-pool.wso2:commons-pool</exclude>
+                                    <exclude>org.wso2.carbon.utils:carbon-utils</exclude>
+                                    <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
+                                    <exclude>org.yaml:snakeyaml</exclude>
+                                    <exclude>org.atomikos.wso2:atomikos</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>
