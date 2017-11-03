@@ -228,6 +228,14 @@ class DefaultNodeFactory {
         );
     }
 
+    createTransformer() {
+        return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
+            transformer <Source a, Target b> {
+
+            }
+        `));
+    }
+
     createWorker() {
         let worker =  getNodeForFragment(
             FragmentUtils.createWorkerFragment(`
@@ -305,14 +313,6 @@ class DefaultNodeFactory {
     createWhile() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             while(true) {
-
-            }
-        `));
-    }
-
-    createTransform() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            transform {
 
             }
         `));

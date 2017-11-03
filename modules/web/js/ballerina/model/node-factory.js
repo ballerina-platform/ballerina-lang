@@ -39,6 +39,7 @@ import StructNode from './tree/struct-node';
 import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
 import XmlnsNode from './tree/xmlns-node';
+import TransformerNode from './tree/transformer-node';
 import AnnotationAttachmentAttributeNode from './tree/annotation-attachment-attribute-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
 import ArrayLiteralExprNode from './tree/array-literal-expr-node';
@@ -234,6 +235,7 @@ class NodeFactory {
         node.functions = [];
         node.structs = [];
         node.annotations = [];
+        node.transformers = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -339,6 +341,21 @@ class NodeFactory {
         node.namespaceURI = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
+        return node;
+    }
+
+    createTransformer(json = {}){
+        json.kind = 'Transformer';
+        let node = new TransformerNode();
+        node.source = new VariableNode();
+        node.name = new IdentifierNode();
+        node.parameters = [];
+        node.body = new BlockNode();
+        node.returnParameters = [];
+        node.workers = [];
+        node.annotationAttachments = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
         return node;
     }
 

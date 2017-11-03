@@ -575,6 +575,16 @@ class ErrorRenderingUtil {
         this.placeErrorForStatementComponents(node);
     }
 
+    /**
+     * Calculate error position of Transformer nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForTransformerNode(node) {
+        // Not implemented.
+    }
+
 
     /**
      * Calculate error position of AnnotationAttachmentAttribute nodes.

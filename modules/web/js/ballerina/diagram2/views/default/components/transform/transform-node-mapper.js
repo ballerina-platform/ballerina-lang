@@ -1190,6 +1190,10 @@ class TransformNodeMapper {
      */
     getTempResolvedExpression(expression) {
         const statement = this.getOutputStatement(expression);
+        if (!statement) {
+            log.error('Could not find temporary variable resolved expression');
+            return undefined;
+        }
         return this.getExpression(statement);
     }
 
@@ -1349,9 +1353,10 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     isInTransformInputOutput(expression) {
-        const inputOutput = [...this._transformStmt.inputs, ...this._transformStmt.outputs];
+        const inputOutput = [this._transformStmt.getSourceParam(), ...this._transformStmt.getParameters(),
+            ...this._transformStmt.getReturnParameters()];
         const ioReference = inputOutput.find((io) => {
-            return io === expression.getSource().trim();
+            return io.name.getSource().trim() === expression.getSource().trim();
         });
         return (ioReference !== undefined);
     }
