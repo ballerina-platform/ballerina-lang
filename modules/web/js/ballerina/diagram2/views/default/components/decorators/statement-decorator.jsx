@@ -178,7 +178,7 @@ class StatementDecorator extends React.Component {
         let backwardArrowEnd;
         if (viewState.isActionInvocation) {
             // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
-            dropDownItems = _.uniqBy(TreeUtil.getAllVisibleConnectorDeclarations(this.props.model.parent), (item) => {
+            dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
                 return item.variable.name.value;
             });
             dropDownItems.forEach((item) => {

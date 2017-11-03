@@ -69,7 +69,9 @@ class ConnectorPropertiesForm extends React.Component {
         // Get the pkg alias
         const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
         const pkgAlias = initialExpr.connectorType.packageAlias.value || '';
-        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment, pkgAlias);
+        const connectorIdentifier = `${pkgAlias}:${initialExpr.connectorType.typeName.value}`;
+        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment,
+            pkgAlias, connectorIdentifier);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
             if (addedValues.length > 0) {
@@ -79,6 +81,8 @@ class ConnectorPropertiesForm extends React.Component {
                 } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // For structs
                     this.getValueOfStructs(addedValues[index], property.fields);
                     property.value = this.getStringifiedMap(property.fields);
+                } else if (TreeUtils.isConnectorInitExpr(addedValues[index])) {
+                    property.value = addedValues[index].getSource();
                 }
             }
         });
@@ -139,8 +143,10 @@ class ConnectorPropertiesForm extends React.Component {
             paramArray.push(map);
         }
         connectorParamString = paramArray.join(',');
-        const connectorInitString = pkgAlias + ':ClientConnector __endpoint1 = ' +
-                    'create ' + pkgAlias + ':ClientConnector(' + connectorParamString + ')';
+
+        const connectorType = connectorInit.connectorType.typeName.value;
+        const connectorInitString = (pkgAlias !== '' ? `${pkgAlias}:` : '') + `${connectorType} __endpoint1 = create ` +
+                    ' ' + (pkgAlias !== '' ? `${pkgAlias}:` : '') + `${connectorType}(${connectorParamString})`;
         const fragment = FragmentUtils.createStatementFragment(`${connectorInitString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const varDefNode = TreeBuilder.build(parsedJson);
