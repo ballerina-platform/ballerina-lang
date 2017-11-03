@@ -207,6 +207,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ExpressionStatement':
             return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
                  + w() + ';';
+        case 'Enum':
+            return dent() + w() + 'enum\u0020'
+                 + getSourceOf(node.name, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + join(node.enumerators, pretty, replaceLambda, l, w, '', ',') + outdent() + w() + '}';
+        case 'Enumerator':
+            return getSourceOf(node.name, pretty, l, replaceLambda);
         case 'FieldBasedAccessExpr':
             return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '.' + w() + node.fieldName.value;
