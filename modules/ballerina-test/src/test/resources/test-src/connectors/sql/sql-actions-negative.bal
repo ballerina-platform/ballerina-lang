@@ -6,10 +6,13 @@ struct ResultCustomers {
 
 
 function testSelectData () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {
+
+    }
     try {
-        testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:5});
+        bind con with testDB;
 
         datatable dt = testDB.select("SELECT  Name from Customers where registrationID = 1", null);
         TypeCastError err;
@@ -27,12 +30,15 @@ function testSelectData () (string firstName) {
 
 
 function testGeneratedKeyOnInsert () (string) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {
+
+    }
     string id = "";
     try {
         string[] generatedID;
-        testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+        bind con with testDB;
 
         int insertCount;
         insertCount, generatedID = testDB.updateWithGeneratedKeys("insert into Customers (name,lastName,
@@ -47,10 +53,13 @@ function testGeneratedKeyOnInsert () (string) {
 
 
 function testCallProcedure () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {
+
+    }
     try {
-        testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+        bind con with testDB;
 
         _ = testDB.call("{call InsertPersonDataInfo(100,'James')}", null);
         datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null);
@@ -68,11 +77,14 @@ function testCallProcedure () (string firstName) {
 }
 
 function testBatchUpdate () (int[]) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {
+
+    }
     int[] updateCount;
     try {
-        testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+        bind con with testDB;
 
         //Batch 1
         sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
@@ -100,10 +112,13 @@ function testBatchUpdate () (int[]) {
 }
 
 function testInvalidArrayofQueryParameters () (string value ) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {
+
+    }
     try {
-        testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+        bind con with testDB;
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];

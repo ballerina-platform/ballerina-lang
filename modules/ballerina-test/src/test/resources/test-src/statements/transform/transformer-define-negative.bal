@@ -64,7 +64,7 @@ transformer <Person p, Employee e1, Employee e2, Employee e3>  Foo_3() {
 }
 
 transformer <Person p, Employee e> Foo_4() {
-    TestConnector con = create TestConnector();
+    endpoint<TestConnector> con { create TestConnector();}
     
     string s = con.textAction_1();
     

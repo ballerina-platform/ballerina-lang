@@ -15,26 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.types;
-
-import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.model.types.Type;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+package org.ballerinalang.model.tree.types;
 
 /**
- * @since 0.94
+ * foo:Person
+ * @since 0.95
  */
-public class BConstrainedType extends BType implements ConstrainedType {
-
-    public BType constraint;
-
-    public BConstrainedType(int tag, BType constraint, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
-        this.constraint = constraint;
-    }
-
-    @Override
-    public Type getConstraint() {
-        return this.constraint;
-    }
+public interface EndpointTypeNode extends ReferenceTypeNode {
+    TypeNode getConstraint();
 }

@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-connector FilterConnector<TestConnector2 t>(string param1) {
+connector FilterConnector(string param1) {
 
     action action1(http:Request request)(int) {
           int value = TestConnector2.action1(t, request);
@@ -14,7 +14,9 @@ connector FilterConnector<TestConnector2 t>(string param1) {
 }
 
 function testArgumentPassing (string var1) (int) {
-    TestConnector testConnector = create TestConnector("MyParam1") with FilterConnector("MyTest1");
+    endpoint<TestConnector> testConnector {
+        create TestConnector("MyParam1");
+    }
     http:Request request = {};
     int value;
     value = testConnector.action1(request);

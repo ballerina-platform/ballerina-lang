@@ -1030,11 +1030,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
         int actionCallIndex = getFunctionCallCPIndex(aIExpr);
 
-        if (Symbols.isNative(aIExpr.symbol)) {
-            emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
-        } else {
-            emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
-        }
+        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
     }
 
     public void visit(BLangConnectorInit cIExpr) {
@@ -1048,6 +1044,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes.tRef;
+        cIExpr.regIndex = connectorRegIndex;
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
 
         List<BLangExpression> argExprs = cIExpr.argsExpr;
