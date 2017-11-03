@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
+import DesignerDefault from './../../../../ballerina/configs/designer-defaults';
 
 class PositioningUtil {
 
@@ -259,6 +260,21 @@ class PositioningUtil {
                 node.viewState.components.importsBbox.x += packageDefTextWidth;
                 node.viewState.components.globalsBbox.x += packageDefTextWidth;
             }
+        }
+
+        if (node.viewState.importsExpanded) {
+            const globalsExpandedY = (imports.length * this.config.variablesPane.importDeclarationHeight)
+                + this.config.variablesPane.topBarHeight + this.config.variablesPane.importInputHeight
+                + this.config.variablesPane.yGutterSize;
+            node.viewState.components.globalsExpandedBbox.y += globalsExpandedY;
+            node.viewState.components.globalsBbox.x += 30;
+            let globalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
+            globals.forEach((globalDec) => {
+                globalDec.viewState.bBox.y = globalElementY;
+                globalElementY += 30;
+            });
+            node.viewState.components.globalsBbox.x -= (this.config.variablesPane.badgeWidth +
+            this.config.variablesPane.xGutterSize);
         }
     }
 
