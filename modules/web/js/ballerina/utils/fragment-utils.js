@@ -116,6 +116,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for endpoint variable definition.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createEndpointVarDefFragment(sourceString) {
+        return {
+            expectedNodeType: 'endpoint_var_def',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for Join.
      *
      * @param {string} sourceString - source fragment input.
