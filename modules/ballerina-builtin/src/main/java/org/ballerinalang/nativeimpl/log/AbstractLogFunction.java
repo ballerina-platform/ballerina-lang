@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.LogManager;
 
 /**
- * This class is responsible for selecting the appropriate logger for a particular log statement.
+ * Base class for the other log functions, containing a getter to retrieve the correct logger, given a package name.
  *
- * @since 0.89
+ * @since 0.95.0
  */
 public abstract class AbstractLogFunction extends AbstractNativeFunction {
 

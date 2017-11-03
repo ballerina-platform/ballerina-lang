@@ -213,7 +213,7 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
-        @DynamicParameter(names = "-B", description = "collects flags starting with -B")
+        @DynamicParameter(names = "-B", description = "collects dynamic parameters")
         private Map<String, String> configRuntimeParams = new HashMap<>();
 
         public void execute() {
