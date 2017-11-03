@@ -332,4 +332,9 @@ export const variablesPane = {
     noOfGlobalsTextPadding: 10,
     globalDeclarationWidth: 310,
     globalDefDecorationWidth: 3,
+    importDeclarationHeight: 30,
+    importInputHeight: 40,
+    yGutterSize: 10,
+    xGutterSize: 15,
+    badgeWidth: 150,
 };

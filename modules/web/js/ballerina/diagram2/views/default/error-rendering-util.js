@@ -246,7 +246,9 @@ class ErrorRenderingUtil {
             globals.forEach((globalDec) => {
                 const errors = this.getSemanticErrorsOfNode(globalDec);
                 if (errors.length > 0) {
-                    errorListForGlobals.push(errors[0]);
+                    errors.forEach((error) => {
+                        errorListForGlobals.push(error);
+                    });
                 }
             });
             if (errorListForGlobals.length > 0) {
@@ -275,7 +277,9 @@ class ErrorRenderingUtil {
             imports.forEach((importDec) => {
                 const errors = this.getSemanticErrorsOfNode(importDec);
                 if (errors.length > 0) {
-                    errorListForImports.push(errors[0]);
+                    errors.forEach((error) => {
+                        errorListForImports.push(error);
+                    });
                 }
             });
             if (errorListForImports.length > 0) {
