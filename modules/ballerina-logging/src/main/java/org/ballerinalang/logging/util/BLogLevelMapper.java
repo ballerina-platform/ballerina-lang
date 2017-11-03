@@ -18,6 +18,8 @@
 
 package org.ballerinalang.logging.util;
 
+import org.ballerinalang.logging.BLogManager;
+
 import java.util.logging.Level;
 
 /**
@@ -27,24 +29,55 @@ import java.util.logging.Level;
  */
 public class BLogLevelMapper {
 
-    public static String getBallerinaLogLevel(Level level) {
-        switch (level.getName()) {
+    public static BLogLevel getBallerinaLogLevel(String level) {
+        switch (level) {
             case "SEVERE":
-                return "ERROR";
+                return BLogLevel.ERROR;
             case "WARNING":
-                return "WARN";
+                return BLogLevel.WARN;
+            case "INFO":
+                return BLogLevel.INFO;
+            case "CONFIG":
+                return BLogLevel.INFO;
+            case "FINE":
+                return BLogLevel.DEBUG;
+            case "FINER":
+                return BLogLevel.DEBUG;
+            case "FINEST":
+                return BLogLevel.TRACE;
+            case "ALL":
+                return BLogLevel.ALL;
+            case "OFF":
+                return BLogLevel.OFF;
+            default:
+                BLogManager.stdErr.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
+                return BLogLevel.INFO;
+        }
+    }
+
+    public static BLogLevel getBallerinaLogLevel(Level level) {
+        return getBallerinaLogLevel(level.getName());
+    }
+
+    public static String getJDKLogLevel(String level) {
+        switch (level) {
+            case "ERROR":
+                return "SEVERE";
+            case "WARN":
+                return "WARNING";
             case "INFO":
                 return "INFO";
-            case "CONFIG":
-                return "INFO";
-            case "FINE":
-                return "DEBUG";
-            case "FINER":
-                return "DEBUG";
-            case "FINEST":
-                return "TRACE";
+            case "DEBUG":
+                return "FINE";
+            case "TRACE":
+                return "FINEST";
+            case "ALL":
+                return "ALL";
+            case "OFF":
+                return "OFF";
             default:
-                return "<UNDEFINED>";
+                BLogManager.stdErr.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
+                return "INFO";
         }
     }
 }

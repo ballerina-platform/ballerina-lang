@@ -16,14 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.logging.formatters;
+package org.ballerinalang.logging.formatters.jul;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevelMapper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
@@ -34,12 +33,14 @@ import java.util.logging.LogRecord;
  */
 public class HTTPTraceLogFormatter extends Formatter {
 
-    private static String format = BLogManager.getLogManager().getProperty(
-            HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+    private final String format;
+
+    public HTTPTraceLogFormatter() {
+        format = BLogManager.getLogManager().getProperty(HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+    }
 
     @Override
     public String format(LogRecord record) {
-        String source = record.getLoggerName();
         String ex = "";
 
         if (record.getThrown() != null) {
@@ -49,10 +50,11 @@ public class HTTPTraceLogFormatter extends Formatter {
             ex = stringWriter.toString();
         }
 
+        // TODO: Give the option to add thread ID to the log if needed
         return String.format(format,
-                             new Date(record.getMillis()),
+                             record.getMillis(),
                              BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),
-                             source,
+                             record.getLoggerName(),
                              record.getMessage(),
                              ex);
     }

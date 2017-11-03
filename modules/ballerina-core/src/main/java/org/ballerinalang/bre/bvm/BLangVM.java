@@ -155,12 +155,17 @@ public class BLangVM {
         }
     }
 
+    public int getInstructionPointer() {
+        return ip;
+    }
+
     public void run(Context ctx) {
         StackFrame currentFrame = ctx.getControlStackNew().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = ctx;
+        this.context.setBLangVM(this);
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
 

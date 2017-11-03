@@ -28,23 +28,25 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:info
+ * Native function ballerina.log:errorCause.
  *
- * @since 0.89
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.log",
-        functionName = "info",
-        args = {@Argument(name = "value", type = TypeKind.STRING)},
+        functionName = "errorCause",
+        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class LogInfo extends AbstractLogFunction {
+public class LogErrorCause extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger("ballerina.logger.info", BLogLevel.INFO);
+    private static final BLogger logger = new BLogger("ballerina.logger.errorCause", BLogLevel.ERROR);
 
     public BValue[] execute(Context ctx) {
-        BLogRecord logRecord = createLogRecord(ctx, BLogLevel.INFO);
-        logRecord.setLoggerName("ballerina.logger.info");
+        BLogRecord logRecord = createLogRecord(ctx, BLogLevel.ERROR);
+        BValue error = getRefArgument(ctx, 0);
+        logRecord.setError(error.stringValue());
+        logRecord.setLoggerName("ballerina.logger.errorCause");
         logger.log(logRecord);
         return VOID_RETURN;
     }

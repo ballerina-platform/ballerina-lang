@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
 public class CorsHeaderGenerator {
     private static final Pattern spacePattern = Pattern.compile(" ");
     private static final Pattern fieldCommaPattern = Pattern.compile(",");
-    private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
+    private static final Logger bLog = LoggerFactory.getLogger(CorsHeaderGenerator.class);
     private static final String action = "Failed to process CORS : ";
 
     public static void process(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg, boolean isSimpleRequest) {

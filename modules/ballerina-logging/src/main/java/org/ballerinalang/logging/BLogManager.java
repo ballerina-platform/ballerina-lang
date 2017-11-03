@@ -17,13 +17,18 @@
  */
 package org.ballerinalang.logging;
 
-import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.logging.formatters.jul.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -33,6 +38,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.logging.util.Constants.BALLERINA_RUNTIME_LOG;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
+import static org.ballerinalang.logging.util.Constants.DEFAULT_BALLERINA_USER_LOG_FORMAT;
+import static org.ballerinalang.logging.util.Constants.EMPTY_CONFIG;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACELOG;
+import static org.ballerinalang.logging.util.Constants.LOG_FORMAT;
+import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
+
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
  * having system or environment variables.
@@ -40,28 +53,20 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLogManager extends LogManager {
-    public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
-    public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
-    public static final PrintStream STD_OUT = System.out;
 
-    // Trace log related constants
-    public static final String HTTP_TRACE_LOGGER = "tracelog.http";
-    public static final String LOG_DEST_CONSOLE = "__console";
+    public static PrintStream stdOut = System.out;
+    public static PrintStream stdErr = System.err;
 
+    private static final String logConfigFile = "logging.properties";
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
-    private static final String LOG_CONFIG_FILE = "logging.properties";
-    private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Logger httpTraceLogger;
+    private BLogLevel ballerinaRootLogLevel;
+    private Map<String, Map<String, String>> loggerConfigs = new HashMap<>();
 
     @Override
-    public void readConfiguration(InputStream ins) throws IOException, SecurityException {
-        Properties properties = getDefaultLogConfiguration();
-
-        // override the default configs if the user has provided a config file
-        if (System.getProperty(SP_LOG_CONFIG_FILE) != null) {
-            properties.load(ins);
-        }
+    public void readConfiguration() throws IOException {
+        Properties properties = setDefaultConfiguration();
 
         properties.forEach((k, v) -> {
             String val = substituteVariables((String) v);
@@ -71,6 +76,77 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
+    public void readUserLevelLogConfiguration() throws IOException {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+
+        String instancesVal = configRegistry.getGlobalConfigValue("ballerina.log.instances");
+        if (instancesVal != EMPTY_CONFIG) {
+            String[] loggerInstances = instancesVal.split(",");
+
+            for (String instanceId : loggerInstances) {
+                Map<String, String> map = new HashMap<>();
+                map.put(LOG_LEVEL, configRegistry.getInstanceConfigValue(instanceId, LOG_LEVEL));
+                map.put("format", configRegistry.getInstanceConfigValue(instanceId, "format"));
+                loggerConfigs.put(instanceId, map);
+            }
+        }
+
+        addDefaultLogConfigs(configRegistry);
+
+        if (loggerConfigs.containsKey("ballerina.log") && loggerConfigs.get("ballerina.log").containsKey(LOG_LEVEL)) {
+            ballerinaRootLogLevel = BLogLevel.valueOf(loggerConfigs.get("ballerina.log").get(LOG_LEVEL));
+        } else {
+            ballerinaRootLogLevel = BLogLevel.INFO;
+        }
+
+        String traceLogLevel = loggerConfigs.get("tracelog.http").get(LOG_LEVEL);
+        if (traceLogLevel != null && (BLogLevel.valueOf(traceLogLevel) == BLogLevel.DEBUG)) {
+            setHttpTraceLogHandler();
+        }
+    }
+
+    // TODO: need to do this in a cleaner way
+    private void addDefaultLogConfigs(ConfigRegistry configRegistry) {
+        loggerConfigs.put(BALLERINA_USER_LOG, new HashMap<>());
+        loggerConfigs.put(HTTP_TRACELOG, new HashMap<>());
+        loggerConfigs.put(BALLERINA_RUNTIME_LOG, new HashMap<>());
+
+        String level;
+        if (!EMPTY_CONFIG.equals(level = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_LEVEL))) {
+            loggerConfigs.get(BALLERINA_USER_LOG).put(LOG_LEVEL, level);
+        } else {
+            loggerConfigs.get(BALLERINA_USER_LOG).put(LOG_LEVEL, BLogLevel.INFO.name());
+        }
+
+        if (!EMPTY_CONFIG.equals(level = configRegistry.getInstanceConfigValue(HTTP_TRACELOG, LOG_LEVEL))) {
+            loggerConfigs.get(HTTP_TRACELOG).put(LOG_LEVEL, level);
+        } else {
+            loggerConfigs.get(HTTP_TRACELOG).put(LOG_LEVEL, BLogLevel.OFF.name());
+        }
+
+        if (!EMPTY_CONFIG.equals(level = configRegistry.getInstanceConfigValue(BALLERINA_RUNTIME_LOG, LOG_LEVEL))) {
+            loggerConfigs.get(BALLERINA_RUNTIME_LOG).put(LOG_LEVEL, level);
+        } else {
+            loggerConfigs.get(BALLERINA_RUNTIME_LOG).put(LOG_LEVEL, BLogLevel.WARN.name());
+        }
+
+        String format;
+        if (!EMPTY_CONFIG.equals(format = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_FORMAT))) {
+            loggerConfigs.get(BALLERINA_USER_LOG).put(LOG_FORMAT, format);
+        } else {
+            loggerConfigs.get(BALLERINA_USER_LOG).put(LOG_FORMAT, DEFAULT_BALLERINA_USER_LOG_FORMAT);
+        }
+    }
+
+    public BLogLevel getPackageLogLevel(String pkg) {
+        String level = ConfigRegistry.getInstance().getInstanceConfigValue(pkg, LOG_LEVEL);
+        return !level.equals(EMPTY_CONFIG) ? BLogLevel.valueOf(level) : ballerinaRootLogLevel;
+    }
+
+    public String getLoggerConfiguration(String logger, String config) {
+        return loggerConfigs.get(logger).get(config);
+    }
+
     public void setHttpTraceLogHandler() throws IOException {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
@@ -78,7 +154,7 @@ public class BLogManager extends LogManager {
 
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
-            httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOGGER);
+            httpTraceLogger = Logger.getLogger(Constants.HTTP_TRACELOG);
         }
 
         removeHandlers(httpTraceLogger);
@@ -137,9 +213,9 @@ public class BLogManager extends LogManager {
         }
     }
 
-    private Properties getDefaultLogConfiguration() throws IOException {
+    private Properties setDefaultConfiguration() throws IOException {
         Properties properties = new Properties();
-        InputStream in = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
+        InputStream in = getClass().getClassLoader().getResourceAsStream(logConfigFile);
         properties.load(in);
         return properties;
     }

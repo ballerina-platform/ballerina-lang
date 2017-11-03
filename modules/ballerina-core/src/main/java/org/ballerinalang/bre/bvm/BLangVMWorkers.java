@@ -58,6 +58,7 @@ public class BLangVMWorkers {
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
             WorkerContext workerContext = new WorkerContext(programFile, parent);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+            workerContext.setWorkerInfo(workerInfo);
 
             if (properties != null) {
                 properties.forEach(workerContext::setProperty);
