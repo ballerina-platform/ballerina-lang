@@ -1,7 +1,5 @@
 package ballerina.net.http;
 
-import samples.ballerina-
-
 public struct Request {
 }
 
@@ -401,7 +399,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 	    while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.post(path, req);
 			if (err == null && resp != null) {
 			    return resp, err;
@@ -420,7 +417,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.head(path, req);
 			if (err == null && resp != null) {
 				return resp, err;
@@ -439,7 +435,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.put(path, req);
 			if (err == null && resp != null) {
 				return resp, err;
@@ -459,7 +454,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.execute(httpVerb, path, req);
 			if (err == null && resp != null) {
 				return resp, err;
@@ -478,7 +472,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.patch(path, req);
 			if (err == null && resp != null) {
 				return resp, err;
@@ -497,7 +490,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.delete(path, req);
 			if (err == null && resp != null) {
 				return resp, err;
@@ -516,7 +508,6 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 		Response resp;
 		HttpConnectorError err;
 		while(i < retryCount) {
-			HttpConnectorError err;
 			resp, err = ep.get(path, req);
 			if (err == null && resp != null) {
 				return resp, err;
