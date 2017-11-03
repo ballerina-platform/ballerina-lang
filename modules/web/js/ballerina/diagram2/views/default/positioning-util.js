@@ -295,6 +295,14 @@ class PositioningUtil {
         // Not implemented.
     }
 
+    /**
+     * Calculate position of Enumerator nodes.
+     *
+     * @param {object} node Enumerator object
+     */
+    positionEnumeratorNode(node) {
+        // Not implemented.
+    }
 
     /**
      * Calculate position of Function nodes.

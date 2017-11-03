@@ -22,10 +22,10 @@ import Node from '../node';
 class AbstractEnumNode extends Node {
 
 
-    setEnumFields(newValue, silent, title) {
-        const oldValue = this.enumFields;
+    setEnumerators(newValue, silent, title) {
+        const oldValue = this.enumerators;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.enumFields = newValue;
+        this.enumerators = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractEnumNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'enumFields',
+                    attributeName: 'enumerators',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    getEnumFields() {
-        return this.enumFields;
+    getEnumerators() {
+        return this.enumerators;
     }
 
 
-    addEnumFields(node, i = -1, silent) {
+    addEnumerators(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.enumFields.push(node);
-            index = this.enumFields.length;
+            this.enumerators.push(node);
+            index = this.enumerators.length;
         } else {
-            this.enumFields.splice(i, 0, node);
+            this.enumerators.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    removeEnumFields(node, silent) {
-        const index = this.getIndexOfEnumFields(node);
-        this.removeEnumFieldsByIndex(index, silent);
+    removeEnumerators(node, silent) {
+        const index = this.getIndexOfEnumerators(node);
+        this.removeEnumeratorsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    removeEnumFieldsByIndex(index, silent) {
-        this.enumFields.splice(index, 1);
+    removeEnumeratorsByIndex(index, silent) {
+        this.enumerators.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +99,9 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    replaceEnumFields(oldChild, newChild, silent) {
-        const index = this.getIndexOfEnumFields(oldChild);
-        this.enumFields[index] = newChild;
+    replaceEnumerators(oldChild, newChild, silent) {
+        const index = this.getIndexOfEnumerators(oldChild);
+        this.enumerators[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +116,8 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    replaceEnumFieldsByIndex(index, newChild, silent) {
-        this.enumFields[index] = newChild;
+    replaceEnumeratorsByIndex(index, newChild, silent) {
+        this.enumerators[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,12 +132,12 @@ class AbstractEnumNode extends Node {
         }
     }
 
-    getIndexOfEnumFields(child) {
-        return _.findIndex(this.enumFields, ['id', child.id]);
+    getIndexOfEnumerators(child) {
+        return _.findIndex(this.enumerators, ['id', child.id]);
     }
 
-    filterEnumFields(predicateFunction) {
-        return _.filter(this.enumFields, predicateFunction);
+    filterEnumerators(predicateFunction) {
+        return _.filter(this.enumerators, predicateFunction);
     }
 
 
@@ -164,31 +164,6 @@ class AbstractEnumNode extends Node {
 
     getName() {
         return this.name;
-    }
-
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
     }
 
 
@@ -310,6 +285,31 @@ class AbstractEnumNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }
