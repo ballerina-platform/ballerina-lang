@@ -19,7 +19,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import DefaultNodeFactory from './../../../../../model/default-node-factory';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 import './try-node.css';
@@ -33,7 +32,6 @@ class CatchNode extends React.Component {
 
     constructor(props) {
         super(props);
-        this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
         this.setCatchCondition = this.setCatchCondition.bind(this);
         this.getCatchCondition = this.getCatchCondition.bind(this);
 
@@ -44,19 +42,6 @@ class CatchNode extends React.Component {
             getterMethod: this.getCatchCondition,
             setterMethod: this.setCatchCondition,
         };
-    }
-
-    /**
-     * Add finally block to the try catch statement.
-     * */
-    onAddFinallyClick() {
-        const model = this.props.model;
-        const parent = model.parent;
-        // If no finally blocks available create a final body.
-        if (!parent.getFinallyBody()) {
-            const finallyBlock = DefaultNodeFactory.createTry().getFinallyBody();
-            parent.setFinallyBody(finallyBlock);
-        }
     }
 
     /**
@@ -102,36 +87,6 @@ class CatchNode extends React.Component {
                     body={model.body}
                     disableButtons={{ delete: disableDelete }}
                 />
-
-                {!model.parent.getFinallyBody() && isFinalCatchBlock &&
-                <g onClick={this.onAddFinallyClick}>
-                    <title>Add Finally</title>
-                    <rect
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 10}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 4}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
-                }
             </g>
         );
     }

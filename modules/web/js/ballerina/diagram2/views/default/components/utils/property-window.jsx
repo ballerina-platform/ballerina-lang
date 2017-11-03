@@ -178,7 +178,7 @@ class PropertyWindow extends React.Component {
                         id={key.identifier}
                         name={key.identifier}
                         type='text'
-                        placeholder={key.identifier}
+                        placeholder={_.startCase(key.identifier)}
                         value={value}
                         onChange={event => this.onChange(event, key)}
                     />
@@ -205,8 +205,8 @@ class PropertyWindow extends React.Component {
                         id={key.identifier}
                         name={key.identifier}
                         type='number'
-                        placeholder={key.identifier}
-                        value={key.value}
+                        placeholder={_.startCase(key.identifier)}
+                        value={Math.abs(key.value)}
                         onChange={event => this.onChange(event, key)}
                     />
                 </div>
@@ -527,7 +527,7 @@ class PropertyWindow extends React.Component {
                     onTagsAdded={event =>
                         this.onTagsAdded(event, key)}
                     removeTagsAdded={this.removeTagsAdded}
-                    placeholder={`${key.identifier} (↵ or comma-separated)`}
+                    placeholder={`${_.startCase(key.identifier)} (↵ or comma-separated)`}
                     ref={(node) => { this.node = node; }}
                 />
             </div>
@@ -672,7 +672,7 @@ class PropertyWindow extends React.Component {
                         }
                         <button
                             type="button"
-                            className="btn btn-primary propWindowCancelBtn"
+                            className="btn propWindowCancelBtn"
                             onClick={this.closePropertyWindow}
                         >Cancel</button>
                         {this.props.propertiesExist &&

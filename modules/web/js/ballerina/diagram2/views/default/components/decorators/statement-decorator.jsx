@@ -30,6 +30,8 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import ArrowDecorator from './arrow-decorator';
 import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
 import TreeUtil from '../../../../../model/tree-util';
+import splitVariableDefByLambda from '../../../../../model/lambda-util';
+import { getComponentForNodeArray } from '../../../../diagram-util';
 
 
 /**
@@ -207,6 +209,16 @@ class StatementDecorator extends React.Component {
             }
         }
 
+        const { lambdas } = splitVariableDefByLambda(this.props.model);
+        const bBox = viewState.bBox;
+        const hiderTop = viewState.components['statement-box'].y + viewState.components['statement-box'].h + 1;
+        let children = [];
+        let hiderBottom = hiderTop;
+        if (lambdas.length) {
+            children = getComponentForNodeArray(lambdas);
+            hiderBottom = lambdas[lambdas.length - 1].viewState.bBox.getBottom();
+        }
+
         return (
             <g
                 className="statement"
@@ -216,6 +228,14 @@ class StatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
+                <line
+                    x1={bBox.getCenterX()}
+                    y1={hiderTop}
+                    x2={bBox.getCenterX()}
+                    y2={hiderBottom}
+                    className="life-line-hider"
+                />
+                { children }
                 <DropZone
                     x={dropZone.x}
                     y={dropZone.y}
@@ -270,12 +290,12 @@ class StatementDecorator extends React.Component {
 
                 }
                 {viewState.isActionInvocation &&
-                    <StatementPropertyItemSelector
-                        model={this.props.model}
-                        bBox={this.props.model.viewState.components.dropDown}
-                        itemsMeta={dropDownItemMeta}
-                        show={this.state.active}
-                    />
+                <StatementPropertyItemSelector
+                    model={this.props.model}
+                    bBox={this.props.model.viewState.components.dropDown}
+                    itemsMeta={dropDownItemMeta}
+                    show={this.state.active}
+                />
                 }
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}

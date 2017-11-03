@@ -76,6 +76,15 @@ class PositioningUtil {
                 }
             }
         }
+
+        if (node.viewState.lambdas) {
+            let y = node.viewState.bBox.y + node.viewState.components['statement-box'].h - 9;
+            for (const lambda of node.viewState.lambdas) {
+                lambda.viewState.bBox.x = node.viewState.bBox.x;
+                lambda.viewState.bBox.y = y;
+                y += lambda.viewState.bBox.h - 33;
+            }
+        }
     }
 
     positionCompoundStatementComponents(node) {
@@ -163,7 +172,7 @@ class PositioningUtil {
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
             return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child);
+                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child) || TreeUtil.isTransformer(child);
         });
 
         children.forEach((child) => {
@@ -653,6 +662,15 @@ class PositioningUtil {
      */
     positionXmlnsNode(node) {
         this.positionStatementComponents(node);
+    }
+
+    /**
+     * Calculate position of Transformer nodes.
+     *
+     * @param {object} node Transformer object
+     */
+    positionTransformerNode(node) {
+        // Not implemented.
     }
 
 

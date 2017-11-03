@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import { getWorkerMaxHeight } from './../../diagram-util';
+import splitVariableDefByLambda from '../../../model/lambda-util';
 
 class SizingUtil {
 
@@ -119,6 +120,23 @@ class SizingUtil {
 
         viewState.expression = textViewState.text;
         viewState.fullExpression = expression;
+    }
+
+    adjustToLambdaSize(node, viewState) {
+        const { sourceFragments, lambdas } = splitVariableDefByLambda(node);
+        viewState.sourceFragments = sourceFragments;
+        viewState.lambdas = lambdas;
+        if (lambdas.length) {
+            viewState.expression = sourceFragments.join('\u0192');
+            viewState.bBox.h = _.sumBy(lambdas, 'viewState.bBox.h') + viewState.components["drop-zone"].h;
+            const maxW = _.maxBy(lambdas, 'viewState.bBox.w').viewState.bBox.w;
+            viewState.bBox.w = maxW;
+            viewState.components['statement-box'].w = viewState.bBox.w;
+
+            for (const lambda of viewState.lambdas) {
+                lambda.viewState.bBox.w = maxW;
+            }
+        }
     }
 
     /**
@@ -795,6 +813,74 @@ class SizingUtil {
         this.sizeStatement(node.getSource(), node.viewState);
     }
 
+    /**
+     * Calculate dimention of Transformer nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTransformerNode(node) {
+        const viewState = node.viewState;
+        const cmp = viewState.components;
+
+        /* Define the sub components */
+        cmp.heading = new SimpleBBox();
+        cmp.argParameters = new SimpleBBox();
+        cmp.sourceParameters = new SimpleBBox();
+        cmp.returnParameters = new SimpleBBox();
+        cmp.argParameterHolder = {};
+        cmp.returnParameterHolder = {};
+
+        cmp.heading.h = this.config.panel.heading.height;
+
+        viewState.bBox.h = cmp.heading.h;
+
+        const textWidth = this.getTextWidth(node.getSignature());
+        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
+            + this.config.panelHeading.iconSize.width;
+
+        cmp.parametersPrefixContainer = {};
+        cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
+
+        // Creating components for argument parameters
+        if (node.getParameters()) {
+            // Creating component for opening bracket of the parameters view.
+            cmp.argParameterHolder.openingParameter = {};
+            cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
+
+            // Creating component for closing bracket of the parameters view.
+            cmp.argParameterHolder.closingParameter = {};
+            cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
+
+            cmp.heading.w += cmp.argParameterHolder.openingParameter.w
+                + cmp.argParameterHolder.closingParameter.w
+                + this.getParameterTypeWidth(node.getParameters()) + 120;
+        }
+
+        // Creating components for return types
+        if (node.getReturnParameters()) {
+            // Creating component for the Return type text.
+            cmp.returnParameterHolder.returnTypesIcon = {};
+            cmp.returnParameterHolder.returnTypesIcon.w = this.getTextWidth('returns', 0).w;
+
+            // Creating component for opening bracket of the return types view.
+            cmp.returnParameterHolder.openingReturnType = {};
+            cmp.returnParameterHolder.openingReturnType.w = this.getTextWidth('(', 0).w;
+
+            // Creating component for closing bracket of the return types view.
+            cmp.returnParameterHolder.closingReturnType = {};
+            cmp.returnParameterHolder.closingReturnType.w = this.getTextWidth(')', 0).w;
+
+            cmp.heading.w += cmp.returnParameterHolder.returnTypesIcon.w
+                + cmp.returnParameterHolder.openingReturnType.w
+                + cmp.returnParameterHolder.closingReturnType.w
+                + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
+        }
+        // here we add the remove and hide button width to the header.
+        cmp.heading.w += viewState.titleWidth + 100 + (this.config.panel.buttonWidth * 2);
+        viewState.bBox.w = cmp.heading.w;
+    }
+
 
     /**
      * Calculate dimention of AnnotationAttachmentAttributeValue nodes.
@@ -1070,6 +1156,7 @@ class SizingUtil {
     sizeAssignmentNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
@@ -1293,6 +1380,7 @@ class SizingUtil {
     sizeReturnNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
@@ -1414,6 +1502,7 @@ class SizingUtil {
     sizeVariableDefNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
+        this.adjustToLambdaSize(node, viewState);
     }
 
 
