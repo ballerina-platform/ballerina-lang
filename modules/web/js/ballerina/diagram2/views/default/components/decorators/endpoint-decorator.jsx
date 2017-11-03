@@ -34,8 +34,8 @@ class ConnectorDeclarationDecorator extends React.Component {
     constructor(props) {
         super(props);
         this.onDelete = this.onDelete.bind(this);
-        this.getConnectorName = this.getConnectorName.bind(this);
-        this.setConnectorName = this.setConnectorName.bind(this);
+        this.getEndpointName = this.getEndpointName.bind(this);
+        this.setEndpointName = this.setEndpointName.bind(this);
     }
 
     /**
@@ -56,7 +56,7 @@ class ConnectorDeclarationDecorator extends React.Component {
      * Get connector name to be displayed
      * @return {*} - name of the connector
      */
-    getConnectorName() {
+    getEndpointName() {
         const model = this.props.model;
         let connectorName;
         if (TreeUtils.isVariableDef(model)) {
@@ -69,7 +69,7 @@ class ConnectorDeclarationDecorator extends React.Component {
      * Set connector name callback for the expression editor
      * @param {string} newName - new connector name
      */
-    setConnectorName(newName) {
+    setEndpointName(newName) {
         const model = this.props.model;
         if (TreeUtils.isVariableDef(model)) {
             const oldVariable = this.props.model.getVariable();
@@ -94,8 +94,8 @@ class ConnectorDeclarationDecorator extends React.Component {
             propertyType: 'text',
             key: 'ConnectorDeclaration',
             model: this.props.model,
-            // getterMethod: this.getConnectorName,
-            // setterMethod: this.setConnectorName,
+            getterMethod: this.getEndpointName,
+            setterMethod: this.setEndpointName,
         };
         return (
             <g>
