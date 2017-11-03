@@ -403,15 +403,15 @@ public connector RetryClient (ClientConnector c, int retryCount, int interval) {
 	    int i = 0;
 		Response resp;
 		HttpConnectorError err;
-	    while(i < retryCount) {
+		while (i < retryCount) {
 			resp, err = ep.post(path, req);
 			if (err == null && resp != null) {
-			    return resp, err;
+				return resp, err;
 			}
 			sleep(interval);
-		    i = i + 1;
+			i = i + 1;
 		}
-	    return resp, err;
+		return resp, err;
 	}
 
 	@Description { value:"The HEAD action implementation of the HTTP Connector."}
