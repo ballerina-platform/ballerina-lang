@@ -55,6 +55,6 @@ function invalidEndpointAssignment() {
     Foo foo = create Foo();
     en = foo;
     string ll = "dd";
-    //en = ll;
+    en = ll;
     en = create Foo();
 }

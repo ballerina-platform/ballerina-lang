@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -798,15 +800,25 @@ public class SymbolEnter extends BLangNodeVisitor {
 //        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
-    private BLangAssignment createAssignmentStmt(BLangVariable variable) {
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variable.expr;
-        assignmentStmt.pos = variable.pos;
+    private StatementNode createAssignmentStmt(BLangVariable variable) {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = variable.pos;
         varRef.variableName = variable.name;
         varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        //TODO temporary solution to avoid endpoint assignment until endpoint model changed.
+        if (variable.typeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
+            BLangBind bindStmt = (BLangBind) TreeBuilder.createBindNode();
+            bindStmt.setExpression(variable.expr);
+            bindStmt.pos = variable.pos;
+            bindStmt.addWS(variable.getWS());
+            bindStmt.setVariable(varRef);
+            return bindStmt;
+        }
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
     }

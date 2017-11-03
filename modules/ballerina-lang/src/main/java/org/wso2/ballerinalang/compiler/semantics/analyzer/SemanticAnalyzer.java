@@ -552,8 +552,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
             checkConstantAssignment(varRef);
-            //TODO to add below, endpoint model should be changed(now it's modeled as variable definition statement)
-//            checkEndpointAssignment(varRef);
+            //TODO endpoint model should be changed(now it's modeled as variable definition statement)
+            checkEndpointAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
