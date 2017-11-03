@@ -70,8 +70,8 @@ class ErrorRenderingUtil {
             !TreeUtil.isResource(node.parent.parent) && !TreeUtil.isAction(node.parent.parent) &&
             (node.parent.parent.parent.initFunction)) {
             // Do not show errors in the InitFunction of the service
-        } else if (node.parent.parent && TreeUtil.isTransform(node.parent.parent)) {
-            // TODO for transform statements
+        } else if (node.parent.parent && TreeUtil.isTransformer(node.parent.parent)) {
+            // Do not show errors for each statement of the transformer instead show all the errors together
         } else if (node.parent.kind === 'Service' || node.parent.kind === 'Connector') {
             const viewState = node.viewState;
             // Check for errors in the model
@@ -582,7 +582,15 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForTransformerNode(node) {
-        // Not implemented.
+        const errors = this.getSemanticErrorsOfNode(node);
+        const viewState = node.viewState;
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.bBox.x;
+            errorBbox.y = viewState.bBox.y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
     }
 
 
@@ -1085,26 +1093,6 @@ class ErrorRenderingUtil {
             this.placeErrorForCompoundStatementComponents(committedBody);
         }
     }
-
-
-    /**
-     * Calculate error position of Transform nodes.
-     *
-     * @param {object} node
-     *
-     */
-    placeErrorForTransformNode(node) {
-        const errors = this.getSemanticErrorsOfNode(node);
-        const viewState = node.viewState;
-        // Check for errors in the model
-        if (errors.length > 0) {
-            const errorBbox = new SimpleBBox();
-            errorBbox.x = viewState.bBox.x;
-            errorBbox.y = viewState.bBox.y + 25;
-            this.setErrorToNode(node, errors, errorBbox, 'top');
-        }
-    }
-
 
     /**
      * Calculate error position of Try nodes.
