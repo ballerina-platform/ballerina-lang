@@ -905,6 +905,15 @@ class PositioningUtil {
         this.positionStatementComponents(node);
     }
 
+    /**
+     * Calculate position of Bind nodes.
+     *
+     * @param {object} node Bind object
+     */
+    positionBindNode(node) {
+        // Not implemented.
+    }
+
 
     /**
      * Calculate position of Block nodes.
