@@ -23,8 +23,6 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,14 +33,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.log",
         functionName = "warn",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-                                                                              value = "Logs the specified value at " +
-                                                                                      "warn level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
 public class LogWarn extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
@@ -50,7 +43,7 @@ public class LogWarn extends AbstractLogFunction {
                                                     .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.WARN.value()) {
-            getLogger(pkg).warn(getRefArgument(ctx, 0).stringValue());
+            getLogger(pkg).warn(getStringArgument(ctx, 0));
         }
         return VOID_RETURN;
     }

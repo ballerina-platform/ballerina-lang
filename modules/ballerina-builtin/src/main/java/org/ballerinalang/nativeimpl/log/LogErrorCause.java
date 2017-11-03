@@ -21,29 +21,32 @@ package org.ballerinalang.nativeimpl.log;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:trace
+ * Native function ballerina.log:error
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.log",
-        functionName = "trace",
-        args = {@Argument(name = "msg", type = TypeKind.STRING)},
+        functionName = "errorCause",
+        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class LogTrace extends AbstractLogFunction {
+public class LogErrorCause extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
         String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
-                                                    .getCallableUnitInfo().getPackageInfo().getPkgPath();
+                .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.TRACE.value()) {
-            getLogger(pkg).trace(getStringArgument(ctx, 0));
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
+            String msg = getStringArgument(ctx, 0);
+            BStruct err = (BStruct) getRefArgument(ctx, 0);
+            getLogger(pkg).error(msg + " : " + err.stringValue());
         }
         return VOID_RETURN;
     }
