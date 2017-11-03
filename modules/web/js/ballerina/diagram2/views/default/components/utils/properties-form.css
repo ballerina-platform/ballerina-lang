@@ -392,6 +392,9 @@
     height: 30px;
     float: right;
     margin-right: 10px;
+    color: #f5f5f5;
+    background: #2c2c2c;
+    border-color: #2c2c2c;
 }
 
 #property-modal .propWindowApplyBtn{
