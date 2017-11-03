@@ -33,7 +33,7 @@ transformer <Person p, Employee e> Foo(){
     e.name = p.firstName;
     e.address = p.city;
     e.name = p.firstName;
-    e.age = age;
+    e.age = p.age;
 }
 
 transformer <Person p, Employee e> Bar(int age) {
