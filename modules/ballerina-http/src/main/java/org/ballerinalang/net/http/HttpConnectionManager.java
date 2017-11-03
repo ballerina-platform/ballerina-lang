@@ -321,10 +321,10 @@ public class HttpConnectionManager {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
         int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
+        senderConfiguration.setChunkDisabled(chunkDisabled == 1);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
