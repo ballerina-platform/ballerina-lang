@@ -1208,16 +1208,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(assignmentNode);
     }
 
-    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws, String varName) {
         ExpressionNode rExprNode = exprNodeStack.pop();
-        BLangNameReference nameReference = nameReferenceStack.pop();
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.addWS(ws);
-        varRef.addWS(nameReference.ws);
-        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        varRef.variableName = (BLangIdentifier) nameReference.name;
+        varRef.addWS(ws);
+        varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
+        varRef.variableName = (BLangIdentifier) createIdentifier(varName);
 
 
         BLangBind bindNode = (BLangBind) TreeBuilder.createBindNode();

@@ -299,7 +299,7 @@ assignmentStatement
     ;
 
 bindStatement
-    :   BIND expression WITH nameReference SEMICOLON
+    :   BIND expression WITH Identifier SEMICOLON
     ;
 
 variableReferenceList

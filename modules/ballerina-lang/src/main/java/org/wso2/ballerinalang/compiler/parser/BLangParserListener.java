@@ -1189,7 +1189,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override
