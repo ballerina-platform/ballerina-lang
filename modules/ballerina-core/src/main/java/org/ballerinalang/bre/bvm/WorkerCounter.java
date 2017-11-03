@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.util.logging.NetworkLoggingUtils;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +49,10 @@ public class WorkerCounter {
         if (count.decrementAndGet() == 0) {
             lock.release();
             if (resourceContext != null && resourceContext.getConnectorFuture() != null) {
+                if (resourceContext.getActivityID() != null) {
+                    NetworkLoggingUtils.logResourceDispatch(resourceContext.getActivityID(),
+                            resourceContext.getResourceInfo(), false);
+                }
                 // Asynchronously notify the resource.
                 resourceContext.getConnectorFuture().notifySuccess();
             }

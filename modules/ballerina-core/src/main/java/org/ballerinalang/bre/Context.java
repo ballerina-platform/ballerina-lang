@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
@@ -46,9 +47,11 @@ public class Context {
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
+    private ResourceInfo resourceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
+    private String activityID;
 
     private int startIP;
     private BStruct unhandledError;
@@ -90,6 +93,14 @@ public class Context {
             this.setDebugInfoHolder(debugInfoHolder);
             this.debugInfoHolder.init(programFile);
         }
+    }
+
+    public String getActivityID() {
+        return activityID;
+    }
+
+    public void setActivityID(String activityID) {
+        this.activityID = activityID;
     }
     
     public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
@@ -150,6 +161,14 @@ public class Context {
 
     public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
+    }
+
+    public ResourceInfo getResourceInfo() {
+        return this.resourceInfo;
+    }
+
+    public void setResourceInfo(ResourceInfo resourceInfo) {
+        this.resourceInfo = resourceInfo;
     }
 
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {

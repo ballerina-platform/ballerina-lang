@@ -102,6 +102,7 @@ import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.util.logging.NetworkLoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -171,6 +172,7 @@ public class BLangVM {
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
             handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
                     calleeSF.returnValues, retTypes);
+            logActionInvocation(context.actionInfo, false);
 
             // TODO Remove
             //prepareStructureTypeFromNativeAction(context.nativeArgValues);
@@ -540,7 +542,9 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    logActionInvocation(actionInfo, true);
                     invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    logActionInvocation(actionInfo, false);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -2952,7 +2956,15 @@ public class BLangVM {
         handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
     }
 
+    private void logActionInvocation(ActionInfo actionInfo, boolean isInput) {
+        if (context.getActivityID() != null) {
+            NetworkLoggingUtils.logConnectorActionDispatch(context.getActivityID(), actionInfo, isInput);
+        }
+    }
+
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+        logActionInvocation(actionInfo, true);
+
         StackFrame callerSF = controlStack.currentFrame;
 
         WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
@@ -3016,6 +3028,7 @@ public class BLangVM {
                 // Copy return values to the callers stack
                 controlStack.popFrame();
                 handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+                logActionInvocation(actionInfo, false);
 
             }
         } catch (Throwable e) {
