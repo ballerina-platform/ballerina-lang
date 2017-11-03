@@ -218,9 +218,9 @@ Transform
    ;
 
 Transformer
-   : <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> ( <parameters-joined-by,>+ ) { <body.source> }
-   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> (){ <body.source> }
+   : <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> { <body.source> }
+   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>* >              { <body.source> }
    ;
 
 Try
