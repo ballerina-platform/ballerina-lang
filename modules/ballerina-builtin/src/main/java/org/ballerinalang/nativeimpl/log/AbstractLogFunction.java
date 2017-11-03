@@ -18,28 +18,30 @@
 
 package org.ballerinalang.nativeimpl.log;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.logging.LogManager;
 
 /**
  * This class is responsible for selecting the appropriate logger for a particular log statement.
  *
  * @since 0.89
  */
-public class BallerinaLogHandler {
+public abstract class AbstractLogFunction extends AbstractNativeFunction {
+
+    protected static final BLogManager LOG_MANAGER = (BLogManager) LogManager.getLogManager();
+
     private static final Logger ballerinaRootLogger = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
-    public static Logger getLogger(Context ctx) {
-        String packageDirPath = ctx.getControlStackNew().currentFrame.prevStackFrame.getCallableUnitInfo()
-                .getPackageInfo().getPkgPath();
-
-        if (".".equals(packageDirPath) || packageDirPath == null) {
+    protected Logger getLogger(String pkg) {
+        if (".".equals(pkg) || pkg == null) {
             return ballerinaRootLogger;
         } else {
             // TODO: Refactor this later
-            return LoggerFactory.getLogger(ballerinaRootLogger.getName() + "." + packageDirPath);
+            return LoggerFactory.getLogger(ballerinaRootLogger.getName() + "." + pkg);
         }
     }
 }

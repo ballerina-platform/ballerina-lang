@@ -22,6 +22,7 @@ import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -48,6 +49,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -79,6 +81,7 @@ public class LauncherUtils {
 
         try {
             ConfigRegistry.getInstance().loadConfigurations();
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
             throw new RuntimeException("error reading configuration: " + e.getMessage(), e);
         }

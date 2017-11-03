@@ -19,9 +19,9 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -43,10 +43,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                                       "warn level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
                                                                         value = "The value to be logged.")})
-public class LogWarn extends AbstractNativeFunction {
+public class LogWarn extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).warn(getRefArgument(ctx, 0).stringValue());
+        String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
+                                                    .getCallableUnitInfo().getPackageInfo().getPkgPath();
+
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.WARN.value()) {
+            getLogger(pkg).warn(getRefArgument(ctx, 0).stringValue());
+        }
         return VOID_RETURN;
     }
 }

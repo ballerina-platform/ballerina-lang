@@ -19,9 +19,9 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -43,10 +43,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                                       "the info level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
                                                                         value = "The value to be logged.")})
-public class LogInfo extends AbstractNativeFunction {
+public class LogInfo extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).info(getRefArgument(ctx, 0).stringValue());
+        String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
+                                                .getCallableUnitInfo().getPackageInfo().getPkgPath();
+
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
+            getLogger(pkg).info(getRefArgument(ctx, 0).stringValue());
+        }
         return VOID_RETURN;
     }
 }
