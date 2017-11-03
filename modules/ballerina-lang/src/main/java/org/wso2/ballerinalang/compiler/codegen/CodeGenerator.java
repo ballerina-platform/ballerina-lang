@@ -1030,11 +1030,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
         int actionCallIndex = getFunctionCallCPIndex(aIExpr);
 
-        if (Symbols.isNative(aIExpr.symbol)) {
-            emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
-        } else {
-            emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
-        }
+        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
     }
 
     public void visit(BLangConnectorInit cIExpr) {
