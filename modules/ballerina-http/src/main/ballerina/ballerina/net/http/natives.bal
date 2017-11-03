@@ -309,6 +309,12 @@ public native function <Session session> getMaxInactiveInterval () (int);
 @Param { value:"timeInterval: HTTPSession max inactive interval" }
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
+public struct HttpConnectorError {
+	string msg;
+	int statusCode;
+	error cause;
+	StackFrame[] stackTrace;
+}
 
 struct SSL {
     string trustStoreFile;
@@ -339,42 +345,42 @@ public connector ClientConnector (string serviceUri, Options connectorOptions) {
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action post (string path, Request req) (Response);
+	native action post (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The HEAD action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action head (string path, Request req) (Response);
+	native action head (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The PUT action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action put (string path, Request req) (Response);
+	native action put (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
 	@Param { value:"httpVerb: HTTP verb value" }
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action execute (string httpVerb, string path, Request req) (Response);
+	native action execute (string httpVerb, string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action patch (string path, Request req) (Response);
+	native action patch (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The DELETE action implementation of the HTTP connector"}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action delete (string path, Request req) (Response);
+	native action delete (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"GET action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action get (string path, Request req) (Response);
+	native action get (string path, Request req) (Response, HttpConnectorError);
 }
