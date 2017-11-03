@@ -177,7 +177,7 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public boolean isEmpty() {
-        return this.httpContentQueue.peek() instanceof EmptyLastHttpContent || this.httpContentQueue.isEmpty();
+        return this.httpContentQueue.isEmpty();
     }
 
     public boolean isEndOfMsgAdded() {
@@ -191,6 +191,10 @@ public class BlockingEntityCollector implements EntityCollector {
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
         this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
         this.httpContentQueue.add(new DefaultLastHttpContent());
+    }
+
+    public HttpContent peek() {
+        return this.httpContentQueue.peek();
     }
 
     @Deprecated

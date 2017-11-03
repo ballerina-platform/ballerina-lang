@@ -165,6 +165,12 @@ public class Util {
 
     private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
+            HttpContent httpContent = cMsg.peek();
+            if (httpContent instanceof LastHttpContent) {
+                if (httpContent.content().readableBytes() == 0) {
+                    return;
+                }
+            }
             cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
     }

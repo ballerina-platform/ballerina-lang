@@ -354,4 +354,11 @@ public class HTTPCarbonMessage {
     public EntityCollector getBlockingEntityCollector() {
         return blockingEntityCollector;
     }
+
+    /**
+     * Peek the head of the queue
+     */
+    public HttpContent peek() {
+        return this.blockingEntityCollector.peek();
+    }
 }
