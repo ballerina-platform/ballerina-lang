@@ -256,6 +256,18 @@ class SizingUtil {
     }
 
 
+
+    /**
+     * Calculate dimention of Enum nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeEnumNode(node) {
+        // Not implemented.
+    }
+
+
     /**
      * Calculate dimention of Enum nodes.
      *
