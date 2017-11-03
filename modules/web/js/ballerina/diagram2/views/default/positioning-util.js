@@ -929,7 +929,7 @@ class PositioningUtil {
      * @param {object} node Bind object
      */
     positionBindNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
