@@ -6,7 +6,9 @@ import ballerina.net.ws;
 }
 service<ws> SimpleProxyServer {
 
-    ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
+    endpoint<ws:ClientConnector> c {
+        create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
+    }
     map clientConnMap = {};
 
     resource onHandshake(ws:HandshakeConnection con) {
