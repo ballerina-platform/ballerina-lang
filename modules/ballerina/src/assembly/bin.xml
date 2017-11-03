@@ -191,6 +191,8 @@
                 <include>com.zaxxer:HikariCP</include>
                 <include>javax.transaction:javax.transaction-api</include>
                 <include>org.atomikos.wso2:atomikos</include>
+                <include>org.quartz-scheduler:quartz</include>
+                <include>org.quartz-scheduler:quartz-jobs</include>
             </includes>
         </dependencySet>
 
