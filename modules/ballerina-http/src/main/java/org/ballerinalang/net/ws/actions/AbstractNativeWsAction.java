@@ -41,7 +41,7 @@ import javax.websocket.Session;
  */
 public abstract class AbstractNativeWsAction extends AbstractNativeAction {
 
-    public BStruct createWSConnectionStruct(Context context, Session session, String parentConnectionID) {
+    public BStruct createWsConnectionStruct(Context context, Session session, String parentConnectionID) {
 
         //gather package details from natives
         PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
@@ -55,6 +55,20 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
         wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
         return wsConnection;
+    }
+
+    public BStruct createWsErrorStruct(Context context, Throwable throwable) {
+
+        //gather package details from natives
+        PackageInfo wsErrorPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
+        StructInfo wsConnectionStructInfo =
+                wsErrorPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_ERROR);
+
+        //create error struct
+        BStructType structType = wsConnectionStructInfo.getType();
+        BStruct wsError = new BStruct(structType);
+        wsError.setStringField(0, throwable.getMessage());
+        return wsError;
     }
 
     public String[] getSubProtocols(BRefType<BString[]> bSubProtocolsRefType) {

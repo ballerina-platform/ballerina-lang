@@ -62,6 +62,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String STRUCT_WEBSOCKET_PING_FRAME = "PingFrame";
     public static final String STRUCT_WEBSOCKET_PONG_FRAME = "PongFrame";
     public static final String STRUCT_WEBSOCKET_CLOSE_FRAME = "CloseFrame";
+    public static final String STRUCT_WEBSOCKET_ERROR = "WsConnectorError";
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
     public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
