@@ -260,6 +260,25 @@ class PositioningUtil {
                 node.viewState.components.globalsBbox.x += packageDefTextWidth;
             }
         }
+
+        if (node.viewState.importsExpanded) {
+            const importDeclarationHeight = 30;
+            const importInputHeight = 40;
+            const topBarHeight = 25;
+            const yGutterSize = 10;
+            const xGutterSize = 15;
+            const badgeWidth = 150;
+            const globalsExpandedY = (imports.length * importDeclarationHeight) + topBarHeight + importInputHeight
+                + yGutterSize;
+            node.viewState.components.globalsExpandedBbox.y += globalsExpandedY;
+            node.viewState.components.globalsBbox.x += 30;
+            let globalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
+            globals.forEach((globalDec) => {
+                globalDec.viewState.bBox.y = globalElementY;
+                globalElementY += 30;
+            });
+            node.viewState.components.globalsBbox.x -= (badgeWidth + xGutterSize);
+        }
     }
 
     /**
