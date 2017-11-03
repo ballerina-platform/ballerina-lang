@@ -385,7 +385,12 @@ public connector ClientConnector (string serviceUri, Options connectorOptions) {
 	native action get (string path, Request req) (Response, HttpConnectorError);
 }
 
-public connector RetryClient (ClientConnector c, int retryCount) {
+@Description { value:"Http retry connector, this will retry the action in case of network failuires for given number
+of times, waiting given interval inbetween"}
+@Param { value:"c: Client connctor" }
+@Param { value:"retryCount: Number of retry attempts to try" }
+@Param { value:"interval: Retry interval in ms to wait in case of failuire" }
+public connector RetryClient (ClientConnector c, int retryCount, int interval) {
 	endpoint<ClientConnector> ep {
 	    c;
 	}
@@ -403,6 +408,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 			    return resp, err;
 			}
+			sleep(interval);
 		    i = i + 1;
 		}
 	    return resp, err;
@@ -421,6 +427,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
@@ -439,6 +446,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
@@ -458,6 +466,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
@@ -476,6 +485,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
@@ -494,6 +504,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
@@ -512,6 +523,7 @@ public connector RetryClient (ClientConnector c, int retryCount) {
 			if (err == null && resp != null) {
 				return resp, err;
 			}
+			sleep(interval);
 			i = i + 1;
 		}
 		return resp, err;
