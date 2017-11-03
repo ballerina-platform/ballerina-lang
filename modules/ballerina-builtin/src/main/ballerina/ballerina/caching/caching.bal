@@ -55,7 +55,7 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
     }
     // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
     if (evictionFactor <= 0 || evictionFactor > 1) {
-        error e = {msg:"Cache eviction factor must be between 0.0 and 1.0 inclusive."};
+        error e = {msg:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
         throw e;
     }
 
@@ -196,7 +196,7 @@ function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) (string[]) {
     while (index < size) {
         string key = keys[index];
         var entry, _ = (CacheEntry)entries[key];
-        // Checka and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+        // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
         checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
         index = index + 1;
     }
