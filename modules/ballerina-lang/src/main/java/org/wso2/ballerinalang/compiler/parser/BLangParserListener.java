@@ -900,6 +900,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBuiltInReferenceTypeName(BallerinaParser.BuiltInReferenceTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         if (ctx.functionTypeName() != null) {
             return;
         }
@@ -1094,16 +1097,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.ASSIGN() != null);
-    }
-
-    @Override
     public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1141,7 +1134,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+    public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1151,13 +1144,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) {
+    public void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx) {
         if (ctx.exception != null) {
             return;
         }
+        if (ctx.endpointDefinition() == null) {
+            return;
+        }
 
-        boolean argsAvailable = ctx.expressionList() != null;
-        this.pkgBuilder.addFilterConnectorInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        String endpointName = ctx.endpointDefinition().Identifier().getText();
+
+        boolean exprAvailable = ctx.connectorInit() != null || ctx.variableReference() != null;
+        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                endpointName, exprAvailable);
+    }
+
+    @Override
+    public void exitEndpointDefinition(BallerinaParser.EndpointDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1174,6 +1181,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             isVarDeclaration = true;
         }
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
+    }
+
+    @Override
+    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override

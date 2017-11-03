@@ -58,6 +58,7 @@ public enum TypeKind {
     STRUCT("struct"),
     ENUM("enum"),
     CONNECTOR("connector"),
+    ENDPOINT("endpoint"),
     FUNCTION("function"),
     ANNOTATION("annotation"),
     ARRAY("[]"),
