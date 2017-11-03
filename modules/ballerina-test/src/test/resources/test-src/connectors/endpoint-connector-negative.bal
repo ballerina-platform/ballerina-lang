@@ -58,3 +58,41 @@ function invalidEndpointAssignment() {
     en = ll;
     en = create Foo();
 }
+
+function passEndpointAsParam() {
+    endpoint<Foo> fo {
+        create Foo();
+    }
+    endpointAsParam(fo);
+}
+
+function endpointAsParam(Foo fo) {
+
+}
+
+function bindWrongType() {
+    endpoint<Foo> ep {
+
+    }
+    bind create Bar(create Foo(), "dddd") with ep;
+}
+
+function bindStringValue() {
+    endpoint<Foo> ep {
+
+    }
+    bind "test" with ep;
+}
+
+function returnEndpoint()(Foo) {
+    endpoint<Foo> fo {
+
+    }
+    return fo;
+}
+
+function initEndointWithString(string val) {
+    endpoint<Foo> fo {
+        val;
+    }
+}
