@@ -594,7 +594,7 @@ class PropertyWindow extends React.Component {
                         }
                         <button
                             type="button"
-                            className="btn btn-primary propWindowCancelBtn"
+                            className="btn propWindowCancelBtn"
                             onClick={this.closePropertyWindow}
                         >Cancel</button>
                         {this.props.propertiesExist &&
