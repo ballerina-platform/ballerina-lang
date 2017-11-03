@@ -1073,6 +1073,19 @@ class SizingUtil {
     }
 
 
+
+    /**
+     * Calculate dimention of Bind nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeBindNode(node) {
+        // Not implemented.
+    }
+
+
+
     /**
      * Calculate dimention of Block nodes.
      *

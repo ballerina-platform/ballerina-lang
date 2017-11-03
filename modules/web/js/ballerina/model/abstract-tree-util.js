@@ -207,6 +207,10 @@ class AbstractTreeUtil {
         return node.kind === 'Assignment';
     }
 
+    isBind(node) {
+        return node.kind === 'Bind';
+    }
+
     isBlock(node) {
         return node.kind === 'Block';
     }
