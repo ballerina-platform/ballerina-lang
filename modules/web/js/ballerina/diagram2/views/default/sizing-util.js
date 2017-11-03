@@ -1159,19 +1159,16 @@ class SizingUtil {
         this.adjustToLambdaSize(node, viewState);
     }
 
-
-
     /**
      * Calculate dimention of Bind nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeBindNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
-
-
 
     /**
      * Calculate dimention of Block nodes.

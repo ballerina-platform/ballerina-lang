@@ -1,6 +1,10 @@
 import ballerina.net.http;
 
 function testFunc() {
+
+    endpoint<HttpClient> en2 {
+    }
+    
     endpoint<HttpClient> en {
         create HttpClient("http://localhost:9090", 12);
     }

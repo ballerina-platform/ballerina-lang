@@ -54,6 +54,10 @@ BinaryExpr
    |             <leftExpression.source> <operatorKind> <rightExpression.source>
    ;
 
+Bind
+    : bind <expression.source> with <variable.source> ;
+    ;
+
 Block
    : <statements>*
    | 
@@ -254,6 +258,7 @@ ValueType
 
 Variable
    : <endpoint?>                                                      <typeNode.source> <name.value> { <initialExpression.source> ; }
+   | <endpoint?>                                                      <typeNode.source> <name.value> { }
    | <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
    | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
    |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
