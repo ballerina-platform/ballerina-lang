@@ -89,7 +89,7 @@ class ServiceNode extends React.Component {
         if (!value) {
             return;
         }
-        const fragment = FragmentUtils.createStatementFragment(`${value};`);
+        const fragment = FragmentUtils.createStatementFragment(`${value}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         if (!parsedJson.error) {
             const index = this.props.model.getVariables().length - 1;
