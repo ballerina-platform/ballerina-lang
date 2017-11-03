@@ -85,7 +85,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 }
 
                 @Override
-                public void notifyReply(BValue response) {
+                public void notifyReply(BValue... response) {
                     //Nothing to do
                 }
 

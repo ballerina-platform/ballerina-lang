@@ -7,7 +7,7 @@ How to run this sample
 ======================
 bin$ ./ballerina run ../samples/echoService/echoService.bal
 
-the above command will start the ballerina server in the current terminal and deploy the echoService.bal file and publish the service 'echoService'.
+the above command will start the 'echoService" service in echoService.bal.
 
 
 Invoking the service

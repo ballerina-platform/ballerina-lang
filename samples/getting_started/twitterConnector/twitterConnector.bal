@@ -1,5 +1,3 @@
-import ballerina.lang.jsons;
-
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
@@ -8,10 +6,12 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
     action tweet (string msg) (http:Response) {
         http:Request request = {};
+        http:HttpConnectorError err;
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(msg);
         request.setHeader("Authorization", oauthHeader);
-        http:Response response = tweeterEP.post(tweetPath, request);
+        http:Response response = {};
+        response, err = tweeterEP.post(tweetPath, request);
         return response;
 
     }

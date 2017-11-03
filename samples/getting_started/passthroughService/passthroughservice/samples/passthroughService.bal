@@ -11,7 +11,9 @@ service<http> passthrough {
     }
     resource passthrough (http:Request req, http:Response resp) {
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = nyseEP.get("/nyseStock/stocks", req);
+        http:Response clientResponse = {};
+        http:HttpConnectorError err;
+        clientResponse, err = nyseEP.get("/nyseStock/stocks", req);
         resp.forward(clientResponse);
     }
 }
