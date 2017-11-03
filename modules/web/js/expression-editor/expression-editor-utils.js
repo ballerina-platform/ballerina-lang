@@ -154,7 +154,9 @@ class ExpressionEditor {
 
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey('Enter|Shift-Enter', (e) => {
-            const text = this._editor.getSession().getValue() + ';';
+            const text = this._editor.getSession().getValue()
+                ? this._editor.getSession().getValue() + ';'
+                : '';
 
             // If setter method is available use it, else use setSource.
             if (props.setterMethod instanceof Function) {
@@ -173,7 +175,9 @@ class ExpressionEditor {
 
         // When the user is typing text we will resize the editor.
         this._editor.on('change', (event) => {
-            const text = this._editor.getSession().getValue() + ';';
+            const text = this._editor.getSession().getValue()
+                ? this._editor.getSession().getValue() + ';'
+                : '';
             $(this.expressionEditor).css('width', this.getNecessaryWidth(text));
             this._editor.resize();
         });
@@ -181,7 +185,9 @@ class ExpressionEditor {
         this._editor.on('blur', (event) => {
             try {
                 if (!didSemicolon && !didEnter) {
-                    const text = this._editor.getSession().getValue() + ';';
+                    const text = this._editor.getSession().getValue()
+                        ? this._editor.getSession().getValue() + ';'
+                        : '';
 
                     // If setter method is available use it, else use setSource.
                     if (props.setterMethod instanceof Function) {
