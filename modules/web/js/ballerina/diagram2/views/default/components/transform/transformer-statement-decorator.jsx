@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ActionBox from './../decorators/action-box';
+import EditableText from '../decorators/editable-text';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from '../../designer-defaults';
 import ActiveArbiter from '../decorators/active-arbiter';
@@ -45,50 +45,6 @@ class TransformerStatementDecorator extends React.Component {
 
     onDelete() {
         this.props.model.remove();
-    }
-
-    /**
-     * Navigates to codeline in the source view from the design view node
-     *
-     */
-    onJumptoCodeLine() {
-        const { viewState: { fullExpression } } = this.props;
-        const { editor } = this.context;
-
-        editor.setActiveView('SOURCE_VIEW');
-        editor.jumpToLine({ expression: fullExpression });
-    }
-
-    /**
-     * Renders breakpoint indicator
-     */
-    renderBreakpointIndicator() {
-        const breakpointSize = 14;
-        const pointX = this.statementBox.x + this.statementBox.w - (breakpointSize / 2);
-        const pointY = this.statementBox.y - (breakpointSize / 2);
-        return (
-            <Breakpoint
-                x={pointX}
-                y={pointY}
-                size={breakpointSize}
-                isBreakpoint={this.props.model.isBreakpoint}
-                onClick={() => this.onBreakpointClick()}
-            />
-        );
-    }
-
-    /**
-     * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
-     *
-     */
-    onBreakpointClick() {
-        const { model } = this.props;
-        const { isBreakpoint = false } = model;
-        if (model.isBreakpoint) {
-            model.removeBreakpoint();
-        } else {
-            model.addBreakpoint();
-        }
     }
 
     onExpand() {
@@ -120,7 +76,7 @@ class TransformerStatementDecorator extends React.Component {
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
         let statementRectClass = 'statement-rect';
         const titleHeight = this.statementBox.h;
-        const titleWidth = util.getTextWidth('sdiamd');
+        const titleWidth = util.getTextWidth(model.getSignature());
         const iconSize = 14;
 
 
@@ -142,11 +98,30 @@ class TransformerStatementDecorator extends React.Component {
 
         staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
 
+        const publicPrivateFlagButtonProps = {
+            bBox: {
+                x: bBox.x - (bBox.w * 2),
+                y: bBox.y,
+                height: titleHeight,
+                width: titleWidth,
+            },
+            icon: ImageUtil.getSVGIconString(this.props.model.public ? 'lock' : 'public'),
+            tooltip: this.props.model.public ? 'Make private' : 'Make public',
+            onClick: () => this.togglePublicPrivateFlag(),
+            key: `${this.props.model.getID()}-publicPrivateFlag-button`,
+        };
+
+        staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
+
+        const annotationBodyHeight = 0;
+        const allowPublicPrivateFlag = true;
+        const publicPrivateFlagoffset = (this.props.model.public) ? 50 : 0;
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect
                     x={bBox.x}
-                    y={this.statementBox.y}
+                    y={bBox.y + annotationBodyHeight}
                     width={bBox.w}
                     height={titleHeight}
                     rx="0"
@@ -155,80 +130,49 @@ class TransformerStatementDecorator extends React.Component {
                     data-original-title=""
                     title=""
                 />
-                <rect x={bBox.x - 1} y={bBox.y} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
+                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
+                {allowPublicPrivateFlag && <g>
+                    <rect
+                        className="publicPrivateRectHolder"
+                        x={bBox.x + 8}
+                        y={bBox.y + annotationBodyHeight}
+                        width='45'
+                        height='30'
+                    />
+                    <text
+                        x={bBox.x + 15}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 4}
+                        className="publicPrivateText"
+                    >{this.props.model.public ? 'public' : null}</text>
+                </g>}
                 <image
-                    x={bBox.x + 15}
-                    y={bBox.y + 8}
+                    x={bBox.x + 15 + publicPrivateFlagoffset}
+                    y={bBox.y + 8 + annotationBodyHeight}
                     width={iconSize}
                     height={iconSize}
-                    xlinkHref={ImageUtil.getSVGIconString(icon)}
+                    xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
                 />
                 <g className='statement-body'>
                     <text x={text_x - 10} y={text_y} className='transform-action'
-                          onClick={e => this.onExpand()}>{model.getSignature()}</text>
+                        onClick={e => this.onExpand()}>{model.getSignature()}</text>
                     <g className='transform-button' onClick={e => this.onExpand()}>
                         <rect x={expand_button_x - 8}
-                              y={expand_button_y - 8}
-                              width={28}
-                              height={30}
-                              className='transform-action-button'/>
+                            y={expand_button_y - 8}
+                            width={28}
+                            height={30}
+                            className='transform-action-button'/>
                         <image className='transform-action-icon'
-                               x={expand_button_x} y={expand_button_y}
-                               width={14}
-                               height={14}
-                               xlinkHref={ImageUtil.getSVGIconString('expand')}>
+                            x={expand_button_x} y={expand_button_y}
+                            width={14}
+                            height={14}
+                            xlinkHref={ImageUtil.getSVGIconString('expand')}>
                             <title>Expand</title>
                         </image>
                     </g>
                 </g>
-                <ActionBox
-                    bBox={actionBbox}
-                    show={this.state.active}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
-                />
+                {staticButtons}
             </g>
         </g>);
-
-// {rightHeadingButtons}
-//                 { this.props.argumentParams &&
-//                     <ArgumentParameterDefinitionHolder
-//                         model={this.props.model}
-//                     >
-//                         {this.props.argumentParams}
-//                     </ArgumentParameterDefinitionHolder>
-//                 }
-//                 { this.props.returnParams &&
-//                 <ReturnParameterDefinitionHolder
-//                     model={this.props.model}
-//                 >
-//                     {this.props.returnParams}
-//                 </ReturnParameterDefinitionHolder>
-//                 }
-
-        // return (
-        //     <g
-        //         className='statement'
-        //     >
-        //         <rect
-        //             x={bBox.x}
-        //             y={this.statementBox.y}
-        //             width={bBox.w}
-        //             height={this.statementBox.h}
-        //             className={statementRectClass}
-        //             onClick={e => this.onExpand()}
-        //         />
-        
-        //         {model.isBreakpoint && this.renderBreakpointIndicator()}
-        //     </g>);
-    }
-
-    setActionVisibility(show) {
-        if (show) {
-            this.context.activeArbiter.readyToActivate(this);
-        } else {
-            this.context.activeArbiter.readyToDeactivate(this);
-        }
     }
 }
 

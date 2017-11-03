@@ -16,12 +16,15 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import AbstractTransformerNode from './abstract-tree/transformer-node';
 
 class TransformerNode extends AbstractTransformerNode {
 
     getSignature() {
-        return 'transformer';
+        const returnParams = _.join(this.getReturnParameters().map(ret => ret.getSource()), ',');
+        const params = _.join(this.getParameters().map(ret => ret.getSource()), ',');
+        return `< ${this.getSourceParam().getSource()}, ${returnParams} > ${this.name.value} (${params})`;
     }
 
 }
