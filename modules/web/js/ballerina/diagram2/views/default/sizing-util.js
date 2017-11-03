@@ -152,8 +152,8 @@ class SizingUtil {
         width = this.config.blockNode.width;
         let stH = this.config.statement.gutter.v;
         nodes.forEach((element) => {
-            // if the statement is a connector declaration we will not count the height.
-            if (!TreeUtil.isConnectorDeclaration(element)) {
+            // if the statement is an endpoint
+            if (!TreeUtil.isEndpointTypeVariableDef(element)) {
                 stH += element.viewState.bBox.h;
                 if (width < element.viewState.bBox.w) {
                     width = element.viewState.bBox.w;
@@ -376,7 +376,7 @@ class SizingUtil {
         const statements = node.body.statements;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
-                if (TreeUtil.isConnectorDeclaration(statement)) {
+                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                     // add the connector width to panel body width.
                     cmp.panelBody.w += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
@@ -606,16 +606,16 @@ class SizingUtil {
             children = node.getActions();
         }
         let variables = [];
-        let connectors = [];
+        let endpoints = [];
         if (TreeUtil.isService(node)) {
             variables = node.getVariables();
-            connectors = node.filterVariables((statement) => {
-                return TreeUtil.isConnectorDeclaration(statement);
+            endpoints = node.filterVariables((statement) => {
+                return TreeUtil.isEndpointTypeVariableDef(statement);
             });
         } else if (TreeUtil.isConnector(node)) {
             variables = node.getVariableDefs();
-            connectors = node.filterVariableDefs((statement) => {
-                return TreeUtil.isConnectorDeclaration(statement);
+            endpoints = node.filterVariableDefs((statement) => {
+                return TreeUtil.isEndpointTypeVariableDef(statement);
             });
         }
         // calculate the annotation height.
@@ -656,11 +656,11 @@ class SizingUtil {
             // If there are connector declarations add them to service width.
         const statements = variables;
         let connectorWidth = 0;
-        connectorHeight = connectors.length > 0
+        connectorHeight = endpoints.length > 0
             ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
-                if (TreeUtil.isConnectorDeclaration(statement)) {
+                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                         // add the connector width to body width.
                     connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
@@ -1159,6 +1159,16 @@ class SizingUtil {
         this.adjustToLambdaSize(node, viewState);
     }
 
+    /**
+     * Calculate dimention of Bind nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeBindNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
+    }
 
     /**
      * Calculate dimention of Block nodes.
@@ -1582,6 +1592,15 @@ class SizingUtil {
         // Not implemented.
     }
 
+    /**
+     * Calculate dimention of EndpointType nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeEndpointTypeNode(node) {
+        // Not implemented.
+    }
 
     /**
      * Calculate dimention of ValueType nodes.

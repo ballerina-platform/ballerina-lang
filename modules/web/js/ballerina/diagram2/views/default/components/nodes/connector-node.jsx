@@ -24,7 +24,7 @@ import { getComponentForNodeArray } from './../../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import TreeUtil from '../../../../../model/tree-util';
-import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
+import EndpointDecorator from '../decorators/endpoint-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 import AddActionNode from './add-action-node';
@@ -70,7 +70,7 @@ class ConnectorNode extends React.Component {
      * @memberof ConnectorNode
      */
     canDropToPanelBody(dragSource) {
-        return TreeUtil.isConnectorDeclaration(dragSource) || TreeUtil.isAction(dragSource);
+        return TreeUtil.isEndpointTypeVariableDef(dragSource) || TreeUtil.isAction(dragSource);
     }
 
     /**
@@ -93,7 +93,7 @@ class ConnectorNode extends React.Component {
         if (!value) {
             return;
         }
-        const fragment = FragmentUtils.createStatementFragment(`${value};`);
+        const fragment = FragmentUtils.createStatementFragment(`${value}`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         if (!parsedJson.error) {
             const index = this.props.model.getVariableDefs().length - 1;
@@ -145,9 +145,9 @@ class ConnectorNode extends React.Component {
         const title = model.getName().value;
         const blockNode = getComponentForNodeArray(model.getActions(), this.context.mode);
         const connectors = variables
-            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
+            .filter((element) => { return TreeUtil.isEndpointTypeVariableDef(element); }).map((statement) => {
                 return (
-                    <ConnectorDeclarationDecorator
+                    <EndpointDecorator
                         model={statement}
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}

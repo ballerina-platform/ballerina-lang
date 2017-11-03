@@ -54,6 +54,10 @@ BinaryExpr
    |             <leftExpression.source> <operatorKind> <rightExpression.source>
    ;
 
+Bind
+    : bind <expression.source> with <variable.source> ;
+    ;
+
 Block
    : <statements>*
    | 
@@ -87,6 +91,10 @@ ConnectorInitExpr
 
 ConstrainedType
    : <type.source> < <constraint.source> >
+   ;
+
+EndpointType
+   : < <constraint.source> >
    ;
 
 ExpressionStatement
@@ -214,9 +222,9 @@ Transform
    ;
 
 Transformer
-   : <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> ( <parameters-joined-by,>+ ) { <body.source> }
-   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> (){ <body.source> }
+   : <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    | <public?public> transformer < <source.source> , <returnParameters-joined-by,>+ > <name.value> { <body.source> }
+   | <public?public> transformer < <source.source> , <returnParameters-joined-by,>* >              { <body.source> }
    ;
 
 Try
@@ -249,7 +257,9 @@ ValueType
    ;
 
 Variable
-   : <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   : <endpoint?>                                                      <typeNode.source> <name.value> { <initialExpression.source> ; }
+   | <endpoint?>                                                      <typeNode.source> <name.value> { }
+   | <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
    | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
    |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
    |           <annotationAttachments>*                               <typeNode.source> <name.value>
@@ -257,6 +267,7 @@ Variable
    ;
 
 VariableDef
+   : <endpoint?> endpoint <variable.source>
    : <variable.source> ;
    ;
 
