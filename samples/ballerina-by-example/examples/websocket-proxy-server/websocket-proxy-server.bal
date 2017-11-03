@@ -14,8 +14,8 @@ service<ws> SimpleProxyServer {
     @Description {value:"when new client connects to this service endpoint"}
     resource onHandshake(ws:HandshakeConnection con) {
         ws:ClientConnector c = create ws:ClientConnector(remoteUrl, remoteServerCallbackService);
-        var clientConn, e = c.connect({parentConnectionID:con.connectionID});
-        if (e != null) {
+        var clientConn, err = c.connect({parentConnectionID:con.connectionID});
+        if (err != null) {
             println(e.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
         } else {

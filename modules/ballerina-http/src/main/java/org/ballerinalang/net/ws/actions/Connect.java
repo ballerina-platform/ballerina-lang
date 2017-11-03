@@ -101,14 +101,14 @@ public class Connect extends AbstractNativeWsAction {
                 BStruct wsConnection = createWsConnectionStruct(context, session, wsParentConnectionID);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
                 storeWsConnection(session.getId(), wsConnection);
-                connectorFuture.notifyReply(wsConnection);
+                connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
                 BStruct wsError = createWsErrorStruct(context, t);
                 context.getControlStackNew().currentFrame.returnValues[1] = wsError;
-                connectorFuture.notifyReply(wsError);
+                connectorFuture.notifySuccess();
             }
         });
         return connectorFuture;
