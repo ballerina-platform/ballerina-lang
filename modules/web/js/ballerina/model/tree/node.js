@@ -188,7 +188,11 @@ class Node extends EventChannel {
      * @returns {object} - current file
      */
     getFile() {
-        return this.file;
+        let parentNode = this;
+        while (parentNode.parent) {
+            parentNode = parentNode.parent;
+        }
+        return parentNode.file;
     }
 
     /**
@@ -371,6 +375,31 @@ class Node extends EventChannel {
             },
         });
     }
+
+    /**
+     * Get the content start position for the statement
+     * @returns {number} - start position
+     */
+    getContentStartCursorPosition() {
+        return this.getPosition().startOffset;
+    }
+
+    /**
+     * Get the content replace region on content suggestion at design view
+     * @returns {{startC: {number}, stopC: {number}}} - object containing start char and the stop char
+     */
+    getContentReplaceRegion() {
+        const segments = this.getFile().content.split(/\r?\n/);
+        const position = this.getPosition();
+        const joinedSegments = segments.slice(0, position.startLine - 1).join();
+        const start = joinedSegments.length + 1 + position.startOffset;
+        const stop = start + this.getSource().length + 1;
+        return {
+            startC: start,
+            stopC: stop,
+        };
+    }
+
 }
 
 export default Node;
