@@ -145,11 +145,6 @@
                 <version>${docerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina.connectors</groupId>
-                <artifactId>connectors</artifactId>
-                <version>${ballerina.connectors.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
@@ -171,7 +166,6 @@
         <ballerina.container.version>${ballerina.runtime.version}</ballerina.container.version>
         <docerina.version>${ballerina.runtime.version}</docerina.version>
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
-        <ballerina.connectors.version>${ballerina.runtime.version}</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>
