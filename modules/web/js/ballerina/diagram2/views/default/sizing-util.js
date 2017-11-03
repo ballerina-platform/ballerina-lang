@@ -837,6 +837,32 @@ class SizingUtil {
 
         const textWidth = this.getTextWidth(node.getSignature());
         viewState.titleWidth = textWidth.w;
+
+        const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource()), ',');
+        const typeText = `< ${node.getSourceParam().getSource()}, ${returnParams} >`;
+        const typeTextDetails = this.getTextWidth(typeText, 0);
+        viewState.typeText = typeTextDetails.text;
+        viewState.typeTextWidth = typeTextDetails.w;
+
+        const params = _.join(node.getParameters().map(ret => ret.getSource()), ',');
+        const paramText = `( ${params} )`;
+        const paramTextDetails = this.getTextWidth(paramText, 0);
+        viewState.paramText = paramTextDetails.text;
+        viewState.paramTextWidth = paramTextDetails.w;
+
+        const nameText = node.getName().getValue();
+        let nameTextDetails;
+
+        if (nameText) {
+            nameTextDetails = this.getTextWidth(nameText, 0);
+            viewState.nameText = nameTextDetails.text;
+        } else {
+            viewState.defaultNameText = '+ Add name'
+            viewState.nameText = '';
+            nameTextDetails = this.getTextWidth(viewState.defaultNameText, 0);
+        }
+        viewState.nameTextWidth = nameTextDetails.w;
+
         viewState.titleOffset = this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
 
