@@ -80,6 +80,15 @@ class PositioningUtil {
                 OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
             }
         }
+
+        if (node.viewState.lambdas) {
+            let y = node.viewState.bBox.y + node.viewState.components['statement-box'].h - 9;
+            for (const lambda of node.viewState.lambdas) {
+                lambda.viewState.bBox.x = node.viewState.bBox.x;
+                lambda.viewState.bBox.y = y;
+                y += lambda.viewState.bBox.h - 33;
+            }
+        }
     }
 
     positionCompoundStatementComponents(node) {

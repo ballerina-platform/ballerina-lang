@@ -139,46 +139,42 @@ public class BLangFragmentParser {
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
         String parsableText = null;
+        String source = sourceFragment.getSource();
         switch (sourceFragment.getExpectedNodeType()) {
             case BLangFragmentParserConstants.TOP_LEVEL_NODE:
-                parsableText = sourceFragment.getSource();
+                parsableText = source;
                 break;
             case BLangFragmentParserConstants.SERVICE_RESOURCE:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.SERVICE_BODY_RESOURCE_WRAPPER, sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.SERVICE_BODY_RESOURCE_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.CONNECTOR_ACTION:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.EXPRESSION:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.WORKER:
             case BLangFragmentParserConstants.STATEMENT:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, sourceFragment.getSource());
+                if (!source.trim().endsWith(";")) {
+                    source = source + ";";
+                }
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.FORK_JOIN_CONDITION_WRAPPER, sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FORK_JOIN_CONDITION_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_PARAMETER_WRAPPER,
-                        sourceFragment.getSource());
+                        source);
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER,
-                        sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
-                parsableText = getFromTemplate(BLangFragmentParserConstants.TRANSACTION_FAILED_RETRY_WRAPPER,
-                        sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.TRANSACTION_FAILED_RETRY_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, sourceFragment.getSource());
+                parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, source);
                 break;
             default:
                 parsableText = "";

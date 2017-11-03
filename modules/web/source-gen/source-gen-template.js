@@ -9,7 +9,7 @@ function times(n, f) {
     return s;
 }
 
-export default function getSourceOf(node, pretty = false, l = 0) {
+export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) {
     if (!node) {
         return '';
     }
@@ -59,11 +59,16 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         return '';
     }
 
+    if (replaceLambda && node.kind === 'Lambda') {
+        return '$ function LAMBDA $';
+    }
+
     switch (node.kind) {
         case 'CompilationUnit':
-            return join(node.topLevelNodes, pretty, l, w) + w();
+            return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
         case 'ArrayType':
-            return getSourceOf(node.elementType, pretty, l) + times(node.dimensions, () => w() + '[' + w() + ']');
+            return getSourceOf(node.elementType, pretty, l, replaceLambda) +
+                times(node.dimensions, () => w() + '[' + w() + ']');
         // auto gen start
 // auto-gen-code
         // auto gen end
@@ -85,16 +90,17 @@ export default function getSourceOf(node, pretty = false, l = 0) {
  * @param defaultWS
  * @param {string} separator
  * @param {boolean} suffixLast
+ * @param {boolean} replaceLambda
  * @return {string}
  */
-join = function (arr, pretty, l, wsFunc, defaultWS, separator, suffixLast = false) {
+join = function (arr, pretty, replaceLambda, l, wsFunc, defaultWS, separator, suffixLast = false) {
     let str = '';
     for (let i = 0; i < arr.length; i++) {
         const node = arr[i];
         if (node.kind === 'Identifier') {
             str += wsFunc(defaultWS);
         }
-        str += getSourceOf(node, pretty, l);
+        str += getSourceOf(node, pretty, l, replaceLambda);
         if (separator && (suffixLast || i !== arr.length - 1)) {
             str += wsFunc(defaultWS) + separator;
         }
