@@ -68,9 +68,8 @@ public class NetworkLoggingUtils {
         if (networkLogger.isDebugEnabled()) {
             StringBuilder logString = new StringBuilder();
             logString.append("[activityid: ").append(activityID).append(" ]").append(" - ");
-            logString.append("[package: ").append(actionInfo.getConnectorInfo().getPackagePath())
-                    .append("connector: ").append(actionInfo.getConnectorInfo().getName()).append(" , ")
-                    .append(" ]");
+            logString.append("[package: ").append(actionInfo.getConnectorInfo().getPackagePath()).append(" , ")
+                    .append("connector: ").append(actionInfo.getConnectorInfo().getName()).append(" ]");
             if (actionInfo.isNative()) {
                 logString.append(" NATIVE ");
             } else {

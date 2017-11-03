@@ -185,7 +185,7 @@ public class ResourceExecutor {
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
 
-        boolean isNetworkLogEnabled = Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("networklog.enabled")));
+        boolean isNetworkLogEnabled = NetworkLoggingUtils.isDebugEnabled();
         if (isNetworkLogEnabled) {
             NetworkLoggingUtils.generateActivityID(context);
             NetworkLoggingUtils.logResourceDispatch(context.getActivityID(),

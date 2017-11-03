@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.formatters.DefaultLogFormatter;
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.handlers.NetworkLogFileHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +48,7 @@ public class BLogManager extends LogManager {
 
     // Trace log related constants
     public static final String HTTP_TRACE_LOGGER = "tracelog.http";
+    public static final String BALLERINA_NETWORK_LOGGER = "networklog.ballerina";
     public static final String LOG_DEST_CONSOLE = "__console";
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
@@ -53,6 +56,7 @@ public class BLogManager extends LogManager {
     private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Logger httpTraceLogger;
+    private Logger ballerinaNetworkLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
@@ -69,6 +73,22 @@ public class BLogManager extends LogManager {
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
+
+    }
+
+    public void setBallerinaNetworkLogger() throws IOException {
+        Handler handler = new NetworkLogFileHandler();
+        handler.setFormatter(new DefaultLogFormatter());
+        handler.setLevel(Level.FINE);
+
+        if (ballerinaNetworkLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            ballerinaNetworkLogger = Logger.getLogger(BALLERINA_NETWORK_LOGGER);
+        }
+
+        removeHandlers(ballerinaNetworkLogger);
+        ballerinaNetworkLogger.addHandler(handler);
+        ballerinaNetworkLogger.setLevel(Level.FINE);
     }
 
     public void setHttpTraceLogHandler() throws IOException {
