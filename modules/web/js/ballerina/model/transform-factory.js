@@ -62,6 +62,20 @@ class TransformFactory {
     }
 
     /**
+     * create a variable for provided name and type
+     * @param  {string} name variable name
+     * @param  {string} type variable type
+     * @return {object}     created variable node
+     */
+    static createVariable(name, type) {
+        const fragment = FragmentUtils.createStatementFragment(`${type} ${name};`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const variable = TreeBuilder.build(parsedJson).getVariable();
+        variable.clearWS();
+        return variable;
+    }
+
+    /**
      * Create default expression based on argument type
      * @static
      * @param {any} type type

@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Autosuggest from 'react-autosuggest';
 
-const getSuggestionValue = suggestion => suggestion.name;
+const getSuggestionValue = suggestion => suggestion;
 
 const renderSuggestion = suggestion => (
     <div>
-        { suggestion.name }<span style={{ color: '#a8a8a8' }}>{` ${suggestion.typeName || suggestion.type}`}</span>
+        {suggestion}
     </div>
 );
 
@@ -31,11 +31,11 @@ class SuggestionsDropdown extends React.Component {
         const substrRegex = new RegExp(_.escapeRegExp(query.value), 'i');
 
         this.props.suggestionsPool.forEach((sug) => {
-            if (substrRegex.test(sug.name + (sug.typeName || sug.type))) {
+            if (substrRegex.test(sug)) {
                 matches.push(sug);
             }
         });
-        matches.push({ type: '-- add new variable --', name: '' });
+        // matches.push({ type: '-- add new variable --', name: '' });
         this.setState({ suggestions: matches });
     }
 
