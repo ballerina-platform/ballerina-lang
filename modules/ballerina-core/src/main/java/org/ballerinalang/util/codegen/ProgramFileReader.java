@@ -1508,6 +1508,22 @@ public class ProgramFileReader {
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
+                case InstructionCodes.ANY2T:
+                case InstructionCodes.ANY2C:
+                case InstructionCodes.CHECKCAST:
+                case InstructionCodes.MAP2T:
+                case InstructionCodes.JSON2T:
+                case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
+                    break;
+                default:
+                    throw new ProgramFileFormatException("unknown opcode " + opcode +
+                            " in package " + packageInfo.getPkgPath());
             }
         }
     }

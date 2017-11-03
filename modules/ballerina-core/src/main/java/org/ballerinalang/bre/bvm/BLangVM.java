@@ -852,14 +852,14 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] == null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
                 }
                 break;
             case InstructionCodes.RNE_NULL:
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
                 }
                 break;
 

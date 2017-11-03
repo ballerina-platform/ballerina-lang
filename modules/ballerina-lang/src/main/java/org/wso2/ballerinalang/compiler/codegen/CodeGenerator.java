@@ -916,6 +916,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             visitAndExpression(binaryExpr);
         } else if (OperatorKind.OR.equals(binaryExpr.opKind)) {
             visitOrExpression(binaryExpr);
+        } else if (binaryExpr.opSymbol.opcode == InstructionCodes.REQ_NULL ||
+                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL) {
+            BLangExpression expr = (binaryExpr.lhsExpr.type.tag == TypeTags.NULL) ?
+                    binaryExpr.rhsExpr : binaryExpr.lhsExpr;
+            genNode(expr, this.env);
+            int opcode = binaryExpr.opSymbol.opcode;
+            int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
+            binaryExpr.regIndex = exprIndex;
+            emit(opcode, expr.regIndex, exprIndex);
         } else {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
