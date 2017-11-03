@@ -10,13 +10,13 @@ service<ws> SimpleProxyServer {
     map clientConnMap = {};
 
     resource onHandshake(ws:HandshakeConnection con) {
-        try {
-            ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
-            ws:Connection  clientConn = c.connect(clientConnectorConfig);
-            clientConnMap[con.connectionID] = clientConn;
-        } catch (error err) {
-            println("Error occcurred : " + err.msg);
+        ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
+        var clientConn, e = c.connect(clientConnectorConfig);
+        if (e != null) {
+            println("Error occcurred : " + e.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
+        } else {
+            clientConnMap[con.connectionID] = clientConn;
         }
     }
 
