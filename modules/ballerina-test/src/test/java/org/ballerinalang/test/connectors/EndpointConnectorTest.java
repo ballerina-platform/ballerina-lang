@@ -104,16 +104,17 @@ public class EndpointConnectorTest {
 
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint",
                 27, 17);
         BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'Bar', found 'Foo'", 32, 9);
         BAssertUtil.validateError(resultNegative, 2, "unknown type 'TestConnector'", 37, 5);
-        BAssertUtil.validateError(resultNegative, 3, "cannot assign a value to endpoint 'en'", 47, 5);
-        BAssertUtil.validateError(resultNegative, 4, "cannot assign a value to endpoint 'en'", 49, 5);
-        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Foo', found 'string'", 49, 10);
-        BAssertUtil.validateError(resultNegative, 6, "cannot assign a value to endpoint 'en'", 50, 5);
-        BAssertUtil.validateError(resultNegative, 7, "unreachable code", 59, 5);
-        BAssertUtil.validateError(resultNegative, 8, "this function must return a result", 53, 1);
+        BAssertUtil.validateError(resultNegative, 3, "unreachable code", 48, 5);
+        BAssertUtil.validateError(resultNegative, 4, "this function must return a result", 42, 1);
+//        BAssertUtil.validateError(resultNegative, 3, "cannot assign a value to endpoint 'en'", 47, 5);
+//        BAssertUtil.validateError(resultNegative, 4, "cannot assign a value to endpoint 'en'", 49, 5);
+//        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Foo', found 'string'", 49, 10);
+//        BAssertUtil.validateError(resultNegative, 6, "cannot assign a value to endpoint 'en'", 50, 5);
+
     }
 }

@@ -39,17 +39,6 @@ function undefinedConnectorInEndpoint() {
     }
 }
 
-function invalidEndpointAssignment() {
-    endpoint<Foo> en {
-
-    }
-    Foo foo = create Foo();
-    en = foo;
-    string ll = "dd";
-    en = ll;
-    en = create Foo();
-}
-
 function unreachableBind()(string) {
     endpoint<Foo> en {
 
@@ -57,4 +46,15 @@ function unreachableBind()(string) {
     Foo foo = create Foo();
     return "dddd";
     bind foo with en;
+}
+
+function invalidEndpointAssignment() {
+    endpoint<Foo> en {
+
+    }
+    Foo foo = create Foo();
+    en = foo;
+    string ll = "dd";
+    //en = ll;
+    en = create Foo();
 }
