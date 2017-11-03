@@ -1345,7 +1345,7 @@ class TransformExpanded extends React.Component {
                     <i onClick={this.onClose} className='fw fw-left icon close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        Transform
+                        <b>{this.props.model.getSignature()}</b>
                     </p>
                 </div>
                 <div
