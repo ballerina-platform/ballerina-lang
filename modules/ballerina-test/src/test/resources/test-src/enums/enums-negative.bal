@@ -31,4 +31,14 @@ function testEnumAssignment() {
     kind.PLUS = kind.PLUS;
 }
 
+enum state {
+    foo,
+    bar
+}
+
+function main(string[] arg) {
+    state x = state;
+    print(x);
+}
+
 

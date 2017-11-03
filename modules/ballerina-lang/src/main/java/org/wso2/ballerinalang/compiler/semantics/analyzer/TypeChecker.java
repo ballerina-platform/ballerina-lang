@@ -263,9 +263,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
-            } else if ((symbol.tag & SymTag.ENUM) == SymTag.ENUM) {
-                // this variable name represents a user-defined type name
-                actualType = symbol.type;
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -276,11 +273,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        BType actualType = symTable.errType;
         // First analyze the variable reference expression.
-        checkExpr(fieldAccessExpr.expr, this.env, Lists.of(symTable.noType));
-
-        BType varRefType = fieldAccessExpr.expr.type;
+        BType actualType = symTable.errType;
+        BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
@@ -1328,5 +1323,21 @@ public class TypeChecker extends BLangNodeVisitor {
         typeAccessExpr.pos = varRef.pos;
         typeAccessExpr.type = symTable.typeType;
         return typeAccessExpr;
+    }
+
+    private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
+        // First check whether variable expression is of type enum.
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            BSymbol symbol = symResolver.lookupSymbolInPackage(varRef.pos, env,
+                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName), SymTag.ENUM);
+            if (symbol != symTable.notFoundSymbol) {
+                expr.type = symbol.type;
+                return symbol.type;
+            }
+        }
+
+        checkExpr(expr, this.env, Lists.of(symTable.noType));
+        return expr.type;
     }
 }

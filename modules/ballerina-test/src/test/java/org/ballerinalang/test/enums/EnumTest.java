@@ -74,5 +74,6 @@ public class EnumTest {
         BAssertUtil.validateError(result, 1, "undefined symbol 'LESS_THAN'", 21, 14);
         BAssertUtil.validateError(result, 2, "invalid expression: expected enum type name 'kind'", 26, 14);
         BAssertUtil.validateError(result, 3, "invalid assignment in variable 'kind.PLUS'", 31, 5);
+        BAssertUtil.validateError(result, 4, "undefined symbol 'state'", 40, 15);
     }
 }
