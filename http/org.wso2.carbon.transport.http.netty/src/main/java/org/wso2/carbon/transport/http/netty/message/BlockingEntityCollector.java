@@ -177,7 +177,7 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public boolean isEmpty() {
-        return this.httpContentQueue.isEmpty();
+        return this.httpContentQueue.peek() instanceof EmptyLastHttpContent || this.httpContentQueue.isEmpty();
     }
 
     public boolean isEndOfMsgAdded() {
