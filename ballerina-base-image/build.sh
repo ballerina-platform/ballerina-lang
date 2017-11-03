@@ -66,7 +66,7 @@ if [ ! -e $bal_dist_file ]; then
   exit 1
 fi
 
-build_version=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
+build_version=grep --max-count=1 '<version>' ../pom.xml | awk -F '>' '{ print $2 }' | awk -F '<' '{ print $1 }'
 echo "Building Ballerina Base Docker image $image_name..."
 cp $bal_dist_file .
 bal_dist_file_name=$(basename $bal_dist_file)
