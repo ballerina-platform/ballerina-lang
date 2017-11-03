@@ -22,6 +22,8 @@ import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
+import static org.ballerinalang.logging.util.Constants.DEFAULT_TIMESTAMP_FORMAT;
+
 /**
  * This class is used for parsing the log format strings in Ballerina log configurations. This takes the Ballerina log
  * format string and builds the corresponding Java format string.
@@ -31,9 +33,10 @@ import java.util.Map;
 public class FormatStringParser {
 
     private final Map<TokenType, Integer> placeholderMap;
+    private final SimpleDateFormat defaultTimestampFormat = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT);
 
     private FormatStringTokenizer tokenizer;
-    private SimpleDateFormat dateFormat;
+    private SimpleDateFormat timestampFormat;
 
     public FormatStringParser(FormatStringTokenizer tokenizer, Map<TokenType, Integer> placeholderMap) {
         this.tokenizer = tokenizer;
@@ -51,9 +54,9 @@ public class FormatStringParser {
                 try {
                     timestampFormat = token.text.substring(TokenTypes.FMT_TIMESTAMP.length() + 1,
                                                            token.text.length() - 1);
-                    dateFormat = new SimpleDateFormat(timestampFormat);
+                    this.timestampFormat = new SimpleDateFormat(timestampFormat);
                     fsBuilder.append("%1$s");
-                } catch (Exception e) {
+                } catch (IllegalArgumentException e) {
                     PrintStream console = System.err;
                     console.println("ballerina: invalid timestamp format");
                 }
@@ -68,7 +71,7 @@ public class FormatStringParser {
         return fsBuilder.append("\n").toString();
     }
 
-    public SimpleDateFormat getDateFormat() {
-        return dateFormat == null ? Constants.DEFAULT_TIMESTAMP_FORMAT : dateFormat;
+    public SimpleDateFormat getTimestampFormat() {
+        return timestampFormat == null ? defaultTimestampFormat : timestampFormat;
     }
 }

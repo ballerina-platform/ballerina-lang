@@ -18,17 +18,26 @@
 
 package org.ballerinalang.logging.formatters;
 
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.util.Constants;
-import org.ballerinalang.logging.util.FormatStringMapper;
+import org.ballerinalang.logging.util.FormatStringParser;
+import org.ballerinalang.logging.util.FormatStringTokenizer;
+import org.ballerinalang.logging.util.TokenType;
 
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
+import static org.ballerinalang.logging.util.Constants.DEFAULT_BALLERINA_USER_LOG_FORMAT;
+import static org.ballerinalang.logging.util.Constants.EMPTY_CONFIG;
+import static org.ballerinalang.logging.util.Constants.LOG_FORMAT;
 
 /**
  * A formatter for formatting the messages logged to the console
@@ -37,7 +46,7 @@ import java.util.stream.Stream;
  */
 public class ConsoleLogFormatter implements BLogFormatter {
 
-    public static final Map<String, Integer> PLACEHOLDERS_MAP;
+    public static final Map<TokenType, Integer> PLACEHOLDERS_MAP;
 
     private final String logFormat;
 
@@ -45,22 +54,30 @@ public class ConsoleLogFormatter implements BLogFormatter {
 
     static {
         PLACEHOLDERS_MAP = Collections.unmodifiableMap(Stream.of(
-                new AbstractMap.SimpleEntry<>(Constants.FMT_TIMESTAMP, 1),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_LEVEL, 2),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_LOGGER, 3),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_PACKAGE, 4),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_UNIT, 5),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_FILE, 6),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_LINE, 7),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_WORKER, 8),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_MESSAGE, 9),
-                new AbstractMap.SimpleEntry<>(Constants.FMT_ERROR, 10)
+                new AbstractMap.SimpleEntry<>(TokenType.TIMESTAMP, 1),
+                new AbstractMap.SimpleEntry<>(TokenType.LEVEL, 2),
+                new AbstractMap.SimpleEntry<>(TokenType.LOGGER, 3),
+                new AbstractMap.SimpleEntry<>(TokenType.PACKAGE, 4),
+                new AbstractMap.SimpleEntry<>(TokenType.UNIT, 5),
+                new AbstractMap.SimpleEntry<>(TokenType.FILE, 6),
+                new AbstractMap.SimpleEntry<>(TokenType.LINE, 7),
+                new AbstractMap.SimpleEntry<>(TokenType.WORKER, 8),
+                new AbstractMap.SimpleEntry<>(TokenType.MESSAGE, 9),
+                new AbstractMap.SimpleEntry<>(TokenType.ERROR, 10)
         ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
     }
 
-    public ConsoleLogFormatter(String logFormat) {
-        this.logFormat = logFormat;
-        dateFormat = FormatStringMapper.getInstance().getDateFormat(Constants.BALLERINA_LOG_FORMAT);
+    public ConsoleLogFormatter() {
+        String format = ((BLogManager) LogManager.getLogManager()).getLoggerConfiguration(BALLERINA_USER_LOG,
+                                                                                          LOG_FORMAT);
+        if (!format.equals(EMPTY_CONFIG)) {
+            FormatStringParser parser = new FormatStringParser(new FormatStringTokenizer(format), PLACEHOLDERS_MAP);
+            logFormat = parser.buildJDKLogFormat();
+            dateFormat = parser.getTimestampFormat();
+        } else {
+            logFormat = DEFAULT_BALLERINA_USER_LOG_FORMAT;
+            dateFormat = new SimpleDateFormat(Constants.DEFAULT_TIMESTAMP_FORMAT);
+        }
     }
 
     @Override

@@ -25,7 +25,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -36,6 +35,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -213,10 +213,6 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
-        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
-        @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
-        private boolean httpTraceLogEnabled;
-
         @DynamicParameter(names = "-B", description = "collects flags starting with -B")
         private Map<String, String> configRuntimeParams = new HashMap<>();
 
@@ -229,10 +225,6 @@ public class Main {
 
             if (argList == null || argList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina program given");
-            }
-
-            if (httpTraceLogEnabled) {
-                System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
             ConfigRegistry.getInstance().initRegistry(configRuntimeParams);

@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
@@ -50,6 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.LogManager;
+
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACELOG;
+import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -270,7 +275,8 @@ public class HttpConnectionManager {
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        return System.getProperty(org.ballerinalang.logging.util.Constants.HTTP_TRACELOG) != null ? true : false;
+        String logLevel = ((BLogManager) LogManager.getLogManager()).getLoggerConfiguration(HTTP_TRACELOG, LOG_LEVEL);
+        return BLogLevel.valueOf(logLevel) == BLogLevel.DEBUG;
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
