@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -718,6 +719,14 @@ public class BLangPackageBuilder {
         typeCastNode.expr = (BLangExpression) exprNodeStack.pop();
         typeCastNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeCastNode);
+    }
+
+    public void createTypeAccessExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        typeAccessExpr.pos = pos;
+        typeAccessExpr.addWS(ws);
+        typeAccessExpr.typeNode = (BLangType) typeNodeStack.pop();
+        addExpressionNode(typeAccessExpr);
     }
 
     public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
@@ -1639,7 +1648,7 @@ public class BLangPackageBuilder {
         transformer.pos = pos;
         transformer.addWS(ws);
         transformer.setName(this.createIdentifier(name));
-        
+
         if (paramsAvailable) {
             this.varListStack.pop().forEach(transformer::addParameter);
         }
@@ -1657,7 +1666,7 @@ public class BLangPackageBuilder {
 
         this.compUnit.addTopLevelNode(transformer);
     }
-    
+
     // Private methods
 
     private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos,

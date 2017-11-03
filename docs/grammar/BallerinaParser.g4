@@ -168,6 +168,14 @@ typeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
+builtInTypeName
+     :   TYPE_ANY
+     |   TYPE_TYPE
+     |   valueTypeName
+     |   builtInReferenceTypeName
+     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     ;
+
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
@@ -483,6 +491,7 @@ expression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression

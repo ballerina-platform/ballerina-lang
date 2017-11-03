@@ -326,3 +326,77 @@ function getStructTypeStringValue()(type){
     jack = {name:"Jack", age:25};
     return (typeof jack);
 }
+
+function testTypeAccessExprValueType() (int) {
+    int intValue;
+    if((typeof intValue) == (typeof int)){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeNegative() (int) {
+    int intValue;
+    type int_t = typeof intValue;
+    type string_t = typeof string;
+    if(int_t == string_t){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeArrayNegative() (int) {
+    string[] strValue;
+    if((typeof strValue) == (typeof int[])){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeArray() (int) {
+    int[] intValue;
+    if((typeof intValue) == (typeof int[])){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprStructWithValue() (int) {
+    Person jack;
+    jack = {name:"Jack", age:25};
+    if((typeof jack) == (typeof Person)){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprStructWithValueNegative() (int) {
+    Person jack;
+    jack = {name:"Jack", age:25};
+    if((typeof jack) == (typeof Animal)){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprTwoStructTypes() (int) {
+    if((typeof Person) == (typeof Animal)){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprSameStructType() (int) {
+    if((typeof Person) == (typeof Person)){
+       return 1;
+    } else {
+       return 0;
+    }
+}
