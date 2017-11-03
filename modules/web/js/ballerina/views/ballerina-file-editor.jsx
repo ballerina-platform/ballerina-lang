@@ -529,6 +529,7 @@ class BallerinaFileEditor extends React.Component {
             parsePending: false,
             parseFailed: false,
             isASTInvalid: false,
+            syntaxErrors: [],
         };
         // try to parse the file
         return parseFile(file)
