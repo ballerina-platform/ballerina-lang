@@ -248,7 +248,6 @@ svg.plumbConnect path {
 
 .transform-action {
     cursor: pointer;
-    text-anchor: middle;
     dominant-baseline: central;
     width: 120px;
     max-width: 250px;
