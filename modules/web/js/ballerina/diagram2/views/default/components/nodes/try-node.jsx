@@ -23,6 +23,7 @@ import { getComponentForNodeArray } from './../../../../diagram-util';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
+import AddCompoundBlock from './add-compound-block';
 import './try-node.css';
 
 /**
@@ -39,6 +40,7 @@ class TryNode extends React.Component {
     constructor(props) {
         super(props);
         this.onAddCatchClick = this.onAddCatchClick.bind(this);
+        this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
     }
 
     /**
@@ -51,6 +53,45 @@ class TryNode extends React.Component {
             const catchBlock = DefaultNodeFactory.createTry().getCatchBlocks()[0];
             model.addCatchBlocks(catchBlock);
         }
+    }
+
+    /**
+     * Add finally block to the try catch statement.
+     * */
+    onAddFinallyClick() {
+        const model = this.props.model;
+        // If no finally blocks available create a final body.
+        if (!model.getFinallyBody()) {
+            const finallyBlock = DefaultNodeFactory.createTry().getFinallyBody();
+            model.setFinallyBody(finallyBlock);
+        }
+    }
+
+    /**
+     * get the view for add blocks button.
+     * @return {XML} react component.
+     * */
+    getAddBlockButton() {
+        const model = this.props.model;
+        const blocksToBeAdded = [];
+        if (!model.getFinallyBody()) {
+            const finallyBlock = {
+                name: 'Finally',
+                addBlock: this.onAddFinallyClick,
+            };
+            blocksToBeAdded.push(finallyBlock);
+        }
+        const catchBlock = {
+            name: 'Catch',
+            addBlock: this.onAddCatchClick,
+        };
+        blocksToBeAdded.push(catchBlock);
+        return (
+            <AddCompoundBlock
+                blocksToBeAdded={blocksToBeAdded}
+                model={model}
+            />
+        );
     }
 
     render() {
@@ -83,33 +124,7 @@ class TryNode extends React.Component {
                     body={model.body}
                 />
 
-                <g onClick={this.onAddCatchClick}>
-                    <title>Add a Catch</title>
-                    <rect
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 10}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={model.viewState.components['statement-box'].x
-                        + model.viewState.components['statement-box'].w
-                        + model.viewState.bBox.expansionW - 4}
-                        y={model.viewState.components['statement-box'].y
-                        + model.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
+                {this.getAddBlockButton()}
                 {catchViews}
                 {model.finallyBody &&
                 <CompoundStatementDecorator

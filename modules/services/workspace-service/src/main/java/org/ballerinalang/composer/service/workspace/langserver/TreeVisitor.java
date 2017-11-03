@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -63,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -274,12 +274,12 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangTransform transformNode) {
+    public void visit(BLangTransformer transformerNode) {
         if (!cursorPositionResolvers.get(cursorPositionResolver)
-                .isCursorBeforeStatement(transformNode.getPosition(), transformNode, this)) {
+                .isCursorBeforeStatement(transformerNode.getPosition(), transformerNode, this)) {
 
-            this.blockOwnerStack.push(transformNode);
-            this.acceptNode(transformNode.body, symbolEnv);
+            this.blockOwnerStack.push(transformerNode);
+            this.acceptNode(transformerNode.body, symbolEnv);
             this.blockOwnerStack.pop();
         }
     }

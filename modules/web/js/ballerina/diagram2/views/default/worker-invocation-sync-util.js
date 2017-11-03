@@ -106,7 +106,7 @@ class WorkerInvocationSyncUtil {
     // Height re-sizing functions
 
     resizeFunctionNode(node) {
-        this.sizingUtil.sizeFunctionNode(node);
+        // this.sizingUtil.sizeFunctionNode(node);
     }
 
     resizeResourceNode(node) {

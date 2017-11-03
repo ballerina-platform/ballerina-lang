@@ -96,22 +96,23 @@ class TransformStatementDecorator extends React.Component {
     }
 
     render() {
+        debugger;
         const { viewState, expression, model } = this.props;
         const bBox = viewState.bBox;
-        const innerZoneHeight = viewState.components['drop-zone'].h;
+        // const innerZoneHeight = viewState.components['drop-zone'].h;
 
         // calculate the bBox for the statement
         this.statementBox = {};
-        this.statementBox.h = bBox.h - innerZoneHeight;
-        this.statementBox.y = bBox.y + innerZoneHeight;
+        this.statementBox.h = bBox.h; // - innerZoneHeight;
+        this.statementBox.y = bBox.y; // + innerZoneHeight;
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
         // we need to draw a drop box above and a statement box
-        const text_x = bBox.x + (bBox.w / 2);
-        const text_y = this.statementBox.y + (this.statementBox.h / 2);
-        const expand_button_x = bBox.x + (bBox.w / 2) + 40;
-        const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 7;
-        const drop_zone_x = bBox.x + (bBox.w - DesignerDefaults.lifeLine.width) / 2;
+        // const text_x = bBox.x + (bBox.w / 2);
+        // const text_y = this.statementBox.y + (this.statementBox.h / 2);
+        // const expand_button_x = bBox.x + (bBox.w / 2) + 40;
+        // const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 7;
+        // const drop_zone_x = bBox.x + (bBox.w - DesignerDefaults.lifeLine.width) / 2;
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };

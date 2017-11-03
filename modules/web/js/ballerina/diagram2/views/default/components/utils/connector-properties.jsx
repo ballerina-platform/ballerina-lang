@@ -224,7 +224,7 @@ class ConnectorPropertiesForm extends React.Component {
         const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
         const pkgAlias = initialExpr.connectorType.packageAlias.value || '';
         const connectorName = props.model.getVariableName().value || '';
-        const formH = `${pkgAlias} Client Connector ${connectorName}`;
+        const formH = `${pkgAlias}:ClientConnector ${connectorName}`;
         const styles = {
             popover: {
                 top: props.bBox.y + 10 + 'px',

@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from '../../../../../model/default-node-factory';
+import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
 /**
@@ -49,12 +50,61 @@ class TransactionNode extends React.Component {
     }
 
     /**
+     * get Add block button rendering view.
+     * @return {XML} return node.
+     * */
+    getAddBlockButton() {
+        const model = this.props.model;
+        const transactionBody = model.transactionBody;
+        const failedBody = model.failedBody;
+        const abortedBody = model.abortedBody;
+        const committedBody = model.committedBody;
+        const blocksToBeAdded = [];
+
+        if (!failedBody) {
+            const failedBlock = {
+                name: 'Failed',
+                addBlock: this.addFailedBody,
+            };
+            blocksToBeAdded.push(failedBlock);
+        }
+
+        if (!abortedBody) {
+            const abortedBlock = {
+                name: 'Aborted',
+                addBlock: this.addAbortedBody,
+            };
+            blocksToBeAdded.push(abortedBlock);
+        }
+
+        if (!committedBody) {
+            const committedBlock = {
+                name: 'Committed',
+                addBlock: this.addCommittedBody,
+            };
+            blocksToBeAdded.push(committedBlock);
+        }
+
+        if (blocksToBeAdded.length > 0) {
+            return (
+                <AddCompoundBlock
+                    blocksToBeAdded={blocksToBeAdded}
+                    model={transactionBody}
+                />
+            );
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Add failed body to transaction statement.
      * */
     addFailedBody() {
         const parent = this.props.model;
         const newTransactionBlock = DefaultNodeFactory.createTransaction();
         const newFailedBlock = newTransactionBlock.failedBody;
+        newFailedBlock.clearWS();
         parent.setFailedBody(newFailedBlock, false, 'Add Failed Body');
     }
 
@@ -65,6 +115,7 @@ class TransactionNode extends React.Component {
         const parent = this.props.model;
         const newTransactionBlock = DefaultNodeFactory.createTransaction();
         const newAbortedBlock = newTransactionBlock.abortedBody;
+        newAbortedBlock.clearWS();
         parent.setAbortedBody(newAbortedBlock, false, 'Add Aborted Body');
     }
 
@@ -75,6 +126,7 @@ class TransactionNode extends React.Component {
         const parent = this.props.model;
         const newTransactionBlock = DefaultNodeFactory.createTransaction();
         const newCommittedBlock = newTransactionBlock.committedBody;
+        newCommittedBlock.clearWS();
         parent.setCommittedBody(newCommittedBlock, false, 'Add Committed Body');
     }
 
@@ -113,35 +165,7 @@ class TransactionNode extends React.Component {
                     model={model}
                     body={transactionBody}
                 />
-                {!failedBody &&
-                <g onClick={this.addFailedBody}>
-                    <title>Add Failed</title>
-                    <rect
-                        x={transactionBody.viewState.components['statement-box'].x
-                        + transactionBody.viewState.components['statement-box'].w
-                        + transactionBody.viewState.bBox.expansionW - 10}
-                        y={transactionBody.viewState.components['statement-box'].y
-                        + transactionBody.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={transactionBody.viewState.components['statement-box'].x
-                        + transactionBody.viewState.components['statement-box'].w
-                        + transactionBody.viewState.bBox.expansionW - 4}
-                        y={transactionBody.viewState.components['statement-box'].y
-                        + transactionBody.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
-                }
+                {this.getAddBlockButton()}
                 {failedBody &&
                 <CompoundStatementDecorator
                     dropTarget={failedBody}
@@ -152,35 +176,6 @@ class TransactionNode extends React.Component {
                     body={failedBody}
                 />
                 }
-                {failedBody && !abortedBody &&
-                <g onClick={this.addAbortedBody}>
-                    <title>Add Aborted</title>
-                    <rect
-                        x={failedBody.viewState.components['statement-box'].x
-                        + failedBody.viewState.components['statement-box'].w
-                        + failedBody.viewState.bBox.expansionW - 10}
-                        y={failedBody.viewState.components['statement-box'].y
-                        + failedBody.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={failedBody.viewState.components['statement-box'].x
-                        + failedBody.viewState.components['statement-box'].w
-                        + failedBody.viewState.bBox.expansionW - 4}
-                        y={failedBody.viewState.components['statement-box'].y
-                        + failedBody.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
-                }
                 {abortedBody &&
                 <CompoundStatementDecorator
                     bBox={abortedBody.viewState.bBox}
@@ -189,35 +184,6 @@ class TransactionNode extends React.Component {
                     model={abortedBody}
                     body={abortedBody}
                 />
-                }
-                {abortedBody && !committedBody &&
-                <g onClick={this.addCommittedBody}>
-                    <title>Add Committed</title>
-                    <rect
-                        x={abortedBody.viewState.components['statement-box'].x
-                        + abortedBody.viewState.components['statement-box'].w
-                        + abortedBody.viewState.bBox.expansionW - 10}
-                        y={abortedBody.viewState.components['statement-box'].y
-                        + abortedBody.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className="add-catch-button"
-                    />
-                    <text
-                        x={abortedBody.viewState.components['statement-box'].x
-                        + abortedBody.viewState.components['statement-box'].w
-                        + abortedBody.viewState.bBox.expansionW - 4}
-                        y={abortedBody.viewState.components['statement-box'].y
-                        + abortedBody.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className="add-catch-button-label"
-                    >
-                        +
-                    </text>
-                </g>
                 }
                 {committedBody &&
                 <CompoundStatementDecorator

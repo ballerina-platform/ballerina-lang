@@ -156,8 +156,8 @@
             @include dropdown();
             width: 220px;
             .dropdown .dropdown-toggle {
-                background-color: #3c3c3c;
-                border-bottom: 1px solid #363636;
+                background-color: #434343;
+                border-bottom: 1px solid #555;
             }
         }
     }
@@ -313,7 +313,7 @@ hr{
     width:auto;
     margin-left: 5px;
     margin-bottom: 15px;
-    max-width: 870px;
+    max-width: 900px;
     .main-wrapper-top {
         height: 45px;
         .http-client-request-method-wrapper {

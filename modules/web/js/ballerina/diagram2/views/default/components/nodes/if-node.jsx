@@ -98,7 +98,7 @@ class IfNode extends React.Component {
      * */
     getAddBlockButton(isElseIfNode) {
         const model = this.props.model;
-        let blocksToBeAdded = [];
+        const blocksToBeAdded = [];
         // Check whether next node is the Else block or not.
         const elseExist = model.elseStatement ? this.getElseStatement(model.elseStatement) : false;
         // check whether this block is a else if block and it is the last else if.
@@ -203,7 +203,7 @@ class IfNode extends React.Component {
                 {this.getAddBlockButton(isElseIfNode)}
 
                 {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp}/>
+                <IfNode model={elseComp} />
                 }
 
                 {elseComp && TreeUtil.isBlock(elseComp) &&
