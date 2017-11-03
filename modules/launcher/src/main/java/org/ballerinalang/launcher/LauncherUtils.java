@@ -119,7 +119,6 @@ public class LauncherUtils {
             } catch (IOException e) {
                 throw new RuntimeException("Error in configuring Ballerina Network log", e);
             }
-
         }
 
         PrintStream outStream = System.out;

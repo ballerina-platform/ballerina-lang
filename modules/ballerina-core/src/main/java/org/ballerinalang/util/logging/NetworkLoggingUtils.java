@@ -66,6 +66,10 @@ public class NetworkLoggingUtils {
 
     public static void logConnectorActionDispatch(String activityID, ActionInfo actionInfo, boolean isInput) {
         if (networkLogger.isDebugEnabled()) {
+            // ignore logging for <init> action
+            if ("<init>".equals(actionInfo.getName())) {
+                return;
+            }
             StringBuilder logString = new StringBuilder();
             logString.append("[activityid: ").append(activityID).append(" ]").append(" - ");
             logString.append("[package: ").append(actionInfo.getConnectorInfo().getPackagePath()).append(" , ")
