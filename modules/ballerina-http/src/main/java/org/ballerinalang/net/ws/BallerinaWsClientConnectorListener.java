@@ -56,7 +56,7 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        throw new BallerinaConnectorException("Ping pong messages are not supported!");
+        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override

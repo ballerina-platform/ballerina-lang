@@ -66,7 +66,15 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
-    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
+
+    // Transformer related error codes
+    UNDEFINED_TRANSFORMER("undefined.transformer"),
+    TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
+    TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
+    INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
+    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
+    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
+    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -87,8 +95,8 @@ public enum DiagnosticCode {
     ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
-    FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
-    FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
+    FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
+    FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
@@ -114,6 +122,7 @@ public enum DiagnosticCode {
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
+    CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),

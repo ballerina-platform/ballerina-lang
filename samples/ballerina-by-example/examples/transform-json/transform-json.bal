@@ -1,56 +1,55 @@
 import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.doc;
 
-@doc:Description {value:"Defining Person struct."}
+@Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
     string city;
 }
 
+@Description {value:"Defining transformer to convert from Person type to constrained JSON."}
+transformer <Person p, json<Person> j> Foo(string city) {
+    j.name = p.name;
+    j.age = p.age;
+    j.city = city;
+}
+
 @http:configuration {
     basePath:"/person"
 }
-@doc:Description {value:"Defining Person service which provides person details."}
+@Description {value:"Defining Person service which provides person details."}
 service<http> PersonService {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    @doc:Description {value:"Defining POST resource for the service to get person details."}
+    @Description {value:"Defining POST resource for the service to get person details."}
     resource getPerson (http:Request req, http:Response res) {
-        // Get the JSON payload from the request
+        // Get the JSON payload from the request.
         json j = req.getJsonPayload();
 
-        // Declare a Person variable
+        // Declare a Person variable.
         Person p;
 
-        // Declare a type conversion error to accept any type conversion errors thrown
+        // Declare a type conversion error to accept any type conversion errors thrown.
         TypeConversionError err;
-        // Convert JSON to a Person type variable
+        // Convert JSON to a Person type variable.
         p, err = <Person>j;
 
-        // Print if an error is thrown
+        // Print if an error is thrown.
         if (err != null) {
-            system:println(err);
+            println(err);
         }
 
         // Define a constant city value as "London".
         string city = "London";
 
-        // Create a new json variable constrained by Person struct.
-        json<Person> response = {};
+        // Convert p of type Person to the response JSON, using the transformer defined earlier.
+        json<Person> response = <json<Person>, Foo(city)> p;
 
-        // Use p, Person variable as input to transform fields of response JSON which is the output.
-        transform {
-            response.name = p.name;
-            response.age = p.age;
-            response.city = city;
-        }
 
-        // Set the new JSON payload to the message
+        // Set the new JSON payload to the message.
         res.setJsonPayload(response);
 
         // Reply from the resource with message m.

@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -59,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -70,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -385,6 +388,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;
+            case TypeTags.XML:
+                if (indexBasedAccessExpr.lhsVar) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
+                indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.intType)).get(0);
+                if (indexExprType.tag == TypeTags.INT) {
+                    actualType = symTable.xmlType;
+                }
+                break;
             case TypeTags.ERROR:
                 // Do nothing
                 break;
@@ -422,6 +435,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.CONNECTOR:
                 checkActionInvocationExpr(iExpr, (BConnectorType) iExpr.expr.type);
+                break;
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BLOB:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.MAP:
+            case TypeTags.DATATABLE:
+                checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             default:
                 // TODO Handle this condition
@@ -500,18 +524,44 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
     }
 
+    public void visit(BLangTypeofExpr accessExpr) {
+        BType actualType = symTable.typeType;
+        accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
+        resultTypes = types.checkTypes(accessExpr, Lists.of(actualType), expTypes);
+    }
+
     public void visit(BLangUnaryExpr unaryExpr) {
-        BType exprType = checkExpr(unaryExpr.expr, env).get(0);
-
+        BType exprType = null;
         BType actualType = symTable.errType;
-
-        if (exprType != symTable.errType) {
+        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             // Handle typeof operator separately
-            if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-                List<BType> paramTypes = Lists.of(unaryExpr.expr.type);
+            if (unaryExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) unaryExpr.expr;
+                Name varRefName = names.fromIdNode((varRef).variableName);
+                Name pkgAlias = names.fromIdNode((varRef).pkgAlias);
+                // Resolve symbol for BLangSimpleVarRef
+                BSymbol varRefSybmol = symResolver.lookupSymbolInPackage(unaryExpr.pos, env, pkgAlias,
+                        varRefName, SymTag.VARIABLE);
+                if (varRefSybmol == symTable.notFoundSymbol) {
+                    // Resolve symbol for User Defined Type ( converted from BLangSimpleVarRef )
+                    BLangTypeofExpr typeAccessExpr = getTypeAccessExpression(varRef);
+                    unaryExpr.expr = typeAccessExpr;
+                    actualType = typeAccessExpr.type;
+                    resultTypes = types.checkTypes(unaryExpr, Lists.of(actualType), expTypes);
+                    return;
+                } else {
+                    // Check type if resolved as BLangSimpleVarRef
+                    exprType = checkExpr(unaryExpr.expr, env).get(0);
+                }
+            } else {
+                // Check type if resolved as non BLangSimpleVarRef Expression
+                exprType = checkExpr(unaryExpr.expr, env).get(0);
+            }
+            if (exprType != symTable.errType) {
+                List<BType> paramTypes = Lists.of(exprType);
                 List<BType> retTypes = Lists.of(symTable.typeType);
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-                if (unaryExpr.expr.type.tag == TypeTags.ANY) {
+                if (exprType.tag == TypeTags.ANY) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                             symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
@@ -522,16 +572,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
-            } else {
-                BSymbol symbol;
-                // If the operator is 'lengthof' and expression type is JSON-array, treat the type as JSON.
-                // This is because the JSON arrays are internally handled as a normal JSON.
-                if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)
-                        && types.getElementType(exprType).tag == TypeTags.JSON) {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, symTable.jsonType);
-                } else {
-                    symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
-                }
+            }
+        } else {
+            exprType = checkExpr(unaryExpr.expr, env).get(0);
+            if (exprType != symTable.errType) {
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
@@ -578,20 +623,19 @@ public class TypeChecker extends BLangNodeVisitor {
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
-        // Lookup type conversion operator symbol
-        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-        if (symbol == symTable.notFoundSymbol) {
-            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
-            if (castSymbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        if (conversionExpr.transformerInvocation == null) {
+            // Lookup for built-in type conversion operator symbol
+            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            if (symbol == symTable.notFoundSymbol) {
+                // If not found, look for unnamed transformers for the given types
+                actualTypes = checkUnNamedTransformerInvocation(conversionExpr, sourceType, targetType);
             } else {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
-                        targetType);
+                BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+                conversionExpr.conversionSymbol = conversionSym;
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-            conversionExpr.conversionSymbol = conversionSym;
-            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
+           actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);
@@ -808,6 +852,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // If this cast is an unsafe conversion, then there MUST to be two expected types/variables
         // If this is an safe cast, then the error variable is optional
         int expected = expTypes.size();
+        int actual = conversionSymbol.type.getReturnTypes().size();
+
         List<BType> actualTypes = getListWithErrorTypes(expected);
         if (conversionSymbol.safe && expected == 1) {
             actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
@@ -815,11 +861,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (!conversionSymbol.safe && expected == 1) {
             dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
 
-        } else if (expected == 2) {
+        } else if (expected != actual) {
+            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+        } else {
             actualTypes = conversionSymbol.type.getReturnTypes();
-
-        } else if (expected == 0 || expected > 2) {
-            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);
         }
 
         return actualTypes;
@@ -860,6 +905,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
             iExpr.functionPointerInvocation = true;
+        }
+
+        iExpr.symbol = funcSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BType bType) {
+        Name funcName = getFuncSymbolName(iExpr, bType);
+        BPackageSymbol packageSymbol = (BPackageSymbol) bType.tsymbol.owner;
+        BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
+                funcName, SymTag.FUNCTION);
+        if (funcSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            resultTypes = getListWithErrorTypes(expTypes.size());
+            return;
         }
 
         iExpr.symbol = funcSymbol;
@@ -936,7 +996,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
 
-    private Name getFuncSymbolName(BLangInvocation iExpr, BStructType structType) {
+    private Name getFuncSymbolName(BLangInvocation iExpr, BType structType) {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
@@ -1194,5 +1254,77 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
         return xmlTextLiteral;
+    }
+
+    private List<BType> checkUnNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                                          BType targetType) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+
+        // Check whether a transformer is available for the two types
+        BSymbol symbol = symResolver.resolveTransformer(env, sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            // check whether a casting is possible, to provide user a hint.
+            BSymbol castSymbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
+            if (castSymbol == symTable.notFoundSymbol) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+            } else {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION, sourceType,
+                        targetType);
+            }
+        } else {
+            BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
+            conversionExpr.conversionSymbol = transformerSymbol;
+            if (conversionExpr.conversionSymbol.safe) {
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+            }
+            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                    (BTransformerSymbol) transformerSymbol);
+        }
+
+        return actualTypes;
+    }
+
+    private List<BType> checkNamedTransformerInvocation(BLangTypeConversionExpr conversionExpr, BType sourceType,
+                                                        BType targetType) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BLangInvocation transformerInvocation = conversionExpr.transformerInvocation;
+        BSymbol transformerSymbol = symResolver.lookupSymbolInPackage(transformerInvocation.pos, env,
+                names.fromIdNode(transformerInvocation.pkgAlias), names.fromIdNode(transformerInvocation.name),
+                SymTag.TRANSFORMER);
+        if (transformerSymbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.UNDEFINED_TRANSFORMER, transformerInvocation.name);
+        } else {
+            conversionExpr.conversionSymbol =
+                    (BConversionOperatorSymbol) (transformerInvocation.symbol = transformerSymbol);
+
+            // Check the transformer invocation. Expected type for the transformer is the target type
+            // of the cast conversion operator, but not the lhs type.
+            List<BType> prevExpType = expTypes;
+            expTypes = Lists.of(targetType);
+            checkInvocationParamAndReturnType(transformerInvocation);
+            expTypes = prevExpType;
+
+            if (transformerInvocation.type != symTable.errType) {
+                BInvokableType transformerSymType = (BInvokableType) transformerSymbol.type;
+                transformerInvocation.types = transformerSymType.retTypes;
+                actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
+                        conversionExpr.conversionSymbol);
+            }
+        }
+
+        return actualTypes;
+    }
+
+    private BLangTypeofExpr getTypeAccessExpression(BLangSimpleVarRef varRef) {
+        BLangUserDefinedType userDefinedType = new BLangUserDefinedType();
+        userDefinedType.pkgAlias = varRef.pkgAlias;
+        userDefinedType.typeName = varRef.variableName;
+        userDefinedType.pos = varRef.pos;
+        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        typeAccessExpr.typeNode = userDefinedType;
+        typeAccessExpr.resolvedType = symResolver.resolveTypeNode(userDefinedType, env);
+        typeAccessExpr.pos = varRef.pos;
+        typeAccessExpr.type = symTable.typeType;
+        return typeAccessExpr;
     }
 }

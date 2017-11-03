@@ -242,12 +242,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
+    public BSymbol resolveTransformer(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name transformerName) {
+        return lookupSymbolInPackage(pos, env, pkgAlias, transformerName, SymTag.TRANSFORMER);
+    }
+
+    public BSymbol resolveTransformer(SymbolEnv env, BType sourceType, BType targetType) {
+        Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
+        return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
+    }
+    
     public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        return lookupMemberSymbol(pos, pkgSymbol.scope, env, annotationName, SymTag.ANNOTATION);
+        return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }
 
     public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,

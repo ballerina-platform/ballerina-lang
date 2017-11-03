@@ -42,6 +42,7 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -112,6 +113,10 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
+    ;
+
 attachmentPoint
      : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
      | RESOURCE                             # resourceAttachPoint
@@ -124,6 +129,7 @@ attachmentPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody
@@ -163,13 +169,26 @@ typeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
+builtInTypeName
+     :   TYPE_ANY
+     |   TYPE_TYPE
+     |   valueTypeName
+     |   builtInReferenceTypeName
+     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     ;
+
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
+    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
+    ;
+
+anonStructTypeName
+    : STRUCT structBody
     ;
 
 valueTypeName
@@ -241,30 +260,10 @@ statement
     |   workerInteractionStatement
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
     |   retryStatement
     |   namespaceDeclarationStatement
-    ;
-
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody* RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
     ;
 
 variableDefinitionStatement
@@ -490,8 +489,9 @@ expression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
-    |   LT typeName GT expression                                           # typeConversionExpression
+    |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression

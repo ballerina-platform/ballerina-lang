@@ -85,7 +85,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 }
 
                 @Override
-                public void notifyReply(BValue response) {
+                public void notifyReply(BValue... response) {
                     //Nothing to do
                 }
 
@@ -124,7 +124,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        throw new BallerinaConnectorException("Pong messages are not supported!");
+        WebSocketService wsService = WebSocketDispatcher.findService(webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override

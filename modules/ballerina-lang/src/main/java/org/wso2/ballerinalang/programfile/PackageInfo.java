@@ -61,6 +61,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    
+    public Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     public PackageInfo(int nameCPIndex, int versionCPIndex) {
         this.nameCPIndex = nameCPIndex;

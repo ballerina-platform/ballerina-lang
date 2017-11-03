@@ -555,7 +555,7 @@ struct PhoneBook {
 
 function testStructWithStringArrayToJSON () (json) {
     PhoneBook phonebook = {names:["John", "Doe"]};
-    var phonebookJson, error = <json>phonebook;
+    var phonebookJson, cError = <json>phonebook;
     return phonebookJson;
 }
 

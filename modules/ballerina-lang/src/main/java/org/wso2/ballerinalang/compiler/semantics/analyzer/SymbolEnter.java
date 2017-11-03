@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -176,7 +178,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope);
+        SymbolEnv builtinEnv = this.packageEnvs.get(symTable.builtInPackageSymbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
         packageEnvs.put(pSymbol, pkgEnv);
 
         createPackageInitFunction(pkgNode);
@@ -192,6 +195,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
+
+        // Define transformer nodes.
+        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -270,6 +276,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (pkgNode == null) {
                 dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                         importPkgNode.getQualifiedPackageName());
+                return;
             } else {
                 pkgSymbol = pkgNode.symbol;
                 populateInitFunctionInvocation(importPkgNode, pkgSymbol);
@@ -381,19 +388,53 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
-            // Check whether there exists a struct field with the same name as the function name.
             BTypeSymbol structSymbol = funcNode.receiver.type.tsymbol;
-            BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
-                    names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-            if (symbol != symTable.notFoundSymbol) {
-                dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                        funcNode.name.value, funcNode.receiver.type.toString());
+            // Check whether there exists a struct field with the same name as the function name.
+            if (structSymbol.tag == TypeTags.STRUCT) {
+                BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
+                        names.fromIdNode(funcNode.name), SymTag.VARIABLE);
+                if (symbol != symTable.notFoundSymbol) {
+                    dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
+                            funcNode.name.value, funcNode.receiver.type.toString());
+                }
             }
 
             defineNode(funcNode.receiver, invokableEnv);
             funcSymbol.receiverSymbol = funcNode.receiver.symbol;
             ((BInvokableType) funcSymbol.type).setReceiverType(funcNode.receiver.symbol.type);
         }
+    }
+
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        validateTransformerMappingTypes(transformerNode);
+
+        boolean safeConversion = transformerNode.retParams.size() == 1;
+        Name name = getTransformerSymbolName(transformerNode);
+        BTransformerSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
+                name, env.enclPkg.symbol.pkgID, null, safeConversion, env.scope.owner);
+        transformerNode.symbol = transformerSymbol;
+
+        // If this is a default transformer, check whether this transformer conflicts with a built-in conversion
+        if (transformerNode.name.value.isEmpty()) {
+            BType targetType = transformerNode.retParams.get(0).type;
+            BSymbol symbol = symResolver.resolveConversionOperator(transformerNode.source.type, targetType);
+            if (symbol != symTable.notFoundSymbol) {
+                dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_CONFLICTS_WITH_CONVERSION,
+                        transformerNode.source.type, targetType);
+                return;
+            }
+        }
+
+        // Define the transformer
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
+        defineInvokableSymbol(transformerNode, transformerSymbol, transformerEnv);
+
+        BInvokableType transformerSymType = ((BInvokableType) transformerSymbol.type);
+        transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+
+        // Define transformer source.
+        defineNode(transformerNode.source, transformerEnv);
     }
 
     @Override
@@ -491,8 +532,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
-        if (Names.BUILTIN_PACKAGE.value.equals(pSymbol.name.value) ||
-                Names.BUILTIN_PACKAGE_CORE.value.equals(pSymbol.name.value)) {
+        if (pSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             pSymbol.scope = symTable.rootScope;
         } else {
             pSymbol.scope = new Scope(pSymbol);
@@ -573,6 +613,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
+                break;
+            case TRANSFORMER:
+                pkgNode.transformers.add((BLangTransformer) node);
                 break;
         }
     }
@@ -839,14 +882,23 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (varType.tag != TypeTags.STRUCT) {
-            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_STRUCT_TYPE,
+        if (varType.tag != TypeTags.BOOLEAN
+                && varType.tag != TypeTags.STRING
+                && varType.tag != TypeTags.INT
+                && varType.tag != TypeTags.FLOAT
+                && varType.tag != TypeTags.BLOB
+                && varType.tag != TypeTags.JSON
+                && varType.tag != TypeTags.XML
+                && varType.tag != TypeTags.MAP
+                && varType.tag != TypeTags.DATATABLE
+                && varType.tag != TypeTags.STRUCT) {
+            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());
             return;
         }
 
-        if (this.env.enclPkg.symbol.pkgID != varType.tsymbol.pkgID) {
-            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE,
+        if (!this.env.enclPkg.symbol.pkgID.equals(varType.tsymbol.pkgID)) {
+            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
                     funcNode.name.value, varType.toString());
         }
     }
@@ -858,9 +910,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         return names.fromIdNode(funcNode.name);
     }
 
+    private Name getTransformerSymbolName(BLangTransformer transformerNode) {
+        if (transformerNode.name.value.isEmpty()) {
+            return names.fromString(Names.TRANSFORMER.value + "<" + transformerNode.source.type + ","
+                    + transformerNode.retParams.get(0).type + ">");
+        }
+        return names.fromIdNode(transformerNode.name);
+    }
+
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol));
+    }
+
+    private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
+        BType varType = symResolver.resolveTypeNode(transformerNode.source.typeNode, env);
+        transformerNode.source.type = varType;
+
+        transformerNode.retParams.forEach(returnParams -> {
+            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
+            returnParams.type = targetType;
+        });
     }
 
     /**

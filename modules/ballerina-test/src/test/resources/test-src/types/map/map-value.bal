@@ -1,5 +1,3 @@
-import ballerina.lang.maps;
-
 function testMapWithAny() (string){
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
@@ -101,6 +99,6 @@ function testMapSynchronization()(int)
             }
         }
     } join (all) (map results) {
-        return maps:length(m);
+        return m.length();
     }
 }

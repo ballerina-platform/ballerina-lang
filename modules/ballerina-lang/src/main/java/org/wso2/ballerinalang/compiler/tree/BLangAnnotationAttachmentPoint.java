@@ -71,7 +71,8 @@ public class BLangAnnotationAttachmentPoint {
         ENUM("enum"),
         CONST("const"),
         PARAMETER("parameter"),
-        ANNOTATION("annotation");
+        ANNOTATION("annotation"),
+        TRANSFORMER("transformer");
 
         private String value;
 

@@ -1,9 +1,8 @@
 import ballerina.net.http;
-import ballerina.doc;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
-    @doc:Description {value:"http:POST{} annotation declares the HTTP method."}
+    @Description {value:"http:POST{} annotation declares the HTTP method."}
     @http:resourceConfig {
         methods:["POST"],
         path:"/route"

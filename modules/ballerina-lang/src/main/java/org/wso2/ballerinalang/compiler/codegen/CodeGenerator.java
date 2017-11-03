@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -75,10 +76,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -96,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -123,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerRe
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -157,6 +160,7 @@ import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldDefaultValue;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
+import org.wso2.ballerinalang.programfile.TransformerInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
 import org.wso2.ballerinalang.programfile.attributes.AnnotationAttributeInfo;
@@ -178,6 +182,7 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -376,6 +381,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
+        pkgNode.transformers.forEach(this::createTransformerInfoEntry);
 
         // Create function info for the package function
         BLangFunction pkgInitFunc = pkgNode.initFunction;
@@ -501,6 +507,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangTransformer transformerNode) {
+        SymbolEnv transformerEnv =
+                SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, this.env);
+        currentCallableUnitInfo = currentPkgInfo.transformerInfoMap.get(transformerNode.symbol.name.value);
+        int annotationAttribNameIndex =
+                addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        transformerNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
+        currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+        visitInvokableNode(transformerNode, currentCallableUnitInfo, transformerEnv);
+    }
 
     // Statements
 
@@ -516,10 +533,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangWorkerReturn returnNode) {
         visitReturnStatementsExprs(returnNode);
         this.emit(InstructionFactory.get(InstructionCodes.WRKRETURN));
-    }
-
-    public void visit(BLangTransform transformNode) {
-        this.genNode(transformNode.body, this.env);
     }
 
     private int typeTagToInstr(int typeTag) {
@@ -876,6 +889,23 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(xmlIndexAccessExpr.expr, this.env);
+        int varRefRegIndex = xmlIndexAccessExpr.expr.regIndex;
+
+        genNode(xmlIndexAccessExpr.indexExpr, this.env);
+        int indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
+
+        int elementRegIndex = ++regIndexes.tRef;
+        emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        xmlIndexAccessExpr.regIndex = elementRegIndex;
+        this.varAssignment = variableStore;
+    }
+
+    @Override
     public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
@@ -1097,6 +1127,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangTransformerInvocation iExpr) {
+        BInvokableSymbol transformerSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, transformerSymbol.pkgID);
+        int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
+        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
+
+        int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
+
+        emit(InstructionCodes.TCALL, transformerRefCPIndex, transformerCallCPIndex);
+    }
+
     public void visit(BFunctionPointerInvocation iExpr) {
         int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
         genNode(iExpr.expr, env);
@@ -1185,6 +1227,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         ifCondJumpInstr.setOperand(1, this.nextIP());
         this.genNode(ternaryExpr.elseExpr, this.env);
         endJumpInstr.setOperand(0, this.nextIP());
+    }
+
+    public void visit(BLangTypeofExpr accessExpr) {
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, accessExpr.resolvedType.getDesc());
+        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+        int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+        int opcode;
+        int exprIndex;
+
+        exprIndex = ++regIndexes.tRef;
+        opcode = InstructionCodes.TYPELOAD;
+        emit(opcode, typeCPIndex, exprIndex);
+        accessExpr.regIndex = exprIndex;
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
@@ -1784,6 +1840,24 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         invInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateSignature(invInfo));
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, invInfo);
+    }
+
+    private void createTransformerInfoEntry(BLangInvokableNode invokable) {
+        BInvokableSymbol transformerSymbol = invokable.symbol;
+        BInvokableType transformerType = (BInvokableType) transformerSymbol.type;
+
+        // Add transformer name as an UTFCPEntry to the constant pool
+        int transformerNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
+
+        TransformerInfo transformerInfo = new TransformerInfo(currentPackageRefCPIndex, transformerNameCPIndex);
+        transformerInfo.paramTypes = transformerType.paramTypes.toArray(new BType[0]);
+        transformerInfo.retParamTypes = transformerType.retTypes.toArray(new BType[0]);
+        transformerInfo.flags = transformerSymbol.flags;
+
+        this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
+
+        transformerInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateSignature(transformerInfo));
+        this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {

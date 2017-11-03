@@ -39,9 +39,9 @@ public interface ConnectorFutureListener {
      * Notify success event to the server connector implementation or notify response about Ballerina from
      * client connector.
      *
-     * @param response success response.
+     * @param response success responses.
      */
-    void notifyReply(BValue response);
+    void notifyReply(BValue... response);
 
     /**
      * Notify failure event to the server connector implementation or notify Ballerina about failure events in

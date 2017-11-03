@@ -18,7 +18,9 @@
 
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,9 +48,7 @@ public class WebSocketServiceValidator {
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
                                   Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
         }
-        if (!validateConfigAnnotations(wsService)) {
-            throw new BallerinaException("Cannot deploy WS service without ws:Configuration annotation");
-        }
+        validateConfigAnnotation(wsService);
         return validateResources(wsService.getResources());
     }
 
@@ -63,6 +63,10 @@ public class WebSocketServiceValidator {
                 validateOnTextMessageResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE)) {
                 validateOnBinaryMessageResource(resource);
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PING)) {
+                validateOnPingResource(resource);
+            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PONG)) {
+                validateOnPongResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT)) {
                 validateOnIdleTimeoutResource(resource);
             } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_CLOSE)) {
@@ -74,10 +78,20 @@ public class WebSocketServiceValidator {
         return true;
     }
 
-    private static boolean validateConfigAnnotations(WebSocketService wsService) {
+    private static void validateConfigAnnotation(WebSocketService wsService) {
         Annotation configAnnotation =
                 wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
-        return configAnnotation != null;
+        if (configAnnotation == null) {
+            return;
+        }
+        AnnAttrValue basePath = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
+        AnnAttrValue host = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
+        AnnAttrValue port = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
+        if (basePath == null && (host != null || port != null)) {
+            String msg = String.format("service %s: cannot define host, port configurations without base path",
+                                       wsService.getName());
+            throw new BallerinaConnectorException(msg);
+        }
     }
 
     /**
@@ -122,6 +136,26 @@ public class WebSocketServiceValidator {
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
         validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
                            Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
+
+    }
+
+    private static void validateOnPingResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamDetailsSize(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_PING_FRAME);
+
+    }
+
+    private static void validateOnPongResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamDetailsSize(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+                           Constants.STRUCT_WEBSOCKET_PONG_FRAME);
 
     }
 

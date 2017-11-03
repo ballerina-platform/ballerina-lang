@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -90,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -114,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -211,6 +213,12 @@ public class BLangPackageBuilder {
     
     private Set<BLangImportPackage> imports = new HashSet<>();
 
+    /**
+     * Keep the number of anonymous structs found so far in the current package.
+     * This field is used to generate a name for an anonymous struct.
+     */
+    private int anonStructCount = 0;
+
     protected int lambdaFunctionCount = 0;
     
     private DiagnosticLog dlog;
@@ -256,14 +264,23 @@ public class BLangPackageBuilder {
 
     public void addUserDefineType(Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.pos = nameReference.pos;
-        userDefinedType.addWS(ws);
+        BLangUserDefinedType userDefinedType = addUserDefinedType(nameReference.pos, ws,
+                (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
-        userDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        userDefinedType.typeName = (BLangIdentifier) nameReference.name;
-
         addType(userDefinedType);
+    }
+
+    public void addAnonStructType(DiagnosticPos pos, Set<Whitespace> ws) {
+        // Generate a name for the anonymous struct
+        String genName = "$anonStruct$" + ++anonStructCount;
+        IdentifierNode anonStructGenName = createIdentifier(genName);
+
+        // Create an anonymous struct and add it to the list of structs in the current package.
+        BLangStruct structNode = populateStructNode(pos, ws, anonStructGenName, true);
+        this.compUnit.addTopLevelNode(structNode);
+
+        addType(addUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), structNode.name));
+
     }
 
     public void addBuiltInReferenceType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -708,12 +725,23 @@ public class BLangPackageBuilder {
         addExpressionNode(typeCastNode);
     }
 
-    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createTypeAccessExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        typeAccessExpr.pos = pos;
+        typeAccessExpr.addWS(ws);
+        typeAccessExpr.typeNode = (BLangType) typeNodeStack.pop();
+        addExpressionNode(typeAccessExpr);
+    }
+
+    public void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
-        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        if (namedTransformer) {
+            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
+        }
         addExpressionNode(typeConversionNode);
     }
 
@@ -933,15 +961,12 @@ public class BLangPackageBuilder {
     }
 
     public void endStructDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
-        BLangStruct structNode = (BLangStruct) this.structStack.pop();
-        structNode.pos = pos;
-        structNode.addWS(ws);
+        BLangStruct structNode = populateStructNode(pos, ws, createIdentifier(identifier), false);
         structNode.setName(this.createIdentifier(identifier));
         if (publicStruct) {
             structNode.flagSet.add(Flag.PUBLIC);
         }
 
-        this.varListStack.pop().forEach(structNode::addField);
         this.compUnit.addTopLevelNode(structNode);
     }
 
@@ -1544,7 +1569,8 @@ public class BLangPackageBuilder {
                 (BLangXMLProcInsLiteral) TreeBuilder.createXMLProcessingIntsructionLiteralNode();
         xmlProcInsLiteral.pos = pos;
         xmlProcInsLiteral.dataFragments = dataExprs;
-        xmlProcInsLiteral.target = (BLangLiteral) exprNodeStack.pop();;
+        xmlProcInsLiteral.target = (BLangLiteral) exprNodeStack.pop();
+        ;
         addExpressionNode(xmlProcInsLiteral);
     }
 
@@ -1585,20 +1611,6 @@ public class BLangPackageBuilder {
         addExpressionNode(stringTemplateLiteral);
     }
 
-    public void startTransformStmt() {
-        startBlock();
-    }
-
-    public void createTransformStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
-        transformNode.pos = pos;
-        BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        transformBlock.pos = pos;
-        transformNode.addWS(ws);
-        transformNode.setBody(transformBlock);
-        addStmtToCurrentBlock(transformNode);
-    }
-
     public void createXmlAttributesRefExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean singleAttribute) {
         BLangXMLAttributeAccess xmlAttributeAccess =
                 (BLangXMLAttributeAccess) TreeBuilder.createXMLAttributeAccessNode();
@@ -1609,6 +1621,41 @@ public class BLangPackageBuilder {
         }
         xmlAttributeAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(xmlAttributeAccess);
+    }
+
+    public void startTransformerDef() {
+        TransformerNode transformerNode = TreeBuilder.createTransformerNode();
+        attachAnnotations(transformerNode);
+        this.invokableNodeStack.push(transformerNode);
+    }
+
+    public void endTransformerDef(DiagnosticPos pos,
+                               Set<Whitespace> ws,
+                               boolean publicFunc,
+                               String name,
+                               boolean paramsAvailable) {
+
+        BLangTransformer transformer = (BLangTransformer) this.invokableNodeStack.pop();
+        transformer.pos = pos;
+        transformer.addWS(ws);
+        transformer.setName(this.createIdentifier(name));
+
+        if (paramsAvailable) {
+            this.varListStack.pop().forEach(transformer::addParameter);
+        }
+
+        // get the source and the target params
+        List<VariableNode> mappingParams = this.varListStack.pop();
+
+        // set the first mapping-param as the source for transformer
+        transformer.setSource(mappingParams.remove(0));
+        mappingParams.forEach(transformer::addReturnParameter);
+
+        if (publicFunc) {
+            transformer.flagSet.add(Flag.PUBLIC);
+        }
+
+        this.compUnit.addTopLevelNode(transformer);
     }
 
     // Private methods
@@ -1678,5 +1725,30 @@ public class BLangPackageBuilder {
             }
         }
         return null;
+    }
+
+    private BLangStruct populateStructNode(DiagnosticPos pos,
+                                           Set<Whitespace> ws,
+                                           IdentifierNode name,
+                                           boolean isAnonymous) {
+        BLangStruct structNode = (BLangStruct) this.structStack.pop();
+        structNode.pos = pos;
+        structNode.addWS(ws);
+        structNode.name = (BLangIdentifier) name;
+        structNode.isAnonymous = isAnonymous;
+        this.varListStack.pop().forEach(structNode::addField);
+        return structNode;
+    }
+
+    private BLangUserDefinedType addUserDefinedType(DiagnosticPos pos,
+                                                    Set<Whitespace> ws,
+                                                    BLangIdentifier pkgAlias,
+                                                    BLangIdentifier name) {
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.pos = pos;
+        userDefinedType.addWS(ws);
+        userDefinedType.pkgAlias = pkgAlias;
+        userDefinedType.typeName = name;
+        return userDefinedType;
     }
 }

@@ -31,7 +31,7 @@ import org.ballerinalang.model.values.BValue;
 public class ClientConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener listener;
     private boolean success = false;
-    private BValue value;
+    private BValue[] value;
     private BallerinaConnectorException exception;
 
     @Override
@@ -59,7 +59,7 @@ public class ClientConnectorFuture implements ConnectorFuture {
         this.success = true;
     }
 
-    public void notifyReply(BValue value) {
+    public void notifyReply(BValue... value) {
         if (listener != null) {
             listener.notifyReply(value);
             return;

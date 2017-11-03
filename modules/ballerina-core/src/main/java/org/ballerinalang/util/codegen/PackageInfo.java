@@ -63,6 +63,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    
+    private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     // cache values.
     ProgramFile programFile;
@@ -195,6 +197,18 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public StructureTypeInfo getStructureTypeInfo(String structureTypeName) {
         return structureTypeInfoMap.get(structureTypeName);
+    }
+
+    public void addTransformerInfo(String transformerName, TransformerInfo transformerInfo) {
+        transformerInfoMap.put(transformerName, transformerInfo);
+    }
+
+    public TransformerInfo[] getTransformerInfoEntries() {
+        return transformerInfoMap.values().toArray(new TransformerInfo[0]);
+    }
+
+    public TransformerInfo getTransformerInfo(String transformerName) {
+        return transformerInfoMap.get(transformerName);
     }
 
     public int addInstruction(Instruction instruction) {

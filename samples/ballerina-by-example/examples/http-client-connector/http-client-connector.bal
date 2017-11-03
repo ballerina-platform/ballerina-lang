@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.net.http;
 
 function main (string[] args) {
@@ -9,21 +8,21 @@ function main (string[] args) {
 
     // Send a GET request to the specified endpoint
     http:Response resp = httpConnector.get("/get?test=123", req);
-    system:println("GET request:");
-    system:println(resp.getJsonPayload());
+    println("GET request:");
+    println(resp.getJsonPayload());
 
     // Set a string payload to the message to be sent to the endpoint
     req.setStringPayload("POST: Hello World");
     resp = httpConnector.post("/post", req);
-    system:println("\nPOST request:");
-    system:println(resp.getJsonPayload());
+    println("\nPOST request:");
+    println(resp.getJsonPayload());
 
     // Set a JSON payload to the message to be sent to the endpoint
     json jsonMsg = {method:"PUT", payload:"Hello World"};
     req.setJsonPayload(jsonMsg);
     resp = httpConnector.put("/put", req);
-    system:println("\nPUT request:");
-    system:println(resp.getJsonPayload());
+    println("\nPUT request:");
+    println(resp.getJsonPayload());
 
     // Set an XML payload to the message to be sent to the endpoint.
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
@@ -32,13 +31,13 @@ function main (string[] args) {
     // Remove the json payload
     req.setJsonPayload(j);
     resp = httpConnector.patch("/patch", req);
-    system:println("\nPATCH request:");
-    system:println(resp.getJsonPayload());
+    println("\nPATCH request:");
+    println(resp.getJsonPayload());
 
     req.setStringPayload("DELETE: Hello World");
     resp = httpConnector.delete("/delete", req);
-    system:println("\nDELETE request:");
-    system:println(resp.getJsonPayload());
+    println("\nDELETE request:");
+    println(resp.getJsonPayload());
 
     req.setStringPayload("CUSTOM: Hello World");
     // The execute() action can be used if one needs to use custom HTTP verbs
@@ -50,8 +49,8 @@ function main (string[] args) {
     resp = httpConnector.get("/get", req);
 
     string contentType = resp.getHeader("Content-Type");
-    system:println("\nContent-Type: " + contentType);
+    println("\nContent-Type: " + contentType);
 
     int statusCode = resp.getStatusCode();
-    system:println("Status code: " + statusCode);
+    println("Status code: " + statusCode);
 }

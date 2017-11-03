@@ -44,17 +44,11 @@ public class SystemTest {
     private final String printFuncName = "testPrintAndPrintln";
 
     private PrintStream original;
-    // TODO : Fix this with new logging implementation. Issue #1964
-//    Logger rootLogger;
-//    TestLogAppender testLogAppender;
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-//        rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         original = System.out;
         compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/systemTest.bal");
-//        rootLogger.().getLogger("org.ballerinalang.nativeimpl.model.system")
-//                .setLevel(Level.ALL);
     }
 
     @AfterClass(alwaysRun = true)
@@ -144,23 +138,33 @@ public class SystemTest {
     }
 
     @Test
-    public void testFunctionTimes() {
-        BValue[] args = {};
-        BValue[] bValues = BRunUtil.invoke(compileResult, "testTimeFunctions", args);
-        // We are not expecting boolean log in event list.
-        Assert.assertEquals(bValues.length, 3, "Return values didn't match.");
-        Assert.assertTrue(bValues[0] != null);
-        Assert.assertTrue(bValues[1] != null);
-        Assert.assertTrue(bValues[2] != null);
+    public void testConnectorPrintAndPrintln() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BRunUtil.invoke(compileResult, printFuncName + "Connector");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
     }
 
     @Test
-    public void testFunctionDate() {
-        BValue[] args = {};
-        BValue[] bValues = BRunUtil.invoke(compileResult, "testDateFunction", args);
-        // We are not expecting boolean log in event list.
-        Assert.assertEquals(bValues.length, 1, "Return values didn't match.");
-        Assert.assertTrue(bValues[0] != null);
+    public void testFunctionPointerPrintAndPrintln() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
     }
 
     @Test(description = "Test new line character in string")
@@ -186,19 +190,6 @@ public class SystemTest {
             }
         }
 
-    }
-
-    @Test
-    public void testGetEnv() throws IOException {
-        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
-            System.setOut(new PrintStream(outContent));
-            final String pathValue = System.getenv("PATH");
-            BValueType[] args = {new BString("PATH")};
-            BRunUtil.invoke(compileResult, "getEnvVar", args);
-            Assert.assertEquals(outContent.toString(), pathValue);
-        } finally {
-            System.setOut(original);
-        }
     }
 
 //    @Test(expectedExceptions = BallerinaException.class)

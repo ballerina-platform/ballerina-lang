@@ -39,3 +39,11 @@ function testPushBinary(ws:Connection conn, blob data) {
 function testCloseConnection(ws:Connection conn, int statusCode, string reason) {
     conn.closeConnection(statusCode, reason);
 }
+
+function testPing(ws:Connection conn, blob b) {
+    conn.ping(b);
+}
+
+function testPong(ws:Connection conn, blob b) {
+    conn.pong(b);
+}

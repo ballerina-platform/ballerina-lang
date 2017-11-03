@@ -162,6 +162,7 @@ public interface InstructionCodes {
     int ERRSTORE = 125;
     int FPCALL = 126;
     int FPLOAD = 127;
+    int TCALL = 128;
 
     // Type Conversion related instructions
     int I2F = 130;
@@ -192,8 +193,8 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
-    int LENGTHOF = 158;
-    int LENGTHOFJSON = 159;
+    int S2XML = 158;
+    int XML2S = 159;
 
     // Type cast
     int I2ANY = 160;
@@ -217,6 +218,7 @@ public interface InstructionCodes {
     int NULL2JSON = 181;
 
     int ANY2TYPE = 182;
+    int S2JSONX = 183;
 
 
     // Transactions
@@ -237,6 +239,7 @@ public interface InstructionCodes {
     int RNEWARRAY = 205;
     int JSONNEWARRAY = 206;
     int ARRAYLEN = 207;
+    int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;
@@ -264,12 +267,13 @@ public interface InstructionCodes {
     int NEWXMLTEXT = 246;
     int NEWXMLPI = 247;
     int XMLSTORE = 248;
+    int XMLLOAD = 249;
+    
+    int TYPEOF = 250;
+    int TYPELOAD = 251;
 
-    int TYPEOF = 249;
-    int TYPELOAD = 250;
+    int TEQ = 252;
+    int TNE = 253;
 
-    int TEQ = 251;
-    int TNE = 252;
-
-    int INSTRUCTION_CODE_COUNT = 253;
+    int INSTRUCTION_CODE_COUNT = 254;
 }

@@ -1,6 +1,4 @@
-import ballerina.lang.system;
-import ballerina.doc;
-@doc:Description {value:"Global variable declaration."}
+@Description {value:"Global variable declaration."}
 int total = 98;
 
 string content = "";
@@ -8,8 +6,8 @@ string content = "";
 function main (string[] args) {
 
     //Accessing a global variable.
-    system:println(total);
+    println(total);
 
     content = content + "This is a sample text\n";
-    system:println(content);
+    println(content);
 }
