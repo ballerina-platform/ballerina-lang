@@ -29,10 +29,6 @@ public interface ConnectorNode extends AnnotatableNode, TopLevelNode {
     IdentifierNode getName();
     
     void setName(IdentifierNode name);
-    
-    void setFilteredParamter(VariableNode filteredParam);
-    
-    VariableNode getFilteredParameter();
 
     List<? extends VariableNode> getParameters();
     

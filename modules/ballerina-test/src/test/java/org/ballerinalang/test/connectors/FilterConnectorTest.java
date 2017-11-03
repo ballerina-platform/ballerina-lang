@@ -88,10 +88,12 @@ public class FilterConnectorTest {
     public void testFilterConnectorNegativeFilterBaseTypeNotDefined() {
         CompileResult resultNegative = BCompileUtil
                 .compile("test-src/connectors/filter-connector-negative-base-type-undefined.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'TestConnector2'", 6, 23);
         BAssertUtil.validateError(resultNegative, 1, "unknown type 'TestConnector'", 17, 5);
-        BAssertUtil.validateError(resultNegative, 2, "undefined connector 'TestConnector'", 17, 35);
+        BAssertUtil.validateError(resultNegative, 2, "undefined connector 'TestConnector'", 18, 9);
+        //TODO change error msg to a better one
+        BAssertUtil.validateError(resultNegative, 3, "undefined connector '><'", 22, 13);
     }
 
     @Test(description = "Test filter connectors negative syntax when filter connector input types are incompatible",

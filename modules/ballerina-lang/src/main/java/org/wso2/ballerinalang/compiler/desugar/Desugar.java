@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -123,6 +124,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -308,6 +310,13 @@ public class Desugar extends BLangNodeVisitor {
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
+    }
+
+    @Override
+    public void visit(BLangBind bindNode) {
+        bindNode.varRef = rewriteExpr(bindNode.varRef);
+        bindNode.expr = rewriteExpr(bindNode.expr);
+        result = new BLangAssignment(bindNode.pos, Arrays.asList(bindNode.varRef), bindNode.expr, false);
     }
 
     @Override
@@ -596,7 +605,7 @@ public class Desugar extends BLangNodeVisitor {
                 argExprs.add(0, iExpr.expr);
                 result = new BLangFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol, iExpr.types);
                 break;
-            case TypeTags.CONNECTOR:
+            case TypeTags.ENDPOINT:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
                 actionArgExprs.add(0, iExpr.expr);
                 result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);

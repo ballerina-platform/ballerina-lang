@@ -1,6 +1,9 @@
 import ballerina.net.http;
 
 function testCompositeConnector () (string, string) {
+    endpoint<TestLBConnector> ep {
+
+    }
     TestLBConnector testLB;
     TestConnector t1 = create TestConnector("URI1");
     TestConnector t2 = create TestConnector("URI2");
@@ -9,8 +12,9 @@ function testCompositeConnector () (string, string) {
     http:Request req = {};
     string value1;
     string value2;
-    value1 = testLB.action1(req);
-    value2 = testLB.action1(req);
+    bind testLB with ep;
+    value1 = ep.action1(req);
+    value2 = ep.action1(req);
     return value1, value2;
 
 }
@@ -32,8 +36,11 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
     int count = 0;
 
     action action1(http:Request req) (string){
+        endpoint<TestConnector> t1 {
+
+        }
         int index = count % lengthof testConnectorArray;
-        TestConnector t1 = testConnectorArray[index];
+        bind testConnectorArray[index] with t1;
         count = count + 1;
         string retValue = t1.action1(req);
         return retValue;

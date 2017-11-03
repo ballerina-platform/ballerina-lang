@@ -30,6 +30,7 @@ import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -547,7 +548,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeAction(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -2605,6 +2606,27 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
+    }
+
+    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        StackFrame callerSF = controlStack.currentFrame;
+
+        if (callerSF.refRegs[argRegs[0]] == null) {
+            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            handleError();
+            return;
+        }
+        BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
+        //TODO find a way to change this to method table
+        ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
+
+        if (newActionInfo.getNativeAction() != null) {
+            invokeNativeAction(newActionInfo, funcCallCPEntry);
+        } else {
+            invokeCallableUnit(newActionInfo, funcCallCPEntry);
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,

@@ -5,7 +5,7 @@ struct ResultCustomers {
 }
 
 function testConnectionPoolProperties () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                                               driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
                                               idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
@@ -14,7 +14,7 @@ function testConnectionPoolProperties () (string firstName) {
                                               connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
                                               transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
                                               connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
-    testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties);
+    bind create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -30,8 +30,10 @@ function testConnectionPoolProperties () (string firstName) {
 }
 
 function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
                                                             "TEST_SQL_CONNECTOR", "SA", "", null);
+    }
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -48,9 +50,9 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
 
 
 function testConnectorWithDirectUrl () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
-    testDB = create sql:ClientConnector("", "", 0, "", "SA", "", Properties);
+    bind create sql:ClientConnector("", "", 0, "", "SA", "", Properties) with testDB;
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -66,11 +68,11 @@ function testConnectorWithDirectUrl () (string firstName) {
 }
 
 function testConnectorWithDataSourceClass () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {}
     map propertiesMap = {"loginTimeout":109, "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    testDB = create sql:ClientConnector("", "", 0, "", "SA", "", properties);
+    bind create sql:ClientConnector("", "", 0, "", "SA", "", properties) with testDB;
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -86,10 +88,10 @@ function testConnectorWithDataSourceClass () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
-    testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    bind create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties) with testDB;
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -105,12 +107,12 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassURLPriority () (string firstName) {
-    sql:ClientConnector testDB;
+    endpoint<sql:ClientConnector> testDB {}
     map propertiesMap = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                        "INVALID_DB_NAME", "SA", "", properties);
+    bind create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                        "INVALID_DB_NAME", "SA", "", properties) with testDB;
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
@@ -126,8 +128,10 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
 }
 
 function testInvalidDBType () (string firstName) {
-    sql:ClientConnector testDB = create sql:ClientConnector("TESTDB", "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector("TESTDB", "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    }
 
     sql:Parameter[] parameters = [];
     _ = testDB.update("Insert into Customers(firstName) values ('James')", parameters);
