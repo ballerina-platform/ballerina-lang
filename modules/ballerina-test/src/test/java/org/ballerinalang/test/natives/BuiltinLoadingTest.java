@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 /**
  * Testing Ballerina.builtin related generic test cases.
  */
-public class BuiltinLoadTest {
+public class BuiltinLoadingTest {
 
     @Test
     public void testBuiltinImport() {
-        CompileResult result = BCompileUtil.compile("test-src/natives/builtin-load-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/natives/builtin-loading-negative.bal");
         BAssertUtil.validateError(result, 0, "cannot resolve package 'ballerina.builtin'", 1, 1);
     }
 }
