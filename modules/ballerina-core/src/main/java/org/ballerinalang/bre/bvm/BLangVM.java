@@ -2617,7 +2617,11 @@ public class BLangVM {
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
 
-        invokeCallableUnit(newActionInfo, funcCallCPEntry);
+        if (newActionInfo.getNativeAction() != null) {
+            invokeNativeAction(newActionInfo, funcCallCPEntry);
+        } else {
+            invokeCallableUnit(newActionInfo, funcCallCPEntry);
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
