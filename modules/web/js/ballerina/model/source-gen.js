@@ -534,8 +534,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'Transformer':
             if (node.source && node.returnParameters
-                         && node.returnParameters.length && node.name.value && node.parameters
-                         && node.parameters.length && node.body) {
+                         && node.returnParameters.length && node.name.value && node.parameters && node.body) {
                 return dent() + (node.public ? w() + 'public' + a(' ') : '') + w()
                  + 'transformer' + w() + '<'
                  + getSourceOf(node.source, pretty, l, replaceLambda) + w() + ','
@@ -545,19 +544,19 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
             } else if (node.source && node.returnParameters
                          && node.returnParameters.length && node.name.value && node.body) {
-                return (node.public ? w() + 'public' + a(' ') : '') + w()
-                 + 'transformer' + w() + '<'
-                 + getSourceOf(node.source, pretty, l, replaceLambda) + w() + ','
-                 + join(node.returnParameters, pretty, replaceLambda, l, w, '', ',') + w() + '>' + w() + node.name.value + w()
-                 + '(){' + getSourceOf(node.body, pretty, l, replaceLambda) + outdent()
-                 + w() + '}';
-            } else {
                 return dent() + (node.public ? w() + 'public' + a(' ') : '') + w()
                  + 'transformer' + w() + '<'
                  + getSourceOf(node.source, pretty, l, replaceLambda) + w() + ','
                  + join(node.returnParameters, pretty, replaceLambda, l, w, '', ',') + w() + '>' + w() + node.name.value
                  + w() + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
+            } else {
+                return dent() + (node.public ? w() + 'public' + a(' ') : '') + w()
+                 + 'transformer' + w() + '<'
+                 + getSourceOf(node.source, pretty, l, replaceLambda) + w() + ','
+                 + join(node.returnParameters, pretty, replaceLambda, l, w, '', ',') + w() + '>' + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w()
+                 + '}';
             }
         case 'Try':
             if (node.body && node.catchBlocks && node.finallyBody) {
