@@ -14,12 +14,12 @@ service<ws> SimpleProxyServer {
         endpoint<ws:ClientConnector> c {
             create ws:ClientConnector("wss://echo.websocket.org", "ClientService");
         }
-        try {
-            ws:Connection clientConn = c.connect({parentConnectionID:con.connectionID});
-            clientConnMap[con.connectionID] = clientConn;
-        } catch (error err) {
+        var clientConn, err = c.connect({parentConnectionID:con.connectionID});
+        if (err != null) {
             println("Error occcurred : " + err.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
+        } else {
+            clientConnMap[con.connectionID] = clientConn;
         }
     }
 
