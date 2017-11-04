@@ -32,7 +32,7 @@ service<http> headerBasedRouting {
 
         //Native function "forward" sends back the clientResponse to the caller if no any error is found.
         if (err != null) {
-            res.setStatusCode(err.statusCode);
+            res.setStatusCode(500);
             res.setStringPayload(err.msg);
             res.send();
         } else {
