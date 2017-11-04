@@ -8,8 +8,8 @@ service<http> contentBasedRouting {
         path:"/route"
     }
     resource cbrResource (http:Request req, http:Response res) {
-        endpoint<http:ClientConnector> locationEP {
-            create http:ClientConnector("http://www.mocky.io", {});
+        endpoint<http:HttpClient> locationEP {
+            create http:HttpClient("http://www.mocky.io", {});
         }
         //Get JSON payload from the request message.
         json jsonMsg = req.getJsonPayload();

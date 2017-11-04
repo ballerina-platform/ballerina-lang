@@ -7,8 +7,8 @@ service<http> passthrough {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response res) {
-        endpoint<http:ClientConnector> endPoint {
-            create http:ClientConnector("http://localhost:9090/echo", {});
+        endpoint<http:HttpClient> endPoint {
+            create http:HttpClient("http://localhost:9090/echo", {});
         }
         //Extract HTTP method from the inbound request.
         string method = req.getMethod();

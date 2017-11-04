@@ -9,11 +9,11 @@ service<http> ATMLocator {
         methods:["POST"]
     }
     resource locator (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> bankInfoService {
-            create http:ClientConnector("http://localhost:9090/bankinfo/product", {});
+        endpoint<http:HttpClient> bankInfoService {
+            create http:HttpClient("http://localhost:9090/bankinfo/product", {});
         }
-        endpoint<http:ClientConnector> branchLocatorService {
-            create http:ClientConnector("http://localhost:9090/branchlocator/product", {});
+        endpoint<http:HttpClient> branchLocatorService {
+            create http:HttpClient("http://localhost:9090/branchlocator/product", {});
         }
 
         http:Request backendServiceReq = {};

@@ -1,8 +1,8 @@
 import ballerina.net.http;
 
 function main (string[] args) {
-    endpoint<http:ClientConnector> httpConnector {
-        create http:ClientConnector("https://postman-echo.com", {});
+    endpoint<http:HttpClient> httpConnector {
+        create http:HttpClient("https://postman-echo.com", {});
     }
 
     http:Request req = {};

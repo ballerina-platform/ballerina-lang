@@ -3,11 +3,11 @@ import ballerina.net.uri;
 import ballerina.util;
 
 function main (string[] args) {
-    endpoint<http:ClientConnector> tweeterEP {
-        create http:ClientConnector("https://api.twitter.com", {});
+    endpoint<http:HttpClient> tweeterEP {
+        create http:HttpClient("https://api.twitter.com", {});
     }
-    endpoint<http:ClientConnector> mediumEP {
-        create http:ClientConnector("https://medium.com", {});
+    endpoint<http:HttpClient> mediumEP {
+        create http:HttpClient("https://medium.com", {});
     }
     int argumentLength = lengthof args;
     if (argumentLength < 4) {

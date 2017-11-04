@@ -10,11 +10,11 @@ service<http> contentBasedRouting {
         path:"/"
     }
     resource cbrResource (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> nasdaqEP {
-            create http:ClientConnector("http://localhost:9090/nasdaqStocks", {});
+        endpoint<http:HttpClient> nasdaqEP {
+            create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
-        endpoint<http:ClientConnector> nyseEP {
-            create http:ClientConnector("http://localhost:9090/nyseStocks", {});
+        endpoint<http:HttpClient> nyseEP {
+            create http:HttpClient("http://localhost:9090/nyseStocks", {});
         }
         string nyseString = "nyse";
         json jsonMsg = req.getJsonPayload();

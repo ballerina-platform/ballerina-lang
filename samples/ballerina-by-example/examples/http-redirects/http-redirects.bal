@@ -1,7 +1,7 @@
 import ballerina.net.http;
 
 function main (string[] args) {
-    http:ClientConnector httpConnector = create http:ClientConnector("http://www.mocky.io", getConnectorConfigs());
+    http:HttpClient httpConnector = create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
     http:Request req = {};
 
     //Send a GET request to the specified endpoint

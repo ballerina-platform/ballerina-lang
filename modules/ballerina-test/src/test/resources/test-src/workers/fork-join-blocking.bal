@@ -3,8 +3,8 @@ import ballerina.net.http;
 int i = 0;
 
 function testForkJoin() (int x, int st){
-    endpoint<http:ClientConnector> c {
-        create http:ClientConnector("http://example.com", {});
+    endpoint<http:HttpClient> c {
+        create http:HttpClient("http://example.com", {});
     }
     fork {
         worker w1 {
