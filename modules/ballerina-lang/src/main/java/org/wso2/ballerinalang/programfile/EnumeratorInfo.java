@@ -15,28 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.wso2.ballerinalang.programfile;
 
-package org.ballerinalang.model.tree;
-
-import java.util.List;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * @since 0.94
+ * Represents a enumerator in the compiled Ballerina program.
+ *
+ * @since 0.95
  */
-public interface EnumNode extends TopLevelNode, AnnotatableNode {
+public class EnumeratorInfo {
 
-    IdentifierNode getName();
+    public int nameCPIndex;
+    public int enumeratorIndex;
+    public BType enumeratorType;
 
-    void setName(IdentifierNode name);
-
-    List<? extends Enumerator> getEnumerators();
-
-    void addEnumerator(Enumerator enumField);
-
-    /**
-     * @since 0.95
-     */
-    interface Enumerator extends Node {
-        IdentifierNode getName();
+    public EnumeratorInfo(int nameCPIndex, int enumeratorIndex, BType enumeratorType) {
+        this.nameCPIndex = nameCPIndex;
+        this.enumeratorIndex = enumeratorIndex;
+        this.enumeratorType = enumeratorType;
     }
 }

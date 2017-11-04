@@ -31,6 +31,7 @@ import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -353,6 +354,7 @@ public class BLangVM {
                 case InstructionCodes.RFIELDLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.ENUMERATORLOAD:
                     execLoadOpcodes(sf, opcode, operands);
                     break;
 
@@ -863,14 +865,18 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] == null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
             case InstructionCodes.RNE_NULL:
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
 
@@ -1196,6 +1202,14 @@ public class BLangVM {
                 }
 
                 sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                break;
+            case InstructionCodes.ENUMERATORLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[i];
+                BEnumType enumType = (BEnumType) typeRefCPEntry.getType();
+                sf.refRegs[k] = enumType.getEnumerator(j);
                 break;
             default:
                 throw new UnsupportedOperationException();

@@ -7,15 +7,23 @@ service<http> passthrough {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response res) {
-        http:ClientConnector endPoint = create http:ClientConnector
-                                        ("http://localhost:9090/echo", {});
+        endpoint<http:ClientConnector> endPoint {
+            create http:ClientConnector("http://localhost:9090/echo", {});
+        }
         //Extract HTTP method from the inbound request.
         string method = req.getMethod();
         http:Response clientResponse = {};
+        http:HttpConnectorError err;
         //Action execute() does a backend client call and returns the response. It includes endPoint, HTTP method, resource path and request as parameters.
-        clientResponse = endPoint.execute(method, "/", req);
-        //Native function "forward" sends back the clientResponse to the caller.
-        res.forward(clientResponse);
+        clientResponse, err = endPoint.execute(method, "/", req);
+        //Native function "forward" sends back the clientResponse to the caller if no any error is found.
+        if (err != null) {
+            res.setStatusCode(err.statusCode);
+            res.setStringPayload(err.msg);
+            res.send();
+        } else {
+            res.forward(clientResponse);
+        }
     }
 }
 

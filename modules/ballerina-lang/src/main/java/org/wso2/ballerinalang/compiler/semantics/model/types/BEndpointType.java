@@ -41,7 +41,7 @@ public class BEndpointType extends BType implements ConstrainedType {
 
     @Override
     public String toString() {
-        return constraint.toString();
+        return "endpoint<" + constraint.toString() + ">";
     }
 
     @Override

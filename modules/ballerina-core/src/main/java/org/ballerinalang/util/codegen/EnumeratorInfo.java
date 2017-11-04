@@ -15,11 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.util.codegen;
 
-package org.ballerinalang.model.symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * @since 0.94
+ * Represents a enumerator in the compiled Ballerina program.
+ *
+ * @since 0.95
  */
-public interface EnumSymbol {
+public class EnumeratorInfo {
+
+    public int nameCPIndex;
+    public int enumeratorIndex;
+    public BType enumeratorType;
+
+    public EnumeratorInfo(int nameCPIndex, int enumeratorIndex, BType enumeratorType) {
+        this.nameCPIndex = nameCPIndex;
+        this.enumeratorIndex = enumeratorIndex;
+        this.enumeratorType = enumeratorType;
+    }
 }

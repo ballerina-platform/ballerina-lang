@@ -32,10 +32,10 @@ public interface EnumType extends Type {
   /**
    * @since 0.94
    */
-  interface EnumField {
+  interface Enumerator {
     Name getName();
   }
 
-  List<? extends EnumField> getFields();
+  List<? extends Enumerator> getEnumerators();
 
 }
