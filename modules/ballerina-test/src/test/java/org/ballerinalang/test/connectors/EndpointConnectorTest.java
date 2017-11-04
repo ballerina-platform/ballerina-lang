@@ -105,6 +105,16 @@ public class EndpointConnectorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo-val1");
     }
 
+    @Test(description = "Test endpoint in workers")
+    public void testEndpointInWorker() {
+        BValue[] returns = BRunUtil.invoke(result, "testEndpointInWorker");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "FooFilter2-val1-para2-Foo-val1-" +
+                "FooFilter1-val2-para1-Foo-val2-");
+    }
+
     @Test(description = "Test empty endpoint invocation", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testEmptyEndpointInvocation() {
@@ -113,17 +123,29 @@ public class EndpointConnectorTest {
 
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint",
                 27, 17);
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'Bar', found 'Foo'", 32, 9);
+        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'endpoint<Bar>', found 'Foo'",
+                32, 9);
         BAssertUtil.validateError(resultNegative, 2, "unknown type 'TestConnector'", 37, 5);
 //        BAssertUtil.validateError(resultNegative, 3, "cannot assign a value to endpoint 'en'", 56, 5);
 //        BAssertUtil.validateError(resultNegative, 4, "cannot assign a value to endpoint 'en'", 58, 5);
-        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'Foo', found 'string'", 58, 10);
+        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'endpoint<Foo>', found 'string'",
+                58, 10);
 //        BAssertUtil.validateError(resultNegative, 6, "cannot assign a value to endpoint 'en'", 59, 5);
-        BAssertUtil.validateError(resultNegative, 4, "unreachable code", 48, 5);
-        BAssertUtil.validateError(resultNegative, 5, "this function must return a result", 42, 1);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'Foo', found 'endpoint<Foo>'",
+                66, 21);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'endpoint<Foo>', found 'Bar'",
+                77, 10);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'endpoint<Foo>', found 'string'",
+                84, 10);
+        BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'Foo', found 'endpoint<Foo>'",
+                91, 12);
+        BAssertUtil.validateError(resultNegative, 8, "incompatible types: expected 'endpoint<Foo>', found 'string'",
+                96, 9);
+        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 48, 5);
+        BAssertUtil.validateError(resultNegative, 10, "this function must return a result", 42, 1);
 
     }
 }
