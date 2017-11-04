@@ -1148,8 +1148,7 @@ class TransformExpanded extends React.Component {
     }
 
     updateVariable(varName, statementString, type) {
-        if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type,
-                                                     this.state.vertices)) {
+        if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type)) {
             this.isUpdatingVertices = true;
             this.loadVertices(() => { this.isUpdatingVertices = false; });
             return true;
@@ -1175,7 +1174,11 @@ class TransformExpanded extends React.Component {
                 varNode = varNode.getVariable();
                 variableType.varDeclarationString = varNode.getSource();
             } else {
-                variableType.varDeclarationString = '';
+                this.props.model.getParameters().forEach((param) => {
+                    if (varNode.getName() === param.getName()) {
+                        variableType.varDeclarationString = varNode.getSource();
+                    }
+                });
             }
             const pkgAlias = (varNode.typeNode.packageAlias) ? varNode.typeNode.packageAlias.value : '';
             let type = (varNode.typeNode.typeName) ? varNode.typeNode.typeName.value : varNode.typeNode.typeKind;
