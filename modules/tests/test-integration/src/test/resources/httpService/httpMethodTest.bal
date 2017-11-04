@@ -7,8 +7,8 @@ service<http> headQuoteService {
         path:"/default"
     }
     resource defaultResource (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> endPoint {
-            create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> endPoint {
+            create http:HttpClient("http://localhost:9090", {});
         }
         string method = req.getMethod();
         http:Response clientResponse;
@@ -20,8 +20,8 @@ service<http> headQuoteService {
         path:"/getStock/{method}"
     }
     resource commonResource (http:Request req, http:Response resp, string method) {
-        endpoint<http:ClientConnector> endPoint {
-            create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> endPoint {
+            create http:HttpClient("http://localhost:9090", {});
         }
         http:Response clientResponse;
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
@@ -37,8 +37,8 @@ service<http> testClientConHEAD {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> quoteEP {
-            create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> quoteEP {
+            create http:HttpClient("http://localhost:9090", {});
         }
         http:Response clientResponse;
         clientResponse, _ = quoteEP.get("/getQuote/stocks", req);
