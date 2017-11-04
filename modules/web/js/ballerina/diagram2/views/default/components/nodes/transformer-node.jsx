@@ -20,8 +20,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from '../decorators/panel-decorator';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
-import TransformerStatementDecorator from '../transform/transformer-statement-decorator';
+import TransformerNodeDetails from '../transform/transformer-node-details';
 import ImageUtil from '../../../../image-util';
+import PanelDecoratorButton from '../decorators/panel-decorator-button';
 
 class TransformerNode extends React.Component {
 
@@ -36,39 +37,37 @@ class TransformerNode extends React.Component {
     }
 
     render() {
-        const model = this.props.model;
         const icon = 'tool-icons/transformer';
-        const { bBox } = model.viewState;
+        const { model } = this.props;
+        const { viewState } = model;
+        const { bBox } = viewState;
 
-        const TransFormDetails = ({x, y}) => {
-            const text_x = x;
-            const text_y = y + (bBox.h / 2);
-            const expand_button_x = text_x + model.viewState.titleWidth;
-            const expand_button_y = y;
+        const nodeDetails = ({x, y}) => (
+            <TransformerNodeDetails 
+                x={x}
+                y={y} 
+                model={this.props.model}
+                onExpand={this.onExpand}
+            />
+        );
 
-            return (
-                <g className='statement-body'>
-                    <text x={text_x} y={text_y} className='transform-action'
-                        onClick={e => this.onExpand()}>{model.getSignature()}</text>
-                    <g className='transform-button' onClick={e => this.onExpand()}>
-                        <rect x={expand_button_x}
-                            y={expand_button_y}
-                            width={30}
-                            height={30}
-                            className='transform-action-button'/>
-                        <image className='transform-action-icon'
-                            x={expand_button_x + 8} y={expand_button_y + 8}
-                            width={14}
-                            height={14}
-                            xlinkHref={ImageUtil.getSVGIconString('expand')}>
-                            <title>Expand</title>
-                        </image>
-                    </g>
-                </g>
-            );
-        };
-
-        return (<PanelDecorator bBox={model.viewState.bBox} icon={icon} model={model} headerComponent={TransFormDetails}/>);
+        return (
+            <PanelDecorator
+                bBox={model.viewState.bBox}
+                icon={icon}
+                model={model}
+                headerComponent={nodeDetails}
+                rightComponents={[{
+                    component: PanelDecoratorButton,
+                    props: {
+                        icon: ImageUtil.getSVGIconString('expand'),
+                        tooltip: 'Go to expanded view',
+                        onClick: this.onExpand,
+                        key: `${this.props.model.getID()}-transform-expand-button`,
+                    }
+                }]}
+            />
+        );
     }
 }
 
