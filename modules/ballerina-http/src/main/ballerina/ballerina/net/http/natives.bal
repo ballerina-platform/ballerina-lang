@@ -345,9 +345,9 @@ public struct Options {
     Retry retryConfig;
 }
 
-@Description { value:"Http client connector, which can be used to do http requests."}
+@Description { value:"Http client connector for outbound http requests"}
 @Param { value:"serviceUri: Url of the service" }
-@Param { value:"connectorOptions: Connection options" }
+@Param { value:"connectorOptions: connector options" }
 public connector HttpClient (string serviceUri, Options connectorOptions) {
 
 	@Description { value:"The POST action implementation of the HTTP Connector."}
