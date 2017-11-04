@@ -65,7 +65,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: () => {
                 const { editor } = workspaceManager.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.isDirty ? activeTab.isDirty : false;
+                return activeTab && activeTab.isDirty;
             },
             command: COMMANDS.SAVE_FILE,
             icon: 'save',
@@ -76,7 +76,9 @@ export function getMenuDefinitions(workspaceManager) {
             parent: MENUS.FILE_MENU,
             label: LABELS.SAVE_AS,
             isActive: () => {
-                return true;
+                const { editor } = workspaceManager.appContext;
+                const activeTab = editor.getActiveEditor();
+                return activeTab && activeTab.file;
             },
             command: COMMANDS.SAVE_FILE_AS,
             icon: 'folder-open',

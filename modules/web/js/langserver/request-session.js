@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import uuid from 'uuid/v1';
+import uuid from 'uuid/v4';
 
 class RequestSession {
     constructor() {

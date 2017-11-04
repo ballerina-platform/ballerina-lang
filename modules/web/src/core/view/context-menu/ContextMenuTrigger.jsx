@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import uuid from 'uuid/v1';
+import uuid from 'uuid/v4';
 import classnames from 'classnames';
 import { ContextMenuTrigger as ReactContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
 import './styles.scss';
