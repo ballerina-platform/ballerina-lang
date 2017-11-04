@@ -462,3 +462,8 @@
     position: absolute;
     color: #FF0000;
 }
+
+.connector-init-configure {
+    margin-left: -3px;
+    margin-top: -3px;
+}

@@ -406,6 +406,16 @@ class ToolPaletteView extends React.Component {
                     packageName,
                     fullPackageName,
                 };
+
+                const endpointTool = {};
+                endpointTool.nodeFactoryMethod = DefaultNodeFactory.createEndpoint;
+                endpointTool.factoryArgs = args;
+                endpointTool.title = 'Endpoint';
+                endpointTool.name = 'Endpoint';
+                endpointTool.id = 'Endpoint';
+                endpointTool.icon = 'endpoint';
+                definitions.push(endpointTool);
+
                 const connTool = {};
                 connTool.nodeFactoryMethod = DefaultNodeFactory.createConnectorDeclaration;
                 connTool.factoryArgs = args;
@@ -414,15 +424,6 @@ class ToolPaletteView extends React.Component {
                 connTool.id = connectorName;
                 connTool.icon = 'connector';
                 definitions.push(connTool);
-
-                const endpointTool = {};
-                endpointTool.nodeFactoryMethod = DefaultNodeFactory.createEndpoint;
-                endpointTool.factoryArgs = args;
-                endpointTool.title = 'Endpoint';
-                endpointTool.name = 'Endpoint';
-                endpointTool.id = 'Endpoint';
-                endpointTool.icon = 'connector';
-                definitions.push(endpointTool);
 
                 // // Connector Actions ////
                 const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {

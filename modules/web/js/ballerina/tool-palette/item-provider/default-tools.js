@@ -122,7 +122,7 @@ const tools = [
     {
         id: 'Bind',
         name: 'Bind',
-        icon: 'assign',
+        icon: 'uri',
         title: 'Bind',
         nodeFactoryMethod: DefaultNodeFactory.createBindStmt,
         description: 'Provide a way to bind a connector to an endpoint',
