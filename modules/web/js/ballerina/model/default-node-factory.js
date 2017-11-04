@@ -464,6 +464,7 @@ class DefaultNodeFactory {
             ${connectorInit}
         }`;
         const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
+        nodeForFragment.viewState.showOverlayContainer = true;
         return nodeForFragment;
     }
 

@@ -667,7 +667,7 @@ class PropertyWindow extends React.Component {
                     <div className="formFooter">
                         {!_.isEmpty(this.previousItems) &&
                             <button
-                                className="btn btn-primary propWindowBackBtn"
+                                className="btn propWindowBackBtn"
                                 type='button'
                                 onClick={this.goToPreviousView}
                             > <i className="fw fw-left propWindowBackIcon" /> Back </button>
