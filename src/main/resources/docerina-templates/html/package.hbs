@@ -145,6 +145,7 @@
                         <h2>Structs of {{refinePackagePath this}} package</h2>
                         {{#each structs}} {{currentObject this}}
                         <h3 id="{{name}}">struct {{name}}</h3>
+                        <p>{{oneValueAnnotation "description"}}</p>
                         {{#if fields}}
                         <p>
                             <b>Fields:</b>
