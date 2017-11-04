@@ -10,8 +10,12 @@ service<http> headerBasedRouting {
         path:"/"
     }
     resource hbrResource (http:Request req, http:Response resp) {
-        http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks", {});
-        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks", {});
+        endpoint<http:ClientConnector> nasdaqEP {
+            create http:ClientConnector("http://localhost:9090/nasdaqStocks", {});
+        }
+        endpoint<http:ClientConnector> nyseEP {
+            create http:ClientConnector("http://localhost:9090/nyseStocks", {});
+        }
         string nyseString = "nyse";
         string nameString = req.getHeader("name");
         http:Response clientResponse = {};
