@@ -76,6 +76,8 @@ class TransformExpanded extends React.Component {
         this.onSourceAdd = this.onSourceAdd.bind(this);
         this.onTargetAdd = this.onTargetAdd.bind(this);
         this.onClose = this.onClose.bind(this);
+        this.onAddNewVariable = this.onAddNewVariable.bind(this);
+        this.onAddNewParameter = this.onAddNewParameter.bind(this);
         this.onSourceInputChange = this.onSourceInputChange.bind(this);
         this.onTargetInputChange = this.onTargetInputChange.bind(this);
         this.onSourceInputEnter = this.onSourceInputEnter.bind(this);
@@ -946,6 +948,15 @@ class TransformExpanded extends React.Component {
         designView.setTransformActive(false);
     }
 
+    onAddNewVariable() {
+        this.transformNodeManager.addNewVariable('source');
+    }
+
+    onAddNewParameter() {
+        this.props.model.addParameters(this.transformNodeManager.createVariable(
+                                            'param' + (this.props.model.getParameters().length + 1), 'string'));
+    }
+
     /**
      * TODO: Remove this after revisiting
      * Load vertices of the transform graph.
@@ -1153,27 +1164,24 @@ class TransformExpanded extends React.Component {
                 return this.getVerticeData(varN);
             });
         } else {
+            const variableType = {};
+            if (varNode.getKind() === 'VariableDef') {
+                varNode = varNode.getVariable();
+                variableType.varDeclarationString = varNode.getSource();
+            } else {
+                variableType.varDeclarationString = '';
+            }
             const pkgAlias = (varNode.typeNode.packageAlias) ? varNode.typeNode.packageAlias.value : '';
             let type = (varNode.typeNode.typeName) ? varNode.typeNode.typeName.value : varNode.typeNode.typeKind;
             const name = varNode.name.value;
-            const varDefinitions = this.props.model.getBody().filterStatements(TreeUtil.isVariableDef);
             const structDef = this.transformNodeManager.getStructDefinition(pkgAlias, type);
 
             if (structDef) {
                 type = ((pkgAlias) ? (pkgAlias + ':') : '') + type;
                 return this.transformNodeManager.getStructType(name, type, structDef);
             }
-
-            const variableType = {};
             variableType.name = name;
             variableType.displayName = name;
-            variableType.varDeclarationString = '';
-            _.forEach(varDefinitions, (varDef) => {
-                if (variableType.name === varDef.getVariableName().getValue()) {
-                    variableType.varDeclarationString = varDef.getSource();
-                }
-            });
-
             if (varNode.typeNode.constraint) {
                 variableType.type = varNode.getSource();
                 variableType.constraintType = varNode.typeNode.constraint;
@@ -1215,17 +1223,18 @@ class TransformExpanded extends React.Component {
         const sourceNode = this.props.model.getSourceParam();
         const returnNodes = this.props.model.getReturnParameters();
         const paramNodes = this.props.model.getParameters();
-
+        const varDeclarations = this.props.model.getBody().getStatements()
+          .filter((node) => { return node.getKind() === 'VariableDef'; });
         const intermediateNodes = [];
-
         const source = this.getVerticeData(sourceNode);
         const params = this.getVerticeData(paramNodes);
         const returns = this.getVerticeData(returnNodes);
+        const declarations = this.getVerticeData(varDeclarations);
 
         source.endpointKind = 'input';
         params.forEach(p => {p.endpointKind = 'input'});
         returns.forEach(r => {r.endpointKind = 'output'});
-        
+
         this.props.model.getBody().getStatements().forEach((stmt) => {
             let stmtExp;
             if (TreeUtil.isAssignment(stmt)) {
@@ -1312,7 +1321,7 @@ class TransformExpanded extends React.Component {
                                         <div className="leftType">
                                             <Tree
                                                 viewId={this.props.model.getID()}
-                                                endpoints={[source, ...params]}
+                                                endpoints={[source, ...params, ...declarations]}
                                                 type='source'
                                                 makeConnectPoint={this.recordSourceElement}
                                                 removeTypeCallbackFunc={this.removeSourceType}
@@ -1322,6 +1331,18 @@ class TransformExpanded extends React.Component {
                                                 foldEndpoint={this.foldEndpoint}
                                                 foldedEndpoints={this.state.foldedEndpoints}
                                             />
+                                            <a className="btn-add-var" onClick={this.onAddNewParameter}>
+                                                <span>
+                                                    <i className="fw fw-add" />
+                                                </span>
+                                                <span className="btn-add-text">Add New Parameter</span>
+                                            </a>
+                                            <a className="btn-add-var" onClick={this.onAddNewVariable}>
+                                                <span>
+                                                    <i className="fw fw-add" />
+                                                </span>
+                                                <span className="btn-add-text">Add New Variable</span>
+                                            </a>
                                         </div>
                                     </div>
                                     <DropZone

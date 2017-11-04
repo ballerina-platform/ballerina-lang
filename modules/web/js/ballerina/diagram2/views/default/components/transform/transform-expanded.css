@@ -189,3 +189,12 @@
     border-radius: inherit;
     background-color: rgba(0, 0, 0, 0.2);
 }
+
+.btn-add-text {
+  padding-left: 10px;
+}
+
+.btn-add-var {
+  display: block;
+  height: 30px;
+}

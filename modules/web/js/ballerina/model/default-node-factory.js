@@ -230,7 +230,7 @@ class DefaultNodeFactory {
 
     createTransformer() {
         return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
-            transformer <Source a, Target b> {
+            transformer <Source a, Target b> newTransformer (){
 
             }
         `));
