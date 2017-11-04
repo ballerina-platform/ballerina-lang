@@ -74,7 +74,7 @@ public class FunctionInvocationInspection extends LocalInspectionTool {
             }
             // Todo - move to util method.
             // Get the parameters required for the function.
-            Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+            Collection<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
                     ParameterNode.class);
 
             // Todo - move to util method.
