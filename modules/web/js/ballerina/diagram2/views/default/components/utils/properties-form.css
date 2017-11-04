@@ -411,6 +411,9 @@
     float: left;
     margin-left: 10px;
     margin-right: 10px;
+    color: #f5f5f5;
+    background: #2c2c2c;
+    border-color: #2c2c2c;
 }
 
 #property-modal .propWindowBackIcon{
@@ -461,4 +464,9 @@
 #property-modal .errorMsgDiv {
     position: absolute;
     color: #FF0000;
+}
+
+.connector-init-configure {
+    margin-left: -3px;
+    margin-top: -3px;
 }

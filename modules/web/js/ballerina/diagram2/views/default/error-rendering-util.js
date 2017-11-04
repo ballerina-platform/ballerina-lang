@@ -90,7 +90,7 @@ class ErrorRenderingUtil {
             const errors = this.getSemanticErrorsOfNode(node);
             if (errors.length > 0) {
                 const errorBbox = new SimpleBBox();
-                if (TreeUtil.isConnectorDeclaration(node)) {
+                if (TreeUtil.isEndpointTypeVariableDef(node)) { // If its an endpoint var def
                     errorBbox.x = viewState.bBox.x;
                     errorBbox.y = viewState.bBox.y;
                 } else {
@@ -893,7 +893,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of Bind nodes.
      *
@@ -903,7 +902,6 @@ class ErrorRenderingUtil {
     placeErrorForBindNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -1259,7 +1257,6 @@ class ErrorRenderingUtil {
     }
 
 
-
     /**
      * Calculate error position of EndpointType nodes.
      *
@@ -1269,7 +1266,6 @@ class ErrorRenderingUtil {
     placeErrorForEndpointTypeNode(node) {
         // Not implemented.
     }
-
 
 
     /**

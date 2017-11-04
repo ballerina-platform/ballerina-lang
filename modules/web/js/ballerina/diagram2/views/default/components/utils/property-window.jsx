@@ -430,14 +430,16 @@ class PropertyWindow extends React.Component {
                             onChange={event => this.onChange(event, key)}
                         />
                         <span className="input-group-btn">
-                            <input
+                            <button
                                 id='viewOptionParams'
-                                type='button'
-                                value="&#xe609;"
                                 onClick={() => {
                                     this.toggleConnectorParamProperties(key.identifier, key.connectorParams);
                                 }}
-                            />
+                            >
+                                <i
+                                    className="fw fw-configarations connector-init-configure"
+                                />
+                            </button>
                         </span>
                     </div>
                 </div>
@@ -665,7 +667,7 @@ class PropertyWindow extends React.Component {
                     <div className="formFooter">
                         {!_.isEmpty(this.previousItems) &&
                             <button
-                                className="btn btn-primary propWindowBackBtn"
+                                className="btn propWindowBackBtn"
                                 type='button'
                                 onClick={this.goToPreviousView}
                             > <i className="fw fw-left propWindowBackIcon" /> Back </button>

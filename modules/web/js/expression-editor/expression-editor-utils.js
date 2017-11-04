@@ -213,13 +213,11 @@ class ExpressionEditor {
                         const kind = node.kind;
                         if (kind === 'VariableDef' || kind === 'Return' || kind === 'Assignment') {
                             const { lambdas } = splitVariableDefByLambda(model);
-                            if (lambdas.length) {
-                                let i = lambdas.length;
-                                text = text.replace(/\u0192/g, () => {
-                                    const lambda = lambdas[--i];
-                                    return lambda ? lambda.getSource() : '';
-                                });
-                            }
+                            let i = 0;
+                            text = text.replace(/\u0192/g, () => {
+                                const lambda = lambdas[i++];
+                                return lambda ? lambda.getSource() : 'function(){}';
+                            });
                         }
                         TreeUtil.setSource(node, text, this.ballerinaFileEditor);
                     }

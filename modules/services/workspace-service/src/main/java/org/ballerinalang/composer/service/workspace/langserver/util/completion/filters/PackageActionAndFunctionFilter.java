@@ -22,9 +22,13 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -93,12 +97,23 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         String variableName = tokenStream.get(delimiterIndex - 1).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
         Map<Name, Scope.ScopeEntry> entries = null;
+        String constraintTypeName = null;
 
         if (variable == null) {
             return actionFunctionList;
         }
 
-        String packageID = variable.getScopeEntry().symbol.getType().tsymbol.pkgID.toString();
+        String packageID;
+        BType bType = variable.getScopeEntry().symbol.getType();
+        if (bType instanceof BEndpointType) {
+            // If the BType is a BEndPointType we get the package id of the constraint
+            Type constraint = ((BEndpointType) bType).getConstraint();
+            assert constraint instanceof BConnectorType : constraint.getClass();
+            packageID = ((BConnectorType) constraint).tsymbol.pkgID.toString();
+            constraintTypeName = constraint.toString();
+        } else {
+            packageID = variable.getScopeEntry().symbol.getType().tsymbol.pkgID.toString();
+        }
         String builtinPkgName = dataModel.getSymbolTable().builtInPackageSymbol.name.getValue();
 
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
@@ -111,6 +126,17 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
             entries = dataModel.getSymbolTable().builtInPackageSymbol.scope.entries;
         } else if (packageSymbolInfo != null) {
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
+            if (constraintTypeName != null) {
+                // If there is a constraint type for the variable, which means we are filtering the actions for the
+                // particular endpoint. Hence we get the particular ClientConnector entry and it's action entries
+                String filterName = constraintTypeName;
+                Map.Entry filteredEntry = entries.entrySet()
+                        .stream()
+                        .filter(nameScopeEntry -> nameScopeEntry.getKey().getValue().equals(filterName))
+                        .findFirst()
+                        .orElse(null);
+                entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
+            }
         }
 
         if (entries != null) {
@@ -119,7 +145,16 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
                         && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
                     String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
                             .receiverSymbol.getType().tsymbol.name.getValue();
-                    String checkValue = variable.getScopeEntry().symbol.getType().tsymbol.name.getValue();
+                    String checkValue;
+                    BType symbolBType = variable.getScopeEntry().symbol.getType();
+                    if (symbolBType instanceof BEndpointType) {
+                        // invoked when the endpoint actions are being filtered
+                        Type constraint = ((BEndpointType) symbolBType).getConstraint();
+                        assert constraint instanceof BConnectorType : constraint.getClass();
+                        checkValue = constraint.toString();
+                    } else {
+                        checkValue = symbolBType.tsymbol.name.getValue();
+                    }
                     if (symbolBoundedName.equals(checkValue)) {
                         SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
                         actionFunctionList.add(actionFunctionSymbol);

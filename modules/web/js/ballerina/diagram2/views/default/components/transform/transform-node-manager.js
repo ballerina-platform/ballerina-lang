@@ -471,7 +471,7 @@ class TransformNodeManager {
         }
         const varName = variableName + index;
 
-        const variableDef = TransformFactory.createVariableDef(varName, 'string', '');
+        const variableDef = TransformFactory.createVariableDef(varName, 'string', '""');
         node.addStatements(variableDef, newVarIndex, false);
         return variableDef;
     }
@@ -479,7 +479,8 @@ class TransformNodeManager {
     updateVariable(node, varName, statementString, type, vertices) {
         const variableDefinitionStatement = TransformFactory.createVariableDefFromStatement(statementString);
         let varDefNode = node.body;
-        let entities = node.inputs;
+        let entities = node.getBody().getStatements()
+          .filter((currentNode) => { return currentNode.getKind() === 'VariableDef'; });
         if (type === 'target') {
             varDefNode = node.parent;
             entities = node.outputs;
@@ -509,16 +510,6 @@ class TransformNodeManager {
                         });
                     }
                 });
-                _.forEach(entities, (input, i) => {
-                    if (input === varName) {
-                        entities[i] = newVarName;
-                    }
-                });
-                if (type === 'target') {
-                    node.setOutputs(entities);
-                } else {
-                    node.setInputs(entities);
-                }
                 node.trigger('tree-modified', {
                     origin: node,
                     type: 'variable-update',

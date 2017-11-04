@@ -230,7 +230,7 @@ class DefaultNodeFactory {
 
     createTransformer() {
         return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
-            transformer <Source a, Target b> {
+            transformer <Source a, Target b> newTransformer (){
 
             }
         `));
@@ -464,6 +464,7 @@ class DefaultNodeFactory {
             ${connectorInit}
         }`;
         const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
+        nodeForFragment.viewState.showOverlayContainer = true;
         return nodeForFragment;
     }
 

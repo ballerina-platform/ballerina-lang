@@ -81,6 +81,8 @@ class CompleterFactory {
                         });
                     score--;
                 });
+            completions.push({ name: 'function', caption: 'function', snippet: 'ƒ', meta: 'lambda' });
+            completions.push({ name: 'function', caption: 'lambda', snippet: 'ƒ', meta: 'lambda' });
             callback(null, completions);
         });
     }
