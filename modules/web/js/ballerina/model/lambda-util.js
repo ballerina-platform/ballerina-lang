@@ -7,7 +7,7 @@ export default function splitVariableDefByLambda(node) {
     node.accept({
         beginVisit(n) {
             if (n.kind === 'Lambda' && i === 0) {
-                lambdas.push(n.functionNode);
+                lambdas.unshift(n.functionNode);
                 i++;
             }
         },

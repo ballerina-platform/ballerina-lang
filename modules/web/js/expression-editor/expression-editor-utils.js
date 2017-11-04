@@ -213,9 +213,9 @@ class ExpressionEditor {
                         const kind = node.kind;
                         if (kind === 'VariableDef' || kind === 'Return' || kind === 'Assignment') {
                             const { lambdas } = splitVariableDefByLambda(model);
-                            let i = lambdas.length;
+                            let i = 0;
                             text = text.replace(/\u0192/g, () => {
-                                const lambda = lambdas[--i];
+                                const lambda = lambdas[i++];
                                 return lambda ? lambda.getSource() : 'function(){}';
                             });
                         }
