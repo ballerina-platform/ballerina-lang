@@ -9,11 +9,11 @@ service<http> headerBasedRouting {
         path:"/route"
     }
     resource hbrResource (http:Request req, http:Response res) {
-        endpoint<http:ClientConnector> locationEP {
-            create http:ClientConnector("http://www.mocky.io", {});
+        endpoint<http:HttpClient> locationEP {
+            create http:HttpClient("http://www.mocky.io", {});
         }
-        endpoint<http:ClientConnector> weatherEP {
-            create http:ClientConnector("http://samples.openweathermap.org", {});
+        endpoint<http:HttpClient> weatherEP {
+            create http:HttpClient("http://samples.openweathermap.org", {});
         }
         //Create new request and response to handle client call.
         http:Request newRequest = {};

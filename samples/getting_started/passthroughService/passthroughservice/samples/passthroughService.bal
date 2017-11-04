@@ -10,8 +10,8 @@ service<http> passthrough {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> nyseEP {
-            create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> nyseEP {
+            create http:HttpClient("http://localhost:9090", {});
         }
         http:Response clientResponse = {};
         http:HttpConnectorError err;

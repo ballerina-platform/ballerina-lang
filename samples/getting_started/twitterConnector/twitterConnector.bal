@@ -3,8 +3,8 @@ import ballerina.net.uri;
 import ballerina.util;
 
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    endpoint<http:ClientConnector> tweeterEP {
-        create http:ClientConnector("https://api.twitter.com", {});
+    endpoint<http:HttpClient> tweeterEP {
+        create http:HttpClient("https://api.twitter.com", {});
     }
     action tweet (string msg) (http:Response) {
         http:Request request = {};

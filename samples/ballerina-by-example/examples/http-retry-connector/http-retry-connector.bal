@@ -1,9 +1,9 @@
 import ballerina.net.http;
 
 function main (string[] args) {
-    endpoint<http:ClientConnector> httpEndpoint {}
+    endpoint<http:HttpClient> httpEndpoint {}
     // Create an HTTP Client Connector
-    http:ClientConnector clientCon = create http:ClientConnector("https://postman-echo.com", {});
+    http:HttpClient clientCon = create http:HttpClient("https://postman-echo.com", {});
     // Create an HTTP Retry Connector
     http:RetryClient retryCon = create http:RetryClient(clientCon, 5, 3000);
     // Bind Retry Connector with endpoint

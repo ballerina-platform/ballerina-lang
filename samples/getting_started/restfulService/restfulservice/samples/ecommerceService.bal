@@ -5,8 +5,8 @@ import ballerina.net.http;
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
 
-    endpoint<http:ClientConnector> productsService {
-        create http:ClientConnector("http://localhost:9090", {});
+    endpoint<http:HttpClient> productsService {
+        create http:HttpClient("http://localhost:9090", {});
     }
     http:HttpConnectorError err;
 
@@ -36,8 +36,8 @@ service<http> Ecommerce {
         path:"/orders"
     }
     resource ordersInfo (http:Request req, http:Response resp) {
-        endpoint<http:ClientConnector> productsService {
-            create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> productsService {
+            create http:HttpClient("http://localhost:9090", {});
         }
         http:Response clientResponse = {};
         clientResponse, err = productsService.get("/orderservice/orders", req);
