@@ -203,7 +203,7 @@ class ExpressionEditor {
             try {
                 if (!didSemicolon && !didEnter) {
                     let text = this._editor.getSession().getValue()
-                        ? this._editor.getSession().getValue() + ';'
+                        ? this._editor.getSession().getValue() + (TreeUtil.isEndpointTypeVariableDef(node) ? '' : ';')
                         : '';
 
                     // If setter method is available use it, else use setSource.

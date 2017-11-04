@@ -15,38 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import uuid from 'uuid/v4';
 
-class RequestSession {
-    constructor() {
-        this._callback = undefined;
-        this.message = undefined;
-        this._id = uuid();
-    }
+import AbstractEnumeratorNode from './abstract-tree/enumerator-node';
 
-    getCallback() {
-        return this._callback;
-    }
+class EnumeratorNode extends AbstractEnumeratorNode {
 
-    getId() {
-        return this._id;
-    }
-
-    getMessage() {
-        return this._message;
-    }
-
-    setMessage(message) {
-        this._message = message;
-    }
-
-    setCallback(callback) {
-        this._callback = callback;
-    }
-
-    executeCallback(message) {
-        this._callback(message);
-    }
 }
 
-export default RequestSession;
+export default EnumeratorNode;

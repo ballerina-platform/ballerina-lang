@@ -33,6 +33,7 @@ public class BLangFragmentParserConstants {
     public static final String RETURN_PARAMETER = "return_parameter_definitions";
     public static final String TRANSACTION_FAILED = "transaction_failed";
     public static final String VARIABLE_REFERENCE_LIST = "variable_reference_list";
+    public static final String ENDPOINT_VAR_DEF = "endpoint_var_def";
 
     // wrapper templates
     protected static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http> service1{\n$FRAGMENT\n}";

@@ -272,6 +272,10 @@ class DefaultNodeFactory {
         return node;
     }
 
+    createBindStmt() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment('bind __connector with __endpoint;'));
+    }
+
     createVarDefStmt() {
         const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
         // Check if the node is a ConnectorDeclaration
@@ -459,7 +463,7 @@ class DefaultNodeFactory {
         const endpointSource = `endpoint ${constraint} endpoint1 {
             ${connectorInit}
         }`;
-        const nodeForFragment = getNodeForFragment(FragmentUtils.createStatementFragment(endpointSource));
+        const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
         return nodeForFragment;
     }
 

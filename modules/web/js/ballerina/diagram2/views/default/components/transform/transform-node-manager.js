@@ -100,6 +100,16 @@ class TransformNodeManager {
     }
 
     /**
+     * create a variable for provided name and type
+     * @param  {string} name variable name
+     * @param  {string} type variable type
+     * @return {object}     created variable node
+     */
+    createVariable(name, type) {
+        return TransformFactory.createVariable(name, type);
+    }
+
+    /**
      * Creates the statement edge based on the connection drawn
      * @param {any} connection connection created
      * @memberof TransformNodeManager

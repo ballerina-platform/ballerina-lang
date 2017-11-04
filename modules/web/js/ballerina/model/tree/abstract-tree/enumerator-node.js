@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractEnumNode extends Node {
+class AbstractEnumeratorNode extends Node {
 
 
     setEnumerators(newValue, silent, title) {
@@ -314,4 +314,4 @@ class AbstractEnumNode extends Node {
 
 }
 
-export default AbstractEnumNode;
+export default AbstractEnumeratorNode;

@@ -51,6 +51,10 @@ class AbstractTreeUtil {
         return node.kind === 'Enum';
     }
 
+    isEnumerator(node) {
+        return node.kind === 'Enumerator';
+    }
+
     isFunction(node) {
         return node.kind === 'Function';
     }

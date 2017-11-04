@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import uuid from 'uuid/v1';
+import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
 import SimpleBBox from '../view/simple-bounding-box';
 import getSourceOf from '../source-gen';

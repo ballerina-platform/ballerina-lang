@@ -92,6 +92,7 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
+            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
                 // For Expression - 0th child is the var ref expression of var def stmt
                 // For Statement - 0 & 1 are function args and return types, 2 is the statement came from source
                 // fragment
@@ -158,6 +159,9 @@ public class BLangFragmentParser {
                 if (!source.trim().endsWith(";")) {
                     source = source + ";";
                 }
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
+                break;
+            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:

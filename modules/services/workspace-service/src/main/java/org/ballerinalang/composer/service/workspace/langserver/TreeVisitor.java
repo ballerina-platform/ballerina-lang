@@ -276,13 +276,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransformer transformerNode) {
-        if (!cursorPositionResolvers.get(cursorPositionResolver)
-                .isCursorBeforeStatement(transformerNode.getPosition(), transformerNode, this)) {
-
-            this.blockOwnerStack.push(transformerNode);
-            this.acceptNode(transformerNode.body, symbolEnv);
-            this.blockOwnerStack.pop();
-        }
+        this.blockOwnerStack.push(transformerNode);
+        // Cursor position is calculated against the Block statement scope resolver
+        cursorPositionResolver = BlockStatementScopeResolver.class;
+        this.acceptNode(transformerNode.body, symbolEnv);
+        this.blockOwnerStack.pop();
     }
 
     public void visit(BLangConnector connectorNode) {
