@@ -1353,8 +1353,11 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     isInTransformInputOutput(expression) {
+        const varDeclarations = this._transformStmt.getBody().getStatements()
+          .filter((node) => { return TreeUtil.isVariableDef(node); });
+
         const inputOutput = [this._transformStmt.getSourceParam(), ...this._transformStmt.getParameters(),
-            ...this._transformStmt.getReturnParameters()];
+            ...this._transformStmt.getReturnParameters(), ...varDeclarations.map(varNode => varNode.getVariable())];
         const ioReference = inputOutput.find((io) => {
             return io.name.getSource().trim() === expression.getSource().trim();
         });

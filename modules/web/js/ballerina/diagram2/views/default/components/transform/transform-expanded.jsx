@@ -1242,6 +1242,7 @@ class TransformExpanded extends React.Component {
 
         source.endpointKind = 'input';
         params.forEach(p => {p.endpointKind = 'input'});
+        declarations.forEach(p => {p.endpointKind = 'input'});
         returns.forEach(r => {r.endpointKind = 'output'});
 
         this.props.model.getBody().getStatements().forEach((stmt) => {
