@@ -20,19 +20,54 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from '../decorators/panel-decorator';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
-import TransformerStatementDecorator from '../transform/transformer-statement-decorator';
+import TransformerNodeDetails from '../transform/transformer-node-details';
+import ImageUtil from '../../../../image-util';
+import PanelDecoratorButton from '../decorators/panel-decorator-button';
 
 class TransformerNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onExpand = this.onExpand.bind(this);
+    }
+
+    onExpand() {
+        const { designView } = this.context;
+        designView.setTransformActive(true, this.props.model);
     }
 
     render() {
-        const model = this.props.model;
-        const icons = 'tool-icons/transformer';
+        const icon = 'tool-icons/transformer';
+        const { model } = this.props;
+        const { viewState } = model;
+        const { bBox } = viewState;
 
-        return (<TransformerStatementDecorator viewState={model.viewState} icon={icons} model={model} />);
+        const nodeDetails = ({x, y}) => (
+            <TransformerNodeDetails 
+                x={x}
+                y={y} 
+                model={this.props.model}
+                onExpand={this.onExpand}
+            />
+        );
+
+        return (
+            <PanelDecorator
+                bBox={model.viewState.bBox}
+                icon={icon}
+                model={model}
+                headerComponent={nodeDetails}
+                rightComponents={[{
+                    component: PanelDecoratorButton,
+                    props: {
+                        icon: ImageUtil.getSVGIconString('expand'),
+                        tooltip: 'Go to expanded view',
+                        onClick: this.onExpand,
+                        key: `${this.props.model.getID()}-transform-expand-button`,
+                    }
+                }]}
+            />
+        );
     }
 }
 
@@ -42,6 +77,7 @@ TransformerNode.propTypes = {
 
 TransformerNode.contextTypes = {
     mode: PropTypes.string,
+    designView: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default TransformerNode;

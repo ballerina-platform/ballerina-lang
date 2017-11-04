@@ -65,9 +65,9 @@ class SemanticErrorPopup extends React.Component {
     /**
      * Navigates to code line in the source view from the design view node
      */
-    onJumpToCodeLine() {
+    onJumpToCodeLine(row, column) {
         const { editor } = this.context;
-        editor.goToSource(this.props.model.props.model);
+        editor.jumpToSourcePosition(row, column);
     }
 
     /**
@@ -113,7 +113,7 @@ class SemanticErrorPopup extends React.Component {
                                     <li
                                         key={error.row + error.column + btoa(error.text) + index}
                                         className="list-group-item"
-                                        onClick={() => this.onJumpToCodeLine()}
+                                        onClick={() => this.onJumpToCodeLine(error.row - 1, error.column - 1)}
                                     >
                                         <div>
                                             <span className="line">line {error.row + ' '}</span>
