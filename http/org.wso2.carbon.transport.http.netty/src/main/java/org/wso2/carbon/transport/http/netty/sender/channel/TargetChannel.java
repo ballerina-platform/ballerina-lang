@@ -160,6 +160,8 @@ public class TargetChannel {
                     this.channel.eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
                     this.getChannel().writeAndFlush(httpContent);
+                    httpCarbonRequest.removeHttpContentAsyncFuture();
+
                     if (handlerExecutor != null) {
                         handlerExecutor.executeAtTargetRequestSending(httpCarbonRequest);
                     }

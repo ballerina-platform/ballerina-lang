@@ -361,4 +361,8 @@ public class HTTPCarbonMessage {
     public HttpContent peek() {
         return this.blockingEntityCollector.peek();
     }
+
+    public synchronized void removeHttpContentAsyncFuture() {
+        this.messageFuture = null;
+    }
 }
