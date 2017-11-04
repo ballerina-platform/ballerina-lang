@@ -1,1 +1,1 @@
-//'blob' represents a sequence of bytes. It is a value type in Ballerina.
+//The 'blob' type represents a sequence of bytes. It is a value type in Ballerina.
