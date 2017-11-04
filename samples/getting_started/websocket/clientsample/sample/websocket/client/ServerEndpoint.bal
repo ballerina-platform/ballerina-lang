@@ -12,12 +12,12 @@ service<ws> SimpleProxyServer {
 
     resource onHandshake (ws:HandshakeConnection con) {
         ws:ClientConnector c = create ws:ClientConnector("wss://echo.websocket.org", "ClientService");
-        try {
-            ws:Connection clientConn = c.connectWithDefault();
-            clientConnMap[con.connectionID] = clientConn;
-            println("Client connection sucessful");
-        } catch (error err) {
+        var clientConn, err = c.connectWithDefault();
+        clientConnMap[con.connectionID] = clientConn;
+        if (err != null) {
             con.cancelHandshake(1001, "Cannot connect to remote server");
+        } else {
+            println("Client connection sucessful");
         }
     }
 

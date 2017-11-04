@@ -24,8 +24,9 @@ service<ws> EchoServer {
     resource onBinaryMessage (ws:Connection conn, ws:BinaryFrame frame) {
         blob data = frame.data;
         string text = data.toString("UTF-8");
+        text = "You said " + text;
         println("UTF-8 Decoded binary message: " + text);
-        conn.pushBinary("You said " + text.toBlob("UTF-8"));
+        conn.pushBinary(text.toBlob("UTF-8"));
     }
 
     resource onClose (ws:Connection conn, ws:CloseFrame frame) {
