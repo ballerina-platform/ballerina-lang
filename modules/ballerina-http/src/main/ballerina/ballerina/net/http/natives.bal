@@ -397,5 +397,5 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"path: Request path" }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
-	native action forward (string path, Request req) (Response);
+	native action forward (string path, Request req) (Response, HttpConnectorError);
 }
