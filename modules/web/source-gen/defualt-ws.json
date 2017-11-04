@@ -42,12 +42,12 @@
     "after returnParameters": "",
     "before {": " ",
     "after {": "",
+    "before body": "",
+    "after body": "",
     "before workers": "",
     "after workers": "",
     "before }": "",
-    "after }": "",
-    "before body": "",
-    "after body": ""
+    "after }": ""
   },
   "Annotation": {
     "before annotation": "",
@@ -103,7 +103,7 @@
   "AnnotationAttribute": {
     "before typeNode": "",
     "after typeNode": "",
-    "before name": "",
+    "before name": " ",
     "after name": "",
     "before =": "",
     "after =": "",
@@ -235,11 +235,35 @@
     "before >": "",
     "after >": ""
   },
+  "EndpointType": {
+    "before <": "",
+    "after <": "",
+    "before constraint": "",
+    "after constraint": "",
+    "before >": "",
+    "after >": ""
+  },
   "ExpressionStatement": {
     "before expression": "",
     "after expression": "",
     "before ;": "",
     "after ;": ""
+  },
+  "Enum": {
+    "before enum\\u0020": "",
+    "after enum\\u0020": "",
+    "before name": "",
+    "after name": "",
+    "before {": "",
+    "after {": "",
+    "before enumerators": "",
+    "after enumerators": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Enumerator": {
+    "before name": "",
+    "after name": ""
   },
   "FieldBasedAccessExpr": {
     "before expression": "",
@@ -264,9 +288,9 @@
     "after (": "",
     "before joinType": "",
     "after joinType": "",
-    "before joinCount": "",
+    "before joinCount": " ",
     "after joinCount": "",
-    "before joinedWorkerIdentifiers": "",
+    "before joinedWorkerIdentifiers": " ",
     "after joinedWorkerIdentifiers": "",
     "before )": "",
     "after )": "",
@@ -298,12 +322,12 @@
     "after returnParameters": " ",
     "before {": "",
     "after {": "",
+    "before body": "",
+    "after body": "",
     "before workers": "",
     "after workers": "",
     "before }": "",
     "after }": "",
-    "before body": "",
-    "after body": "",
     "before public": "",
     "after public": " ",
     "before <": "",
@@ -424,12 +448,12 @@
     "after )": "",
     "before {": " ",
     "after {": "",
+    "before body": "",
+    "after body": "",
     "before workers": "",
     "after workers": "",
     "before }": "",
-    "after }": "",
-    "before body": "",
-    "after body": ""
+    "after }": ""
   },
   "Retry": {
     "before retry": "",
@@ -490,20 +514,20 @@
     "after `": ""
   },
   "Struct": {
-    "before annotationAttachments": "",
-    "after annotationAttachments": "",
     "before public": "",
     "after public": " ",
     "before struct": "",
     "after struct": "",
-    "before name": " ",
-    "after name": "",
     "before {": " ",
     "after {": "",
     "before fields": "",
     "after fields": "",
     "before }": "",
-    "after }": ""
+    "after }": "",
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before name": " ",
+    "after name": ""
   },
   "TernaryExpr": {
     "before condition": "",
@@ -538,14 +562,14 @@
     "after failed": "",
     "before failedBody": "",
     "after failedBody": "",
-    "before committed": " ",
-    "after committed": "",
-    "before committedBody": "",
-    "after committedBody": "",
     "before aborted": " ",
     "after aborted": "",
     "before abortedBody": "",
-    "after abortedBody": ""
+    "after abortedBody": "",
+    "before committed": " ",
+    "after committed": "",
+    "before committedBody": "",
+    "after committedBody": ""
   },
   "Transform": {
     "before transform": "",
@@ -585,9 +609,7 @@
     "before body": "",
     "after body": "",
     "before }": "",
-    "after }": "",
-    "before (){": "",
-    "after (){": ""
+    "after }": ""
   },
   "Try": {
     "before try": "",
@@ -650,24 +672,30 @@
     "after typeKind": ""
   },
   "Variable": {
+    "before typeNode": "",
+    "after typeNode": "",
+    "before name": " ",
+    "after name": "",
+    "before {": "",
+    "after {": "",
+    "before initialExpression": "",
+    "after initialExpression": "",
+    "before ;": "",
+    "after ;": "",
+    "before }": "",
+    "after }": "",
     "before annotationAttachments": "",
     "after annotationAttachments": "",
     "before public": "",
     "after public": " ",
     "before const": "",
     "after const": " ",
-    "before typeNode": "",
-    "after typeNode": "",
-    "before name": " ",
-    "after name": "",
     "before =": " ",
-    "after =": " ",
-    "before initialExpression": "",
-    "after initialExpression": "",
-    "before ;": "",
-    "after ;": ""
+    "after =": " "
   },
   "VariableDef": {
+    "before endpoint": "",
+    "after endpoint": "",
     "before variable": "",
     "after variable": "",
     "before ;": "",
@@ -812,4 +840,3 @@
     "after namespaceDeclaration": ""
   }
 }
-

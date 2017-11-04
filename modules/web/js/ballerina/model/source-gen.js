@@ -135,11 +135,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'AnnotationAttribute':
             if (node.typeNode && node.name.value && node.initialExpression) {
-                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w()
+                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
                  + node.name.value + w() + '='
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
             } else {
-                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w()
+                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
                  + node.name.value;
             }
         case 'ArrayLiteralExpr':
@@ -230,23 +230,23 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}' + w() + 'join' + w() + '(' + w() + node.joinType
-                 + w() + node.joinCount
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '('
+                 + w(' ') + node.joinCount
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',') + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')'
                  + w(' ') + '{' + indent()
                  + getSourceOf(node.joinBody, pretty, l, replaceLambda) + outdent() + w() + '}' + w() + 'timeout' + w()
-                 + '(' + getSourceOf(node.timeOutExpression, pretty, l, replaceLambda)
-                 + w() + ')' + w() + '('
+                 + '('
+                 + getSourceOf(node.timeOutExpression, pretty, l, replaceLambda) + w() + ')' + w() + '('
                  + getSourceOf(node.timeOutVariable, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{' + indent()
-                 + getSourceOf(node.timeoutBody, pretty, l, replaceLambda) + outdent()
-                 + w() + '}';
+                 + getSourceOf(node.timeoutBody, pretty, l, replaceLambda)
+                 + outdent() + w() + '}';
             } else if (node.workers && node.joinType && node.joinCount >= 0
                          && node.joinedWorkerIdentifiers && node.joinResultVar && node.joinBody) {
                 return dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
-                 + '}' + w() + 'join' + w() + '(' + w() + node.joinType + w()
+                 + '}' + w() + 'join' + w() + '(' + w() + node.joinType + w(' ')
                  + node.joinCount
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '('
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',') + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')' + w(' ')
                  + '{' + indent()
                  + getSourceOf(node.joinBody, pretty, l, replaceLambda) + outdent() + w() + '}';
@@ -254,9 +254,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                          && node.joinedWorkerIdentifiers && node.joinResultVar) {
                 return dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
-                 + '}' + w() + 'join' + w() + '(' + w() + node.joinType + w()
+                 + '}' + w() + 'join' + w() + '(' + w() + node.joinType + w(' ')
                  + node.joinCount
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '('
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',') + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')' + w(' ')
                  + '{' + indent() + outdent() + w() + '}';
             } else if (node.workers && node.joinType && node.joinedWorkerIdentifiers
@@ -265,7 +265,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}' + w() + 'join' + w() + '(' + w() + node.joinType
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '('
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',') + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{' + indent()
                  + getSourceOf(node.joinBody, pretty, l, replaceLambda)
                  + outdent() + w() + '}' + w() + 'timeout' + w() + '('
@@ -278,7 +278,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}' + w() + 'join' + w() + '(' + w() + node.joinType
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',')
                  + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{' + indent()
                  + getSourceOf(node.joinBody, pretty, l, replaceLambda) + outdent() + w()
@@ -287,7 +287,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + dent() + w() + 'fork' + w(' ') + '{' + indent()
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}' + w() + 'join' + w() + '(' + w() + node.joinType
-                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.joinedWorkerIdentifiers, pretty, replaceLambda, l, w, ' ', ',')
                  + w() + ')' + w() + '('
                  + getSourceOf(node.joinResultVar, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{' + indent()
                  + outdent() + w() + '}';
