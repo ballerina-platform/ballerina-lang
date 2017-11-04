@@ -37,7 +37,6 @@ import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
@@ -53,7 +52,6 @@ import java.util.List;
 
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
-    private static final String DOC_PACKAGE_NAME = "doc";
     private static final String DOC_SEPARATOR = ":";
     private static final String DOC_DESCRIPTION = "Description";
     private static final String DOC_PARAM = "Param";
@@ -471,17 +469,6 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             return null;
         }
         if (!annotationType.equals(nameReferenceNodeIdentifier.getText())) {
-            return null;
-        }
-        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(annotationReferenceNode, PackageNameNode.class);
-        if (packageNameNode == null) {
-            return null;
-        }
-        PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-        if (packageNameNodeIdentifier == null) {
-            return null;
-        }
-        if (!DOC_PACKAGE_NAME.equals(packageNameNodeIdentifier.getText())) {
             return null;
         }
         return PsiTreeUtil.findChildOfType(annotation, AnnotationAttributeValueNode.class);

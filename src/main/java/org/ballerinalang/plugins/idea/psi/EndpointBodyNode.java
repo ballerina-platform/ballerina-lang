@@ -17,12 +17,22 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ConnectorInitExpressionNode extends ANTLRPsiNode {
+public class EndpointBodyNode extends ANTLRPsiNode implements CodeBlockScope {
 
-    public ConnectorInitExpressionNode(@NotNull ASTNode node) {
+    public EndpointBodyNode(@NotNull ASTNode node) {
         super(node);
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        return null;
     }
 }

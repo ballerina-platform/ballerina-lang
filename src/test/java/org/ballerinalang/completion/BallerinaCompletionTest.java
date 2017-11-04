@@ -272,7 +272,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
-        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
+        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transaction",
                 "abort", "aborted", "try", "break", "iterate", "throw", "var");
     }
 
@@ -308,8 +308,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.add("test");
         expectedLookups.add("main");
+        expectedLookups.add("args");
+        expectedLookups.add("return");
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ <caret> \ntest:getA(); }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -556,7 +559,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreation() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test", "A");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test");
     }
 
     public void testConnectorCreationPackageAutoCompletion() {
@@ -681,7 +684,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("string");
         expectedLookups.add("test");
         expectedLookups.add("transaction");
-        expectedLookups.add("transform");
         expectedLookups.addAll(XMLNS_TYPE);
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -1337,6 +1339,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.add("test");
+        expectedLookups.add("return");
         doTest("function test(){ <caret> int a; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 

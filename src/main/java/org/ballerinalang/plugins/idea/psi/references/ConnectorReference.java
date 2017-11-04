@@ -81,7 +81,7 @@ public class ConnectorReference extends BallerinaElementReference {
             return null;
         }
         PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true,
-                false, false, false, false, true);
+                false, false, false, false, true, true);
         if (element != null) {
             return element;
         }
@@ -97,8 +97,7 @@ public class ConnectorReference extends BallerinaElementReference {
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true, false, false,
-                false,
-                false, false);
+                false, false, false, false);
     }
 
     @NotNull
@@ -112,7 +111,7 @@ public class ConnectorReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
         if (containingPackage != null) {
             List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage,
-                    true);
+                    true, true);
             results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
                     ParenthesisInsertHandler.INSTANCE));
         }
@@ -131,7 +130,8 @@ public class ConnectorReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(resolvedPackage, false);
+        List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(resolvedPackage, false,
+                false);
         results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
                 ParenthesisInsertHandler.INSTANCE));
         return results;

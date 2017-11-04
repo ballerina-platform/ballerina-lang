@@ -50,6 +50,7 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -61,7 +62,7 @@ sourceNotation
     ;
 
 serviceBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition*
+    :  endpointDeclaration* variableDefinitionStatement* resourceDefinition*
     ;
 
 resourceDefinition
@@ -69,8 +70,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :  connectorDeclarationStmt* statement*
-    |  connectorDeclarationStmt* workerDeclaration+
+    :  endpointDeclaration* statement*
+    |  endpointDeclaration* workerDeclaration+
     ;
 
 functionDefinition
@@ -87,7 +88,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
@@ -123,6 +124,10 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    ;
+
 attachmentPoint
      : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
      | RESOURCE                             # resourceAttachPoint
@@ -134,6 +139,7 @@ attachmentPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody
@@ -158,7 +164,7 @@ workerDeclaration
     ;
 
 workerBody
-    :   connectorDeclarationStmt* statement*
+    :   statement*
     ;
 
 typeName
@@ -172,6 +178,11 @@ typeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   nameReference
+    |   anonStructTypeName
+    ;
+
+anonStructTypeName
+    : STRUCT LEFT_BRACE structBody RIGHT_BRACE
     ;
 
 valueTypeName
@@ -231,6 +242,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -243,38 +255,14 @@ statement
     |   (triggerWorker | workerReply)
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
     |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   (expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement)*
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
-    ;
-
 variableDefinitionStatement
     :   typeName Identifier (ASSIGN  expression)? SEMICOLON
-    ;
-
-connectorDeclarationStmt
-    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -297,21 +285,24 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInitExpression
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+connectorInit
+    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
-filterInitExpression
-    : connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+endpointDeclaration
+    :   ENDPOINT (LT connectorReference GT) Identifier LEFT_BRACE endpointBody RIGHT_BRACE
     ;
 
-filterInitExpressionList
-    : filterInitExpression (COMMA filterInitExpression)*
+endpointBody
+    :   ((variableReference | connectorInit) SEMICOLON)?
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression WITH nameReference SEMICOLON
     ;
 
 variableReferenceList
@@ -494,6 +485,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
@@ -517,7 +509,7 @@ typeCast
     ;
 
 typeConversion
-    :   LT typeName GT simpleExpression
+    :   LT typeName (SEMICOLON transformerInvocation)? GT expression
     ;
 
 //reusable productions
@@ -544,6 +536,14 @@ structReference
 
 workerReference
     :   Identifier
+    ;
+
+transformerInvocation
+    : transformerReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+transformerReference
+    :   (packageName COLON)? Identifier
     ;
 
 codeBlockBody
