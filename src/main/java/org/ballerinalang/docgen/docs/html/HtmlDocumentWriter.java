@@ -26,6 +26,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -335,6 +336,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
                     .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
+                    .registerHelper("isPublic",
+                                    (Helper<BLangFunction>) (func, options) -> func.getFlags().contains(Flag.PUBLIC) ?
+                                            "public" : "")
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
@@ -420,8 +424,17 @@ public class HtmlDocumentWriter implements DocumentWriter {
     }
 
     private String getFullyQualifiedTypeName(BLangType bLangType) {
-        return (bLangType instanceof BLangUserDefinedType ?
-                ((BLangUserDefinedType) bLangType).type.tsymbol.toString() : bLangType.toString());
+        if (bLangType instanceof BLangUserDefinedType) {
+            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;
+
+            if (userDefinedType.type.tsymbol != null) {
+                return userDefinedType.type.tsymbol.toString();
+            } else {
+                // to handle built-in user defined types
+                return userDefinedType.typeName.value;
+            }
+        }
+        return bLangType.toString();
     }
 
     /**

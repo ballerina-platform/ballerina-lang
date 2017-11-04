@@ -32,7 +32,7 @@
                         {{#each functions}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
-                                function {{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                                {{isPublic}} function {{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}} {{receiver/name}}&gt; {{/if}}{{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                             </h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
@@ -185,7 +185,7 @@
                             <span class="opener">Functions</span>
                             <ul>
                             {{#each functions}}
-                                <li><a href="#{{name}}">{{#if receiver/typeNode}}[{{typeText receiver/typeNode}}] {{/if}}{{name}}({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
+                                <li><a href="#{{name}}">{{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}}&gt; {{/if}}{{name}}({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
                                 </li>
                             {{/each}}
                             </ul>
