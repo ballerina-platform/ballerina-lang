@@ -536,7 +536,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
     
     // Methods from Datasource impl

@@ -67,7 +67,7 @@ public class ListFiles extends AbstractNativeFunction {
 
         try {
             Files.list(Paths.get(path)).forEach(p -> structList.add(createFileStruct(context, p.toString())));
-            filesList = new BRefValueArray(structList.toArray(new BRefType[0]));
+            filesList = new BRefValueArray(structList.toArray(new BRefType[0]), fileStruct.getType());
         } catch (IOException e) {
             String msg = "Error occurred while opening directory: " + path;
             log.error(msg, e);
