@@ -5,7 +5,7 @@ package foo.bar.xyz.str;
 @Param{value:"consumerSecret: consumer secret"}
 @Param{value:"accessToken: access token"}
 @Param{value:"accessTokenSecret: access token secret"}
-connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
+public connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
     
     @Description{value:"test connector action"}
     @Param{value:"msg: a string message"}

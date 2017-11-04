@@ -180,6 +180,24 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return options.inverse(null);
                     })
+                    .registerHelper("isPublicFunction", (Helper<BLangFunction>) (function, options) -> {
+                        if (function.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(function);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("isPublicConnector", (Helper<BLangConnector>) (connector, options) -> {
+                        if (connector.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(connector);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("isPublicStruct", (Helper<BLangStruct>) (struct, options) -> {
+                        if (struct.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(struct);
+                        }
+                        return options.inverse(null);
+                    })
                     // usage: {{currentObject this}}
                     .registerHelper("currentObject", (Helper<Object>) (obj, options) -> {
                         dataHolder.setCurrentObject(obj);
@@ -336,9 +354,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
                     .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
-                    .registerHelper("isPublic",
-                                    (Helper<BLangFunction>) (func, options) -> func.getFlags().contains(Flag.PUBLIC) ?
-                                            "public" : "")
+//                    .registerHelper("isPublic",
+//                                    (Helper<BLangFunction>) (func, options) -> func.getFlags().contains(Flag.PUBLIC) ?
+//                                            "public" : "")
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;

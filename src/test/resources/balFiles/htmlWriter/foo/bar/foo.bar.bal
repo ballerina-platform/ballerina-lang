@@ -4,7 +4,7 @@ package foo.bar;
 @Param{value:"m: Incoming message"}
 @Param{value:"key: HTTP header key"}
 @Param{value:"value: HTTP header value"}
-function addHeader (string m, string key, string value) {
+public function addHeader (string m, string key, string value) {
     println("invoked");
 }
 
@@ -12,7 +12,7 @@ function addHeader (string m, string key, string value) {
 @Param{value:"m: Incoming message"}
 @Param{value:"key: HTTP header key"}
 @Return{value:"HTTP header value"}
-function getHeader (string m, string key) (string) {
+public function getHeader (string m, string key) (string) {
     println("invoked");
     return "value";
 }
@@ -21,7 +21,7 @@ function getHeader (string m, string key) (string) {
 @Field{value:"text: a string"}
 @Field{value:"argumentId: an id"}
 @Field{value:"sentiment: setiment about the argument"}
-struct Argument {
+public struct Argument {
     string text;
     int argumentId;
     int sentiment;
@@ -32,7 +32,7 @@ struct Argument {
 @Param{value:"consumerSecret: consumer secret"}
 @Param{value:"accessToken: access token"}
 @Param{value:"accessTokenSecret: access token secret"}
-connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
+public connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
     @Description{value:"test connector action"}
     @Param{value:"msg: a string message"}
