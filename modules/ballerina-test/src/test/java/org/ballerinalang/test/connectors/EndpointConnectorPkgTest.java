@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.connectors;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -31,10 +32,12 @@ import org.testng.annotations.Test;
  */
 public class EndpointConnectorPkgTest {
     CompileResult result;
+    CompileResult resultNegative;
 
     @BeforeClass()
     public void setup() {
         result = BCompileUtil.compile(this, "test-src/connectors", "pkg.ab");
+        resultNegative = BCompileUtil.compile(this, "test-src/connectors", "pkg.gh");
     }
 
     @Test(description = "Test simple endpoint creation")
@@ -92,5 +95,11 @@ public class EndpointConnectorPkgTest {
         Assert.assertEquals(returns[0].stringValue(), "FooFilter1-val1-para2-FooFilter2-val1-para1-Foo-val1-");
     }
 
+    @Test(description = "Test endpoint, connectors with errors")
+    public void testConnectorNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected " +
+                        "'endpoint<pkg.ij:Foo>', found 'pkg.gh:Bar'", 16, 9);
+    }
 
 }

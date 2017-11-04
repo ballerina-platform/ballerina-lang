@@ -1,0 +1,1 @@
+// The HTTP Retry Connector can be used to connect to and retry connections if failed, with an HTTP server.
