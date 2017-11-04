@@ -69,7 +69,7 @@ public class StatementReference extends BallerinaElementReference {
             return BallerinaPsiImplUtil.resolveElementInPackage(containingPackage, identifier, true, true, true,
                     true, true, true, false, false);
         } else {
-            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true, true);
         }
     }
 

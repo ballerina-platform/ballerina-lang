@@ -63,6 +63,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
@@ -487,8 +488,8 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<IdentifierPSINode> getAllTransformersFromPackage(@NotNull PsiDirectory directory,
-                                                                           boolean includePrivate,
-                                                                           boolean includeBuiltIns) {
+                                                                        boolean includePrivate,
+                                                                        boolean includeBuiltIns) {
         return getAllMatchingElementsFromPackage(directory, TransformerDefinitionNode.class, includePrivate,
                 includeBuiltIns);
     }
@@ -926,6 +927,34 @@ public class BallerinaPsiImplUtil {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
+            }
+        }
+        return results;
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAllEndpointsInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
+        if (scope instanceof VariableContainer || scope instanceof CodeBlockScope ||
+                scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
+            results.addAll(getAllEndpointsInScope(scope, caretOffset));
+            ScopeNode context = scope.getContext();
+            if (context != null) {
+                results.addAll(getAllEndpointsInResolvableScope(context, caretOffset));
+            }
+        }
+        return results;
+    }
+
+    @NotNull
+    private static List<IdentifierPSINode> getAllEndpointsInScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
+        Collection<EndpointDeclarationNode> endpointDeclarationNodes = PsiTreeUtil.getChildrenOfTypeAsList(scope,
+                EndpointDeclarationNode.class);
+        for (EndpointDeclarationNode endpointDeclarationNode : endpointDeclarationNodes) {
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(endpointDeclarationNode, IdentifierPSINode.class);
+            if (identifier != null) {
+                results.add((identifier));
             }
         }
         return results;
@@ -1465,7 +1494,7 @@ public class BallerinaPsiImplUtil {
                                                       boolean matchLocalVariables, boolean matchParameters,
                                                       boolean matchGlobalVariables) {
         PsiElement element = resolveElementInScope(identifier, matchLocalVariables, matchParameters,
-                matchGlobalVariables, false);
+                matchGlobalVariables, false, false);
         if (element == null) {
             return null;
         }
@@ -1492,7 +1521,7 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static PsiElement resolveElementInScope(@NotNull IdentifierPSINode identifier, boolean matchLocalVariables,
                                                    boolean matchParameters, boolean matchGlobalVariables,
-                                                   boolean matchConstants) {
+                                                   boolean matchConstants, boolean matchEndpoint) {
         ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
                 TopLevelDefinition.class, LowerLevelDefinition.class);
         if (scope != null) {
@@ -1503,6 +1532,15 @@ public class BallerinaPsiImplUtil {
                 for (IdentifierPSINode variable : variables) {
                     if (identifier.getText().equals(variable.getText())) {
                         return variable;
+                    }
+                }
+            }
+            if (matchEndpoint) {
+                List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
+                        caretOffset);
+                for (IdentifierPSINode endpoint : endpoints) {
+                    if (identifier.getText().equals(endpoint.getText())) {
+                        return endpoint;
                     }
                 }
             }

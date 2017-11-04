@@ -68,7 +68,7 @@ public class StructValueReference extends BallerinaElementReference {
             return element;
         }
         // If the reference is not resolved to an above definition, we try to resolve it to below definition.
-        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true,true);
     }
 
     @NotNull

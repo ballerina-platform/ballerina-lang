@@ -734,6 +734,23 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    private static LookupElement createEndpointLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Endpoint").withIcon(BallerinaIcons.ENDPOINT);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createEndpointLookupElements(@NotNull List<IdentifierPSINode> endpoints) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement endpoint : endpoints) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createEndpointLookupElement(endpoint);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
     private static LookupElement createTransformerLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Transformer").withIcon(BallerinaIcons.TRANSFORMER)

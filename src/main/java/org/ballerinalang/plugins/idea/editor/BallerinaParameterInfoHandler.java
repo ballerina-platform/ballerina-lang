@@ -460,7 +460,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
         }
-
         return list;
     }
 
