@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -35,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
@@ -47,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -56,6 +55,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -92,9 +93,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -151,7 +150,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgNode.symbol = symTable.rootPkgSymbol;
-        
+
         CompilerOptions options = CompilerOptions.getInstance(context);
         this.skipPkgValidation = Boolean.parseBoolean(options.get(CompilerOptionName.SKIP_PACKAGE_VALIDATION));
     }
@@ -188,6 +187,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
+
+        // Define struct nodes.
+        pkgNode.enums.forEach(enumNode -> defineNode(enumNode, pkgEnv));
 
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
@@ -335,14 +337,30 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Create struct type
         structNode.symbol.type = new BStructType((BTypeSymbol) structNode.symbol, new ArrayList<>());
-        defineBinaryOperator(OperatorKind.EQUAL, structSymbol.type, symTable.nullType, symTable.booleanType,
-                InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, structSymbol.type, symTable.booleanType,
-                InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, structSymbol.type, symTable.nullType, symTable.booleanType,
-                InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, symTable.nullType, structSymbol.type, symTable.booleanType,
-                InstructionCodes.RNE);
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        BTypeSymbol enumSymbol = Symbols.createEnumSymbol(Flags.asMask(enumNode.flagSet),
+                names.fromIdNode(enumNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        enumNode.symbol = enumSymbol;
+        defineSymbol(enumNode.pos, enumSymbol);
+
+        BEnumType enumType = new BEnumType(enumSymbol, null);
+        enumSymbol.type = enumType;
+
+        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, this.env);
+        for (int i = 0; i < enumNode.enumerators.size(); i++) {
+            BLangEnumerator enumerator = enumNode.enumerators.get(i);
+            BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
+                    names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
+            enumeratorSymbol.varIndex = i;
+            enumerator.symbol = enumeratorSymbol;
+
+            if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {
+                enumEnv.scope.define(enumeratorSymbol.name, enumeratorSymbol);
+            }
+        }
     }
 
     @Override
@@ -359,15 +377,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
-
-        defineBinaryOperator(OperatorKind.EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
-                InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
-                InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
-                InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
-                InstructionCodes.RNE);
     }
 
     @Override
@@ -595,6 +604,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case STRUCT:
                 pkgNode.structs.add((BLangStruct) node);
                 break;
+            case ENUM:
+                pkgNode.enums.add((BLangEnum) node);
+                break;
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);
                 break;
@@ -718,36 +730,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
-    }
-
-    private void defineBinaryOperator(OperatorKind kind,
-                                      BType lhsType,
-                                      BType rhsType,
-                                      BType retType,
-                                      int opcode) {
-        List<BType> paramTypes = Lists.of(lhsType, rhsType);
-        List<BType> retTypes = Lists.of(retType);
-        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
-    }
-
-    private void defineOperator(Name name,
-                                List<BType> paramTypes,
-                                List<BType> retTypes,
-                                int opcode) {
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, env.enclPkg.symbol.pkgID, opType, env.enclPkg.symbol,
-                opcode);
-        env.enclPkg.symbol.scope.define(symbol.name, symbol);
     }
 
     public BVarSymbol defineVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
@@ -759,7 +751,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         // Find duplicates
-        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
             enclScope.define(varSymbol.name, varSymbol);
         }
         return varSymbol;
@@ -827,8 +819,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangExpressionStmt createInitFunctionInvocationStatemt(BLangImportPackage importPackage,
-                                                                    BPackageSymbol pkgSymbol) {
+    private BLangExpressionStmt createInitFuncInvocationStmt(BLangImportPackage importPackage,
+                                                             BPackageSymbol pkgSymbol) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = importPackage.pos;
         invocationNode.addWS(importPackage.getWS());
@@ -956,7 +948,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
-                .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol));
     }
 
     private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
@@ -982,9 +974,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     /**
      * Validate the package declaration of the current compilation unit. Updates the package declaration
      * of the package node only if the current package declaration is a valid one.
-     * 
-     * @param pkgId Current package ID
-     * @param pkgNode Current package node
+     *
+     * @param pkgId    Current package ID
+     * @param pkgNode  Current package node
      * @param compUnit Current compilation unit
      */
     private void validatePackageDecl(PackageID pkgId, BLangPackage pkgNode, BLangCompilationUnit compUnit) {

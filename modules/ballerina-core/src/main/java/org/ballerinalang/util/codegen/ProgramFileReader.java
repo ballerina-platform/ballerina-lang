@@ -20,12 +20,14 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -360,6 +362,9 @@ public class ProgramFileReader {
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
+        // Read enum info entries
+        readEnumInfoEntries(dataInStream, packageInfo);
+
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
@@ -436,6 +441,39 @@ public class ProgramFileReader {
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, structInfo);
+        }
+    }
+
+    private void readEnumInfoEntries(DataInputStream dataInStream,
+                                     PackageInfo packageInfo) throws IOException {
+        int enumCount = dataInStream.readShort();
+        for (int i = 0; i < enumCount; i++) {
+
+            // Create enum info entry
+            int enumNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry enumNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumNameCPIndex);
+            String enumName = enumNameUTF8Entry.getValue();
+            EnumInfo enumInfo = new EnumInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
+                    enumNameCPIndex, enumName);
+            packageInfo.addEnumInfo(enumName, enumInfo);
+
+            // Set enum type
+            BEnumType enumType = new BEnumType(enumName, packageInfo.getPkgPath());
+            enumInfo.setType(enumType);
+
+            int enumeratorCount = dataInStream.readShort();
+            BEnumerator[] enumerators = new BEnumerator[enumeratorCount];
+            for (int j = 0; j < enumeratorCount; j++) {
+                int enumeratorNameCPIndex = dataInStream.readInt();
+                UTF8CPEntry enumeratorNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumeratorNameCPIndex);
+                String enumeratorName = enumeratorNameUTF8Entry.getValue();
+                BEnumerator enumerator = new BEnumerator(enumeratorName, enumType);
+                enumerators[j] = enumerator;
+            }
+            enumType.setEnumerators(enumerators);
+
+            // Read attributes of the struct info
+            readAttributeInfoEntries(dataInStream, packageInfo, enumInfo);
         }
     }
 
@@ -816,6 +854,7 @@ public class ProgramFileReader {
             case 'C':
             case 'K':
             case 'T':
+            case 'E':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -845,6 +884,8 @@ public class ProgramFileReader {
                     typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
                 } else if (typeChar == 'K') {
                     typeStack.push(new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType()));
+                } else if (typeChar == 'E') {
+                    typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -888,6 +929,7 @@ public class ProgramFileReader {
             case 'C':
             case 'K':
             case 'T':
+            case 'E':
                 String pkgPath;
                 String name;
                 PackageInfo packageInfoOfType;
@@ -901,6 +943,8 @@ public class ProgramFileReader {
                     return packageInfoOfType.getConnectorInfo(name).getType();
                 } else if (ch == 'K') {
                     return new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'E') {
+                    return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }
@@ -1442,6 +1486,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
+                case InstructionCodes.ENUMERATORLOAD:
                 case InstructionCodes.IADD:
                 case InstructionCodes.FADD:
                 case InstructionCodes.SADD:
@@ -1529,7 +1574,6 @@ public class ProgramFileReader {
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
-
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.CHECKCAST:

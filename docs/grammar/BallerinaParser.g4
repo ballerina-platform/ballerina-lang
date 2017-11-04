@@ -102,11 +102,11 @@ annotationDefinition
     ;
 
 enumDefinition
-    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumerator (COMMA enumerator)* RIGHT_BRACE
     ;
 
-enumFieldList
-    : Identifier (COMMA Identifier)*
+enumerator
+    : Identifier
     ;
 
 globalVariableDefinition
@@ -125,6 +125,7 @@ attachmentPoint
      | FUNCTION                             # functionAttachPoint
      | TYPEMAPPER                           # typemapperAttachPoint
      | STRUCT                               # structAttachPoint
+     | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint

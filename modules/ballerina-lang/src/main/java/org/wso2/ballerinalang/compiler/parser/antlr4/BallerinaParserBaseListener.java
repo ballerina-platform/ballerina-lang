@@ -256,13 +256,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEnumFieldList(BallerinaParser.EnumFieldListContext ctx) { }
+	@Override public void enterEnumerator(BallerinaParser.EnumeratorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEnumFieldList(BallerinaParser.EnumFieldListContext ctx) { }
+	@Override public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -371,6 +371,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
