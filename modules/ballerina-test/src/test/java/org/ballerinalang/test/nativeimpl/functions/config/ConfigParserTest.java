@@ -79,7 +79,7 @@ public class ConfigParserTest {
 
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  "invalid configuration\\(s\\) in ballerina.conf at line\\(s\\): \\[23, 26\\].*")
+                  "invalid configuration\\(s\\) in the file at line\\(s\\): \\[23, 26\\].*")
     public void testInvalidConfigFile() throws IOException {
         File configFile = new File(
                 getClass().getClassLoader().getResource("datafiles/config/invalid-ballerina.conf").getPath());

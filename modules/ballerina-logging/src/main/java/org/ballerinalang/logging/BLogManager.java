@@ -78,7 +78,7 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
-    public void loadUserProvidedLogConfiguration() throws IOException {
+    public void loadUserProvidedLogConfiguration() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
         String instancesVal = configRegistry.getGlobalConfigValue(BALLERINA_LOG_INSTANCES);
