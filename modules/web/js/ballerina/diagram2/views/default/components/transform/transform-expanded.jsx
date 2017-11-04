@@ -948,10 +948,16 @@ class TransformExpanded extends React.Component {
         designView.setTransformActive(false);
     }
 
+    /**
+     * Add a new variable delcaration to transformer body
+     */
     onAddNewVariable() {
         this.transformNodeManager.addNewVariable('source');
     }
 
+    /**
+     * Add a parameter to transformer
+     */
     onAddNewParameter() {
         this.props.model.addParameters(this.transformNodeManager.createVariable(
                                             'param' + (this.props.model.getParameters().length + 1), 'string'));
