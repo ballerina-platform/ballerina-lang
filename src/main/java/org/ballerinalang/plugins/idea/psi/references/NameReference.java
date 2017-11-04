@@ -213,7 +213,7 @@ public class NameReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true, true);
-            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, null));
             return results;
         }
 
@@ -265,7 +265,7 @@ public class NameReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true, false);
-            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, null));
 
             List<IdentifierPSINode> globalVariables =
                     BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage, false, false);

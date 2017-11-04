@@ -107,7 +107,7 @@ public class EnumReference extends BallerinaElementReference {
 
         if (containingPackage != null) {
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage, true, true);
-            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, null));
         }
         return results;
     }
@@ -121,7 +121,7 @@ public class EnumReference extends BallerinaElementReference {
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
         List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(resolvedPackage, false, false);
-        results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+        results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, null));
         return results;
     }
 }

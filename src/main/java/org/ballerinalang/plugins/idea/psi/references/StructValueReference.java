@@ -134,7 +134,7 @@ public class StructValueReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
             List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(currentPackage, true, true);
-            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, null));
 
             List<IdentifierPSINode> globalVariables =
                     BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true, true);

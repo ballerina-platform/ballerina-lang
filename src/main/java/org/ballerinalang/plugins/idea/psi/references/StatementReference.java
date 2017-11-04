@@ -209,6 +209,10 @@ public class StatementReference extends BallerinaElementReference {
                 false, false);
         results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
 
+        List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage,
+                false, false);
+        results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums, AddSpaceInsertHandler.INSTANCE));
+
         return results;
     }
 }

@@ -628,17 +628,20 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    private static LookupElement createEnumLookupElement(@NotNull IdentifierPSINode element) {
+    private static LookupElement createEnumLookupElement(@NotNull IdentifierPSINode element,
+                                                         @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Enum").withIcon(BallerinaIcons.ENUM);
+                .withTypeText("Enum").withIcon(BallerinaIcons.ENUM)
+                .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, ENUM_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createEnumLookupElements(@NotNull List<IdentifierPSINode> enums) {
+    public static List<LookupElement> createEnumLookupElements(@NotNull List<IdentifierPSINode> enums,
+                                                               @Nullable InsertHandler<LookupElement> insertHandler) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode anEnum : enums) {
-            lookupElements.add(createEnumLookupElement(anEnum));
+            lookupElements.add(createEnumLookupElement(anEnum, insertHandler));
         }
         return lookupElements;
     }
