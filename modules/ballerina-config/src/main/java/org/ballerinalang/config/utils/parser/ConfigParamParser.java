@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * Extension of the generic AbstractConfigParser to parse CLI config parameters.
- * i.e: parameters passed as -B<key>=<value>
+ * i.e: parameters passed as -B&lt;key&gt;=&lt;value&gt;
  *
  * @since 0.95
  */

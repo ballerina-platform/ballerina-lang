@@ -61,6 +61,8 @@ public class ConfigProcessor {
      * Processes runtime, environment and config file properties.This populates configRegistry with configs based on
      * the following precedence order. 1. Ballerina runtime properties, 2. External config
      * (environment vars, etcd or something similar), 3. ballerina.conf file
+     *
+     * @throws IOException if an error occur while parsing the file
      */
     public void processConfiguration() throws IOException {
         ConfigParamParser paramParser = new ConfigParamParser(runtimeParams);
