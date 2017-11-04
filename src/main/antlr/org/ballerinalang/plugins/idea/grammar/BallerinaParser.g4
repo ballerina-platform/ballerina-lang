@@ -509,7 +509,7 @@ typeCast
     ;
 
 typeConversion
-    :   LT typeName (SEMICOLON transformerInvocation)? GT expression
+    :   LT typeName (COMMA transformerInvocation)? GT expression
     ;
 
 //reusable productions
