@@ -85,7 +85,7 @@ public class ConnectorReference extends BallerinaElementReference {
         if (element != null) {
             return element;
         }
-        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true,true);
     }
 
     @Nullable

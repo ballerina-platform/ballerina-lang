@@ -46,6 +46,7 @@ public class BallerinaIcons {
     public static final Icon WORKER = AllIcons.Nodes.Rw_access;
     public static final Icon ENUM = AllIcons.Nodes.Enum;
     public static final Icon TRANSFORMER = AllIcons.Actions.TraceOver;
+    public static final Icon ENDPOINT = AllIcons.Ide.UpDown;
 
     private BallerinaIcons() {
 

@@ -56,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EndpointBodyNode;
+import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
@@ -390,6 +391,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionTypeNameNode(node);
             case BallerinaParser.RULE_lambdaFunction:
                 return new LambdaFunctionNode(node);
+            case BallerinaParser.RULE_endpointDeclaration:
+                return new EndpointDeclarationNode(node);
             case BallerinaParser.RULE_endpointBody:
                 return new EndpointBodyNode(node);
             default:

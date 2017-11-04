@@ -108,9 +108,10 @@ public class NameReference extends BallerinaElementReference {
             if (element != null) {
                 return element;
             }
-            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true, true);
         } else {
-            PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+            PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true,
+                    true, true);
             if (elementInScope != null) {
                 return elementInScope;
             }
@@ -200,6 +201,10 @@ public class NameReference extends BallerinaElementReference {
                     List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
                             caretOffset);
                     results.addAll(BallerinaCompletionUtils.createNamespaceLookupElements(namespaces));
+
+                    List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
+                            caretOffset);
+                    results.addAll(BallerinaCompletionUtils.createEndpointLookupElements(endpoints));
                 }
             }
 
