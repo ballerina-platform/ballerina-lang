@@ -341,7 +341,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
 
     // Methods from Datasource impl
@@ -400,7 +400,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((BXML<?>) sequence.get(i)).copy();
         }
-        return new BXMLSequence(new BRefValueArray(copiedVals));
+        return new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML));
     }
 
     /**
