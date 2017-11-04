@@ -155,13 +155,8 @@ public class BLangFragmentParser {
                 parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.WORKER:
-            case BLangFragmentParserConstants.STATEMENT:
-                if (!source.trim().endsWith(";")) {
-                    source = source + ";";
-                }
-                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
-                break;
             case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
+            case BLangFragmentParserConstants.STATEMENT:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
