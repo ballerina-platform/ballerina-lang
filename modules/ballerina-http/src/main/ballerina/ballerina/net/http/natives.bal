@@ -392,4 +392,10 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
+
+	@Description { value:"forward action can be used to invoke an http call with incoming request httpVerb"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	native action forward (string path, Request req) (Response);
 }
