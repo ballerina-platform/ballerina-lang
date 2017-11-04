@@ -66,6 +66,22 @@ public class EnumTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 200);
     }
 
+    @Test(description = "Test enum to any cast expressions")
+    public void testEnumToAnyCasts() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEnumToAnyCast");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 201);
+    }
+
+    @Test(description = "Test enum to any cast expressions")
+    public void testEnumSameTypeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEnumSameTypeCast");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 404);
+    }
+
     @Test(description = "Test negatives tests")
     public void testEnumNegativeCases() {
         CompileResult result = BCompileUtil.compile("test-src/enums/enums-negative.bal");

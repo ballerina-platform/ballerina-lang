@@ -189,7 +189,7 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
-                && checkConnectorEquivalancy(source, ((BEndpointType) target).constraint)) {
+                && checkConnectorEquivalency(source, ((BEndpointType) target).constraint)) {
             //TODO do we need to resolve a nop implicit cast operation?
             return true;
         }
@@ -292,7 +292,7 @@ public class Types {
         return true;
     }
 
-    public boolean checkConnectorEquivalancy(BType actualType, BType expType) {
+    public boolean checkConnectorEquivalency(BType actualType, BType expType) {
         if (actualType.tag != TypeTags.CONNECTOR || expType.tag != TypeTags.CONNECTOR) {
             return false;
         }
@@ -581,7 +581,7 @@ public class Types {
         @Override
         public BSymbol visit(BStructType t, BType s) {
             if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
             }
 
             if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
@@ -596,8 +596,8 @@ public class Types {
         @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalancy(s, t)) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
+            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
@@ -606,7 +606,11 @@ public class Types {
 
         @Override
         public BSymbol visit(BEnumType t, BType s) {
-            throw new AssertionError();
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
+            }
+
+            return symTable.notFoundSymbol;
         }
 
         @Override

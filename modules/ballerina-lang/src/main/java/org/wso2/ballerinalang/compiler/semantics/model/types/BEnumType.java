@@ -54,6 +54,11 @@ public class BEnumType extends BType implements EnumType {
     }
 
     @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
     public String toString() {
         return this.tsymbol.toString();
     }

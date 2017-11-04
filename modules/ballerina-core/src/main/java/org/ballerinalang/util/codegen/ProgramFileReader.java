@@ -58,7 +58,6 @@ import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -1574,6 +1573,7 @@ public class ProgramFileReader {
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
+                case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.CHECKCAST:

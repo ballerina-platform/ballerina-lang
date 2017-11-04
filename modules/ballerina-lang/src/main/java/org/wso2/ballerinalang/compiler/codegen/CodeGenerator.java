@@ -1159,7 +1159,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             castExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
             emit(opCode, rExpr.regIndex, typeCPIndex, targetRegIndex, errorRegIndex);
 
-        } else if (opCode == InstructionCodes.ANY2T || opCode == InstructionCodes.ANY2C) {
+        } else if (opCode == InstructionCodes.ANY2T ||
+                opCode == InstructionCodes.ANY2C ||
+                opCode == InstructionCodes.ANY2E) {
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, castExpr.type.getDesc());
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
             int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
