@@ -465,6 +465,7 @@ class DefaultNodeFactory {
         }`;
         const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
         nodeForFragment.viewState.showOverlayContainer = true;
+        nodeForFragment.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         return nodeForFragment;
     }
 

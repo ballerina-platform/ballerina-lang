@@ -57,6 +57,24 @@ public class StatementTemplateFilter implements SymbolFilter {
         whileItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(whileItem);
 
+        // Populate Bind Statement template
+        CompletionItem bindItem = new CompletionItem();
+        bindItem.setLabel(ItemResolverConstants.BIND);
+        bindItem.setInsertText(ItemResolverConstants.BIND_TEMPLATE);
+        bindItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        bindItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        bindItem.setKind(ItemResolverConstants.STATEMENT_KIND);
+        completionItems.add(bindItem);
+
+        // Populate Bind Statement template
+        CompletionItem endpointItem = new CompletionItem();
+        endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
+        endpointItem.setInsertText(ItemResolverConstants.ENDPOINT_TEMPLATE);
+        endpointItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        endpointItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        endpointItem.setKind(ItemResolverConstants.STATEMENT_KIND);
+        completionItems.add(endpointItem);
+
         // Populate Iterate Statement template
         CompletionItem iterateItem = new CompletionItem();
         iterateItem.setLabel(ItemResolverConstants.ITERATE);
@@ -91,15 +109,6 @@ public class StatementTemplateFilter implements SymbolFilter {
         transactionItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         transactionItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItems.add(transactionItem);
-
-        // Populate Transform Statement template
-        CompletionItem transformItem = new CompletionItem();
-        transformItem.setLabel(ItemResolverConstants.TRANSFORM);
-        transformItem.setInsertText(ItemResolverConstants.TRANSFORM_TEMPLATE);
-        transformItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        transformItem.setSortText(ItemResolverConstants.PRIORITY_6);
-        transformItem.setKind(ItemResolverConstants.STATEMENT_KIND);
-        completionItems.add(transformItem);
 
         // Populate Trigger Worker Statement template
         CompletionItem workerInvokeItem = new CompletionItem();
