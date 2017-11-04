@@ -20,7 +20,6 @@ package org.ballerinalang.config;
 
 import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;
@@ -149,7 +148,7 @@ public class ConfigProcessor {
         if (fileLocation != null) {
             confFile = new File(fileLocation);
             if (!confFile.exists()) {
-                throw new BallerinaException("file not found: " + fileLocation);
+                throw new RuntimeException("file not found: " + fileLocation);
             }
         } else {
             confFile = new File(BALLERINA_CONF_DEFAULT_PATH);

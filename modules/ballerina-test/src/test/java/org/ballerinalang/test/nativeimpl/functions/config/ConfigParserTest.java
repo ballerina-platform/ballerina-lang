@@ -20,7 +20,6 @@ package org.ballerinalang.test.nativeimpl.functions.config;
 
 import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -78,7 +77,7 @@ public class ConfigParserTest {
         Assert.assertEquals(globalConfigs.get(K_ENV_PATH), "Path variable: " + V_ENV_PATH);
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
+    @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp =
                   "invalid configuration\\(s\\) in ballerina.conf at line\\(s\\): \\[23, 26\\].*")
     public void testInvalidConfigFile() throws IOException {
@@ -100,7 +99,7 @@ public class ConfigParserTest {
         Assert.assertEquals(globalConfigs.get(K_BALLERINA_HOME), V_BAL_TEST_HOME);
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
+    @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = "invalid configuration parameter key.*")
     public void testConfigParamParserInvalidKey() {
         Map<String, String> map = new HashMap<>(cliParams);

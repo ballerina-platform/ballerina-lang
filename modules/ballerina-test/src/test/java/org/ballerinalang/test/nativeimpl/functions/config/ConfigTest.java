@@ -20,7 +20,6 @@ package org.ballerinalang.test.nativeimpl.functions.config;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -185,7 +184,6 @@ public class ConfigTest {
 
     @AfterClass
     public void tearDown() {
-        BServiceUtil.cleanup(compileResult);
         System.setProperty(userDir, userDirectory);
     }
 }
