@@ -85,6 +85,7 @@ public class ModelGenerator {
         alias.put("TryNode", "TryCatchFinallyNode");
         alias.put("VariableDefNode", "VariableDefinitionNode");
         alias.put("BuiltInRefTypeNode", "BuiltInReferenceTypeNode");
+        alias.put("EnumeratorNode", "EnumNode");
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 

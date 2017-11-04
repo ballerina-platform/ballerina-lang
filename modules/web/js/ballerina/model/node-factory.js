@@ -26,6 +26,7 @@ import CatchNode from './tree/catch-node';
 import CompilationUnitNode from './tree/compilation-unit-node';
 import ConnectorNode from './tree/connector-node';
 import EnumNode from './tree/enum-node';
+import EnumeratorNode from './tree/enumerator-node';
 import FunctionNode from './tree/function-node';
 import IdentifierNode from './tree/identifier-node';
 import ImportNode from './tree/import-node';
@@ -187,6 +188,17 @@ class NodeFactory {
         node.annotationAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
+        return node;
+    }
+
+    createEnumerator(json = {}){
+        json.kind = 'Enumerator';
+        let node = new EnumeratorNode();
+        node.enumerators = [];
+        node.name = new IdentifierNode();
+        node.annotationAttachments = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
         return node;
     }
 

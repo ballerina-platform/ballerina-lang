@@ -324,6 +324,15 @@ class ErrorRenderingUtil {
         // Not implemented.
     }
 
+    /**
+     * Calculate error position of Enumerator nodes.
+     *
+     * @param {object} node
+     *
+     */
+    placeErrorForEnumeratorNode(node) {
+        // Not implemented.
+    }
 
     /**
      * Calculate error position of Function nodes.

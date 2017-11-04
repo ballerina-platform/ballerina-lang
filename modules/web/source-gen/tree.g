@@ -101,6 +101,14 @@ ExpressionStatement
    : <expression.source> ;
    ;
 
+Enum
+   : enum\u0020 <name.source> { <enumerators-joined-by-,>* }
+   ;
+
+Enumerator
+   : <name.source>
+   ;
+
 FieldBasedAccessExpr
    : <expression.source> . <fieldName.value>
    ;
