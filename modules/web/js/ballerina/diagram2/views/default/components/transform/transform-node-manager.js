@@ -476,19 +476,12 @@ class TransformNodeManager {
         return variableDef;
     }
 
-    updateVariable(node, varName, statementString, type, vertices) {
+    updateVariable(node, varName, statementString, type) {
         const variableDefinitionStatement = TransformFactory.createVariableDefFromStatement(statementString);
-        let varDefNode = node.body;
-        let entities = node.getBody().getStatements()
-          .filter((currentNode) => { return currentNode.getKind() === 'VariableDef'; });
-        if (type === 'target') {
-            varDefNode = node.parent;
-            entities = node.outputs;
-        }
+        const varDefNode = node.body;
         if (!variableDefinitionStatement.error) {
             const newVarName = variableDefinitionStatement.getVariableName().value;
-            const isExisting = _.find(vertices, { name: newVarName });
-            if (!isExisting) {
+            if (type === 'variable') {
                 _.forEach(varDefNode.statements, (child) => {
                     if (TreeUtil.isVariableDef(child)
                           && child.getVariableName().value === varName) {
@@ -498,16 +491,27 @@ class TransformNodeManager {
                                   && child.expression.getVariableName().value === varName) {
                         const variableReferenceExpression = TransformFactory.createVariableRefExpression(newVarName);
                         child.setExpression(variableReferenceExpression);
-                    } else if (TreeUtil.isTransform(child) && type === 'target') {
-                        _.forEach(child.body.statements, (transChild) => {
-                            if (TreeUtil.isAssignment(transChild)
-                                          && TreeUtil.isSimpleVariableRef(transChild.variables[0])
-                                          && transChild.variables[0].getVariableName().getValue() === varName) {
-                                const variableReferenceExpression = TransformFactory
-                                                                      .createVariableRefExpression(newVarName);
-                                transChild.replaceVariables(transChild.variables[0], variableReferenceExpression);
-                            }
-                        });
+                    }
+                });
+                node.trigger('tree-modified', {
+                    origin: node,
+                    type: 'variable-update',
+                    title: `Variable update ${varName}`,
+                    data: {},
+                });
+                return true;
+            } if (type === 'param') {
+                node.getParameters().forEach((param) => {
+                    if (param.getName().getValue() === varName) {
+                        node.replaceParameters(param, variableDefinitionStatement.getVariable(), false);
+                    }
+                });
+                _.forEach(varDefNode.statements, (child) => {
+                    if (TreeUtil.isAssignment(child)
+                                  && TreeUtil.isSimpleVariableRef(child.expression)
+                                  && child.expression.getVariableName().value === varName) {
+                        const variableReferenceExpression = TransformFactory.createVariableRefExpression(newVarName);
+                        child.setExpression(variableReferenceExpression);
                     }
                 });
                 node.trigger('tree-modified', {

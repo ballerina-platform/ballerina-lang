@@ -30,8 +30,10 @@ export default class VariableEndpoint extends React.Component {
         if (this.props.variable.varDeclarationString) {
             type = this.props.variable.varDeclarationString.trim().split('=')[0].split(' ')[0].trim();
             name = this.props.variable.varDeclarationString.trim().split('=')[0].split(' ')[1].trim();
-            val = this.props.variable.varDeclarationString.trim().split('=')[1]
-                  .replace(/"/g, '').replace(';', '').trim();
+            val = this.props.variable.varDeclarationString.trim().split('=')[1];
+            if (val) {
+                val = val.replace(';', '').trim();
+            }
         }
         this.state = {
             onEdit: false,
@@ -72,7 +74,7 @@ export default class VariableEndpoint extends React.Component {
         if (info.isFirst) {
             className += ' transform-endpoint-first'
         }
-        
+
         if (info.isLast) {
             className += ' transform-endpoint-last'
         }
@@ -145,9 +147,9 @@ export default class VariableEndpoint extends React.Component {
                         onChange={this.nameChange}
                     />
                     <input
-                        type='text'
+                        type={this.state.varVal !== undefined ? 'text' : 'hidden'}
                         className='variable-edit-val'
-                        value={this.state.varVal}
+                        value={this.state.varVal !== undefined ? this.state.varVal.replace(/"/g, '') : ''}
                         placeholder='value'
                         onChange={this.valChange}
                     />
@@ -189,21 +191,34 @@ export default class VariableEndpoint extends React.Component {
     onComplete() {
         let qoutes = '';
         let validType = false;
+        let updateType = 'variable';
         const validName = Number.isNaN(Number.parseFloat(this.state.varName.charAt(0))) && this.state.varName !== '';
-        if (this.state.varType === 'string') {
-            qoutes = '"';
-            validType = true;
-        } else if (this.state.varType === 'int') {
-            validType = this.isInt(this.state.varVal);
-        } else if (this.state.varType === 'float') {
-            validType = this.isFloat(this.state.varVal) || this.isInt(this.state.varVal);
-        } else if (this.state.varType !== '') {
+
+        if (this.state.varVal) {
+            if (this.state.varType === 'string') {
+                qoutes = '"';
+                validType = true;
+            } else if (this.state.varType === 'int') {
+                validType = this.isInt(this.state.varVal);
+            } else if (this.state.varType === 'float') {
+                validType = this.isFloat(this.state.varVal) || this.isInt(this.state.varVal);
+            } else if (this.state.varType !== '') {
+                validType = true;
+            }
+        } else {
             validType = true;
         }
+
         if (validType && validName) {
-            const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes
-                              + this.state.varVal + qoutes;
-            const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
+            let statement;
+            if (this.state.varVal) {
+                statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes
+                                  + this.state.varVal.replace(/"/g, '') + qoutes;
+            } else {
+                statement = this.state.varType + ' ' + this.state.varName;
+                updateType = 'param'
+            }
+            const isUpdated = this.props.updateVariable(this.props.variable.name, statement, updateType);
             if (isUpdated) {
                 this.setState({ onEdit: false });
             }
