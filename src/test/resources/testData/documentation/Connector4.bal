@@ -5,27 +5,27 @@ function main (string[] args) {
     message response = nyseEP.ge<caret>t ("/nyseStock", m);
 }
 
-@doc:Description {value:"Native HTTP Client Connector"}
+@Description {value:"Native HTTP Client Connector"}
 
 connector ClientConnector (string serviceUri) {
 
-    @doc:Description {value:"GET action implementation of the HTTP Connector"}
+    @Description {value:"GET action implementation of the HTTP Connector"}
 
-    @doc:Param {value:"path: Request path"}
+    @Param {value:"path: Request path"}
 
-    @doc:Param {value:"m: message"}
+    @Param {value:"m: message"}
 
-    @doc:Return {value:"message: The response message object"}
+    @Return {value:"message: The response message object"}
 
     native action get (string path, message m) (message);
 
-    @doc:Description { value:"The POST action implementation of the HTTP Connector."}
+    @Description { value:"The POST action implementation of the HTTP Connector."}
 
-    @doc:Param { value:"path: Resource path " }
+    @Param { value:"path: Resource path " }
 
-    @doc:Param { value:"m: A message object" }
+    @Param { value:"m: A message object" }
 
-    @doc:Return { value:"message: The response message object" }
+    @Return { value:"message: The response message object" }
 
     native action post (string path, message m) (message);
 
