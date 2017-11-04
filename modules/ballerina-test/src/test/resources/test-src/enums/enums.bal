@@ -55,3 +55,31 @@ function testEnumInAnotherPackage() returns (int) {
     return 200;
     
 }
+
+function testEnumToAnyCast() returns (int) {
+    state st = state.INSTALLED;
+    state st1 = state.ACTIVE;
+    any a = st;
+    any b = (any)st1;
+
+    var ast, _ = (state) a;
+    var ast1, _ = (state) b;
+
+    if ( ast == ast1) {
+        return 404;
+    } else {
+        return 201;
+    }
+}
+
+function testEnumSameTypeCast() returns (int) {
+    state st = state.INSTALLED;
+    state st1 = (state)st;
+
+
+    if ( st == st1) {
+        return 404;
+    } else {
+        return 201;
+    }
+}

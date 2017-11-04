@@ -212,6 +212,7 @@ public interface InstructionCodes {
     int ANY2MAP = 172;
     int ANY2DT = 174;
 
+    int ANY2E = 177;
     int ANY2T = 178;
     int ANY2C = 179;
     int CHECKCAST = 180;
