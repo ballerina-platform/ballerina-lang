@@ -20,8 +20,11 @@ service<http> headQuoteService {
         path:"/forward11"
     }
     resource forwardRes11 (http:Request req, http:Response resp) {
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = endPoint.forward("/getQuote/stocks", req);
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
         resp.forward(clientResponse);
     }
 
@@ -29,8 +32,11 @@ service<http> headQuoteService {
         path:"/forward22"
     }
     resource forwardRes22 (http:Request req, http:Response resp) {
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = endPoint.forward("/getQuote/stocks", req);
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
         resp.forward(clientResponse);
     }
 
