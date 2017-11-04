@@ -27,7 +27,7 @@ import AutoSuggest from 'ballerina/diagram2/views/default/components/decorators/
 import PropTypes from 'prop-types';
 import React from 'react';
 import CompilationUnitTreeNode from 'ballerina/model/tree/compilation-unit-node';
-import uuid from 'uuid/v1';
+import uuid from 'uuid/v4';
 import 'brace/mode/json';
 import 'brace/mode/xml';
 import 'brace/mode/html';
