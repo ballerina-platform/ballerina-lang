@@ -3,7 +3,6 @@ package ${PACKAGE_NAME};
 #end
 
 import ballerina.net.http;
-import ballerina.lang.system;
 
 connector MyClient (string url) {
 
@@ -18,5 +17,5 @@ connector MyClient (string url) {
 function main (string[] args) {
     MyClient myClient = create MyClient("http://example.com");
     http:Response response = myClient.connect("");
-    system:println(response.getStringPayload());
+    println(response.getStringPayload());
 }
