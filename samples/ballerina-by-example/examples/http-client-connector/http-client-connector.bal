@@ -12,13 +12,13 @@ function main (string[] args) {
     println("GET request:");
     println(resp.getJsonPayload());
 
-    // Set a string payload to the message to be sent to the endpoint
+    // Set a string payload to the message to be sent to the endpoint.
     req.setStringPayload("POST: Hello World");
     resp, _ = httpConnector.post("/post", req);
     println("\nPOST request:");
     println(resp.getJsonPayload());
 
-    // Set a JSON payload to the message to be sent to the endpoint
+    // Set a JSON payload to the message to be sent to the endpoint.
     json jsonMsg = {method:"PUT", payload:"Hello World"};
     req.setJsonPayload(jsonMsg);
     resp, _ = httpConnector.put("/put", req);
@@ -29,7 +29,7 @@ function main (string[] args) {
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
     req.setXmlPayload(xmlMsg);
     json j = {};
-    // Remove the json payload
+    // Remove the json payload.
     req.setJsonPayload(j);
     resp, _ = httpConnector.patch("/patch", req);
     println("\nPATCH request:");
@@ -41,7 +41,7 @@ function main (string[] args) {
     println(resp.getJsonPayload());
 
     req.setStringPayload("CUSTOM: Hello World");
-    // The execute() action can be used if one needs to use custom HTTP verbs
+    // The execute() action can be used if one needs to use custom HTTP verbs.
     resp, _ = httpConnector.execute("COPY", "/get", req);
 
     // The messages and http packages provide various utility functions which are useful when dealing with HTTP requests/responses.

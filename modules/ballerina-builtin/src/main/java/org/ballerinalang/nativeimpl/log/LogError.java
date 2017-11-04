@@ -19,12 +19,10 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,18 +33,18 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.log",
         functionName = "error",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-                                                                              value = "Logs the specified value at " +
-                                                                                      "error level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
-public class LogError extends AbstractNativeFunction {
+public class LogError extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).error(getRefArgument(ctx, 0).stringValue());
+        String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
+                                                    .getCallableUnitInfo().getPackageInfo().getPkgPath();
+
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
+            getLogger(pkg).error(getStringArgument(ctx, 0));
+        }
         return VOID_RETURN;
     }
 }

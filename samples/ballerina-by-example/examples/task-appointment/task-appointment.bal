@@ -15,37 +15,44 @@ function main (string[] args) {
         // job 1 will run every 20 seconds
         onTriggerFunction = appointment1Cleanup;
         onErrorFunction = cleanupError;
-        app1Tid, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0/20 * * * * ?");
+        app1Tid, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0/20 * * * * ?");
 
         // job 2 will run every other minute (at 15 seconds past the minute)
         onTriggerFunction = appointment2Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "15 0/2 * * * ?");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "15 0/2 * * * ?");
 
-        // job 3 will run every other minute but only between 8am and 5pm
+        // job 3 will run every other minute but only between 8am and 5pm.
         onTriggerFunction = appointment3Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0 0/2 8-17 * * ?");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0 0/2 8-17 * * ?");
 
-        // job 4 will run every three minutes but only between 5pm and 11pm
+        // job 4 will run every three minutes but only between 5pm and 11pm.
         onTriggerFunction = appointment4Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0 0/3 17-23 * * ?");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0 0/3 17-23 * * ?");
 
-        // job 5 will run at 10am on the 1st and 15th days of the month
+        // job 5 will run at 10am on the 1st and 15th days of the month.
         onTriggerFunction = appointment5Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0 0 10am 1,15 * ?");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0 0 10am 1,15 * ?");
 
-        // job 6 will run every 30 seconds but only on Weekdays (Monday through Friday)
+        // job 6 will run every 30 seconds but only on Weekdays. (Monday through Friday)
         onTriggerFunction = appointment6Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * MON-FRI");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0,30 * * ? * MON-FRI");
 
-        // job 7 will run every 30 seconds but only on Weekends (Saturday and Sunday)
+        // job 7 will run every 30 seconds but only on Weekends. (Saturday and Sunday)
         onTriggerFunction = appointment7Cleanup;
         onErrorFunction = cleanupError;
-        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * SAT,SUN");
+        _, _ = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+                                        "0,30 * * ? * SAT,SUN");
     }
 }
 
@@ -54,7 +61,7 @@ function appointment1Cleanup() returns (error) {
     app1Count = app1Count + 1;
     if(app1Count == 5) {
         log:info("Stopping Appointment#1 cleanup task since it has run 5 times");
-        // This is how you stop a task
+        // This is how you stop a task.
         _ = task:stopTask(app1Tid);
     }
     return cleanup();

@@ -1,5 +1,5 @@
 function main (string[] args) {
-    //floattype to int conversion is considered as a type conversion in Ballerina,
+    //'float' to 'int' conversion is considered as a type conversion in Ballerina,
     // because the underlying representation of the value changes with this conversion.
     float f = 10.0;
     var i = <int>f;

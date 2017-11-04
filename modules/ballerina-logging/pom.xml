@@ -32,4 +32,10 @@
     <name>Ballerina - Logging</name>
     <url>http://ballerinalang.org</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.config.utils.parser;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,7 +88,7 @@ public class ConfigFileParser extends AbstractConfigParser {
             }
 
             if (invalidConfigs.size() > 0) {
-                throw new BallerinaException(
+                throw new RuntimeException(
                         "invalid configuration(s) in ballerina.conf at line(s): " + invalidConfigs.toString() +
                                 ", config entries should conform to " + CONFIG_ENTRY_FORMAT);
             }
