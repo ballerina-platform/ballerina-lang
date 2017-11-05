@@ -26,10 +26,6 @@ package ballerina.test;
  - assertFail(string errorMessage)
  - createBallerinaError (string errorMessage, string category) (AssertError)
  
-package ballerina.mock;
- - setValue(string mockableConnectorPathExpr, string value)
- 
- 
 ### Writing ballerina tests
 
 - Test files should contain ```_test.bal``` suffix.  
@@ -45,30 +41,6 @@ function testAddTwoNumbers() {
     test:assertIntEquals(addTwoNumbers(0, 0), 0, "Number addition failed for number zero");
 }
 ```
-
-e.g. 2:
-This example shows how to test ballerina service with the back-end mocking support.
-```ballerina
-import ballerina.mock;
-import ballerina.test;
-import ballerina.net.http;
-
-function testService() {
-    string serviceURL = test:startService("helloWorld");
-    string mockedTwitterServiceURL = test:startService("mockedTwitterService");
-    mock:setValue("helloWorld.myTwitterConnectorInstance.myHttpConnector.serviceUri", mockedTwitterServiceURL);
-    
-    endpoint<http:HttpClient> client {
-            create http:HttpClient(serviceURL, {});
-    }
-    http:Request req = {};
-    http:Response resp = {};
-    resp, _ = client.get("/", req);
-    string payload = resp.getStringPayload();
-    test:assertStringEquals(payload, "<expectedOutput/>");
-}
-```
-> A complete sample can be found at `samples/mock/` directory.
 
 If at least one assert fails, whole test function will be marked as failed.
 Detailed information is shown in the test result summary.  
@@ -119,14 +91,5 @@ Following is a sample console output.
 result: 
 tests run: 1, passed: 1, failed: 0
 ```
-
-### Running Samples
-
-#### Running the mock sample
-- Download ```ballerina-tools-<release-version>.zip``` distribution and unzip.  
-- Copy ```samples/mock``` directory to ```ballerina-tools-<release-version>```.  
-- Run tests as follows.  
-```> ./bin/ballerina test mock/```
-
 ### Reference:  
 [1] https://github.com/ballerinalang/distribution
