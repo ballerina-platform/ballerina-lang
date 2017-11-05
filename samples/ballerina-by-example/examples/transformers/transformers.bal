@@ -22,15 +22,15 @@ transformer <Person p, Employee e> {
 }
 
 @Description{value:"Defining a named transformer for converting from 'Person' type to 'Employee' type."}
-transformer <Person p, Employee e> incrementAge() {
-    e.name = p.street + "," + p.city.toUpperCase();
-    e.age = p.age + 1;
-    e.address = p.street + ", " + p.city.toUpperCase();
+transformer <Person p, Employee e> setCityToNewYork() {
+    e.name = p.firstName + " " + p.lastName;
+    e.age = p.age;
+    e.address = p.street + ", " + "New York";
 }
 
 @Description{value:"Defining a named transformer which takes input parameters for converting from 'Person' type to 'Employee' type."}
 transformer <Person p, Employee e> insertCountry(string country) {
-    e.name = p.street + "," + p.city.toUpperCase();
+    e.name = p.firstName + " " + p.lastName;
     e.age = p.age;
     e.address = p.street + "," + p.city.toUpperCase() + ", " + country;
 }
@@ -44,7 +44,7 @@ function main (string[] args) {
     println(employee);
 
     //Named transformer can be explicitly provided inside the conversion syntax, to convert person to employee.
-    employee = <Employee, incrementAge()> person;
+    employee = <Employee, setCityToNewYork()> person;
     println(employee);
 
     //Using the named transformer to convert person to empoyee, by passing parameters.
