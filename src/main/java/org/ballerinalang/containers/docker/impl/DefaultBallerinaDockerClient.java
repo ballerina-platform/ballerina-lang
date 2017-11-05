@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
-import org.ballerinalang.launcher.LauncherUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -431,7 +430,7 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         client.close();
         if (listener.hasBuildErrorOccurred()) {
             cleanupTempDockerfileContext(tmpDir);
-            throw LauncherUtils.createUsageException("Docker image build failed for image "
+            throw new RuntimeException("Docker image build failed for image "
                     + imageName + " : " + listener.getListenerErrors());
         }
     }
