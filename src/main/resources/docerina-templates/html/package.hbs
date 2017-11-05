@@ -26,6 +26,21 @@
                 <!-- Banner -->
                 <section id="banner">
                     <div class="content">
+                        {{#hasGlobalVariables}}
+                            <h2>Global variables of {{refinePackagePath this}} package</h2>
+                            <p>
+                            <table>
+                                <tr>
+                                    <th>Variable Name</th><th>Data Type</th><th>Description</th>
+                                </tr>
+                                {{#each globalVariables}}
+                                    <tr>
+                                        <td id="{{name}}">{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{globalVarDescription}}</td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                            </p>
+                        {{/hasGlobalVariables}}
                         {{#hasFunctions}}
                         <!-- Functions -->
                         <h2>Functions of {{refinePackagePath this}} package</h2>
@@ -206,6 +221,16 @@
                         <h2>Menu</h2>
                     </header>
                     <ul>
+                        {{#hasGlobalVariables}}
+                            <li>
+                                <span class="opener">Global Variables</span>
+                                <ul>
+                                    {{#each globalVariables}}
+                                        <li><a href="#{{name}}">{{name}}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </li>
+                        {{/hasGlobalVariables}}
                         {{#hasFunctions}}
                         <li>
                             <span class="opener">Functions</span>
