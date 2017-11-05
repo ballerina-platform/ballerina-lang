@@ -198,11 +198,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'ConnectorInitExpr':
             if (node.connectorType && node.expressions) {
-                return w() + 'create' + b(' ')
+                return dent() + w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '('
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else {
-                return w() + 'create' + b(' ')
+                return dent() + w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '(' + w() + ')';
             }
         case 'ConstrainedType':
@@ -615,12 +615,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Variable':
             if (node.endpoint && node.typeNode && node.name.value
                          && node.initialExpression) {
-                return dent() + dent()
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{' + indent()
+                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{' + indent()
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w()
                  + ';' + outdent() + w() + '}';
             } else if (node.endpoint && node.typeNode && node.name.value) {
-                return dent() + getSourceOf(node.typeNode, pretty, l, replaceLambda)
+                return getSourceOf(node.typeNode, pretty, l, replaceLambda)
                  + w(' ') + node.name.value + w() + '{' + indent() + outdent() + w()
                  + '}';
             } else if (node.global && node.annotationAttachments && node.typeNode
@@ -649,7 +648,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'VariableDef':
             if (node.endpoint && node.variable) {
-                return w() + 'endpoint'
+                return dent() + w() + 'endpoint'
                  + getSourceOf(node.variable, pretty, l, replaceLambda);
             } else {
                 return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
