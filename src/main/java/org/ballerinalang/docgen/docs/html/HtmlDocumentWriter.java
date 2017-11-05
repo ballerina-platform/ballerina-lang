@@ -22,7 +22,6 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
-
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -60,6 +59,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private static final String INDEX_HTML = "index.html";
     private static final String UTF_8 = "UTF-8";
     private static final String BUILTIN_PACKAGE_NAME = "ballerina.builtin";
+    private static final String DOC_DESCRIPTION = "Description";
 
     private static PrintStream out = System.out;
 
@@ -170,6 +170,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     })
                     .registerHelper("hasStructs", (Helper<BLangPackage>) (balPackage, options) -> {
                         if (balPackage.getStructs().size() > 0) {
+                            return options.fn(balPackage);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("hasGlobalVariables", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getGlobalVariables().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
@@ -315,6 +321,21 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return "";
                     })
+                    .registerHelper("globalVarDescription", (Helper<BLangVariable>) (globalVar, options) -> {
+                        List<BLangAnnotationAttachment> annotationAttachments = globalVar.getAnnotationAttachments();
+
+                        for (BLangAnnotationAttachment annotation : annotationAttachments) {
+                            if (DOC_DESCRIPTION.equals(annotation.getAnnotationName().getValue())) {
+                                String value = annotation.getAttributes().get(0).getValue().getValue().toString();
+                                if (value != null) {
+                                    return value;
+                                } else {
+                                    return "";
+                                }
+                            }
+                        }
+                        return "";
+                    })
                     //this would bind a link to the custom types defined
                     .registerHelper("bindLink", (Helper<BLangType>) (type, options) -> {
                         BLangType bLangType = type;
@@ -354,9 +375,6 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
                     .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
-//                    .registerHelper("isPublic",
-//                                    (Helper<BLangFunction>) (func, options) -> func.getFlags().contains(Flag.PUBLIC) ?
-//                                            "public" : "")
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
@@ -431,6 +449,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
             BLangAnnotation annotation = (BLangAnnotation) dataHolder.getCurrentObject();
             currentPkgPath = annotation.symbol.pkgID.name.value; //getPackagePath(annotation);
             return annotation.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangVariable) {
+            BLangVariable variable = (BLangVariable) dataHolder.getCurrentObject();
+            currentPkgPath = variable.symbol.pkgID.name.value;
+            return variable.getAnnotationAttachments();
         } else {
             return new ArrayList<>();
         }
