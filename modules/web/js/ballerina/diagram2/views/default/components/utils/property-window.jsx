@@ -212,10 +212,10 @@ class PropertyWindow extends React.Component {
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
-                    className='col-sm-6 property-dialog-label'
+                    className='col-sm-4 property-dialog-label'
                 >
                     {_.startCase(key.identifier)}</label>
-                <div className='col-sm-4'>
+                <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
                         id={key.identifier}
