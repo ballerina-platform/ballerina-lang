@@ -141,6 +141,14 @@ public interface BallerinaDockerClient {
      */
     String getImage(String packageName, String dockerEnv);
 
+
+    /**
+     * Retrieve Docker image build error.
+     *
+     * @return The {@link String} docker image build error thrown
+     */
+    String getBuildError();
+
 //    public String runMainContainer(String dockerEnv, String serviceName)
 //            throws InterruptedException, IOException, BallerinaDockerClientException;
 //

@@ -70,6 +70,7 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
     // Cannot depend on buildErrors because Fabric8 seems to be randomly adding "Failed:" errors even
     // when the build completed successfully.
 //    private final List<String> buildErrors = new ArrayList<>();
+    private String buildError;
 
     /**
      * {@inheritDoc}
@@ -415,33 +416,24 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
             throws InterruptedException, IOException {
 
         DockerClient client = getDockerClient(dockerEnv);
-        DockerBuilderEventListener listener = new DockerBuilderEventListener();
         OutputHandle buildHandle = client.image()
                 .build()
                 .withRepositoryName(imageName)
                 .withNoCache()
                 .alwaysRemovingIntermediate()
                 .withBuildArgs(buildArgs)
-                .usingListener(listener)
+                .usingListener(new DockerBuilderEventListener())
                 .fromFolder(tmpDir.toString());
 
         buildDone.await();
         buildHandle.close();
         client.close();
-        if (listener.hasBuildErrorOccurred()) {
-            cleanupTempDockerfileContext(tmpDir);
-            throw new RuntimeException("Docker image build failed for image "
-                    + imageName + " : " + listener.getListenerErrors());
-        }
     }
 
     /**
      * An {@link EventListener} implementation to listen to Docker build events.
      */
     private class DockerBuilderEventListener implements EventListener {
-
-        private String buildError;
-        private boolean buildErrorOccurred;
 
         @Override
         public void onSuccess(String successEvent) {
@@ -450,7 +442,6 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
 
         @Override
         public void onError(String errorEvent) {
-            buildErrorOccurred = true;
             buildError = errorEvent;
             buildDone.countDown();
         }
@@ -459,15 +450,14 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         public void onEvent(String ignore) {
             //..
         }
-
-        public String getListenerErrors() {
-            return buildError;
-        }
-
-        private boolean hasBuildErrorOccurred() {
-            return buildErrorOccurred;
-        }
     }
+
+    //TODO: Temporary fix to log build error. Intermittent build errors are thrown even though the
+    //TODO: docker image build is successful
+    public String getBuildError() {
+        return buildError;
+    }
+
 
 //    private static boolean isFunctionImage(DockerClient client, String serviceName) {
 //        for (String envVar : client.image()

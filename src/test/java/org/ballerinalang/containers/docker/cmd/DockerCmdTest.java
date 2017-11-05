@@ -354,5 +354,10 @@ public class DockerCmdTest {
         public String getImage(String packageName, String dockerEnv) {
             return null;
         }
+
+        @Override
+        public String getBuildError() {
+            return null;
+        }
     }
 }
