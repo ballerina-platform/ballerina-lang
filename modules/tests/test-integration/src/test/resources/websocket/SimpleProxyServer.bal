@@ -6,8 +6,8 @@ import ballerina.net.ws;
 }
 service<ws> SimpleProxyServer {
 
-    endpoint<ws:ClientConnector> c {
-        create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
+    endpoint<ws:WsClient> c {
+        create ws:WsClient("ws://localhost:15500/websocket", "ClientService");
     }
     map clientConnMap = {};
 
