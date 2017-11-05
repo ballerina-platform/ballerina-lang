@@ -55,6 +55,9 @@ public class SwaggerCmd implements BLauncherCmd {
     @Parameter(names = { "-h", "--help" }, hidden = true)
     private boolean helpFlag;
 
+    @Parameter(names = "--debug", hidden = true)
+    private String debugPort;
+
     @Override
     public void execute() {
         if (helpFlag) {

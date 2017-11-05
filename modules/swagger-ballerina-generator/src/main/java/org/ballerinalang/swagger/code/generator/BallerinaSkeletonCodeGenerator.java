@@ -82,7 +82,7 @@ public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements Co
                 Arrays.asList(
                         "action", "all", "any", "as", "boolean", "break", "catch", "connector", "const", "datatable",
                         "double", "else", "exception", "fork", "function", "if", "import", "int", "json", "map",
-                        "message", "native", "package", "reply", "resource", "return", "service", "string", "struct",
+                        "native", "package", "resource", "return", "service", "string", "struct",
                         "throws", "timeout", "try", "typemapper", "while", "worker", "xml", "join")
         );
 
