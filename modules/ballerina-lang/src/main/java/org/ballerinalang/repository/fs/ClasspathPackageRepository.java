@@ -45,7 +45,7 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
     private static Path generatePath(Class<? extends Object> providerClassRef, String basePath) {
         try {
             URI classURI = providerClassRef.getProtectionDomain().getCodeSource().getLocation().toURI();
-            String classPath = classURI.getPath().replace(" ", "%20");
+            String classPath = classURI.getPath().replaceAll("\\s", "%20");
             URI pathUri;
             if (classPath.endsWith(".jar")) {
                 pathUri = URI.create("jar:file:" + classPath + "!" + basePath);
