@@ -71,20 +71,26 @@ public class SwaggerCmd implements BLauncherCmd {
                     "Ex: ballerina swagger connector swagger_file");
         }
         String action = argList.get(0);
+        StringBuilder msg = new StringBuilder("successfully generated ballerina ");
         switch (action) {
             case CONNECTOR:
                 generateFromSwagger("ballerina-connector");
+                msg.append("connector");
                 break;
             case SKELETON:
                 generateFromSwagger("ballerina-skeleton");
+                msg.append("skeleton");
                 break;
             case MOCK:
                 generateFromSwagger("ballerina-mock-service");
+                msg.append("mock service");
                 break;
             default:
                 throw LauncherUtils.createUsageException("Only following actions(connector, skeleton, mock) are " +
                         "supported in swagger command");
         }
+        msg.append(" for swagger file - " + argList.get(1));
+        outStream.println(msg.toString());
     }
 
     @Override
