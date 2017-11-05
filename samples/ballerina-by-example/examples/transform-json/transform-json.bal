@@ -6,7 +6,7 @@ struct Person {
 }
 
 @Description {value:"Defining transformer to convert from Person type to constrained JSON."}
-transformer <Person p, json<Person> j> Foo(string city) {
+transformer <Person p, json<Person> j> updateCity(string city) {
     j.name = p.name;
     j.age = p.age;
     j.city = city;
@@ -33,7 +33,7 @@ function main (string[] args) {
     string city = "London";
 
     // Convert p of type Person to the response JSON, using the transformer defined earlier.
-    json<Person> response = <json<Person>, Foo(city)> p;
+    json<Person> response = <json<Person>, updateCity(city)> p;
 
     println(response);
 }
