@@ -146,7 +146,7 @@ public class DockerCmd implements BLauncherCmd {
                         printImageSuccessMessage(createdImageName);
                     } else {
                         throw LauncherUtils.createUsageException("Docker image build failed for image "
-                                + imageName + ":" + imageVersion + ".");
+                                + imageName + "." + imageVersion + " : " + dockerClient.getBuildError());
                     }
                 } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
                     throw LauncherUtils.createUsageException(e.getMessage());
