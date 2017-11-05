@@ -231,7 +231,15 @@ class TransformNodeManager {
      * @memberof TransformNodeManager
      */
     getFunctionVertices(functionInvocationExpression) {
-        const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
+        let fullPackageName = functionInvocationExpression.getFullPackageName();
+
+        if (!fullPackageName) {
+            // TODO: Fix obtaining the full package name for bound functions
+            // package name should be found through the receiver in bound functions
+            // but there is no straightforward way to get the variable def of the receiver
+            fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
+        }
+
         const funPackage = this._environment.getPackageByName(fullPackageName);
 
         if (!funPackage) {
