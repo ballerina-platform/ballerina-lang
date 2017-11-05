@@ -82,18 +82,18 @@ class LifeLine extends React.Component {
     handleConnectorProps() {
         const model = this.props.model;
         // Check if the model is an endpoint
-        if (TreeUtils.isEndpointTypeVariableDef(this.props.model)) {
+        if (TreeUtils.isVariableDef(this.props.model)) {
             let initialExpression = _.get(model, 'variable.InitialExpression');
             if (!initialExpression || !TreeUtils.isConnectorInitExpr(initialExpression)) {
                 initialExpression = TreeUtils.getConnectorInitFromStatement(model);
             }
 
-            if (initialExpression) {
+            // if (initialExpression) {
                 const node = this.props.model;
                 node.viewState.showOverlayContainer = true;
                 OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
                 this.context.editor.update();
-            }
+            // }
         }
     }
     render() {

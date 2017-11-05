@@ -80,7 +80,7 @@ class ConnectorPropertiesForm extends React.Component {
             value: _.get(initialExpr, 'variableName.value') || '',
             defaultValue: '',
         };
-        if (TreeUtils.isSimpleVariableRef(initialExpr)) {
+        if (!initialExpr || TreeUtils.isSimpleVariableRef(initialExpr)) {
             const constraint = _.get(props.model, 'variable.typeNode.constraint');
             pkgAlias = _.get(constraint, 'packageAlias.value') || '';
             connectorName = _.get(constraint, 'typeName.value') || '';
@@ -153,11 +153,16 @@ class ConnectorPropertiesForm extends React.Component {
      * @param {boolean} setVarRef - whether to set as a variable Reference or not
      */
     getConnectorInstanceString(connectorInit, pkgAlias, connectorType, data, setVarRef) {
-        if (TreeUtils.isConnectorInitExpr(connectorInit)) {
+        if (connectorInit && TreeUtils.isConnectorInitExpr(connectorInit)) {
             if (setVarRef) {
+                if (data.value === '') {
+                    delete connectorInit.parent.initialExpression;
+                    return;
+                }
                 const pkgStr = pkgAlias !== 'Current Package' ? `${pkgAlias}:` : '';
                 const constraint = `<${pkgStr}${_.get(connectorInit, 'connectorType.typeName.value')}>`;
-                const endpointSource = `endpoint ${constraint} endpoint1 {${data.value};}`;
+                const varRefString = data.value !== '' ? (data.value + ';') : '';
+                const endpointSource = `endpoint ${constraint} endpoint1 {${varRefString}}`;
                 const fragment = FragmentUtils.createEndpointVarDefFragment(endpointSource);
                 const parsedJson = FragmentUtils.parseFragment(fragment);
                 const nodeForFragment = TreeBuilder.build(parsedJson);
@@ -171,7 +176,23 @@ class ConnectorPropertiesForm extends React.Component {
             }
         } else {
             if (setVarRef) {
-                connectorInit.variableName.value = data.value;
+                if (connectorInit) {
+                    if (data.value === '') {
+                        delete connectorInit.parent.initialExpression;
+                        return;
+                    }
+                    connectorInit.variableName.value = data.value;
+                } else {
+                    const pkgStr = (pkgAlias !== 'Current Package') ? (pkgAlias + ':') : '';
+                    const constraint = `<${pkgStr}${connectorType}>`;
+                    const endpointSource = `endpoint ${constraint} endpoint1 {${data.value};}`;
+                    const fragment = FragmentUtils.createEndpointVarDefFragment(endpointSource);
+                    const parsedJson = FragmentUtils.parseFragment(fragment);
+                    const nodeForFragment = TreeBuilder.build(parsedJson);
+                    nodeForFragment.viewState.showOverlayContainer = false;
+                    _.get(this.props, 'model.props.model.variable')
+                        .setInitialExpression(nodeForFragment.getVariable().getInitialExpression(), true);
+                }
             } else {
                 const pkgStr = pkgAlias !== 'Current Package' ? `${pkgAlias}:` : '';
                 const constraint = `<${pkgStr}${connectorType}>`;
@@ -197,7 +218,12 @@ class ConnectorPropertiesForm extends React.Component {
                 const newInit = nodeForFragment.variable.initialExpression;
                 const varDefNode = this.getConnectorInitVariableDefinition(data, connectorType, pkgAlias);
                 newInit.setExpressions(varDefNode.getVariable().getInitialExpression().getExpressions());
-                connectorInit.parent.setInitialExpression(newInit, true);
+                if (connectorInit) {
+                    connectorInit.parent.setInitialExpression(newInit, true);
+                } else {
+                    _.get(this.props, 'model.props.model.variable')
+                        .setInitialExpression(varDefNode.getVariable().getInitialExpression(), true);
+                }
             }
         }
     }
@@ -269,7 +295,7 @@ class ConnectorPropertiesForm extends React.Component {
         const connectorInit = TreeUtils.getConnectorInitFromStatement(props.model);
         let pkgAlias;
         let connectorType;
-        if (TreeUtils.isConnectorInitExpr(connectorInit)) {
+        if (connectorInit && TreeUtils.isConnectorInitExpr(connectorInit)) {
             pkgAlias = connectorInit.getConnectorType().getPackageAlias().value;
             connectorType = connectorInit.connectorType.typeName.value;
         } else {
@@ -286,7 +312,7 @@ class ConnectorPropertiesForm extends React.Component {
     getDataAddedToConnectorInit() {
         const props = this.props.model.props;
         const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
-        if (TreeUtils.isConnectorInitExpr(initialExpr)) {
+        if (initialExpr && TreeUtils.isConnectorInitExpr(initialExpr)) {
             return initialExpr.getExpressions();
         } else {
             return [];
