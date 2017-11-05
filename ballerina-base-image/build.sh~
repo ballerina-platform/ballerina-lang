@@ -21,7 +21,7 @@ function showUsageAndExit() {
     echo "USAGE: ./build.sh -d <ballerina-distribution> -v <image-version> -o <organization-name>"
     echo
     echo "Ex: Create a Ballerina Docker image tagged \"ballerina:latest\" with Ballerina 0.94.1 distribution."
-    echo "    ./build.sh -d ballerina-0.95.0.zip"
+    echo "    ./build.sh -d ballerina-0.94.1.zip"
     echo
 
     exit
@@ -66,7 +66,7 @@ if [ ! -e $bal_dist_file ]; then
   exit 1
 fi
 
-build_version=grep --max-count=1 '<version>' ../pom.xml | awk -F '>' '{ print $2 }' | awk -F '<' '{ print $1 }'
+build_version=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
 echo "Building Ballerina Base Docker image $image_name..."
 cp $bal_dist_file .
 bal_dist_file_name=$(basename $bal_dist_file)
