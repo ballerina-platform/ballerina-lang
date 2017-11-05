@@ -415,24 +415,34 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
             throws InterruptedException, IOException {
 
         DockerClient client = getDockerClient(dockerEnv);
+        DockerBuilderEventListener listener = new DockerBuilderEventListener();
         OutputHandle buildHandle = client.image()
                 .build()
                 .withRepositoryName(imageName)
                 .withNoCache()
                 .alwaysRemovingIntermediate()
                 .withBuildArgs(buildArgs)
-                .usingListener(new DockerBuilderEventListener())
+                .usingListener(listener)
                 .fromFolder(tmpDir.toString());
 
         buildDone.await();
         buildHandle.close();
         client.close();
+        if (listener.hasBuildErrorOccurred()) {
+            cleanupTempDockerfileContext(tmpDir);
+            throw new RuntimeException("Docker image build failed for image "
+                    + imageName + " : " + listener.getListenerErrors());
+        }
     }
 
     /**
      * An {@link EventListener} implementation to listen to Docker build events.
      */
     private class DockerBuilderEventListener implements EventListener {
+
+        private String buildError;
+        private boolean buildErrorOccurred;
+
         @Override
         public void onSuccess(String successEvent) {
             buildDone.countDown();
@@ -440,13 +450,22 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
 
         @Override
         public void onError(String errorEvent) {
-//            buildErrors.add(errorEvent);
+            buildErrorOccurred = true;
+            buildError = errorEvent;
             buildDone.countDown();
         }
 
         @Override
         public void onEvent(String ignore) {
             //..
+        }
+
+        public String getListenerErrors() {
+            return buildError;
+        }
+
+        private boolean hasBuildErrorOccurred() {
+            return buildErrorOccurred;
         }
     }
 
