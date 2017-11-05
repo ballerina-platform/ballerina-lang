@@ -24,7 +24,7 @@ package org.ballerinalang.net.ws;
 public class Constants extends org.ballerinalang.net.http.Constants {
 
     // Common constants
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
     public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";

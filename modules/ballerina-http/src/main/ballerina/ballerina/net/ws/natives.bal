@@ -111,7 +111,7 @@ public struct WsConnectorError {
 @Description {value:"WebSocket client connector for connecting to WebSocket backend"}
 @Param {value:"url: WebSocket url for the backend"}
 @Param {value:"callbackService: Callback service to listen to the incoming messages from the backend"}
-public connector ClientConnector(string url, string callbackService) {
+public connector WsClient(string url, string callbackService) {
 
     @Description {value:"Connect to remote endpoint"}
     @Return {value:"Connection: New WebSocket connection for the connected backend"}
