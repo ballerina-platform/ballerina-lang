@@ -28,6 +28,7 @@ import TransformExpanded from '../diagram2/views/default/components/transform/tr
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 import { TOOL_PALETTE_WIDTH } from './constants';
+import TreeUtil from 'ballerina/model/tree-util.js';
 
 class DesignView extends React.Component {
 
@@ -73,19 +74,30 @@ class DesignView extends React.Component {
     /**
     * Set the transform expanded view active state.
     * @param {boolean} isTransformActive - whether transform expanded view is active.
-    * @param {ASTNode} activeTransformModel - model related to expanded transform statement.
+    * @param {ASTNode} activeTransformSignature - signature of the transformer node related to expanded transform statement.
     * @memberof DesignView
     */
-    setTransformActive(isTransformActive, activeTransformModel) {
+    setTransformActive(isTransformActive, activeTransformSignature) {
         if (this.state.isTransformActive === isTransformActive &&
-            this.state.activeTransformModel === activeTransformModel) {
+            this.state.activeTransformSignature === activeTransformSignature) {
 
             return;
         }
 
         this.setState({
             isTransformActive,
-            activeTransformModel,
+            activeTransformSignature,
+        });
+    }
+
+    /**
+    * Set the active transformer signature
+    * @param {string} activeTransformSignature - signature of the transformer node related to expanded transformer statement.
+    * @memberof DesignView
+    */
+    setActiveTransformerSignature(activeTransformSignature) {
+        this.setState({
+            activeTransformSignature,
         });
     }
 
@@ -126,7 +138,16 @@ class DesignView extends React.Component {
     }
 
     render() {
-        const { isTransformActive, activeTransformModel } = this.state;
+        const { isTransformActive, activeTransformSignature } = this.state;
+
+        let activeTransformModel
+        if (isTransformActive) {
+            activeTransformModel = this.props.model.filterTopLevelNodes(
+                node => (TreeUtil.isTransformer(node))).find(node => (node.getSignature() === activeTransformSignature));
+        }
+
+        const shouldShowTransform = isTransformActive && activeTransformModel;
+
         return (
             <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
@@ -153,7 +174,7 @@ class DesignView extends React.Component {
                             </div>
                         </div>
                     </Scrollbars>
-                    {isTransformActive &&
+                    {shouldShowTransform &&
                         <TransformExpanded
                             model={activeTransformModel}
                             panelResizeInProgress={this.props.panelResizeInProgress}

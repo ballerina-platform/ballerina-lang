@@ -33,6 +33,7 @@ import { getLangServerClientInstance } from './../../../../../../langserver/lang
 import { getResolvedTypeData } from './../../../../../../langserver/lang-server-utils';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
+import { CHANGE_EVT_TYPES } from 'ballerina/views/constants';
 import './transform-expanded.css';
 
 /**
@@ -603,6 +604,13 @@ class TransformExpanded extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         this.transformNodeManager.setTransformStmt(this.props.model);
 
+        if (prevProps.model !== this.props.model) {
+            this.props.model.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
+                const { designView } = this.context;
+                designView.setActiveTransformerSignature(this.props.model.getSignature());
+            })
+        }
+
         this.mapper.disconnectAll();
 
         let sourceKeys = Object.keys(this.sourceElements);
@@ -689,6 +697,13 @@ class TransformExpanded extends React.Component {
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
+        this.props.model.on('tree-modified', (evt) => {
+            const { designView } = this.context;
+            // We keep info of what transformer is active by saving its signature
+            // any change that changes the signature should update this reference 
+            designView.setActiveTransformerSignature(this.props.model.getSignature());
+        });
+
         this.props.model.body.getStatements().forEach((statement) => {
             this.createConnection(statement);
         });
@@ -750,6 +765,7 @@ class TransformExpanded extends React.Component {
         if (this.scrollTimer) {
             clearInterval(this.scrollTimer);
         }
+        this.onClose();
     }
 
     onDragLeave(e) {
