@@ -689,7 +689,9 @@ class PropertyWindow extends React.Component {
                     <div className="form-body formContainer">
                         <div className="container-fluid">
                             <form className='form-horizontal propertyForm'>
-                                {this.renderVariableReferenceSection(this.varDefInitRef)}
+
+                                {!_.isNil(this.isVarDefEnabled) &&
+                                this.renderVariableReferenceSection(this.varDefInitRef)}
                                 <div
                                     className={this.isVarDefEnabled ? 'content-disabled' : ''}
                                 >
