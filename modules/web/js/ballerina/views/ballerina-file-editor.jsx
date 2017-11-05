@@ -77,7 +77,7 @@ class BallerinaFileEditor extends React.Component {
 
         // create debounced model update callbacks
         // we will use this to gracefull update design
-        // view during source view (split mode) changes or redo/undo 
+        // view during source view (split mode) changes or redo/undo
         const updateUponSourceChange = _.debounce(() => {
             this.state.isASTInvalid = true;
             this.update(true);
@@ -222,7 +222,11 @@ class BallerinaFileEditor extends React.Component {
         if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
             fullPackageName = node.getExpression().getFullPackageName();
         } else if (TreeUtils.isExpressionStatement(node) && TreeUtils.isInvocation(node.getExpression())) {
-            fullPackageName = node.getExpression().getFullPackageName();
+            if (node.getExpression().getFullPackageName()) {
+                fullPackageName = node.getExpression().getFullPackageName();
+            } else {
+                return;
+            }
         } else if (TreeUtils.isVariableDef(node)
             && node.getVariable().getInitialExpression()
             && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
