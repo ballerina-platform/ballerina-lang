@@ -11,8 +11,8 @@ service<ws> SimpleProxyServer {
     map clientConnMap = {};
 
     resource onHandshake (ws:HandshakeConnection con) {
-        endpoint<ws:ClientConnector> c {
-            create ws:ClientConnector("wss://echo.websocket.org", "ClientService");
+        endpoint<ws:WsClient> c {
+            create ws:WsClient("wss://echo.websocket.org", "ClientService");
         }
         var clientConn, err = c.connect({parentConnectionID:con.connectionID});
         if (err != null) {
