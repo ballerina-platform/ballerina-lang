@@ -15,9 +15,11 @@ function testGetContentLength (http:Response res) (int) {
     return length;
 }
 
-function testGetHeader (http:Response res, string key) (string) {
-    string contentType = res.getHeader(key);
-    return contentType;
+function testGetHeader (http:Response res, string key) (string, boolean) {
+    string contentType;
+    boolean headerExists;
+    contentType, headerExists = res.getHeader(key);
+    return contentType, headerExists;
 }
 
 function testGetJsonPayload (http:Response res) (json) {
@@ -126,7 +128,8 @@ service<http> helloServer {
     }
     resource addheader (http:Request req, http:Response res, string key, string value) {
         res.addHeader(key, value);
-        string result = res.getHeader(key);
+        string result;
+        result, _ = res.getHeader(key);
         res.setJsonPayload({lang:result});
         res.send();
     }
@@ -157,7 +160,8 @@ service<http> helloServer {
     }
     resource getHeader (http:Request req, http:Response res, string header, string value) {
         res.setHeader(header, value);
-        string result = res.getHeader(header);
+        string result;
+        result, _ = res.getHeader(header);
         res.setJsonPayload({value:result});
         res.send();
     }
@@ -212,7 +216,8 @@ service<http> helloServer {
     resource RemoveHeader (http:Request req, http:Response res, string key, string value) {
         res.setHeader(key, value);
         res.removeHeader(key);
-        string header = res.getHeader(key);
+        string header;
+        header, _ = res.getHeader(key);
         res.setJsonPayload({value:header});
         res.send();
     }
@@ -224,7 +229,8 @@ service<http> helloServer {
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();
-        string header = res.getHeader("Range");
+        string header;
+        header, _ = res.getHeader("Range");
         res.setJsonPayload({value:header});
         res.send();
     }

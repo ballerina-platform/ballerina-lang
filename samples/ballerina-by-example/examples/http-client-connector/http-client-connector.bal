@@ -49,7 +49,8 @@ function main (string[] args) {
     req.addHeader("Sample-Name", "http-client-connector");
     resp, _ = httpConnector.get("/get", req);
 
-    string contentType = resp.getHeader("Content-Type");
+    string contentType;
+    contentType, _ = resp.getHeader("Content-Type");
     println("\nContent-Type: " + contentType);
 
     int statusCode = resp.getStatusCode();
