@@ -233,8 +233,10 @@ class PropertyWindow extends React.Component {
         const label = 'Variable Reference';
         return (
             <div key="vardef" className="form-group">
-                <div className='col-sm-5'>
-                    <div className="col-sm-6">
+                    <label
+                        htmlFor="varRefEnable"
+                        className='col-sm-4 property-dialog-label'
+                    >
                         <input
                             type="checkbox"
                             name="varRefEnable"
@@ -243,17 +245,12 @@ class PropertyWindow extends React.Component {
                             onClick={event => this.clickVarDefCheck(event)}
                             checked={this.isVarDefEnabled}
                         />
-                    </div>
-                    <label
-                        htmlFor="varRefEnable"
-                        className='col-sm-4 property-dialog-label'
-                    >
+                        <span>&nbsp;</span>
                         {label}
                     </label>
-                </div>
                 <div
                     className={'col-sm-7' + (this.isVarDefEnabled ? '' : ' content-disabled')}
-                >
+                >       
                     <input
                         className='property-dialog-form-control'
                         id="vardef"
