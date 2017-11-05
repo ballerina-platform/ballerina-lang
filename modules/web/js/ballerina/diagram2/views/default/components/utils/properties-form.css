@@ -470,3 +470,8 @@
     margin-left: -3px;
     margin-top: -3px;
 }
+
+.content-disabled {
+    pointer-events: none;
+    opacity: 0.4;
+}
