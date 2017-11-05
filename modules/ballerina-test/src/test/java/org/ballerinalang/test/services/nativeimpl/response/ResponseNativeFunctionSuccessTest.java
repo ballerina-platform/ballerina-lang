@@ -344,7 +344,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
+        Assert.assertTrue(bJson.value().get("value").textValue().equals(""));
     }
 
     @Test
@@ -374,7 +374,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
+        Assert.assertTrue(bJson.value().get("value").textValue().equals(""));
     }
 
     @Test

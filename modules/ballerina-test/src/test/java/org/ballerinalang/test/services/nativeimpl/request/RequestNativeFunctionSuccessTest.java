@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
@@ -195,6 +196,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
+        Assert.assertTrue(((BBoolean) returnVals[1]).booleanValue());
     }
 
     @Test(description = "Test GetHeader function within a service")
@@ -353,7 +355,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
+        Assert.assertTrue(bJson.value().get("value").textValue().equals(""));
     }
 
     @Test
@@ -387,7 +389,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertTrue(bJson.value().get("value").textValue().equals("null"));
+        Assert.assertTrue(bJson.value().get("value").textValue().equals(""));
     }
 
     @Test

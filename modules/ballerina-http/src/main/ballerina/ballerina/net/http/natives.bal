@@ -64,7 +64,8 @@ public native function <Request req> setStringPayload (string payload);
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"string: The header value" }
-public native function <Request req> getHeader (string headerName) (string);
+@Return { value:"boolean: Indicates whether the header exists" }
+public native function <Request req> getHeader (string headerName) (string, boolean);
 
 @Description { value:"Gets the message payload in string format"}
 @Param { value:"req: A request message" }
@@ -178,7 +179,8 @@ public native function <Response res> setStringPayload (string payload);
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"string: The header value" }
-public native function <Response res> getHeader (string headerName) (string);
+@Return { value:"boolean: Indicates whether the header exists" }
+public native function <Response res> getHeader (string headerName) (string, boolean);
 
 @Description { value:"Gets the message payload in string format"}
 @Param { value:"res: The response message" }
