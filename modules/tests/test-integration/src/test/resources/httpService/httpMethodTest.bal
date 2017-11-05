@@ -17,6 +17,30 @@ service<http> headQuoteService {
     }
 
     @http:resourceConfig {
+        path:"/forward11"
+    }
+    resource forwardRes11 (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
+        resp.forward(clientResponse);
+    }
+
+    @http:resourceConfig {
+        path:"/forward22"
+    }
+    resource forwardRes22 (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
+        resp.forward(clientResponse);
+    }
+
+    @http:resourceConfig {
         path:"/getStock/{method}"
     }
     resource commonResource (http:Request req, http:Response resp, string method) {
