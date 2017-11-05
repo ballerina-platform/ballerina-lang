@@ -1,5 +1,6 @@
 package ballerina.net.http;
 
+@Description { value:"Represents a http request message"}
 public struct Request {
 }
 
@@ -118,7 +119,7 @@ public native function <Request req> clone () (Request);
 public native function <Request req> setHeader (string key, string value);
 
 
-
+@Description { value:"Represents a http response message"}
 public struct Response {
 }
 
@@ -240,6 +241,7 @@ public native function <Response res> send ();
 @Param { value:"resp: The new instance of the response message" }
 public native function <Response res> forward (Response resp);
 
+@Description { value:"Represents a http Session"}
 public struct Session {
 }
 
@@ -309,18 +311,34 @@ public native function <Session session> getMaxInactiveInterval () (int);
 @Param { value:"timeInterval: HTTPSession max inactive interval" }
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
+@Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }
+@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
+@Field {value:"stackTrace: Represents the invocation stack when HttpConnectorError is thrown"}
+@Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
 	string msg;
-	int statusCode;
 	error cause;
 	StackFrame[] stackTrace;
+	int statusCode;
 }
 
+@Description { value:"Retry struct represents retry related options for HTTP client invocation" }
+@Field {value:"count: Number of retries"}
+@Field {value:"interval: Retry interval in millisecond"}
 struct Retry {
     int count;
     int interval;
 }
 
+@Description { value:"SSL struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Field {value:"trustStoreFile: File path to trust store file"}
+@Field {value:"trustStorePassword: Trust store password"}
+@Field {value:"keyStoreFile: File path to key store file"}
+@Field {value:"keyStorePassword: Key store password"}
+@Field {value:"sslEnabledProtocols: ssl/tls protocols to be enabled"}
+@Field {value:"ciphers: List of ciphers to be used"}
+@Field {value:"sslProtocol: ssl Protocol to be used"}
 struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -331,11 +349,21 @@ struct SSL {
     string sslProtocol;
 }
 
+@Description { value:"FollowRedirects struct represents http redirect related options to be used for HTTP client invocation" }
+@Field {value:"enabled: Enable redirect"}
+@Field {value:"maxCount: Maximun number of redirects to follow"}
 struct FollowRedirects {
     boolean enabled = false;
     int maxCount = 5;
 }
 
+@Description { value:"Options struct represents options to be used for HTTP client invocation" }
+@Field {value:"port: Port number of the remort service"}
+@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"chunkDisabled: Disable chunking"}
+@Field {value:"followRedirects: Redirect related options"}
+@Field {value:"ssl: ssl/tls related options"}
+@Field {value:"retryConfig: Retry related options"}
 public struct Options {
     int port;
     int endpointTimeout = 60000;
@@ -354,18 +382,21 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action post (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The HEAD action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action head (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The PUT action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action put (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
@@ -373,23 +404,34 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action execute (string httpVerb, string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action patch (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The DELETE action implementation of the HTTP connector"}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action delete (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"GET action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: A request message" }
 	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
+
+	@Description { value:"forward action can be used to invoke an http call with incoming request httpVerb"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: A request message" }
+	@Return { value:"response: The response message" }
+	@Return { value:"httpConnectorError: Error occured during HTTP client invocation" }
+	native action forward (string path, Request req) (Response, HttpConnectorError);
 }

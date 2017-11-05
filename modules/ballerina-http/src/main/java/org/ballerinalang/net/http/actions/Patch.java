@@ -42,8 +42,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
-                structPackage = "ballerina.net.http")},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                        structPackage = "ballerina.net.http"),
+        },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",

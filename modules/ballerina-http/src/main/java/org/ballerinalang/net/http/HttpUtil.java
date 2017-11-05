@@ -505,7 +505,8 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void addResponseFlag(BStruct response) {
+    public static void addRequestResponseFlag(BStruct request, BStruct response) {
+        request.addNativeData(Constants.INBOUND_REQUEST, true);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
     }
 
