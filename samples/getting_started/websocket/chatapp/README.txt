@@ -5,7 +5,7 @@ This broadcast received text from a connection to all the connections in the end
 
 How to run the sample
 =====================
-bin$ ./ballerina run ../samples/websocket/chatApp/ChatApp.bal
+bin$ ./ballerina run ../samples/websocket/chatapp/ChatApp.bal
 
 To check the sample,use Chrome or Firefox javascript console and run the below commands.
 Run first 3 lines of the below code in two or more consoles and see how the messages are received by sending messages
