@@ -880,8 +880,8 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeSourceType(type) {
-        _.remove(this._transformStmt.inputs, (input) => {
-            return type.name === input;
+        _.remove(this._transformStmt.getParameters(), (param) => {
+            return type.name === param.getName().getValue();
         });
         this._transformStmt.body.filterStatements(
             (node) => { return TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node); })

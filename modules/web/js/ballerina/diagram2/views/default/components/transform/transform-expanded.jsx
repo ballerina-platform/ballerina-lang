@@ -920,16 +920,10 @@ class TransformExpanded extends React.Component {
     }
 
     removeSourceType(type) {
-        _.remove(this.state.vertices, (vertex) => {
-            return vertex.name === type.name && vertex.varDeclarationString;
-        });
         this.transformNodeManager.removeSourceType(type);
     }
 
     removeTargetType(type) {
-        _.remove(this.state.vertices, (vertex) => {
-            return vertex.name === type.name && vertex.varDeclarationString;
-        });
         this.transformNodeManager.removeTargetType(type);
     }
 
