@@ -95,7 +95,8 @@ export default class Tree extends React.Component {
                                         this.renderEndpoint(endpoint, 'variable', 0, {isRoot: true})
                                 }
                                 {
-                                    (type === 'source' || type === 'target') &&
+                                    ((type === 'source' || type === 'target') &&
+                                        (!(endpoint.isSource || endpoint.isTarget))) &&
                                     <span
                                         onClick={() => removeTypeCallbackFunc(endpoint)}
                                         className='fw-stack fw-lg btn btn-remove'

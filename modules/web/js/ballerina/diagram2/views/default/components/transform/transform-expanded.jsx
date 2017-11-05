@@ -1257,9 +1257,13 @@ class TransformExpanded extends React.Component {
         const declarations = this.getVerticeData(varDeclarations);
 
         source.endpointKind = 'input';
+        source.isSource = true;
         params.forEach(p => {p.endpointKind = 'input'});
         declarations.forEach(p => {p.endpointKind = 'input'});
-        returns.forEach(r => {r.endpointKind = 'output'});
+        returns.forEach(r => {
+            r.endpointKind = 'output';
+            r.isTarget = true;
+        });
 
         this.props.model.getBody().getStatements().forEach((stmt) => {
             let stmtExp;
