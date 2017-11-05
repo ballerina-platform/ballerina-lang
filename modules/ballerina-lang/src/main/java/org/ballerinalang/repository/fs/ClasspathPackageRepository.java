@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.repository.fs;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -46,6 +48,10 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
         try {
             URI classURI = providerClassRef.getProtectionDomain().getCodeSource().getLocation().toURI();
             String classPath = classURI.getPath();
+            // TODO Fix this properly for other platforms too
+            if (SystemUtils.IS_OS_WINDOWS) {
+                classPath = classPath.replace(" ", "%20");
+            }
             URI pathUri;
             if (classPath.endsWith(".jar")) {
                 pathUri = URI.create("jar:file:" + classPath + "!" + basePath);
