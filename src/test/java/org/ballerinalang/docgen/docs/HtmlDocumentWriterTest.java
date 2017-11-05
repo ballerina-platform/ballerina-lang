@@ -76,9 +76,9 @@ public class HtmlDocumentWriterTest {
 
             // Assert function definitions
             String content1 = new Scanner(htmlFile1).useDelimiter("\\Z").next();
-            Assert.assertTrue(content1.contains("function addHeader(<a href=\"#string\">string</a> m, "
+            Assert.assertTrue(content1.contains("public function addHeader(<a href=\"#string\">string</a> m, "
                     + "<a href=\"#string\">string</a> key, <a href=\"#string\">string</a> value)"));
-            Assert.assertTrue(content1.contains("function getHeader(<a href=\"#string\">string</a> m, "
+            Assert.assertTrue(content1.contains("public function getHeader(<a href=\"#string\">string</a> m, "
                     + "<a href=\"#string\">string</a> key) (string )"));
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));

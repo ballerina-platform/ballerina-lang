@@ -26,6 +26,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -176,6 +177,24 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     .registerHelper("hasAnnotations", (Helper<BLangPackage>) (balPackage, options) -> {
                         if (balPackage.getAnnotations().size() > 0) {
                             return options.fn(balPackage);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("isPublicFunction", (Helper<BLangFunction>) (function, options) -> {
+                        if (function.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(function);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("isPublicConnector", (Helper<BLangConnector>) (connector, options) -> {
+                        if (connector.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(connector);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("isPublicStruct", (Helper<BLangStruct>) (struct, options) -> {
+                        if (struct.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(struct);
                         }
                         return options.inverse(null);
                     })
@@ -335,6 +354,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
                     .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
+//                    .registerHelper("isPublic",
+//                                    (Helper<BLangFunction>) (func, options) -> func.getFlags().contains(Flag.PUBLIC) ?
+//                                            "public" : "")
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
@@ -420,8 +442,17 @@ public class HtmlDocumentWriter implements DocumentWriter {
     }
 
     private String getFullyQualifiedTypeName(BLangType bLangType) {
-        return (bLangType instanceof BLangUserDefinedType ?
-                ((BLangUserDefinedType) bLangType).type.tsymbol.toString() : bLangType.toString());
+        if (bLangType instanceof BLangUserDefinedType) {
+            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;
+
+            if (userDefinedType.type.tsymbol != null) {
+                return userDefinedType.type.tsymbol.toString();
+            } else {
+                // to handle built-in user defined types
+                return userDefinedType.typeName.value;
+            }
+        }
+        return bLangType.toString();
     }
 
     /**
