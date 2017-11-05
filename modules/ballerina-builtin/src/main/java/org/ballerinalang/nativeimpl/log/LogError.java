@@ -26,13 +26,13 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:error
+ * Native function ballerina.log:printError
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.log",
-        functionName = "error",
+        functionName = "printError",
         args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true
 )

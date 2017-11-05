@@ -7,7 +7,7 @@ string app1Tid;
 
 function main (string[] args) {
     worker w1 {
-        log:info("------- Scheduling Appointments ----------------");
+        log:printInfo("------- Scheduling Appointments ----------------");
 
         function () returns (error) onTriggerFunction;
         function (error e) onErrorFunction;
@@ -57,10 +57,10 @@ function main (string[] args) {
 }
 
 function appointment1Cleanup() returns (error) {
-    log:info("Appointment#1 cleanup running...");
+    log:printInfo("Appointment#1 cleanup running...");
     app1Count = app1Count + 1;
     if(app1Count == 5) {
-        log:info("Stopping Appointment#1 cleanup task since it has run 5 times");
+        log:printInfo("Stopping Appointment#1 cleanup task since it has run 5 times");
         // This is how you stop a task.
         _ = task:stopTask(app1Tid);
     }
@@ -68,37 +68,37 @@ function appointment1Cleanup() returns (error) {
 }
 
 function appointment2Cleanup() returns (error){
-    log:info("Appointment#2 cleanup running...");
+    log:printInfo("Appointment#2 cleanup running...");
     return cleanup();
 }
 
 function appointment3Cleanup() returns (error){
-    log:info("Appointment#3 cleanup running...");
+    log:printInfo("Appointment#3 cleanup running...");
     return cleanup();
 }
 
 function appointment4Cleanup() returns (error){
-    log:info("Appointment#4 cleanup running...");
+    log:printInfo("Appointment#4 cleanup running...");
     return cleanup();
 }
 
 function appointment5Cleanup() returns (error){
-    log:info("Appointment#5 cleanup running...");
+    log:printInfo("Appointment#5 cleanup running...");
     return cleanup();
 }
 
 function appointment6Cleanup() returns (error){
-    log:info("Appointment#6 cleanup running...");
+    log:printInfo("Appointment#6 cleanup running...");
     return cleanup();
 }
 
 function appointment7Cleanup() returns (error){
-    log:info("Appointment#7 cleanup running...");
+    log:printInfo("Appointment#7 cleanup running...");
     return cleanup();
 }
 
 function cleanup() returns (error e) {
-    log:info("Cleaning up");
+    log:printInfo("Cleaning up");
     if(math:randomInRange(0, 10) == 5) {
         e = {msg:"Cleanup error"};
     }
@@ -106,6 +106,5 @@ function cleanup() returns (error e) {
 }
 
 function cleanupError(error e) {
-    log:info("[ERROR] cleanup failed");
-    log:info(e);
+    log:printErrorCause("[ERROR] cleanup failed", e);
 }

@@ -26,13 +26,13 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:warn
+ * Native function ballerina.log:printWarn
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.log",
-        functionName = "warn",
+        functionName = "printWarn",
         args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true
 )
