@@ -943,7 +943,7 @@
         <lambdaj.version>2.3.3</lambdaj.version>
         <maven.plugin.api.version>2.0</maven.plugin.api.version>
         <maven.plugin.annotation.version>3.4</maven.plugin.annotation.version>
-        <swagger.codegen.version>2.2.1</swagger.codegen.version>
+        <swagger.codegen.version>2.2.2</swagger.codegen.version>
         <airline.version>0.7</airline.version>
         <guice.version>4.1.0</guice.version>
         <commons-cli.version>1.3.1</commons-cli.version>
