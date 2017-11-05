@@ -31,7 +31,7 @@ If you want to build Ballerina Tools from the source code:
 
 1. Get a clone or download the source from this repository (https://github.com/ballerinalang/distribution).
 2. Run the following Maven command from the root Ballerina Tools directory: mvn clean install
-3. Extract the Ballerina Tools distribution created at `target/ballerina-tools-0.8.2.zip` to your local directory.
+3. Extract the Ballerina Tools distribution created at `target/ballerina-tools-<VERSION>.zip` to your local directory.
 
 Running samples
 ==================================
@@ -47,7 +47,7 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 look at what the sample looks like in the Ballerina programming language:
 
 function main (string[] args) {
-  system:println("Hello, World!");
+  println("Hello, World!");
 }
 
 The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" 
@@ -69,8 +69,9 @@ straightforward, right? Now, let's look at something a little more interesting: 
 Run the Composer
 ----------------
 
-1. At the command prompt, type: composer
-2. Access the Composer from the following URL in your browser: http://localhost:9091
+1. Add the `<ballerina_tools_home>/bin` directory to your $PATH environment variable.
+2. At the command prompt, type: composer
+3. Access the Composer from the following URL in your browser: http://localhost:9091
 
    The welcome page of Ballerina Composer appears. Let's open a sample and take a look around.
 
