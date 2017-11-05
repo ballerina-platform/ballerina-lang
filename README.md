@@ -14,27 +14,20 @@ To test a file written in Ballerina language, use the test command as follows.
 package ballerina.test;
 
  - startService(string servicename)
- - assertTrue(boolean condition)
  - assertTrue(boolean condition, string message)
- - assertFalse(boolean condition)
  - assertFalse(boolean condition, string message) 
- - assertEquals(string actual, string expected)
- - assertEquals(string actual, string expected, string message)
- - assertEquals(int actual, int expected)
- - assertEquals(int actual, int expected, string message)
- - assertEquals(float actual, float expected)
- - assertEquals(float actual, float expected, string message)
- - assertEquals(boolean actual, boolean expected)
- - assertEquals(boolean actual, boolean expected, string message)
- - assertEquals(string[] actual, string[] expected)
- - assertEquals(string[] actual, string[] expected, string message)
- - assertEquals(float[] actual, float[] expected)
- - assertEquals(float[] actual, float[] expected, string message)
- - assertEquals(int[] actual, int[] expected)
- - assertEquals(int[] actual, int[] expected, string message)
+ - assertStringEquals(string actual, string expected, string errorMessage)
+ - assertIntEquals(int actual, int expected, string errorMessage)
+ - assertFloatEquals(float actual, float expected, string errorMessage)
+ - assertBooleanEquals(boolean actual, boolean expected, string errorMessage)
+ - assertStringArrayEquals(string[] actual, string[] expected, string errorMessage)
+ - assertFloatArrayEquals(float[] actual, float[] expected, string errorMessage)
+ - assertIntArrayEquals(int[] actual, int[] expected, string errorMessage)
+ - assertFail(string errorMessage)
+ - createBallerinaError (string errorMessage, string category) (AssertError)
  
 package ballerina.mock;
- - setValue(string pathExpressionToMockableConnector)
+ - setValue(string mockableConnectorPathExpr, string value)
  
  
 ### Writing ballerina tests
@@ -44,33 +37,35 @@ package ballerina.mock;
 e.g.: ```testAddTwoNumbers()```
 - Each test function may contain one or more asserts.  
 e.g. 1: 
-```
+```ballerina
 import ballerina.test;
 function testAddTwoNumbers() {
-    test:assertEquals(addTwoNumbers(1, 2), 3, "Number addition failed for positive numbers");
-    test:assertEquals(addTwoNumbers(-1, -2), -3, "Number addition failed for negative numbers");
-    test:assertEquals(addTwoNumbers(0, 0), 0, "Number addition failed for number zero");
+    test:assertIntEquals(addTwoNumbers(1, 2), 3, "Number addition failed for positive numbers");
+    test:assertIntEquals(addTwoNumbers(-1, -2), -3, "Number addition failed for negative numbers");
+    test:assertIntEquals(addTwoNumbers(0, 0), 0, "Number addition failed for number zero");
 }
 ```
 
 e.g. 2:
 This example shows how to test ballerina service with the back-end mocking support.
-```
+```ballerina
 import ballerina.mock;
 import ballerina.test;
-import ballerina.lang.messages;
+import ballerina.net.http;
 
 function testService() {
     string serviceURL = test:startService("helloWorld");
     string mockedTwitterServiceURL = test:startService("mockedTwitterService");
     mock:setValue("helloWorld.myTwitterConnectorInstance.myHttpConnector.serviceUri", mockedTwitterServiceURL);
     
-    http:ClientConnector client = create http:ClientConnector(serviceURL);
-    message request = {};
-    message response = {};
-    response = http:ClientConnector.get(client, "/", request);
-    string payload = messages:getStringPayload(response);
-    test:assertEquals(payload, "<expectedOutput/>");
+    endpoint<http:HttpClient> client {
+            create http:HttpClient(serviceURL, {});
+    }
+    http:Request req = {};
+    http:Response resp = {};
+    resp, _ = client.get("/", req);
+    string payload = resp.getStringPayload();
+    test:assertStringEquals(payload, "<expectedOutput/>");
 }
 ```
 > A complete sample can be found at `samples/mock/` directory.
@@ -87,14 +82,12 @@ Detailed information is shown in the test result summary.
 4 Create the following two files inside this directory.  
 
 e.g.: sample.bal
-```
+```ballerina
 package samples.foo.bar;
 
-import ballerina.lang.system;
- 
 function main (string[] args) {
     int i = intAdd(1, 2);
-    system:println("Result: " + i);
+    println("Result: " + i);
 }
  
 function intAdd(int a, int b) (int) {
@@ -103,7 +96,7 @@ function intAdd(int a, int b) (int) {
 
 ```  
 e.g.: sample_test.bal
-```
+```ballerina
 package samples.foo.bar;
  
 import ballerina.test;
@@ -111,7 +104,7 @@ import ballerina.test;
 function testInt() {	
     int answer = 0;
     answer = intAdd(1, 2);
-    test:assertEquals(answer, 3, "IntAdd function failed");
+    test:assertIntEquals(answer, 3, "IntAdd function failed");
 	
 }
 ```
@@ -123,12 +116,8 @@ Note the package hierarchy in above files.
 Following is a sample console output. 
 
 ```
-test 'testInt' failed: <Detail error message>
- 
-result:  
-tests run: 1, passed: 0, failed: 1
-failed tests:
- testInt: <Detail error message>
+result: 
+tests run: 1, passed: 1, failed: 0
 ```
 
 ### Running Samples
