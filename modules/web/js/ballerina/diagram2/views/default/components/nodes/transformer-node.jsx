@@ -33,7 +33,7 @@ class TransformerNode extends React.Component {
 
     onExpand() {
         const { designView } = this.context;
-        designView.setTransformActive(true, this.props.model);
+        designView.setTransformActive(true, this.props.model.getSignature());
     }
 
     render() {
