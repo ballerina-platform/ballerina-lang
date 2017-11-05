@@ -554,9 +554,9 @@ class BallerinaFileEditor extends React.Component {
                 });
                 // if syntax errors are found or model is not found
                 if (!_.isEmpty(syntaxErrors)
-                    || !_.isEmpty(runtimeFailures)
                     || _.isNil(data.model)
                     || _.isNil(data.model.kind)
+                    || (!_.isEmpty(runtimeFailures) && (_.isNil(data.model) || _.isNil(data.model.kind)))
                 ) {
                     newState.parseFailed = true;
                     newState.syntaxErrors = syntaxErrors;
