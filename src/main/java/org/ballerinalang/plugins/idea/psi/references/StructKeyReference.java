@@ -22,6 +22,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
@@ -30,6 +31,7 @@ import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -75,10 +77,34 @@ public class StructKeyReference extends BallerinaElementReference {
         }
 
         // Try to resolve to fields in anonymous struct.
-        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
-        if (structDefinitionNode == null) {
+        PsiElement definitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+        if (definitionNode == null) {
             return null;
         }
+        if (definitionNode instanceof AnonStructTypeNameNode) {
+            StructBodyNode structBodyNode = PsiTreeUtil.findChildOfType(definitionNode, StructBodyNode.class);
+            if (structBodyNode == null) {
+                return null;
+            }
+            List<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.getChildrenOfTypeAsList(structBodyNode,
+                    FieldDefinitionNode.class);
+            for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+                if (fieldDefinitionNode == null) {
+                    continue;
+                }
+                IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+                if (fieldName == null) {
+                    continue;
+                }
+                if (fieldName.getText().equals(identifier.getText())) {
+                    return fieldName;
+                }
+            }
+        }
+        if (!(definitionNode instanceof StructDefinitionNode)) {
+            return null;
+        }
+        StructDefinitionNode structDefinitionNode = ((StructDefinitionNode) definitionNode);
         IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
                 IdentifierPSINode.class);
         if (structNameNode == null) {
@@ -212,10 +238,24 @@ public class StructKeyReference extends BallerinaElementReference {
                 //                }
 
                 // Try to get fields from an anonymous struct.
-                structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
-                if (structDefinitionNode == null) {
+                PsiElement definitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+                if (definitionNode == null) {
                     return results;
                 }
+
+                if (definitionNode instanceof AnonStructTypeNameNode) {
+                    StructBodyNode structBodyNode = PsiTreeUtil.findChildOfType(definitionNode, StructBodyNode.class);
+                    if (structBodyNode == null) {
+                        return null;
+                    }
+                    List<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.getChildrenOfTypeAsList(structBodyNode,
+                            FieldDefinitionNode.class);
+                    results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                    return results;
+                }
+
+                structDefinitionNode = ((StructDefinitionNode) definitionNode);
                 IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
                         IdentifierPSINode.class);
                 if (structNameNode == null) {

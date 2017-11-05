@@ -737,7 +737,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             return params;
         }
         // Get parameter nodes.
-        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(node, ParameterNode.class);
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(node, ParameterNode.class);
         for (ParameterNode parameterNode : parameterNodes) {
             params.add(parameterNode.getText());
         }
