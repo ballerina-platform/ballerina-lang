@@ -37,11 +37,16 @@ class PropertyWindow extends React.Component {
         this.previousItems = [];
         this.breadCrumbs = ['Properties'];
         this.supportedKeys = props.supportedProps;
+        this.isVarDefEnabled = this.props.varDefInit;
+        this.varDefInitRef = this.props.varDefInitRef;
         this.state = {
             properties: this.supportedKeys,
             error: false,
+            isVarDefEnabled: this.props.varDefInit,
+            varDefInitRef: this.props.varDefInitRef,
         };
         this.onChange = this.onChange.bind(this);
+        this.clickVarDefCheck = this.clickVarDefCheck.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
         this.renderNumericInputs = this.renderNumericInputs.bind(this);
         this.renderTextInputs = this.renderTextInputs.bind(this);
@@ -67,6 +72,13 @@ class PropertyWindow extends React.Component {
         this.forceUpdate();
     }
 
+    clickVarDefCheck(event) {
+        this.isVarDefEnabled = event.target.checked;
+        this.setState({
+            isVarDefEnabled: event.target.checked,
+        });
+    }
+
     /**
      * Hanldes the dismiss/cancel event of the prop window
      */
@@ -76,7 +88,11 @@ class PropertyWindow extends React.Component {
         this.handleConnectors(this.state.properties); // update the properties in the specific page
         this.handleConnectors(this.supportedKeys); // update all the properties
         if (!this.state.error) {
-            this.props.addedValues(this.supportedKeys);
+            if (this.isVarDefEnabled) {
+                this.props.addedValues(this.varDefInitRef, true);
+            } else {
+                this.props.addedValues(this.supportedKeys, false);
+            }
             this.props.model.viewState.showOverlayContainer = false;
             this.props.model.viewState.shouldShowConnectorPropertyWindow = false;
             this.props.model.viewState.overlayContainer = {};
@@ -196,10 +212,10 @@ class PropertyWindow extends React.Component {
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
+                    className='col-sm-6 property-dialog-label'
                 >
                     {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
+                <div className='col-sm-4'>
                     <input
                         className='property-dialog-form-control'
                         id={key.identifier}
@@ -211,6 +227,45 @@ class PropertyWindow extends React.Component {
                     />
                 </div>
             </div>);
+    }
+
+    renderVariableReferenceSection(key) {
+        const label = 'Variable Reference';
+        return (
+            <div key="vardef" className="form-group">
+                <div className='col-sm-5'>
+                    <div className="col-sm-6">
+                        <input
+                            type="checkbox"
+                            name="varRefEnable"
+                            id="varRefEnable"
+                            value="variable ref"
+                            onClick={event => this.clickVarDefCheck(event)}
+                            checked={this.isVarDefEnabled}
+                        />
+                    </div>
+                    <label
+                        htmlFor="varRefEnable"
+                        className='col-sm-4 property-dialog-label'
+                    >
+                        {label}
+                    </label>
+                </div>
+                <div
+                    className={'col-sm-7' + (this.isVarDefEnabled ? '' : ' content-disabled')}
+                >
+                    <input
+                        className='property-dialog-form-control'
+                        id="vardef"
+                        name="vardef"
+                        type='text'
+                        placeholder='var1'
+                        value={this.isVarDefEnabled ? this.varDefInitRef.value : ''}
+                        onChange={event => this.onChange(event, key)}
+                    />
+                </div>
+            </div>
+        );
     }
 
     /**
@@ -637,29 +692,34 @@ class PropertyWindow extends React.Component {
                     <div className="form-body formContainer">
                         <div className="container-fluid">
                             <form className='form-horizontal propertyForm'>
-                                {this.state.properties.map((key) => {
-                                    if (key.bType === 'int') {
-                                        return this.renderNumericInputs(key);
-                                    } else if (key.bType === 'string') {
-                                        return this.renderTextInputs(key);
-                                    } else if (key.bType === 'boolean') {
-                                        let booleanValue = false;
-                                        if (key.value) {
-                                            booleanValue = JSON.parse(key.value);
+                                {this.renderVariableReferenceSection(this.varDefInitRef)}
+                                <div
+                                    className={this.isVarDefEnabled ? 'content-disabled' : ''}
+                                >
+                                    {this.state.properties.map((key) => {
+                                        if (key.bType === 'int') {
+                                            return this.renderNumericInputs(key);
+                                        } else if (key.bType === 'string') {
+                                            return this.renderTextInputs(key);
+                                        } else if (key.bType === 'boolean') {
+                                            let booleanValue = false;
+                                            if (key.value) {
+                                                booleanValue = JSON.parse(key.value);
+                                            }
+                                            return this.renderBooleanInputs(key, booleanValue);
+                                        } else if (key.bType === 'array') {
+                                            return this.renderTagInputs(key);
+                                        } else if (key.bType === 'map') {
+                                            return this.renderTextInputs(key);
+                                        } else if (key.bType === 'struct') {
+                                            return this.renderStructs(key);
+                                        } else if (key.isConnector) {
+                                            return this.renderConnectorProps(key);
+                                        } else { // If not any of the types render a simple text box
+                                            return this.renderTextInputs(key);
                                         }
-                                        return this.renderBooleanInputs(key, booleanValue);
-                                    } else if (key.bType === 'array') {
-                                        return this.renderTagInputs(key);
-                                    } else if (key.bType === 'map') {
-                                        return this.renderTextInputs(key);
-                                    } else if (key.bType === 'struct') {
-                                        return this.renderStructs(key);
-                                    } else if (key.isConnector) {
-                                        return this.renderConnectorProps(key);
-                                    } else { // If not any of the types render a simple text box
-                                        return this.renderTextInputs(key);
-                                    }
-                                })}
+                                    })}
+                                </div>
                             </form>
                         </div>
                     </div>
