@@ -21,6 +21,7 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -82,8 +83,8 @@ public class LauncherUtils {
         try {
             ConfigRegistry.getInstance().loadConfigurations();
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (IOException e) {
-            throw new RuntimeException("error reading configuration: " + e.getMessage(), e);
+        } catch (ConfigFileParserException e) {
+            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
         }
 
         if (runServices || !programFile.isMainEPAvailable()) {
