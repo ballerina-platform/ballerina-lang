@@ -3,18 +3,17 @@ import ballerina.net.http;
 
 connector {{classname}}() {
 
-    endpoint<http:ClientConnector> endpoint {
+    endpoint<http:ClientConnector> ep {
         create http:ClientConnector("{{basePath}}", {});
     }
 {{#operations}}
 {{#operation}}
     action {{nickname}} ( string url , http:Request req ) (http:Response) {
-        //Create sample json message as follows.
-        //message request = {};
-        //messages:setHeader(request, "Content-Type", "application/json");
-        //Users can process input message msg as per requirements.
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
         http:Response response;
-        response, _ = http:ClientConnector.{{httpMethod}}(url , req);
+        response, _ = ep.{{httpMethod}}(url , req);
         return response;
     }
 {{/operation}}
