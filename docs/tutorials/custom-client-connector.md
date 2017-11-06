@@ -84,3 +84,34 @@ This section of the tutorial explains the way a sample custom client connector i
          endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
     }
     ```
+1. Prepare the base64 encoded key value to be sent in authorization header to the back end. The Ballerina built-in base64encoder is used for this purpose and the logic in this scenario is written in another function that resides in the same package as the connector.
+    ```
+    package org.wso2.ballerina.connectors.github;
+    import ballerina.util;
+    function getBase64EncodedKey (string value1,string value2) (string encodedString) {
+	    string toEncode = value1 + ":" + value2;
+	    encodedString = <string>util:base64encode(toEncode);
+	    return;
+    }
+    ```
+1. The above function is called within the connector to obtain the encoded string as shown below.
+    ```
+    public connector ClientConnector (string username, string token) {
+    endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
+    string authHeader = getBase64EncodedKey(username, token);
+    }
+    ```
+1. The first action retrieves the list of repositories per organization. The action defined takes in the desired organization as a parameter and returns a HTTP response and, within the action, the relevant REST API is invoked.
+    ```
+    action getReposOfOrg (string orgnization) (http:Response, http:HttpConnectorError) {
+    	http:Request request = {};
+    	string gitPath = string `/orgs/{{orgnization}}/repos`;
+    	request.setHeader("Authorization", "Basic "+ authHeader);
+    	http:Response response = {};
+    	http:HttpConnectorError err;
+    	response, err = gitEP.get(gitPath, request);
+    	return response, err;}
+    ```
+    Other actions can be configured in a similar manner.
+
+
