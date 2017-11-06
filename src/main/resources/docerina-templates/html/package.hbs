@@ -48,7 +48,7 @@
                         {{#isPublicFunction}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
-                                public function {{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}} {{receiver/name}}&gt; {{/if}}{{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                                public function {{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}} {{receiver/name}}&gt; {{/if}}{{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}}{{parameterName name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                             </h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
