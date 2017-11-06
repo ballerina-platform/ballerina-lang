@@ -18,7 +18,7 @@ The sample should now look like this:
 
 ```
 package samples.helloWorldService;
-mport ballerina.net.http;
+import ballerina.net.http;
 
 @http:configuration {basePath:"/hello"}
 service<http> helloWorld {
