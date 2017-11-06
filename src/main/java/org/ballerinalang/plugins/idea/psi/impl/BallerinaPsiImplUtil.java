@@ -62,6 +62,7 @@ import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
@@ -2591,5 +2592,25 @@ public class BallerinaPsiImplUtil {
         }
         return (((LeafPsiElement) children[1]).getElementType() == BallerinaTypes.LBRACK)
                 && (((LeafPsiElement) children[2]).getElementType() == BallerinaTypes.RBRACK);
+    }
+
+    @Nullable
+    public static ConnectorDefinitionNode getConnectorDefinition(@NotNull EndpointDeclarationNode node) {
+        ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(node, ConnectorReferenceNode.class);
+        if (connectorReferenceNode == null) {
+            return null;
+        }
+        PsiReference reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        if (resolvedElement.getParent() instanceof ConnectorDefinitionNode) {
+            return ((ConnectorDefinitionNode) resolvedElement.getParent());
+        }
+        return null;
     }
 }

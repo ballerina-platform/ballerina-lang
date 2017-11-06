@@ -25,6 +25,7 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
+import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -65,10 +66,20 @@ public class ActionInvocationReference extends BallerinaElementReference {
         if (variableDefinition == null) {
             return null;
         }
-        ConnectorDefinitionNode connectorDefinitionNode =
-                BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinition.getParent());
-        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorDefinitionNode,
-                ActionDefinitionNode.class);
+        PsiElement variableDefinitionParent = variableDefinition.getParent();
+        ConnectorDefinitionNode connectorDefinitionNode;
+        if (variableDefinitionParent instanceof EndpointDeclarationNode) {
+            connectorDefinitionNode = BallerinaPsiImplUtil.getConnectorDefinition(((EndpointDeclarationNode)
+                    variableDefinitionParent));
+        } else {
+            connectorDefinitionNode =
+                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinitionParent);
+        }
+        if (connectorDefinitionNode == null) {
+            return null;
+        }
+        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType
+                (connectorDefinitionNode, ActionDefinitionNode.class);
         for (ActionDefinitionNode actionDefinitionNode : actionDefinitionNodes) {
             IdentifierPSINode actionIdentifier = PsiTreeUtil.getChildOfType(actionDefinitionNode,
                     IdentifierPSINode.class);
@@ -126,7 +137,10 @@ public class ActionInvocationReference extends BallerinaElementReference {
         PsiElement connectorNode = resolvedElement.getParent();
         if (connectorNode instanceof VariableDefinitionNode || connectorNode instanceof CodeBlockParameterNode) {
             connectorNode = BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(connectorNode);
+        } else if (connectorNode instanceof EndpointDeclarationNode) {
+            connectorNode = BallerinaPsiImplUtil.getConnectorDefinition(((EndpointDeclarationNode) connectorNode));
         }
+
         if (connectorNode == null) {
             return new Object[0];
         }
