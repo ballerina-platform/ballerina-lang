@@ -101,7 +101,7 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
 
-    ![alt text](images/RunApplication.png "Run application")
+    ![alt text](images/BallerinaRunNew.png "Run application")
 
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
