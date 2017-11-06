@@ -2,20 +2,20 @@
 
 Businesses and enterprises worldwide are now faced with the challenge of digital transformation. However, digital transformation has to be implemented under certain restrictions related to existing applications and infrastructure. Docker plays a key role in digital transformation by creating independance between applications and infrastructure and enabling them all to collaborate easily. A Docker container is a stand-alone piece of software that comes in a lightweight, runnable, executable package.
 
-> In this tutorial explores the methods that can be followed to create a docker container that has a Ballerina service embedded within. Ballerina supports dockerizing out-of-the-box.
+> This tutorial explores the methods used to create a docker container that has a Ballerina service embedded within. Ballerina supports dockerizing out-of-the-box.
 
 This tutorial includes instructions of creating a Docker image using the following methods.
 
 - [Create your own Docker image](create-your-own-docker-image)
 - [Adding your services to an existing Docker container](adding-your-services-to-an-existing-docker-container)
 
-> **Prerequisites**: You need to have Docker configured and running. Some expertise with cURL commands will also be useful.
+> **Prerequisites**: You need to have Docker configured and running. Some expertise with cURL commands will also be useful. For more information on starting up and the Ballerina Composer, see [Quick Tour](../quick-tour.md).
 
 ## Create your own Docker image
 
 1. First download the Ballerina tools distribution. The latest Ballerina pack can be found at: https://ballerinalang.org/downloads/
-1. Extract the downloaded .zip file and set up the Ballerina runtime. For more information on how to do this, see [Quick Tour](../quick-tour.md).
-1. Create a Ballerina service to be added to the Docker container. You can create the following service (you can alternatively create a main function). Name the file: `docker-service.bal`.
+1. Extract the downloaded .zip file, set up the Ballerina runtime, and run Ballerina. For more information on how to do this, see [Quick Tour](../quick-tour.md).
+1. Create a Ballerina service to be added to the Docker container. Create the following service in the Ballerina Composer **Source View** (you can alternatively create a main function). Name the file: `docker-service.bal`.
     ```
     import ballerina.net.http;
 
