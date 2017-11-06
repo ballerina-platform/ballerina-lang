@@ -20,7 +20,7 @@ package ballerina.net.http;
 @Field {value:"allowHeaders: The array of allowed headers by the service"}
 @Field {value:"maxAge: The duration to cache the preflight from client side"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
-@Field {value:"webSocket: "}
+@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public annotation configuration attach service<> {
     string host;
     int port;
@@ -45,8 +45,8 @@ public annotation configuration attach service<> {
 }
 
 @Description {value: "Annotation to upgrade connection from http to ws in the same base path."}
-@Field {value:": "}
-@Field {value:": "}
+@Field {value:"upgradePath: Upgrade path for the WebSocket service from HTTP to WS."}
+@Field {value:"serviceName: Name of the WebSocket service where the HTTP service should upgrade to."}
 public annotation webSocket attach service<> {
     string upgradePath;
     string serviceName;
