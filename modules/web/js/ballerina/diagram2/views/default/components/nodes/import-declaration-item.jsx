@@ -58,10 +58,12 @@ export default class importDeclarationItem extends React.Component {
             className = 'package-declaration-item-hightlighted';
         }
 
-        const importPkgName = this.props.importDec.parent.getPackageName(this.props.importDec);
-        /* if (this.props.importDec.getAsName() !== undefined) {
-            importPkgName = importPkgName + ' as ' + this.props.importDec.getAsName();
-        }*/
+        let importPkgName = this.props.importDec.parent.getPackageName(this.props.importDec);
+        const pkgIdentifier = importPkgName.split('.');
+        const pkgAliasName = pkgIdentifier[pkgIdentifier.length - 1];
+        if (this.props.importDec.getAlias() !== undefined && this.props.importDec.getAlias().value !== pkgAliasName) {
+            importPkgName = importPkgName + ' as ' + this.props.importDec.getAlias().value;
+        }
         return (
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
                 <title> {importPkgName}</title>
