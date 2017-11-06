@@ -41,7 +41,7 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 
 ```
 function main (string[] args) {
-  system:println("Hello, World!");
+  println("Hello, World!");
 }
 ```
 
@@ -64,8 +64,9 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
 
 ### Run the Composer
 
-1. At the command prompt, type: `composer`
-1. Access the Composer from the following URL in your browser: http://localhost:9091
+1. Add the `<ballerina_tools_home>/bin` directory to your $PATH environment variable.
+2. At the command prompt, type: `composer`
+3. Access the Composer from the following URL in your browser: http://localhost:9091
 
 The welcome page of Ballerina Composer appears. Let's open a sample and take a look around.
 

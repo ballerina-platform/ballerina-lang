@@ -173,6 +173,14 @@ cd "$BAL_COMPOSER_HOME"
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
 
+# Setting Classpath
+
+COMPOSER_CLASSPATH="$BAL_COMPOSER_HOME/resources/composer/services/*"
+for j in "$BAL_COMPOSER_HOME"/bre/lib/*.jar
+do
+    COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH":$j
+done
+
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
@@ -181,8 +189,9 @@ status=$START_EXIT_STATUS
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
+    -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/bre/conf/composer-logging.properties" \
     $JAVA_OPTS \
-    -classpath ./resources/composer/services/workspace-service-*.jar \
+    -classpath "$COMPOSER_CLASSPATH" \
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \

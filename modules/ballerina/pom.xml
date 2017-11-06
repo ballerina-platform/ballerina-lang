@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
@@ -73,22 +77,6 @@
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.config</groupId>
-            <artifactId>org.wso2.carbon.config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.secvault</groupId>
-            <artifactId>org.wso2.carbon.secvault</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.secvault</groupId>
-            <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -107,6 +95,14 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz-jobs</artifactId>
         </dependency>
     </dependencies>
 

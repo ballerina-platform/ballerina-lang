@@ -70,8 +70,6 @@ FOR %%C in ("%BALLERINA_HOME%\bin\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!
 
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
-FOR %%D in ("%BALLERINA_HOME%\lib\commons-lang*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\lib\%%~nD%%~xD"
-
 rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
@@ -145,14 +143,14 @@ rem ----------------- Execute The Requested Command ----------------------------
 cd %BALLERINA_HOME%
 
 FOR %%C in ("%BALLERINA_HOME%\resources\composer\services\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\resources\composer\services\%%~nC%%~xC"
-
+FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\%%~nD%%~xD"
 rem ---------- Add jars to classpath ----------------
 
 rem set BALLERINA_CLASSPATH=.\bin\bootstrap;%BALLERINA_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%" -Dbal.composer.home="%BALLERINA_HOME%" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Dfile.encoding=UTF8 -Dcomposer.port=9091 -DenableCloud=false -Dworkspace.port=8289 -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml -Dmsf4j.conf=./resources/composer/services/deployment.yaml
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\logs\heap-dump.hprof" -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\composer-logging.properties" -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%" -Dbal.composer.home="%BALLERINA_HOME%" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Dfile.encoding=UTF8 -Dcomposer.port=9091 -DenableCloud=false -Dworkspace.port=8289 -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml -Dmsf4j.conf=./resources/composer/services/deployment.yaml
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner %CMD%
