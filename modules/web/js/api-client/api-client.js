@@ -329,7 +329,7 @@ export function invokeTryIt(tryItPayload, protocol) {
     };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, tryItPayload, { headers, timeout: 10000 })
+        axios.post(endpoint, tryItPayload, { headers })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
