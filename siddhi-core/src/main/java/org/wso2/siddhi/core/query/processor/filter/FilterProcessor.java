@@ -51,7 +51,8 @@ public class FilterProcessor implements Processor {
         complexEventChunk.reset();
         while (complexEventChunk.hasNext()) {
             ComplexEvent complexEvent = complexEventChunk.next();
-            if (!(Boolean) conditionExecutor.execute(complexEvent)) {
+            Object result = conditionExecutor.execute(complexEvent);
+            if (result == null || !(Boolean) result) {
                 complexEventChunk.remove();
             }
         }
