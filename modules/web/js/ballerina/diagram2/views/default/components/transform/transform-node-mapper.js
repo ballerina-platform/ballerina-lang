@@ -880,8 +880,8 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeSourceType(type) {
-        _.remove(this._transformStmt.inputs, (input) => {
-            return type.name === input;
+        _.remove(this._transformStmt.getParameters(), (param) => {
+            return type.name === param.getName().getValue();
         });
         this._transformStmt.body.filterStatements(
             (node) => { return TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node); })
@@ -1353,8 +1353,11 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     isInTransformInputOutput(expression) {
+        const varDeclarations = this._transformStmt.getBody().getStatements()
+          .filter((node) => { return TreeUtil.isVariableDef(node); });
+
         const inputOutput = [this._transformStmt.getSourceParam(), ...this._transformStmt.getParameters(),
-            ...this._transformStmt.getReturnParameters()];
+            ...this._transformStmt.getReturnParameters(), ...varDeclarations.map(varNode => varNode.getVariable())];
         const ioReference = inputOutput.find((io) => {
             return io.name.getSource().trim() === expression.getSource().trim();
         });

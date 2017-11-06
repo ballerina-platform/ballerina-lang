@@ -336,11 +336,11 @@ class ToolPaletteView extends React.Component {
                     newToolItem = {
                         id: 'jms-service',
                         name: 'JMS Service',
-                        icon: 'service',
+                        icon: 'jms',
                         title: 'JMS Service',
                         nodeFactoryMethod: DefaultNodeFactory.createJMSServiceDef,
-                        description: 'JMS container of resources, each of which defines the logic for'
-                    + ' handling one type of request',
+                        description: 'JMS server connector can be used to listen to a topic/queue in a ' +
+                        'JNDI-based JMS provider',
                     };
                     indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
                     defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);
@@ -350,10 +350,10 @@ class ToolPaletteView extends React.Component {
                     newToolItem = {
                         id: 'fs-service',
                         name: 'FS Service',
-                        icon: 'service',
+                        icon: 'file',
                         title: 'FS Service',
                         nodeFactoryMethod: DefaultNodeFactory.createFSServiceDef,
-                        description: ' FS Server Connector can be used to listen to a ' +
+                        description: ' FS server connector can be used to listen to a ' +
                         'directory in the local file system',
                     };
                     indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
@@ -364,10 +364,10 @@ class ToolPaletteView extends React.Component {
                     newToolItem = {
                         id: 'ftp-service',
                         name: 'FTP Service',
-                        icon: 'service',
+                        icon: 'file',
                         title: 'FTP Service',
                         nodeFactoryMethod: DefaultNodeFactory.createFTPServiceDef,
-                        description: 'FS Server Connector can be used to listen to a remote directory',
+                        description: 'FTP server connector can be used to listen to a remote directory',
                     };
                     indexToBeAdded = defaultTools.tools.findIndex(tool => tool.id === 'constructs_seperator');
                     defaultTools.tools.splice(indexToBeAdded, 0, newToolItem);

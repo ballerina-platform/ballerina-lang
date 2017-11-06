@@ -35,7 +35,7 @@ public class ItemResolverConstants {
     public static final String SOME = "some";
     public static final String TIMEOUT = "timeout";
     public static final String WORKER = "worker";
-    public static final String TRANSFORM = "transform";
+    public static final String TRANSFORMER = "transformer";
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
     public static final String ABORTED = "aborted";
@@ -45,6 +45,8 @@ public class ItemResolverConstants {
     public static final String FINALLY = "finally";
     public static final String ITERATE = "iterate";
     public static final String WHILE = "while";
+    public static final String BIND = "bind";
+    public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String THROW = "throw";
@@ -64,9 +66,12 @@ public class ItemResolverConstants {
 
 
     public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
-    public static final String SERVICE_TEMPLATE = "service<${1}> ${2:serviceName}{\n\t@http:GET { }" +
-            "\n\tresource ${3:resourceName} (message m) {\n\t}\n}";
-    public static final String RESOURCE_TEMPLATE = "resource ${1:name} (message ${2:m}){\n    ${3}\n}";
+    public static final String TRANSFORMER_TEMPLATE = "transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}";
+    public static final String ENDPOINT_TEMPLATE = "endpoint <${1:constraint}> ${2:__endpoint} {\n\t${3}\n}";
+    public static final String SERVICE_TEMPLATE = "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
+            " (http:Request req,http:Response res) {\n\t}\n}";
+    public static final String RESOURCE_TEMPLATE = "resource ${1:name} (http:Request req,http:Response res) " +
+            "{\n\t${2}\n}";
     public static final String CONNECTOR_DEFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
     public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
     public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
@@ -75,6 +80,7 @@ public class ItemResolverConstants {
     public static final String IF_TEMPLATE = "if (${1:true}) {\n\t${2}\n}";
     public static final String ITERATE_TEMPLATE = "iterate (${1}) {\n\t${2}\n}";
     public static final String WHILE_TEMPLATE = "while (${1:true}) {\n\t${2}\n}";
+    public static final String BIND_TEMPLATE = "bind ${1:__connector} with ${2:__endpoint}";
     public static final String CONTINUE_TEMPLATE = "continue;";
     public static final String BREAK_TEMPLATE = "break;";
     public static final String FORK_TEMPLATE = "fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}";
@@ -85,7 +91,6 @@ public class ItemResolverConstants {
     public static final String ABORT_TEMPLATE = "abort;";
     public static final String TRIGGER_WORKER_TEMPLATE = "${1} -> ${2};";
     public static final String WORKER_REPLY_TEMPLATE = "${1} <- ${2};";
-    public static final String TRANSFORM_TEMPLATE = "transform {\n\t${1}\n}";
     public static final String TRANSACTION_TEMPLATE = "transaction {\n\t${1}\n} failed {\n\t${2}\n} " +
             "aborted {\n\t${3}\n} committed {\n\t${4}\n}";
     public static final String NAMESPACE_DECLARATION_TEMPLATE = "xmlns \"${1}\" as ${2:ns};";

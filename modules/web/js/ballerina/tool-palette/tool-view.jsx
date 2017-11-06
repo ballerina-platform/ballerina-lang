@@ -69,7 +69,7 @@ class ToolView extends React.Component {
         let toolDesc = '';
         if (this.props.order === 'horizontal') {
             toolTip = tool.name;
-            toolDesc = tool.description;
+            toolDesc = tool.description || '';
             return this.props.connectDragSource(
                 <div
                     className="tool-block tool-container"

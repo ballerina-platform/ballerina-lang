@@ -35,7 +35,7 @@ class WebsocketResourceSelect extends React.Component {
         this.addedResources = this.getAddedResources();
         // ToDo make it dynamic
         this.webSocketResources = ['onOpen', 'onTextMessage', 'onHandshake', 'onBinaryMessage',
-            'onClose', 'onIdleTimeOut'];
+            'onClose', 'onIdleTimeOut', 'onPing', 'onPong'];
         this.resourcesNotAdded = this.getResourcesNotAdded();
         this.addResource = this.addResource.bind(this);
         this.getAddedResources = this.getAddedResources.bind(this);
@@ -157,6 +157,22 @@ class WebsocketResourceSelect extends React.Component {
                 }
             `,
             },
+            {
+                resourceName: 'onPing',
+                fragment: `
+                resource onPing(ws:Connection conn, ws:PingFrame frame) {
+
+                }
+            `,
+            },
+            {
+                resourceName: 'onPong',
+                fragment: `
+                resource onPong(ws:Connection conn, ws:PongFrame frame) {
+
+                }
+            `,
+            },
         ];
     }
 
@@ -212,7 +228,7 @@ class WebsocketResourceSelect extends React.Component {
         let xPositionOfDropDown = 20;
         if (TreeUtil.isResource(props.model)) {
             yPositionOfDropDown = 78;
-            xPositionOfDropDown = 35;
+            xPositionOfDropDown = -35;
         }
 
         const style = {

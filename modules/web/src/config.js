@@ -79,10 +79,10 @@ export default {
                     image: 'preview_passthroughService',
                 },
                 {
-                    name: 'Transform Statement',
+                    name: 'Transformer',
                     isFile: false,
-                    folder: '/samples/transformStmt',
-                    path: '/samples/transformStmt/StructTransform.bal',
+                    folder: '/samples/transformer',
+                    path: '/samples/transformer/StructTransformer.bal',
                     image: 'preview_transformStmt',
                 },
                 {

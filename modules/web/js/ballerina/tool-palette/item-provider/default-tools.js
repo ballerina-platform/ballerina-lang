@@ -33,8 +33,7 @@ const tools = [
         icon: 'http',
         title: 'HTTP Service',
         nodeFactoryMethod: DefaultNodeFactory.createHTTPServiceDef,
-        description: 'Http Service is a container of resources, each of which defines the logic for'
-        + ' handling one type of request',
+        description: 'HTTP server connector allows Ballerina programmers to expose their APIs to HTTP clients',
     },
     {
         id: 'ws-service',
@@ -42,8 +41,8 @@ const tools = [
         icon: 'web-service',
         title: 'WebSocket Service',
         nodeFactoryMethod: DefaultNodeFactory.createWSServiceDef,
-        description: 'Web Socket Service is a container of resources,'
-        + ' each of which defines the logic for handling one type of request',
+        description: 'WebSocket server connector is a protocol that provides full-duplex, persistent ' +
+        'communication channels over a single TCP connection',
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
