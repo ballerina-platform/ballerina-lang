@@ -29,7 +29,7 @@ It is time to create a main program to solve your integration problem.
 1. On the Welcome page, click **File** and select **New** from the dropdown list.
 1. On the tool palette that you see on the left of the Composer, click the **Main Function** icon and drag it to the canvas.
 
-![alt text](../images/AddMainProgram.gif)
+![alt text](../images/AddMainNew.gif)
 
 ## Add a connector
 
