@@ -18,6 +18,3 @@ $ ws.send("hello world");
 
 To close the connection
 $ ws.close(1000, "I want to go");
-
-To close connection from server side
-$ ws.send("closeMe");
