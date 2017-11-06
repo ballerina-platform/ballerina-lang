@@ -375,17 +375,20 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         return type instanceof BLangUserDefinedType ? new Handlebars.SafeString(
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
-                    .registerHelper("typeText", (Helper<BLangVariable>) (type, options) -> {
-                        if (type.symbol == null) {
+                    .registerHelper("typeText", (Helper<BLangVariable>) (var, options) -> {
+                        if (var.symbol == null) {
                             // To account for return params. Does not work for anon. structs.
                             // TODO: Need to fix this properly
-                            return getTypeName(type.typeNode);
-                        } else if (type.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE &&
-                                ((BLangUserDefinedType) type.typeNode).typeName.value.contains("$anonStruct$")) {
-                            return getAnonStructString((BStructType) type.type);
+                            return getTypeName(var.typeNode);
+                        } else if (var.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                            if (((BLangUserDefinedType) var.typeNode).typeName.value.contains("$anonStruct$")) {
+                                return getAnonStructString((BStructType) var.type);
+                            } else {
+                                return getTypeName(var.typeNode);
+                            }
                         }
 
-                        return type.symbol.type.toString();
+                        return var.symbol.type.toString();
                     })
                     .registerHelper("annotationTypeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
