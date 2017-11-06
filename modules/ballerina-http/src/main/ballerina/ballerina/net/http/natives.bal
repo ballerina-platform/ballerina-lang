@@ -338,9 +338,9 @@ struct Retry {
 @Field {value:"trustStorePassword: Trust store password"}
 @Field {value:"keyStoreFile: File path to key store file"}
 @Field {value:"keyStorePassword: Key store password"}
-@Field {value:"sslEnabledProtocols: ssl/tls protocols to be enabled"}
-@Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: ssl Protocol to be used"}
+@Field {value:"sslEnabledProtocols: ssl/tls protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
+@Field {value:"sslProtocol: ssl Protocol to be used. eg: TLS1.2"}
 struct SSL {
     string trustStoreFile;
     string trustStorePassword;
