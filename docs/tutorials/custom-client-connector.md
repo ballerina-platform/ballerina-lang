@@ -80,7 +80,7 @@ This section of the tutorial explains the way a sample custom client connector i
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
 1. Provide the connector parameter list. In order to connect to GitHub APIs, this connector uses an authenticated user and a token obtained for that user.  Furthermore, you need to initialize the connection to the GitHub API as shown below.
     ```
-public connector ClientConnector (string username, string token) {
-endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
-}
+    public connector ClientConnector (string username, string token) {
+         endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
+    }
     ```
