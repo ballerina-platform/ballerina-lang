@@ -1,6 +1,8 @@
 package ballerina.builtin;
 
 @Description { value: "Options struct for XML to JSON conversion "}
+@Field {value:"attributePrefix:  prefix to add to the key to identify a XML attribute and namespaces, default value is '@'."}
+@Field {value:"preserveNamespaces: Indicate whether to preserve namespace prefixes when converting or not."}
 public struct xmlOptions {
     string attributePrefix = "@";
     boolean preserveNamespaces = true;
@@ -81,6 +83,7 @@ public native function <xml x> setAttributes(map attributes);
 
 @Description { value:"Converts a XML object to a JSON representation"}
 @Param { value:"x: A XML object" }
+@Param { value:"options: xmlOptions struct for XML to JSON conversion properties" }
 @Return { value:"json: JSON representation of the given XML" }
 public native function <xml x> toJSON (xmlOptions options) (json);
 
