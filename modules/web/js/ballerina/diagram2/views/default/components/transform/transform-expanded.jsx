@@ -969,6 +969,9 @@ class TransformExpanded extends React.Component {
      * Add a parameter to transformer
      */
     onAddNewParameter() {
+        if (this.props.model.getName().getValue() === '') {
+            this.props.model.getName().setValue('newTransformer');
+        }
         this.props.model.addParameters(this.transformNodeManager.createVariable(
                                             'param' + (this.props.model.getParameters().length + 1), 'string'));
     }
