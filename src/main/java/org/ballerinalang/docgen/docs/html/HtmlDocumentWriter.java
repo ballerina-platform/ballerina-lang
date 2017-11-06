@@ -26,6 +26,9 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -157,50 +160,48 @@ public class HtmlDocumentWriter implements DocumentWriter {
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
                     .registerHelper("hasFunctions", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getFunctions().size() > 0) {
-                            return options.fn(balPackage);
+                        for (BLangFunction func: balPackage.getFunctions()) {
+                            if (func.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasConnectors", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getConnectors().size() > 0) {
-                            return options.fn(balPackage);
+                        for (BLangConnector connector: balPackage.getConnectors()) {
+                            if (connector.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasStructs", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getStructs().size() > 0) {
-                            return options.fn(balPackage);
+                        for (BLangStruct struct: balPackage.getStructs()) {
+                            if (struct.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasGlobalVariables", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getGlobalVariables().size() > 0) {
-                            return options.fn(balPackage);
+                        for (BLangVariable var: balPackage.getGlobalVariables()) {
+                            if (var.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasAnnotations", (Helper<BLangPackage>) (balPackage, options) -> {
-                        if (balPackage.getAnnotations().size() > 0) {
-                            return options.fn(balPackage);
+                        for (BLangAnnotation annotation: balPackage.getAnnotations()) {
+                            if (annotation.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
                         }
                         return options.inverse(null);
                     })
-                    .registerHelper("isPublicFunction", (Helper<BLangFunction>) (function, options) -> {
-                        if (function.getFlags().contains(Flag.PUBLIC)) {
-                            return options.fn(function);
-                        }
-                        return options.inverse(null);
-                    })
-                    .registerHelper("isPublicConnector", (Helper<BLangConnector>) (connector, options) -> {
-                        if (connector.getFlags().contains(Flag.PUBLIC)) {
-                            return options.fn(connector);
-                        }
-                        return options.inverse(null);
-                    })
-                    .registerHelper("isPublicStruct", (Helper<BLangStruct>) (struct, options) -> {
-                        if (struct.getFlags().contains(Flag.PUBLIC)) {
-                            return options.fn(struct);
+                    .registerHelper("isPublic", (Helper<AnnotatableNode>) (annotatableNode, options) -> {
+                        if (annotatableNode.getFlags().contains(Flag.PUBLIC)) {
+                            return options.fn(annotatableNode);
                         }
                         return options.inverse(null);
                     })
@@ -374,7 +375,19 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         return type instanceof BLangUserDefinedType ? new Handlebars.SafeString(
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
-                    .registerHelper("typeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
+                    .registerHelper("typeText", (Helper<BLangVariable>) (type, options) -> {
+                        if (type.symbol == null) {
+                            // To account for return params. Does not work for anon. structs.
+                            // TODO: Need to fix this properly
+                            return getTypeName(type.typeNode);
+                        } else if (type.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE &&
+                                ((BLangUserDefinedType) type.typeNode).typeName.value.contains("$anonStruct$")) {
+                            return getAnonStructString((BStructType) type.type);
+                        }
+
+                        return type.symbol.type.toString();
+                    })
+                    .registerHelper("annotationTypeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
                         if (bLangPackage == null) {
                             return null;
@@ -477,6 +490,23 @@ public class HtmlDocumentWriter implements DocumentWriter {
         return bLangType.toString();
     }
 
+    private String getAnonStructString(BStructType type) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("struct {");
+
+        BStructType.BStructField field;
+        int nFields = type.fields.size();
+        for (int i = 0; i < nFields; i++) {
+            field = type.fields.get(i);
+            builder.append(field.type.toString()).append(" ").append(field.name.value);
+            if (i == nFields - 1) {
+                return builder.append("}").toString();
+            }
+            builder.append(", ");
+        }
+
+        return builder.append("}").toString();
+    }
     /**
      * Holds the current object which is processed by Handlebars
      */
