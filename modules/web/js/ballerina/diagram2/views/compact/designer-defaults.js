@@ -20,7 +20,7 @@ export const statement = {
     width: 300,
     height: 20,
     gutter: {
-        v: 10,
+        v: 20,
         h: 0,
     },
     padding: {
