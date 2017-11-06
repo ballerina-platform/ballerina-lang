@@ -23,6 +23,7 @@ public annotation configuration attach service<> {
     webSocket webSocket;
 }
 
+@Description {value: "Annotation to upgrade connection from http to ws in the same base path."}
 public annotation webSocket attach service<> {
     string upgradePath;
     string serviceName;
