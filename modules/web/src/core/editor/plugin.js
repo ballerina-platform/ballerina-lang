@@ -198,17 +198,22 @@ class EditorPlugin extends Plugin {
     /**
      * Closes a tab
      * @param {Editor} targetEditor Editor instance
+     * @param {Editor} nextActiveEditor Editor to be activated if the targetEditor is the active one. If not given the
+     *      editor to the left of targetEditor is activated.
      */
-    closeTab(targetEditor) {
+    closeTab(targetEditor, nextActiveEditor) {
         const { openedEditors, appContext: { workspace } } = this;
         const searchByID = editor => editor.id === targetEditor.id;
         // only change active editor when the closing one is the currently active one
         if (this.activeEditorID === targetEditor.id) {
-            const editorIndex = _.findIndex(openedEditors, searchByID);
-            const newActiveEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
-            const newActiveEditor = !_.isNil(openedEditors[newActiveEditorIndex])
-                                    ? openedEditors[newActiveEditorIndex]
-                                    : undefined;
+            let newActiveEditor = nextActiveEditor;
+            if (!newActiveEditor) {
+                const editorIndex = _.findIndex(openedEditors, searchByID);
+                const newActiveEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
+                newActiveEditor = !_.isNil(openedEditors[newActiveEditorIndex])
+                                        ? openedEditors[newActiveEditorIndex]
+                                        : undefined;
+            }
             _.remove(openedEditors, searchByID);
             this.setActiveEditor(newActiveEditor);
         } else {
