@@ -87,13 +87,13 @@ Once you have accessed the composer, you can have a look around using the availa
    
 2. Click **Source View**. 
 
-    ![alt text](images/EchoSource2.png "Source view")
+    ![alt text](images/EchoSourceNew.png "Source view")
 
     You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. This can be done by clicking **Design View** in the lower right corner.
 
 3. Click **Swagger View**. 
 
-    ![alt text](images/EchoSwagger2.png "Swagger view")
+    ![alt text](images/EchoSwaggerNew.png "Swagger view")
 
     If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
@@ -101,7 +101,7 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
 
-    ![alt text](images/RunApplication.png "Swagger view")
+    ![alt text](images/RunApplication.png "Run application")
 
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
