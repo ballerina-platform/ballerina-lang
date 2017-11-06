@@ -1,10 +1,15 @@
 package ballerina.test;
 
-public const string assertFailureErrorCategory = "assert-failure";
+const string assertFailureErrorCategory = "assert-failure";
 
-public const string arraysNotEqualMessage = "Arrays are not equal";
-public const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const string arraysNotEqualMessage = "Arrays are not equal";
+const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
+@Description{value:"The error struct for assertion errors"}
+@Field{value:"The assertion error message"}
+@Field{value:"The error which caused the assertion error"}
+@Field{value:"The strack trace"}
+@Field{value:"The assert error category"}
 public struct AssertError {
     string msg;
     error cause;
@@ -12,7 +17,7 @@ public struct AssertError {
     string category;
 }
 
-@Description{value:"Creates a AssertError with custom message and category"}
+@Description{value:"Creates an AssertError with custom message and category"}
 @Param{value:"errorMessage: Custom message for the ballerina error"}
 @Param{value:"category: error category"}
 public function createBallerinaError (string errorMessage, string category) (AssertError) {
