@@ -71,19 +71,19 @@ Once you have accessed the composer, you can have a look around using the availa
 
     Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
     
-    ![alt text](images/Constructs.png "Constructs")
+    ![alt text](images/ConstructsNew.png "Constructs")
     
     Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**.
     
-    ![alt text](images/LifeLine.png "Ballerina construct life line")
+    ![alt text](images/LifelineNew.png "Ballerina construct life line")
     
     There are packages called **Connectors** and **Libraries** that are available to be used by your Ballerina program. By default, the Composer imports few commonly used packages to this section. If you add an import to a different package, it is added to this section. Hovering over these packages provides a link to the documentation for each of these libraries, including the available functions and their usage. Click the eye icon to view more connectors and libraries.
     
     ![alt text](images/Libraries.png "Ballerina connectors and libraries")
 
-    Notice the **Source View** button in the lower right corner. Also note the **Swagger Source** button associated with the service.
+    Notice the **Source View** button and the **Split View** button in the lower right corner. Also note the **Swagger Source** button associated with the service.
     
-    ![alt text](images/EchoSwaggerButton.png "Echo Service program")
+    ![alt text](images/SourceSwaggerButtons.png "Source and Swagger buttons")
    
 2. Click **Source View**. 
 
