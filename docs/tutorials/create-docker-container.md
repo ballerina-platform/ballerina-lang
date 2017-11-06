@@ -37,9 +37,9 @@ This tutorial includes instructions of creating a Docker image using the followi
     ```
     ballerina docker docker-service.bal
     ```
-    If the above command succeeds you will see something like the following.
+    If the above command succeeds you can see something similar to the following.
     ![alt text](../images/DockerImage1.png)
-1. To verify image creation, execute the following command, which will list all the images in local docker registry.
+1. To verify image creation, execute the following command, which lists all the images in local docker registry.
     ```
     docker images
     ```
