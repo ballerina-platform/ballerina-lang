@@ -44,9 +44,9 @@ public native function <Request req> getJsonPayload () (json);
 @Return { value:"xml: The XML representation of the message payload" }
 public native function <Request req> getXmlPayload () (xml);
 
-@Description { value:"Gets the request payload in BLOB format"}
+@Description { value:"Gets the request payload in blob format"}
 @Param { value:"req: A request message" }
-@Return { value:"json: The BLOB reresentation of the message payload" }
+@Return { value:"blob: The blob representation of the message payload" }
 public native function <Request req> getBinaryPayload () (blob);
 
 @Description { value:"Sets a request property"}
@@ -159,9 +159,9 @@ public native function <Response res> getJsonPayload () (json);
 @Return { value:"xml: The XML representation of the message payload" }
 public native function <Response res> getXmlPayload () (xml);
 
-@Description { value:"Gets the response payload in BLOB format"}
+@Description { value:"Gets the response payload in blob format"}
 @Param { value:"res: The response message" }
-@Return { value:"json: The BLOB reresentation of the message payload" }
+@Return { value:"blob: The blob representation of the message payload" }
 public native function <Response res> getBinaryPayload () (blob);
 
 @Description { value:"Sets a response property"}
