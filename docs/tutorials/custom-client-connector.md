@@ -114,4 +114,27 @@ This section of the tutorial explains the way a sample custom client connector i
     ```
     Other actions can be configured in a similar manner.
 
+## Using the connector
+
+In order to test the connector, you must have a Ballerina program with either a main function or a service. This tutorial uses a service for the purpose. This test service is created in another package.
+
+1. Import the client connector made above to the file where the service is written.
+    ```	
+    package com.test.sample;
+    import org.wso2.ballerina.connectors.github;
+    ```
+1. Inside a resource initialize and invoke the client connector as follows.
+    ``` 
+    resource getReposForOrganization (http:Request req,http:Response res, string org) {
+    	endpoint<github:ClientConnector> gitHubConnector{
+    	}
+    	string username = req.getHeader("Username");
+    	string tokenEnc = req.getHeader("Token");
+    	github:ClientConnector gitHubConn = create github:ClientConnector(username, tokenEnc);
+    	bind gitHubConn with gitHubConnector;
+    	http:Response gitHubResponse = {};
+    	gitHubResponse, _ = gitHubConnector.getReposOfOrg(org);
+    	res.forward(gitHubResponse);
+            }
+    ```
 
