@@ -33,11 +33,11 @@
                                 <tr>
                                     <th>Variable Name</th><th>Data Type</th><th>Description</th>
                                 </tr>
-                                {{#each globalVariables}}
+                                {{#each globalVariables}}{{#isPublic}}
                                     <tr>
-                                        <td id="{{name}}">{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{globalVarDescription}}</td>
+                                        <td id="{{name}}">{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{globalVarDescription}}</td>
                                     </tr>
-                                {{/each}}
+                                {{/isPublic}}{{/each}}
                             </table>
                             </p>
                         {{/hasGlobalVariables}}
@@ -45,10 +45,10 @@
                         <!-- Functions -->
                         <h2>Functions of {{refinePackagePath this}} package</h2>
                         {{#each functions}} {{currentObject this}}
-                        {{#isPublicFunction}}
+                        {{#isPublic}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
-                                public function {{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}} {{receiver/name}}&gt; {{/if}}{{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}}{{parameterName name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                                public function {{#if receiver/typeNode}}&lt;{{typeText receiver}} {{receiver/name}}&gt; {{/if}}{{name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText this}}{{parameterName name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                             </h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
@@ -60,7 +60,7 @@
                                         <th>Receiver Name</th><th>Data Type</th><th>Description</th>
                                     </tr>
                                     <tr>
-                                        <td>{{receiver/name}}</td><td><a href="{{#bindLink receiver/typeKind}}{{/bindLink}}"{{typeTitle receiver/typeKind}}>{{typeText receiver/typeNode}}</a></td><td>{{paramAnnotation receiver "param"}}</td>
+                                        <td>{{receiver/name}}</td><td><a href="{{#bindLink receiver/typeKind}}{{/bindLink}}"{{typeTitle receiver/typeKind}}>{{typeText receiver}}</a></td><td>{{paramAnnotation receiver "param"}}</td>
                                     </tr>
                                 </table>
                             </p>
@@ -74,7 +74,7 @@
                                     </tr>
                                     {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -89,14 +89,14 @@
                                     </tr>
                                     {{#each returnParameters}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{paramAnnotation this "return"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
                             </p>
                             {{/if}}
                         </div>
-                        {{/isPublicFunction}}
+                        {{/isPublic}}
                         {{/each}}
                         <p></p>
                         <br>{{/hasFunctions}} 
@@ -104,9 +104,9 @@
                         <!-- Connectors -->
                         <h2>Connectors of {{refinePackagePath this}} package</h2>
                         {{#each connectors}} {{currentObject this}}
-                        {{#isPublicConnector}}
+                        {{#isPublic}}
                         <h3 id="{{name}}">
-                            public connector {{#with this}}{{this.name}} ({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
+                            public connector {{#with this}}{{this.name}} ({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
                         </h3>
                         <p>{{oneValueAnnotation "description"}}</p>
                         {{#if parameters}}
@@ -118,14 +118,14 @@
                                 </tr>
                                 {{#each parameters}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
                         </p>
                         {{/if}}
                         <b>Actions:</b><br><br> {{#each actions}} {{currentObject this}}
-                        <h3 id="{{name}}{{../name}}">action {{this.name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}})</h3>
+                        <h3 id="{{name}}{{../name}}">action {{this.name}}({{#each parameters}}<a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}})</h3>
                         <p>{{oneValueAnnotation "description"}}</p>
                         {{#if parameters}}
                         <p>
@@ -136,7 +136,7 @@
                                 </tr>
                                 {{#each parameters}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
@@ -151,18 +151,18 @@
                                 </tr>
                                 {{#each returnParameters}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{paramAnnotation this "return"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
                         </p>
-                        {{/if}} {{/each}} {{/isPublicConnector}}{{/each}}
+                        {{/if}} {{/each}} {{/isPublic}}{{/each}}
                         <br>{{/hasConnectors}} 
                         {{#hasStructs}}
                         <!-- Structs -->
                         <h2>Structs of {{refinePackagePath this}} package</h2>
                         {{#each structs}} {{currentObject this}}
-                        {{#isPublicStruct}}
+                        {{#isPublic}}
                         <h3 id="{{name}}">public struct {{name}}</h3>
                         <p>{{oneValueAnnotation "description"}}</p>
                         {{#if fields}}
@@ -174,13 +174,13 @@
                                 </tr>
                                 {{#each fields}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText typeNode}}</a></td><td>{{fieldAnnotation this "field"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink typeKind}}{{/bindLink}}"{{typeTitle typeKind}}>{{typeText this}}</a></td><td>{{fieldAnnotation this "field"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
                         </p>
                         {{/if}}
-                        {{/isPublicStruct}}{{/each}}<br> {{/hasStructs}}
+                        {{/isPublic}}{{/each}}<br> {{/hasStructs}}
                         {{#hasAnnotations}}
                         <!-- Annotations -->
                         <h2>Annotations of {{refinePackagePath this}} package</h2>
@@ -197,7 +197,7 @@
                                     </tr>
                                     {{#each attributes}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="{{#bindLink typeNode}}{{/bindLink}}"{{typeTitle typeNode}}>{{typeText typeNode}}</a></td><td>{{attributeAnnotation this "attributeDef"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink typeNode}}{{/bindLink}}"{{typeTitle typeNode}}>{{annotationTypeText typeNode}}</a></td><td>{{attributeAnnotation this "attributeDef"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -235,10 +235,10 @@
                         <li>
                             <span class="opener">Functions</span>
                             <ul>
-                            {{#each functions}}{{#isPublicFunction}}
-                                <li><a href="#{{name}}">{{#if receiver/typeNode}}&lt;{{typeText receiver/typeNode}}&gt; {{/if}}{{name}}({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
+                            {{#each functions}}{{#isPublic}}
+                                <li><a href="#{{name}}">{{#if receiver/typeNode}}&lt;{{typeText receiver}}&gt; {{/if}}{{name}}({{#each parameters}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
                                 </li>
-                            {{/isPublicFunction}}{{/each}}
+                            {{/isPublic}}{{/each}}
                             </ul>
                         </li>
                         {{/hasFunctions}} 
@@ -246,22 +246,22 @@
                         <li>
                             <span class="opener">Connectors</span>
                             <ul>
-                                {{#each connectors}}{{#isPublicConnector}}
-                                <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
+                                {{#each connectors}}{{#isPublic}}
+                                <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
                                     <ul>
                                         {{#each actions}}
-                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{#if @first}}{{else}}{{typeText typeNode}} {{name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}})</a></li>
+                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{#if @first}}{{else}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}})</a></li>
                                         {{/each}}
                                     </ul>
-                                </li>{{/isPublicConnector}}{{/each}}
+                                </li>{{/isPublic}}{{/each}}
                             </ul>
                         </li>{{/hasConnectors}} {{#hasStructs}}
                         <li>
                             <span class="opener">Structs</span>
                             <ul>
-                                {{#each structs}}{{#isPublicStruct}}
+                                {{#each structs}}{{#isPublic}}
                                     <li><a href="#{{name}} ">{{name}}</a></li>
-                                {{/isPublicStruct}}{{/each}}
+                                {{/isPublic}}{{/each}}
                             </ul>
                         </li>{{/hasStructs}} {{#hasAnnotations}}
                         <li>
