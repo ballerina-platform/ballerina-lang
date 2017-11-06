@@ -68,7 +68,7 @@ class FileDeleteConfirmDialog extends React.Component {
                                     ${this.props.isFolder ? ' and its contents' : ''} ?`}
                             </h4>
                             <p>
-                                {`${this.props.isFolder ? 'Folder' : 'File'} will be deleted from file system.`}
+                                {`The ${this.props.isFolder ? 'Folder' : 'File'} will be deleted from the file system.`}
                             </p>
                         </Col>
                     </Row>
