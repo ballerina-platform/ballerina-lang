@@ -48,7 +48,7 @@ public class BLangVMErrors {
     public static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
     public static final String STRUCT_TYPE_CONVERSION_ERROR = "TypeConversionError";
-    public static final String STRUCT_FRAME = "stackFrame";
+    public static final String STRUCT_FRAME = "StackFrame";
 
 
     /**
@@ -165,7 +165,7 @@ public class BLangVMErrors {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
-        BStruct error = createBStruct(errorStructInfo, errorMessage, null,
+        BStruct error = createBStruct(errorStructInfo, errorMessage, null, null,
                 sourceTypeName, targetTypeName);
 
         // Set StackTrace.
@@ -272,12 +272,12 @@ public class BLangVMErrors {
         int currentIP = ip;
         Object[] values;
         int stackTraceLocation = 0;
-        StackFrame[] stackFrames = controlStack.getStack();
-        for (int i = controlStack.fp; i >= 0; i--) {
+        StackFrame stackFrame = controlStack.currentFrame;
+        while (stackFrame != null) {
             values = new Object[4];
-            StackFrame stackFrame = stackFrames[i];
             CallableUnitInfo callableUnitInfo = stackFrame.callableUnitInfo;
             if (callableUnitInfo == null) {
+                stackFrame = stackFrame.prevStackFrame;
                 continue;
             }
 
@@ -305,6 +305,7 @@ public class BLangVMErrors {
             // Always get the previous instruction pointer.
             currentIP = stackFrame.retAddrs - 1;
             stackTraceLocation++;
+            stackFrame = stackFrame.prevStackFrame;
         }
         return stackTraceItems;
     }

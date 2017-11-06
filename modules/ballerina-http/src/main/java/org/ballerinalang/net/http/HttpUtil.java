@@ -31,6 +31,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -70,6 +71,7 @@ public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String TRANSPORT_MESSAGE = "transport_message";
+    private static final String METHOD_ACCESSED = "isMethodAccessed";
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -134,12 +136,12 @@ public class HttpUtil {
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = httpCarbonMessage.getHeader(headerName);
+        boolean headerExists = headerValue != null;
 
-//        if (headerValue == null) {
-//            TODO: should NOT handle error for null headers, need to return `ballerina null`
-//            ErrorHandler.handleUndefineHeader(headerName);
-//        }
-        return abstractNativeFunction.getBValues(new BString(headerValue));
+        // Reset the header value to Ballerina string default value if the header doesn't exist
+        headerValue = !headerExists ? "" : headerValue;
+
+        return abstractNativeFunction.getBValues(new BString(headerValue), new BBoolean(headerExists));
     }
 
     public static BValue[] getJsonPayload(Context context,
@@ -463,8 +465,7 @@ public class HttpUtil {
         if (statusCode == 404) {
             handleResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         } else {
-            // TODO If you put just "", then we got a NPE. Need to find why
-            handleResponse(requestMessage, createErrorMessage("  ", statusCode));
+            handleResponse(requestMessage, createErrorMessage("", statusCode));
         }
     }
 
@@ -505,6 +506,10 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
+    public static void addRequestResponseFlag(BStruct request, BStruct response) {
+        request.addNativeData(Constants.INBOUND_REQUEST, true);
+        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+    }
 
     /**
      * Extract the listener configurations from the config annotation.
@@ -685,4 +690,25 @@ public class HttpUtil {
         }
         return httpCarbonMessage;
     }
+
+    public static String sanitizeUri(String uri) {
+        if (uri.startsWith("/")) {
+            return uri;
+        }
+        return "/".concat(uri);
+    }
+
+    public static void methodInvocationCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
+            throw new IllegalStateException("illegal function invocation");
+        }
+        bStruct.addNativeData(METHOD_ACCESSED, true);
+    }
+
+    public static void operationNotAllowedCheck(BStruct bStruct) {
+        if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
+            throw new BallerinaException("operation not allowed");
+        }
+    }
+
 }

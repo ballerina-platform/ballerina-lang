@@ -1,21 +1,21 @@
 struct testError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string data;
 }
 
 struct testInputError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string input;
 }
 
@@ -27,12 +27,12 @@ function testTryCatch(int value)(string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError error = { msg : "error" , code : "test" };
-                throw error;
+                testError tError = { msg : "error" , code : "test" };
+                throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError error = {msg : "error", input : "0"};
-                throw error;
+                testInputError tError = {msg : "error", input : "0"};
+                throw tError;
             }
 
             path = path + "endInsideInnerTry ";
@@ -86,11 +86,11 @@ function testNestedThrow (int a) (int) {
 }
 
 function testUncaughtException(){
-    testNestedThrow(1);
+    _ = testNestedThrow(1);
 }
 
-function testStackTrace()(stackFrame[]){
-    stackFrame[] trace;
+function testStackTrace()(StackFrame[]){
+    StackFrame[] trace;
     try{
         testUncaughtException();
     } catch (error e) {

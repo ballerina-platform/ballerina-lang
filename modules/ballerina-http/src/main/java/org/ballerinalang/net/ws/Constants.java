@@ -24,7 +24,7 @@ package org.ballerinalang.net.ws;
 public class Constants extends org.ballerinalang.net.http.Constants {
 
     // Common constants
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
     public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";
@@ -40,7 +40,8 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
     public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
-    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "onPingMessage";
+    public static final String RESOURCE_NAME_ON_PING = "onPing";
+    public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
     public static final String RESOURCE_NAME_ON_ERROR = "onError";
@@ -61,7 +62,9 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String STRUCT_WEBSOCKET_PING_FRAME = "PingFrame";
     public static final String STRUCT_WEBSOCKET_PONG_FRAME = "PongFrame";
     public static final String STRUCT_WEBSOCKET_CLOSE_FRAME = "CloseFrame";
+    public static final String STRUCT_WEBSOCKET_ERROR = "WsConnectorError";
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
     public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
+    public static final String NATIVE_DATA_PING_TIME_VALIDATOR = "NATIVE_DATA_PING_TIME_VALIDATOR";
 }

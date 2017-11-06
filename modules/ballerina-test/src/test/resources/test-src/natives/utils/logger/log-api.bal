@@ -1,21 +1,21 @@
-import ballerina.utils.logger;
+import ballerina.log;
 
 function testError (string msg) {
-    logger:error(msg);
+    log:printError(msg);
 }
 
 function testWarn (string msg) {
-    logger:warn(msg);
+    log:printWarn(msg);
 }
 
 function testInfo (string msg) {
-    logger:info(msg);
+    log:printInfo(msg);
 }
 
 function testDebug (string msg) {
-    logger:debug(msg);
+    log:printDebug(msg);
 }
 
 function testTrace (string msg) {
-    logger:trace(msg);
+    log:printTrace(msg);
 }

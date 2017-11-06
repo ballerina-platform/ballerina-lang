@@ -1,7 +1,6 @@
 package servicechaining.samples;
 
 import ballerina.net.http;
-import ballerina.lang.system;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {
@@ -9,29 +8,36 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Request req, http:Response res) {
-        http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product", {});
-        http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product", {});
-        
+    resource locator (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> bankInfoService {
+            create http:HttpClient("http://localhost:9090/bankinfo/product", {});
+        }
+        endpoint<http:HttpClient> branchLocatorService {
+            create http:HttpClient("http://localhost:9090/branchlocator/product", {});
+        }
+
         http:Request backendServiceReq = {};
+        http:HttpConnectorError err;
         json jsonLocatorReq = req.getJsonPayload();
         string zipCode;
-        zipCode, _ = (string) jsonLocatorReq["ATMLocator"]["ZipCode"];
-        system:println("Zip Code " + zipCode);
-        json branchLocatorReq = {"BranchLocator": {"ZipCode":""}};
+        zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
+        println("Zip Code " + zipCode);
+        json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         backendServiceReq.setJsonPayload(branchLocatorReq);
-        
-        res = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = res.getJsonPayload();
+
+        http:Response locatorResponse = {};
+        locatorResponse, err = branchLocatorService.post("", backendServiceReq);
+        json branchLocatorRes = locatorResponse.getJsonPayload();
         string branchCode;
-        branchCode, _ = (string) branchLocatorRes.ABCBank.BranchCode;
-        system:println("Branch Code " + branchCode);
-        json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
+        branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
+        println("Branch Code " + branchCode);
+        json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         backendServiceReq.setJsonPayload(bankInfoReq);
-        res = bankInfoService.post("", backendServiceReq);
-        res.send();
-    
-    }    
+
+        http:Response infoResponse = {};
+        infoResponse, err = bankInfoService.post("", backendServiceReq);
+        resp.forward(infoResponse);
+    }
 }

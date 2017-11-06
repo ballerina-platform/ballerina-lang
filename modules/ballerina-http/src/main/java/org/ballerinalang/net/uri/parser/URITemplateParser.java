@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.uri.URITemplateException;
 
 /**
@@ -35,81 +35,75 @@ public class URITemplateParser {
         this.syntaxTree = rootNode;
     }
 
-    public Node parse(String template, Resource resource) throws URITemplateException {
+    public Node parse(String template, HttpResource resource) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
-        if (!"/".equals(template)) {
-            String[] segments = template.split("/");
-            for (int currentElement = 0; currentElement < segments.length; currentElement++) {
-                String segment = segments[currentElement];
-                boolean expression = false;
-                int startIndex = 0;
-                int maxIndex = segment.length() - 1;
+        if ("/".equals(template)) {
+            this.syntaxTree.setResource(resource);
+            return syntaxTree;
+        }
+        String[] segments = template.split("/");
+        for (int currentElement = 0; currentElement < segments.length; currentElement++) {
+            String segment = segments[currentElement];
+            boolean expression = false;
+            int startIndex = 0;
+            int maxIndex = segment.length() - 1;
 
-                for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
-                    char ch = segment.charAt(pointerIndex);
-
-                    switch (ch) {
+            for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
+                char ch = segment.charAt(pointerIndex);
+                switch (ch) {
                     case '{':
-                        if (!expression) {
-                            if (pointerIndex + 1 >= maxIndex) {
-                                throw new URITemplateException("Illegal open brace character");
-                            }
-
-                            expression = true;
-                            if (pointerIndex > startIndex) {
-                                addNode(new Literal(segment.substring(startIndex, pointerIndex)));
-                                startIndex = pointerIndex + 1;
-                                // TODO: Check whether we really need this.
-                        /*} else if (segment.charAt(pointerIndex - 1) != '}') {
-                            throw new URITemplateException("Illegal empty literal");*/
-                            } else {
-                                startIndex++;
-                            }
-                        } else {
+                        if (expression) {
                             throw new URITemplateException("Already in expression");
                         }
-                        break;
-
-                    case '}':
-                        if (expression) {
-                            expression = false;
-                            if (pointerIndex > startIndex) {
-                                String token = segment.substring(startIndex, pointerIndex);
-                                createExpressionNode(token, maxIndex, pointerIndex);
-                                startIndex = pointerIndex + 1;
-                            } else {
-                                throw new URITemplateException("Illegal empty expression");
-                            }
+                        if (pointerIndex + 1 >= maxIndex) {
+                            throw new URITemplateException("Illegal open brace character");
+                        }
+                        expression = true;
+                        if (pointerIndex > startIndex) {
+                            addNode(new Literal(segment.substring(startIndex, pointerIndex)));
+                            startIndex = pointerIndex + 1;
+                            // TODO: Check whether we really need this.
+                        /*} else if (segment.charAt(pointerIndex - 1) != '}') {
+                            throw new URITemplateException("Illegal empty literal");*/
                         } else {
-                            throw new URITemplateException("Illegal closing brace detected");
+                            startIndex++;
                         }
                         break;
-
+                    case '}':
+                        if (!expression) {
+                            throw new URITemplateException("Illegal closing brace detected");
+                        }
+                        if (pointerIndex <= startIndex) {
+                            throw new URITemplateException("Illegal empty expression");
+                        }
+                        expression = false;
+                        String token = segment.substring(startIndex, pointerIndex);
+                        createExpressionNode(token, maxIndex, pointerIndex);
+                        startIndex = pointerIndex + 1;
+                        break;
                     case '*':
                         if (pointerIndex == 0 && currentElement != segments.length - 1) {
                             throw new URITemplateException("/* is only allowed at the end of the Path");
                         }
                         // fallthru
-
                     default:
+                        //TODO change below as well
                         if (pointerIndex == maxIndex) {
-                            String token = segment.substring(startIndex);
+                            String tokenVal = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(token, maxIndex, pointerIndex);
+                                createExpressionNode(tokenVal, maxIndex, pointerIndex);
                             } else {
-                                addNode(new Literal(token));
+                                addNode(new Literal(tokenVal));
                             }
                         }
-                    }
                 }
             }
-            this.currentNode.setResource(resource);
-        } else {
-            this.syntaxTree.setResource(resource);
         }
+        this.currentNode.setResource(resource);
+
         return syntaxTree;
     }
 

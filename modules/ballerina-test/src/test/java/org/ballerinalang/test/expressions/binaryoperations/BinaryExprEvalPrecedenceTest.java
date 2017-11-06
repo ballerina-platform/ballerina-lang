@@ -16,11 +16,12 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,7 +33,7 @@ public class BinaryExprEvalPrecedenceTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr-precedence.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/binary-expr-precedence.bal");
     }
 
     @Test(description = "Test binary OR expression with left most expr evaluated to true expression.")
@@ -44,7 +45,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean expectedResult = true;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        BValue[] returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -61,7 +62,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BTestUtils.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
     }
 
     @Test(description = "Test binary AND expression with left most expr evaluated to false expression.")
@@ -73,7 +74,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean expectedResult = false;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        BValue[] returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -90,7 +91,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BTestUtils.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
     }
 
     @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
@@ -102,7 +103,7 @@ public class BinaryExprEvalPrecedenceTest {
         int expectedResult = 101;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryORExpr", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actualResult = (int) ((BInteger) returns[0]).intValue();
@@ -119,7 +120,7 @@ public class BinaryExprEvalPrecedenceTest {
         int expectedResult = 201;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryORExpr", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actualResult = (int) ((BInteger) returns[0]).intValue();
@@ -136,7 +137,7 @@ public class BinaryExprEvalPrecedenceTest {
         int expectedResult = 101;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryANDExpr", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actualResult = (int) ((BInteger) returns[0]).intValue();
@@ -153,7 +154,7 @@ public class BinaryExprEvalPrecedenceTest {
         int expectedResult = 201;
 
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BTestUtils.invoke(result, "multiBinaryANDExpr", args);
+        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actualResult = (int) ((BInteger) returns[0]).intValue();

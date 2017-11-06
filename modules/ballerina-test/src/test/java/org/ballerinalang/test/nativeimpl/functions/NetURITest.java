@@ -17,10 +17,11 @@
 */
 package org.ballerinalang.test.nativeimpl.functions;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class NetURITest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/netUri.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/netUri.bal");
     }
 
     @Test
@@ -54,7 +55,7 @@ public class NetURITest {
 
         for (BValue arg : args) {
             BValue[] inputArg = {arg};
-            BValue[] returnVals = BTestUtils.invoke(compileResult, "testEncode", inputArg);
+            BValue[] returnVals = BRunUtil.invoke(compileResult, "testEncode", inputArg);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for " + arg.stringValue());
             Assert.assertFalse(returnVals[0].stringValue().contains(" "), "Encoded valued can't contain space.");
@@ -67,6 +68,6 @@ public class NetURITest {
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testEncodeNegative() {
         BValue[] inputArg = {new BString(null)};
-        BTestUtils.invoke(compileResult, "testEncode", inputArg);
+        BRunUtil.invoke(compileResult, "testEncode", inputArg);
     }
 }

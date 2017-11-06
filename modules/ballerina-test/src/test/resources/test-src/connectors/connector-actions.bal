@@ -31,60 +31,155 @@ connector EmptyParamConnector() {
 
 
 function testAction1() (boolean) {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
     boolean value;
 
-    value = testConnector.action1();
+    value = testEndpoint.action1();
     return value;
 }
 
 function testAction2() {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
-    testConnector.action2();
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
+    testEndpoint.action2();
 }
 
 function testAction3() (boolean) {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
     boolean value;
 
-    value = testConnector.action3();
+    value = testEndpoint.action3();
     return value;
 }
 
 function testAction2andAction3() (boolean) {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
     boolean value;
 
-    testConnector.action2();
+    testEndpoint.action2();
 
-    value = testConnector.action3();
+    value = testEndpoint.action3();
     return value;
 }
 
 function testAction4(string inputParam) (string) {
-    TestConnector testConnector = create TestConnector(inputParam, "MyParam2", 5);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector(inputParam, "MyParam2", 5);
+    }
     string value;
 
-    value = testConnector.action4();
+    value = testEndpoint.action4();
     return value;
 }
 
 function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
-    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector(functionArg1, functionArg2, functionArg3);
+    }
 
-    s1, s2, i = testConnector.action5(functionArg4);
+    s1, s2, i = testEndpoint.action5(functionArg4);
     return;
 }
 
 function testEmptyParamAction(string inputParam) (string) {
-    EmptyParamConnector emptyParamConector = create EmptyParamConnector();
-    string s = emptyParamConector.emptyParamConnAction(inputParam);
+    endpoint<EmptyParamConnector> testEndpoint {
+        create EmptyParamConnector();
+    }
+    string s = testEndpoint.emptyParamConnAction(inputParam);
     return s;
 }
 
 function testDotActionInvocation(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
-    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
+    endpoint<TestConnector> testEndpoint {
+        create TestConnector(functionArg1, functionArg2, functionArg3);
+    }
 
-    s1, s2, i = testConnector.action5(functionArg4);
+    s1, s2, i = testEndpoint.action5(functionArg4);
     return;
+}
+
+connector Foo (string name, int age) {
+    int userAge = 10 + age;
+    string userName = "Ballerina" + name;
+
+    action getUserName () (string) {
+        return userName;
+    }
+
+    action getAge () (int) {
+        return userAge;
+    }
+}
+
+connector Bar (string name) {
+    Foo foo1 = create Foo("saman", 50);
+    string userName = name;
+
+    action returnConnectorFromAction () (Foo) {
+        Foo foo = create Foo(userName, 1);
+        return foo;
+    }
+    action returnFoo()(Foo) {
+        return foo1;
+    }
+
+    action getAgeFromFoo(Foo foo) (int) {
+        endpoint<Foo> ep {
+            foo;
+        }
+        return ep.getAge();
+    }
+}
+
+function testChainedActionInvocation()(int) {
+    endpoint<Bar> ep {
+        create Bar("aaaa");
+    }
+    return getAgeFromFoo(ep.returnFoo());
+}
+
+function getAgeFromFoo(Foo foo)(int) {
+    endpoint<Foo> ep {
+        foo;
+    }
+    return ep.getAge();
+}
+
+function getBar()(Bar) {
+    Bar bar = create Bar("bbbbbb");
+    return bar;
+}
+
+function testChainedFunctionActionInvocation()(int) {
+    endpoint<Bar> ep {
+        getBar();
+    }
+    return getAgeFromFoo(ep.returnFoo());
+}
+
+function getAge(Foo foo) (int) {
+    endpoint<Foo> ep {
+        foo;
+    }
+    return ep.getAge();
+}
+
+function testPassConnectorAsFunctionParameter() (int) {
+    Foo foo = create Foo("abc", 77);
+    return getAge(foo);
+}
+
+function testPassConnectorAsActionParameter() (int) {
+    endpoint<Bar> bar {
+        create Bar("ddd");
+    }
+    Foo foo = create Foo("abc", 20);
+    return bar.getAgeFromFoo(foo);
 }

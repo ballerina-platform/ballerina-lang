@@ -1,34 +1,44 @@
 import ballerina.net.http;
-import ballerina.doc;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
 
-@doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
+@Description {value:"Service is invoke using BasePath value (/hbr)."}
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    @doc:Description {value:"The http:resourceConfig{} annotation with GET method declares the HTTP method."}
+    @Description {value:"The http:resourceConfig{} annotation with GET method declares the HTTP method."}
     @http:resourceConfig {
         methods:["GET"],
         path:"/route"
     }
     resource hbrResource (http:Request req, http:Response res) {
-        http:ClientConnector locationEP;
-        http:ClientConnector weatherEP;
-        //Create two service endpoints using HTTP client-connector with different hosts.
-        locationEP = create http:ClientConnector("http://www.mocky.io", {});
-        weatherEP = create http:ClientConnector("http://samples.openweathermap.org", {});
+        endpoint<http:HttpClient> locationEP {
+            create http:HttpClient("http://www.mocky.io", {});
+        }
+        endpoint<http:HttpClient> weatherEP {
+            create http:HttpClient("http://samples.openweathermap.org", {});
+        }
+        //Create new request and response to handle client call.
+        http:Request newRequest = {};
+        http:Response clientResponse = {};
+        http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.
-        string nameString = request:getHeader(req, "type");
-
-        if (nameString == "location") {
+        string nameString;
+        boolean headerExists;
+        nameString, headerExists = req.getHeader("type");
+        if (headerExists && nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
-            res = locationEP.post("/v2/594e12271100001f13d6d3a6", req);
+            clientResponse, err = locationEP.post("/v2/594e12271100001f13d6d3a6", newRequest);
         } else {
             //"get" action can be used to make http GET call.
-            http:Request newRequest = {};
-            res = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
-                                newRequest);
+
+            clientResponse, err = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
-        response:send(res);
+
+        //Native function "forward" sends back the clientResponse to the caller if no any error is found.
+        if (err != null) {
+            res.setStatusCode(500);
+            res.setStringPayload(err.msg);
+            res.send();
+        } else {
+            res.forward(clientResponse);
+        }
     }
 }

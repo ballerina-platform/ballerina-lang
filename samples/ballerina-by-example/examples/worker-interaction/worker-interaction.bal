@@ -1,20 +1,16 @@
-import ballerina.lang.system;
-import ballerina.doc;
-import ballerina.lang.jsons;
-
-@doc:Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
+@Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
 function main (string[] args) {
 
     worker w1 {
         int i = 100;
         float k = 2.34;
-        system:println("[w1 -> w2] i: " + i + " k: " + k);
+        println("[w1 -> w2] i: " + i + " k: " + k);
         // Send a messages to worker 'w2'. This message contains two values of type int and float.
         i, k -> w2;
         // Receive a message from worker w2. This message contains a json typed value.
         json j = {};
         j <- w2;
-        system:println("[w1 <- w2] j: " + jsons:toString(j));
+        println("[w1 <- w2] j: " + j.toString());
     }
 
     worker w2 {
@@ -22,10 +18,10 @@ function main (string[] args) {
         int iw;
         float kw;
         iw, kw <- w1;
-        system:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
+        println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to default worker.
         json jw = {"name":"Ballerina"};
-        system:println("[w2 -> w1] jw: " + jsons:toString(jw));
+        println("[w2 -> w1] jw: " + jw.toString());
         jw -> w1;
     }
 }

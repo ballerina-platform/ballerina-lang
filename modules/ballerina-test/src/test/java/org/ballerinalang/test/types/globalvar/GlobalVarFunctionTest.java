@@ -18,13 +18,14 @@
 
 package org.ballerinalang.test.types.globalvar;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,13 +39,13 @@ public class GlobalVarFunctionTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variabledef/global-var-function.bal");
+        result = BCompileUtil.compile("test-src/statements/variabledef/global-var-function.bal");
     }
 
     @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
         BValue[] args = new BValue[0];
-        BValue[] returns = BTestUtils.invoke(result, "getGlobalVars", args);
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVars", args);
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -58,7 +59,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test access global variable within function")
     public void testAccessGlobalVarWithinFunctions() {
-        BValue[] returns = BTestUtils.invoke(result, "accessGlobalVar");
+        BValue[] returns = BRunUtil.invoke(result, "accessGlobalVar");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89143);
@@ -67,7 +68,7 @@ public class GlobalVarFunctionTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         BValue[] args = {new BInteger(88)};
-        BValue[] returns = BTestUtils.invoke(result, "changeGlobalVar", args);
+        BValue[] returns = BRunUtil.invoke(result, "changeGlobalVar", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -75,10 +76,10 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
 
-        CompileResult resultGlobalVar = BTestUtils
+        CompileResult resultGlobalVar = BCompileUtil
                 .compile("test-src/statements/variabledef/global-var-function.bal");
 
-        BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar");
+        BValue[] returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar");
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
@@ -88,7 +89,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global variable to another global variable")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(result, "getGlobalVarFloat1");
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarFloat1");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -98,7 +99,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global var within a function")
     public void testInitializingGlobalVarWithinFunction() {
-        BValue[] returns = BTestUtils.invoke(result, "initializeGlobalVarSeparately");
+        BValue[] returns = BRunUtil.invoke(result, "initializeGlobalVarSeparately");
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BJSON.class);

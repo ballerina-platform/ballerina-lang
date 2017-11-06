@@ -4,62 +4,73 @@ import ballerina.net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
-    http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090", {});
+
+    endpoint<http:HttpClient> productsService {
+        create http:HttpClient("http://localhost:9090", {});
+    }
+    http:HttpConnectorError err;
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource productsInfo(http:Request req, http:Response res, string prodId) {
+    resource productsInfo (http:Request req, http:Response resp, string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        res = productsService.get(reqPath, req);
-        res.send();
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get(reqPath, req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/products"
     }
-    resource productMgt (http:Request req, http:Response res) {
-        res = productsService.post("/productsservice", req);
-        res.send();
+    resource productMgt (http:Request req, http:Response resp) {
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/productsservice", req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/orders"
     }
-    resource ordersInfo (http:Request req, http:Response res) {
-        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090", {});
-        res = productsService.get("/orderservice/orders", req);
-        res.send();
+    resource ordersInfo (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> productsService {
+            create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get("/orderservice/orders", req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/orders"
     }
-    resource ordersMgt (http:Request req, http:Response res) {
-        res = productsService.post("/orderservice/orders", req);
-        res.send();
+    resource ordersMgt (http:Request req, http:Response resp) {
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/orderservice/orders", req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    resource customersInfo (http:Request req, http:Response res) {
-        res = productsService.get("/customerservice/customers", req);
-        res.send();
+    resource customersInfo (http:Request req, http:Response resp) {
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get("/customerservice/customers", req);
+        resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/customers"
     }
-    resource customerMgt (http:Request req, http:Response res) {
-        res = productsService.post("/customerservice/customers", req);
-        res.send();
+    resource customerMgt (http:Request req, http:Response resp) {
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/customerservice/customers", req);
+        resp.forward(clientResponse);
     }
-    
 }

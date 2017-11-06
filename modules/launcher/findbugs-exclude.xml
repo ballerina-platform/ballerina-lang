@@ -16,28 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.model.values"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.wso2.ballerina.interpreter"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.model.statements"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model.expressions"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model.types"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.interpreter"/>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.parser"/>-->
-    <!--</Match>-->
+    <Match>
+        <Package name="org.ballerinalang.launcher.util" />
+    </Match>
 </FindBugsFilter>

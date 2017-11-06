@@ -68,9 +68,11 @@ public class BLangAnnotationAttachmentPoint {
         FUNCTION("function"),
         TYPEMAPPER("typemapper"),
         STRUCT("struct"),
+        ENUM("enum"),
         CONST("const"),
         PARAMETER("parameter"),
-        ANNOTATION("annotation");
+        ANNOTATION("annotation"),
+        TRANSFORMER("transformer");
 
         private String value;
 

@@ -1,7 +1,4 @@
-import ballerina.lang.system;
-import ballerina.doc;
-
-@doc:Description {value:"This is the base connector we are going to decorate"}
+@Description {value:"This is the base connector we are going to decorate"}
 connector StockQuoteConnector (int i) {
     action getStock (string ID) (int stockPrice) {
         // Here we return a default value from base connector. In real world, this will call the
@@ -10,7 +7,7 @@ connector StockQuoteConnector (int i) {
     }
 }
 
-@doc:Description {value:"This is the filter connector which will be decorating the base connector"}
+@Description {value:"This is the filter connector which will be decorating the base connector"}
 connector CacheConnector<StockQuoteConnector stockC> (string j) {
     map cachedKeys = {"IBM":350, "WSO2":300};
     action getStock (string ID) (int stockPrice) {
@@ -35,13 +32,13 @@ function main (string[] args) {
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'WSO2'.
     int price = stockQC.getStock("WSO2");
-    system:println(price);
+    println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'IBM'.
     price = stockQC.getStock("IBM");
-    system:println(price);
+    println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a non-cached key 'Ballerina'.
     price = stockQC.getStock("Ballerina");
-    system:println(price);
+    println(price);
 }

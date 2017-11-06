@@ -27,12 +27,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -40,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -51,6 +55,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -96,9 +101,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
     }
 
-    public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
-        BSymbol foundSym = lookupSymbol(env, symbol.name, symbol.tag);
-        if (foundSym != symTable.notFoundSymbol && foundSym.owner == symbol.owner) {
+    public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol, int expSymTag) {
+        BSymbol foundSym = lookupSymbol(env, symbol.name, expSymTag);
+        if (foundSym == symTable.notFoundSymbol) {
+            return true;
+        }
+
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
+            // Found symbol is a type symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -145,7 +155,51 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
+        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
+        if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = getBinaryOpForNullChecks(opKind, lhsType, rhsType);
+        }
+
+        return bSymbol;
+    }
+
+    private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
+                                             BType rhsType) {
+        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
+            return symTable.notFoundSymbol;
+        }
+
+        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
+        if (lhsType.tag == TypeTags.NULL &&
+                (rhsType.tag == TypeTags.STRUCT ||
+                        rhsType.tag == TypeTags.CONNECTOR ||
+                        rhsType.tag == TypeTags.ENUM)) {
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            List<BType> retTypes = Lists.of(symTable.booleanType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        }
+
+        if ((lhsType.tag == TypeTags.STRUCT ||
+                lhsType.tag == TypeTags.CONNECTOR ||
+                lhsType.tag == TypeTags.ENUM)
+                && rhsType.tag == TypeTags.NULL) {
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            List<BType> retTypes = Lists.of(symTable.booleanType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+
+        }
+
+        if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
+            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            List<BType> retTypes = Lists.of(symTable.booleanType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        }
+
+        return symTable.notFoundSymbol;
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
@@ -191,12 +245,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
+    public BSymbol resolveTransformer(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name transformerName) {
+        return lookupSymbolInPackage(pos, env, pkgAlias, transformerName, SymTag.TRANSFORMER);
+    }
+
+    public BSymbol resolveTransformer(SymbolEnv env, BType sourceType, BType targetType) {
+        Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
+        return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
+    }
+    
     public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        return lookupMemberSymbol(pos, pkgSymbol.scope, env, annotationName, SymTag.ANNOTATION);
+        return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }
 
     public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
@@ -252,7 +311,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Return the symbol associated with the given name, starting
+     * Return the symbol associated with the given name in the current package.
      * This method first searches the symbol in the current scope
      * and proceeds the enclosing scope, if it is not there in the
      * current scope. This process continues until the symbol is
@@ -280,15 +339,34 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
 
-    public BSymbol lookupSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name name, int expSymTag) {
-        if (pkgAlias != Names.EMPTY) {
-            BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-            if (pkgSymbol == symTable.notFoundSymbol) {
-                return pkgSymbol;
-            }
-            return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
+    /**
+     * Return the symbol associated with the given name in the give package.
+     *
+     * @param pos       symbol position
+     * @param env       current symbol environment
+     * @param pkgAlias  package alias
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    public BSymbol lookupSymbolInPackage(DiagnosticPos pos,
+                                         SymbolEnv env,
+                                         Name pkgAlias,
+                                         Name name,
+                                         int expSymTag) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return lookupSymbol(env, name, expSymTag);
         }
-        return lookupSymbol(env, name, expSymTag);
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope.
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
     }
 
 
@@ -325,6 +403,29 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
+     * Method to get all the action symbols of a connector.
+     *
+     * @param scope connector scope to search.
+     * @return action list.
+     */
+    public List<BInvokableSymbol> getConnectorActionSymbols(Scope scope) {
+        List<BInvokableSymbol> actions = new ArrayList<>();
+        scope.entries.values().forEach(entry -> {
+            while (entry != NOT_FOUND_ENTRY) {
+                if ((entry.symbol.tag & SymTag.ACTION) != SymTag.ACTION) {
+                    entry = entry.next;
+                    continue;
+                }
+
+                actions.add((BInvokableSymbol) entry.symbol);
+                break;
+            }
+        });
+
+        return actions;
+    }
+
+    /**
      * Resolve and return the namespaces visible to the given environment, as a map.
      *
      * @param env Environment to get the visible namespaces
@@ -344,6 +445,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
+    }
+
+    public void visit(BLangEndpointTypeNode endpointType) {
+        BType constraintType = resolveTypeNode(endpointType.constraint, env);
+        resultType = new BEndpointType(TypeTags.ENDPOINT, constraintType, null);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {
@@ -392,13 +498,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 3) Lookup the current package scope.
         if (symbol == symTable.notFoundSymbol) {
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.TYPE);
+                    this.env, typeName, SymTag.VARIABLE_NAME);
         }
 
         if (symbol == symTable.notFoundSymbol) {
             // 4) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
-                    this.env, typeName, SymTag.TYPE);
+                    this.env, typeName, SymTag.VARIABLE_NAME);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -425,6 +531,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     /**
      * Lookup all the visible in-scope symbols for a given environment scope
+     *
      * @param env Symbol environment
      * @return all the visible symbols
      */

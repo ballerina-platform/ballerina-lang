@@ -22,12 +22,14 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -103,7 +106,7 @@ public class Types {
                                   List<BType> expTypes) {
         List<BType> resTypes = new ArrayList<>();
         for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.get(i)));
+            resTypes.add(checkType(node, actualTypes.get(i), expTypes.size() > i ? expTypes.get(i) : symTable.noType));
         }
         return resTypes;
     }
@@ -182,6 +185,12 @@ public class Types {
      */
     public boolean isAssignable(BType source, BType target) {
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
+                && checkConnectorEquivalency(source, ((BEndpointType) target).constraint)) {
+            //TODO do we need to resolve a nop implicit cast operation?
             return true;
         }
 
@@ -283,6 +292,47 @@ public class Types {
         return true;
     }
 
+    public boolean checkConnectorEquivalency(BType actualType, BType expType) {
+        if (actualType.tag != TypeTags.CONNECTOR || expType.tag != TypeTags.CONNECTOR) {
+            return false;
+        }
+
+        if (isSameType(actualType, expType)) {
+            return true;
+        }
+
+        BConnectorType expConnectorType = (BConnectorType) expType;
+        BConnectorType actualConnectorType = (BConnectorType) actualType;
+
+        // take actions in connectors
+        List<BInvokableSymbol> expActions = symResolver.getConnectorActionSymbols(expConnectorType.tsymbol.scope);
+        List<BInvokableSymbol> actActions = symResolver.getConnectorActionSymbols(actualConnectorType.tsymbol.scope);
+
+        if (expActions.isEmpty() && actActions.isEmpty()) {
+            return true;
+        }
+
+        if (expActions.size() != actActions.size()) {
+            return false;
+        }
+
+        //check every action signatures are matching or not
+        for (BInvokableSymbol expAction : expActions) {
+            if (actActions.stream().filter(v -> checkActionTypeEquality(expAction, v))
+                    .collect(Collectors.toList()).size() != 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
+        if (!source.name.equals(target.name)) {
+            return false;
+        }
+        return checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
+    }
+
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
         BSymbol symbol = symResolver.resolveImplicitCastOperator(actualType, expType);
         if (symbol == symTable.notFoundSymbol) {
@@ -301,7 +351,9 @@ public class Types {
     }
 
     public BSymbol getCastOperator(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
@@ -309,6 +361,12 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.ERROR ||
+                targetType.tag == TypeTags.ERROR ||
+                sourceType == targetType) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
         return targetType.accept(conversionVisitor, sourceType);
     }
 
@@ -523,7 +581,7 @@ public class Types {
         @Override
         public BSymbol visit(BStructType t, BType s) {
             if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
             }
 
             if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
@@ -538,7 +596,9 @@ public class Types {
         @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
+            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
             return symTable.notFoundSymbol;
@@ -546,7 +606,11 @@ public class Types {
 
         @Override
         public BSymbol visit(BEnumType t, BType s) {
-            throw new AssertionError();
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
+            }
+
+            return symTable.notFoundSymbol;
         }
 
         @Override

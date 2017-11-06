@@ -28,6 +28,9 @@ public enum DiagnosticCode {
     UNUSED_IMPORT_PACKAGE("unused.import.package"),
     PACKAGE_NOT_FOUND("package.not.found"),
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
+    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
+    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
+    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
@@ -63,7 +66,15 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
-    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
+
+    // Transformer related error codes
+    UNDEFINED_TRANSFORMER("undefined.transformer"),
+    TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
+    TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
+    INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
+    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
+    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
+    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -81,10 +92,11 @@ public enum DiagnosticCode {
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+    ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
-    FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
-    FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
+    FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
+    FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
@@ -93,22 +105,26 @@ public enum DiagnosticCode {
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
+    CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+    INVALID_ENUM_EXPR("invalid.enum.expr"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
+    CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
@@ -124,7 +140,8 @@ public enum DiagnosticCode {
     MISSING_TOKEN("missing.token"),
     EXTRANEOUS_INPUT("extraneous.input"),
     MISMATCHED_INPUT("mismatched.input"),
-    FAILED_PREDICATE("failed.predicate")
+    FAILED_PREDICATE("failed.predicate"),
+    SYNTAX_ERROR("syntax.error"),
     ;
 
     private String value;

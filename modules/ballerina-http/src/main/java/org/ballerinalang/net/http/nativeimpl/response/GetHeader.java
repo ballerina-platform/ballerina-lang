@@ -19,7 +19,7 @@ import org.ballerinalang.net.http.HttpUtil;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class GetHeader extends AbstractNativeFunction {

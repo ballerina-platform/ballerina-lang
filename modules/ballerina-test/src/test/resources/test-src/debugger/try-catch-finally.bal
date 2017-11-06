@@ -1,29 +1,29 @@
 struct testError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string data;
 }
 struct testInputError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string input;
 }
 
 function main(string[] args) {
-    testTryCatch(11);
-    testTryCatch(-1);
-    testTryCatch(5);
-    testFunctionThrow(6);
-    testMethodCallInFinally();
+    _ = testTryCatch(11);
+    _ = testTryCatch(-1);
+    _ = testTryCatch(5);
+    _, _ = testFunctionThrow(6);
+    _ = testMethodCallInFinally();
 }
 
 function testTryCatch(int value)(string){
@@ -34,12 +34,12 @@ function testTryCatch(int value)(string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError error = { msg : "error" , code : "test" };
-                throw error;
+                testError tError = { msg : "error" , code : "test" };
+                throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError error = {msg : "error", input : "0"};
-                throw error;
+                testInputError tError = {msg : "error", input : "0"};
+                throw tError;
             }
 
             path = path + "endInsideInnerTry ";

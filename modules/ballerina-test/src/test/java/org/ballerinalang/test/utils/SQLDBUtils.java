@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.utils;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,7 +113,7 @@ public class SQLDBUtils {
     private static String readFileToString(String path) {
         InputStream is = null;
         String fileAsString = null;
-        URL fileResource = BTestUtils.class.getClassLoader().getResource(path);
+        URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
             is = new FileInputStream(fileResource.getFile());
             BufferedReader buf = new BufferedReader(new InputStreamReader(is));

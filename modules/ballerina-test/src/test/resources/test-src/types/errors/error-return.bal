@@ -1,7 +1,7 @@
 struct InvalidNameError {
     string msg;
     error cause;
-    stackFrame[] stackTrace;
+    StackFrame[] stackTrace;
     string companyName;
 }
 
@@ -45,8 +45,8 @@ function testReturnError()(string, string, string, string) {
     c = "BAZ:" + quoteValue;
 
     InvalidNameError errorBAR;
-    quoteValue, errorBAZ = getQuote("BAR");
-    if(errorBAZ != null){
+    quoteValue, errorBAR = getQuote("BAR");
+    if(errorBAR != null){
         // error occurred. Recover from the error by assigning 0.
         quoteValue = 0.0;
     }

@@ -187,4 +187,28 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.94.2
+     */
+    public static class BLangTransformerInvocation extends BLangInvocation {
+
+        public BLangTransformerInvocation(DiagnosticPos pos,
+                                          List<BLangExpression> argExprs,
+                                          BSymbol symbol,
+                                          List<BType> types) {
+            this.pos = pos;
+            this.argExprs = argExprs;
+            this.symbol = symbol;
+            this.types = types;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

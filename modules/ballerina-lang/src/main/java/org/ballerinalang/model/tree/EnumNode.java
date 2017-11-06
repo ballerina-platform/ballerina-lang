@@ -25,12 +25,18 @@ import java.util.List;
  */
 public interface EnumNode extends TopLevelNode, AnnotatableNode {
 
-  IdentifierNode getName();
+    IdentifierNode getName();
 
-  void setName(IdentifierNode name);
+    void setName(IdentifierNode name);
 
-  List<? extends IdentifierNode> getEnumFields();
+    List<? extends Enumerator> getEnumerators();
 
-  void addEnumField(IdentifierNode enumField);
+    void addEnumerator(Enumerator enumField);
 
+    /**
+     * @since 0.95
+     */
+    interface Enumerator extends Node {
+        IdentifierNode getName();
+    }
 }

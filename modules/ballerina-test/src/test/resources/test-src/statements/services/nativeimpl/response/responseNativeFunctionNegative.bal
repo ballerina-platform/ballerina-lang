@@ -15,9 +15,11 @@ function testGetContentLength (http:Response res) (int) {
     return length;
 }
 
-function testGetHeader (http:Response res, string key) (string) {
-    string contentType = res.getHeader(key);
-    return contentType;
+function testGetHeader (http:Response res, string key) (string, boolean) {
+    string contentType;
+    boolean headerExists;
+    contentType, headerExists = res.getHeader(key);
+    return contentType, headerExists;
 }
 
 function testGetJsonPayload (http:Response res) (json) {
@@ -92,22 +94,42 @@ service<http> helloServer {
         path:"/11"
     }
     resource echo1 (http:Request req, http:Response res) {
-        res.send();
+        http:Response resp = {};
+        resp.send();
     }
 
     @http:resourceConfig {
-        path:"/12/{phase}"
+        path:"/12"
     }
-    resource echo2 (http:Request req, http:Response res, string phase) {
-        res.setReasonPhrase(phase);
-        res.send();
+    resource echo2 (http:Request req, http:Response res) {
+        http:Response resp = {};
+        resp.forward(res);
     }
 
     @http:resourceConfig {
         path:"/13"
     }
     resource echo3 (http:Request req, http:Response res) {
-        res.setStatusCode(203);
+        http:Response resp = {};
+        res.forward(null);
+    }
+
+    @http:resourceConfig {
+        path:"/14"
+    }
+    resource echo4 (http:Request req, http:Response res) {
+        http:Response resp = {};
+        res.forward({});
+    }
+
+    @http:resourceConfig {
+        path:"/15"
+    }
+    resource echo5 (http:Request req, http:Response res) {
+        http:Response resp = {};
+        res.setStringPayload("wso2");
+        resp.setStringPayload("Ballerina");
         res.send();
+        res.forward(resp);
     }
 }

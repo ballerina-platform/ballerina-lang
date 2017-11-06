@@ -96,7 +96,8 @@ public class PackageLoader {
         if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
             pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         } else {
-            String[] pkgParts = sourcePkg.split("\\.");
+            // split from '.', '\' and '/'
+            String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
             List<Name> pkgNameComps = Arrays.stream(pkgParts)
                     .map(part -> names.fromString(part))
                     .collect(Collectors.toList());
@@ -104,8 +105,11 @@ public class PackageLoader {
             pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
             pkgEntity = this.packageRepo.loadPackage(pkgId);
         }
+        
+        if (pkgEntity == null) {
+            throw new IllegalArgumentException("valid package not available at '" + sourcePkg + "'");
+        }
 
-        // TODO Implement the support for loading a source package
         return loadPackage(pkgId, pkgEntity);
     }
 
@@ -128,6 +132,7 @@ public class PackageLoader {
     /**
      * List all the packages of packageRepo
      *
+     * @param maxDepth the maximum depth of directories to search in
      * @return a set of PackageIDs
      */
     public Set<PackageID> listPackages(int maxDepth) {
@@ -138,14 +143,16 @@ public class PackageLoader {
         BLangPackage pkgNode;
         BPackageSymbol pSymbol;
 
-        // TODO Handle pkgEntity 
         if (pkgEntity == null) {
             return null;
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
-            pSymbol = symbolEnter.definePackage(pkgNode);
+            if (pkgNode == null) {
+                return null;
+            }
+            pSymbol = symbolEnter.definePackage(pkgNode, pkgId);
             pkgNode.symbol = pSymbol;
         } else {
             // This is a compiled package.

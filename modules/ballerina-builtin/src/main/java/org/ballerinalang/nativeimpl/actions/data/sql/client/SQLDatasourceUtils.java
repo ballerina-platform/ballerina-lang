@@ -847,33 +847,32 @@ public class SQLDatasourceUtils {
         case Types.LONGNVARCHAR:
         case Types.CLOB:
         case Types.NCLOB:
+        case Types.DATE:
+        case Types.TIME:
+        case Types.TIMESTAMP:
+        case Types.TIMESTAMP_WITH_TIMEZONE:
+        case Types.TIME_WITH_TIMEZONE:
+        case Types.ROWID:
             return TypeKind.STRING;
         case Types.TINYINT:
         case Types.SMALLINT:
         case Types.INTEGER:
-            return TypeKind.INT;
         case Types.BIGINT:
             return TypeKind.INT;
-        case Types.REAL:
-            return TypeKind.FLOAT;
         case Types.BIT:
         case Types.BOOLEAN:
             return TypeKind.BOOLEAN;
+        case Types.REAL:
         case Types.NUMERIC:
         case Types.DECIMAL:
         case Types.FLOAT:
         case Types.DOUBLE:
             return TypeKind.FLOAT;
-        case Types.DATE:
-        case Types.TIME:
-        case Types.TIMESTAMP:
-        case Types.TIME_WITH_TIMEZONE:
-        case Types.TIMESTAMP_WITH_TIMEZONE:
         case Types.BLOB:
         case Types.BINARY:
         case Types.VARBINARY:
         case Types.LONGVARBINARY:
-            return TypeKind.NONE;
+            return TypeKind.BLOB;
         default:
             return TypeKind.NONE;
         }

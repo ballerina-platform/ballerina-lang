@@ -18,14 +18,14 @@
 
 package org.ballerinalang.test.services;
 
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = EnvironmentInitializer.setupProgramFile("test-src/services/echoService.bal");
+        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echoService.bal");
     }
 
     @Test
@@ -80,6 +80,7 @@ public class ServiceTest {
     @Test
     public void testSetString() {
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        cMsg.waitAndReleaseAllEntities();
         cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         cMsg.setEndOfMsgAdded(true);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -124,6 +125,7 @@ public class ServiceTest {
     public void testGetStringAfterSetString() {
         HTTPCarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         String stringPayload = "hello";
+        setStringCMsg.waitAndReleaseAllEntities();
         setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
         setStringCMsg.setEndOfMsgAdded(true);
         Services.invokeNew(setStringCMsg);
@@ -206,7 +208,7 @@ public class ServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(compileResult);
+        BServiceUtil.cleanup(compileResult);
     }
 
     //TODO: add more test cases

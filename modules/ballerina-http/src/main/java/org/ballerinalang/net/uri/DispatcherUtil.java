@@ -22,9 +22,11 @@ package org.ballerinalang.net.uri;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.http.HttpService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,17 +40,11 @@ public class DispatcherUtil {
             , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
             , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
 
-    public static boolean isMatchingMethodExist(Resource resourceInfo, String method) {
-        String[] rHttpMethods = getHttpMethods(resourceInfo);
-        if (rHttpMethods == null) {
+    public static boolean isMatchingMethodExist(HttpResource resourceInfo, String method) {
+        if (resourceInfo.getMethods() == null) {
             return false;
         }
-        for (String value : rHttpMethods) {
-            if (value.equals(method)) {
-                return true;
-            }
-        }
-        return false;
+        return resourceInfo.getMethods().contains(method);
     }
 
     public static String[] getHttpMethods(Resource resourceInfo) {
@@ -65,58 +61,12 @@ public class DispatcherUtil {
         return getStringArray(methodsAttrVal.getAnnAttrValueArray());
     }
 
-    public static String[] getConsumerList(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
-            return null;
-        }
-        AnnAttrValue consumesAttrVal = rConfigAnnAtchmnt
-                .getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
-        if (consumesAttrVal == null) {
-            return null;
-        }
-        return getStringArray(consumesAttrVal.getAnnAttrValueArray());
-    }
-
-    public static String[] getProducesList(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
-            return null;
-        }
-        AnnAttrValue producesAttrVal = rConfigAnnAtchmnt.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
-        if (producesAttrVal == null) {
-            return null;
-        }
-        return getStringArray(producesAttrVal.getAnnAttrValueArray());
-    }
-
     public static String[] getStringArray(AnnAttrValue[] annAttributeValues) {
         String[] values = new String[annAttributeValues.length];
         for (int i = 0; i < annAttributeValues.length; i++) {
             values[i] = annAttributeValues[i].getStringValue();
         }
         return values;
-    }
-
-    public static String getServiceBasePath(Service service) {
-        String basePath = service.getName();
-        Annotation annotationInfo = service.getAnnotation(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
-
-        if (annotationInfo != null) {
-            AnnAttrValue annAttributeValue = annotationInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
-                    !annAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annAttributeValue.getStringValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-        return basePath;
     }
 
     public static String concatValues(List<String> stringValues, boolean spaceSeparated) {
@@ -132,17 +82,45 @@ public class DispatcherUtil {
     }
 
     public static List<String> validateAllowMethods(List<String> cachedMethods) {
-        if (cachedMethods != null && cachedMethods.size() != 0) {
-            if (cachedMethods.contains(Constants.HTTP_METHOD_GET)) {
-                cachedMethods.add(Constants.HTTP_METHOD_HEAD);
-            }
-            cachedMethods.add(Constants.HTTP_METHOD_OPTIONS);
-            cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
+        //cachedMethods cannot be null here.
+        if (cachedMethods.isEmpty()) {
+            return cachedMethods;
         }
+        if (cachedMethods.contains(Constants.HTTP_METHOD_GET)) {
+            cachedMethods.add(Constants.HTTP_METHOD_HEAD);
+        }
+        cachedMethods.add(Constants.HTTP_METHOD_OPTIONS);
+        cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
         return cachedMethods;
     }
 
     public static List<String> addAllMethods() {
         return Arrays.stream(allMethods).collect(Collectors.toList());
+    }
+
+    public static List<String> getValueList(AnnAttrValue annAttrValue, List<String> defaultVals) {
+        if (annAttrValue.getAnnAttrValueArray() == null) {
+            return defaultVals;
+        }
+        List<String> list = new ArrayList<>();
+        for (AnnAttrValue attr : annAttrValue.getAnnAttrValueArray()) {
+            list.add(attr.getStringValue().trim());
+        }
+        if (list.isEmpty()) {
+            return defaultVals;
+        }
+        return list;
+    }
+
+    public static List<String> getAllResourceMethods(HttpService service) {
+        List<String> cachedMethods = new ArrayList();
+        for (HttpResource resource : service.getResources()) {
+            if (resource.getMethods() == null) {
+                cachedMethods.addAll(DispatcherUtil.addAllMethods());
+                break;
+            }
+            cachedMethods.addAll(resource.getMethods());
+        }
+        return validateAllowMethods(cachedMethods);
     }
 }

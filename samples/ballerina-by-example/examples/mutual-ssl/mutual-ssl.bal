@@ -1,6 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.doc;
 
 @http:configuration {
     basePath:"/hello",
@@ -20,22 +18,24 @@ service<http> helloWorld {
     }
 
     resource sayHello (http:Request req, http:Response res) {
-        //Set response payload
+        //Set response payload.
         res.setStringPayload("Successful");
-        //Send response to client
+        //Send response to client.
         res.send();
     }
 }
 
-@doc:Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a mutual ssl connection, client also needs to provide keyStoreFile, keyStorePassword, trustStoreFile and trustStorePassword."}
+@Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a mutual ssl connection, client also needs to provide keyStoreFile, keyStorePassword, trustStoreFile and trustStorePassword."}
 function main (string[] args) {
-    http:ClientConnector clientConnector = create
-                 http:ClientConnector("https://localhost:9095", getConnectorConfigs());
-    //creates a request
+    endpoint<http:HttpClient> connectorEP {
+        create http:HttpClient("https://localhost:9095", getConnectorConfigs());
+    }
+    //Creates a request.
     http:Request req = {};
-    http:Response resp = clientConnector.get("/hello/", req);
-    system:println("Response code: " + resp.getStatusCode());
-    system:println("Response: " + resp.getStringPayload());
+    http:Response resp = {};
+    resp, _ = connectorEP.get("/hello/", req);
+    println("Response code: " + resp.getStatusCode());
+    println("Response: " + resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

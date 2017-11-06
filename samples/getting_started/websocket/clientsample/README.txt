@@ -4,7 +4,7 @@ This example explains how to create and use WebSocket client connector in baller
 
 How to run the sample
 =====================
-bin$ ./ballerina run ../samples/websocket/clientsample/websocketClientSample.balx
+bin$ ./ballerina run ../samples/websocket/clientsample/webSocketClientSample.balx
 
 How to connect
 ==============

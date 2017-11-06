@@ -1,11 +1,12 @@
-import ballerina.lang.strings;
 import ballerina.net.http;
 
 const string myConst = "MyParam1";
 
 connector TestConnector(string param1, string param2, int param3) {
 
-    EchoConnector echoConnector = create EchoConnector(param1);
+    endpoint<EchoConnector> echoConnector {
+        create EchoConnector(param1);
+    }
 
     boolean action2Invoked;
 
@@ -32,7 +33,9 @@ connector TestConnector(string param1, string param2, int param3) {
     }
 
     action action6(string echoConnectorParam, string actionParam) (string) {
-        EchoConnector localEchoConnector = create EchoConnector(echoConnectorParam);
+        endpoint<EchoConnector> localEchoConnector {
+            create EchoConnector(echoConnectorParam);
+        }
         string s;
 
         s =  localEchoConnector.echoAction(actionParam);
@@ -53,7 +56,9 @@ connector EchoConnector(string greeting) {
 }
 service<http> actionInvokeService {
 
-    TestConnector testConnector = create TestConnector(myConst, "MyParam2", 5);
+    endpoint<TestConnector> testConnector {
+        create TestConnector(myConst, "MyParam2", 5);
+    }
 
     @http:resourceConfig {
         methods:["GET"],
@@ -76,7 +81,8 @@ service<http> actionInvokeService {
 
         boolean actionResponse;
         actionResponse = testConnector.action1();
-        res.setStringPayload(strings:valueOf(actionResponse));
+        string payload = <string> actionResponse;
+        res.setStringPayload(payload);
         res.send();
     }
     

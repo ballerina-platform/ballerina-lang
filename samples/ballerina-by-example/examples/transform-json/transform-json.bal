@@ -1,61 +1,40 @@
-import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.doc;
-import ballerina.net.http.response;
-import ballerina.net.http.request;
-
-@doc:Description {value:"Defining Person struct."}
+@Description {value:"Defining Person struct."}
 struct Person {
     string name;
     int age;
     string city;
 }
 
-@http:configuration {
-    basePath:"/person"
+@Description {value:"Defining transformer to convert from Person type to constrained JSON."}
+transformer <Person p, json<Person> j> updateCity(string city) {
+    j.name = p.name;
+    j.age = p.age;
+    j.city = city;
 }
-@doc:Description {value:"Defining Person service which provides person details."}
-service<http> PersonService {
 
-    @http:resourceConfig {
-        methods:["POST"],
-        path:"/"
+
+function main (string[] args) {
+    json j = {"name":"Ann", "age": 30 ,"city":"New York"};
+
+    // Declare a Person variable.
+    Person p;
+
+    // Declare a type conversion error to accept any type conversion errors thrown.
+    TypeConversionError err;
+    // Convert JSON to a Person type variable.
+    p, err = <Person>j;
+
+    // Print if an error is thrown.
+    if (err != null) {
+        println(err);
     }
-    @doc:Description {value:"Defining POST resource for the service to get person details."}
-    resource getPerson (http:Request req, http:Response res) {
-        // Get the JSON payload from the request
-        json j = request:getJsonPayload(req);
 
-        // Declare a Person variable
-        Person p;
+    // Define a constant city value as "London".
+    string city = "London";
 
-        // Declare a type conversion error to accept any type conversion errors thrown
-        TypeConversionError err;
-        // Convert JSON to a Person type variable
-        p, err = <Person>j;
+    // Convert p of type Person to the response JSON, using the transformer defined earlier.
+    json<Person> response = <json<Person>, updateCity(city)> p;
 
-        // Print if an error is thrown
-        if (err != null) {
-            system:println(err);
-        }
-
-        // Define a constant city value as "London".
-        string city = "London";
-
-        // Create a new json variable constrained by Person struct.
-        json<Person> response = {};
-
-        // Use p, Person variable as input to transform fields of response JSON which is the output.
-        transform {
-            response.name = p.name;
-            response.age = p.age;
-            response.city = city;
-        }
-
-        // Set the new JSON payload to the message
-        response:setJsonPayload(res, response);
-
-        // Reply from the resource with message m.
-        response:send(res);
-    }
+    println(response);
 }
+
