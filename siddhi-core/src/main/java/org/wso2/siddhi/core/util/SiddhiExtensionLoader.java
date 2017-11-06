@@ -26,6 +26,9 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.wiring.BundleWiring;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
+import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
+import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +75,14 @@ public class SiddhiExtensionLoader {
         for (Class extension : extensions) {
             addExtensionToMap(extension, siddhiExtensionsMap);
         }
+
+        // load extensions related to incremental aggregation
+        addExtensionToMap("incrementalAggregator:within",
+                IncrementalWithinTimeFunctionExecutor.class, siddhiExtensionsMap);
+        addExtensionToMap("incrementalAggregator:timestampInMilliseconds",
+                IncrementalUnixTimeFunctionExecutor.class, siddhiExtensionsMap);
+        addExtensionToMap("incrementalAggregator:getTimeZone",
+                IncrementalTimeGetTimeZone.class, siddhiExtensionsMap);
     }
 
     /**
@@ -112,6 +123,26 @@ public class SiddhiExtensionLoader {
         } else {
             log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in " +
                     "Extension annotation.");
+        }
+    }
+
+    /**
+     * Adding extensions to Siddhi siddhiExtensionsMap
+     *
+     * @param fqExtensionName     fully qualified extension name (namespace:extensionName or extensionName)
+     * @param extensionClass      extension class
+     * @param siddhiExtensionsMap reference map for the Siddhi extension
+     */
+    private static void addExtensionToMap(String fqExtensionName, Class extensionClass,
+                                          Map<String, Class> siddhiExtensionsMap) {
+        Class previousClass = null;
+        Class existingValue = siddhiExtensionsMap.get(fqExtensionName);
+        if (existingValue == null) {
+            previousClass = siddhiExtensionsMap.put(fqExtensionName, extensionClass);
+        }
+        if (previousClass != null) {
+            log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
+                    "loaded with the same namespace and name '" + fqExtensionName + "'");
         }
     }
 

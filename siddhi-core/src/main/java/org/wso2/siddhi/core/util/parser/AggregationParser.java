@@ -106,14 +106,6 @@ public class AggregationParser {
         try {
             List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
 
-            // Function extensions related to aggregation are registered
-            siddhiAppContext.getSiddhiContext().getSiddhiExtensions().put("incrementalAggregator:within",
-                    IncrementalWithinTimeFunctionExecutor.class);
-            siddhiAppContext.getSiddhiContext().getSiddhiExtensions().put(
-                    "incrementalAggregator:timestampInMilliseconds", IncrementalUnixTimeFunctionExecutor.class);
-            siddhiAppContext.getSiddhiContext().getSiddhiExtensions().put("incrementalAggregator:getTimeZone",
-                    IncrementalTimeGetTimeZone.class);
-
             String aggregatorName = aggregationDefinition.getId();
             LatencyTracker latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, aggregatorName,
                     SiddhiConstants.METRIC_INFIX_AGGRIGATIONS);
