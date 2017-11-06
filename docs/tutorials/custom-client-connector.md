@@ -10,7 +10,7 @@ This tutorial consists of the following main sections.
 - [About custom client connectors](about-custom-client-connectors)
 - [Create a custom client connector](create-a-custom-client-connector)
 
-> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). Use the Quick Tour to also get an understanding of the Ballerina Composer and how it works. it is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
+> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). Use the Quick Tour to also get an understanding of the Ballerina Composer and how it works. It is also recommended to try to [write a main program](../tutorials/main-program.md) and [write a passthrough service](../tutorials/passthrough-service.md) before trying this out. This helps you to get familiar with Ballerina and how it can help achieve integration scenarios.
 
 ## About connectors and actions
 
@@ -74,3 +74,13 @@ After creating the connector, you need to package it in a way that the connector
 
 This section of the tutorial explains the way a sample custom client connector is built.
 
+1. On the tool palette, click **More Connectors** to see a list of all available connectors.
+    ![alt text](../images/MoreConnectors.png)
+
+1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
+1. Provide the connector parameter list. In order to connect to GitHub APIs, this connector uses an authenticated user and a token obtained for that user.  Furthermore, you need to initialize the connection to the GitHub API as shown below.
+```
+public connector ClientConnector (string username, string token) {
+endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
+}
+```
