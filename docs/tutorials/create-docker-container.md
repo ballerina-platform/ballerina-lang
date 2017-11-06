@@ -1,4 +1,4 @@
-# How to create a Docker image with a Ballerina Program
+# Create a Docker image with a Ballerina Program
 
 Businesses and enterprises worldwide are now faced with the challenge of digital transformation. However, digital transformation has to be implemented under certain restrictions related to existing applications and infrastructure. Docker plays a key role in digital transformation by creating independance between applications and infrastructure and enabling them all to collaborate easily. A Docker container is a stand-alone piece of software that comes in a lightweight, runnable, executable package.
 
