@@ -42,11 +42,12 @@ Graphically, connectors are modeled as a separate lifeline to represent its inde
 Connectors may need to have usage specific parameters and hence must be instantiated prior to use. For example, an HTTP connector will need the URL to connect to in the minimum.
 
 1. On the tool palette, click **More Connectors** to see a list of all available connectors.
-    ![alt text](../images/MoreConnectors.png)
-1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
-    ![alt text](../images/addConnector.gif)
-1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable. For more information on how to get this URL and call it to get the JSON content, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
-    ![alt text](../images/ConnectorEndpoint.gif)
+1. From the list that appears, expand **ballerina.net.http** and drag a **Endpoint** of the connector onto the canvas.
+    ![alt text](../images/AddHttpClient.gif)
+1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US). For more information on how to get this URL and call it to get the JSON content, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
+    ![alt text](../images/HttpClientAdd.png)
+1. You can also change the name of the endpoint to something suitable. 
+    ![alt text](../images/forecastAPInew.png)
 
 ## Call the connector
 
