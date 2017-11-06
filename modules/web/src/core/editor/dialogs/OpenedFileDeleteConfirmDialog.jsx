@@ -82,7 +82,7 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
                         </Col>
                         <Col md={10}>
                             <h4 style={{ marginTop: 0 }}>
-                                {`Do you want close editor tab and delete "${fileName}" from file system?`}
+                                {`Do you want to close the editor tab and delete "${fileName}" from the file system?`}
                             </h4>
                             <p>
                                 {`File ${fileName} is already opened in composer
