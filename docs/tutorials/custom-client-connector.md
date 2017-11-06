@@ -127,16 +127,18 @@ In order to test the connector, you must have a Ballerina program with either a 
 1. Inside a resource initialize and invoke the client connector as follows.
     ``` 
     resource getReposForOrganization (http:Request req,http:Response res, string org) {
-    	endpoint<github:ClientConnector> gitHubConnector{
-    	}
-    	string username = req.getHeader("Username");
-    	string tokenEnc = req.getHeader("Token");
-    	github:ClientConnector gitHubConn = create github:ClientConnector(username, tokenEnc);
-    	bind gitHubConn with gitHubConnector;
-    	http:Response gitHubResponse = {};
-    	gitHubResponse, _ = gitHubConnector.getReposOfOrg(org);
-    	res.forward(gitHubResponse);
-            }
+        endpoint<github:ClientConnector> gitHubConnector{
+        }
+        string username;
+        string tokenEnc;
+        username, _ = req.getHeader("Username");
+        tokenEnc, _ = req.getHeader("Token");
+        github:ClientConnector gitHubConn = create github:ClientConnector(username, tokenEnc);
+        bind gitHubConn with gitHubConnector;
+        http:Response gitHubResponse = {};
+        gitHubResponse, _ = gitHubConnector.getReposOfOrg(org);
+        res.forward(gitHubResponse);
+    }
     ```
 The following is the full code of the sample.
 
