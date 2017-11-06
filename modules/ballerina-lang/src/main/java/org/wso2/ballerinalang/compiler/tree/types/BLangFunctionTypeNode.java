@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link FunctionTypeNode}.
@@ -79,23 +80,12 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     }
 
     private String getParamNames(List<TypeNode> paramTypes) {
-        StringBuilder sb = new StringBuilder();
-        int nParamTypes = paramTypes.size();
-
-        for (int i = 0; i < nParamTypes; i++) {
-            TypeNode paramType = paramTypes.get(i);
+        return paramTypes.stream().map(paramType -> {
             if (paramType.getKind() == NodeKind.USER_DEFINED_TYPE) {
-                sb.append(((UserDefinedTypeNode) paramType).getTypeName().getValue());
+                return ((UserDefinedTypeNode) paramType).getTypeName().getValue();
             } else {
-                sb.append(paramType.toString());
+                return paramType.toString();
             }
-
-            if (i == nParamTypes - 1) {
-                return sb.toString();
-            }
-            sb.append(", ");
-        }
-
-        return sb.toString();
+        }).collect(Collectors.joining(", "));
     }
 }
