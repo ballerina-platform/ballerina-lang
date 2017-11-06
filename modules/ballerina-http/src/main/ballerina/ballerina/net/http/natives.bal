@@ -340,7 +340,7 @@ struct Retry {
 @Field {value:"keyStorePassword: Key store password"}
 @Field {value:"sslEnabledProtocols: ssl/tls protocols to be enabled"}
 @Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: ssl Protocol to be used"}
+@Field {value:"sslProtocol: The SSL protocol version"}
 struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -360,7 +360,7 @@ struct FollowRedirects {
 }
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
-@Field {value:"port: Port number of the remort service"}
+@Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"chunkDisabled: Disable chunking"}
 @Field {value:"followRedirects: Redirect related options"}
