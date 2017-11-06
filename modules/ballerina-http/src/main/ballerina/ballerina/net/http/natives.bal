@@ -4,107 +4,107 @@ package ballerina.net.http;
 public struct Request {
 }
 
-@Description { value:"Gets the request URL from the message"}
+@Description { value:"Gets the request URL from the request"}
 @Param { value:"req: The request message" }
 @Return { value:"string: The request URL value" }
 public native function <Request req> getRequestURL () (string);
 
-@Description { value:"Gets the Content-Length header from the message"}
+@Description { value:"Gets the Content-Length header from the request"}
 @Param { value:"req: A request message" }
 @Return { value:"int: length of the message" }
 public native function <Request req> getContentLength () (int);
 
-@Description { value:"Gets the HTTP method from the message"}
+@Description { value:"Gets the HTTP method from the request"}
 @Param { value:"req: A request message" }
 @Return { value:"string: http method value" }
 public native function <Request req> getMethod () (string);
 
-@Description { value:"Sets the Content-Length header on the message"}
+@Description { value:"Sets the Content-Length header on the request"}
 @Param { value:"req: A request message" }
 @Param { value:"contentLength: Length of the message" }
 public native function <Request req> setContentLength (int contentLength);
 
-@Description { value:"Gets formParam map from HTTP message"}
+@Description { value:"Gets formParam map from HTTP request"}
 @Param { value:"req: The request message" }
 @Return { value:"map: The map of form params" }
 public native function <Request req> getFormParams () (map);
 
-@Description { value:"Gets queryParam map from HTTP message"}
+@Description { value:"Gets queryParam map from HTTP request"}
 @Param { value:"req: The request message" }
 @Return { value:"map: The map of query params" }
 public native function <Request req> getQueryParams () (map);
 
-@Description { value:"Gets the message payload in JSON format"}
+@Description { value:"Gets the request payload in JSON format"}
 @Param { value:"req: A request message" }
 @Return { value:"json: The JSON reresentation of the message payload" }
 public native function <Request req> getJsonPayload () (json);
 
-@Description { value:"Gets the message payload in XML format"}
+@Description { value:"Gets the request payload in XML format"}
 @Param { value:"req: The request message" }
 @Return { value:"xml: The XML representation of the message payload" }
 public native function <Request req> getXmlPayload () (xml);
 
-@Description { value:"Gets the message payload in BLOB format"}
+@Description { value:"Gets the request payload in blob format"}
 @Param { value:"req: A request message" }
-@Return { value:"json: The BLOB reresentation of the message payload" }
+@Return { value:"blob: The blob representation of the message payload" }
 public native function <Request req> getBinaryPayload () (blob);
 
-@Description { value:"Sets a message property"}
+@Description { value:"Sets a request property"}
 @Param { value:"req: A request message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
 public native function <Request req> setProperty (string propertyName, string propertyValue);
 
-@Description { value:"Sets the message payload using a string object"}
+@Description { value:"Sets the request payload using a string object"}
 @Param { value:"req: A request message" }
 @Param { value:"payload: The string payload object" }
 public native function <Request req> setStringPayload (string payload);
 
-@Description { value:"Gets a transport header from the message"}
+@Description { value:"Gets a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"string: The header value" }
 @Return { value:"boolean: Indicates whether the header exists" }
 public native function <Request req> getHeader (string headerName) (string, boolean);
 
-@Description { value:"Gets the message payload in string format"}
+@Description { value:"Gets the request payload in string format"}
 @Param { value:"req: A request message" }
 @Return { value:"string: The string representation of the message payload" }
 public native function <Request req> getStringPayload () (string);
 
-@Description { value:"Adds a transport header to the message"}
-@Param { value:"m: The message object" }
+@Description { value:"Adds a transport header to the request"}
+@Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public native function <Request req> addHeader (string key, string value);
 
-@Description { value:"Gets transport headers from the message"}
+@Description { value:"Gets transport headers from the request"}
 @Param { value:"req: A request message" }
 @Return { value:"string[]: The header values" }
 public native function <Request req> getHeaders () (string[]);
 
-@Description { value:"Sets the message payload using a JSON object"}
+@Description { value:"Sets the request payload using a JSON object"}
 @Param { value:"req: A request message" }
 @Param { value:"payload: The JSON payload object" }
 public native function <Request req> setJsonPayload (json payload);
 
-@Description { value:"Retrieve a message property"}
+@Description { value:"Retrieve a request property"}
 @Param { value:"req: A request message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"string: The property value" }
 public native function <Request req> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the message"}
+@Description { value:"Removes a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 public native function <Request req> removeHeader (string key);
 
 @Description { value:"Removes all transport headers from the message"}
-@Param { value:"m: The message object" }
+@Param { value:"req: A request message" }
 public native function <Request req> removeAllHeaders ();
 
 @Description { value:"Sets the message payload using an XML object"}
-@Param { value:"m: The current message object" }
+@Param { value:"req: A request message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Request req> setXmlPayload (xml payload);
 
@@ -124,22 +124,22 @@ public native function <Request req> setHeader (string key, string value);
 public struct Response {
 }
 
-@Description { value:"Gets the HTTP status code from the message"}
+@Description { value:"Gets the HTTP status code from the response"}
 @Param { value:"res: The response message" }
 @Return { value:"int: http status code" }
 public native function <Response res> getStatusCode () (int);
 
-@Description { value:"Gets the Content-Length header from the message"}
+@Description { value:"Gets the Content-Length header from the response"}
 @Param { value:"res: The response message" }
 @Return { value:"int: length of the message" }
 public native function <Response res> getContentLength () (int);
 
-@Description { value:"Sets the Content-Length header on the message"}
+@Description { value:"Sets the Content-Length header on the response"}
 @Param { value:"res: The response message" }
 @Param { value:"contentLength: Length of the message" }
 public native function <Response res> setContentLength (int contentLength);
 
-@Description { value:"Sets the HTTP StatusCode on the message"}
+@Description { value:"Sets the HTTP StatusCode on the response"}
 @Param { value:"res: The response message" }
 @Param { value:"statusCode: HTTP status code" }
 public native function <Response res> setStatusCode (int statusCode);
@@ -149,76 +149,76 @@ public native function <Response res> setStatusCode (int statusCode);
 @Param { value:"reasonPhrase: Reason phrase value" }
 public native function <Response res> setReasonPhrase (string reasonPhrase);
 
-@Description { value:"Gets the message payload in JSON format"}
+@Description { value:"Gets the response payload in JSON format"}
 @Param { value:"res: The response message" }
 @Return { value:"json: The JSON reresentation of the message payload" }
 public native function <Response res> getJsonPayload () (json);
 
-@Description { value:"Gets the message payload in XML format"}
+@Description { value:"Gets the response payload in XML format"}
 @Param { value:"res: The response message" }
 @Return { value:"xml: The XML representation of the message payload" }
 public native function <Response res> getXmlPayload () (xml);
 
-@Description { value:"Gets the message payload in BLOB format"}
+@Description { value:"Gets the response payload in blob format"}
 @Param { value:"res: The response message" }
-@Return { value:"json: The BLOB reresentation of the message payload" }
+@Return { value:"blob: The blob representation of the message payload" }
 public native function <Response res> getBinaryPayload () (blob);
 
-@Description { value:"Sets a message property"}
+@Description { value:"Sets a response property"}
 @Param { value:"res: The response message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
 public native function <Response res> setProperty (string propertyName, string propertyValue);
 
-@Description { value:"Sets the message payload using a string object"}
+@Description { value:"Sets the response payload using a string object"}
 @Param { value:"res: The response message" }
 @Param { value:"payload: The string payload object" }
 public native function <Response res> setStringPayload (string payload);
 
-@Description { value:"Gets a transport header from the message"}
+@Description { value:"Gets a transport header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"string: The header value" }
 @Return { value:"boolean: Indicates whether the header exists" }
 public native function <Response res> getHeader (string headerName) (string, boolean);
 
-@Description { value:"Gets the message payload in string format"}
+@Description { value:"Gets the response payload in string format"}
 @Param { value:"res: The response message" }
 @Return { value:"string: The string representation of the message payload" }
 public native function <Response res> getStringPayload () (string);
 
-@Description { value:"Adds a transport header to the message"}
+@Description { value:"Adds a transport header to the response"}
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public native function <Response res> addHeader (string key, string value);
 
-@Description { value:"Gets transport headers from the message"}
+@Description { value:"Gets transport headers from the response"}
 @Param { value:"res: The response message" }
 @Return { value:"string[]: The header values" }
 public native function <Response res> getHeaders () (string[]);
 
-@Description { value:"Sets the message payload using a JSON object"}
+@Description { value:"Sets the response payload using a JSON object"}
 @Param { value:"req: The response message" }
 @Param { value:"payload: The JSON payload object" }
 public native function <Response res> setJsonPayload (json payload);
 
-@Description { value:"Retrieve a message property"}
+@Description { value:"Retrieve a response property"}
 @Param { value:"res: The response message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"string: The property value" }
 public native function <Response res> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the message"}
+@Description { value:"Removes a transport header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 public native function <Response res> removeHeader (string key);
 
-@Description { value:"Removes all transport headers from the message"}
+@Description { value:"Removes all transport headers from the response"}
 @Param { value:"res: The response message" }
 public native function <Response res> removeAllHeaders ();
 
-@Description { value:"Sets the message payload using an XML object"}
+@Description { value:"Sets the response payload using an XML object"}
 @Param { value:"res: The response message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
