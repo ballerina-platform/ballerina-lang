@@ -69,11 +69,8 @@ class TryItPlugin extends Plugin {
         command.on('debugger-stop-executed', () => {
             const tryItEditor = editor.getEditorByID(TRY_IT_VIEW.TRY_IT_VIEW_ID);
             if (tryItEditor) {
-                editor.closeEditor(tryItEditor);
                 const prevEditor = editor.getEditorByID(this.activeFile.fullPath);
-                if (prevEditor) {
-                    editor.setActiveEditor(prevEditor);
-                }
+                editor.closeEditor(tryItEditor, prevEditor);
             }
         });
     }
