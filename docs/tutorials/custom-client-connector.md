@@ -75,6 +75,7 @@ After creating the connector, you need to package it in a way that the connector
 This section of the tutorial explains the way a sample custom client connector is built.
 
 1. On the tool palette, click **More Connectors** to see a list of all available connectors.
+
     ![alt text](../images/MoreConnectors.png)
 
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
