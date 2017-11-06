@@ -56,6 +56,7 @@ public native function <Connection conn> getNegotiatedSubProtocol() (string);
 public native function <Connection conn> isSecure() (boolean);
 
 @Description {value:"Check whether the connection is still open or not."}
+@Return {value:"boolean: true if the connection is opened"}
 public native function <Connection conn> isOpen() (boolean);
 
 @Description {value:"Get a map of all the upgrade headers of the connection"}
@@ -114,6 +115,7 @@ public struct WsConnectorError {
 public connector WsClient(string url, string callbackService) {
 
     @Description {value:"Connect to remote endpoint"}
+    @Param {value:"config: ClientConnectorConfig for the connection"}
     @Return {value:"Connection: New WebSocket connection for the connected backend"}
     native action connect(ClientConnectorConfig config) (Connection, WsConnectorError);
 

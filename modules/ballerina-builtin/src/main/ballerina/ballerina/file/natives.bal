@@ -2,10 +2,15 @@ package ballerina.file;
 
 import ballerina.io;
 
+@Description { value:"The Read access mode"}
 public const string R = "R";
+@Description { value:"The Write access mode"}
 public const string W = "W";
+@Description { value:"The Read Write access mode"}
 public const string RW = "RW";
+@Description { value:"The Append access mode"}
 public const string A = "A";
+@Description { value:"The Read Apend access mode"}
 public const string RA = "RA";
 
 public struct File {
@@ -40,10 +45,12 @@ public struct FileNotOpenedError {
 public native function <File file> close ();
 
 @Description { value:"Retrieves the stream from a local file"}
+@Param { value:"file: The file which needs to be opened" }
+@Param { value:"accessMode: The file access mode used when opening the file" }
 public native function <File file> open (string accessMode);
 
 @Description { value:"Copies a file from a given location to another"}
-@Param { value:"target: File/Directory that should be copied" }
+@Param { value:"source: File/Directory that should be copied" }
 @Param { value:"destination: Location where the File/Directory should be pasted" }
 public native function copy (File source, File destination);
 
