@@ -63,6 +63,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private static final String UTF_8 = "UTF-8";
     private static final String BUILTIN_PACKAGE_NAME = "ballerina.builtin";
     private static final String DOC_DESCRIPTION = "Description";
+    private static final String ANONYMOUS_STRUCT = "$anonStruct$";
 
     private static PrintStream out = System.out;
 
@@ -376,19 +377,14 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 " title=\"" + getFullyQualifiedTypeName(type) + "\"") : "";
                     })
                     .registerHelper("typeText", (Helper<BLangVariable>) (var, options) -> {
-                        if (var.symbol == null) {
-                            // To account for return params. Does not work for anon. structs.
-                            // TODO: Need to fix this properly
-                            return getTypeName(var.typeNode);
-                        } else if (var.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-                            if (((BLangUserDefinedType) var.typeNode).typeName.value.contains("$anonStruct$")) {
+                        // TODO: Need to fix this properly
+                        if (var.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                            if (((BLangUserDefinedType) var.typeNode).typeName.value.contains(ANONYMOUS_STRUCT)) {
                                 return getAnonStructString((BStructType) var.type);
-                            } else {
-                                return getTypeName(var.typeNode);
                             }
                         }
 
-                        return var.symbol.type.toString();
+                        return getTypeName(var.typeNode);
                     })
                     .registerHelper("annotationTypeText", (Helper<BLangType>) (type, options) -> getTypeName(type))
                     .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
