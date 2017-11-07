@@ -21,7 +21,7 @@ import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
 
-import { REGIONS } from './../layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -196,6 +196,8 @@ class WorkspacePlugin extends Plugin {
                 history.put(HISTORY.OPENED_FOLDERS, this.openedFolders);
                 this.reRender();
             }
+            const { command: { dispatch } } = this.appContext;
+            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.EXPLORER });
             resolve();
         });
     }
