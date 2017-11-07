@@ -85,35 +85,32 @@ class ToolView extends React.Component {
                         <p className="tool-title">{toolTip}</p>
                     </span>
 
-                </div>
+                </div>,
             );
         }
-
+        // delete(string path, Request req) : Response b
         toolTip = tool.title;
         if (tool.parameters) {
-            if (tool.parameters.length > 0) {
-                toolTip += '\n* Arguments : ';
-
-                tool.parameters.forEach((param, index) => {
+            toolTip += '(';
+            tool.parameters.forEach((param, index) => {
                     if (index !== 0) {
                         toolTip += ' , ';
                     }
 
                     toolTip += param.type + ' ' + param.name;
                 });
-            }
+            toolTip += ')';
         }
         if (tool.returnParams) {
-            if (tool.returnParams.length > 0) {
-                toolTip += '\n* Return Types : ';
-                tool.returnParams.forEach((param, index) => {
+            toolTip += ' : ( ';
+            tool.returnParams.forEach((param, index) => {
                     if (index !== 0) {
                         toolTip += ' , ';
                     }
 
                     toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
                 });
-            }
+            toolTip += ')';
         }
         let imageIcon;
         if (tool.id === 'ClientConnector') {
@@ -149,7 +146,7 @@ class ToolView extends React.Component {
                 <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
                     <span className="fw fw-document" />
                 </a>
-            </div>
+            </div>,
         );
     }
 }
