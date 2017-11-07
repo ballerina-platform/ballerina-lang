@@ -402,7 +402,10 @@ class DefaultNodeFactory {
     createForkJoin() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
             fork {
-            
+                worker worker1 {
+                }
+                worker worker2 {
+                }
             } join(all)(map results) {
             
             } timeout(100)(map results1) {
