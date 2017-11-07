@@ -19,7 +19,7 @@ Let's take a look at what the sample looks like in the Ballerina programming lan
 ```
 import ballerina.lang.system;
 function main (string[] args) {
-  system:println("Hello, World!");
+  println("Hello, World!");
 }
 ``` 
 
