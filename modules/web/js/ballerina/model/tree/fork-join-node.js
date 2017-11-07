@@ -71,8 +71,8 @@ class ForkJoinNode extends AbstractForkJoinNode {
             }
         }
         let condition;
-        if (joinType === 'any') {
-            condition = 'some' + (joinCount !== -1 ? joinCount : '') + workers;
+        if (joinType === 'some') {
+            condition = 'some ' + (joinCount !== -1 ? joinCount : '') + workers;
         } else {
             condition = joinType + ' ' + workers;
         }
