@@ -182,7 +182,7 @@ class LeftPanel extends React.Component {
         const { views, onActiveViewChange, ...restProps } = this.props;
         const activeViewPrev = this.props.activeView
                     || this.context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW)
-                    || views[0].id;
+                    || (this.props.show && views[0] ? views[0].id : '');
         views.forEach((viewDef) => {
             const {
                     id,
