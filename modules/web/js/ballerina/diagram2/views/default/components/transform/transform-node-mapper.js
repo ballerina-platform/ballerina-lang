@@ -104,7 +104,19 @@ class TransformNodeMapper {
         if (target.endpointKind === 'receiver') {
             funcNode.setExpression(sourceExpression, true);
         } else {
-            funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
+            if (target.isField) {
+                let argument = funcNode.getArgumentExpressions()[index];
+
+                if (!TreeUtil.isRecordLiteralExpr(argument)) {
+                    argument = NodeFactory.createRecordLiteralExpr();
+                    funcNode.replaceArgumentExpressionsByIndex(index, argument, true);
+                }
+
+                let innerRecordLiteralExpr = this.getInnerRecordLiteralExpression(argument, target.pathFromRoot);
+                innerRecordLiteralExpr.setValue(sourceExpression);
+            } else {
+                funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
+            }
         }
 
         this._transformStmt.trigger('tree-modified', {
@@ -1640,6 +1652,40 @@ class TransformNodeMapper {
             }
         }
         return undefined;
+    }
+
+    /**
+     * Get the inner RecordLiteralExpr node relevant to a given target definition
+     * @param {Object} root root RecordLiteralExpr node
+     * @param {Array} pathFromRoot names of fields from the root
+     */
+    getInnerRecordLiteralExpression(root, pathFromRoot) {
+        let argument = root;
+        let kvp;
+        pathFromRoot.forEach((name) => {
+            const kvpairs = argument.filterKeyValuePairs((keyValue) => {
+                return keyValue.getKey().getVariableName().getValue() === name;
+            });
+            
+            if (kvpairs[0]) {
+                kvp = kvpairs[0];
+            } else {
+                kvp = NodeFactory.createRecordLiteralKeyValue();
+                const key = NodeFactory.createSimpleVariableRef();
+                key.getVariableName().setValue(name, true);
+                kvp.setKey(key, true);
+                argument.addKeyValuePairs(kvp, -1, true);
+            }
+            
+            argument = kvp.getValue();
+
+            if (!TreeUtil.isRecordLiteralExpr(argument)) {
+                const value = NodeFactory.createRecordLiteralExpr();
+                kvp.setValue(value, true);
+                argument = value;
+            }
+        });
+        return kvp;
     }
 }
 

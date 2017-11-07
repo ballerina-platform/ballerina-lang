@@ -388,7 +388,7 @@ class TransformNodeManager {
         });
     }
 
-    getStructType(name, typeName, structDefinition, currentRoot) {
+    getStructType(name, typeName, structDefinition, currentRoot, pathFromRoot=[]) {
         const struct = {};
         struct.name = name;
         struct.displayName = name;
@@ -397,10 +397,11 @@ class TransformNodeManager {
         struct.typeName = typeName;
 
         const root = currentRoot || struct;
-
         _.forEach(structDefinition.getFields(), (field) => {
             let property = {};
             const fieldName = `${name}.${field.getName()}`;
+            const currentPathFromRoot = [...pathFromRoot];
+            currentPathFromRoot.push(field.getName());
 
             // TODO: handle recursive structs in a better manner.
             // Currently we will consider it as a primitive field.
@@ -412,7 +413,7 @@ class TransformNodeManager {
             } else {
                 const innerStruct = this.getStructDefinition(field.getPackageName(), field.getType());
                 if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                    property = this.getStructType(fieldName, field.getType(), innerStruct, root);
+                    property = this.getStructType(fieldName, field.getType(), innerStruct, root, currentPathFromRoot);
                 } else {
                     property.name = fieldName;
                     property.type = field.getType();
@@ -421,6 +422,7 @@ class TransformNodeManager {
                 }
             }
 
+            property.pathFromRoot = currentPathFromRoot;
             property.isField = true;
             property.root = root;
             property.displayName = field.getName();
