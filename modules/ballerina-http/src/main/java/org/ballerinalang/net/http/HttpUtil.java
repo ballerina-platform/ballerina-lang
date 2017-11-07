@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -137,12 +138,12 @@ public class HttpUtil {
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = httpCarbonMessage.getHeader(headerName);
+        boolean headerExists = headerValue != null;
 
-//        if (headerValue == null) {
-//            TODO: should NOT handle error for null headers, need to return `ballerina null`
-//            ErrorHandler.handleUndefineHeader(headerName);
-//        }
-        return abstractNativeFunction.getBValues(new BString(headerValue));
+        // Reset the header value to Ballerina string default value if the header doesn't exist
+        headerValue = !headerExists ? "" : headerValue;
+
+        return abstractNativeFunction.getBValues(new BString(headerValue), new BBoolean(headerExists));
     }
 
     public static BValue[] getJsonPayload(Context context,
@@ -507,7 +508,8 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void addResponseFlag(BStruct response) {
+    public static void addRequestResponseFlag(BStruct request, BStruct response) {
+        request.addNativeData(Constants.INBOUND_REQUEST, true);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
     }
 

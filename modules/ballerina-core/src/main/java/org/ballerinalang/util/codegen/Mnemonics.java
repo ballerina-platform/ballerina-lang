@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.wso2.ballerinalang.programfile.InstructionCodes;
-
 /**
  * @since 0.87
  */
@@ -159,6 +157,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
+        mnemonics[InstructionCodes.TCALL] = "tcall";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -199,6 +198,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2XML] = "any2xml";
         mnemonics[InstructionCodes.ANY2TYPE] = "any2type";
+        mnemonics[InstructionCodes.ANY2E] = "any2e";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";

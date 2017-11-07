@@ -11,9 +11,11 @@ struct Employee {
     string address;
 }
 
-function emptyTransform() {
+function emptyTransform() (Employee) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = {};
-    transform {
-    }
+    Employee e = <Employee> p;
+    return e;
+}
+
+transformer <Person p, Employee e> {
 }

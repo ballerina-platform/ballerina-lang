@@ -30,6 +30,7 @@ public enum NodeKind {
     COMPILATION_UNIT,
     CONNECTOR,
     ENUM,
+    ENUMERATOR,
     FUNCTION,
     IDENTIFIER,
     IMPORT,
@@ -43,6 +44,7 @@ public enum NodeKind {
     VARIABLE,
     WORKER,
     XMLNS,
+    TRANSFORMER,
 
     /* Expressions */
     ANNOTATION_ATTACHMENT_ATTRIBUTE,
@@ -59,6 +61,7 @@ public enum NodeKind {
     SIMPLE_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
+    TYPEOF_EXPRESSION,
     TYPE_CAST_EXPR,
     TYPE_CONVERSION_EXPR,
     UNARY_EXPR,
@@ -74,6 +77,7 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     ASSIGNMENT,
+    BIND,
     BLOCK,
     BREAK,
     NEXT,
@@ -98,5 +102,6 @@ public enum NodeKind {
     CONSTRAINED_TYPE,
     FUNCTION_TYPE,
     USER_DEFINED_TYPE,
+    ENDPOINT_TYPE,
     VALUE_TYPE,
 }

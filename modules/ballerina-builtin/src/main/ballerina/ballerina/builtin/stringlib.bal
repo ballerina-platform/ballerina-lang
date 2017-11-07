@@ -95,8 +95,8 @@ public native function <string mainString> replace (string replacePattern, strin
 @Return { value:"string[]: The split string array" }
 public native function <string mainString> split (string regex) (string[]);
 
-@Description { value:"Converts string to a BLOB"}
+@Description { value:"Converts string to a blob"}
 @Param { value:"mainString: string value to be converted" }
 @Param { value:"encoding: Encoding to used in the conversion" }
-@Return { value:"blob: BLOB representation of the given String" }
+@Return { value:"blob: The blob representation of the given String" }
 public native function <string mainString> toBlob (string encoding) (blob);

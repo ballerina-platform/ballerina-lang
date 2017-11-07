@@ -27,12 +27,12 @@ function testTryCatch(int value)(string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError error = { msg : "error" , code : "test" };
-                throw error;
+                testError tError = { msg : "error" , code : "test" };
+                throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError error = {msg : "error", input : "0"};
-                throw error;
+                testInputError tError = {msg : "error", input : "0"};
+                throw tError;
             }
 
             path = path + "endInsideInnerTry ";

@@ -8,7 +8,7 @@ package lang.annotations.doc;
                  queryParamValue2:[@QueryParam{}],
                  code:[7,8,9],
                  args: @Args{}}
-public annotation Description attach service, resource, function, parameter, annotation, connector, action, typemapper, struct, const {
+public annotation Description attach service, resource, function, parameter, annotation, connector, action, typemapper, struct, const, transformer {
     string value = "Description of the service/function";
     int[] code;
     Param paramValue;

@@ -28,6 +28,7 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -43,8 +44,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
-                                  structPackage = "ballerina.net.http")},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                        structPackage = "ballerina.net.http"),
+        },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
@@ -63,9 +67,9 @@ public class Head extends AbstractHTTPAction {
         try {
             // Execute the operation
             return executeNonBlockingAction(context, createCarbonMsg(context));
-        } catch (Throwable t) {
+        } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'head' action in " + Constants.CONNECTOR_NAME
-                    + ". " + t.getMessage(), context);
+                    + ". " + clientConnectorException.getMessage(), context);
         }
     }
 

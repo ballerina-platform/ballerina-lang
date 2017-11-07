@@ -28,8 +28,8 @@ service<jms> jmsService {
         messages:removeHeader(m, jms:HEADER_MESSAGE_TYPE);
         messages:removeHeader(m, jms:HEADER_REDELIVERED);
         // Send the JSON payload to the HTTP endpoint.
-        http:ClientConnector nyseEP2 = 
-                        create http:ClientConnector("http://localhost:8080");
+        http:HttpClient nyseEP2 =
+                        create http:HttpClient("http://localhost:8080");
         message response = nyseEP2.post("/my-webapp/echo", m);
     }
 }

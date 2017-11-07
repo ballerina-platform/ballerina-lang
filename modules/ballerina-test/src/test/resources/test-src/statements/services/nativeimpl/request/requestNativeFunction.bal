@@ -15,9 +15,11 @@ function testGetContentLength (http:Request req) (int) {
     return length;
 }
 
-function testGetHeader (http:Request req, string key) (string) {
-    string contentType = req.getHeader(key);
-    return contentType;
+function testGetHeader (http:Request req, string key) (string, boolean) {
+    string contentType;
+    boolean headerExists;
+    contentType, headerExists = req.getHeader(key);
+    return contentType, headerExists;
 }
 
 function testGetJsonPayload (http:Request req) (json) {
@@ -125,7 +127,8 @@ service<http> helloServer {
     }
     resource addheader (http:Request req, http:Response res, string key, string value) {
         req.addHeader(key, value);
-        string result = req.getHeader(key);
+        string result;
+        result, _ = req.getHeader(key);
         res.setJsonPayload({lang:result});
         res.send();
     }
@@ -153,7 +156,8 @@ service<http> helloServer {
         path:"/getHeader"
     }
     resource getHeader (http:Request req, http:Response res) {
-        string header = req.getHeader("Content-Type");
+        string header;
+        header, _ = req.getHeader("Content-Type");
         res.setJsonPayload({value:header});
         res.send();
     }
@@ -201,7 +205,8 @@ service<http> helloServer {
     }
     resource RemoveHeader (http:Request req, http:Response res) {
         req.removeHeader("Content-Type");
-        string header = req.getHeader("Content-Type");
+        string header;
+        header, _ = req.getHeader("Content-Type");
         res.setJsonPayload({value:header});
         res.send();
     }
@@ -211,7 +216,8 @@ service<http> helloServer {
     }
     resource RemoveAllHeaders (http:Request req, http:Response res) {
         req.removeAllHeaders();
-        string header = req.getHeader("Range");
+        string header;
+        header, _ = req.getHeader("Range");
         res.setJsonPayload({value:header});
         res.send();
     }
@@ -231,7 +237,8 @@ service<http> helloServer {
     }
     resource setHeader (http:Request req, http:Response res, string key, string value) {
         req.setHeader(key, value);
-        string result = req.getHeader(key);
+        string result;
+        result, _ = req.getHeader(key);
         res.setJsonPayload({value:result});
         res.send();
     }

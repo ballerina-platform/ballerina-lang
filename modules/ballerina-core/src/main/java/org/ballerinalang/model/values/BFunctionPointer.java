@@ -41,7 +41,7 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     @Override
     public String stringValue() {
-        return value().toString();
+        return "";
     }
 
     @Override

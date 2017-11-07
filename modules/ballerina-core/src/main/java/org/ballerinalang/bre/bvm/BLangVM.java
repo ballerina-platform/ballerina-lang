@@ -30,6 +30,8 @@ import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -79,6 +81,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -94,6 +97,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
@@ -350,6 +354,7 @@ public class BLangVM {
                 case InstructionCodes.RFIELDLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.ENUMERATORLOAD:
                     execLoadOpcodes(sf, opcode, operands);
                     break;
 
@@ -540,7 +545,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeAction(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -593,6 +598,14 @@ public class BLangVM {
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
                     sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
                     break;
+                case InstructionCodes.TCALL:
+                    cpIndex = operands[0];
+                    TransformerInfo transformerInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeCallableUnit(transformerInfo, funcCallCPEntry);
+                    break;
 
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
@@ -608,6 +621,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -719,7 +733,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -852,14 +866,18 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] == null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
             case InstructionCodes.RNE_NULL:
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
 
@@ -1185,6 +1203,14 @@ public class BLangVM {
                 }
 
                 sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                break;
+            case InstructionCodes.ENUMERATORLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[i];
+                BEnumType enumType = (BEnumType) typeRefCPEntry.getType();
+                sf.refRegs[k] = enumType.getEnumerator(j);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1958,6 +1984,7 @@ public class BLangVM {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
                 break;
+            case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
             case InstructionCodes.ANY2C:
             case InstructionCodes.CHECKCAST:
@@ -2590,6 +2617,27 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
+    }
+
+    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        StackFrame callerSF = controlStack.currentFrame;
+
+        if (callerSF.refRegs[argRegs[0]] == null) {
+            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            handleError();
+            return;
+        }
+        BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
+        //TODO find a way to change this to method table
+        ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
+
+        if (newActionInfo.getNativeAction() != null) {
+            invokeNativeAction(newActionInfo, funcCallCPEntry);
+        } else {
+            invokeCallableUnit(newActionInfo, funcCallCPEntry);
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,

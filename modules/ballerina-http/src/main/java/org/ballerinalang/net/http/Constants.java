@@ -120,7 +120,7 @@ public class Constants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
 
 
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "HttpClient";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -133,8 +133,10 @@ public class Constants {
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String PART = "Part";
+    public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
@@ -155,6 +157,11 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Retry Struct indexes
+    public static final int RETRY_STRUCT_INDEX = 2;
+    public static final int RETRY_COUNT_INDEX = 0;
+    public static final int RETRY_INTERVAL_INDEX = 1;
 
     /**
      * Content type HTTP header.
