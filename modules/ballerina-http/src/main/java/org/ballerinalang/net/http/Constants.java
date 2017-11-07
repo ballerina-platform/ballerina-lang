@@ -132,6 +132,7 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String PART = "Part";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String OUTBOUND_RESPONSE = "outbound_response";

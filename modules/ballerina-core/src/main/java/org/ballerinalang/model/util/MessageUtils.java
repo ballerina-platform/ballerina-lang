@@ -18,6 +18,7 @@
 
 package org.ballerinalang.model.util;
 
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
@@ -55,6 +56,10 @@ public class MessageUtils {
             }
         }
         return result;
+    }
+
+    public static void populateParts(InputStream inputStream, BStruct part) {
+
     }
 
     /**

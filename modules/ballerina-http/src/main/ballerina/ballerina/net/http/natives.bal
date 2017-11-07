@@ -3,6 +3,15 @@ package ballerina.net.http;
 public struct Request {
 }
 
+public struct Part {
+    blob content;
+    string fileName;
+    string partName;
+    string contentType;
+    int size;
+    string[] headers;
+}
+
 @Description { value:"Gets the request URL from the message"}
 @Param { value:"req: The request message" }
 @Return { value:"string: The request URL value" }
@@ -117,7 +126,10 @@ public native function <Request req> clone () (Request);
 @Param { value:"value: The header value" }
 public native function <Request req> setHeader (string key, string value);
 
-
+@Description { value:"Get the multipart payload as an array of Part struct"}
+@Param { value:"req: A request message" }
+@Return { value:"parts: Multiparts" }
+public native function <Request req> getMultiparts () (Part[] parts);
 
 public struct Response {
 }

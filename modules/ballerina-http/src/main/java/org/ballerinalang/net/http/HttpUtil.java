@@ -28,6 +28,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -708,5 +710,38 @@ public class HttpUtil {
             throw new BallerinaException("operation not allowed");
         }
     }
+
+    public static BValue[] getMultipartData(Context context,
+            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+        BStruct result;
+        try {
+            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+            if (httpCarbonMessage.isAlreadyRead()) {
+             //   result = new BStruct((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
+                result = null;
+            } else {
+               // result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
+                InputStream inputStream = new HttpMessageDataStreamer(httpCarbonMessage).getInputStream();
+                /*BStructType bStructType = new BStructType("Part", "ballerina.net.http");*/
+                /*result = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                        Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);*/
+                result = ConnectorUtils.createAndGetStruct(context,
+                        Constants.PROTOCOL_PACKAGE_HTTP, Constants.PART);
+                log.debug("Payload received ");
+                MessageUtils.populateParts(inputStream, result);
+            }
+           /* if (log.isDebugEnabled()) {
+                log.debug("Payload in String:" + result.stringValue());
+            }*/
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
+        }
+        return abstractNativeFunction.getBValues(result);
+    }
+
+
 
 }
