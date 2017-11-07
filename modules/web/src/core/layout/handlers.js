@@ -57,6 +57,12 @@ export function getHandlerDefinitions(layoutManager) {
             },
         },
         {
+            cmdID: COMMANDS.TOGGLE_LEFT_PANEL,
+            handler: () => {
+                layoutManager.trigger(EVENTS.TOGGLE_LEFT_PANEL);
+            },
+        },
+        {
             cmdID: COMMANDS.TOGGLE_BOTTOM_PANEL,
             handler: () => {
                 layoutManager.trigger(EVENTS.TOGGLE_BOTTOM_PANLEL);

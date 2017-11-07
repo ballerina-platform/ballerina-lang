@@ -32,7 +32,8 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         const { history } = this.props.appContext.pref;
-        const showLeftPanel = !_.isNil(history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW));
+        const leftPanelIsActive = history.get(HISTORY.LEFT_PANEL_IS_ACTIVE);
+        const showLeftPanel = !_.isNil(leftPanelIsActive) ? leftPanelIsActive : false;
         const leftPanelSize = showLeftPanel
                                     ? (parseInt(this.props.appContext
                                         .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10)
@@ -60,6 +61,9 @@ class App extends React.Component {
 
         // handle window resize events
         window.addEventListener('resize', this.handleWindowResize.bind(this));
+        this.props.layoutPlugin.on(EVENTS.TOGGLE_LEFT_PANEL, () => {
+            this.setLeftPanelState(!this.state.showLeftPanel);
+        });
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
             this.setBottomPanelState(!this.state.showBottomPanel);
         });
@@ -120,6 +124,7 @@ class App extends React.Component {
             leftPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
                                     ? sizeFromHistory : leftPanelDefaultSize;
         }
+        history.put(HISTORY.LEFT_PANEL_IS_ACTIVE, showLeftPanel);
         history.put(HISTORY.LEFT_PANEL_SIZE, leftPanelSize);
         this.setState({
             showLeftPanel,
@@ -199,6 +204,7 @@ class App extends React.Component {
                     }}
                 >
                     <LeftPanel
+                        show={this.state.showLeftPanel}
                         panelResizeInProgress={this.state.panelResizeInProgress}
                         width={this.state.leftPanelSize}
                         height={this.state.documentHeight - (headerHeight + toolAreaHeight)}

@@ -39,6 +39,12 @@ export function getCommandDefinitions() {
             },
         },
         {
+            id: COMMANDS.TOGGLE_LEFT_PANEL,
+            shortcut: {
+                default: 'ctrl+[',
+            },
+        },
+        {
             id: COMMANDS.RE_RENDER_PLUGIN,
             argTypes: {
                 id: PropTypes.string.isRequired,
