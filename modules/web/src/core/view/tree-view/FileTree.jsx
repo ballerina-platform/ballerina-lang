@@ -20,6 +20,7 @@ class FileTree extends React.Component {
         super(...args);
         this.state = {
             data: [],
+            activeNode: undefined,
         };
         this.onToggle = this.onToggle.bind(this);
     }
@@ -46,6 +47,10 @@ class FileTree extends React.Component {
      * @param {Boolean} collapsed collapsed state
      */
     onToggle(node, collapsed) {
+        const { activeNode } = this.state;
+        if (activeNode) {
+            activeNode.active = false;
+        }
         node.active = true;
         this.props.onSelect(node);
         if (node.children) {
@@ -54,7 +59,9 @@ class FileTree extends React.Component {
                 this.loadNodeChildren(node);
             }
         }
-        this.forceUpdate();
+        this.setState({
+            activeNode: node,
+        });
     }
 
     /**
