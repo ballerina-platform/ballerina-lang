@@ -137,14 +137,23 @@ public class ConstrainedJSONTest {
     public void testGetPlainJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetPlainJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"firstName\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
     }
 
     @Test(description = "Test trivial Constraint JSON return.")
     public void testGetConstraintJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetConstraintJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
     }
 
+    @Test(description = "Test casting constraint JSON to an unconstrained JSON.")
+    public void testConstraintJSONToJSONCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToJSONCast");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+    }
+    
     @Test(description = "Test JSON to Constaint JSON unsafe cast.", enabled = false)
     public void testJSONToConstraintJsonUnsafeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
