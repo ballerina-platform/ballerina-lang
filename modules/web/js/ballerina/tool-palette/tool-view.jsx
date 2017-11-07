@@ -91,29 +91,29 @@ class ToolView extends React.Component {
 
         toolTip = tool.title;
         if (tool.parameters) {
-            toolTip += '(';
+            if (tool.parameters.length > 0) {
+                toolTip += '\n* Arguments : ';
 
-            tool.parameters.forEach((param, index) => {
-                if (index !== 0) {
-                    toolTip += ',';
-                }
+                tool.parameters.forEach((param, index) => {
+                    if (index !== 0) {
+                        toolTip += ' , ';
+                    }
 
-                toolTip += param.type + ' ' + param.name;
-            });
-
-            toolTip += ')';
+                    toolTip += param.type + ' ' + param.name;
+                });
+            }
         }
         if (tool.returnParams) {
-            toolTip += '(';
-            tool.returnParams.forEach((param, index) => {
-                if (index !== 0) {
-                    toolTip += ',';
-                }
+            if (tool.returnParams.length > 0) {
+                toolTip += '\n* Return Types : ';
+                tool.returnParams.forEach((param, index) => {
+                    if (index !== 0) {
+                        toolTip += ' , ';
+                    }
 
-                toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
-            });
-
-            toolTip += ')';
+                    toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
+                });
+            }
         }
         let imageIcon;
         if (tool.id === 'ClientConnector') {
