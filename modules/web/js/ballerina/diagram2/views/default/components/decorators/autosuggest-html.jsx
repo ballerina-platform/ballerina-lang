@@ -103,7 +103,7 @@ class AutoSuggestHtml extends React.Component {
      * @memberOf AutoSuggestHtml
      */
     onChange(event, { newValue }) {
-        return this.setState({
+        this.setState({
             inputValue: newValue,
             showAllAtStart: false,
         });
