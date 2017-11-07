@@ -111,7 +111,7 @@ class LayoutPlugin extends Plugin {
                 {
                     id: MENU_IDS.VIEW_MENU,
                     label: LABELS.VIEW,
-                    isActive: (appContext) => {
+                    isActive: () => {
                         return true;
                     },
                     icon: '',
@@ -119,9 +119,20 @@ class LayoutPlugin extends Plugin {
                     type: MENU_TYPES.ROOT,
                 },
                 {
+                    id: MENU_IDS.TOGGLE_LEFT_PANEL,
+                    label: LABELS.TOGGLE_LEFT_PANLEL,
+                    isActive: () => {
+                        return true;
+                    },
+                    icon: '',
+                    command: CMD_IDS.TOGGLE_LEFT_PANEL,
+                    parent: MENU_IDS.VIEW_MENU,
+                    type: MENU_TYPES.ITEM,
+                },
+                {
                     id: MENU_IDS.TOGGLE_BOTTOM_PANEL,
                     label: LABELS.TOGGLE_BOTTOM_PANLEL,
-                    isActive: (appContext) => {
+                    isActive: () => {
                         return true;
                     },
                     icon: '',
