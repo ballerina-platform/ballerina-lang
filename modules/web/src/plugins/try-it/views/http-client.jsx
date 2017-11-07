@@ -436,6 +436,27 @@ class HttpClient extends React.Component {
     }
 
     /**
+     * Gets the css class depending on the status code.
+     * @param {string} httpCode The http code.
+     * @returns {string} The name of the css class.
+     * @memberof HttpClient
+     */
+    getStatusCodeClass(httpCode) {
+        if (/1\d\d\b/g.test(httpCode)) {
+            return 'http-status-code-blue';
+        } else if (/2\d\d\b/g.test(httpCode)) {
+            return 'http-status-code-green';
+        } else if (/3\d\d\b/g.test(httpCode)) {
+            return 'http-status-code-purple';
+        } else if (/4\d\d\b/g.test(httpCode)) {
+            return 'http-status-code-yellow';
+        } else if (/5\d\d\b/g.test(httpCode)) {
+            return 'http-status-code-red';
+        }
+        return '';
+    }
+
+    /**
      * Gets the url for invoking a resrouce.
      * @param {ResourceNode} resourceNode The resourceNode.
      * @returns {string} The url.
@@ -884,16 +905,38 @@ class HttpClient extends React.Component {
                     <h3>Response</h3>
                     <hr />
                     <div className='http-client-response-attributes'>
-                        <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
+                        <strong>Request URL :
+                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                {this.state.requestUrl}
+                            </span>
+                        </strong>
                         <br />
-                        <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
+                        <strong>Reponse Code :
+                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                {this.state.responseCode}
+                            </span>
+                        </strong>
                         <br />
-                        <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
+                        <strong>Request HTTP Method :
+                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                {this.state.responseHttpMethod}
+                            </span>
+                        </strong>
+                        <br />
+                        <strong>Time Consumed :
+                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                {this.state.timeConsumed} ms
+                            </span>
+                        </strong>
                     </div>
                     <div className='http-client-response-content'>
                         <ul className="nav nav-tabs" role="tablist">
-                            <li role="presentation" className="active"><a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a></li>
-                            <li role="presentation"><a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a></li>
+                            <li role="presentation" className="active">
+                                <a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a>
+                            </li>
                         </ul>
                         <div className="tab-content">
                             <div role="tabpanel" className="tab-pane active fade in" id="headers">
@@ -907,7 +950,7 @@ class HttpClient extends React.Component {
                                             </div>
                                         ) : (
                                             <div className="try-it-message message message-warning">
-                                                <p> <i className="icon fw fw-warning"></i>
+                                                <p> <i className="icon fw fw-warning" />
                                                     Hit the send button to see the headers. </p>
                                             </div>
                                         )}
@@ -923,12 +966,10 @@ class HttpClient extends React.Component {
                                             </div>
                                         ) : (
                                             <div className="try-it-message message message-warning">
-                                                <p><i className="icon fw fw-warning"></i>
+                                                <p><i className="icon fw fw-warning" />
                                                     Hit the send button to see the headers.</p>
-
                                             </div>
                                         )}
-
                                     </div>
                                 </div>
                             </div>
