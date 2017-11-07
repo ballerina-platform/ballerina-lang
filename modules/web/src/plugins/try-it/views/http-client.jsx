@@ -679,6 +679,7 @@ class HttpClient extends React.Component {
                         <span className="input-group-btn"> {sendOrCancelButton} </span>
                         <div
                             className="copy-url-wrapper"
+                            title="Copy URL"
                             onClick={() => {
                                 copy(`${httpBaseUrl}${this.state.appendUrl}`);
                                 this.setState({
