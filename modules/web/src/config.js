@@ -89,7 +89,7 @@ export default {
                     name: 'Service Chaining',
                     isFile: false,
                     folder: '/samples/serviceChaining/',
-                    path: '/samples/serviceChaining/servicechaining/samples/BankLocatorService.bal',
+                    path: '/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
                     image: 'preview_servicechaining',
                 },
                 {
