@@ -316,8 +316,6 @@ public class LaunchManager {
         String port = StringUtils.substringAfterLast(hostPort, ":");
         if (StringUtils.isNotBlank(port)) {
             this.port = port;
-        } else {
-            this.port = "9090";
         }
     }
     
