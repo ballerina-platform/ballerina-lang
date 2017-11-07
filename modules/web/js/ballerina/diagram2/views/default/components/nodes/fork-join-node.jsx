@@ -130,8 +130,8 @@ class ForkJoinNode extends React.Component {
         const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createJoinCondition(valueSansColon));
         const newJoinNode = TreeBuilder.build(parsedJson);
         newJoinNode.clearWS();
-        forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers());
-        forkJoinNode.setJoinType(newJoinNode.getJoinType());
+        forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers(), true);
+        forkJoinNode.setJoinType(newJoinNode.getJoinType(), true);
         forkJoinNode.setJoinCount(newJoinNode.getJoinCount());
         return null;
     }
