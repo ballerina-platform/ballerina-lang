@@ -6,17 +6,19 @@ import ballerina.net.ws;
 }
 service<ws> SimpleProxyServer {
 
-    ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "ClientService");
+    endpoint<ws:WsClient> c {
+        create ws:WsClient("ws://localhost:15500/websocket", "ClientService");
+    }
     map clientConnMap = {};
 
     resource onHandshake(ws:HandshakeConnection con) {
-        try {
-            ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
-            ws:Connection  clientConn = c.connect(clientConnectorConfig);
-            clientConnMap[con.connectionID] = clientConn;
-        } catch (error err) {
-            println("Error occcurred : " + err.msg);
+        ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
+        var clientConn, e = c.connect(clientConnectorConfig);
+        if (e != null) {
+            println("Error occcurred : " + e.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");
+        } else {
+            clientConnMap[con.connectionID] = clientConn;
         }
     }
 

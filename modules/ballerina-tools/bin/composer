@@ -189,6 +189,7 @@ done
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
+    -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/bre/conf/composer-logging.properties" \
     $JAVA_OPTS \
     -classpath "$COMPOSER_CLASSPATH" \
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
@@ -198,7 +199,7 @@ done
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Dcomposer.port=9091 \
-    -DenableCloud=false \
+    -DenableCloud=$ENABLE_CLOUD \
     -Dworkspace.port=8289 \
     -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
     -Dmsf4j.conf=./resources/composer/services/deployment.yaml \

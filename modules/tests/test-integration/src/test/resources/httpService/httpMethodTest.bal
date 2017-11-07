@@ -7,9 +7,36 @@ service<http> headQuoteService {
         path:"/default"
     }
     resource defaultResource (http:Request req, http:Response resp) {
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
+        endpoint<http:HttpClient> endPoint {
+            create http:HttpClient("http://localhost:9090", {});
+        }
         string method = req.getMethod();
-        http:Response clientResponse = endPoint.execute(method, "/getQuote/stocks", req);
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
+        resp.forward(clientResponse);
+    }
+
+    @http:resourceConfig {
+        path:"/forward11"
+    }
+    resource forwardRes11 (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
+        resp.forward(clientResponse);
+    }
+
+    @http:resourceConfig {
+        path:"/forward22"
+    }
+    resource forwardRes22 (http:Request req, http:Response resp) {
+        endpoint<http:HttpClient> endPoint {
+              create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
         resp.forward(clientResponse);
     }
 
@@ -17,8 +44,11 @@ service<http> headQuoteService {
         path:"/getStock/{method}"
     }
     resource commonResource (http:Request req, http:Response resp, string method) {
-        http:ClientConnector endPoint = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = endPoint.execute(method, "/getQuote/stocks", req);
+        endpoint<http:HttpClient> endPoint {
+            create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
         resp.forward(clientResponse);
     }
 }
@@ -31,8 +61,11 @@ service<http> testClientConHEAD {
         path:"/"
     }
     resource passthrough (http:Request req, http:Response resp) {
-        http:ClientConnector quoteEP = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = quoteEP.get("/getQuote/stocks", req);
+        endpoint<http:HttpClient> quoteEP {
+            create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse;
+        clientResponse, _ = quoteEP.get("/getQuote/stocks", req);
         resp.forward(clientResponse);
     }
 }
