@@ -115,12 +115,13 @@ export default class VariableEndpoint extends React.Component {
                     <span className='endpoint-content' onClick={(e) => { onClick && onClick(variable.name); }}>
                         {!this.state.onEdit && variable.displayName &&
                             <span className='endpoint-name'>
-                                {variable.displayName}:
+                                {variable.displayName}
                             </span>
                         }
                         {!this.state.onEdit &&
                         <span className='endpoint-type'>
-                            {variable.typeName || variable.type}
+                            {variable.typeName && variable.typeName.indexOf('$anonStruct$') !== -1 ? ''
+                              : ' : ' + (variable.typeName || variable.type)}
                         </span>
                         }
                         {this.props.variable.varDeclarationString && !this.state.onEdit &&
