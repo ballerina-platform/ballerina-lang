@@ -166,13 +166,9 @@ class WorkspacePlugin extends Plugin {
      * @param {String} filePath target path
      */
     isFilePathOpenedInExplorer(filePath) {
-        let folderOpened = false;
-        this.openedFolders.forEach((folder) => {
-            if (filePath.startsWith(folder)) {
-                folderOpened = true;
-            }
-        })
-        return folderOpened;
+        return this.openedFolders.find((folder) => {
+            return filePath.startsWith(folder);
+        });
     }
 
     /**
