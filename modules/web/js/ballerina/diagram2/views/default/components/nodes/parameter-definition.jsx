@@ -73,7 +73,7 @@ class ParameterDefinition extends React.Component {
         const options = this.editorOptions;
         const packageScope = this.context.environment;
         if (options) {
-            new ExpressionEditor(this.state.inputBox, (s) => {} /* no-op */, options, packageScope)
+            new ExpressionEditor(this.state.inputBox, (s) => {}, options, packageScope)
                 .render(this.context.getOverlayContainer());
         }
     }

@@ -122,7 +122,7 @@ export default class GlobalDefinitionItem extends React.Component {
 
         const packageScope = this.context.enviornment;
 
-        new ExpressionEditor(editorBBox, (s) => {} /* no-op */, options, packageScope)
+        new ExpressionEditor(editorBBox, (s) => {}, options, packageScope)
             .render(this.context.getOverlayContainer());
     }
 
