@@ -73,7 +73,7 @@ export default class GlobalExpanded extends React.Component {
 
         const packageScope = this.context.enviornment;
 
-        new ExpressionEditor(bBox, (s) => {} /* no-op*/, options, packageScope)
+        new ExpressionEditor(bBox, (s) => {}, options, packageScope)
             .render(this.context.getOverlayContainer());
     }
 
