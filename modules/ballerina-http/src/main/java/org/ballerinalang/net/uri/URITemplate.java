@@ -19,6 +19,8 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.uri.parser.HttpNodeCreator;
+import org.ballerinalang.net.uri.parser.HttpNodeItem;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -32,9 +34,9 @@ import java.util.Map;
 
 public class URITemplate {
 
-    private Node syntaxTree;
+    private Node<HttpNodeItem> syntaxTree;
 
-    public URITemplate(Node syntaxTree) {
+    public URITemplate(Node<HttpNodeItem> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -43,14 +45,18 @@ public class URITemplate {
     }
 
     public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
-        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
+        HttpNodeItem nodeItem = syntaxTree.matchAll(uri, variables, 0);
+        if (nodeItem == null) {
+            return null;
+        }
+        return nodeItem.getItem(carbonMessage);
     }
 
     public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser parser = new URITemplateParser(syntaxTree);
-        parser.parse(uriTemplate, resource);
+        URITemplateParser<HttpNodeItem, HttpResource, HTTPCarbonMessage> parser = new URITemplateParser<>(syntaxTree);
+        parser.parse(uriTemplate, resource, new HttpNodeCreator());
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

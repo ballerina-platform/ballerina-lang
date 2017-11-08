@@ -30,12 +30,11 @@ import java.util.List;
 /**
  * Expression represents a expression path segment in uri.
  */
-public abstract class Expression extends Node {
+public abstract class Expression implements NodeExpression {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 
     public Expression(String token) throws URITemplateException {
-        super(token);
         int startIndex = 0;
         for (int i = 0; i < token.length(); i++) {
             if (token.charAt(i) == ',') {
@@ -54,7 +53,7 @@ public abstract class Expression extends Node {
     }
 
     @Override
-    String getToken() {
+    public String getToken() {
         String str = "{";
         boolean first = true;
         for (Variable var : variableList) {

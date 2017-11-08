@@ -24,24 +24,24 @@ import org.ballerinalang.net.uri.URITemplateException;
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
  */
-public class URITemplateParser {
+public class URITemplateParser<E extends NodeItem<ITEM, SUP>, ITEM, SUP> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node syntaxTree;
-    private Node currentNode;
+    private Node<E> syntaxTree;
+    private Node<E> currentNode;
 
-    public URITemplateParser(Node rootNode) {
+    public URITemplateParser(Node<E> rootNode) {
         this.syntaxTree = rootNode;
     }
 
-    public Node parse(String template, HttpResource resource) throws URITemplateException {
+    public Node parse(String template, ITEM resource, NodeCreator<E> nodeCreator) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
         if ("/".equals(template)) {
-            this.syntaxTree.setResource(resource);
+            this.syntaxTree.getNodeItem().setItem(resource);
             return syntaxTree;
         }
         String[] segments = template.split("/");
@@ -63,7 +63,7 @@ public class URITemplateParser {
                         }
                         expression = true;
                         if (pointerIndex > startIndex) {
-                            addNode(new Literal(segment.substring(startIndex, pointerIndex)));
+                            addNode(nodeCreator.createNode(new Literal(segment.substring(startIndex, pointerIndex))));
                             startIndex = pointerIndex + 1;
                             // TODO: Check whether we really need this.
                         /*} else if (segment.charAt(pointerIndex - 1) != '}') {
@@ -81,7 +81,7 @@ public class URITemplateParser {
                         }
                         expression = false;
                         String token = segment.substring(startIndex, pointerIndex);
-                        createExpressionNode(token, maxIndex, pointerIndex);
+                        createExpressionNode(token, maxIndex, pointerIndex, nodeCreator);
                         startIndex = pointerIndex + 1;
                         break;
                     case '*':
@@ -94,37 +94,37 @@ public class URITemplateParser {
                         if (pointerIndex == maxIndex) {
                             String tokenVal = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(tokenVal, maxIndex, pointerIndex);
+                                createExpressionNode(tokenVal, maxIndex, pointerIndex, nodeCreator);
                             } else {
-                                addNode(new Literal(tokenVal));
+                                addNode(nodeCreator.createNode(new Literal(tokenVal)));
                             }
                         }
                 }
             }
         }
-        this.currentNode.setResource(resource);
+        this.currentNode.getNodeItem().setItem(resource);
 
         return syntaxTree;
     }
 
-    private void addNode(Node node) {
+    private void addNode(Node<E> node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
-        if (node.getToken().equals("*")) {
-            currentNode = currentNode.addChild("." + node.getToken(), node);
+        if (node.getNodeExpression().getToken().equals("*")) {
+            currentNode = currentNode.addChild("." + node.getNodeExpression().getToken(), node);
         } else {
-            currentNode = currentNode.addChild(node.getToken(), node);
+            currentNode = currentNode.addChild(node.getNodeExpression().getToken(), node);
         }
     }
 
-    private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node node = null;
+    private void createExpressionNode(String expression, int maxIndex, int pointerIndex, NodeCreator<E> nodeCreator) throws URITemplateException {
+        Node<E> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
-                node = new SimpleStringExpression(expression);
+                node = nodeCreator.createNode(new SimpleStringExpression(expression));
             } else {
-                node = new SimpleSplitStringExpression(expression);
+                node = nodeCreator.createNode(new SimpleSplitStringExpression(expression));
             }
         }
 
@@ -134,13 +134,13 @@ public class URITemplateParser {
 
         // TODO: Re-verify the usage of these nodes
         if (expression.startsWith("#")) {
-            node = new FragmentExpression(expression.substring(1));
+            node = nodeCreator.createNode(new FragmentExpression(expression.substring(1)));
         } else if (expression.startsWith("+")) {
-            node = new ReservedStringExpression(expression.substring(1));
+            node = nodeCreator.createNode(new ReservedStringExpression(expression.substring(1)));
         } else if (expression.startsWith(".")) {
-            node = new LabelExpression(expression.substring(1));
+            node = nodeCreator.createNode(new LabelExpression(expression.substring(1)));
         } else if (expression.startsWith("/")) {
-            node = new PathSegmentExpression(expression.substring(1));
+            node = nodeCreator.createNode(new PathSegmentExpression(expression.substring(1)));
         }
 
         if (node != null) {

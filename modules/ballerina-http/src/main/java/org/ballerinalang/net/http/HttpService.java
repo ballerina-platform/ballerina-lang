@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
+import org.ballerinalang.net.uri.parser.HttpNodeCreator;
 import org.ballerinalang.net.uri.parser.Literal;
 
 import java.util.List;
@@ -87,7 +88,7 @@ public class HttpService {
 
     public URITemplate getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate(new Literal("/"));
+            uriTemplate = new URITemplate(new HttpNodeCreator().createNode(new Literal("/")));
         }
         return uriTemplate;
     }

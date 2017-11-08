@@ -21,6 +21,7 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,7 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         boolean emptyString = false;
         StringBuffer buffer = new StringBuffer();
         for (Variable var : variableList) {
@@ -68,11 +69,11 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
-            if (isReserved(ch) || isEndCharacter(ch)) {
+            if (isReserved(ch) || isEndCharacter(childNodesList, ch)) {
                 if (ch == getSeparator() && variableList.size() > 0) {
                     continue;
                 }
@@ -135,7 +136,7 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return '\u0001';
     }
 
@@ -148,9 +149,9 @@ public class SimpleSplitStringExpression extends Expression {
         return false;
     }
 
-    protected boolean isEndCharacter(Character endCharacter) {
+    protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
         for (Node childNode : childNodesList) {
-            if (endCharacter == childNode.getFirstCharacter()) {
+            if (endCharacter == childNode.getNodeExpression().getFirstCharacter()) {
                 return true;
             }
         }

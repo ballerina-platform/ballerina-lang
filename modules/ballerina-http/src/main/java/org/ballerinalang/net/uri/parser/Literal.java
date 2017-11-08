@@ -21,17 +21,19 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Literal represents literal path segments in the uri-template.
  */
-public class Literal extends Node {
+public class Literal implements NodeExpression {
 
     private int tokenLength = 0;
+    private final String token;
 
     public Literal(String token) throws URITemplateException {
-        super(token);
+        this.token = token;
         tokenLength = token.length();
         if (tokenLength == 0) {
             throw new URITemplateException("Invalid literal token with zero length");
@@ -39,12 +41,12 @@ public class Literal extends Node {
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         return token;
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
         if (!token.endsWith("*")) {
             if (uriFragment.length() < tokenLength) {
                 return -1;
@@ -75,12 +77,12 @@ public class Literal extends Node {
     }
 
     @Override
-    String getToken() {
+    public String getToken() {
         return token;
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return token.charAt(0);
     }
 }

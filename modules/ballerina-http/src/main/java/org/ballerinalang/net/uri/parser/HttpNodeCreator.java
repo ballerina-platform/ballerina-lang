@@ -18,23 +18,14 @@
 
 package org.ballerinalang.net.uri.parser;
 
-
-import org.ballerinalang.net.uri.URITemplateException;
-
-import java.util.List;
-
 /**
- * SimpleStringExpression represents path segments that have single path param.
- * ex - /{foo}/
+ * Created by irunika on 11/8/17.
  */
-public class SimpleStringExpression extends SimpleSplitStringExpression {
-
-    public SimpleStringExpression(String token) throws URITemplateException {
-        super(token);
-    }
-
+public class HttpNodeCreator implements NodeCreator<HttpNodeItem> {
     @Override
-    protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
-        return endCharacter == '/';
+    public Node<HttpNodeItem> createNode(NodeExpression expression) {
+        HttpNodeItem nodeItem = new HttpNodeItem();
+        Node<HttpNodeItem> node = new Node<>(nodeItem, expression);
+        return node;
     }
 }

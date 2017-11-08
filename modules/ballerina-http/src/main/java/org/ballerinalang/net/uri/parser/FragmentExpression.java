@@ -21,6 +21,7 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public class FragmentExpression extends ReservedStringExpression {
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         String result = super.expand(variables);
         if (result != null) {
             return getFirstCharacter() + result;
@@ -42,15 +43,15 @@ public class FragmentExpression extends ReservedStringExpression {
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
         if (uriFragment.startsWith(String.valueOf(getFirstCharacter()))) {
-            return super.match(uriFragment.substring(1), variables) + 1;
+            return super.match(childNodesList, uriFragment.substring(1), variables) + 1;
         }
         return 0;
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return '#';
     }
 }
