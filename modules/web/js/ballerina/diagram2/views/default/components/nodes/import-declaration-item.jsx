@@ -17,7 +17,13 @@
  */
 
 import React from 'react';
+import log from 'log';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import './import-declaration-item.css';
+import TreeBuilder from './../../../../../model/tree-builder';
+import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import { parseContent } from './../../../../../../api-client/api-client';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {
@@ -28,6 +34,7 @@ export default class importDeclarationItem extends React.Component {
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
+        this.getImportedPackageName = this.getImportedPackageName.bind(this);
     }
 
     handleDeleteClick() {
@@ -42,6 +49,58 @@ export default class importDeclarationItem extends React.Component {
         this.setState({ highlighted: false });
     }
 
+    getImportedPackageName() {
+        const model = this.props.importDec;
+        let importPkgName = model.parent.getPackageName(model);
+        const pkgIdentifier = importPkgName.split('.');
+        const pkgAliasName = pkgIdentifier[pkgIdentifier.length - 1];
+        if (model.getAlias() !== undefined && model.getAlias().value !== pkgAliasName) {
+            importPkgName = importPkgName + ' as ' + model.getAlias().value;
+        }
+        return importPkgName;
+    }
+
+    setEditedSource(value) {
+        const oldNode = this;
+        // If there is a semi-colon at the end of the import, remove it
+        value = _.trimEnd(value, ';');
+        value = `import ${value};\n`;
+        parseContent(value)
+            .then((jsonTree) => {
+                if (jsonTree.model.topLevelNodes[0]) {
+                    this.parent.replaceTopLevelNodes(oldNode,
+                        TreeBuilder.build(jsonTree.model.topLevelNodes[0], this.parent, this.parent.kind));
+                }
+            })
+            .catch(log.error);
+    }
+    /**
+     * renders an ExpressionEditor in the selected import area which can be edited
+     * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
+     */
+    openEditor(bBox) {
+        const editorOuterPadding = 10;
+        const setterFunc = this.setEditedSource;
+        const options = {
+            propertyType: 'text',
+            key: 'Import',
+            model: this.props.importDec,
+            getterMethod: this.getImportedPackageName,
+            setterMethod: setterFunc,
+        };
+
+        const editorBBox = {
+            x: (bBox.x + (editorOuterPadding / 2)),
+            y: bBox.y,
+            h: bBox.h,
+            w: (bBox.w - editorOuterPadding),
+        };
+
+        const packageScope = this.context.enviornment;
+
+        new ExpressionEditor(editorBBox, (s) => {} /* no-op */, options, packageScope)
+            .render(this.context.getOverlayContainer());
+    }
     render() {
         const { x, y, w, h } = this.props.bBox;
         const leftPadding = 10;
@@ -58,19 +117,16 @@ export default class importDeclarationItem extends React.Component {
             className = 'package-declaration-item-hightlighted';
         }
 
-        let importPkgName = this.props.importDec.parent.getPackageName(this.props.importDec);
-        const pkgIdentifier = importPkgName.split('.');
-        const pkgAliasName = pkgIdentifier[pkgIdentifier.length - 1];
-        if (this.props.importDec.getAlias() !== undefined && this.props.importDec.getAlias().value !== pkgAliasName) {
-            importPkgName = importPkgName + ' as ' + this.props.importDec.getAlias().value;
-        }
+        const importPkgName = this.getImportedPackageName(this.props.importDec);
         return (
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
                 <title> {importPkgName}</title>
-                <rect x={x} y={y} height={h} width={w} className="background" />
-                <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="import-definition-text">
-                    {importPkgName}
-                </text>
+                <g onClick={(e) => { this.openEditor(this.props.bBox); }}>
+                    <rect x={x} y={y} height={h} width={w} className="background" />
+                    <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="import-definition-text">
+                        {importPkgName}
+                    </text>
+                </g>
                 <rect
                     x={x + w - 30}
                     y={y}
@@ -90,3 +146,7 @@ export default class importDeclarationItem extends React.Component {
         );
     }
 }
+
+importDeclarationItem.contextTypes = {
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+};
