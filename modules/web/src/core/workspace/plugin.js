@@ -168,7 +168,7 @@ class WorkspacePlugin extends Plugin {
     isFilePathOpenedInExplorer(filePath) {
         return this.openedFolders.find((folder) => {
             return filePath.startsWith(folder);
-        });
+        }) !== undefined;
     }
 
     /**

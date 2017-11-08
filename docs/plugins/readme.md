@@ -216,6 +216,8 @@ Below are the APIs from core plugins which are available through appContext.
     - closeFile(filePath)
     - closeFolder(filePath)
     - goToFileInExplorer(filePath) : Scroll to given file in explorer - if a matching parent folder is opened already
+    - isFilePathOpenedInExplorer(filePath) : Returns true if a parent folder containing given path is opened in explorer
+    - refreshPathInExplorer(filePath) : Refresh the explorer item for given path if a parent folder of it is already opened
 
 ## Available extension points
 
