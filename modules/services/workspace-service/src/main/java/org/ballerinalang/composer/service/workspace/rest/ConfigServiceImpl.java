@@ -18,6 +18,7 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.PluginConstants;
 import org.slf4j.Logger;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -272,8 +275,17 @@ public class ConfigServiceImpl {
         if (balHome == null) {
             balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
         }
-    
         if (null != balHome) {
+            // On windows, the path comes as a short path with some pieces are replaced
+            // by ~ char. Using this path from client side causes issues with some derived
+            // paths for further actions
+            if (SystemUtils.IS_OS_WINDOWS) {
+                try {
+                    balHome = Paths.get(balHome).toRealPath().toString();
+                } catch (IOException e) {
+                    log.error("Error while resolving long path from short path", e);
+                }
+            }
             welcomeTabPluginConfig.addProperty("balHome", balHome);
         }
     

@@ -80,7 +80,8 @@ class ForkJoinNode extends React.Component {
         }
 
         const forkJoinNode = this.props.model;
-        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
+        const valueSansColon = value.replace(/;\s*$/, '');
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(valueSansColon));
         const newTimeoutParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
         newTimeoutParameter.clearWS();
         forkJoinNode.setTimeOutVariable(newTimeoutParameter);
@@ -98,7 +99,8 @@ class ForkJoinNode extends React.Component {
         }
 
         const forkJoinNode = this.props.model;
-        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(value));
+        const valueSansColon = value.replace(/;\s*$/, '');
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(valueSansColon));
         const newJoinParameter = TreeBuilder.build(parsedJson, forkJoinNode, forkJoinNode.kind);
         newJoinParameter.clearWS();
         forkJoinNode.setJoinResultVar(newJoinParameter);
@@ -124,11 +126,12 @@ class ForkJoinNode extends React.Component {
         }
 
         const forkJoinNode = this.props.model;
-        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createJoinCondition(value));
+        const valueSansColon = value.replace(/;\s*$/, '');
+        const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createJoinCondition(valueSansColon));
         const newJoinNode = TreeBuilder.build(parsedJson);
         newJoinNode.clearWS();
-        forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers());
-        forkJoinNode.setJoinType(newJoinNode.getJoinType());
+        forkJoinNode.setJoinedWorkerIdentifiers(newJoinNode.getJoinedWorkerIdentifiers(), true);
+        forkJoinNode.setJoinType(newJoinNode.getJoinType(), true);
         forkJoinNode.setJoinCount(newJoinNode.getJoinCount());
         return null;
     }

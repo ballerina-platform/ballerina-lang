@@ -142,7 +142,7 @@ class TreeUtil extends AbstractTreeUtil {
             }
 
             if (structNodes.length > 0) {
-                for (let i = 1; i <= structNodes.length; i++) {
+                for (let i = 1; i <= structNodes.length + 1; i++) {
                     if (!names[`${structDefaultName}${i}`]) {
                         node.getName().setValue(`${structDefaultName}${i}`, true);
                         node.setName(node.getName(), true);

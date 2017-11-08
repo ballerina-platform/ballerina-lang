@@ -403,12 +403,20 @@ class PositioningUtil {
 
         let xindex = (workers.length > 0) ? cmp.defaultWorker.x :
                         cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+
+        let maxLifeLineHeight = cmp.defaultWorker.h;
         // Position Workers
-        if (workers instanceof Array) {
+        if (workers instanceof Array && !_.isEmpty(workers)) {
+            const maxHeightWorker = _.maxBy(workers, (worker) => {
+                return worker.viewState.components.lifeLine.h;
+            });
+            maxLifeLineHeight = Math.max(maxLifeLineHeight, maxHeightWorker.viewState.components.lifeLine.h);
+            cmp.defaultWorker.h = maxLifeLineHeight;
             workers.forEach((worker) => {
                 worker.viewState.bBox.x = xindex;
                 worker.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
+                worker.viewState.components.lifeLine.h = maxLifeLineHeight;
             });
         }
 
@@ -1091,11 +1099,16 @@ class PositioningUtil {
         // Position Workers
         let xIndex = bBox.x + this.config.fork.padding.left + this.config.fork.lifeLineGutterH;
         const yIndex = bBox.y + this.config.fork.padding.top;
-        if (node.workers instanceof Array) {
+        if (node.workers instanceof Array && !_.isEmpty(node.workers)) {
+            const maxHeightWorker = _.maxBy(node.workers, (worker) => {
+                return worker.viewState.components.lifeLine.h;
+            });
+            const maxWorkerHeight = maxHeightWorker.viewState.components.lifeLine.h;
             node.workers.forEach((worker) => {
                 worker.viewState.bBox.x = xIndex;
                 worker.viewState.bBox.y = yIndex;
                 xIndex += this.config.fork.lifeLineGutterH + worker.viewState.bBox.w;
+                worker.viewState.components.lifeLine.h = maxWorkerHeight;
             });
         }
 

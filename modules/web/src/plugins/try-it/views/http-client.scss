@@ -274,9 +274,28 @@
     }
 }
 
-.http-client-response-attributes span{
-    padding-top: 5px;
-    color:#5cb85c;
+.http-client-response-attributes {
+    span {
+        padding-top: 5px;
+    }
+    .attribute-value {
+        padding-left: 5px;
+    }
+    .http-status-code-blue {
+        color: #03A9F4;
+    }
+    .http-status-code-green {
+        color: #8BC34A;
+    }
+    .http-status-code-purple {
+        color: #E040FB;
+    }
+    .http-status-code-yellow {
+        color: #FFEB3B;
+    }
+    .http-status-code-red {
+        color: #F44336;
+    }
 }
 
 hr{

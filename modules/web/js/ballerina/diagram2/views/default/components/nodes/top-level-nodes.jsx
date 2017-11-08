@@ -95,6 +95,8 @@ class TopLevelNodes extends React.Component {
             this.props.model.viewState.packageDefExpanded = false;
         }
         if (this.packageDefValue) {
+            // If there is a semi-colon at the end of the package name, remove it
+            this.packageDefValue = _.trimEnd(this.packageDefValue, ';');
             const pkgName = `package ${this.packageDefValue};`;
             const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
             const parsedJson = FragmentUtils.parseFragment(fragment);

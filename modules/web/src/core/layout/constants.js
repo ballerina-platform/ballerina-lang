@@ -4,12 +4,14 @@ export const COMMANDS = {
     SHOW_VIEW: 'show-view',
     HIDE_VIEW: 'hide-view',
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+    TOGGLE_LEFT_PANEL: 'toggle-left-panel',
     SHOW_BOTTOM_PANEL: 'show-bottom-panel',
     RE_RENDER_PLUGIN: 're-render-plugin',
     UPDATE_ALL_ACTION_TRIGGERS: 'update-all-action-triggers',
 };
 
 export const EVENTS = {
+    TOGGLE_LEFT_PANEL: 'toggle-left-panel',
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
     SHOW_BOTTOM_PANEL: 'show-bottom-panel',
     SHOW_LEFT_PANEL: 'show-left-panel',
@@ -18,11 +20,13 @@ export const EVENTS = {
 export const LABELS = {
     VIEW: 'View',
     TOGGLE_BOTTOM_PANLEL: 'Toggle Bottom Panel',
+    TOGGLE_LEFT_PANLEL: 'Toggle Left Panel',
 };
 
 export const MENUS = {
     VIEW_MENU: 'composer.menu.layout.view',
     TOGGLE_BOTTOM_PANEL: 'composer.menu.layout.toggle-bottom-panel',
+    TOGGLE_LEFT_PANEL: 'composer.menu.layout.toggle-left-panel',
 };
 
 export const HISTORY = {
@@ -31,6 +35,7 @@ export const HISTORY = {
     ACTIVE_LEFT_PANEL_VIEW: 'active-left-panel-view',
     ACTIVE_BOTTOM_PANEL_VIEW: 'active-bottom-panel-view',
     BOTTOM_PANEL_IS_ACTIVE: 'bottom-panel-is-active',
+    LEFT_PANEL_IS_ACTIVE: 'left-panel-is-active',
 };
 
 export const REGIONS = {

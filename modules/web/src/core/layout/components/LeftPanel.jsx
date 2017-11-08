@@ -180,7 +180,9 @@ class LeftPanel extends React.Component {
         const tabs = [];
         const panes = [];
         const { views, onActiveViewChange, ...restProps } = this.props;
-        const activeViewPrev = this.props.activeView || this.context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW);
+        const activeViewPrev = this.props.activeView
+                    || this.context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW)
+                    || (this.props.show && views[0] ? views[0].id : '');
         views.forEach((viewDef) => {
             const {
                     id,
@@ -197,7 +199,7 @@ class LeftPanel extends React.Component {
             const propsForTab = {
                 viewDef,
                 ...restProps,
-                isActive: activeViewPrev === id,
+                isActive: this.props.show && activeViewPrev === id,
             };
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
@@ -210,7 +212,7 @@ class LeftPanel extends React.Component {
                 <div>
                     <Tab.Container
                         id="activity-bar-tabs"
-                        activeKey={activeViewPrev}
+                        activeKey={this.props.show ? activeViewPrev : ''}
                         onSelect={(key) => {
                             const activeView = activeViewPrev !== key ? key : null;
                             // if same tab is selected, disable tabs
@@ -225,7 +227,7 @@ class LeftPanel extends React.Component {
                                 </Nav>
                             </ActivityBar>
                             <Tab.Content animation>
-                                {panes}
+                                {this.props.show && panes}
                             </Tab.Content>
                         </div>
                     </Tab.Container>
@@ -236,6 +238,7 @@ class LeftPanel extends React.Component {
 }
 
 LeftPanel.propTypes = {
+    show: PropTypes.bool.isRequired,
     onActiveViewChange: PropTypes.func.isRequired,
     views: PropTypes.arrayOf(Object).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
