@@ -92,6 +92,7 @@ export function withDialogContext(Dialog, appContext) {
                 command: appContext.command,
                 alert: appContext.alert,
                 editor: appContext.editor,
+                workspace: appContext.workspace,
             };
         }
 
@@ -124,6 +125,11 @@ export function withDialogContext(Dialog, appContext) {
             setActiveEditor: PropTypes.func,
             getActiveEditor: PropTypes.func,
             closeEditor: PropTypes.func,
+        }).isRequired,
+        workspace: PropTypes.shape({
+            isFilePathOpenedInExplorer: PropTypes.func,
+            refreshPathInExplorer: PropTypes.func,
+            goToFileInExplorer: PropTypes.func,
         }).isRequired,
     };
 

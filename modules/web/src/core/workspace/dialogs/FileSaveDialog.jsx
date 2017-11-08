@@ -89,6 +89,10 @@ class FileSaveDialog extends React.Component {
                     file.isPersisted = true;
                     file.isDirty = false;
                     this.props.onSaveSuccess();
+                    if (this.context.workspace.isFilePathOpenedInExplorer(derivedFilePath)) {
+                        this.context.workspace.refreshPathInExplorer(derivedFilePath);
+                        this.context.workspace.goToFileInExplorer(file.fullPath);
+                    }
                 })
                 .catch((error) => {
                     this.setState({
@@ -259,6 +263,15 @@ class FileSaveDialog extends React.Component {
         );
     }
 }
+
+FileSaveDialog.contextTypes = {
+    workspace: PropTypes.shape({
+        isFilePathOpenedInExplorer: PropTypes.func,
+        refreshPathInExplorer: PropTypes.func,
+        goToFileInExplorer: PropTypes.func,
+    }).isRequired,
+};
+
 
 FileSaveDialog.propTypes = {
     file: PropTypes.objectOf(Object).isRequired,
