@@ -330,7 +330,7 @@ class WorkspacePlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
                                 },
-                                description: 'Open Folder',
+                                description: 'Open Directory',
                             },
                         ],
                     },
