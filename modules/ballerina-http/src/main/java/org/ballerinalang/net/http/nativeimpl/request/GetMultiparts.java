@@ -24,6 +24,6 @@ public class GetMultiparts extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getMultipartData(context, this, true);
+        return getBValues(HttpUtil.getMultipartData(context, this, true));
     }
 }
