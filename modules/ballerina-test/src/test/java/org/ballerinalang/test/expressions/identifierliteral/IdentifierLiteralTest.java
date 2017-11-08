@@ -210,8 +210,8 @@ public class IdentifierLiteralTest {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 4);
-		Assert.assertTrue(resultNeg.getDiagnostics()[0]
-				.getMessage().startsWith("token recognition error at: '| = \"dfs\";"));
+        Assert.assertTrue(
+                resultNeg.getDiagnostics()[0].getMessage().startsWith("token recognition error at: '| = \"dfs\";"));
         BAssertUtil.validateError(resultNeg, 1, "missing token ';' before 'var'", 3, 22);
         BAssertUtil.validateError(resultNeg, 2, "extraneous input 'return'", 4, 5);
         BAssertUtil.validateError(resultNeg, 3, "mismatched input ';'. expecting {'.', ',', '[', '=', '@'}",
