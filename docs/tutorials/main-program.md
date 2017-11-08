@@ -62,10 +62,9 @@ In the case of the **HTTPClient** connector you are using in this tutorial, the 
 1. Add an action by dragging one of the actions from the tool palette onto the canvas. In this instance, you need to add a GET action as this is a GET request to the weather forecast API. Drag and drop the GET action under the main program you added.
     ![alt text](../images/AddGetHTTP.gif)    
    This calls the connector from the main program and can be visualized via an arrow to the connector from the action.
-    ![alt text](../images/ConnectingAction.gif)
 1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
 
-    ![alt text](../images/AddVariable.gif)
+    ![alt text](../images/AddVariableNew.gif)
 1. Define a message in the variable you just added. Curly brackets **{}** are used to denote an empty message. The default message is defined as the letter **m**.
 
     ![alt text](../images/DefineMessage.png)
