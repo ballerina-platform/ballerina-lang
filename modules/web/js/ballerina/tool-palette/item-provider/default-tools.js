@@ -106,8 +106,7 @@ const tools = [
         icon: 'variable',
         title: 'Variable Definition',
         nodeFactoryMethod: DefaultNodeFactory.createVarDefStmt,
-        description: 'Statements which can be added anywhere a statement is allowed.'
-        + '\n They can be interspersed with other statements in any order',
+        description: 'Statements that can be added and positioned in any order',
     },
     {
         id: 'Assignment',
