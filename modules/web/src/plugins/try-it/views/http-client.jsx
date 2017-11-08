@@ -453,15 +453,15 @@ class HttpClient extends React.Component {
      */
     getStatusCodeClass(httpCode) {
         if (/1\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-blue';
+            return 'http-status-code-1__';
         } else if (/2\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-green';
+            return 'http-status-code-2__';
         } else if (/3\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-purple';
+            return 'http-status-code-3__';
         } else if (/4\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-yellow';
+            return 'http-status-code-4__';
         } else if (/5\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-red';
+            return 'http-status-code-5__';
         }
         return '';
     }
