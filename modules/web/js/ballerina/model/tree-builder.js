@@ -117,6 +117,10 @@ class TreeBuilder {
             node.root = true;
         }
 
+        if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
+            node.builtin = true;
+        }
+
         if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
             parentKind === 'StringTemplateLiteral') {
             node.inTemplateLiteral = true;

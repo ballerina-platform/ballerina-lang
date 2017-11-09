@@ -254,6 +254,7 @@ class AnnotationHelper {
     }
 
     static resolveFullPackageName(astRoot, alias) {
+        let fullPkgName;
         let packageName = [];
         astRoot.getImports().forEach((importNode) => {
             if (importNode.getAlias().getValue() === alias) {
@@ -262,8 +263,12 @@ class AnnotationHelper {
                 });
             }
         });
-
-        return packageName.join('.');
+        if (alias === 'builtin') {
+            fullPkgName = 'ballerina.builtin';
+        } else {
+            fullPkgName = packageName.join('.');
+        }
+        return fullPkgName;
     }
 
     static generateDefaultValue(type) {

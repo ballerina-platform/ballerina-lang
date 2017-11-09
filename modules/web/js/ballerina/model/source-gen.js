@@ -112,7 +112,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + '}';
             }
         case 'AnnotationAttachment':
-            if (node.packageAlias.value && node.annotationName.value
+            if (node.builtin && node.annotationName.value && node.attributes) {
+                return dent() + w() + '@' + w() + node.annotationName.value + w(' ')
+                 + '{' + indent()
+                 + join(node.attributes, pretty, replaceLambda, l, w, '', ',') + outdent() + w() + '}';
+            } else if (node.packageAlias.value && node.annotationName.value
                          && node.attributes) {
                 return dent() + w() + '@' + w() + node.packageAlias.value + w() + ':'
                  + w() + node.annotationName.value + w(' ') + '{' + indent()

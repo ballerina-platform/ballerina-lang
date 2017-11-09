@@ -23,8 +23,9 @@ Annotation
    ;
 
 AnnotationAttachment
-   : @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
-   | @ <annotationName.value> { <attributes-joined-by,>* }
+   : <builtin?> @                        <annotationName.value> { <attributes-joined-by,>* }
+   :            @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
+   |            @ <annotationName.value>                        { <attributes-joined-by,>* }
    ;
 
 AnnotationAttachmentAttribute
