@@ -38,6 +38,7 @@ class ExplorerItem extends React.Component {
         this.onRefreshProjectFolderClick = this.onRefreshProjectFolderClick.bind(this);
         this.refresh = this.refresh.bind(this);
         this.isDOMElementVisible = this.isDOMElementVisible.bind(this);
+        this.refreshPathInExplorer = this.refreshPathInExplorer.bind(this);
     }
 
     /**
@@ -46,6 +47,7 @@ class ExplorerItem extends React.Component {
     componentDidMount() {
         const { command: { on } } = this.context;
         on(COMMANDS.REFRESH_EXPLORER, this.refresh);
+        on(COMMANDS.REFRESH_PATH_IN_EXPLORER, this.refreshPathInExplorer);
     }
 
     /**
@@ -67,6 +69,7 @@ class ExplorerItem extends React.Component {
     componentWillUnmount() {
         const { command: { off } } = this.context;
         off(COMMANDS.REFRESH_EXPLORER, this.refresh);
+        off(COMMANDS.REFRESH_PATH_IN_EXPLORER, this.refreshPathInExplorer);
     }
 
     /**
@@ -95,6 +98,15 @@ class ExplorerItem extends React.Component {
         this.refresh();
         e.stopPropagation();
         e.preventDefault();
+    }
+
+    /**
+     * On Refresh Project Folder
+     */
+    refreshPathInExplorer({ filePath }) {
+        if (filePath.startsWith(this.props.folderPath)) {
+            this.refresh();
+        }
     }
 
     /**

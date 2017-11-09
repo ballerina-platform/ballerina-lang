@@ -140,6 +140,17 @@ class WorkspacePlugin extends Plugin {
     }
 
     /**
+     * Refresh Path in Explorer, if it's already opened
+     * @param {String} filePath Target File Path
+     */
+    refreshPathInExplorer(filePath) {
+        const { command: { dispatch } } = this.appContext;
+        dispatch(COMMAND_IDS.REFRESH_PATH_IN_EXPLORER, {
+            filePath,
+        });
+    }
+
+    /**
      * Go To Give File in Explorer, if it's already opened
      * @param {String} filePath Target File Path
      */
@@ -148,6 +159,16 @@ class WorkspacePlugin extends Plugin {
         dispatch(COMMAND_IDS.GO_TO_FILE_IN_EXPLORER, {
             filePath,
         });
+    }
+
+    /**
+     * Checks whether the given path is opened in explorer
+     * @param {String} filePath target path
+     */
+    isFilePathOpenedInExplorer(filePath) {
+        return this.openedFolders.find((folder) => {
+            return filePath.startsWith(folder);
+        }) !== undefined;
     }
 
     /**
@@ -231,6 +252,8 @@ class WorkspacePlugin extends Plugin {
             closeFile: this.closeFile.bind(this),
             removeFolder: this.removeFolder.bind(this),
             goToFileInExplorer: this.goToFileInExplorer.bind(this),
+            isFilePathOpenedInExplorer: this.isFilePathOpenedInExplorer.bind(this),
+            refreshPathInExplorer: this.refreshPathInExplorer.bind(this),
         };
     }
 
@@ -307,7 +330,7 @@ class WorkspacePlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
                                 },
-                                description: 'Open Folder',
+                                description: 'Open Directory',
                             },
                         ],
                     },
