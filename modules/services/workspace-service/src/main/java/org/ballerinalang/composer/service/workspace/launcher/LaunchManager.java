@@ -49,7 +49,7 @@ public class LaunchManager {
     private Command command;
 
     private String startedServiceURL;
-    
+
     private String port = StringUtils.EMPTY;
 
     /**
@@ -232,13 +232,16 @@ public class LaunchManager {
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
+     *
      * @return operating system
      */
     private String getOperatingSystem() {
         if (LaunchUtils.isWindows()) {
             return "windows";
-        } else if (LaunchUtils.isMac() || LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {
+        } else if (LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {
             return "unix";
+        } else if (LaunchUtils.isMac()) {
+            return "mac";
         }
         return null;
     }
@@ -304,23 +307,25 @@ public class LaunchManager {
         message.setMessage(text);
         pushMessageToClient(session, message);
     }
-    
+
     /**
      * Gets the port of the from console log that starts with
      * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL
+     *
      * @param line The log line.
      */
     private void updatePort(String line) {
         String hostPort = StringUtils.substringAfterLast(line,
-                                            LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
+                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
         String port = StringUtils.substringAfterLast(hostPort, ":");
         if (StringUtils.isNotBlank(port)) {
             this.port = port;
         }
     }
-    
+
     /**
      * Getter for running port.
+     *
      * @return The port.
      */
     public String getPort() {
