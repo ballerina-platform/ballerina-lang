@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WsConnectionInfo;
 import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -168,7 +169,8 @@ public class NativeFunctionsTestCase {
                 Constants.WEBSOCKET_PACKAGE_NAME, Constants.STRUCT_WEBSOCKET_CONNECTION);
         testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
-        WebSocketConnectionManager.getInstance().addConnection(testSessionID, testParentWsConnection);
+        WsConnectionInfo connectionInfo = new WsConnectionInfo(testParentWsConnection, null);
+        WebSocketConnectionManager.getInstance().addConnection(testSessionID, connectionInfo);
 
         // Test the original WebSocket connection.
         BValue[] inputBValues = {wsConnection};

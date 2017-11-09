@@ -177,9 +177,10 @@ public class WebSocketServiceValidator {
 
     private static void validateParamDetailsSize(List<ParamDetail> paramDetails,
                                                  int expectedSize, String resourceName) {
-        if (paramDetails == null || paramDetails.size() < expectedSize || paramDetails.size() > expectedSize) {
+        if (paramDetails == null || paramDetails.size() < expectedSize) {
             throw new BallerinaException(String.format("Invalid resource signature for %s", resourceName));
         }
+        // TODO: 11/9/17 Validate the path param variables.
     }
 
     private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,

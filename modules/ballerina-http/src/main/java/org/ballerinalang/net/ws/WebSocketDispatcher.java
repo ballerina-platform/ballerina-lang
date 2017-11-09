@@ -82,7 +82,7 @@ public class WebSocketDispatcher {
         if (onTextMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(textMessage);
+        BStruct wsConnection = getWSConnection(textMessage).getWsConnection();
 
         BStruct wsTextFrame = wsService.createTextFrameStruct();
         wsTextFrame.setStringField(0, textMessage.getText());
@@ -102,7 +102,7 @@ public class WebSocketDispatcher {
         if (onBinaryMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(binaryMessage);
+        BStruct wsConnection = getWSConnection(binaryMessage).getWsConnection();
         BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
         byte[] data = binaryMessage.getByteArray();
         wsBinaryFrame.setBlobField(0, data);
@@ -133,7 +133,7 @@ public class WebSocketDispatcher {
         if (onPingMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
         BStruct wsPingFrame = wsService.createPingFrameStruct();
         byte[] data = controlMessage.getByteArray();
         wsPingFrame.setBlobField(0, data);
@@ -148,7 +148,7 @@ public class WebSocketDispatcher {
         if (onPongMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
         BStruct wsPongFrame = wsService.createPongFrameStruct();
         byte[] data = controlMessage.getByteArray();
         wsPongFrame.setBlobField(0, data);
@@ -163,7 +163,7 @@ public class WebSocketDispatcher {
         if (onCloseResource == null) {
             return;
         }
-        BStruct wsConnection = removeConnection(closeMessage);
+        BStruct wsConnection = removeConnection(closeMessage).getWsConnection();
         BStruct wsCloseFrame = wsService.createCloseFrameStruct();
         wsCloseFrame.setIntField(0, closeMessage.getCloseCode());
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
@@ -179,17 +179,17 @@ public class WebSocketDispatcher {
         if (onIdleTimeoutResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
         BValue[] bValues = {wsConnection};
         ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    private static BStruct getWSConnection(WebSocketMessage webSocketMessage) {
-        return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
+    private static WsConnectionInfo getWSConnection(WebSocketMessage webSocketMessage) {
+        return WebSocketConnectionManager.getInstance().getConnectionInfo(webSocketMessage.getChannelSession().getId());
     }
 
-    private static BStruct removeConnection(WebSocketMessage webSocketMessage) {
+    private static WsConnectionInfo removeConnection(WebSocketMessage webSocketMessage) {
         return WebSocketConnectionManager.getInstance().removeConnection(webSocketMessage.getChannelSession().getId());
     }
 }

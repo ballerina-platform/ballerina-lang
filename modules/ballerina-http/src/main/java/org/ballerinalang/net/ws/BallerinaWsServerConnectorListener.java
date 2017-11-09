@@ -39,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -100,38 +101,42 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {
-                    handleHandshake(webSocketInitMessage, wsService);
+                    handleHandshake(webSocketInitMessage, wsServiceInfo);
                 }
             } catch (InterruptedException e) {
                 throw new BallerinaConnectorException("Connection interrupted during handshake");
             }
 
         } else {
-            handleHandshake(webSocketInitMessage, wsService);
+            handleHandshake(webSocketInitMessage, wsServiceInfo);
         }
     }
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketTextMessage);
+        WebSocketServiceInfo wsService = WebSocketConnectionManager.getInstance().
+                getConnectionInfo(webSocketTextMessage.getSessionID()).getServiceInfo();
         WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketBinaryMessage);
+        WebSocketServiceInfo wsService = WebSocketConnectionManager.getInstance().
+                getConnectionInfo(webSocketBinaryMessage.getSessionID()).getServiceInfo();
         WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketControlMessage);
+        WebSocketServiceInfo wsService = WebSocketConnectionManager.getInstance().
+                getConnectionInfo(webSocketControlMessage.getSessionID()).getServiceInfo();
         WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketCloseMessage);
+        WebSocketServiceInfo wsService = WebSocketConnectionManager.getInstance().
+                getConnectionInfo(webSocketCloseMessage.getSessionID()).getServiceInfo();
         WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
@@ -142,12 +147,14 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(controlMessage);
+        WebSocketServiceInfo wsService = WebSocketConnectionManager.getInstance().
+                getConnectionInfo(controlMessage.getSessionID()).getServiceInfo();
         WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 
-    private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
+    private void handleHandshake(WebSocketInitMessage initMessage, WebSocketServiceInfo wsServiceInfo) {
+        WebSocketService wsService = wsServiceInfo.getWsService();
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
@@ -159,7 +166,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
                 wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
 
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
+                WsConnectionInfo connectionInfo = new WsConnectionInfo(wsConnection, wsServiceInfo);
+                WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
 
                 Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
                 BValue[] bValues = {wsConnection};
