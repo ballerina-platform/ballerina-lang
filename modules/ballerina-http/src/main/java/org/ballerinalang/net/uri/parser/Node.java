@@ -25,25 +25,27 @@ import java.util.Map;
 
 /**
  * Node represents different types of path segments in the uri-template.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class Node<T extends NodeItem> {
+public class Node<NODE_ITEM extends NodeItem> {
 
-    private final T item;
-    private final List<Node<T>> childNodesList = new LinkedList<>();
-    private NodeExpression nodeExpression;
+    private final NODE_ITEM nodeItem;
+    private final List<Node<NODE_ITEM>> childNodesList = new LinkedList<>();
+    private final PathSegment pathSegment;
 
-    protected Node(T nodeItem, NodeExpression nodeExpression) {
-        this.item = nodeItem;
-        this.nodeExpression = nodeExpression;
+    public Node(NODE_ITEM nodeItem, PathSegment pathSegment) {
+        this.nodeItem = nodeItem;
+        this.pathSegment = pathSegment;
     }
 
-    public NodeExpression getNodeExpression() {
-        return this.nodeExpression;
+    public PathSegment getPathSegment() {
+        return this.pathSegment;
     }
 
-    public Node<T> addChild(String segment, Node<T> childNode) {
-        Node<T> node = childNode;
-        Node<T> existingNode = isAlreadyExist(segment, childNodesList);
+    public Node<NODE_ITEM> addChild(String segment, Node<NODE_ITEM> childNode) {
+        Node<NODE_ITEM> node = childNode;
+        Node<NODE_ITEM> existingNode = isAlreadyExist(segment, childNodesList);
         if (existingNode != null) {
             node = existingNode;
         } else {
@@ -55,17 +57,17 @@ public class Node<T extends NodeItem> {
         return node;
     }
 
-    public T getNodeItem() {
-        return this.item;
+    public NODE_ITEM getNodeItem() {
+        return this.nodeItem;
     }
 
-    public T matchAll(String uriFragment, Map<String, String> variables, int start) {
-        int matchLength = nodeExpression.match(childNodesList, uriFragment, variables);
+    public NODE_ITEM matchAll(String uriFragment, Map<String, String> variables, int start) {
+        int matchLength = pathSegment.match(childNodesList, uriFragment, variables);
         if (matchLength < 0) {
             return null;
         }
         if (matchLength == uriFragment.length()) {
-            return item;
+            return nodeItem;
         }
         if (matchLength >= uriFragment.length()) {
             return null;
@@ -73,41 +75,41 @@ public class Node<T extends NodeItem> {
         String subUriFragment = nextURIFragment(uriFragment, matchLength);
         String subPath = nextSubPath(subUriFragment);
 
-        T resource;
-        for (Node<T> childNode : childNodesList) {
-            if (childNode.getNodeExpression() instanceof Literal) {
-                String regex = childNode.getNodeExpression().getToken();
+        NODE_ITEM nodeItem;
+        for (Node<NODE_ITEM> childNode : childNodesList) {
+            if (childNode.getPathSegment() instanceof Literal) {
+                String regex = childNode.getPathSegment().getToken();
                 if (regex.equals("*")) {
                     regex = "." + regex;
                     if (!subPath.matches(regex)) {
                         continue;
                     }
-                    resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                    if (resource != null) {
-                        return resource;
+                    nodeItem = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                    if (nodeItem != null) {
+                        return nodeItem;
                     }
                     continue;
                 }
                 if (!subPath.contains(regex)) {
                     continue;
                 }
-                resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                if (resource != null) {
-                    return resource;
+                nodeItem = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                if (nodeItem != null) {
+                    return nodeItem;
                 }
                 continue;
             }
-            resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
-            if (resource != null) {
-                return resource;
+            nodeItem = childNode.matchAll(subUriFragment, variables, start + matchLength);
+            if (nodeItem != null) {
+                return nodeItem;
             }
         }
         return null;
     }
 
-    private Node<T> isAlreadyExist(String token, List<Node<T>> childList) {
-        for (Node<T> node : childList) {
-            if (node.getNodeExpression().getToken().equals(token)) {
+    private Node<NODE_ITEM> isAlreadyExist(String token, List<Node<NODE_ITEM>> childList) {
+        for (Node<NODE_ITEM> node : childList) {
+            if (node.getPathSegment().getToken().equals(token)) {
                 return node;
             }
         }
@@ -115,17 +117,17 @@ public class Node<T extends NodeItem> {
         return null;
     }
 
-    private int getIntValue(Node<T> node) {
-        if (node.getNodeExpression() instanceof Literal) {
-            if (node.getNodeExpression().getToken().equals("*")) {
+    private int getIntValue(Node<NODE_ITEM> node) {
+        if (node.getPathSegment() instanceof Literal) {
+            if (node.getPathSegment().getToken().equals("*")) {
                 return 0;
             }
-            return node.getNodeExpression().getToken().length() + 5;
-        } else if (node.getNodeExpression() instanceof FragmentExpression) {
+            return node.getPathSegment().getToken().length() + 5;
+        } else if (node.getPathSegment() instanceof FragmentExpression) {
             return 4;
-        } else if (node.getNodeExpression() instanceof ReservedStringExpression) {
+        } else if (node.getPathSegment() instanceof ReservedStringExpression) {
             return 3;
-        } else if (node.getNodeExpression() instanceof LabelExpression) {
+        } else if (node.getPathSegment() instanceof LabelExpression) {
             return 2;
         } else {
             return 1;

@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Literal represents literal path segments in the uri-template.
  */
-public class Literal implements NodeExpression {
+public class Literal implements PathSegment {
 
     private int tokenLength = 0;
     private final String token;

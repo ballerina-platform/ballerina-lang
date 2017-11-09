@@ -16,14 +16,18 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.uri.parser;
+package org.ballerinalang.net.http;
+
+import org.ballerinalang.net.uri.parser.Node;
+import org.ballerinalang.net.uri.parser.NodeCreator;
+import org.ballerinalang.net.uri.parser.PathSegment;
 
 /**
- * Created by irunika on 11/8/17.
+ * Node creator for HTTP resources in URI template tree.
  */
 public class HttpNodeCreator implements NodeCreator<HttpNodeItem> {
     @Override
-    public Node<HttpNodeItem> createNode(NodeExpression expression) {
+    public Node<HttpNodeItem> createNode(PathSegment expression) {
         HttpNodeItem nodeItem = new HttpNodeItem();
         Node<HttpNodeItem> node = new Node<>(nodeItem, expression);
         return node;

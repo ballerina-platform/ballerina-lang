@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Expression represents a expression path segment in uri.
  */
-public abstract class Expression implements NodeExpression {
+public abstract class Expression implements PathSegment {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 

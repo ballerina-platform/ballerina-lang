@@ -22,16 +22,40 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by irunika on 11/7/17.
+ * Represent what kind of path segment is exists in the node.
  */
-public interface NodeExpression {
+public interface PathSegment {
 
+    /**
+     * Expend the path segment.
+     *
+     * @param variables variables to expand.
+     * @return a string of expansion.
+     */
     String expand(Map<String, String> variables);
 
+    /**
+     * match the length of the URI fragment.
+     *
+     * @param childNodesList Child node list of the current node.
+     * @param uriFragment URI fragment which should be matched.
+     * @param variables Variable map which should be filled in.
+     * @return the length of the match with the URI fragment given.
+     */
     int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables);
 
+    /**
+     * Get the token of the path segment.
+     *
+     * @return Token of the path segment.
+     */
     String getToken();
 
+    /**
+     * Get the first character in the path segment.
+     *
+     * @return the first character in the path segment.
+     */
     char getFirstCharacter();
 
 }

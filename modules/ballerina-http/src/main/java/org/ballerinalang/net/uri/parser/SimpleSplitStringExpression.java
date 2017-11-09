@@ -151,7 +151,7 @@ public class SimpleSplitStringExpression extends Expression {
 
     protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
         for (Node childNode : childNodesList) {
-            if (endCharacter == childNode.getNodeExpression().getFirstCharacter()) {
+            if (endCharacter == childNode.getPathSegment().getFirstCharacter()) {
                 return true;
             }
         }

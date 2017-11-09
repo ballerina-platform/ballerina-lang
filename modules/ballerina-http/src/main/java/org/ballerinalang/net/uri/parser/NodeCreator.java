@@ -19,9 +19,18 @@
 package org.ballerinalang.net.uri.parser;
 
 /**
- * Created by irunika on 11/8/17.
+ * Node creator is used to create necessary node node for a given item.
+ * This is where the developer should create there own node to be passed into the tree.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public interface NodeCreator<T extends NodeItem> {
+public interface NodeCreator<NODE_ITEM extends NodeItem> {
 
-    Node<T> createNode(NodeExpression expression);
+    /**
+     * Creates a node with the developers own requirement.
+     *
+     * @param expression Expression of the node.
+     * @return Node which response to T node item.
+     */
+    Node<NODE_ITEM> createNode(PathSegment expression);
 }

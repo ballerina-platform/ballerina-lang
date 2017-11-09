@@ -20,11 +20,25 @@ package org.ballerinalang.net.uri.parser;
 
 /**
  * Interface to hold various node items.
+ *
+ * @param <ITEM> Item which should be stored in the node.
+ * @param <CHECKER> Additional checker for node. Which can be used for additional checks before returning the <ITEM>.
  */
-public interface NodeItem<Item, Identifier> {
+public interface NodeItem<ITEM, CHECKER> {
 
-    void setItem(Item item);
+    /**
+     * Set the node item.
+     *
+     * @param item item to be stored.
+     */
+    void setItem(ITEM item);
 
-    Item getItem(Identifier identifier);
+    /**
+     * Get the item stored.
+     *
+     * @param checker Checker for extra checks of the item.
+     * @return the item stored in the Node Item.
+     */
+    ITEM getItem(CHECKER checker);
 
 }

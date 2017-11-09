@@ -16,11 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.uri.parser;
+package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.uri.DispatcherUtil;
+import org.ballerinalang.net.uri.parser.NodeItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -30,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Http Node Item.
+ * Http Node Item for URI template tree.
  */
 public class HttpNodeItem implements NodeItem<HttpResource, HTTPCarbonMessage> {
 
@@ -51,7 +50,8 @@ public class HttpNodeItem implements NodeItem<HttpResource, HTTPCarbonMessage> {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
-                                                         + previousResource.getName() + " and " + newResource.getName());
+                                                         + previousResource.getName() + " and " +
+                                                         newResource.getName());
                 }
             }
             this.resource.add(newResource);

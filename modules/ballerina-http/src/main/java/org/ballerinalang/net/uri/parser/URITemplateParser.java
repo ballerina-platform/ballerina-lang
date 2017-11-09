@@ -18,30 +18,33 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.uri.URITemplateException;
 
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
+ *
+ * @param <NODE_ITEM> Specific node item for the parser.
+ * @param <ITEM> Item stored in the node item.
+ * @param <CHECKER> Additional checker for node item.
  */
-public class URITemplateParser<E extends NodeItem<ITEM, SUP>, ITEM, SUP> {
+public class URITemplateParser<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKER> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node<E> syntaxTree;
-    private Node<E> currentNode;
+    private Node<NODE_ITEM> syntaxTree;
+    private Node<NODE_ITEM> currentNode;
 
-    public URITemplateParser(Node<E> rootNode) {
+    public URITemplateParser(Node<NODE_ITEM> rootNode) {
         this.syntaxTree = rootNode;
     }
 
-    public Node parse(String template, ITEM resource, NodeCreator<E> nodeCreator) throws URITemplateException {
+    public Node parse(String template, ITEM item, NodeCreator<NODE_ITEM> nodeCreator) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
         if ("/".equals(template)) {
-            this.syntaxTree.getNodeItem().setItem(resource);
+            this.syntaxTree.getNodeItem().setItem(item);
             return syntaxTree;
         }
         String[] segments = template.split("/");
@@ -102,24 +105,25 @@ public class URITemplateParser<E extends NodeItem<ITEM, SUP>, ITEM, SUP> {
                 }
             }
         }
-        this.currentNode.getNodeItem().setItem(resource);
+        this.currentNode.getNodeItem().setItem(item);
 
         return syntaxTree;
     }
 
-    private void addNode(Node<E> node) {
+    private void addNode(Node<NODE_ITEM> node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
-        if (node.getNodeExpression().getToken().equals("*")) {
-            currentNode = currentNode.addChild("." + node.getNodeExpression().getToken(), node);
+        if (node.getPathSegment().getToken().equals("*")) {
+            currentNode = currentNode.addChild("." + node.getPathSegment().getToken(), node);
         } else {
-            currentNode = currentNode.addChild(node.getNodeExpression().getToken(), node);
+            currentNode = currentNode.addChild(node.getPathSegment().getToken(), node);
         }
     }
 
-    private void createExpressionNode(String expression, int maxIndex, int pointerIndex, NodeCreator<E> nodeCreator) throws URITemplateException {
-        Node<E> node = null;
+    private void createExpressionNode(String expression, int maxIndex, int pointerIndex,
+                                      NodeCreator<NODE_ITEM> nodeCreator) throws URITemplateException {
+        Node<NODE_ITEM> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
                 node = nodeCreator.createNode(new SimpleStringExpression(expression));

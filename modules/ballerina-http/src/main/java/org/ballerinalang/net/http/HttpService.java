@@ -20,8 +20,8 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
-import org.ballerinalang.net.uri.parser.HttpNodeCreator;
 import org.ballerinalang.net.uri.parser.Literal;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class HttpService {
     private List<String> allAllowMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
-    private URITemplate uriTemplate;
+    private URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage> uriTemplate;
 
     public HttpService(Service service) {
         this.balService = service;
@@ -86,9 +86,10 @@ public class HttpService {
         this.corsHeaders = corsHeaders;
     }
 
-    public URITemplate getUriTemplate() throws URITemplateException {
+    public URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate(new HttpNodeCreator().createNode(new Literal("/")));
+            uriTemplate = new URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage>
+                    (new HttpNodeCreator().createNode(new Literal("/")));
         }
         return uriTemplate;
     }

@@ -18,25 +18,25 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.net.http.HttpResource;
-import org.ballerinalang.net.uri.parser.HttpNodeCreator;
-import org.ballerinalang.net.uri.parser.HttpNodeItem;
 import org.ballerinalang.net.uri.parser.Node;
+import org.ballerinalang.net.uri.parser.NodeCreator;
+import org.ballerinalang.net.uri.parser.NodeItem;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
 /**
- * Basic URI Template implementation.
+ * Generic URI Template implementation.
  *
- **/
+ * @param <NODE_ITEM> Specific node item for the parser.
+ * @param <ITEM> Item stored in the node item.
+ * @param <CHECKER> Additional checker for node item.
+ */
+public class URITemplate<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKER> {
 
-public class URITemplate {
+    private Node<NODE_ITEM> syntaxTree;
 
-    private Node<HttpNodeItem> syntaxTree;
-
-    public URITemplate(Node<HttpNodeItem> syntaxTree) {
+    public URITemplate(Node<NODE_ITEM> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -44,19 +44,19 @@ public class URITemplate {
         return null;
     }
 
-    public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
-        HttpNodeItem nodeItem = syntaxTree.matchAll(uri, variables, 0);
+    public ITEM matches(String uri, Map<String, String> variables, CHECKER checker) {
+        NODE_ITEM nodeItem = syntaxTree.matchAll(uri, variables, 0);
         if (nodeItem == null) {
             return null;
         }
-        return nodeItem.getItem(carbonMessage);
+        return nodeItem.getItem(checker);
     }
 
-    public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
+    public void parse(String uriTemplate, ITEM item, NodeCreator<NODE_ITEM> nodeCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<HttpNodeItem, HttpResource, HTTPCarbonMessage> parser = new URITemplateParser<>(syntaxTree);
-        parser.parse(uriTemplate, resource, new HttpNodeCreator());
+        URITemplateParser<NODE_ITEM, ITEM, CHECKER> parser = new URITemplateParser<>(syntaxTree);
+        parser.parse(uriTemplate, item, nodeCreator);
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
