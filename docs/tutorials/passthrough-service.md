@@ -1,6 +1,6 @@
 # Write a Passthrough Service
 
-Now that you have [written your first program](../first-program.md) and [written a main program](../main-program.md) for an integration scenario, it is time to work with services.
+Now that you have [written a main program](../tutorials/main-program.md) for an integration scenario, it is time to work with services.
 
 > This tutorial provides instructions on how to write a REST service that uses the Google Books API to get books about a given topic. This scenario is demonstrated by querying books on WSO2.
 
@@ -14,7 +14,7 @@ This tutorial consists of the following main sections.
 - [Call the client connector](call-the-client-connector)
 - [Extract content from the JSON](extract-content-from-the-json)
 
-> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write your first program](../first-program.md) and [write a main program](../main-program.md) as some concepts are explored in detail in those tutorials. Is may also be useful to read and understand the section [about service URLs](about-service-urls).
+> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write a main program](../tutorials/main-program.md) as some concepts are explored in detail in that tutorial. It may also be useful to read and understand the section [about service URLs](about-service-urls).
 
 When defining a Ballerina program as a service instead of an executable program, the `service` construct acts as the top-level container that holds all the integration logic and can interact with the rest of the world. Its base path is the context part of the URL that clients use when sending requests to the service. You create one service per Ballerina program file.
 

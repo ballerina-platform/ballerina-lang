@@ -1,34 +1,46 @@
 package ballerina.net.ws;
 
-@Description {value:"Represent WebSocket text frame in Ballerina"}
+@Description {value:"Represent WebSocket text frame in Ballerina."}
+@Field {value: "text: Text in the text frame."}
+@Field {value: "isFinalFragment: Check whether this is the final frame. True if the frame is final frame."}
 public struct TextFrame {
     string text;
     boolean isFinalFragment;
 }
 
 @Description {value:"Represent WebSocket binary frame in Ballerina"}
+@Field {value: "data: Binary data of the frame."}
+@Field {value: "isFinalFragment: Check whether this is the final frame. True if the frame is final frame."}
 public struct BinaryFrame {
     blob data;
     boolean isFinalFragment;
 }
 
-@Description {value:"Represent WebSocket close frame in Ballerina"}
+
+@Description {value:"Represent WebSocket close frame in Ballerina."}
+@Field {value: "statusCode: Status code for the reason of the closure of the connection."}
+@Field {value: "reason: Reason to close the connection."}
 public struct CloseFrame {
     int statusCode;
     string reason;
 }
 
-@Description {value:"Represent WebSocket ping frame in Ballerina"}
+@Description {value:"Represent WebSocket ping frame in Ballerina."}
+@Field {value: "data: Data of the frame."}
 public struct PingFrame {
     blob data;
 }
 
-@Description {value:"Represent WebSocket pong frame in Ballerina"}
+@Description {value:"Represent WebSocket pong frame in Ballerina."}
+@Field {value: "data: Data of the frame."}
 public struct PongFrame {
     blob data;
 }
 
-@Description {value:"Represent the details needed before the Handshake is done"}
+@Description {value:"Represent the details needed before the Handshake is done."}
+@Field {value: "connectionID: Id of the connection."}
+@Field {value: "isSecure: True if the connection is secured."}
+@Field {value: "upgradeHeaders: Recieved headers in the connection upgrade."}
 public struct HandshakeConnection {
     string connectionID;
     boolean isSecure;
@@ -40,6 +52,7 @@ public struct HandshakeConnection {
 public native function <HandshakeConnection conn> cancelHandshake(int statusCode, string reason);
 
 @Description {value:"Represent WebSocket connection in ballerina. This include all connection oriented operations"}
+@Field {value: "attributes: Custom user attributes."}
 public struct Connection {
     map attributes;
 }
@@ -56,6 +69,7 @@ public native function <Connection conn> getNegotiatedSubProtocol() (string);
 public native function <Connection conn> isSecure() (boolean);
 
 @Description {value:"Check whether the connection is still open or not."}
+@Return {value:"boolean: true if the connection is opened"}
 public native function <Connection conn> isOpen() (boolean);
 
 @Description {value:"Get a map of all the upgrade headers of the connection"}
@@ -95,6 +109,10 @@ public native function <Connection conn> closeConnection(int statusCode, string 
 
 
 @Description {value:"Configuration struct for WebSocket client connection"}
+@Field {value: "subProtocols: Negotiable sub protocols for the client"}
+@Field {value: "parentConnectionID: Connection ID of the parent connection which should be bind when connecting"}
+@Field {value: "customHeaders: Custom headers which should be sent to the server"}
+@Field {value: "idleTimeoutInSeconds: Idle timeout of the client. This can be triggered by putting onIdleTimeout resource in clinet service."}
 public struct ClientConnectorConfig {
     string [] subProtocols;
     string parentConnectionID;
@@ -102,6 +120,10 @@ public struct ClientConnectorConfig {
     int idleTimeoutInSeconds = -1;
 }
 
+@Description {value: "Error structs for WebSocket connection errors."}
+@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
+@Field {value:"stackTrace: Represents the invocation stack when WspConnectorError is thrown"}
 public struct WsConnectorError {
     string msg;
     error cause;
@@ -114,6 +136,7 @@ public struct WsConnectorError {
 public connector WsClient(string url, string callbackService) {
 
     @Description {value:"Connect to remote endpoint"}
+    @Param {value:"config: ClientConnectorConfig for the connection"}
     @Return {value:"Connection: New WebSocket connection for the connected backend"}
     native action connect(ClientConnectorConfig config) (Connection, WsConnectorError);
 

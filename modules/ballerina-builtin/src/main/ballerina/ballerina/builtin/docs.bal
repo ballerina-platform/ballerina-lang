@@ -12,6 +12,6 @@ public annotation Return attach function, action, typemapper {
     string value;
 }
 
-public annotation Field attach struct {
+public annotation Field attach annotation, enum, struct {
     string value;
 }

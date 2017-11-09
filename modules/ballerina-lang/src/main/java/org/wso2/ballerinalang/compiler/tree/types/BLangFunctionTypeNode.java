@@ -20,11 +20,12 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link FunctionTypeNode}.
@@ -68,13 +69,23 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
         StringBuilder br = new StringBuilder();
         br.append("function(");
         if (paramTypeNodes.size() > 0) {
-            br.append(Arrays.toString(paramTypeNodes.toArray()));
+            br.append(getParamNames(paramTypeNodes));
         }
         if (returnParamTypeNodes.size() > 0) {
             br.append(returnsKeywordExists ? ")returns(" : ")(");
-            br.append(Arrays.toString(returnParamTypeNodes.toArray()));
+            br.append(getParamNames(returnParamTypeNodes));
         }
         br.append(")");
         return br.toString();
+    }
+
+    private String getParamNames(List<TypeNode> paramTypes) {
+        return paramTypes.stream().map(paramType -> {
+            if (paramType.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                return ((UserDefinedTypeNode) paramType).getTypeName().getValue();
+            } else {
+                return paramType.toString();
+            }
+        }).collect(Collectors.joining(", "));
     }
 }
