@@ -27,8 +27,7 @@ public class TerminatorFactory {
     private static final Logger logger = LoggerFactory.getLogger(TerminatorFactory.class);
 
     /**
-     *
-     * @param os - Running operating system
+     * @param os      - Running operating system
      * @param command - Command to run ballerina program
      * @return Terminator instance
      */
@@ -38,6 +37,8 @@ public class TerminatorFactory {
             return new TerminatorUnix(command);
         } else if ("windows".equalsIgnoreCase(os)) {
             return new TerminatorWindows(command);
+        } else if ("mac".equalsIgnoreCase(os)) {
+            return new TerminatorMac(command);
         } else {
             logger.error("Unknown Operating System");
             return null;

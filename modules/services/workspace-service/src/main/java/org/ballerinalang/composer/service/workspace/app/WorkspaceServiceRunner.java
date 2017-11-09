@@ -167,7 +167,7 @@ public class WorkspaceServiceRunner {
             System.setProperty("msf4j.host", "127.0.0.1");
         }
 
-        Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
+        Injector injector = Guice.createInjector(new WorkspaceServiceModule());
         WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
 
         // set list of root directories provided in workspace-service-config.yaml configuration file
