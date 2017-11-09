@@ -1,15 +1,16 @@
 import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.utils.logger;
+import ballerina.log;
 
 function main (string[] args) {
-    http:ClientConnector clientConnector = create
-                                http:ClientConnector("https://localhost:9095", getConnectorConfigs());
+    endpoint<http:HttpClient> connectorEP {
+                              create http:HttpClient("https://localhost:9095", getConnectorConfigs());
+    }
     http:Request req = {};
-    logger:info("Sending request");
-    http:Response resp = clientConnector.get("/echo/", req);
-    logger:info("response received");
-    system:println(resp.getStringPayload());
+    http:Response resp = {};
+    log:printInfo("Sending request");
+    resp, _ = connectorEP.get("/echo/", req);
+    log:printInfo("response received");
+    println(resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

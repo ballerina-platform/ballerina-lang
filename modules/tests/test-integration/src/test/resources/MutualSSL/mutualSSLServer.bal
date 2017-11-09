@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.system;
 
 @http:configuration {
     basePath:"/echo",
@@ -22,7 +21,7 @@ service<http> echo {
     resource echo (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
         res.send();
-        system:println("successful");
+        println("successful");
     }
 }
 
