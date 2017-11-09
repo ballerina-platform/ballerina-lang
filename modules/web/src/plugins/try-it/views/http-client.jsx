@@ -35,6 +35,14 @@ import 'brace/theme/monokai';
 
 import './http-client.scss';
 
+const CONTENT_TYPES = [
+    'text/css',
+    'text/csv',
+    'text/html',
+    'application/json',
+    'application/xml',
+];
+
 /**
  * Http try-it client component
  * @class HttpClient
@@ -73,6 +81,7 @@ class HttpClient extends React.Component {
         this.onAddNewHeader = this.onAddNewHeader.bind(this);
         this.onAppendUrlChange = this.onAppendUrlChange.bind(this);
         this.onContentTypeChange = this.onContentTypeChange.bind(this);
+        this.onContentTypeAutoSuggestSelected = this.onContentTypeAutoSuggestSelected.bind(this);
         this.onContentTypeSelected = this.onContentTypeSelected.bind(this);
         this.onHeaderDelete = this.onHeaderDelete.bind(this);
         this.onHeaderKeyChange = this.onHeaderKeyChange.bind(this);
@@ -190,6 +199,12 @@ class HttpClient extends React.Component {
     onContentTypeChange(event) {
         this.setState({
             contentType: event.target.value,
+        });
+    }
+
+    onContentTypeAutoSuggestSelected(event, { suggestionValue }) {
+        this.setState({
+            contentType: suggestionValue,
         });
     }
 
@@ -805,11 +820,15 @@ class HttpClient extends React.Component {
                     />
                 </div>);
         } else {
-            return (<input
-                className='http-client-content-type form-control'
-                type='text'
-                value={this.state.contentType}
+            return (<AutoSuggest
+                items={CONTENT_TYPES}
+                onSuggestionSelected={this.onContentTypeAutoSuggestSelected}
                 onChange={this.onContentTypeChange}
+                disableAutoFocus
+                initialValue={this.state.contentType}
+                showAllAtStart
+                alwaysRenderSuggestions
+                renderInputComponent={this.renderInputComponent}
             />);
         }
     }

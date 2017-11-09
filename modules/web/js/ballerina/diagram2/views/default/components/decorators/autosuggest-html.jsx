@@ -107,9 +107,7 @@ class AutoSuggestHtml extends React.Component {
             inputValue: newValue,
             showAllAtStart: false,
         });
-        if (this.props.onChange) {
-            this.props.onChange(event, { newValue });
-        }
+        this.props.onChange(event, { newValue });
     }
 
     /**
@@ -296,7 +294,7 @@ AutoSuggestHtml.defaultProps = {
     showAllAtStart: false,
     disableAutoFocus: false,
     renderInputComponent: undefined,
-    onChange: undefined,
+    onChange: () => {},
 };
 
 export default AutoSuggestHtml;
