@@ -28,9 +28,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.StructType;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -56,16 +53,14 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.carbon.transport.http.netty.message.multipart.MultipartMessageDataSource;
+import org.wso2.carbon.transport.http.netty.message.multipart.HttpBodyPart;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -721,68 +716,31 @@ public class HttpUtil {
 
     public static BValue[] getMultipartData(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
-        BStruct[] result = null;
-        BRefValueArray arr = null;
+        BRefValueArray partsArray = null;
+        List<HttpBodyPart> multiparts = null;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
             if (httpCarbonMessage.isAlreadyRead()) {
-                //   result = new BStruct((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
-                result = null;
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
+                if (payload instanceof MultipartUtil.MultipartDataSource) {
+                    MultipartUtil.MultipartDataSource dataSource = (MultipartUtil.MultipartDataSource) payload;
+                    multiparts = dataSource.getBodyParts();
+                }
             } else {
-                // result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
-                //  byte[] inputStream = toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 InputStream inputStream = new HttpMessageDataStreamer(httpCarbonMessage).getInputStream();
-                /*BStructType bStructType = new BStructType("Part", "ballerina.net.http");*/
-                /*result = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                        Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);*/
-
-                ObjectInputStream is = null;
-                List<MultipartMessageDataSource> multiparts = null;
-                try {
-                    is = new ObjectInputStream(inputStream);
-                    multiparts = (List<MultipartMessageDataSource>) is.readObject();
-                    log.debug("done");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                ArrayList<BStruct> parts = new ArrayList<>();
-                BStructType type = null;
-                for (MultipartMessageDataSource messageDataSource: multiparts) {
-                    BStruct partStruct = ConnectorUtils
-                            .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_HTTP, Constants.PART);
-                    populateMultiParts(messageDataSource, partStruct);
-                    parts.add(partStruct);
-                    type = partStruct.getType();
-
-                }
-              //  Object[] partArray = parts.toArray();
-                result = parts.toArray(new BStruct[parts.size()]);
-                log.debug("Payload received ");
-
-                 arr = new BRefValueArray(result, type);
-
+                multiparts = MultipartUtil.extractMultiparts(inputStream);
+                MultipartUtil.MultipartDataSource multipartDataSource = new MultipartUtil.MultipartDataSource(
+                        multiparts);
+                httpCarbonMessage.setMessageDataSource(multipartDataSource);
+                httpCarbonMessage.setAlreadyRead(true);
             }
-           /* if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }*/
+            partsArray = MultipartUtil.fillPartsArray(context, multiparts);
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving multipart payload from message: " + e.getMessage());
         }
-        return abstractNativeFunction.getBValues(arr);
+        return abstractNativeFunction.getBValues(partsArray);
     }
-
-    private static void populateMultiParts(MultipartMessageDataSource multipart, BStruct balPart) {
-        balPart.setBlobField(0, multipart.getContent());
-        balPart.setStringField(0, multipart.getFileName());
-        balPart.setStringField(1, multipart.getPartName());
-        balPart.setStringField(2, multipart.getContentType());
-        balPart.setIntField(0, multipart.getSize());
-       log.debug("Test");
-    }
-
 }
