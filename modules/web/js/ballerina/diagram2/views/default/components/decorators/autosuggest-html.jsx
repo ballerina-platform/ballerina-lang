@@ -107,7 +107,9 @@ class AutoSuggestHtml extends React.Component {
             inputValue: newValue,
             showAllAtStart: false,
         });
-        this.props.onChange(event);
+        if (this.props.onChange) {
+            this.props.onChange(event, { newValue });
+        }
     }
 
     /**

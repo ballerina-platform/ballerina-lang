@@ -26,7 +26,7 @@ import copy from 'copy-to-clipboard';
 import AutoSuggest from 'ballerina/diagram2/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
-import CompilationUnitTreeNode from 'ballerina/model/tree/compilation-unit-node';
+import ServiceTreeNode from 'ballerina/model/tree/service-node';
 import uuid from 'uuid/v4';
 import 'brace/mode/json';
 import 'brace/mode/xml';
@@ -101,8 +101,7 @@ class HttpClient extends React.Component {
                 this.setState({
                     baseUrl,
                 });
-            }).catch((error) => {
-                console.log(error);
+            }).catch(() => {
             });
         this.onAddNewHeader(false);
     }
@@ -113,16 +112,12 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     componentWillReceiveProps(nextProps) {
-        if (nextProps.compilationUnit) {
+        if (nextProps.serviceNodes.length > 0) {
             let selectedService;
             let selectedResource;
             let selectedContentType = '';
-            let serviceNodes = nextProps.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
-            serviceNodes = serviceNodes.filter((serviceNode) => {
-                return serviceNode.getProtocolPackageIdentifier().getValue() === 'http';
-            });
-            if (serviceNodes.length === 1) {
-                selectedService = serviceNodes[0];
+            if (nextProps.serviceNodes.length === 1) {
+                selectedService = nextProps.serviceNodes[0];
                 if (selectedService.getResources().length === 1) {
                     selectedResource = selectedService.getResources()[0];
                     if (selectedResource.getConsumeTypes().length === 1) {
@@ -335,10 +330,9 @@ class HttpClient extends React.Component {
                         waitingForResponse: false,
                     });
                 }
-            }).catch((error) => {
+            }).catch(() => {
                 this.context.alert.showError(`Unexpected error occurred while sending request.
                                                 Make sure you have entered valid request details.`);
-                console.log(error);
                 this.setState({
                     waitingForResponse: false,
                 });
@@ -550,11 +544,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderServicesDropdown() {
-        let serviceNodes = this.props.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
-        serviceNodes = serviceNodes.filter((serviceNode) => {
-            return serviceNode.getProtocolPackageIdentifier().getValue() === 'http';
-        });
-        const serviceItems = serviceNodes.map((serviceNode) => {
+        const serviceItems = this.props.serviceNodes.map((serviceNode) => {
             return (<MenuItem
                 key={serviceNode.getID()}
                 eventKey={serviceNode}
@@ -640,7 +630,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderMainControlComponent() {
-        if (this.props.compilationUnit) {
+        if (this.props.serviceNodes.length > 0) {
             const httpBaseUrl = `http://${this.state.baseUrl}`;
             const sendOrCancelButton = this.renderSendOrCancelButton();
 
@@ -733,6 +723,11 @@ class HttpClient extends React.Component {
         }
     }
 
+    /**
+     * Rendering the request headers.
+     * @returns {ReactElement[]} The request header views.
+     * @memberof HttpClient
+     */
     renderRequestHeaders() {
         return this.state.requestHeaders.map((header) => {
             return (<div key={`${header.id}`} className="form-inline">
@@ -977,11 +972,11 @@ class HttpClient extends React.Component {
 }
 
 HttpClient.propTypes = {
-    compilationUnit: PropTypes.instanceOf(CompilationUnitTreeNode),
+    serviceNodes: PropTypes.arrayOf(PropTypes.instanceOf(ServiceTreeNode)),
 };
 
 HttpClient.defaultProps = {
-    compilationUnit: undefined,
+    serviceNodes: [],
 };
 
 HttpClient.contextTypes = {
