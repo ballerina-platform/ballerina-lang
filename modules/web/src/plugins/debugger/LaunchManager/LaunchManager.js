@@ -130,12 +130,6 @@ class LaunchManager extends EventChannel {
             return;
         }
         this.trigger('print-message', message);
-        // if (message.code === 'TRY_IT_URL') {
-        //     this.tryItUrl = message.message;
-        //     this.trigger('try-it-url-received', message.message);
-        //     this.application.commandManager.dispatch('try-it-url-received', message.message);
-        // return;
-        // }
     }
 }
 

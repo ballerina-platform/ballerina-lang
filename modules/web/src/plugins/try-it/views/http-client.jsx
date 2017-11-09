@@ -313,10 +313,10 @@ class HttpClient extends React.Component {
         this.setState({
             waitingForResponse: true,
         });
-        const stateClone = _.cloneDeep(this.state);
-        delete stateClone.selectedService;
-        delete stateClone.selectedResource;
-        invokeTryIt(stateClone, 'http')
+        const tryItPayload = _.cloneDeep(this.state);
+        delete tryItPayload.selectedService;
+        delete tryItPayload.selectedResource;
+        invokeTryIt(tryItPayload, 'http')
             .then((response) => {
                 if (this.state.waitingForResponse === true) {
                     this.setState({
@@ -331,8 +331,10 @@ class HttpClient extends React.Component {
                     });
                 }
             }).catch(() => {
-                this.context.alert.showError(`Unexpected error occurred while sending request.
+                if (this.state.waitingForResponse === true) {
+                    this.context.alert.showError(`Unexpected error occurred while sending request.
                                                 Make sure you have entered valid request details.`);
+                }
                 this.setState({
                     waitingForResponse: false,
                 });
