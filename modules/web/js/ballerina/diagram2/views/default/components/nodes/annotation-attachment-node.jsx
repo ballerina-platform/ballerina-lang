@@ -293,12 +293,16 @@ class AnnotationAttachmentNode extends React.Component {
                 />:
             </span>);
         }
-
-        return (<span className="annotation-attachment-package-name">@
-            <span
-                onClick={this.onPackageNameEdit}
-            >{this.props.model.getPackageAlias().getValue()}:</span>
-        </span>);
+        if (this.props.model.getPackageAlias().getValue() &&
+            this.props.model.getPackageAlias().getValue() !== 'builtin') {
+            return (<span className="annotation-attachment-package-name">@
+                <span
+                    onClick={this.onPackageNameEdit}
+                >{this.props.model.getPackageAlias().getValue()}:</span>
+            </span>);
+        } else {
+            return (<span className="annotation-attachment-package-name">@</span>);
+        }
     }
 
     /**

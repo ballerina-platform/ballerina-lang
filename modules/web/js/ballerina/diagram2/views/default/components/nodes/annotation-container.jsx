@@ -102,7 +102,8 @@ class AnnotationContainer extends React.Component {
         const packagePrefix = match && match[1];
 
         let newAnnotationAttachment;
-        if (this.state.selectedPackageNameValue !== 'Current Package') {
+        if (this.state.selectedPackageNameValue !== 'Current Package' &&
+            this.state.selectedPackageNameValue !== 'ballerina.builtin') {
             // Add import if not imported to AST-Root.
             const importToBeAdded = NodeFactory.createImport({
                 alias: NodeFactory.createLiteral({ value: packagePrefix }),
@@ -115,6 +116,15 @@ class AnnotationContainer extends React.Component {
 
             this.context.astRoot.addImport(importToBeAdded);
 
+            newAnnotationAttachment = NodeFactory.createAnnotationAttachment({
+                packageAlias: NodeFactory.createLiteral({
+                    value: packagePrefix,
+                }),
+                annotationName: NodeFactory.createLiteral({
+                    value: suggestionValue,
+                }),
+            });
+        } else if (this.state.selectedPackageNameValue === 'ballerina.builtin') {
             newAnnotationAttachment = NodeFactory.createAnnotationAttachment({
                 packageAlias: NodeFactory.createLiteral({
                     value: packagePrefix,
