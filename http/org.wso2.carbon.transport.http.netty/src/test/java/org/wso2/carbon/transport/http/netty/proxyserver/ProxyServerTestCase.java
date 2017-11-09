@@ -73,22 +73,24 @@ public class ProxyServerTestCase {
     private ClientAndProxy proxy;
     private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
     private String password = "wso2carbon";
+    private int proxyPort = 15427;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
-        proxy = startClientAndProxy(8080);
+        //Start proxy server.
+        proxy = startClientAndProxy(proxyPort);
         ProxyServerConfiguration proxyServerConfiguration = null;
 
         try {
-            proxyServerConfiguration = new ProxyServerConfiguration("localhost", 8080);
+            proxyServerConfiguration = new ProxyServerConfiguration("localhost", proxyPort);
         } catch (UnknownHostException e) {
-            TestUtil.handleException("Unable to verify the host", e);
+            TestUtil.handleException("Failed to resolve host", e);
         }
 
         TransportsConfiguration transportsConfiguration = TestUtil
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
 
+        //set proxy server configuration to client connector.
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         for (SenderConfiguration config : senderConfig) {
             config.setProxyServerConfiguration(proxyServerConfiguration);
@@ -140,10 +142,10 @@ public class ProxyServerTestCase {
     }
 
     @AfterClass
-    public void stopProxy() {
-        proxy.stop();
+    public void cleanUp() {
         httpClientConnector.close();
         serverConnector.stop();
+        proxy.stop();
     }
 }
 

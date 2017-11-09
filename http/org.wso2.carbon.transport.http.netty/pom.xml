@@ -133,6 +133,7 @@
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-netty</artifactId>
             <version>3.11</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
