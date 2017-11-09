@@ -429,6 +429,16 @@ class HttpClient extends React.Component {
                 } else if (mimeType.includes('html')) {
                     return 'html';
                 }
+            } else {
+                const responseHeaders = JSON.parse(this.state.responseHeaders);
+                const contentType = responseHeaders['Content-Type'];
+                if (contentType.includes('json')) {
+                    return 'json';
+                } else if (contentType.includes('xml')) {
+                    return 'xml';
+                } else if (contentType.includes('html')) {
+                    return 'html';
+                }
             }
         }
 
@@ -443,15 +453,15 @@ class HttpClient extends React.Component {
      */
     getStatusCodeClass(httpCode) {
         if (/1\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-blue';
+            return 'http-status-code-1__';
         } else if (/2\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-green';
+            return 'http-status-code-2__';
         } else if (/3\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-purple';
+            return 'http-status-code-3__';
         } else if (/4\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-yellow';
+            return 'http-status-code-4__';
         } else if (/5\d\d\b/g.test(httpCode)) {
-            return 'http-status-code-red';
+            return 'http-status-code-5__';
         }
         return '';
     }
@@ -723,48 +733,7 @@ class HttpClient extends React.Component {
         }
     }
 
-    renderResponseHeaders(responseHeaders) {
-        if (this.state.responseHeaders !== '') {
-            const responseHeaderList = [];
-
-            for (const key in responseHeaders) {
-                if (responseHeaders.hasOwnProperty(key)) {
-                    responseHeaderList.push({ name: key, value: responseHeaders[key] });
-                }
-            }
-
-            return responseHeaderList.map((header) => {
-                return (<div key={`${header.name}`} className="form-inline">
-                    <input
-                        key={`key-${header.name}`}
-                        ref={(ref) => {
-                            if (header.name === '' && header.value === '') {
-                                this.headerKey = ref;
-                            }
-                        }}
-                        placeholder='Key'
-                        type='text'
-                        className="response-header-input form-control"
-                        value={header.name}
-                        onChange={e => this.onHeaderKeyChange(header.value, e)}
-                        onBlur={() => { this.focusTarget = undefined; }}
-                    />
-                    :
-                    <input
-                        key={`value-${header.id}`}
-                        placeholder='Value'
-                        type='text'
-                        className="response-header-input form-control"
-                        value={header.value}
-                        onChange={e => this.onHeaderValueChange(header.name, e)}
-                        onBlur={() => { this.focusTarget = undefined; }}
-                        onKeyDown={this.onHeaderValueKeyDown}
-                        readOnly
-                    />
-                </div>);
-            });
-        }
-
+    renderRequestHeaders() {
         return this.state.requestHeaders.map((header) => {
             return (<div key={`${header.id}`} className="form-inline">
                 <input
@@ -854,7 +823,7 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     render() {
-        const headers = this.renderHeaders();
+        const requestHeaders = this.renderRequestHeaders();
         const mainControlComponent = this.renderMainControlComponent();
         const contentTypesControl = this.renderContentTypes();
         return (<div className="container-fluid">
@@ -865,7 +834,7 @@ class HttpClient extends React.Component {
                     <hr />
                     <div className="form-horizontal">
                         <div className='form-group http-client-content-type-wrapper'>
-                            <label className="col-sm-2 control-label">Content-Type : </label>
+                            <span className="col-sm-2 control-label">Content-Type : </span>
                             <div className="col-sm-10">
                                 {contentTypesControl}
                             </div>
@@ -874,7 +843,7 @@ class HttpClient extends React.Component {
                             <span className="section-header">Headers</span>
                             <hr />
                             <div className='current-headers'>
-                                {headers}
+                                {requestHeaders}
                             </div>
                         </div>
                         <div className='http-client-body-wrapper'>
@@ -931,50 +900,56 @@ class HttpClient extends React.Component {
                         </strong>
                     </div>
                     <div className='http-client-response-content'>
-                        <ul className="nav nav-tabs" role="tablist">
-                            <li role="presentation" className="active">
-                                <a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a>
-                            </li>
-                            <li role="presentation">
-                                <a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a>
-                            </li>
-                        </ul>
-                        <div className="tab-content">
-                            <div role="tabpanel" className="tab-pane active fade in" id="headers">
-                                <div className='header-content'>
-                                    <div className='response-headers'>
-                                        <span className="section-header">Response Headers</span>
-                                        <hr />
-                                        {this.state.responseHeaders.length > 0 ? (
-                                            <div>
-                                                {this.renderResponseHeaders(JSON.parse(this.state.responseHeaders))}
-                                            </div>
-                                        ) : (
-                                            <div className="try-it-message message message-warning">
-                                                <p> <i className="icon fw fw-warning" />
-                                                    Hit the send button to see the headers. </p>
-                                            </div>
+                        <div className='header-wrapper'>
+                            <div className='header-title section-header'>Headers</div>
+                            <div className='header-content'>
+                                <div className='response-headers'>
+                                    <span className='response-header-title'>Response Headers</span>
+                                    {this.state.responseHeaders.length > 0 ? (
+                                        <div>
+                                            {
+                                        Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
+                                            return (<div className='header-attribute' key={`response-${key}`}>
+                                                <div className='key'>{key}</div>
+                                                    :
+                                                <div className='value'>{value}</div>
+                                            </div>);
+                                        })}
+                                        </div>
+                                    ) : (
+                                        <div className="try-it-message message message-warning">
+                                            <p> <i className="icon fw fw-warning" />
+                                                Hit the send button to see the headers. </p>
+                                        </div>
                                         )}
 
-                                    </div>
-                                    <div className='request-headers'>
-                                        <span className="section-header">Request Headers</span>
-                                        <hr />
-                                        {this.state.returnedRequestHeaders.length > 0 ? (
-                                            <div>
-                                                {this.renderResponseHeaders(
-                                                                    JSON.parse(this.state.returnedRequestHeaders))}
-                                            </div>
-                                        ) : (
-                                            <div className="try-it-message message message-warning">
-                                                <p><i className="icon fw fw-warning" />
-                                                    Hit the send button to see the headers.</p>
-                                            </div>
+                                </div>
+                                <div className='request-headers'>
+                                    <span className="request-headers-title">Request Headers</span>
+                                    {this.state.returnedRequestHeaders.length > 0 ? (
+                                        <div>
+                                            {
+                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
+                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
+                                        <div className='key'>{key}</div>
+                                            :
+                                        <div className='value'>{value}</div>
+                                    </div>);
+                                })}
+                                        </div>
+                                    ) : (
+                                        <div className="try-it-message message message-warning">
+                                            <p><i className="icon fw fw-warning" />
+                                                Hit the send button to see the headers.</p>
+                                        </div>
                                         )}
-                                    </div>
                                 </div>
                             </div>
-                            <div role="tabpanel" className="tab-pane fade" id="body">
+                        </div>
+                        <div className='response-body-wrapper'>
+                            <div className='body-title section-header'>Body</div>
+                            <hr />
+                            <div className='body-content'>
                                 <AceEditor
                                     mode={this.getResponseBodyMode()}
                                     theme='monokai'
