@@ -448,7 +448,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.ARRAY:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                    break;
+                break;
             default:
                 // TODO Handle this condition
         }
