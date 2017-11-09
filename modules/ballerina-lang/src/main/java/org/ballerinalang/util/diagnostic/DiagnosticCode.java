@@ -106,6 +106,7 @@ public enum DiagnosticCode {
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
