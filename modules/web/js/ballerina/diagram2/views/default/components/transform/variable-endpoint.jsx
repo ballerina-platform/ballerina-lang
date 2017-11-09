@@ -62,6 +62,19 @@ export default class VariableEndpoint extends React.Component {
 
         className += ` transform-endpoint-${variable.endpointKind}`
 
+        let typeDisplayName = ': ';
+        if (variable.typeName) {
+            if (variable.typeName.indexOf('$anonStruct$') !== -1) {
+                typeDisplayName = '';
+            } else {
+                typeDisplayName += variable.typeName;
+            }
+        } else if (variable.type) {
+            typeDisplayName += variable.type;
+        } else {
+            typeDisplayName = '';
+        }
+
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
             className += ' transform-endpoint-struct';
@@ -120,8 +133,7 @@ export default class VariableEndpoint extends React.Component {
                         }
                         {!this.state.onEdit &&
                         <span className='endpoint-type'>
-                            {variable.typeName && variable.typeName.indexOf('$anonStruct$') !== -1 ? ''
-                              : ' : ' + (variable.typeName || variable.type)}
+                            {typeDisplayName}
                         </span>
                         }
                         {this.props.variable.varDeclarationString && !this.state.onEdit &&
