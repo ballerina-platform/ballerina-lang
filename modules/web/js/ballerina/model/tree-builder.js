@@ -121,6 +121,14 @@ class TreeBuilder {
             node.builtin = true;
         }
 
+        if (kind === 'Import') {
+            if (node.alias && node.alias.value && node.packageName && node.packageName.length) {
+                if ((node.alias.value !== node.packageName[node.packageName.length - 1].value)) {
+                    node.userDefinedAlias = true;
+                }
+            }
+        }
+
         if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
             parentKind === 'StringTemplateLiteral') {
             node.inTemplateLiteral = true;

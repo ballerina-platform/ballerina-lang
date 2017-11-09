@@ -2,7 +2,8 @@ PackageDeclaration
    : package <packageName-joined-by.>* ;
 
 Import
-   : import <packageName-joined-by.>* ;
+   : <userDefinedAlias?>    import <packageName-joined-by.>* as <alias.value> ;
+   :                        import <packageName-joined-by.>* ;
 
 Identifier
    : <value>

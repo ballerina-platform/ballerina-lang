@@ -75,8 +75,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + w() + 'package' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
         case 'Import':
-            return dent() + w() + 'import' + a(' ')
+            if (node.userDefinedAlias && node.packageName && node.alias.value) {
+                return dent() + w() + 'import' + a(' ')
+                 + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w(' ') + 'as' + w(' ')
+                 + node.alias.value + w() + ';';
+            } else {
+                return dent() + w() + 'import' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
+            }
         case 'Identifier':
             return w() + node.value;
         case 'Abort':
