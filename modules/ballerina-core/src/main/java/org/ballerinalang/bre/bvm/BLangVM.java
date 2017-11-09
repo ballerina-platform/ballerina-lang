@@ -2742,11 +2742,9 @@ public class BLangVM {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
             StackFrame parentSF = workerContext.parentSF;
-            StackFrame parentCallersSF = parentControlStack.currentFrame.prevStackFrame;
 
-            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
             this.controlStack = this.context.getControlStackNew();
@@ -2920,7 +2918,7 @@ public class BLangVM {
         ip = currentSF.retAddrs;
     }
 
-    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+    private void copyWorkersReturnValues(StackFrame workerSF, StackFrame parentsSF) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -2928,6 +2926,8 @@ public class BLangVM {
         int intRegCount = 0;
         int refRegCount = 0;
         int byteRegCount = 0;
+        StackFrame workerCallerSF = workerSF.prevStackFrame;
+        StackFrame parentCallersSF = parentsSF.prevStackFrame;
         BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
