@@ -88,6 +88,9 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public boolean next() {
+        if (rs == null) {
+            return false;
+        }
         try {
             return rs.next();
         } catch (SQLException e) {
