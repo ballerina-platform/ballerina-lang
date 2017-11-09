@@ -167,7 +167,7 @@ class TryItContainer extends React.Component {
         } else if (clientType === 'jms') {
             return (<span>JMS client is not yet supported.</span>);
         } else {
-            return (<span>Unsupported service type.</span>);
+            return (null);
         }
     }
 
