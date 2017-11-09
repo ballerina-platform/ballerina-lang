@@ -31,6 +31,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlS
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
  * best matching resource for incoming web socket request.
@@ -45,7 +48,8 @@ public class WebSocketDispatcher {
      * @param webSocketMessage incoming message.
      * @return matching service.
      */
-    public static WebSocketService findService(WebSocketMessage webSocketMessage) {
+    public static WebSocketServiceInfo findService(WebSocketMessage webSocketMessage) {
+        Map<String, String> variables = new HashMap<>();
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
             WebSocketService clientService =
@@ -53,27 +57,27 @@ public class WebSocketDispatcher {
             if (clientService == null) {
                 throw new BallerinaConnectorException("no client service found to handle the service request");
             }
-            return clientService;
+            return new WebSocketServiceInfo(clientService, variables);
         }
         try {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
-
             WebSocketService service =
-                    WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
-
+                    WebSocketServicesRegistry.getInstance().
+                            getServiceEndpoint(interfaceId, serviceUri, variables, webSocketMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            return service;
+            return new WebSocketServiceInfo(service, variables);
         } catch (Throwable throwable) {
             ErrorHandlerUtils.printError(throwable);
             throw new BallerinaConnectorException("no Service found to handle the service request");
         }
     }
 
-    public static void dispatchTextMessage(WebSocketService wsService, WebSocketTextMessage textMessage) {
+    public static void dispatchTextMessage(WebSocketServiceInfo wsServiceInfo, WebSocketTextMessage textMessage) {
+        WebSocketService wsService = wsServiceInfo.getWsService();
         Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
             return;
@@ -92,7 +96,8 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchBinaryMessage(WebSocketService wsService, WebSocketBinaryMessage binaryMessage) {
+    public static void dispatchBinaryMessage(WebSocketServiceInfo wsServiceInfo, WebSocketBinaryMessage binaryMessage) {
+        WebSocketService wsService = wsServiceInfo.getWsService();
         Resource onBinaryMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
         if (onBinaryMessageResource == null) {
             return;
@@ -111,17 +116,19 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchControlMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    public static void dispatchControlMessage(WebSocketServiceInfo wsServiceInfo,
+                                              WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            WebSocketDispatcher.dispatchPingMessage(wsService, controlMessage);
+            WebSocketDispatcher.dispatchPingMessage(wsServiceInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            WebSocketDispatcher.dispatchPongMessage(wsService, controlMessage);
+            WebSocketDispatcher.dispatchPongMessage(wsServiceInfo, controlMessage);
         } else {
             throw new BallerinaConnectorException("Received unknown control signal");
         }
     }
 
-    private static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    private static void dispatchPingMessage(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             return;
@@ -135,7 +142,8 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    private static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    private static void dispatchPongMessage(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;
@@ -149,7 +157,8 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchCloseMessage(WebSocketService wsService, WebSocketCloseMessage closeMessage) {
+    public static void dispatchCloseMessage(WebSocketServiceInfo serviceInfo, WebSocketCloseMessage closeMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
             return;
@@ -164,7 +173,8 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchIdleTimeout(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    public static void dispatchIdleTimeout(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             return;

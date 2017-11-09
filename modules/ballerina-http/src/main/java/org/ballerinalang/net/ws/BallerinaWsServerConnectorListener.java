@@ -55,7 +55,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
+        WebSocketServiceInfo wsServiceInfo = WebSocketDispatcher.findService(webSocketInitMessage);
+        WebSocketService wsService = wsServiceInfo.getWsService();
         Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -112,25 +113,25 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketTextMessage);
+        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketTextMessage);
         WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketBinaryMessage);
+        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketBinaryMessage);
         WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketControlMessage);
+        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketControlMessage);
         WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketCloseMessage);
+        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(webSocketCloseMessage);
         WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
@@ -141,7 +142,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(controlMessage);
+        WebSocketServiceInfo wsService = WebSocketDispatcher.findService(controlMessage);
         WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
