@@ -48,6 +48,18 @@ class AnnotationHelper {
             }
         }
 
+        if (!fullPackageName) {
+            if (environment.getBuiltInPackage()) {
+                for (const annotationDefinition of environment.getBuiltInPackage().getAnnotationDefinitions()) {
+                    if (annotationDefinition.getName() === annotationDefinitionName) {
+                        for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
+                            annotationAttributes.push(annotationAttribute);
+                        }
+                    }
+                }
+            }
+        }
+
         if (environment.getCurrentPackage()) {
             for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
                 if (annotationDefinition.getName() === annotationDefinitionName) {
@@ -76,6 +88,16 @@ class AnnotationHelper {
         for (const packageDefintion of environment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                    if (annotationDefinition.getName() === annotationDefinitionName) {
+                        matchingAnnotationDefintion = annotationDefinition;
+                    }
+                }
+            }
+        }
+
+        if (!fullPackageName) {
+            if (environment.getBuiltInPackage()) {
+                for (const annotationDefinition of environment.getBuiltInPackage().getAnnotationDefinitions()) {
                     if (annotationDefinition.getName() === annotationDefinitionName) {
                         matchingAnnotationDefintion = annotationDefinition;
                     }
@@ -263,9 +285,7 @@ class AnnotationHelper {
                 });
             }
         });
-        if (alias === 'builtin') {
-            fullPkgName = 'ballerina.builtin';
-        } else {
+        if (alias !== 'builtin') {
             fullPkgName = packageName.join('.');
         }
         return fullPkgName;
