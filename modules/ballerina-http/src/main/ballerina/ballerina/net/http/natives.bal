@@ -63,7 +63,7 @@ public native function <Request req> setStringPayload (string payload);
 @Description { value:"Gets a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The header value" }
+@Return { value:"The first header value for the provided header name" }
 @Return { value:"Indicates whether the header exists" }
 public native function <Request req> getHeader (string headerName) (string, boolean);
 
@@ -178,7 +178,7 @@ public native function <Response res> setStringPayload (string payload);
 @Description { value:"Gets the named HTTP header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The header value" }
+@Return { value:"The first header value for the provided header name" }
 @Return { value:"Indicates whether the header exists" }
 public native function <Response res> getHeader (string headerName) (string, boolean);
 
