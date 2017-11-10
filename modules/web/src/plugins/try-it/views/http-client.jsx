@@ -81,7 +81,6 @@ class HttpClient extends React.Component {
         this.onAddNewHeader = this.onAddNewHeader.bind(this);
         this.onAppendUrlChange = this.onAppendUrlChange.bind(this);
         this.onContentTypeChange = this.onContentTypeChange.bind(this);
-        this.onContentTypeAutoSuggestSelected = this.onContentTypeAutoSuggestSelected.bind(this);
         this.onContentTypeSelected = this.onContentTypeSelected.bind(this);
         this.onHeaderDelete = this.onHeaderDelete.bind(this);
         this.onHeaderKeyChange = this.onHeaderKeyChange.bind(this);
@@ -202,20 +201,15 @@ class HttpClient extends React.Component {
         });
     }
 
-    onContentTypeAutoSuggestSelected(event, { suggestionValue }) {
-        this.setState({
-            contentType: suggestionValue,
-        });
-    }
-
     /**
-     * Event handler when content type is selected.
-     * @param {string} eventKey The selected value.
+     * Event handler on content type is selected.
+     * @param {any} event The event
+     * @param {any} suggestionValue The selected value.
      * @memberof HttpClient
      */
-    onContentTypeSelected(eventKey) {
+    onContentTypeSelected(event, { suggestionValue }) {
         this.setState({
-            contentType: eventKey,
+            contentType: suggestionValue,
         });
     }
 
@@ -785,52 +779,21 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderContentTypes() {
+        let contentTypes = CONTENT_TYPES;
         if (this.state.selectedResource && this.state.selectedResource.getConsumeTypes().length > 0) {
-            const consumeTypes = this.state.selectedResource.getConsumeTypes();
-            const consumerTypeItems = consumeTypes.map((contentType) => {
-                return (<MenuItem key={contentType} eventKey={contentType}>
-                    {contentType}
-                </MenuItem>);
-            });
-
-            // Compiling selected content type.
-            let dropdownTitle;
-            if (this.state.contentType === '') {
-                dropdownTitle = 'Select Content-Type';
-            } else {
-                dropdownTitle = this.state.contentType;
-            }
-
-            return (
-                <div className='dropdown-wrapper'>
-                    <DropdownButton
-                        id='content-types-dropdown'
-                        title={dropdownTitle}
-                        key='content-type-dropdown'
-                        onSelect={this.onContentTypeSelected}
-                        noCaret
-                    >
-                        {consumerTypeItems}
-                    </DropdownButton>
-                    <i
-                        className="fw fw-down"
-                        onClick={(e) => {
-                            e.currentTarget.previousElementSibling.children[0].click();
-                        }}
-                    />
-                </div>);
-        } else {
-            return (<AutoSuggest
-                items={CONTENT_TYPES}
-                onSuggestionSelected={this.onContentTypeAutoSuggestSelected}
-                onChange={this.onContentTypeChange}
-                disableAutoFocus
-                initialValue={this.state.contentType}
-                showAllAtStart
-                alwaysRenderSuggestions
-                renderInputComponent={this.renderInputComponent}
-            />);
+            contentTypes = this.state.selectedResource.getConsumeTypes();
         }
+
+        return (<AutoSuggest
+            items={contentTypes}
+            onSuggestionSelected={this.onContentTypeSelected}
+            onChange={this.onContentTypeChange}
+            disableAutoFocus
+            initialValue={this.state.contentType}
+            showAllAtStart
+            alwaysRenderSuggestions
+            renderInputComponent={this.renderInputComponent}
+        />);
     }
 
     /**

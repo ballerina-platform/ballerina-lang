@@ -16,7 +16,7 @@
  * under the License.
  */
 
-@mixin dropdown() {
+@mixin bootstrap-dropdown() {
     position: relative;
     .dropdown {
         .dropdown-toggle{
@@ -196,14 +196,6 @@
             background-color: #434343;
             box-shadow: none;
         }
-        .dropdown-wrapper {
-            @include dropdown();
-            width: 220px;
-            .dropdown .dropdown-toggle {
-                background-color: #434343;
-                border-bottom: 1px solid #555;
-            }
-        }
         @include autosuggest-dropdown();
         .react-autosuggest__container {
             .inputContainer {
@@ -211,12 +203,12 @@
                     color: #fff;
                     background-color: #434343;
                     border: 0 solid #333;
-                    width: 300px;
+                    width: 555px;
                 }
             }
         }
         .react-autosuggest__suggestions-container {
-            width: 300px;
+            width: 560px;
         }
     }
 }
@@ -439,7 +431,7 @@ hr{
         .selectors {
             float: left;
             .dropdown-wrapper {
-                @include dropdown();
+                @include bootstrap-dropdown();
             }
         }
         .url-separator {
