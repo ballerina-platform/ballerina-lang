@@ -193,18 +193,19 @@ class StructDefinitionItem extends React.Component {
                         this.setState({
                             newDefaultValueEditing: false,
                         });
-                        validateDefaultValue(type, this.state.newDefaultValue);
-                        if (!this.state.newDefaultValue) {
-                            const valueArrayId = model.getInitialExpression() && model.getInitialExpression().id;
-                            if (valueArrayId) {
-                                model.getInitialExpression().setValue('');
-                            }
-                        } else {
-                            const newDefaultValue = this.props.addQuotesToString(type, this.state.newDefaultValue);
-                            if (model.getInitialExpression()) {
-                                model.getInitialExpression().setValue(newDefaultValue);
+                        if (validateDefaultValue(type, this.state.newDefaultValue)) {
+                            if (!this.state.newDefaultValue) {
+                                const valueArrayId = model.getInitialExpression() && model.getInitialExpression().id;
+                                if (valueArrayId) {
+                                    model.getInitialExpression().setValue('');
+                                }
                             } else {
-                                model.setInitialExpression(NodeFactory.createLiteral({ value: newDefaultValue }));
+                                const newDefaultValue = this.props.addQuotesToString(type, this.state.newDefaultValue);
+                                if (model.getInitialExpression()) {
+                                    model.getInitialExpression().setValue(newDefaultValue);
+                                } else {
+                                    model.setInitialExpression(NodeFactory.createLiteral({value: newDefaultValue}));
+                                }
                             }
                         }
                     }}

@@ -18,8 +18,6 @@
 
 import React from 'react';
 import _ from 'lodash';
-import Alerts from 'alerts';
-import log from 'log';
 import PropTypes from 'prop-types';
 import PanelDecorator from './../decorators/panel-decorator';
 import './struct-definition.css';
@@ -31,7 +29,6 @@ import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 import TreeUtils from './../../../../../model/tree-util';
 import Node from './../../../../../../ballerina/model/tree/node';
-import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 
@@ -73,22 +70,19 @@ class StructNode extends React.Component {
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
         const structSuggestions = this.context.environment.getTypes().map(name => ({ name }));
         if (!bType) {
-            const errorString = 'Struct Type Cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError('Struct field type cannot be empty');
+            return;
         }
         const bTypeExists = _.findIndex(structSuggestions, (type) => {
             return type.name === bType;
         }) !== -1;
         if (!bTypeExists) {
-            const errorString = `Invalid bType ${bType} provided`;
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError(`Invalid struct field type ${bType} provided`);
+            return;
         }
         if (!identifier || !identifier.length) {
-            const errorString = 'Identifier cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError('Struct field name cannot be empty');
+            return;
         }
 
         const { model } = this.props;
@@ -96,22 +90,25 @@ class StructNode extends React.Component {
             return field.getName().value === identifier;
         }) !== -1;
         if (identifierAlreadyExists) {
-            const errorString = `A variable with identifier ${identifier} already exists.`;
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError(`A struct field with the name ${identifier} already exists`);
+            return;
+        }
+        if (!this.validateDefaultValue(bType, defaultValue)) {
+            return;
         }
         let statement = bType + ' ' + identifier;
         if (defaultValue) {
             statement += ' = ' + defaultValue;
         }
         statement += ';';
-        parseContent(statement)
-            .then((jsonTree) => {
-                if (jsonTree.model.topLevelNodes[0]) {
-                    this.props.model.addFields(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
-                }
-            })
-            .catch(log.error);
+        const fragment = FragmentUtils.createStatementFragment(statement);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        if (!parsedJson.error) {
+            const structFieldNode = TreeBuilder.build(parsedJson);
+            this.props.model.addFields(structFieldNode.getVariable());
+        } else {
+            this.context.alert.showError('Invalid content provided !');
+        }
     }
     /**
      * Handle the default value if the data type is a string
@@ -165,20 +162,19 @@ class StructNode extends React.Component {
      */
     validateDefaultValue(type, value) {
         if (!value) {
-            return;
+            return true;
         }
         if (type === 'int' && /^[-]?\d+$/.test(value)) {
-            return;
+            return true;
         } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
-            return;
+            return true;
         } else if (type === 'boolean' && (/\btrue\b/.test(value) || /\bfalse\b/.test(value))) {
-            return;
+            return true;
         } else if (type === 'string') {
-            return;
+            return true;
         }
-        const errorString = 'Type of the default value is not compatible with the expected struct type';
-        Alerts.error(errorString);
-        throw errorString;
+        this.context.alert.showError('Type of the default value is not compatible with the expected struct field type');
+        return false;
     }
     /**
      * Hide new struct definition type dropdown
@@ -196,7 +192,7 @@ class StructNode extends React.Component {
             let currentValue;
             this.props.model.setFields([], true);
             refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
-                let currentName
+                let currentName;
                 if (TreeUtils.isLiteral(ketValPair.getKey())) {
                     currentName = ketValPair.getKey().getValue().replace(/"/g, '');
                 } else {
@@ -258,8 +254,7 @@ class StructNode extends React.Component {
         if (Node.isValidIdentifier(identifier)) {
             return true;
         }
-        const errorString = `Invalid identifier for a variable: ${identifier}`;
-        Alerts.error(errorString);
+        this.context.alert.showError(`Invalid identifier for a struct field: ${identifier}`);
         return false;
     }
     /**
@@ -268,15 +263,12 @@ class StructNode extends React.Component {
      */
     validateStructType(structType) {
         if (!structType || !structType.length) {
-            const errorString = 'Struct Type cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError('Struct field type cannot be empty');
+            return;
         }
 
         if (!Node.isValidType(structType)) {
-            const errorString = `Invalid Struct Type : ${structType}`;
-            Alerts.error(errorString);
-            throw errorString;
+            this.context.alert.showError(`Invalid struct field type : ${structType}`);
         }
     }
     /**
@@ -313,21 +305,21 @@ class StructNode extends React.Component {
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
-              <rect
-                  x={x + 480}
-                  y={y - 22}
-                  width={120}
-                  height={20}
-                  className="struct-import-json-button"
-                  onClick={e => this.onClickJsonImport()}
-              />
-              <text
-                  x={x + 485}
-                  y={y - 10}
-                  className="struct-import-json-text"
-                  onClick={e => this.onClickJsonImport()}
-              > {'Import from JSON'}
-              </text>
+                <rect
+                    x={x + 480}
+                    y={y - 22}
+                    width={120}
+                    height={20}
+                    className="struct-import-json-button"
+                    onClick={e => this.onClickJsonImport()}
+                />
+                <text
+                    x={x + 485}
+                    y={y - 10}
+                    className="struct-import-json-text"
+                    onClick={e => this.onClickJsonImport()}
+                > {'Import from JSON'}
+                </text>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
                 <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
@@ -474,7 +466,7 @@ class StructNode extends React.Component {
                                         model={child}
                                         key={child.getName().value}
                                         validateIdentifierName={this.validateIdentifierName}
-                                        validateDefaultValue={this.validateDefaultValue}
+                                        validateDefaultValue={this.validateDefaultValue.bind(this)}
                                         addQuotesToString={this.addQuotesToString}
                                         index={i}
                                     />
@@ -494,6 +486,13 @@ StructNode.contextTypes = {
     command: PropTypes.shape({
         on: PropTypes.func,
         dispatch: PropTypes.func,
+    }).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
     }).isRequired,
 };
 
