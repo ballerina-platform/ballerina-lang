@@ -17,7 +17,6 @@
  */
 import React from 'react';
 import _ from 'lodash';
-import log from 'log';
 import PropTypes from 'prop-types';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TagController from './../decorators/tag-component';
@@ -62,10 +61,10 @@ class ArgumentParameterDefinitionHolder extends React.Component {
                     }
                     this.props.model.addParameters(argumentParam, index + 1);
                 } else {
-                    log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+                    this.context.alert.showError('Invalid content provided');
                 }
             } else {
-                log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+                this.context.alert.showError('Invalid content provided');
             }
         }
     }
@@ -130,6 +129,13 @@ class ArgumentParameterDefinitionHolder extends React.Component {
 
 ArgumentParameterDefinitionHolder.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
+    alert: PropTypes.shape({
+        showInfo: PropTypes.func,
+        showSuccess: PropTypes.func,
+        showWarning: PropTypes.func,
+        showError: PropTypes.func,
+        closeEditor: PropTypes.func,
+    }).isRequired,
 };
 
 export default ArgumentParameterDefinitionHolder;
