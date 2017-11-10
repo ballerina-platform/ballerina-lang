@@ -70,18 +70,18 @@ class StructNode extends React.Component {
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
         const structSuggestions = this.context.environment.getTypes().map(name => ({ name }));
         if (!bType) {
-            this.context.alert.showError('Struct Type Cannot be empty');
+            this.context.alert.showError('Struct field type cannot be empty');
             return;
         }
         const bTypeExists = _.findIndex(structSuggestions, (type) => {
             return type.name === bType;
         }) !== -1;
         if (!bTypeExists) {
-            this.context.alert.showError(`Invalid bType ${bType} provided`);
+            this.context.alert.showError(`Invalid struct field type ${bType} provided`);
             return;
         }
         if (!identifier || !identifier.length) {
-            this.context.alert.showError('Identifier cannot be empty');
+            this.context.alert.showError('Struct field name cannot be empty');
             return;
         }
 
@@ -90,7 +90,7 @@ class StructNode extends React.Component {
             return field.getName().value === identifier;
         }) !== -1;
         if (identifierAlreadyExists) {
-            this.context.alert.showError(`A variable with identifier ${identifier} already exists`);
+            this.context.alert.showError(`A struct field with the name ${identifier} already exists`);
             return;
         }
         if (!this.validateDefaultValue(bType, defaultValue)) {
@@ -173,7 +173,7 @@ class StructNode extends React.Component {
         } else if (type === 'string') {
             return true;
         }
-        this.context.alert.showError('Type of the default value is not compatible with the expected struct type');
+        this.context.alert.showError('Type of the default value is not compatible with the expected struct field type');
         return false;
     }
     /**
@@ -254,7 +254,7 @@ class StructNode extends React.Component {
         if (Node.isValidIdentifier(identifier)) {
             return true;
         }
-        this.context.alert.showError(`Invalid identifier for a variable: ${identifier}`);
+        this.context.alert.showError(`Invalid identifier for a struct field: ${identifier}`);
         return false;
     }
     /**
@@ -263,12 +263,12 @@ class StructNode extends React.Component {
      */
     validateStructType(structType) {
         if (!structType || !structType.length) {
-            this.context.alert.showError('Struct Type cannot be empty');
+            this.context.alert.showError('Struct field type cannot be empty');
             return;
         }
 
         if (!Node.isValidType(structType)) {
-            this.context.alert.showError(`Invalid Struct Type : ${structType}`);
+            this.context.alert.showError(`Invalid struct field type : ${structType}`);
         }
     }
     /**
