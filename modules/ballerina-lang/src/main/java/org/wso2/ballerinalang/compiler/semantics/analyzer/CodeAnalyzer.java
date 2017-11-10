@@ -801,7 +801,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         
         public boolean everyoneDone() {
-            return !this.workerActionStateMachines.values().stream().anyMatch(e -> !e.done());
+            return this.workerActionStateMachines.values().stream().allMatch(WorkerActionStateMachine::done);
         }
         
         public DiagnosticPos getRootPosition() {
