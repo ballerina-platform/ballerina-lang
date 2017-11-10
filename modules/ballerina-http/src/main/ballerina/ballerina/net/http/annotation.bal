@@ -58,7 +58,7 @@ public annotation webSocket attach service<> {
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"allowOrigins: The array of origins with which the response is shared by the resource"}
-@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
+@Field {value:"allowCredentials: Specifies whether credentials are required to access the resource"}
 @Field {value:"allowMethods: The array of allowed methods by the resource"}
 @Field {value:"allowHeaders: The array of allowed headers by the resource"}
 @Field {value:"maxAge: The duration to cache the preflight from client side"}

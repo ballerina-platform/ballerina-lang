@@ -1,8 +1,8 @@
 package ballerina.net.ws;
 
-@Description {value: "Configuration for a WebSocket service."}
-@Field {value: "basePath: Path of the WebSocket service"}
-@Field {value: "subProtocols: Negotiable sub protocol by the service"}
+@Description {value:"Configuration for a WebSocket service."}
+@Field {value:"basePath: Path of the WebSocket service"}
+@Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
 @Field {value:"wssPort: WSS port number of service"}
@@ -22,6 +22,6 @@ public annotation configuration attach service<> {
     string certPassword;
 }
 
-@Description {value: "Service annotation to mark a WS service as a client service for a WS client connector."}
+@Description {value:"Service annotation to mark a WS service as a client service for a WS client connector."}
 public annotation clientService attach service<> {
 }

@@ -252,7 +252,7 @@ public struct Session {
 @Return { value:"HTTP Session struct" }
 public native function <Request req> createSessionIfAbsent () (Session);
 
-@Description { value:"Gets the Session struct from the request if if it is present" }
+@Description { value:"Gets the Session struct from the request if it is present" }
 @Param { value:"req: A request message" }
 @Return { value:"The HTTP Session struct assoicated with the request" }
 public native function <Request req> getSession () (Session);
