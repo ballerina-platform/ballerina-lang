@@ -21,9 +21,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.transaction.RollbackException;
 import javax.transaction.Status;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code BallerinaTransactionManager} manages local and distributed transactions in ballerina.
@@ -48,6 +51,18 @@ public class BallerinaTransactionManager {
 
     public void registerTransactionContext(String id, BallerinaTransactionContext txContext) {
         transactionContextStore.put(id, txContext);
+        XAResource xaResource = txContext.getXAResource();
+        if (xaResource != null) {
+            Transaction tx = getXATransaction();
+            try {
+                if (tx != null) {
+                    tx.enlistResource(xaResource);
+                }
+            } catch (SystemException | RollbackException | IllegalStateException e) {
+                throw new BallerinaException(
+                        "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
+            }
+        }
     }
 
     public BallerinaTransactionContext getTransactionContext(String id) {
@@ -91,6 +106,7 @@ public class BallerinaTransactionManager {
             commitNonXAConnections();
             closeAllConnections();
             commitXATransaction();
+            doneTransactionContexts();
         }
     }
 
@@ -99,7 +115,7 @@ public class BallerinaTransactionManager {
             rollbackNonXAConnections();
             rollbackXATransaction();
             closeAllConnections();
-            transactionContextStore.clear();
+            doneTransactionContexts();
         }
     }
 
@@ -115,7 +131,7 @@ public class BallerinaTransactionManager {
         return this.transactionManager != null;
     }
 
-    public Transaction getXATransaction() {
+    private Transaction getXATransaction() {
         Transaction tx = null;
         try {
             tx = transactionManager.getTransaction();
@@ -175,7 +191,7 @@ public class BallerinaTransactionManager {
 
     private void commitNonXAConnections() {
         transactionContextStore.forEach((k, v) -> {
-            if (!v.isXAConnection()) {
+            if (v.getXAResource() == null) {
                 v.commit();
             }
         });
@@ -183,7 +199,7 @@ public class BallerinaTransactionManager {
 
     private void rollbackNonXAConnections() {
         transactionContextStore.forEach((k, v) -> {
-            if (!v.isXAConnection()) {
+            if (v.getXAResource() == null) {
                 v.rollback();
             }
         });
@@ -193,5 +209,12 @@ public class BallerinaTransactionManager {
         transactionContextStore.forEach((k, v) -> {
             v.close();
         });
+    }
+
+    private void doneTransactionContexts() {
+        transactionContextStore.forEach((k, v) -> {
+            v.done();
+        });
+        transactionContextStore.clear();
     }
 }

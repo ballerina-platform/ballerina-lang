@@ -20,6 +20,7 @@ package org.ballerinalang.test.statements.arrays;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
@@ -457,7 +458,7 @@ public class ArrayTest {
         Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
 
         BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
-        BRefValueArray bXmlArray = new BRefValueArray(xmlArray);
+        BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXML);
         Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>, <bar>hello</bar>]");
     }
 }

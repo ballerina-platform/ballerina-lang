@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ConnectorType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -52,6 +53,6 @@ public class BConnectorType extends BType implements ConnectorType {
 
     @Override
     public String toString() {
-        return this.tsymbol.name.value;
+        return Names.DEFAULT_PACKAGE.equals(tsymbol.pkgID.name) ? tsymbol.name.value : getQualifiedTypeName();
     }
 }

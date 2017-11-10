@@ -20,7 +20,7 @@ service<ws> ChatApp {
     }
 
     resource onIdleTimeout(ws:Connection con) {
-        // Connection is closed due to inactivity after 1 hour
+        // Connection is closed due to inactivity after 1 hour.
         println("Idle timeout: " + con.getID());
         con.closeConnection(1000, "Closing connection due to inactivity in chat");
     }

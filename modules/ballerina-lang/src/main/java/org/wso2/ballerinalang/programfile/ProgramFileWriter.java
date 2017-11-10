@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -176,6 +177,11 @@ public class ProgramFileWriter {
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
+                case CP_ENTRY_TRANSFORMER_REF:
+                    TransformerRefCPEntry transformerRefEntry = (TransformerRefCPEntry) cpEntry;
+                    dataOutStream.writeInt(transformerRefEntry.packageCPIndex);
+                    dataOutStream.writeInt(transformerRefEntry.nameCPIndex);
+                    break;
             }
         }
     }
@@ -199,6 +205,13 @@ public class ProgramFileWriter {
         dataOutStream.writeShort(structTypeInfoEntries.length);
         for (StructInfo structInfo : structTypeInfoEntries) {
             writeStructInfo(dataOutStream, structInfo);
+        }
+
+        // Emit enum info entries
+        EnumInfo[] enumInfoEntries = packageInfo.getEnumInfoEntries();
+        dataOutStream.writeShort(enumInfoEntries.length);
+        for (EnumInfo enumInfo : enumInfoEntries) {
+            writeEnumInfo(dataOutStream, enumInfo);
         }
 
         // Emit Connector info entries
@@ -228,7 +241,13 @@ public class ProgramFileWriter {
         // Emit function info entries
         dataOutStream.writeShort(packageInfo.functionInfoMap.size());
         for (FunctionInfo functionInfo : packageInfo.functionInfoMap.values()) {
-            writeFunctionInfo(dataOutStream, functionInfo);
+            writeCallableUnitInfo(dataOutStream, functionInfo);
+        }
+
+        // Emit transformer info entries
+        dataOutStream.writeShort(packageInfo.transformerInfoMap.size());
+        for (TransformerInfo transformerInfo : packageInfo.transformerInfoMap.values()) {
+            writeCallableUnitInfo(dataOutStream, transformerInfo);
         }
 
         // TODO Emit AnnotationInfo entries
@@ -254,31 +273,36 @@ public class ProgramFileWriter {
         }
     }
 
-    private static void writeFunctionInfo(DataOutputStream dataOutStream,
-                                          FunctionInfo functionInfo) throws IOException {
-        dataOutStream.writeInt(functionInfo.nameCPIndex);
-        dataOutStream.writeInt(functionInfo.signatureCPIndex);
+    /**
+     * Write function info and transformer info entries to the compiling file.
+     * 
+     * @param dataOutStream Output stream to write
+     * @param callableUnitInfo Info object of the callable unit
+     * @throws IOException
+     */
+    private static void writeCallableUnitInfo(DataOutputStream dataOutStream,
+                                          CallableUnitInfo callableUnitInfo) throws IOException {
+        dataOutStream.writeInt(callableUnitInfo.nameCPIndex);
+        dataOutStream.writeInt(callableUnitInfo.signatureCPIndex);
 
-        // TODO Temp solution
-        boolean b = (functionInfo.flags & Flags.NATIVE) == Flags.NATIVE;
+        boolean b = (callableUnitInfo.flags & Flags.NATIVE) == Flags.NATIVE;
         dataOutStream.writeByte(b ? 1 : 0);
-        //dataOutStream.writeInt(functionInfo.flags);
 
-        WorkerDataChannelInfo[] workerDataChannelInfos = functionInfo.getWorkerDataChannelInfo();
+        WorkerDataChannelInfo[] workerDataChannelInfos = callableUnitInfo.getWorkerDataChannelInfo();
         dataOutStream.writeShort(workerDataChannelInfos.length);
         for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
             writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
         }
 
-        WorkerInfo defaultWorker = functionInfo.defaultWorkerInfo;
-        WorkerInfo[] workerInfoEntries = functionInfo.getWorkerInfoEntries();
+        WorkerInfo defaultWorker = callableUnitInfo.defaultWorkerInfo;
+        WorkerInfo[] workerInfoEntries = callableUnitInfo.getWorkerInfoEntries();
         dataOutStream.writeShort(workerInfoEntries.length + 1);
         writeWorkerInfo(dataOutStream, defaultWorker);
         for (WorkerInfo workerInfo : workerInfoEntries) {
             writeWorkerInfo(dataOutStream, workerInfo);
         }
 
-        writeAttributeInfoEntries(dataOutStream, functionInfo.getAttributeInfoEntries());
+        writeAttributeInfoEntries(dataOutStream, callableUnitInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerDataChannelInfo(DataOutputStream dataOutStream,
@@ -300,6 +324,20 @@ public class ProgramFileWriter {
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
     }
+
+    private static void writeEnumInfo(DataOutputStream dataOutStream,
+                                        EnumInfo enumInfo) throws IOException {
+        dataOutStream.writeInt(enumInfo.nameCPIndex);
+        EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
+        dataOutStream.writeShort(enumeratorInfoEntries.length);
+        for (EnumeratorInfo enumeratorInfo : enumeratorInfoEntries) {
+            dataOutStream.writeInt(enumeratorInfo.nameCPIndex);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, enumInfo.getAttributeInfoEntries());
+    }
+
 
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {

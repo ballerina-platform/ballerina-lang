@@ -3,8 +3,12 @@ import ballerina.net.uri;
 import ballerina.util;
 
 function main (string[] args) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
-    http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com", {});
+    endpoint<http:HttpClient> tweeterEP {
+        create http:HttpClient("https://api.twitter.com", {});
+    }
+    endpoint<http:HttpClient> mediumEP {
+        create http:HttpClient("https://medium.com", {});
+    }
     int argumentLength = lengthof args;
     if (argumentLength < 4) {
         println("Incorrect number of arguments");
@@ -15,7 +19,9 @@ function main (string[] args) {
         string accessToken = args[2];
         string accessTokenSecret = args[3];
         http:Request request = {};
-        http:Response mediumResponse = mediumEP.get("/feed/@wso2", request);
+        http:Response mediumResponse = {};
+        http:HttpConnectorError err;
+        mediumResponse, err = mediumEP.get("/feed/@wso2", request);
         xml feedXML = mediumResponse.getXmlPayload();
         string title = feedXML.selectChildren("channel").selectChildren("item")[1].selectChildren("title").getTextValue();
 
@@ -24,7 +30,8 @@ function main (string[] args) {
         http:Request twitterRequest = {};
         twitterRequest.setHeader("Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
-        http:Response response = tweeterEP.post(tweetPath, twitterRequest);
+        http:Response response = {};
+        response, err = tweeterEP.post(tweetPath, twitterRequest);
 
         int statusCd = response.getStatusCode();
         if (statusCd == 200) {

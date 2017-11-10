@@ -10,7 +10,9 @@ connector Foo(string name, int age) {
 }
 
 function testConnectorInit() (string, int){
-    Foo f = create Foo("John");
+    endpoint<Foo> f {
+        create Foo("John");
+    }
     var s,i = f.getNameAndAge("sam", 50);
     return s,i;
 }

@@ -32,7 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class BServerConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
-    private BValue response;
+    private BValue[] response;
     private BallerinaException ex;
     private boolean success = false;
 
@@ -61,7 +61,7 @@ public class BServerConnectorFuture implements ConnectorFuture {
         }
     }
 
-    public void notifyReply(BValue response) {
+    public void notifyReply(BValue... response) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
             connectorFutureListener.notifyReply(response);

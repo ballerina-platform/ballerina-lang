@@ -49,12 +49,20 @@
             <artifactId>ballerina-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
         </dependency>
     </dependencies>
 

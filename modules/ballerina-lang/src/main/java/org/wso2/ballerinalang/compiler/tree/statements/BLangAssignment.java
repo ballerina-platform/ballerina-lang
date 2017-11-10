@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,9 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
         this.varRefs = new ArrayList<>();
     }
 
-    public BLangAssignment(List<BLangExpression> varRefs, BLangExpression expr, boolean declaredWithVar) {
+    public BLangAssignment(DiagnosticPos pos, List<BLangExpression> varRefs,
+                           BLangExpression expr, boolean declaredWithVar) {
+        this.pos = pos;
         this.varRefs = varRefs;
         this.expr = expr;
         this.declaredWithVar = declaredWithVar;

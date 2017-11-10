@@ -20,8 +20,6 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.ArrayList;
-
 /**
  * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina.
  *
@@ -45,7 +43,7 @@ public class BDataTableType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDataTable(null, new ArrayList<>(0));
+        return (V) new BDataTable(null);
     }
 
     @Override

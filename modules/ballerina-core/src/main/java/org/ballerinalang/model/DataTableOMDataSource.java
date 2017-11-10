@@ -55,7 +55,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.writeStartElement(this.rootWrapper);
         while (dataTable.hasNext(this.isInTransaction)) {
             xmlStreamWriter.writeStartElement(this.rowWrapper);
-            for (BDataTable.ColumnDefinition col : dataTable.getColumnDefs()) {
+            for (ColumnDefinition col : dataTable.getColumnDefs()) {
                 boolean isArray = false;
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
@@ -97,7 +97,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, BDataTable.ColumnDefinition col)
+    private void processArray(XMLStreamWriter xmlStreamWriter, ColumnDefinition col)
             throws XMLStreamException {
         Map<String, Object> array = dataTable.getArray(col.getName());
         if (array != null && !array.isEmpty()) {

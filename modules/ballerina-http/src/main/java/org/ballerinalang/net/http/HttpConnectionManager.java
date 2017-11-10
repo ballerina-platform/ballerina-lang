@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.LogManager;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -270,7 +272,9 @@ public class HttpConnectionManager {
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        return System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null ? true : false;
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
@@ -321,10 +325,10 @@ public class HttpConnectionManager {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
         int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
+        senderConfiguration.setChunkDisabled(chunkDisabled == 1);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {

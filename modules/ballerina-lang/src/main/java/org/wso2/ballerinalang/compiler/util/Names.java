@@ -38,6 +38,7 @@ public class Names {
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
+    public static final Name TRANSFORMER = new Name("transformer");
     public static final Name ERROR = new Name("error");
     public static final Name ERROR_TYPE_CAST = new Name("TypeCastError");
     public static final Name ERROR_TYPE_CONVERSION = new Name("TypeConversionError");

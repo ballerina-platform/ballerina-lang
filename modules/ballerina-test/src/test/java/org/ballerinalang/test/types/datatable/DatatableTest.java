@@ -33,7 +33,10 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -295,6 +298,22 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "DatatablesTest", description = "Check whether printing of datatable variables is handled properly.")
+    public void testDatatablePrintAndPrintln() throws IOException {
+        PrintStream original = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BRunUtil.invoke(result, "testPrintandPrintlnDatatable");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
     @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.")
     public void testDatatableAutoClose() {
         BValue[] args = {};
@@ -320,6 +339,14 @@ public class DatatableTest {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "DatatableTest", description = "Check select methods for primitive types.")
+    public void testMutltipleRows() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
     @AfterSuite

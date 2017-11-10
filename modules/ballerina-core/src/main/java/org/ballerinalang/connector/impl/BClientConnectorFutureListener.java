@@ -52,8 +52,10 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
     }
 
     @Override
-    public void notifyReply(BValue response) {
-        context.getControlStackNew().currentFrame.returnValues[0] = response;
+    public void notifyReply(BValue... response) {
+        for (int i = 0; i < response.length; i++) {
+            context.getControlStackNew().currentFrame.returnValues[i] = response[i];
+        }
         done();
     }
 
