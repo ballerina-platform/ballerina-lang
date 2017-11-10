@@ -322,7 +322,7 @@ class WorkspacePlugin extends Plugin {
                                 description: 'Refresh',
                             },
                             {
-                                icon: 'add-folder',
+                                icon: 'folder-open',
                                 isActive: () => {
                                     return true;
                                 },
