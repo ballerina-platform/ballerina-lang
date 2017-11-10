@@ -254,19 +254,12 @@ class StructNode extends React.Component {
         if (Node.isValidIdentifier(identifier)) {
             return true;
         }
-        this.context.alert.showError(`Invalid identifier for a struct field: ${identifier}`);
-        return false;
     }
     /**
      * Validate struct type
      * @param {string} structType - struct type
      */
     validateStructType(structType) {
-        if (!structType || !structType.length) {
-            this.context.alert.showError('Struct field type cannot be empty');
-            return;
-        }
-
         if (!Node.isValidType(structType)) {
             this.context.alert.showError(`Invalid struct field type : ${structType}`);
         }
