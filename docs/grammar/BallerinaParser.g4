@@ -271,12 +271,18 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
-mapStructLiteral
-    :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
+recordLiteral
+    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
-mapStructKeyValue
-    :   expression COLON expression
+recordKeyValue
+    :   recordKey COLON expression
+    ;
+
+recordKey
+    :   Identifier
+    |   simpleLiteral
+    |   stringTemplateLiteral
     ;
 
 arrayLiteral
@@ -481,7 +487,7 @@ namespaceDeclaration
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   arrayLiteral                                                        # arrayLiteralExpression
-    |   mapStructLiteral                                                    # mapStructLiteralExpression
+    |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression

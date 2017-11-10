@@ -31,3 +31,9 @@ function testComplexMapInit() (map) {
             };
     return m;
 }
+
+function testMapInitWithStringTemplateAsKey() (map) {
+    string prefix = "first";
+    map m = {string `{{prefix}}name` : "John"};
+    return m;
+}

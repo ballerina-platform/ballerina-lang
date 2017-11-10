@@ -474,6 +474,8 @@ public class Desugar extends BLangNodeVisitor {
             if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
+            } else {
+                keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             }
 
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
