@@ -274,6 +274,11 @@ public native function <Session session> setAttribute (string attributeKey, any 
 @Return { value:"string[]: HTTPSession attribute name array" }
 public native function <Session session> getAttributeNames () (string[]);
 
+@Description { value:"Gets the session attribute key value pairs as a map" }
+@Param { value:"session: A session struct" }
+@Return { value:"The map of session attributes key value pairs" }
+public native function <Session session> getAttributes () (map);
+
 @Description { value:"Gets the session attribute" }
 @Param { value:"session: A session struct" }
 public native function <Session session> invalidate ();

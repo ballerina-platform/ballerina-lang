@@ -26,7 +26,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.Serializable;
 
 /**
- * HTTPSession represents a Java session object.
+ * HTTPSession represents the Java session object.
  *
  * @since 0.89
  */
