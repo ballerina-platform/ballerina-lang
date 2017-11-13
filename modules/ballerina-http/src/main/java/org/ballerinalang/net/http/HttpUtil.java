@@ -714,9 +714,17 @@ public class HttpUtil {
         }
     }
 
+    /**
+     * Get multiparts.
+     *
+     * @param context                Context
+     * @param abstractNativeFunction AbstractNativeFunction
+     * @param isRequest              boolean to indicate that this is a http request message
+     * @return BValue[]
+     */
     public static BValue[] getMultipartData(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
-        BRefValueArray partsArray = null;
+        BRefValueArray partsArray;
         List<HttpBodyPart> multiparts = null;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);

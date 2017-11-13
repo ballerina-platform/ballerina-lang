@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.Context;
@@ -17,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility functions to handle multipart data.
+ */
 public class MultipartUtil {
     private static final Logger log = LoggerFactory.getLogger(MultipartUtil.class);
 
@@ -26,6 +47,12 @@ public class MultipartUtil {
     private static final int CONTENT_TYPE = 2;
     private static final int PART_SIZE = 0;
 
+    /**
+     * Extract multipart data from input stream.
+     *
+     * @param inputStream InputStream
+     * @return List<HttpBodyPart>
+     */
     public static List<HttpBodyPart> extractMultiparts(InputStream inputStream) {
         List<HttpBodyPart> multiparts = null;
         try {
@@ -39,6 +66,13 @@ public class MultipartUtil {
         return multiparts;
     }
 
+    /**
+     * Build an array of 'Part' structs.
+     *
+     * @param context    Context
+     * @param multiparts list of multipart bodies.
+     * @return BRefValueArray
+     */
     public static BRefValueArray fillPartsArray(Context context, List<HttpBodyPart> multiparts) {
         ArrayList<BStruct> parts = new ArrayList<>();
         for (HttpBodyPart httpBodyPart : multiparts) {
@@ -56,6 +90,12 @@ public class MultipartUtil {
         return null;
     }
 
+    /**
+     * Populate 'Part' struct from a http body part.
+     *
+     * @param httpBodyPart Http body part
+     * @param balPart      BStruct
+     */
     private static void populatePartStructs(HttpBodyPart httpBodyPart, BStruct balPart) {
         balPart.setBlobField(ACTUAL_CONTENT, httpBodyPart.getContent());
         balPart.setStringField(FILE_NAME, httpBodyPart.getFileName());
@@ -64,8 +104,10 @@ public class MultipartUtil {
         balPart.setIntField(PART_SIZE, httpBodyPart.getSize());
     }
 
-
-    public static class MultipartDataSource  implements MessageDataSource{
+    /**
+     * A static class to represent a list of body part as a message data source.
+     */
+    public static class MultipartDataSource implements MessageDataSource {
         private List<HttpBodyPart> bodyParts = null;
 
         MultipartDataSource(List<HttpBodyPart> bodyParts) {
