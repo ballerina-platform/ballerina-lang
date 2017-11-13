@@ -9,20 +9,20 @@
     + [Plugin Activate](#plugin-activate)
       - [App Context](#app-context)
     + [After Initial Render](#after-initial-render)
-  * [Core plugins and their APIs](#core-plugins-and-their-apis)
-  * [Available extension points](#available-extension-points)
-    + [command](#command)
-    + [handlers](#handlers)
-    + [menus](#menus)
-    + [tools](#tools)
-    + [dialogs](#dialogs)
-    + [views](#views)
-      - [Contributing a View to Left Panel](#contributing-a-view-to-left-panel)
-      - [Contributing a View to Bottom Panel](#contributing-a-view-to-bottom-panel)
-      - [Contributing a View as a Custom Editor Tab](#contributing-a-view-as-a-custom-editor-tab)
-    + [editors](#editors)
-      - [Contributing an editor for a file type](#contributing-an-editor-for-a-file-type)
-    + [APIs available to React Components via React Context](#apis-available-to-react-components-via-react-context)
+- [Core plugins and their APIs](#core-plugins-and-their-apis)
+- [Available extension points](#available-extension-points)
+  * [command](#command)
+  * [handlers](#handlers)
+  * [menus](#menus)
+  * [tools](#tools)
+  * [dialogs](#dialogs)
+  * [views](#views)
+    + [Contributing a View to Left Panel](#contributing-a-view-to-left-panel)
+    + [Contributing a View to Bottom Panel](#contributing-a-view-to-bottom-panel)
+    + [Contributing a View as a Custom Editor Tab](#contributing-a-view-as-a-custom-editor-tab)
+  * [editors](#editors)
+    + [Contributing an editor for a file type](#contributing-an-editor-for-a-file-type)
+- [APIs available to React Components via React Context](#apis-available-to-react-components-via-react-context)
 
 <!-- tocstop -->
 
@@ -210,7 +210,7 @@ class WelcomeTabPlugin extends Plugin {
 ```
 
 
-## Core plugins and their APIs
+# Core plugins and their APIs
 
 Below are the APIs from core plugins which are available through appContext.
 
@@ -247,7 +247,7 @@ Below are the APIs from core plugins which are available through appContext.
     - isFilePathOpenedInExplorer(filePath) : Returns true if a parent folder containing given path is opened in explorer
     - refreshPathInExplorer(filePath) : Refresh the explorer item for given path if a parent folder of it is already opened
 
-## Available extension points
+# Available extension points
 
 > Please note that, as of now, these extension points only allow contributing to higher level components of the Composer. In future we are planning to improve plugins to accept contributions from other plugins. For example, contributing to ballerina tool pallete will become possible after making plugins capable of defining their own extension points. As a first step, we have made basic components of the Composer front end pluggable and we will keep on improving it to allow more flexibility. 
 
@@ -306,7 +306,7 @@ class WelcomeTabPlugin extends Plugin {
 
 Please note that contribution schemas are defined using syntax of  [proptypes](https://www.npmjs.com/package/prop-types) library. If you are familiar with react prop types validations, well this is the same syntax.
 
-### command
+## command
 
 Commands allow plugins to define an executable action identified by a unique ID. It allows shortcut keys to be binded to dispatch that action. Or to dispatch the command programatically you can use `appContext.command.dispatch(cmdId, argObject)` method.
 
@@ -350,7 +350,7 @@ In a command definition, provide argTypes object to validate commands arguments 
 },
 ```
 
-### handlers
+## handlers
 Handlers allow plugins to register a piece of code which will be executed upon a particular [command](#command) dispatch - either by shortcut keypress or programmatically.
 
 
@@ -381,7 +381,7 @@ Handlers allow plugins to register a piece of code which will be executed upon a
     },
 },
 ```
-### menus
+## menus
 
 Menus allow plugins to contribute menu items for top menu. New menu items can be added to existing menus or new root menus can be added. 
 
@@ -458,7 +458,7 @@ A leaf menu can be associated with a command which will be dispatched upon click
     type: MENU_DEF_TYPES.ITEM,
 },
 ```
-### tools
+## tools
 
 A plugin can add tools to tool bar via TOOLS contributions. 
 Tools can be grouped together using `group` property.
@@ -534,7 +534,7 @@ In contrast to menus, tools have two call backs for controlling its state.
 }
 
 ```
-### dialogs
+## dialogs
 
 Dialogs are rendered as modals on top of composer, blocking user actions in the background.
 
@@ -634,7 +634,7 @@ dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id, additionalProps });
 
 ```
 
-### views
+## views
 
 Similar to [Dialogs](#dialogs), a view is also a react component identified by a unique ID and it takes a prop provider function to create props for the react component at render time.
 
@@ -666,7 +666,7 @@ All the components contributed as views will receive two implicit props called `
 
 ```
 
-#### Contributing a View to Left Panel
+### Contributing a View to Left Panel
 
 [Example Explorer View](./../../modules/web/src/core/workspace/plugin.js#L273)
 
@@ -714,7 +714,7 @@ All the components contributed as views will receive two implicit props called `
 
 ```
 
-#### Contributing a View to Bottom Panel
+### Contributing a View to Bottom Panel
 
 [Example Run Console](./../../modules/web/src/plugins/debugger/plugin.js#L136)
 
@@ -738,7 +738,7 @@ All the components contributed as views will receive two implicit props called `
     },
 },
 ```
-#### Contributing a View as a Custom Editor Tab
+### Contributing a View as a Custom Editor Tab
 
 [Example Welome Page](./../../modules/web/src/plugins/welcome-tab/plugin.js#L90)
 
@@ -774,7 +774,7 @@ Unlike left or bottom panel views, cutom editor tab views are not rendered by de
 const { command } = plugin.appContext;
 command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEWS.WELCOME_TAB_VIEW_ID });
 ```
-### editors
+## editors
 
 By contributing an editor for a certain file extension, plugins are able to control what to render in editor tab that is going to be rendered in editor area. ATM, only one editor is contributed via ballerina plugin which is responsible for retrieving bal file content and rendering design/source views in editor area.
 
@@ -811,7 +811,7 @@ The react component for editor area will implicitely receive below props from co
 
 ```
 
-#### Contributing an editor for a file type
+### Contributing an editor for a file type
 If the editor supports split view preview, they can provide the component for preview view too. Both component will recevie sampe props.
 It is possible to sync updated content via file instance passed in props.
 
@@ -841,7 +841,7 @@ It is possible to sync updated content via file instance passed in props.
 
 ```
 
-### APIs available to React Components via React Context
+# APIs available to React Components via React Context
 
 To all React components contributed via plugins, below APIs are available via react context implicitly.
 
