@@ -187,9 +187,7 @@ standard_stream
     ;
 
 join_stream
-    :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)? (within_time_range per)?
-    |left_source=join_source join right_source=join_source (ON expression)? (within_time_range per)?
-    |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)? (within_time_range per)?
+    :left_source=join_source (join right_source=join_source (right_unidirectional=UNIDIRECTIONAL)? | left_unidirectional=UNIDIRECTIONAL join right_source=join_source) (ON expression)? (within_time_range per)?
     ;
 
 join_source
