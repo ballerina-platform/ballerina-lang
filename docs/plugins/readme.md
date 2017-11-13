@@ -1,3 +1,31 @@
+
+
+<!-- toc -->
+
+- [Writing plugins for Ballerina Composer](#writing-plugins-for-ballerina-composer)
+  * [Plugin Life-Cycle](#plugin-life-cycle)
+    + [Plugin Init](#plugin-init)
+      - [Plugin Context](#plugin-context)
+    + [Plugin Activate](#plugin-activate)
+      - [App Context](#app-context)
+    + [After Initial Render](#after-initial-render)
+  * [Core plugins and their APIs](#core-plugins-and-their-apis)
+  * [Available extension points](#available-extension-points)
+    + [command](#command)
+    + [handlers](#handlers)
+    + [menus](#menus)
+    + [tools](#tools)
+    + [dialogs](#dialogs)
+    + [views](#views)
+      - [Contributing a View to Left Panel](#contributing-a-view-to-left-panel)
+      - [Contributing a View to Bottom Panel](#contributing-a-view-to-bottom-panel)
+      - [Contributing a View as a Custom Editor Tab](#contributing-a-view-as-a-custom-editor-tab)
+    + [editors](#editors)
+      - [Contributing an editor for a file type](#contributing-an-editor-for-a-file-type)
+    + [APIs available to React Components via React Context](#apis-available-to-react-components-via-react-context)
+
+<!-- tocstop -->
+
 # Writing plugins for Ballerina Composer
 
 A Componser front-end plugin is a javascript class which is extended from [Plugin](./../../modules/web/src/core/plugin/plugin.js) class and it should provide a no arg constructor. Each plugin should also provide a unique ID via `getID()` method. A plugin can contribute to various [extension points available](#available-extension-points) in composer front-end by

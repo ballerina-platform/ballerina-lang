@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -80,6 +81,7 @@ public class BLangFileRestService {
     private static final String SYMBOL_TYPE = "symbolType";
     private static final String INVOCATION_TYPE = "invocationType";
     public static final String UNESCAPED_VALUE = "unescapedValue";
+    public static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
     @POST
     @Path("/file/validate-and-parse")
@@ -318,8 +320,34 @@ public class BLangFileRestService {
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
 
+        Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
+        Matcher pkgMatcher = pkgPattern.matcher(content);
+        String programDir = null;
+        String unitToCompile = fileName;
+        if (pkgMatcher.find())
+        {
+            final String packageName = pkgMatcher.group(1);
+            if (bFileRequest.needProgramDir() && packageName != null) {
+                List<String> pathParts = Arrays.asList(filePath.split(Pattern.quote(File.separator)));
+                List<String> pkgParts = Arrays.asList(packageName.split(Pattern.quote(".")));
+                Collections.reverse(pkgParts);
+                boolean foundProgramDir = true;
+                for (int i = 1; i <= pkgParts.size(); i++) {
+                    if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
+                        foundProgramDir = false;
+                        break;
+                    }
+                }
+                if (foundProgramDir) {
+                    List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
+                    programDir = String.join(File.separator, programDirParts);
+                    unitToCompile = packageName;
+                }
+            }
+        }
+
         final BallerinaFile ballerinaFile = Files.exists(Paths.get(filePath, fileName))
-                ? WorkspaceUtils.getBallerinaFile(filePath, fileName)
+                ? WorkspaceUtils.getBallerinaFile(programDir != null ? programDir : filePath, unitToCompile)
                 : WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE);
 
         final BLangPackage model = ballerinaFile.getBLangPackage();
@@ -379,26 +407,9 @@ public class BLangFileRestService {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
             result.add("packageInfo", packageInfo);
         }
-
-        if (bFileRequest.needProgramDir() && (model != null && model.pkgDecl != null)) {
-            List<String> pathParts = Arrays.asList(filePath.split(Pattern.quote(File.separator)));
-            List<String> pkgParts = model.pkgDecl.pkgNameComps.stream()
-                    .map(identifier -> identifier.value).collect(Collectors.toList());
-            Collections.reverse(pkgParts);
-            boolean foundProgramDir = true;
-            for (int i = 1; i <= pkgParts.size(); i++) {
-                if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
-                    foundProgramDir = false;
-                    break;
-                }
-            }
-            if (foundProgramDir) {
-                List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
-                String programDir = String.join(File.separator, programDirParts);
-                result.addProperty("programDirPath", programDir);
-            }
+        if (programDir != null) {
+            result.addProperty("programDirPath", programDir);
         }
-
         return result;
     }
 
