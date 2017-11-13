@@ -751,9 +751,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         // Find duplicates
-        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            enclScope.define(varSymbol.name, varSymbol);
+        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.errType;
         }
+        enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }
 

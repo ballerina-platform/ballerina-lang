@@ -106,7 +106,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-
+        if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
+                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+            dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
+            return false;
+        }
         if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
             // Found symbol is a type symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
@@ -325,6 +329,10 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
+            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
+                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                return entry.symbol;
+            }
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
                 return entry.symbol;
             }
