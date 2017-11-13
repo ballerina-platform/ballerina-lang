@@ -75,6 +75,7 @@ public enum DiagnosticCode {
     TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
     TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
     TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
+    TRANSFORMER_UNSUPPORTED_TYPES("transformer.unsupported.types"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
