@@ -25,9 +25,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
-import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
@@ -325,7 +322,8 @@ public class AggregationParser {
             List<IncrementalAttributeAggregator> incrementalAttributeAggregators, List<Variable> groupByVariableList,
             List<Expression> outputExpressions) {
         ExpressionExecutor[] timeStampTimeZoneExecutors = setTimeStampTimeZoneExecutors(aggregationDefinition,
-                siddhiAppContext, tableMap, incomingVariableExpressionExecutors, aggregatorName, incomingMetaStreamEvent);
+                siddhiAppContext, tableMap, incomingVariableExpressionExecutors, aggregatorName,
+                incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
         incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));

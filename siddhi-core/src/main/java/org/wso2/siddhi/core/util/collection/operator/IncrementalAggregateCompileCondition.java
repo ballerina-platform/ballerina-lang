@@ -51,11 +51,12 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private final StreamEventCloner tableEventCloner;
     private final StreamEventPool streamEventPoolForAggregateMeta;
     private final StreamEventCloner aggregateEventCloner;
+    private final int[] metaStreamArraySizes;
 
     public IncrementalAggregateCompileCondition(
             Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,
             CompiledCondition inMemoryStoreCompileCondition, CompiledCondition onCompiledCondition,
-            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent) {
+            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent, int[] metaStreamArraySizes) {
         this.withinTableCompiledConditions = withinTableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.onCompiledCondition = onCompiledCondition;
@@ -67,6 +68,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
         this.streamEventPoolForAggregateMeta = new StreamEventPool(aggregateMetaSteamEvent, 10);
         this.aggregateEventCloner = new StreamEventCloner(aggregateMetaSteamEvent, streamEventPoolForAggregateMeta);
+        this.metaStreamArraySizes = metaStreamArraySizes;
     }
 
     @Override
@@ -77,19 +79,39 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         }
         return new IncrementalAggregateCompileCondition(copyOfWithinTableCompiledConditions,
                 inMemoryStoreCompileCondition.cloneCompiledCondition(key),
-                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent);
+                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
+                metaStreamArraySizes);
     }
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
             List<TimePeriod.Duration> incrementalDurations, Table tableForPerDuration,
             List<ExpressionExecutor> baseExecutors, ExpressionExecutor timestampExecutor,
-            List<ExpressionExecutor> outputExpressionExecutors) {
+            List<ExpressionExecutor> outputExpressionExecutors, Long[] startTimeEndTime) {
 
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldWithinMatches = new ComplexEventChunk<>(true);
 
+        StreamEvent incomingMatchingStreamEvent = matchingEvent.getStreamEvent(0); // TODO: 11/13/17 is this always 0?
+        StateEvent newMatchingStateEvent = new StateEvent(matchingEvent.getStreamEvents().length, 0);
+        StreamEvent newMatchingStreamEvent = new StreamEvent(metaStreamArraySizes[0], metaStreamArraySizes[1],
+                metaStreamArraySizes[2]);
+
+        if (metaStreamArraySizes[0] > 0) {
+            newMatchingStreamEvent.setBeforeWindowData(incomingMatchingStreamEvent.getBeforeWindowData());
+        }
+        if (metaStreamArraySizes[1] > 0) {
+            newMatchingStreamEvent.setOnAfterWindowData(incomingMatchingStreamEvent.getOnAfterWindowData());
+        }
+        if (metaStreamArraySizes[2] > 2) {
+            newMatchingStreamEvent.setOutputData(incomingMatchingStreamEvent.getOutputData());
+        }
+
+        newMatchingStreamEvent.setOutputData(startTimeEndTime[0], metaStreamArraySizes[2] - 2);
+        newMatchingStreamEvent.setOutputData(startTimeEndTime[1], metaStreamArraySizes[2] - 1);
+        newMatchingStateEvent.setEvent(0, newMatchingStreamEvent); // TODO: 11/13/17 always 0?
+
         // Get all the aggregates within the given duration, from table corresponding to "per" duration
-        StreamEvent withinMatchFromPersistedEvents = tableForPerDuration.find(matchingEvent,
+        StreamEvent withinMatchFromPersistedEvents = tableForPerDuration.find(newMatchingStateEvent,
                 withinTableCompiledConditions.get(perValue));
         complexEventChunkToHoldWithinMatches.add(withinMatchFromPersistedEvents);
 
@@ -102,7 +124,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         BaseIncrementalValueStore oldestInMemoryEvent = getOldestInMemoryEvent(incrementalExecutorMap,
                 incrementalDurations, perValue);
 
-        if (requiresAggregatingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, matchingEvent)) {
+        if (requiresAggregatingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, newMatchingStateEvent)) {
             IncrementalDataAggregator incrementalDataAggregator = new IncrementalDataAggregator(incrementalDurations,
                     perValue, baseExecutors, timestampExecutor, tableMetaStreamEvent);
 
@@ -111,7 +133,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                     .aggregateInMemoryData(incrementalExecutorMap);
 
             // Get the in-memory aggregate data, which is within given duration
-            StreamEvent withinMatchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
+            StreamEvent withinMatchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(newMatchingStateEvent,
                     aggregatedInMemoryEventChunk, tableEventCloner);
             complexEventChunkToHoldWithinMatches.add(withinMatchFromInMemory);
         }
