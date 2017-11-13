@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -39,7 +40,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -77,7 +78,10 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             );
             handshakeStruct.setRefField(0, bUpgradeHeaders);
 
-            BValue[] bValues = {handshakeStruct};
+            List<ParamDetail> parameterDetails = onHandshakeResource.getParamDetails();
+            BValue[] bValues = new BValue[parameterDetails.size()];
+            bValues[0] = handshakeStruct;
+            WebSocketDispatcher.setPathParams(bValues, wsServiceInfo, parameterDetails, 1);
             ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
@@ -170,10 +174,15 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
 
                 Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
-                BValue[] bValues = {wsConnection};
+
                 if (onOpenResource == null) {
                     return;
                 }
+
+                List<ParamDetail> parameterDetails = onOpenResource.getParamDetails();
+                BValue[] bValues = new BValue[parameterDetails.size()];
+                bValues[0] = wsConnection;
+                WebSocketDispatcher.setPathParams(bValues, wsServiceInfo, parameterDetails, 1);
                 ConnectorFuture future = Executor.submit(onOpenResource, null, bValues);
                 future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
             }

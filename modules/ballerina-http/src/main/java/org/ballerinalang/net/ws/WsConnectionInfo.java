@@ -20,8 +20,6 @@ package org.ballerinalang.net.ws;
 
 import org.ballerinalang.model.values.BStruct;
 
-import java.util.Map;
-
 /**
  * Details about the connection details after successful handshake.
  */
