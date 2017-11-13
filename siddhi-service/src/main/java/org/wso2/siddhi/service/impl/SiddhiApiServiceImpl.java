@@ -77,7 +77,7 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
 
                     siddhiAppSpecificInputHandlerMap.put(siddhiAppName, inputHandlerMap);
 
-                    siddhiAppRunTimeMap.put(siddhiApp, siddhiAppRuntime);
+                    siddhiAppRunTimeMap.put(siddhiAppName, siddhiAppRuntime);
                     siddhiAppRuntime.start();
 
                     jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
@@ -100,21 +100,21 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
     }
 
     @Override
-    public Response siddhiArtifactUndeploySiddhiAppGet(String siddhiApp) throws NotFoundException {
+    public Response siddhiArtifactUndeploySiddhiAppGet(String siddhiAppName) throws NotFoundException {
 
         String jsonString = new Gson().toString();
-        if (siddhiApp != null) {
-            if (siddhiAppRunTimeMap.containsKey(siddhiApp)) {
-                siddhiAppRunTimeMap.remove(siddhiApp);
-                siddhiAppConfigurationMap.remove(siddhiApp);
-                siddhiAppSpecificInputHandlerMap.remove(siddhiApp);
+        if (siddhiAppName != null) {
+            if (siddhiAppRunTimeMap.containsKey(siddhiAppName)) {
+                siddhiAppRunTimeMap.remove(siddhiAppName);
+                siddhiAppConfigurationMap.remove(siddhiAppName);
+                siddhiAppSpecificInputHandlerMap.remove(siddhiAppName);
 
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
                         "Siddhi app removed successfully"));
             } else {
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
                         "There is no siddhi app exist " +
-                                "with provided name : " + siddhiApp));
+                                "with provided name : " + siddhiAppName));
             }
         } else {
             jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
