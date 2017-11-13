@@ -282,7 +282,6 @@ recordKeyValue
 recordKey
     :   Identifier
     |   simpleLiteral
-    |   stringTemplateLiteral
     ;
 
 arrayLiteral

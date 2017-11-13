@@ -135,7 +135,7 @@ public class MapInitializerExprTest {
     }
 
     @Test
-    public void testMapInitWithStringTemplateAsKey() {
+    public void testMapInitWithPackageVars() {
         CompileResult result = BCompileUtil.compile(this, "test-src/types/map/", "a.b");
         BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
@@ -146,5 +146,11 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.size(), 2);
         Assert.assertEquals(mapValue.get("name").stringValue(), "PI");
         Assert.assertEquals(((BFloat) mapValue.get("value")).floatValue(), 3.14159);
+    }
+
+    @Test
+    public void testMapInitWithStringTemplateAsKey() {
+        CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input 'string `'. expecting '}'", 3, 14);
     }
 }
