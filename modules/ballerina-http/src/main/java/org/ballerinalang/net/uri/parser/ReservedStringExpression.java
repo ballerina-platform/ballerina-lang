@@ -25,11 +25,13 @@ import java.util.Map;
 
 /**
  * ReservedStringExpression represents path segments that have RESERVED characters.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class ReservedStringExpression extends SimpleStringExpression {
+public class ReservedStringExpression<NODE_ITEM extends NodeItem> extends SimpleStringExpression<NODE_ITEM> {
 
-    public ReservedStringExpression(String token) throws URITemplateException {
-        super(token);
+    public ReservedStringExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override

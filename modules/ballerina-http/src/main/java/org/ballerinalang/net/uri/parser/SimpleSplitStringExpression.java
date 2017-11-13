@@ -28,15 +28,17 @@ import java.util.regex.Pattern;
 /**
  * SimpleSplitStringExpression represents path segments that have multiple path params.
  * ex - /{foo}+{bar}/
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class SimpleSplitStringExpression extends Expression {
+public class SimpleSplitStringExpression<NODE_ITEM extends NodeItem> extends Expression<NODE_ITEM> {
 
     protected static final char[] RESERVED = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleSplitStringExpression(String token) throws URITemplateException {
-        super(token);
+    public SimpleSplitStringExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
@@ -151,7 +153,7 @@ public class SimpleSplitStringExpression extends Expression {
 
     protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
         for (Node childNode : childNodesList) {
-            if (endCharacter == childNode.getPathSegment().getFirstCharacter()) {
+            if (endCharacter == childNode.getFirstCharacter()) {
                 return true;
             }
         }

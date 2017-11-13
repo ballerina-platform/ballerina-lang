@@ -26,11 +26,13 @@ import java.util.List;
 /**
  * SimpleStringExpression represents path segments that have single path param.
  * ex - /{foo}/
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class SimpleStringExpression extends SimpleSplitStringExpression {
+public class SimpleStringExpression<NODE_ITEM extends NodeItem> extends SimpleSplitStringExpression<NODE_ITEM> {
 
-    public SimpleStringExpression(String token) throws URITemplateException {
-        super(token);
+    public SimpleStringExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override

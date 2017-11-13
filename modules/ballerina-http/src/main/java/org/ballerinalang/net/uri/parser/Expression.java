@@ -29,12 +29,15 @@ import java.util.List;
 
 /**
  * Expression represents a expression path segment in uri.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public abstract class Expression implements PathSegment {
+public abstract class Expression<NODE_ITEM extends NodeItem> extends Node<NODE_ITEM> {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 
-    public Expression(String token) throws URITemplateException {
+    public Expression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
         int startIndex = 0;
         for (int i = 0; i < token.length(); i++) {
             if (token.charAt(i) == ',') {

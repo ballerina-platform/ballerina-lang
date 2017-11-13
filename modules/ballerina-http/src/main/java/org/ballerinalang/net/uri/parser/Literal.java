@@ -21,19 +21,19 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * Literal represents literal path segments in the uri-template.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class Literal implements PathSegment {
+public class Literal<NODE_ITEM extends NodeItem> extends Node<NODE_ITEM> {
 
     private int tokenLength = 0;
-    private final String token;
 
-    public Literal(String token) throws URITemplateException {
-        this.token = token;
+    public Literal(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
         tokenLength = token.length();
         if (tokenLength == 0) {
             throw new URITemplateException("Invalid literal token with zero length");
@@ -46,7 +46,7 @@ public class Literal implements PathSegment {
     }
 
     @Override
-    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (!token.endsWith("*")) {
             if (uriFragment.length() < tokenLength) {
                 return -1;

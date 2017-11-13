@@ -19,8 +19,8 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.net.uri.parser.Node;
-import org.ballerinalang.net.uri.parser.NodeCreator;
 import org.ballerinalang.net.uri.parser.NodeItem;
+import org.ballerinalang.net.uri.parser.NodeItemCreator;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
 import java.util.Map;
@@ -52,11 +52,12 @@ public class URITemplate<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKE
         return nodeItem.getItem(checker);
     }
 
-    public void parse(String uriTemplate, ITEM item, NodeCreator<NODE_ITEM> nodeCreator) throws URITemplateException {
+    public void parse(String uriTemplate, ITEM item, NodeItemCreator<NODE_ITEM> nodeCreator)
+            throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<NODE_ITEM, ITEM, CHECKER> parser = new URITemplateParser<>(syntaxTree);
-        parser.parse(uriTemplate, item, nodeCreator);
+        URITemplateParser<NODE_ITEM, ITEM, CHECKER> parser = new URITemplateParser<>(syntaxTree, nodeCreator);
+        parser.parse(uriTemplate, item);
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

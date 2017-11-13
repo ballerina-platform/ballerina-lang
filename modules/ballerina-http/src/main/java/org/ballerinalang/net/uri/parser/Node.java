@@ -28,20 +28,24 @@ import java.util.Map;
  *
  * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class Node<NODE_ITEM extends NodeItem> {
+public abstract class Node<NODE_ITEM extends NodeItem> {
 
-    private final NODE_ITEM nodeItem;
-    private final List<Node<NODE_ITEM>> childNodesList = new LinkedList<>();
-    private final PathSegment pathSegment;
+    protected final String token;
+    protected final NODE_ITEM nodeItem;
+    protected final List<Node<NODE_ITEM>> childNodesList = new LinkedList<>();
 
-    public Node(NODE_ITEM nodeItem, PathSegment pathSegment) {
+    public Node(NODE_ITEM nodeItem, String token) {
+        this.token = token;
         this.nodeItem = nodeItem;
-        this.pathSegment = pathSegment;
     }
 
-    public PathSegment getPathSegment() {
-        return this.pathSegment;
-    }
+    abstract String expand(Map<String, String> variables);
+
+    abstract int match(String uriFragment, Map<String, String> variables);
+
+    abstract String getToken();
+
+    abstract char getFirstCharacter();
 
     public Node<NODE_ITEM> addChild(String segment, Node<NODE_ITEM> childNode) {
         Node<NODE_ITEM> node = childNode;
@@ -62,7 +66,7 @@ public class Node<NODE_ITEM extends NodeItem> {
     }
 
     public NODE_ITEM matchAll(String uriFragment, Map<String, String> variables, int start) {
-        int matchLength = pathSegment.match(childNodesList, uriFragment, variables);
+        int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
         }
@@ -77,8 +81,8 @@ public class Node<NODE_ITEM extends NodeItem> {
 
         NODE_ITEM nodeItem;
         for (Node<NODE_ITEM> childNode : childNodesList) {
-            if (childNode.getPathSegment() instanceof Literal) {
-                String regex = childNode.getPathSegment().getToken();
+            if (childNode instanceof Literal) {
+                String regex = childNode.getToken();
                 if (regex.equals("*")) {
                     regex = "." + regex;
                     if (!subPath.matches(regex)) {
@@ -109,7 +113,7 @@ public class Node<NODE_ITEM extends NodeItem> {
 
     private Node<NODE_ITEM> isAlreadyExist(String token, List<Node<NODE_ITEM>> childList) {
         for (Node<NODE_ITEM> node : childList) {
-            if (node.getPathSegment().getToken().equals(token)) {
+            if (node.getToken().equals(token)) {
                 return node;
             }
         }
@@ -118,16 +122,16 @@ public class Node<NODE_ITEM extends NodeItem> {
     }
 
     private int getIntValue(Node<NODE_ITEM> node) {
-        if (node.getPathSegment() instanceof Literal) {
-            if (node.getPathSegment().getToken().equals("*")) {
+        if (node instanceof Literal) {
+            if (node.getToken().equals("*")) {
                 return 0;
             }
-            return node.getPathSegment().getToken().length() + 5;
-        } else if (node.getPathSegment() instanceof FragmentExpression) {
+            return node.getToken().length() + 5;
+        } else if (node instanceof FragmentExpression) {
             return 4;
-        } else if (node.getPathSegment() instanceof ReservedStringExpression) {
+        } else if (node instanceof ReservedStringExpression) {
             return 3;
-        } else if (node.getPathSegment() instanceof LabelExpression) {
+        } else if (node instanceof LabelExpression) {
             return 2;
         } else {
             return 1;

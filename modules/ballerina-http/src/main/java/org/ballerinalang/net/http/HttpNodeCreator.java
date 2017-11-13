@@ -18,18 +18,14 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.uri.parser.Node;
-import org.ballerinalang.net.uri.parser.NodeCreator;
-import org.ballerinalang.net.uri.parser.PathSegment;
+import org.ballerinalang.net.uri.parser.NodeItemCreator;
 
 /**
  * Node creator for HTTP resources in URI template tree.
  */
-public class HttpNodeCreator implements NodeCreator<HttpNodeItem> {
+public class HttpNodeCreator implements NodeItemCreator<HttpNodeItem> {
     @Override
-    public Node<HttpNodeItem> createNode(PathSegment expression) {
-        HttpNodeItem nodeItem = new HttpNodeItem();
-        Node<HttpNodeItem> node = new Node<>(nodeItem, expression);
-        return node;
+    public HttpNodeItem createItem() {
+        return new HttpNodeItem();
     }
 }

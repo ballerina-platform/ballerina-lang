@@ -159,7 +159,7 @@ public class WebSocketServicesRegistry {
         URITemplate<WsNodeItem, WebSocketService, WebSocketMessage> uriTemplate;
         WsNodeCreator nodeCreator = new WsNodeCreator();
         if (!serviceEndpointsMap.containsKey(serviceInterface)) {
-            uriTemplate = new URITemplate<>(nodeCreator.createNode(new Literal("/")));
+            uriTemplate = new URITemplate<>(new Literal<>(nodeCreator.createItem(), "/"));
             serviceEndpointsMap.put(serviceInterface, uriTemplate);
         } else {
             uriTemplate = serviceEndpointsMap.get(serviceInterface);

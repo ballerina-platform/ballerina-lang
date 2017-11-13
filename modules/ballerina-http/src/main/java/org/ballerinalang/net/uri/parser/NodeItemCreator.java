@@ -24,13 +24,12 @@ package org.ballerinalang.net.uri.parser;
  *
  * @param <NODE_ITEM> Specific node item created by the user.
  */
-public interface NodeCreator<NODE_ITEM extends NodeItem> {
+public interface NodeItemCreator<NODE_ITEM extends NodeItem> {
 
     /**
      * Creates a node with the developers own requirement.
      *
-     * @param expression Expression of the node.
      * @return Node which response to T node item.
      */
-    Node<NODE_ITEM> createNode(PathSegment expression);
+    NODE_ITEM createItem();
 }

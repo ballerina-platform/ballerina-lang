@@ -21,16 +21,17 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * LabelExpression represents path segments that start with ..
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class LabelExpression extends SimpleStringExpression {
+public class LabelExpression<NODE_ITEM extends NodeItem> extends SimpleStringExpression<NODE_ITEM> {
 
-    public LabelExpression(String token) throws URITemplateException {
-        super(token);
+    public LabelExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override
@@ -43,9 +44,9 @@ public class LabelExpression extends SimpleStringExpression {
     }
 
     @Override
-    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (uriFragment.startsWith(String.valueOf(getSeparator()))) {
-            return super.match(childNodesList, uriFragment.substring(1), variables) + 1;
+            return super.match(uriFragment.substring(1), variables) + 1;
         }
         return 0;
     }

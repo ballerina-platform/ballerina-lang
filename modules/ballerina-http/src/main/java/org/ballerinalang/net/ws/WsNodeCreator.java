@@ -18,18 +18,15 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.net.uri.parser.Node;
-import org.ballerinalang.net.uri.parser.NodeCreator;
-import org.ballerinalang.net.uri.parser.PathSegment;
+import org.ballerinalang.net.uri.parser.NodeItemCreator;
 
 /**
  * Node creator for WebSocket Service.
  */
-public class WsNodeCreator implements NodeCreator<WsNodeItem> {
+public class WsNodeCreator implements NodeItemCreator<WsNodeItem> {
 
     @Override
-    public Node<WsNodeItem> createNode(PathSegment expression) {
-        WsNodeItem nodeItem = new WsNodeItem();
-        return new Node<>(nodeItem, expression);
+    public WsNodeItem createItem() {
+        return new WsNodeItem();
     }
 }

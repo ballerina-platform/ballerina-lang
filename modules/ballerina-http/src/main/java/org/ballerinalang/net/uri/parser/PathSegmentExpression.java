@@ -22,12 +22,18 @@ package org.ballerinalang.net.uri.parser;
 import org.ballerinalang.net.uri.URITemplateException;
 
 /**
- * PathSegmentExpression represents path segments that have RESERVED characters.
+ *
  */
-public class PathSegmentExpression extends LabelExpression {
 
-    public PathSegmentExpression(String token) throws URITemplateException {
-        super(token);
+/**
+ * PathSegmentExpression represents path segments that have RESERVED characters.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
+ */
+public class PathSegmentExpression<NODE_ITEM extends NodeItem> extends LabelExpression<NODE_ITEM> {
+
+    public PathSegmentExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override

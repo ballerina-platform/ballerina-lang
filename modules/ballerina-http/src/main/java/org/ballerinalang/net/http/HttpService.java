@@ -88,8 +88,7 @@ public class HttpService {
 
     public URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage>
-                    (new HttpNodeCreator().createNode(new Literal("/")));
+            uriTemplate = new URITemplate<>(new Literal<>(new HttpNodeCreator().createItem(), "/"));
         }
         return uriTemplate;
     }

@@ -21,16 +21,17 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * FragmentExpression represents a fragment in the path segment of the uri.
+ *
+ * @param <NODE_ITEM> Specific node item created by the user.
  */
-public class FragmentExpression extends ReservedStringExpression {
+public class FragmentExpression<NODE_ITEM extends NodeItem> extends ReservedStringExpression<NODE_ITEM> {
 
-    public FragmentExpression(String token) throws URITemplateException {
-        super(token);
+    public FragmentExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
+        super(nodeItem, token);
     }
 
     @Override
@@ -43,9 +44,9 @@ public class FragmentExpression extends ReservedStringExpression {
     }
 
     @Override
-    public int match(List<? extends Node> childNodesList, String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (uriFragment.startsWith(String.valueOf(getFirstCharacter()))) {
-            return super.match(childNodesList, uriFragment.substring(1), variables) + 1;
+            return super.match(uriFragment.substring(1), variables) + 1;
         }
         return 0;
     }
