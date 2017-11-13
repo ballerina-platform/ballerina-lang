@@ -324,8 +324,7 @@ public class BLangFileRestService {
         Matcher pkgMatcher = pkgPattern.matcher(content);
         String programDir = null;
         String unitToCompile = fileName;
-        if (pkgMatcher.find())
-        {
+        if (pkgMatcher.find()) {
             final String packageName = pkgMatcher.group(1);
             if (bFileRequest.needProgramDir() && packageName != null) {
                 List<String> pathParts = Arrays.asList(filePath.split(Pattern.quote(File.separator)));
