@@ -1,5 +1,5 @@
 **Description:**
-<!-- Give a brief description of the issue -->
+<!-- Give a brief description of the issue or any logs -->
 
 **Suggested Labels:**
 <!-- Optional comma separated list of suggested labels. Non committers can’t assign labels to issues, so this will help issue creators who are not a committer to suggest possible labels-->
