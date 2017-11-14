@@ -81,11 +81,7 @@ class AboutDialog extends React.Component {
                         >
                             <i className="fw fw-wso2 icon" /> Inc.
                         </a>
-                    </div>/*
- * Created on Tue Nov 14 2017
- *
- * Copyright (c) 2017 Your Company
- */
+                    </div>
 
                 }
             >
