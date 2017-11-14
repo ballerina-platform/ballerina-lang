@@ -386,6 +386,23 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
+    public static BValue[] setSOAPPayload(Context context,
+                                         AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
+
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
+        httpCarbonMessage.setMessageDataSource(payload);
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_XML);
+        payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+        httpCarbonMessage.setAlreadyRead(true);
+        return AbstractNativeFunction.VOID_RETURN;
+    }
+
     public static BValue[] getContentLength(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         int contentLength = -1;
