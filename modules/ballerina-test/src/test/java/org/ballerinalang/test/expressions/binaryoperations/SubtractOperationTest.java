@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of subtract operator.
+ */
 public class SubtractOperationTest {
 
     CompileResult result;

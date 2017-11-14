@@ -29,6 +29,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of not equal operators.
+ */
 public class NotEqualOperationTest {
 
     CompileResult result;

@@ -29,6 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.List;
 
+/**
+ * Class to test comment statement.
+ */
 public class CommentStmtTest {
 
     CompileResult result;

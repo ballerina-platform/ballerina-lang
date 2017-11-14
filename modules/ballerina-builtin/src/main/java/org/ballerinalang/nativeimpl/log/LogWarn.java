@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:printWarn
+ * Native function ballerina.log:printWarn.
  *
  * @since 0.89
  */

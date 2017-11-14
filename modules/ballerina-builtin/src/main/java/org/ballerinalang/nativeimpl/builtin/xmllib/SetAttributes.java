@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Sets the attributes the provided attributes map
+ * Sets the attributes the provided attributes map.
  * 
  * @since 0.90
  */
