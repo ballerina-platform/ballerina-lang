@@ -269,11 +269,14 @@ class PanelDecorator extends React.Component {
             protocolOffset = 40;
         }
         let publicPrivateFlagoffset = 0;
+        let receiverOffset = 14;
+        if (this.props.receiver) {
+            receiverOffset = this.props.model.viewState.components.receiver.w;
+        }
         let allowPublicPrivateFlag = false;
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
             TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
             TreeUtils.isTransformer(this.props.model)) {
-
             allowPublicPrivateFlag = true;
             if (this.props.model.public) {
                 publicPrivateFlagoffset = 50;
@@ -329,7 +332,7 @@ class PanelDecorator extends React.Component {
                 </g>}
                 {!wsResourceDef && !lambda &&
                 <EditableText
-                    x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset}
+                    x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset + receiverOffset}
                     y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => {
@@ -351,8 +354,8 @@ class PanelDecorator extends React.Component {
                 </EditableText>}
                 { this.props.headerComponent &&
                     <this.props.headerComponent
-                        x={ bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset }
-                        y={ bBox.y + annotationBodyHeight }
+                        x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset}
+                        y={bBox.y + annotationBodyHeight}
                     />
                 }
                 {rightHeadingButtons}

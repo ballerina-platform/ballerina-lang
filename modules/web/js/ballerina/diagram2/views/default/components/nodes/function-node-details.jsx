@@ -20,7 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './function-node-details.css';
-import EditableText from '../nodes/editable-text';
 import { util } from '../../sizing-util_bk';
 import TreeUtils from './../../../../../model/tree-util';
 import ImageUtil from '../../../../image-util';
@@ -34,32 +33,9 @@ class FunctionNodeDetails extends React.Component {
             editingTitle: this.props.model.getName().getValue(),
             titleEditing: false,
         };
-        this.onNameClick = this.onNameClick.bind(this);
-        this.onNameInputBlur = this.onNameInputBlur.bind(this);
-        this.onNameInputChange = this.onNameInputChange.bind(this);
         this.checkForStructBindedFunction = this.checkForStructBindedFunction.bind(this);
         this.showStructsInPackage = this.showStructsInPackage.bind(this);
         this.getStructs = this.getStructs.bind(this);
-    }
-
-    onNameClick() {
-        if (TreeUtils.isMainFunction(this.props.model)) {
-            // should not edit main function name
-            return;
-        }
-        this.setState({ titleEditing: true });
-    }
-
-    onNameInputBlur() {
-        this.props.model.getName().setValue(this.state.editingTitle);
-
-        this.setState({
-            titleEditing: false,
-        });
-    }
-
-    onNameInputChange(e) {
-        this.setState({ editingTitle: e.target.value });
     }
 
     getStructs() {
@@ -99,11 +75,9 @@ class FunctionNodeDetails extends React.Component {
     }
     render() {
         const { x, y, model, showStructBinding } = this.props;
-        const { viewState } = model;
         const typeTextX = x + 25;
         const iconSize = 14;
         const typeTextY = y + 15;
-        const titleWidth = util.getTextWidth(this.state.editingTitle);
         // check if the function is struct binded
         const structBindedFunction = this.checkForStructBindedFunction(model);
         let receiverType;
@@ -112,10 +86,8 @@ class FunctionNodeDetails extends React.Component {
                 model.getReceiver().getName().value;
         }
         const receiverTypeWidth = util.getTextWidth(receiverType, 0).w || 0;
-        const nameTextX = (structBindedFunction ? typeTextX + receiverTypeWidth + 30 : x + iconSize + 5);
-        const nameTextY = y + 15;
         // Calculate the x,y positions of the image
-        const addBindingStructX = x;
+        const addBindingStructX = x - 5;
         const addBindingStructY = y + 8;
         return (
             <g className='statement-body'>
@@ -150,18 +122,6 @@ class FunctionNodeDetails extends React.Component {
                         >{receiverType}</text>
                     </g>
                 }
-                <EditableText
-                    x={nameTextX}
-                    y={nameTextY}
-                    width={viewState.nameTextWidth}
-                    onBlur={this.onNameInputBlur}
-                    onClick={this.onNameClick}
-                    editing={this.state.titleEditing}
-                    onChange={this.onNameInputChange}
-                    displayText={titleWidth.text}
-                >
-                    {this.state.editingTitle}
-                </EditableText>
             </g>
         );
     }

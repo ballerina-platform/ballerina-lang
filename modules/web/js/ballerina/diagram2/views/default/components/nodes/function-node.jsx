@@ -49,7 +49,9 @@ class FunctionNode extends React.Component {
 
     onMouseLeave() {
         if (!TreeUtil.isMainFunction(this.props.model)) {
-            this.setState({ showStructBinding: false });
+            setTimeout(() => {
+                this.setState({ showStructBinding: false });
+            }, 350);
         }
     }
 
@@ -61,6 +63,7 @@ class FunctionNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
+        const name = model.getName().value;
         // change icon for main function
         let icons = 'tool-icons/function';
         if (TreeUtil.isMainFunction(model)) {
@@ -99,6 +102,11 @@ class FunctionNode extends React.Component {
                 showStructBinding={this.state.showStructBinding}
             />
         );
+        let receiverType;
+        if (model.getReceiver()) {
+            receiverType = model.getReceiver().getTypeNode().getTypeName().value + ' ' +
+                model.getReceiver().getName().value;
+        }
         return (
             <g
                 onMouseLeave={this.onMouseLeave}
@@ -113,6 +121,8 @@ class FunctionNode extends React.Component {
                     canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
                     returnParams={returnParameters}
+                    title={name}
+                    receiver={receiverType}
                 >
                     { this.props.model.getWorkers().length === 0 &&
                     <g>

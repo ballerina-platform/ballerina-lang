@@ -303,6 +303,7 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
+        cmp.receiver = new SimpleBBox();
 
         // initialize the annotation status.
         if (_.isNil(viewState.showAnnotationContainer)) {
@@ -395,6 +396,12 @@ class SizingUtil {
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
+        }
+
+        if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
+            if (node.getReceiver()) {
+                cmp.receiver.w = this.getTextWidth(node.getReceiver().getTypeNode().getTypeName().value, 0).w + 50;
+            }
         }
         // add panel gutter to panelBody
         cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);

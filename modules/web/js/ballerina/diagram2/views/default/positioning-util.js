@@ -348,18 +348,11 @@ class PositioningUtil {
         if (node.public) {
             publicPrivateFlagoffset = 10;
         }
-        let receiverTypeOffSet = 0;
-        // Check if the function is struct binded
-        if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
-            if (node.getReceiver()) {
-                receiverTypeOffSet = 180;
-            }
-        }
         // Positioning argument parameters
         if (node.getParameters()) {
             cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
                 this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + receiverTypeOffSet;
+                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + cmp.receiver.w + 40;
             cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
 
             // Positioning the resource parameters
