@@ -26,9 +26,6 @@ export function getCommandDefinitions(plugin) {
     return [
         {
             id: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
-            shortcut: {
-                default: 'ctrl+shift+e',
-            },
         },
         {
             id: COMMANDS.EXPORT_DIAGRAM,
