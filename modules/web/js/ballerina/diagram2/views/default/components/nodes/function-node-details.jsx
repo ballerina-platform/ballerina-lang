@@ -146,6 +146,7 @@ class FunctionNodeDetails extends React.Component {
                             y={typeTextY + 5}
                             cursor='pointer'
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}
+                            fill="white"
                         >{receiverType}</text>
                     </g>
                 }
