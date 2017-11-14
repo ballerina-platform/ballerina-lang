@@ -349,6 +349,18 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
+    @Test(groups = "DatatableTest", description = "Check get float and double types.")
+    public void testGetFloatTypes() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes", args);
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

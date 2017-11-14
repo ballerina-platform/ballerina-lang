@@ -44,6 +44,13 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
+struct ResultSetFloat {
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    float NUMERIC_TYPE;
+    float DECIMAL_TYPE;
+}
+
 struct ResultPrimitiveInt {
     int INT_TYPE;
 }
@@ -483,4 +490,23 @@ function testMutltipleRows () (int i1, int i2) {
     }
     testDB.close();
     return rs1.INT_TYPE, rs2.INT_TYPE;
+}
+
+function testGetFloatTypes () (float f, float d, float num, float dec) {
+    endpoint<sql:ClientConnector> testDB {
+                                  create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT float_type, double_type,
+                  numeric_type, decimal_type from FloatTable WHERE row_id = 1", null);
+    ResultSetFloat rs;
+    while (dt.hasNext()) {
+        rs, _ = (ResultSetFloat)dt.getNext();
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        num = rs.NUMERIC_TYPE;
+        dec = rs.DECIMAL_TYPE;
+    }
+    testDB.close();
+    return;
 }
