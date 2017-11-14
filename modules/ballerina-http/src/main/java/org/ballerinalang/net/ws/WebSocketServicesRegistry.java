@@ -46,7 +46,7 @@ public class WebSocketServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
-    private final Map<String, URITemplate<WsNodeItem, WebSocketService, WebSocketMessage>> serviceEndpointsMap
+    private final Map<String, URITemplate<WsServiceElement, WebSocketService, WebSocketMessage>> serviceEndpointsMap
             = new ConcurrentHashMap<>();
 
     // Map<clientServiceName, ClientService>
@@ -156,10 +156,10 @@ public class WebSocketServicesRegistry {
 
     private void addUriTemplate(String serviceInterface, String uri, WebSocketService service)
             throws URITemplateException {
-        URITemplate<WsNodeItem, WebSocketService, WebSocketMessage> uriTemplate;
-        WsNodeCreator nodeCreator = new WsNodeCreator();
+        URITemplate<WsServiceElement, WebSocketService, WebSocketMessage> uriTemplate;
+        WsServiceElementCreator nodeCreator = new WsServiceElementCreator();
         if (!serviceEndpointsMap.containsKey(serviceInterface)) {
-            uriTemplate = new URITemplate<>(new Literal<>(nodeCreator.createItem(), "/"));
+            uriTemplate = new URITemplate<>(new Literal<>(nodeCreator.createDataElement(), "/"));
             serviceEndpointsMap.put(serviceInterface, uriTemplate);
         } else {
             uriTemplate = serviceEndpointsMap.get(serviceInterface);

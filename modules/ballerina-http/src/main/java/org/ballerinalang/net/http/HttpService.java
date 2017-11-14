@@ -36,7 +36,7 @@ public class HttpService {
     private List<String> allAllowMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
-    private URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage> uriTemplate;
+    private URITemplate<HttpResourceElement, HttpResource, HTTPCarbonMessage> uriTemplate;
 
     public HttpService(Service service) {
         this.balService = service;
@@ -86,9 +86,9 @@ public class HttpService {
         this.corsHeaders = corsHeaders;
     }
 
-    public URITemplate<HttpNodeItem, HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
+    public URITemplate<HttpResourceElement, HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate<>(new Literal<>(new HttpNodeCreator().createItem(), "/"));
+            uriTemplate = new URITemplate<>(new Literal<>(new HttpResourceElementCreator().createDataElement(), "/"));
         }
         return uriTemplate;
     }

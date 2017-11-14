@@ -16,17 +16,29 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws;
-
-import org.ballerinalang.net.uri.parser.NodeItemCreator;
+package org.ballerinalang.net.uri.parser;
 
 /**
- * Node creator for WebSocket Service.
+ * Interface to hold various node items.
+ *
+ * @param <DataType> Type of data which should be stored in the node.
+ * @param <CheckerType> Additional checker for node. Which can be used for additional checks before returning the <ITEM>.
  */
-public class WsNodeCreator implements NodeItemCreator<WsNodeItem> {
+public interface DataElement<DataType, CheckerType> {
 
-    @Override
-    public WsNodeItem createItem() {
-        return new WsNodeItem();
-    }
+    /**
+     * Set the node item.
+     *
+     * @param data data to be stored.
+     */
+    void setData(DataType data);
+
+    /**
+     * Get the stored data.
+     *
+     * @param checker Checker for extra checks of the item.
+     * @return the item stored in the Node Item.
+     */
+    DataType getData(CheckerType checker);
+
 }

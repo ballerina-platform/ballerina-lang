@@ -29,16 +29,16 @@ import java.util.regex.Pattern;
  * SimpleSplitStringExpression represents path segments that have multiple path params.
  * ex - /{foo}+{bar}/
  *
- * @param <NODE_ITEM> Specific node item created by the user.
+ * @param <DataElementType> Specific data element type created by the user.
  */
-public class SimpleSplitStringExpression<NODE_ITEM extends NodeItem> extends Expression<NODE_ITEM> {
+public class SimpleSplitStringExpression<DataElementType extends DataElement> extends Expression<DataElementType> {
 
     protected static final char[] RESERVED = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleSplitStringExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
-        super(nodeItem, token);
+    public SimpleSplitStringExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override

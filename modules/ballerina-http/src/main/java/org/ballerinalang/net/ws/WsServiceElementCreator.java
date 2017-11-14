@@ -16,16 +16,17 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.ws;
 
-import org.ballerinalang.net.uri.parser.NodeItemCreator;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 
 /**
- * Node creator for HTTP resources in URI template tree.
+ * Node creator for WebSocket Service.
  */
-public class HttpNodeCreator implements NodeItemCreator<HttpNodeItem> {
+public class WsServiceElementCreator implements DataElementCreator<WsServiceElement> {
+
     @Override
-    public HttpNodeItem createItem() {
-        return new HttpNodeItem();
+    public WsServiceElement createDataElement() {
+        return new WsServiceElement();
     }
 }

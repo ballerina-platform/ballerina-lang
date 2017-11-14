@@ -26,12 +26,12 @@ import java.util.Map;
 /**
  * FragmentExpression represents a fragment in the path segment of the uri.
  *
- * @param <NODE_ITEM> Specific node item created by the user.
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class FragmentExpression<NODE_ITEM extends NodeItem> extends ReservedStringExpression<NODE_ITEM> {
+public class FragmentExpression<DataElementType extends DataElement> extends ReservedStringExpression<DataElementType> {
 
-    public FragmentExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
-        super(nodeItem, token);
+    public FragmentExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override

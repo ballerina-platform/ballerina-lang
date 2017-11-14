@@ -19,8 +19,8 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.net.uri.parser.Node;
-import org.ballerinalang.net.uri.parser.NodeItem;
-import org.ballerinalang.net.uri.parser.NodeItemCreator;
+import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
 import java.util.Map;
@@ -28,15 +28,15 @@ import java.util.Map;
 /**
  * Generic URI Template implementation.
  *
- * @param <NODE_ITEM> Specific node item for the parser.
- * @param <ITEM> Item stored in the node item.
- * @param <CHECKER> Additional checker for node item.
+ * @param <DataElementType> Specifically defined Data element type for the parser.
+ * @param <DataType> Data type stored in the data element.
+ * @param <CheckerType> Additional checker for the given data type.
  */
-public class URITemplate<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKER> {
+public class URITemplate<DataElementType extends DataElement<DataType, CheckerType>, DataType, CheckerType> {
 
-    private Node<NODE_ITEM> syntaxTree;
+    private Node<DataElementType> syntaxTree;
 
-    public URITemplate(Node<NODE_ITEM> syntaxTree) {
+    public URITemplate(Node<DataElementType> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -44,19 +44,19 @@ public class URITemplate<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKE
         return null;
     }
 
-    public ITEM matches(String uri, Map<String, String> variables, CHECKER checker) {
-        NODE_ITEM nodeItem = syntaxTree.matchAll(uri, variables, 0);
+    public DataType matches(String uri, Map<String, String> variables, CheckerType checker) {
+        DataElementType nodeItem = syntaxTree.matchAll(uri, variables, 0);
         if (nodeItem == null) {
             return null;
         }
-        return nodeItem.getItem(checker);
+        return nodeItem.getData(checker);
     }
 
-    public void parse(String uriTemplate, ITEM item, NodeItemCreator<NODE_ITEM> nodeCreator)
+    public void parse(String uriTemplate, DataType item, DataElementCreator<DataElementType> nodeCreator)
             throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<NODE_ITEM, ITEM, CHECKER> parser = new URITemplateParser<>(syntaxTree, nodeCreator);
+        URITemplateParser<DataElementType, DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, nodeCreator);
         parser.parse(uriTemplate, item);
     }
 

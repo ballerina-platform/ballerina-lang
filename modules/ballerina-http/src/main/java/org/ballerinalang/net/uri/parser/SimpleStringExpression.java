@@ -27,12 +27,12 @@ import java.util.List;
  * SimpleStringExpression represents path segments that have single path param.
  * ex - /{foo}/
  *
- * @param <NODE_ITEM> Specific node item created by the user.
+ * @param <DataElementType> Specific data element type created by the user.
  */
-public class SimpleStringExpression<NODE_ITEM extends NodeItem> extends SimpleSplitStringExpression<NODE_ITEM> {
+public class SimpleStringExpression<DataElementType extends DataElement> extends SimpleSplitStringExpression<DataElementType> {
 
-    public SimpleStringExpression(NODE_ITEM nodeItem, String token) throws URITemplateException {
-        super(nodeItem, token);
+    public SimpleStringExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override

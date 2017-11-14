@@ -16,29 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.uri.parser;
+package org.ballerinalang.net.http;
+
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 
 /**
- * Interface to hold various node items.
- *
- * @param <ITEM> Item which should be stored in the node.
- * @param <CHECKER> Additional checker for node. Which can be used for additional checks before returning the <ITEM>.
+ * Node creator for HTTP resources in URI template tree.
  */
-public interface NodeItem<ITEM, CHECKER> {
-
-    /**
-     * Set the node item.
-     *
-     * @param item item to be stored.
-     */
-    void setItem(ITEM item);
-
-    /**
-     * Get the item stored.
-     *
-     * @param checker Checker for extra checks of the item.
-     * @return the item stored in the Node Item.
-     */
-    ITEM getItem(CHECKER checker);
-
+public class HttpResourceElementCreator implements DataElementCreator<HttpResourceElement> {
+    @Override
+    public HttpResourceElement createDataElement() {
+        return new HttpResourceElement();
+    }
 }

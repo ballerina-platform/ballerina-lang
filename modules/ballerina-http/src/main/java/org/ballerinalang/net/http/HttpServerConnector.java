@@ -68,7 +68,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
             HttpResource httpResource = buildHttpResource(resource);
             validateResourceSignature(httpResource);
             try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource, new HttpNodeCreator());
+                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource, new HttpResourceElementCreator());
             } catch (URITemplateException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }

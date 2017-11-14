@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.net.uri.parser.NodeItem;
+import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -31,45 +31,45 @@ import java.util.stream.Collectors;
 /**
  * Http Node Item for URI template tree.
  */
-public class HttpNodeItem implements NodeItem<HttpResource, HTTPCarbonMessage> {
+public class HttpResourceElement implements DataElement<HttpResource, HTTPCarbonMessage> {
 
     private List<HttpResource> resource;
     private boolean isFirstTraverse = true;
 
     @Override
-    public void setItem(HttpResource newResource) {
+    public void setData(HttpResource data) {
         if (isFirstTraverse) {
             this.resource = new ArrayList<>();
-            this.resource.add(newResource);
+            this.resource.add(data);
             isFirstTraverse = false;
             return;
         }
-        List<String> newMethods = newResource.getMethods();
+        List<String> newMethods = data.getMethods();
         if (newMethods == null) {
             for (HttpResource previousResource : this.resource) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                                                          + previousResource.getName() + " and " +
-                                                         newResource.getName());
+                                                         data.getName());
                 }
             }
-            this.resource.add(newResource);
+            this.resource.add(data);
             return;
         }
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
-                                                         + r.getName() + " and " + newResource.getName());
+                                                         + r.getName() + " and " + data.getName());
                 }
             }
         });
-        this.resource.add(newResource);
+        this.resource.add(data);
     }
 
     @Override
-    public HttpResource getItem(HTTPCarbonMessage carbonMessage) {
+    public HttpResource getData(HTTPCarbonMessage carbonMessage) {
         if (this.resource == null) {
             return null;
         }

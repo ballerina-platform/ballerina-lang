@@ -18,23 +18,23 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.net.uri.parser.NodeItem;
+import org.ballerinalang.net.uri.parser.DataElement;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
 /**
  * Node item for WebSocket service.
  */
-public class WsNodeItem implements NodeItem<WebSocketService, WebSocketMessage> {
+public class WsServiceElement implements DataElement<WebSocketService, WebSocketMessage> {
 
     private WebSocketService wsService;
     
     @Override
-    public void setItem(WebSocketService wsService) {
-        this.wsService = wsService;
+    public void setData(WebSocketService data) {
+        this.wsService = data;
     }
 
     @Override
-    public WebSocketService getItem(WebSocketMessage webSocketMessage) {
+    public WebSocketService getData(WebSocketMessage webSocketMessage) {
         return wsService;
     }
 }

@@ -23,30 +23,30 @@ import org.ballerinalang.net.uri.URITemplateException;
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
  *
- * @param <NODE_ITEM> Specific node item for the parser.
- * @param <ITEM> Item stored in the node item.
- * @param <CHECKER> Additional checker for node item.
+ * @param <DataElementType> Specific data element type for the parser.
+ * @param <DataType> Data type stored in the node item.
+ * @param <CheckerType> Additional checker for node item.
  */
-public class URITemplateParser<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, CHECKER> {
+public class URITemplateParser<DataElementType extends DataElement<DataType, CheckerType>, DataType, CheckerType> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node<NODE_ITEM> syntaxTree;
-    private Node<NODE_ITEM> currentNode;
-    private final NodeItemCreator<NODE_ITEM> nodeItemCreator;
+    private Node<DataElementType> syntaxTree;
+    private Node<DataElementType> currentNode;
+    private final DataElementCreator<DataElementType> dataElementCreator;
 
-    public URITemplateParser(Node<NODE_ITEM> rootNode, NodeItemCreator<NODE_ITEM> nodeItemCreator) {
+    public URITemplateParser(Node<DataElementType> rootNode, DataElementCreator<DataElementType> dataElementCreator) {
         this.syntaxTree = rootNode;
-        this.nodeItemCreator = nodeItemCreator;
+        this.dataElementCreator = dataElementCreator;
     }
 
-    public Node parse(String template, ITEM item) throws URITemplateException {
+    public Node parse(String template, DataType data) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
         if ("/".equals(template)) {
-            this.syntaxTree.getNodeItem().setItem(item);
+            this.syntaxTree.getDataElement().setData(data);
             return syntaxTree;
         }
         String[] segments = template.split("/");
@@ -107,12 +107,12 @@ public class URITemplateParser<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, 
                 }
             }
         }
-        this.currentNode.getNodeItem().setItem(item);
+        this.currentNode.getDataElement().setData(data);
 
         return syntaxTree;
     }
 
-    private <NODE_EXTEND extends Node<NODE_ITEM>> void addNode(NODE_EXTEND node) {
+    private <NodeType extends Node<DataElementType>> void addNode(NodeType node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
@@ -124,7 +124,7 @@ public class URITemplateParser<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, 
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node<NODE_ITEM> node = null;
+        Node<DataElementType> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
                 node = new SimpleStringExpression<>(createNodeItem(), expression);
@@ -164,7 +164,7 @@ public class URITemplateParser<NODE_ITEM extends NodeItem<ITEM, CHECKER>, ITEM, 
         return true;
     }
 
-    private NODE_ITEM createNodeItem() {
-        return nodeItemCreator.createItem();
+    private DataElementType createNodeItem() {
+        return dataElementCreator.createDataElement();
     }
 }

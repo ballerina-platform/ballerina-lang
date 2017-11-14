@@ -26,17 +26,17 @@ import java.util.Map;
 /**
  * Node represents different types of path segments in the uri-template.
  *
- * @param <NODE_ITEM> Specific node item created by the user.
+ * @param <DataElementType> Specific data element created by the user.
  */
-public abstract class Node<NODE_ITEM extends NodeItem> {
+public abstract class Node<DataElementType extends DataElement> {
 
     protected final String token;
-    protected final NODE_ITEM nodeItem;
-    protected final List<Node<NODE_ITEM>> childNodesList = new LinkedList<>();
+    protected final DataElementType nodeItem;
+    protected final List<Node<DataElementType>> childNodesList = new LinkedList<>();
 
-    public Node(NODE_ITEM nodeItem, String token) {
+    public Node(DataElementType dataElement, String token) {
         this.token = token;
-        this.nodeItem = nodeItem;
+        this.nodeItem = dataElement;
     }
 
     abstract String expand(Map<String, String> variables);
@@ -47,9 +47,9 @@ public abstract class Node<NODE_ITEM extends NodeItem> {
 
     abstract char getFirstCharacter();
 
-    public Node<NODE_ITEM> addChild(String segment, Node<NODE_ITEM> childNode) {
-        Node<NODE_ITEM> node = childNode;
-        Node<NODE_ITEM> existingNode = isAlreadyExist(segment, childNodesList);
+    public Node<DataElementType> addChild(String segment, Node<DataElementType> childNode) {
+        Node<DataElementType> node = childNode;
+        Node<DataElementType> existingNode = isAlreadyExist(segment, childNodesList);
         if (existingNode != null) {
             node = existingNode;
         } else {
@@ -61,11 +61,11 @@ public abstract class Node<NODE_ITEM extends NodeItem> {
         return node;
     }
 
-    public NODE_ITEM getNodeItem() {
+    public DataElementType getDataElement() {
         return this.nodeItem;
     }
 
-    public NODE_ITEM matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public DataElementType matchAll(String uriFragment, Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -79,8 +79,8 @@ public abstract class Node<NODE_ITEM extends NodeItem> {
         String subUriFragment = nextURIFragment(uriFragment, matchLength);
         String subPath = nextSubPath(subUriFragment);
 
-        NODE_ITEM nodeItem;
-        for (Node<NODE_ITEM> childNode : childNodesList) {
+        DataElementType nodeItem;
+        for (Node<DataElementType> childNode : childNodesList) {
             if (childNode instanceof Literal) {
                 String regex = childNode.getToken();
                 if (regex.equals("*")) {
@@ -111,8 +111,8 @@ public abstract class Node<NODE_ITEM extends NodeItem> {
         return null;
     }
 
-    private Node<NODE_ITEM> isAlreadyExist(String token, List<Node<NODE_ITEM>> childList) {
-        for (Node<NODE_ITEM> node : childList) {
+    private Node<DataElementType> isAlreadyExist(String token, List<Node<DataElementType>> childList) {
+        for (Node<DataElementType> node : childList) {
             if (node.getToken().equals(token)) {
                 return node;
             }
@@ -121,7 +121,7 @@ public abstract class Node<NODE_ITEM extends NodeItem> {
         return null;
     }
 
-    private int getIntValue(Node<NODE_ITEM> node) {
+    private int getIntValue(Node<DataElementType> node) {
         if (node instanceof Literal) {
             if (node.getToken().equals("*")) {
                 return 0;
