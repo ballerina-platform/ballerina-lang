@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -450,7 +452,7 @@ public class HttpUtil {
 
     public static void handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
         try {
-            requestMsg.respond(responseMsg);
+            HttpResponseStatusFuture responsefuture = requestMsg.respond(responseMsg);
         } catch (org.wso2.carbon.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }

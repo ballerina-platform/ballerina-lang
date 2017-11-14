@@ -25,9 +25,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send response back to the caller.
@@ -49,7 +53,19 @@ public class Send extends AbstractNativeFunction {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         HttpUtil.methodInvocationCheck(responseStruct);
         HttpUtil.operationNotAllowedCheck(responseStruct);
-        context.getConnectorFuture().notifyReply(responseStruct);
+
+         HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg((BStruct) response[0], HttpUtil.createHttpCarbonMessage(false));
+        Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
+        if (session != null) {
+            session.generateSessionHeader(responseMessage);
+        }
+        //Process CORS if exists.
+        if (requestMessage.getHeader("Origin") != null) {
+            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
+        }
+        HttpUtil.handleResponse(requestMessage, responseMessage);
+
         return VOID_RETURN;
     }
 }

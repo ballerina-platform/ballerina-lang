@@ -31,17 +31,7 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyReply(BValue... response) {
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg((BStruct) response[0], HttpUtil.createHttpCarbonMessage(false));
-        Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
-        if (session != null) {
-            session.generateSessionHeader(responseMessage);
-        }
-        //Process CORS if exists.
-        if (requestMessage.getHeader("Origin") != null) {
-            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
-        }
-        HttpUtil.handleResponse(requestMessage, responseMessage);
+
     }
 
     @Override
