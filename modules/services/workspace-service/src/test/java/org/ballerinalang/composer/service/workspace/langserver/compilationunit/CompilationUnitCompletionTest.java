@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.composer.service.workspace.langserver.compilationunit;
 
 import com.google.gson.Gson;
