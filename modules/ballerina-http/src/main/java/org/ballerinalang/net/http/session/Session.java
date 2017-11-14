@@ -83,7 +83,7 @@ public interface Session {
     /**
      * Get attribute name list.
      *
-     * @return array of keys.
+     * @return array of attribute names.
      */
     String[]  getAttributeNames();
 

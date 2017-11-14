@@ -74,10 +74,7 @@ public class HTTPSession implements Session, Serializable {
 
     @Override
     public BMap<String, BValue> getAttributes() {
-        if (!attributeMap.isEmpty()) {
-            return attributeMap;
-        }
-        return null;
+        return attributeMap;
     }
 
     @Override
