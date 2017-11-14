@@ -26,6 +26,9 @@ export function getCommandDefinitions(plugin) {
     return [
         {
             id: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+            shortcut: {
+                default: 'shift+w',
+            },
         },
         {
             id: COMMANDS.IMPORT_SWAGGER_DEFINITION,
