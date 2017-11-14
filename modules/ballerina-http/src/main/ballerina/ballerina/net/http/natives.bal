@@ -369,7 +369,7 @@ struct FollowRedirects {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
-    boolean chunkDisabled = false;
+    boolean enableChunking = true;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;
