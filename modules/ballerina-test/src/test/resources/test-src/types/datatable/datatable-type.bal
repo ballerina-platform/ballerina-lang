@@ -95,7 +95,7 @@ function testToXml () (xml) {
 function testToXmlMultipleConsume () (xml) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
-                                                            0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
 
@@ -110,7 +110,7 @@ function testToXmlMultipleConsume () (xml) {
         testDB.close();
     }
     return null;
-    }
+}
 
 
 function toXmlComplex () (xml) {
