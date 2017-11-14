@@ -18,19 +18,14 @@
 
 package org.ballerinalang.model.util;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 
 /**
  * Common Utils methods used in Message.
@@ -62,49 +57,6 @@ public class MessageUtils {
             }
         }
         return result;
-    }
-
-    public static void populateParts(InputStream data, BStruct part) {
-       /* BufferedInputStream bis = new BufferedInputStream(inputStream);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            int data;
-            while ((data = bis.read()) != -1) {
-                bos.write(data);
-            }
-            log.debug("done");
-        } catch (IOException ioe) {
-            throw new BallerinaException("Error occurred when reading input stream", ioe);
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ignored) {
-            }
-        }*/
-
-        ObjectInputStream is = null;
-        try {
-            is = new ObjectInputStream(data);
-            Object object = is.readObject();
-            log.debug("done");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-      /*  ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.readBytes(data);
-        ByteArrayInputStream in = new ByteArrayInputStream(byteBuf.array());
-        ObjectInputStream is = null;
-        try {
-            is = new ObjectInputStream(in);
-            Object object = is.readObject();
-            log.debug("done");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }*/
     }
 
     /**
