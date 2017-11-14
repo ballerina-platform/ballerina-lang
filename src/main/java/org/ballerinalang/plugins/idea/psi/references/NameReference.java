@@ -223,8 +223,8 @@ public class NameReference extends BallerinaElementReference {
         }
 
         // Try to get fields from an anonymous struct.
-        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
-        if (structDefinitionNode == null) {
+        PsiElement structDefinitionNode = BallerinaPsiImplUtil.resolveAnonymousStruct(identifier);
+        if (structDefinitionNode == null || !(structDefinitionNode instanceof StructDefinitionNode)) {
             return results;
         }
         IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinitionNode,

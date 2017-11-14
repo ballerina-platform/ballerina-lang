@@ -54,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -61,6 +62,7 @@ import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
@@ -2039,9 +2041,9 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
-    public static StructDefinitionNode getAnonymousStruct(@NotNull Object element,
-                                                          @NotNull List<PsiElement> parameterListNodes,
-                                                          int offset) {
+    public static PsiElement getAnonymousStruct(@NotNull Object element,
+                                                @NotNull List<PsiElement> parameterListNodes,
+                                                int offset) {
         int index = BallerinaParameterInfoHandler.getCurrentParameterIndex(element, offset);
         PsiElement parameterListNode = parameterListNodes.get(0);
 
@@ -2059,19 +2061,24 @@ public class BallerinaPsiImplUtil {
             }
             PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
             if (reference == null) {
-                return null;
+                AnonStructTypeNameNode anonStructNode =
+                        PsiTreeUtil.findChildOfType(typeNameNode, AnonStructTypeNameNode.class);
+                if (anonStructNode == null) {
+                    return null;
+                }
+                return anonStructNode;
             }
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement == null || !(resolvedElement.getParent() instanceof StructDefinitionNode)) {
                 return null;
             }
-            return (StructDefinitionNode) resolvedElement.getParent();
+            return resolvedElement.getParent();
         }
         return null;
     }
 
     @Nullable
-    public static StructDefinitionNode resolveAnonymousStruct(IdentifierPSINode identifier) {
+    public static PsiElement resolveAnonymousStruct(IdentifierPSINode identifier) {
         Object element = BallerinaParameterInfoHandler.findElement(identifier, PsiTreeUtil.prevVisibleLeaf(identifier));
         if (element == null) {
             return null;
@@ -2585,5 +2592,25 @@ public class BallerinaPsiImplUtil {
         }
         return (((LeafPsiElement) children[1]).getElementType() == BallerinaTypes.LBRACK)
                 && (((LeafPsiElement) children[2]).getElementType() == BallerinaTypes.RBRACK);
+    }
+
+    @Nullable
+    public static ConnectorDefinitionNode getConnectorDefinition(@NotNull EndpointDeclarationNode node) {
+        ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(node, ConnectorReferenceNode.class);
+        if (connectorReferenceNode == null) {
+            return null;
+        }
+        PsiReference reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        if (resolvedElement.getParent() instanceof ConnectorDefinitionNode) {
+            return ((ConnectorDefinitionNode) resolvedElement.getParent());
+        }
+        return null;
     }
 }

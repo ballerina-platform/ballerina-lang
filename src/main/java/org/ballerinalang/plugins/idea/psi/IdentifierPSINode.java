@@ -318,6 +318,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             if (connectorDefinitionNode != null) {
                 return new ActionInvocationReference(this);
             }
+        } else if (definitionNode instanceof EndpointDeclarationNode) {
+            ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(definitionNode,
+                    ConnectorReferenceNode.class);
+            if (connectorReferenceNode != null) {
+                return new ActionInvocationReference(this);
+            }
         }
         reference = checkAndSuggestReferenceAfterDot();
         if (reference != null) {
@@ -362,6 +368,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         PsiElement resolvedElement = reference.resolve();
         if (resolvedElement == null) {
             return null;
+        }
+        if (resolvedElement.getParent() instanceof EndpointDeclarationNode) {
+            return new ActionInvocationReference(this);
         }
         PsiElement type = BallerinaPsiImplUtil.getType(((IdentifierPSINode) resolvedElement));
         if (type == null || (!(type instanceof BuiltInReferenceTypeNameNode) && !(type instanceof ValueTypeNameNode))) {

@@ -814,6 +814,22 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    private static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                                 @NotNull TypeNameNode fieldType) {
+        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
+                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD);
+    }
+
+    @NotNull
+    private static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                          @NotNull TypeNameNode fieldType,
+                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType)
+                .withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
     public static List<LookupElement> createFieldLookupElements(@NotNull Collection<FieldDefinitionNode>
                                                                         fieldDefinitionNodes,
                                                                 @NotNull IdentifierPSINode definitionName,
@@ -832,6 +848,23 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
+    @NotNull
+    public static List<LookupElement> createFieldLookupElements(@NotNull Collection<FieldDefinitionNode>
+                                                                        fieldDefinitionNodes,
+                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
+            if (fieldName == null || fieldType == null) {
+                continue;
+            }
+            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
+                    insertHandler);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
 
     @NotNull
     private static LookupElement createWorkerLookupElement(@NotNull IdentifierPSINode workerName) {
