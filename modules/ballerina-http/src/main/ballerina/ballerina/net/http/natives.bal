@@ -365,10 +365,10 @@ struct FollowRedirects {
 @Field {value:"proxyUserName: Proxy server user name"}
 @Field {value:"proxyPassword: proxy server password"}
 struct Proxy {
-    string proxyHost;
-    int proxyPort;
-    string proxyUserName;
-    string proxyPassword;
+    string host;
+    int port;
+    string userName;
+    string password;
 }
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }

@@ -334,23 +334,18 @@ public class HttpConnectionManager {
             int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
             String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
             String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
-
-            if (proxyHost != null && proxyPort != 0) {
-                try {
-                    proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-                } catch (UnknownHostException e) {
-                    throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
-                }
-                if (proxyUserName != null && !proxyUserName.isEmpty()) {
-                    proxyServerConfiguration.setProxyUsername(proxyUserName);
-                }
-                if (proxyPassword != null && !proxyPassword.isEmpty()) {
-                    proxyServerConfiguration.setProxyPassword(proxyPassword);
-                }
+            try {
+                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+            } catch (UnknownHostException e) {
+                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
             }
-            if (proxyServerConfiguration != null) {
-                senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
+            if (!proxyUserName.isEmpty()) {
+                proxyServerConfiguration.setProxyUsername(proxyUserName);
             }
+            if (!proxyPassword.isEmpty()) {
+                proxyServerConfiguration.setProxyPassword(proxyPassword);
+            }
+            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
         senderConfiguration.setFollowRedirect(followRedirect == 1);
