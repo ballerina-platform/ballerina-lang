@@ -17,14 +17,16 @@
  */
 
 export const COMMANDS = {
-    OPEN_REFRENCE: 'help-open-refrence',
+    OPEN_EXAMPLE: 'help-open-example',
+    OPEN_API_REFERENCE: 'help-open-api-reference',
     REPORT_ISSUE: 'help-report-issue',
     SHOW_ABOUT: 'help-about',
 };
 
 export const MENUS = {
     HELP_MENU: 'composer.menu.help',
-    REFERENCE_MENU: 'composer.menu.help.reference',
+    EXAMPLE_MENU: 'composer.menu.help.example',
+    API_REFERENCE_MENU: 'composer.menu.help.apireference',
     REPORT_MENU: 'composer.menu.report',
     ABOUT_MENU: 'composer.menu.about',
 };
@@ -32,7 +34,8 @@ export const MENUS = {
 export const LABELS = {
     HELP: 'Help',
     WELCOME: 'Welcome',
-    REFERENCE: 'Ballerina by Example',
+    EXAMPLE: 'Ballerina by Example',
+    API_REFERENCE: 'Ballerina API Reference',
     REPORT: 'Report Issue',
     ABOUT: 'About',
 };

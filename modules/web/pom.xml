@@ -172,6 +172,7 @@
                     <includes>
                         <include>${basedir}/package.json</include>
                         <include>${basedir}/src/plugins/help/dialogs/about-dialog.jsx</include>
+                        <include>${basedir}/src/config.js</include>
                     </includes>
                     <replacements>
                         <replacement>
@@ -181,6 +182,10 @@
                         <replacement>
                             <token>className="version"&gt;v(.*?)&lt;</token>
                             <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
+                        </replacement>
+                        <replacement>
+                            <token>https://ballerinalang.org/docs/api/(.*?)/</token>
+                            <value>https://ballerinalang.org/docs/api/\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}/</value>
                         </replacement>
                     </replacements>
                 </configuration>

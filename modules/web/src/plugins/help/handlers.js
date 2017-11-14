@@ -29,9 +29,15 @@ import { COMMANDS, DIALOG } from './constants';
 export function getHandlerDefinitions(plugin) {
     return [
         {
-            cmdID: COMMANDS.OPEN_REFRENCE,
+            cmdID: COMMANDS.OPEN_EXAMPLE,
             handler: () => {
-                window.open(plugin.config.reference_url);
+                window.open(plugin.config.example_url);
+            },
+        },
+        {
+            cmdID: COMMANDS.OPEN_API_REFERENCE,
+            handler: () => {
+                window.open(plugin.config.api_reference_url);
             },
         },
         {

@@ -37,14 +37,25 @@ export function getMenuDefinitions(plugin) {
             type: MENU_DEF_TYPES.ROOT,
         },
         {
-            id: MENUS.REFERENCE_MENU,
+            id: MENUS.EXAMPLE_MENU,
             parent: MENUS.HELP_MENU,
-            label: LABELS.REFERENCE,
+            label: LABELS.EXAMPLE,
             isActive: (appContext) => {
                 return true;
             },
             order: 0,
-            command: COMMANDS.OPEN_REFRENCE,
+            command: COMMANDS.OPEN_EXAMPLE,
+            type: MENU_DEF_TYPES.ITEM,
+        },
+        {
+            id: MENUS.API_REFERENCE_MENU,
+            parent: MENUS.HELP_MENU,
+            label: LABELS.API_REFERENCE,
+            isActive: (appContext) => {
+                return true;
+            },
+            order: 0,
+            command: COMMANDS.OPEN_API_REFERENCE,
             type: MENU_DEF_TYPES.ITEM,
         },
         {
