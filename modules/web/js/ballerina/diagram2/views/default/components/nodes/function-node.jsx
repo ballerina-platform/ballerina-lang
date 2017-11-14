@@ -27,12 +27,30 @@ import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
+import FunctionNodeDetails from './function-node-details';
 
 class FunctionNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            showStructBinding: false,
+        };
         this.canDropToPanelBody = this.canDropToPanelBody.bind(this);
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
+    }
+
+    onMouseEnter() {
+        if (!TreeUtil.isMainFunction(this.props.model)) {
+            this.setState({ showStructBinding: true });
+        }
+    }
+
+    onMouseLeave() {
+        if (!TreeUtil.isMainFunction(this.props.model)) {
+            this.setState({ showStructBinding: false });
+        }
     }
 
     canDropToPanelBody(dragSource) {
@@ -43,7 +61,6 @@ class FunctionNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const name = model.getName().value;
         // change icon for main function
         let icons = 'tool-icons/function';
         if (TreeUtil.isMainFunction(model)) {
@@ -74,38 +91,49 @@ class FunctionNode extends React.Component {
                         bBox={statement.viewState.bBox}
                     />);
             });
-
+        const nodeDetails = ({ x, y }) => (
+            <FunctionNodeDetails
+                x={x}
+                y={y}
+                model={model}
+                showStructBinding={this.state.showStructBinding}
+            />
+        );
         return (
-            <PanelDecorator
-                bBox={bBox}
-                title={name}
-                model={this.props.model}
-                icon={icons}
-                dropTarget={this.props.model}
-                canDrop={this.canDropToPanelBody}
-                argumentParams={argumentParameters}
-                returnParams={returnParameters}
+            <g
+                onMouseLeave={this.onMouseLeave}
+                onMouseEnter={this.onMouseEnter}
             >
-                { this.props.model.getWorkers().length === 0 &&
-                <g>
-                    <StatementDropZone
-                        x={bodyBBox.x}
-                        y={bodyBBox.y}
-                        width={bodyBBox.w}
-                        height={bodyBBox.h}
-                        baseComponent="rect"
-                        dropTarget={body}
-                        enableDragBg
-                    />
-                    <LifeLine
-                        title="default"
-                        bBox={this.props.model.viewState.components.defaultWorkerLine}
-                        classes={classes}
-                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                        iconColor='#025482'
-                    />
-                    {blockNode}
-                </g>
+                <PanelDecorator
+                    bBox={bBox}
+                    model={this.props.model}
+                    headerComponent={nodeDetails}
+                    icon={icons}
+                    dropTarget={this.props.model}
+                    canDrop={this.canDropToPanelBody}
+                    argumentParams={argumentParameters}
+                    returnParams={returnParameters}
+                >
+                    { this.props.model.getWorkers().length === 0 &&
+                    <g>
+                        <StatementDropZone
+                            x={bodyBBox.x}
+                            y={bodyBBox.y}
+                            width={bodyBBox.w}
+                            height={bodyBBox.h}
+                            baseComponent="rect"
+                            dropTarget={body}
+                            enableDragBg
+                        />
+                        <LifeLine
+                            title="default"
+                            bBox={this.props.model.viewState.components.defaultWorkerLine}
+                            classes={classes}
+                            icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                            iconColor='#025482'
+                        />
+                        {blockNode}
+                    </g>
                 }{
                     this.props.model.workers.map((item) => {
                         return (<StatementDropZone
@@ -119,10 +147,9 @@ class FunctionNode extends React.Component {
                         />);
                     })
                 }
-                {workers}
-                {connectors}
-            </PanelDecorator>);
-       // TODOX }
+                    {workers}
+                    {connectors}
+                </PanelDecorator> </g>);
     }
 }
 

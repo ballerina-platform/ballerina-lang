@@ -20,7 +20,6 @@ import _ from 'lodash';
 import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
-import DesignerDefault from './../../../../ballerina/configs/designer-defaults';
 
 class PositioningUtil {
 
@@ -349,11 +348,18 @@ class PositioningUtil {
         if (node.public) {
             publicPrivateFlagoffset = 10;
         }
+        let receiverTypeOffSet = 0;
+        // Check if the function is struct binded
+        if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
+            if (node.getReceiver()) {
+                receiverTypeOffSet = 180;
+            }
+        }
         // Positioning argument parameters
         if (node.getParameters()) {
             cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
                 this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset;
+                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + receiverTypeOffSet;
             cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
 
             // Positioning the resource parameters

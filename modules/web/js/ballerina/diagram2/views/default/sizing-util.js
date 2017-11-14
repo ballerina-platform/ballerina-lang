@@ -382,7 +382,7 @@ class SizingUtil {
                 + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
         }
         // here we add the public/private falg, remove and hide button width to the header.
-        cmp.heading.w += viewState.titleWidth + 100 + (this.config.panel.buttonWidth * 3);
+        cmp.heading.w += viewState.titleWidth + 280 + (this.config.panel.buttonWidth * 3);
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
