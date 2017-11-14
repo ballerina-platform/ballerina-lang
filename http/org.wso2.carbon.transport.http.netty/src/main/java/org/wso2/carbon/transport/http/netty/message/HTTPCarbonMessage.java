@@ -30,8 +30,12 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFutureImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -267,8 +271,13 @@ public class HTTPCarbonMessage {
         return this.serverConnectorFuture;
     }
 
-    public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+        HttpResponseStatusFuture httpResponseStatusFuture = new HttpResponseStatusFutureImpl();
+//        HttpResponseStatusListener futureListener = new HttpResponseStatusListener();
+//        httpResponseStatusFuture.setHttpConnectorListener(futureListener);
+
         serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
+        return httpResponseStatusFuture;
     }
 
     /**
