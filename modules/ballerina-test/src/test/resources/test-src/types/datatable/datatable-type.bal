@@ -296,9 +296,8 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
                                 string_array, boolean_array) values (?,?,?,?,?,?)", parameters);
     datatable dt = testDB.select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", null);
-    ResultMap rs;
     while (dt.hasNext()) {
-        rs, _ = (ResultMap)dt.getNext();
+        var rs, _ = (ResultMap)dt.getNext();
         println(rs.INT_ARRAY);
         intArrLen = rs.INT_ARRAY.length();
         println(rs.LONG_ARRAY);
@@ -313,7 +312,6 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
     testDB.close();
     return;
 }
-
 
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
