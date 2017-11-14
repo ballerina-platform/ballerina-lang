@@ -22,7 +22,7 @@ package org.ballerinalang.net.uri.parser;
  * Interface to hold various node items.
  *
  * @param <DataType> Type of data which should be stored in the node.
- * @param <CheckerType> Additional checker for node. Which can be used for additional checks before returning the <ITEM>.
+ * @param <CheckerType> Additional checker for node which can be used for additional checks before returning the <ITEM>.
  */
 public interface DataElement<DataType, CheckerType> {
 

@@ -29,7 +29,8 @@ import java.util.List;
  *
  * @param <DataElementType> Specific data element type created by the user.
  */
-public class SimpleStringExpression<DataElementType extends DataElement> extends SimpleSplitStringExpression<DataElementType> {
+public class SimpleStringExpression<DataElementType extends DataElement>
+        extends SimpleSplitStringExpression<DataElementType> {
 
     public SimpleStringExpression(DataElementType dataElement, String token) throws URITemplateException {
         super(dataElement, token);

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataElementCreator;
+import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
 import java.util.Map;
@@ -56,7 +56,8 @@ public class URITemplate<DataElementType extends DataElement<DataType, CheckerTy
             throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<DataElementType, DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, nodeCreator);
+        URITemplateParser<DataElementType, DataType, CheckerType> parser =
+                new URITemplateParser<>(syntaxTree, nodeCreator);
         parser.parse(uriTemplate, item);
     }
 
