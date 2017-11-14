@@ -277,7 +277,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
         PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
-        if (symTable.builtInPackageSymbol.name.equals(pkgID.name)) {
+        if (pkgID.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
