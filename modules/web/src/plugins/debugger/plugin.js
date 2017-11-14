@@ -110,16 +110,16 @@ class DebuggerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'start',
-                        panelTitle: 'Run',
+                        activityBarIcon: 'bug',
+                        panelTitle: 'Debugger',
                         panelActions: [
                             {
-                                icon: 'configarations',
+                                icon: 'configurations',
                                 handleAction: () => {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
-                                description: 'Show Launch Config Dialog',
+                                description: 'Open Launch Configuration',
                             },
                             {
                                 icon: 'console',
@@ -128,7 +128,7 @@ class DebuggerPlugin extends Plugin {
                                     dispatch(LAYOUT_COMMANDS.TOGGLE_BOTTOM_PANEL);
                                 },
                                 description: 'Toggle Console',
-                            },   
+                            },
                         ],
                     },
                     displayOnLoad: true,
