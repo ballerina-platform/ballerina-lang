@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test the functionality of filter connectors
+ * Class to test the functionality of filter connectors.
  */
 public class FilterConnectorTest {
 

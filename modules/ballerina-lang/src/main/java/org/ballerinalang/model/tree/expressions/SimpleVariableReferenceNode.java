@@ -20,7 +20,8 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * a
+ * a.
+ *
  * @since 0.94
  */
 public interface SimpleVariableReferenceNode extends VariableReferenceNode {

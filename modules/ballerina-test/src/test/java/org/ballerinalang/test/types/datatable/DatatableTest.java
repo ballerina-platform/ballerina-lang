@@ -42,6 +42,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Class to test functionality of datatables.
+ */
 public class DatatableTest {
 
     CompileResult result;

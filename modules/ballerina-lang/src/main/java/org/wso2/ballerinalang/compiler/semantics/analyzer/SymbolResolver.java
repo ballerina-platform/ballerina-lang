@@ -530,7 +530,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Lookup all the visible in-scope symbols for a given environment scope
+     * Lookup all the visible in-scope symbols for a given environment scope.
      *
      * @param env Symbol environment
      * @return all the visible symbols

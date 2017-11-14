@@ -21,8 +21,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 /**
- * The {@code BString} represents a XML attributes map in ballerina,
- * denoted by 'foo@', where foo is an xml variable.
+ * The {@code BString} represents a XML attributes map in ballerina, denoted by 'foo@', where foo is an xml variable.
  *
  * @since 0.89
  */
@@ -31,7 +30,7 @@ public final class BXMLAttributes implements BRefType {
     private BXML value;
 
     /**
-     * Create attribute map with an XML
+     * Create attribute map with an XML.
      * 
      * @param value XML associated with this attributes
      */
