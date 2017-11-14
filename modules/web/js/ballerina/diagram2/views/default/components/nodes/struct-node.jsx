@@ -188,35 +188,45 @@ class StructNode extends React.Component {
      */
     onClickJsonImport() {
         const onImport = (json) => {
+            let success = true;
             let refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
-            let currentValue;
-            this.props.model.setFields([], true);
-            refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
-                let currentName;
-                if (TreeUtils.isLiteral(ketValPair.getKey())) {
-                    currentName = ketValPair.getKey().getValue().replace(/"/g, '');
-                } else {
-                    currentName = ketValPair.getKey().getVariableName().getValue();
-                }
-                if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
-                    // TODO : Implement anonymous struct generation
-                    return;
-                } else {
-                    currentValue = ketValPair.getValue().getValue();
-                }
-
-                let currentType = 'string';
-                if (this.isInt(currentValue)) {
-                    currentType = 'int';
-                } else if (this.isFloat(currentValue)) {
-                    currentType = 'float';
-                } else if (currentValue === 'true' || currentValue === 'false') {
-                    currentType = 'boolean';
-                }
-                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                  FragmentUtils.createStatementFragment(currentType + ' ' + currentName + ' = ' + currentValue + ';')));
-                this.props.model.addFields(refExpr.getVariable());
-            });
+            if (!refExpr.error) {
+                let currentValue;
+                this.props.model.setFields([], true);
+                refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
+                    let currentName;
+                    if (TreeUtils.isLiteral(ketValPair.getKey())) {
+                        currentName = ketValPair.getKey().getValue().replace(/"/g, '');
+                    } else {
+                        currentName = ketValPair.getKey().getVariableName().getValue();
+                    }
+                    if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
+                       // TODO : Implement anonymous struct generation
+                        return;
+                    } else {
+                        currentValue = ketValPair.getValue().getValue();
+                    }
+                    let currentType = 'string';
+                    if (this.isInt(currentValue)) {
+                        currentType = 'int';
+                    } else if (this.isFloat(currentValue)) {
+                        currentType = 'float';
+                    } else if (currentValue === 'true' || currentValue === 'false') {
+                        currentType = 'boolean';
+                    }
+                    refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                     FragmentUtils.createStatementFragment(currentType + ' '
+                     + currentName + ' = ' + currentValue + ';')));
+                    if (!refExpr.error) {
+                        this.props.model.addFields(refExpr.getVariable());
+                    } else {
+                        success = false;
+                    }
+                });
+            } else {
+                success = false;
+            }
+            return success;
         };
         const id = 'composer.dialog.import.struct';
         const { command: { dispatch } } = this.context;
