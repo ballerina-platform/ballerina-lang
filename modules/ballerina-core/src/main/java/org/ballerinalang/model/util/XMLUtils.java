@@ -247,6 +247,9 @@ public class XMLUtils {
      * @return BXML Text type BXML
      */
     public static BXML<?> createXMLText(String content) {
+        // Remove carriage return on windows environments to eliminate additional &#xd; being added
+        content = content.replace("\r\n", "\n");
+
         OMText omText = OM_FACTORY.createOMText(content);
         return new BXMLItem(omText);
     }

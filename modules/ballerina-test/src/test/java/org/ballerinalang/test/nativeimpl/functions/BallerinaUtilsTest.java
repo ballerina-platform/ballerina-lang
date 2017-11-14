@@ -68,18 +68,29 @@ public class BallerinaUtilsTest {
 
     @Test
     public void testHmac() {
-        final String key = "abcdefghijk";
-        List<BValue[]> argsList = new ArrayList<>();
+        String messageString = "Ballerina HMAC test";
+        BString message = new BString(messageString);
+        String keyString = "abcdefghijk";
+        BString key = new BString(keyString);
 
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA256")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("MD5")});
+        String expectedMD5Hash = "3D5AC29160F2905A5C8153597798A4C1";
+        String expectedSHA1Hash = "13DD8D54D0EB702EDC6E8EDCAF616837D3A51499";
+        String expectedSHA256Hash = "2651203E18BF0088D3EF1215022D147E2534FD4BAD5689C9E5F12436E9758B15";
 
-        for (BValue[] args : argsList) {
-            BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac", args);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                    "Invalid Return Values for");
-        }
+        BValue[] args = {message, key, new BString("MD5")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+
+        args = new BValue[]{message, key, new BString("SHA1")};
+        returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
+
+        args = new BValue[]{message, key, new BString("SHA256")};
+        returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)

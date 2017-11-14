@@ -42,6 +42,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Class to test functionality of datatables.
+ */
 public class DatatableTest {
 
     CompileResult result;
@@ -347,6 +350,18 @@ public class DatatableTest {
         BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+    }
+
+    @Test(groups = "DatatableTest", description = "Check get float and double types.")
+    public void testGetFloatTypes() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes", args);
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34);
     }
 
     @AfterSuite

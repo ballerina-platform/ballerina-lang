@@ -327,8 +327,8 @@ public class HttpConnectionManager {
         }
         senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-        int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1);
+        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
+        senderConfiguration.setChunkDisabled(enableChunking == 0);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
