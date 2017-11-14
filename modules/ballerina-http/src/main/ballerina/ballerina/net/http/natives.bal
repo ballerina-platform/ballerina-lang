@@ -108,6 +108,11 @@ public native function <Request req> removeAllHeaders ();
 @Param { value:"payload: The XML payload object" }
 public native function <Request req> setXmlPayload (xml payload);
 
+@Description { value:"Sets the message payload using a SOAP object"}
+@Param { value:"req: A request message" }
+@Param { value:"payload: The XML payload object" }
+public native function <Request req> setSoapPayload (xml payload);
+
 @Description { value:"Clones and creates a new instance of a request message"}
 @Param { value:"req: A request message" }
 @Return { value:"request: The new instance of the request message" }
@@ -222,6 +227,11 @@ public native function <Response res> removeAllHeaders ();
 @Param { value:"res: The response message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
+
+@Description { value:"Sets the response payload using a SOAP object"}
+@Param { value:"res: The response message" }
+@Param { value:"payload: The XML payload object" }
+public native function <Response res> setSoapPayload (xml payload);
 
 @Description { value:"Clones and creates a new instance of a response message"}
 @Param { value:"res: The response message" }

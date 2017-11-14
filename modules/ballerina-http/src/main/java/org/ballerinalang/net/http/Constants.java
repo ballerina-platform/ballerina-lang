@@ -178,6 +178,11 @@ public class Constants {
     public static final String APPLICATION_XML = "application/xml";
 
     /**
+     * HTTP content-type text/xml.
+     */
+    public static final String TEXT_XML = "text/xml";
+
+    /**
      * HTTP content-type text/plain.
      */
     public static final String TEXT_PLAIN = "text/plain";
