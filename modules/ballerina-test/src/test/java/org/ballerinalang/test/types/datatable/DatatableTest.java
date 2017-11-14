@@ -96,6 +96,16 @@ public class DatatableTest {
                         + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></result></results>");
      }
 
+    @Test(groups = "DatatableTest", description = "Check xml streaming when result set consumed once.")
+    public void testToXmlMultipleConsume() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<results/>");
+    }
+
     @Test(groups = "DatatableTest", description = "Check toXml methods with complex element.")
     public void testToXmlComplex() {
         BValue[] args = {};

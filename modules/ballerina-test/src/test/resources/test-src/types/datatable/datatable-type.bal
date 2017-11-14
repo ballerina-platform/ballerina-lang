@@ -99,6 +99,27 @@ function testToXml () (xml) {
     return null;
 }
 
+function testToXmlMultipleConsume () (xml) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    sql:Parameter[] parameters = [];
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+        boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+        xml result;
+        result, _ = <xml>dt;
+        println(result);
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
+
 function toXmlComplex () (xml) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
