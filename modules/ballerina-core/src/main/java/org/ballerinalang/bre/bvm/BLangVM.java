@@ -541,20 +541,10 @@ public class BLangVM {
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
                     actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeAction(actionInfo, funcCallCPEntry);
-                    break;
-                case InstructionCodes.NACALL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeNativeAction(actionInfo, funcCallCPEntry);
+                    invokeAction(actionRefCPEntry.getActionName(), funcCallCPEntry);
                     break;
                 case InstructionCodes.THROW:
                     i = operands[0];
@@ -2619,7 +2609,7 @@ public class BLangVM {
 
     }
 
-    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeAction(String actionName, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         StackFrame callerSF = controlStack.currentFrame;
 
@@ -2631,9 +2621,9 @@ public class BLangVM {
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
         //TODO find a way to change this to method table
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
-                .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        if (newActionInfo.getNativeAction() != null) {
+        if (newActionInfo.isNative()) {
             invokeNativeAction(newActionInfo, funcCallCPEntry);
         } else {
             invokeCallableUnit(newActionInfo, funcCallCPEntry);
