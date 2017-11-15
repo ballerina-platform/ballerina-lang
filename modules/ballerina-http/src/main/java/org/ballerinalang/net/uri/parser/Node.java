@@ -188,14 +188,14 @@ public abstract class Node {
     abstract char getFirstCharacter();
 
     private Node getExistingChildNode(Node prospectiveChild, String token, List<Node> childList) {
-        boolean isParamType = prospectiveChild instanceof Expression;
+        boolean isExpression = prospectiveChild instanceof Expression;
 
-        for (Node node : childList) {
-            if (isParamType && node instanceof Expression) {
-                return node;
+        for (Node existingChild : childList) {
+            if (isExpression && existingChild instanceof Expression) {
+                return existingChild;
             }
-            if (node.getToken().equals(token)) {
-                return node;
+            if (existingChild.getToken().equals(token)) {
+                return existingChild;
             }
         }
 
