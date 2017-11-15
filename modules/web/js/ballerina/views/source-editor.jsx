@@ -293,7 +293,7 @@ class SourceEditor extends React.Component {
             // Adding the file content changed event to the new file.
             nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
             this.replaceContent(nextProps.file.content, true);
-        } else if (this.lastUpdatedTimestamp !== nextProps.file.lastUpdated) {
+        } else if (this.editor.session.getValue() !== nextProps.file.content) {
             this.replaceContent(nextProps.file.content, true);
         }
 
