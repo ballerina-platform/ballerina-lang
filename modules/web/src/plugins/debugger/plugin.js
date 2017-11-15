@@ -77,12 +77,12 @@ class DebuggerPlugin extends Plugin {
     getArgumentConfigs() {
         const activeEditor = this.appContext.editor.getActiveEditor();
 
-        let configArgumentsStr = '';
+        let configArguments;
         const uniqueID = this.getFileUniqueID(activeEditor.file);
         if (activeEditor && activeEditor.file) {
-            configArgumentsStr = this.appContext.pref.get(`launcher-app-configs-${uniqueID}`) || '';
+            configArguments = this.appContext.pref.get(`launcher-app-configs-${uniqueID}`) || [];
         }
-        return configArgumentsStr;
+        return configArguments;
     }
 
     /**
