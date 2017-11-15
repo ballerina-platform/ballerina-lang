@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import PropTypes from 'prop-types';
 /**
  * Visitor util class for rendering the overlay components
  */
@@ -52,6 +51,24 @@ class OverlayComponentsRenderingUtil {
                 key: node.getID(),
                 model: node,
                 bBox,
+            },
+        };
+        node.viewState.overlayContainer = overlayComponents;
+        return node;
+    }
+
+    showStructsInPackageForBinding(node, x, y, structs) {
+        const bBox = Object.assign({}, node.viewState.bBox);
+        bBox.x = x - 5;
+        bBox.y = y + 23;
+        const overlayComponents = {
+            kind: 'StructBindingDropDown',
+            props: {
+                key: node.getID(),
+                model: node,
+                bBox,
+                structList: structs,
+
             },
         };
         node.viewState.overlayContainer = overlayComponents;

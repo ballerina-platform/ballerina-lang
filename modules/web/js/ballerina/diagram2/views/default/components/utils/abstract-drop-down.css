@@ -1,7 +1,7 @@
 .dropdown-content {
     display: block;
     position: absolute;
-    background-color: #c6cecc;
+    background-color: #dcdcdc;
     min-width: 160px;
     z-index: 1;
 }

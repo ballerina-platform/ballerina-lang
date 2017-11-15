@@ -20,7 +20,6 @@ import _ from 'lodash';
 import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
-import DesignerDefault from './../../../../ballerina/configs/designer-defaults';
 
 class PositioningUtil {
 
@@ -353,7 +352,7 @@ class PositioningUtil {
         if (node.getParameters()) {
             cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
                 this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset;
+                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + cmp.receiver.w;
             cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
 
             // Positioning the resource parameters

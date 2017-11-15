@@ -20,13 +20,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './abstract-drop-down.css';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 /**
  * React component for a drop down menu
  *
  * @class DropdownMenu
  * @extends {React.Component}
  */
-class AbstractDropdown extends React.Component {
+class StructBindingDropDown extends React.Component {
 
     constructor(props) {
         super(props);
@@ -63,7 +65,7 @@ class AbstractDropdown extends React.Component {
             if (!this.node.contains(e.target)) {
                 this.props.model.props.model.viewState.overlayContainer = {};
                 this.props.model.props.model.viewState.showOverlayContainer = false;
-                this.props.model.props.editor.update(true);
+                this.context.editor.update();
             }
         }
     }
@@ -72,11 +74,30 @@ class AbstractDropdown extends React.Component {
      * Handle the on click method on a drop down item
      * @param {function} callback - callback function to be called
      */
-    handleOnItemClick(callback) {
+    handleOnItemClick(struct) {
         const props = this.props.model.props;
-        callback();
+        if (struct !== 'Remove struct binding') {
+            // add a receiver to the function
+            const fragment = FragmentUtils.createArgumentParameterFragment(struct);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            if (!parsedJson.error) {
+                props.model.setReceiver(TreeBuilder.build(parsedJson), true);
+            }
+        } else {
+            if (props.model.getReceiver()) {
+                delete props.model.receiver;
+            }
+        }
         props.model.viewState.overlayContainer = {};
         props.model.viewState.showOverlayContainer = false;
+        props.model.trigger('tree-modified', {
+            origin: props.model,
+            type: 'Receiver Changed',
+            title: 'Receiver Changed',
+            data: {
+                node: props.model,
+            },
+        });
     }
 
     /**
@@ -86,31 +107,32 @@ class AbstractDropdown extends React.Component {
      * @memberof DropdownMenu
      */
     render() {
-        const dropDownBBox = this.props.model.props.dropDownBBox;
+        const props = this.props.model.props;
+        const dropDownBBox = props.bBox;
         const style = {
-            display: !_.isEmpty(this.props.model.props.model.viewState.overlayContainer) ? 'block' : 'none',
+            display: !_.isEmpty(props.model.viewState.overlayContainer) ? 'block' : 'none',
             top: dropDownBBox.y,
             left: dropDownBBox.x,
         };
-        const metaInfoList = this.props.model.props.itemsMeta;
+        const availableStructs = props.structList;
         return (
             <div
+                key={props.key}
                 id="myDropdown"
                 className="dropdown-content"
                 style={style}
                 ref={(node) => { this.node = node; }}
             >
-                {metaInfoList.map((meta) => {
-                    return (<a onClick={e => this.handleOnItemClick(() => meta.callback(meta.text))}>{meta.text}</a>);
+                {props.model.getReceiver() &&
+                <a onClick={e => this.handleOnItemClick('Remove struct binding')}>Remove struct binding</a> }
+                {availableStructs.map((struct) => {
+                    return (<a onClick={e => this.handleOnItemClick(struct)}>{struct}</a>);
                 })}
             </div>);
     }
 }
 
-AbstractDropdown.propTypes = {
-    items: {
-        text: PropTypes.string.isRequired,
-    },
+StructBindingDropDown.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
-
-export default AbstractDropdown;
+export default StructBindingDropDown;
