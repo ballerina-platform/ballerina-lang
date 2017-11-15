@@ -111,7 +111,7 @@ public class StreamJunction {
         ComplexEvent complexEventList = complexEvent;
         if (disruptor != null) {
             while (complexEventList != null) {
-                if (throughputTracker != null) {
+                if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
                     throughputTracker.eventIn();
                 }
                 long sequenceNo = ringBuffer.next();
@@ -124,7 +124,7 @@ public class StreamJunction {
                 complexEventList = complexEventList.getNext();
             }
         } else {
-            if (throughputTracker != null) {
+            if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
                 int messageCount = 0;
                 while (complexEventList != null) {
                     messageCount++;
@@ -139,7 +139,7 @@ public class StreamJunction {
     }
 
     public void sendEvent(Event event) {
-        if (throughputTracker != null) {
+        if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
             throughputTracker.eventIn();
         }
         if (isTraceEnabled) {
@@ -161,7 +161,7 @@ public class StreamJunction {
     }
 
     private void sendEvent(Event[] events) {
-        if (throughputTracker != null) {
+        if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
             throughputTracker.eventsIn(events.length);
         }
         if (isTraceEnabled) {
@@ -211,7 +211,7 @@ public class StreamJunction {
             ((EventTimeBasedMillisTimestampGenerator) this.siddhiAppContext.getTimestampGenerator())
                     .setCurrentTimestamp(timeStamp);
         }
-        if (throughputTracker != null) {
+        if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
             throughputTracker.eventIn();
         }
         if (disruptor != null) {

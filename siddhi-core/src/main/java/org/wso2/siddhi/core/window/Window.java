@@ -102,7 +102,7 @@ public class Window implements FindableProcessor, Snapshotable {
     /**
      * Construct a Window object.
      *
-     * @param windowDefinition     definition of the window
+     * @param windowDefinition definition of the window
      * @param siddhiAppContext siddhi app context of Siddhi
      */
     public Window(WindowDefinition windowDefinition, SiddhiAppContext siddhiAppContext) {
@@ -116,13 +116,13 @@ public class Window implements FindableProcessor, Snapshotable {
     /**
      * Initialize the WindowEvent table by creating {@link WindowProcessor} to handle the events.
      *
-     * @param tableMap  map of {@link Table}s
+     * @param tableMap       map of {@link Table}s
      * @param eventWindowMap map of EventWindows
      * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
-     * @param queryName name of the query window belongs to.
+     * @param queryName      name of the query window belongs to.
      */
-    public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap, LatencyTracker
-            latencyTracker, String queryName) {
+    public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap,
+                     LatencyTracker latencyTracker, String queryName) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -232,9 +232,9 @@ public class Window implements FindableProcessor, Snapshotable {
      */
     @Override
     public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
             return ((FindableProcessor) this.internalWindowProcessor).compileCondition(condition,
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap,
