@@ -26,6 +26,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.slf4j.Logger;
@@ -67,13 +68,12 @@ public class Main {
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, outStream);
             Runtime.getRuntime().exit(1);
+        } catch (BallerinaException e) {
+            outStream.println("ballerina: " + LauncherUtils.makeFirstLetterLowerCase(e.getMessage()));
+            breLog.error(e.getMessage(), e);
+            Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "ballerina: internal error occurred";
-            } else {
-                msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
-            }
+            String msg = "ballerina: internal error occurred";
             outStream.println(msg);
             breLog.error(msg, e);
             Runtime.getRuntime().exit(1);
