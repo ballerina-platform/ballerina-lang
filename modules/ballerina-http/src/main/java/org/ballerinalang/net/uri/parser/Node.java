@@ -46,11 +46,11 @@ public abstract class Node {
         this.token = token;
     }
 
-    public Node addChild(String segment, Node childNode) {
+    public Node addChild(Node childNode) {
         Node node = childNode;
-        Node existingNode = getExistingChildNode(childNode, segment, childNodesList);
-        if (existingNode != null) {
-            node = existingNode;
+        Node matchingChildNode = getMatchingChildNode(childNode, childNodesList);
+        if (matchingChildNode != null) {
+            node = matchingChildNode;
         } else {
             this.childNodesList.add(node);
         }
@@ -187,14 +187,15 @@ public abstract class Node {
 
     abstract char getFirstCharacter();
 
-    private Node getExistingChildNode(Node prospectiveChild, String token, List<Node> childList) {
+    private Node getMatchingChildNode(Node prospectiveChild, List<Node> existingChildren) {
         boolean isExpression = prospectiveChild instanceof Expression;
+        String prospectiveChildToken = prospectiveChild.getToken();
 
-        for (Node existingChild : childList) {
+        for (Node existingChild : existingChildren) {
             if (isExpression && existingChild instanceof Expression) {
                 return existingChild;
             }
-            if (existingChild.getToken().equals(token)) {
+            if (existingChild.getToken().equals(prospectiveChildToken)) {
                 return existingChild;
             }
         }
