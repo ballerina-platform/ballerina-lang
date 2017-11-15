@@ -108,13 +108,8 @@ public class LaunchManager {
             command.setProgram(program);
 
 
-            if (command.getType() == LauncherConstants.ProgramType.RUN) {
-                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                         String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
-            } else {
-                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.SERVICE_MESSAGE, command.getFileName()));
-            }
 
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
@@ -169,7 +164,7 @@ public class LaunchManager {
                 }
 
             }
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
         } catch (IOException e) {
             logger.error("Error while sending output stream to client.", e);
@@ -256,20 +251,10 @@ public class LaunchManager {
         MessageDTO message;
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
-                        command.getCommandArgs(), false));
-                break;
-            case LauncherConstants.RUN_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
-                        false));
+                run(new Command(command.getFileName(), command.getFilePath(), command.getCommandArgs(), false));
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
-                        command.getCommandArgs(), true));
-                break;
-            case LauncherConstants.DEBUG_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
-                        true));
+                run(new Command(command.getFileName(), command.getFilePath(), command.getCommandArgs(), true));
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();

@@ -105,7 +105,7 @@ class LaunchManager extends EventChannel {
             this.active = true;
             this.trigger('execution-started');
         }
-        if (message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED') {
+        if (message.code === 'EXECUTION_STOPPED' || message.code === 'EXECUTION_TERMINATED') {
             this.active = false;
             this.trigger('execution-ended');
             this.channel.close();
