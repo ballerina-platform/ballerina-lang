@@ -98,7 +98,7 @@ class ReceiverNode extends React.Component {
                             y={addBindingStructY}
                             width={iconSize}
                             height={iconSize}
-                            xlinkHref={ImageUtil.getSVGIconString('uri')}
+                            xlinkHref={ImageUtil.getSVGIconString('bind')}
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}
                         > <title> Bind functions with structs </title> </image> </g>}
                 {structBindedFunction &&
