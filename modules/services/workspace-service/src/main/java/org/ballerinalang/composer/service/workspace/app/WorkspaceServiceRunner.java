@@ -230,6 +230,7 @@ public class WorkspaceServiceRunner {
 
         if (!isCloudMode) {
             logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);
+            StartBrowser.startInDefaultBrowser("http://localhost:" + fileServerPort);
         }
     }
 
