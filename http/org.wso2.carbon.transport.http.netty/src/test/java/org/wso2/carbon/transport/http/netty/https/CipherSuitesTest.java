@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty.https;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.DataProvider;
@@ -28,7 +30,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contentaware.EchoMessageListener;
+import org.wso2.carbon.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -149,8 +151,7 @@ public class CipherSuitesTest {
             msg.setProperty("PROTOCOL", scheme);
             msg.setProperty("HOST", TestUtil.TEST_HOST);
             msg.setProperty("HTTP_METHOD", "GET");
-            msg.addMessageBody(byteBuffer);
-            msg.setEndOfMsgAdded(true);
+            msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);

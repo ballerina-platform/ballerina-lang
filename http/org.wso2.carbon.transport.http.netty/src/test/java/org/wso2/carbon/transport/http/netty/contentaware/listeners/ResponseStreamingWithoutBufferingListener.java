@@ -17,12 +17,15 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.contentaware.listeners;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -50,18 +53,20 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
             cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
             cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-            executor.execute(() -> {
-                try {
-                    httpRequestMessage.respond(cMsg);
-                } catch (ServerConnectorException e) {
-                    logger.error("Error occurred during message notification: " + e.getMessage());
-                }
-            });
-            while (!(httpRequestMessage.isEmpty() && httpRequestMessage.isEndOfMsgAdded())) {
-                cMsg.addMessageBody(httpRequestMessage.getMessageBody().nioBuffer());
+            try {
+                httpRequestMessage.respond(cMsg);
+            } catch (ServerConnectorException e) {
+                logger.error("Error occurred during message notification: " + e.getMessage());
             }
-            cMsg.setEndOfMsgAdded(true);
-            httpRequestMessage.release();
+            while (true) {
+                HttpContent httpContent = httpRequestMessage.getHttpContent();
+                cMsg.addHttpContent(httpContent);
+                if (httpContent instanceof LastHttpContent) {
+                    cMsg.addHttpContent(new DefaultLastHttpContent());
+                    httpRequestMessage.release();
+                    break;
+                }
+            }
         });
     }
 

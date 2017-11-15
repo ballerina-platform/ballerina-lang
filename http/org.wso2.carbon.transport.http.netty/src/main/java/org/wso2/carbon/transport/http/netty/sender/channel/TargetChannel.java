@@ -18,9 +18,7 @@ package org.wso2.carbon.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +28,7 @@ import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -56,10 +55,12 @@ public class TargetChannel {
     private ConnectionManager connectionManager;
     private boolean isRequestWritten = false;
     private boolean chunkDisabled = false;
+    private HandlerExecutor handlerExecutor;
 
     public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
         this.httpClientInitializer = httpClientInitializer;
         this.channelFuture = channelFuture;
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     public Channel getChannel() {
@@ -147,36 +148,27 @@ public class TargetChannel {
 
     public void writeContent(HTTPCarbonMessage httpCarbonRequest) {
         try {
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                        executeAtTargetRequestReceiving(httpCarbonRequest);
+            if (handlerExecutor != null) {
+                handlerExecutor.executeAtTargetRequestReceiving(httpCarbonRequest);
             }
-
-            Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
-            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
             this.setRequestWritten(true);
             this.getChannel().write(httpRequest);
 
-            while (true) {
-                if (httpCarbonRequest.isEndOfMsgAdded() && httpCarbonRequest.isEmpty()) {
-                    this.getChannel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    break;
-                } else {
-                    HttpContent httpContent = httpCarbonRequest.getHttpContent();
-                    if (httpContent instanceof LastHttpContent) {
-                        this.getChannel().writeAndFlush(httpContent);
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtTargetRequestSending(httpCarbonRequest);
-                        }
-                        break;
-                    } else {
-                        this.getChannel().write(httpContent);
+            httpCarbonRequest.getHttpContentAsync().setMessageListener(httpContent ->
+                    this.channel.eventLoop().execute(() -> {
+                if (Util.isLastHttpContent(httpContent)) {
+                    this.getChannel().writeAndFlush(httpContent);
+                    httpCarbonRequest.removeHttpContentAsyncFuture();
+
+                    if (handlerExecutor != null) {
+                        handlerExecutor.executeAtTargetRequestSending(httpCarbonRequest);
                     }
+                } else {
+                    this.getChannel().write(httpContent);
                 }
-            }
+            }));
         } catch (Exception e) {
             String msg;
             if (e instanceof NullPointerException) {

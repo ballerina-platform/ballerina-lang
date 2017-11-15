@@ -20,6 +20,7 @@ package org.wso2.carbon.transport.http.netty;
 
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class ClientConnectorTimeoutTestCase {
             assertNotNull(response);
             String result = response.getMessage();
 
-            assertEquals("Endpoint timed out", result);
+            assertEquals(HttpResponseStatus.GATEWAY_TIMEOUT.reasonPhrase(), result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }

@@ -18,6 +18,7 @@ package org.wso2.carbon.transport.http.netty.common;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
@@ -25,6 +26,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
@@ -153,6 +155,7 @@ public class Util {
 
     private static void  setContentLength(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -161,7 +164,13 @@ public class Util {
     }
 
     private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
+            HttpContent httpContent = cMsg.peek();
+            if (httpContent instanceof LastHttpContent) {
+                if (httpContent.content().readableBytes() == 0) {
+                    return;
+                }
+            }
             cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
     }
@@ -199,19 +208,23 @@ public class Util {
         // 3. Check for request Content-Length header
         String requestContentLength = requestDataHolder.getContentLengthHeader();
         if (requestContentLength != null &&
-            (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty()))) {
-            int contentLength = cMsg.getFullMessageLength();
-            if (contentLength > 0) {
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null))) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
+            if (!cMsg.isEmpty()) {
+                int contentLength = cMsg.getFullMessageLength();
+                if (contentLength > 0) {
+                    cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+                }
+                cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+                return;
             }
-            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            return;
         }
 
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+            Util.prepareBuiltMessageForTransfer(cMsg);
             if (!cMsg.isEmpty()) {
                 int contentLength = cMsg.getFullMessageLength();
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -219,7 +232,6 @@ public class Util {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
-
     }
 
     /**
@@ -233,7 +245,7 @@ public class Util {
             MessageDataSource messageDataSource = cMsg.getMessageDataSource();
             if (messageDataSource != null) {
                 messageDataSource.serializeData();
-                cMsg.setEndOfMsgAdded(true);
+                cMsg.setMessageDataSource(null);
             }
         }
     }
@@ -527,5 +539,15 @@ public class Util {
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
+    }
+
+    /**
+     * Check if a given content is last httpContent.
+     *
+     * @param httpContent new content.
+     * @return true or false.
+     */
+    public static boolean isLastHttpContent(HttpContent httpContent) {
+        return httpContent instanceof LastHttpContent;
     }
 }

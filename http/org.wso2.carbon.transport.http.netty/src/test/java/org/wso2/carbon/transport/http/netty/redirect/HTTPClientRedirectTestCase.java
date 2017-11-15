@@ -487,7 +487,7 @@ public class HTTPClientRedirectTestCase {
             Throwable response = listener.getHttpErrorMessage();
             assertNotNull(response);
             String result = response.getMessage();
-            assertEquals("Endpoint timed out", result);
+            assertEquals(HttpResponseStatus.GATEWAY_TIMEOUT.reasonPhrase(), result);
             redirectServer2.shutdown();
             httpServer.shutdown();
         } catch (Exception e) {

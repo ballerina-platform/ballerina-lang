@@ -18,7 +18,7 @@
     <parent>
         <artifactId>org.wso2.carbon.transport.parent</artifactId>
         <groupId>org.wso2.carbon.transport</groupId>
-        <version>6.0.35-SNAPSHOT</version>
+        <version>6.0.44-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -30,5 +30,6 @@
         <module>http</module>
         <module>jms</module>
         <module>file</module>
+        <module>email</module>
     </modules>
 </project>
