@@ -25,13 +25,15 @@ import java.util.Map;
 
 /**
  * Literal represents literal path segments in the uri-template.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class Literal extends Node {
+public class Literal<DataElementType extends DataElement> extends Node<DataElementType> {
 
     private int tokenLength = 0;
 
-    public Literal(String token) throws URITemplateException {
-        super(token);
+    public Literal(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
         tokenLength = token.length();
         if (tokenLength == 0) {
             throw new URITemplateException("Invalid literal token with zero length");
@@ -39,12 +41,12 @@ public class Literal extends Node {
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         return token;
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (!token.endsWith("*")) {
             if (uriFragment.length() < tokenLength) {
                 return -1;
@@ -75,12 +77,12 @@ public class Literal extends Node {
     }
 
     @Override
-    String getToken() {
+    public String getToken() {
         return token;
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return token.charAt(0);
     }
 }

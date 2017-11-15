@@ -18,26 +18,18 @@
 
 package org.ballerinalang.net.uri.parser;
 
-
-import org.ballerinalang.net.uri.URITemplateException;
-
-import java.util.List;
-
 /**
- * SimpleStringExpression represents path segments that have single path param.
- * ex - /{foo}/
+ * Node creator is used to create necessary node node for a given item.
+ * This is where the developer should create there own node to be passed into the tree.
  *
- * @param <DataElementType> Specific data element type created by the user.
+ * @param <DataElementType> Specific node item created by the user.
  */
-public class SimpleStringExpression<DataElementType extends DataElement>
-        extends SimpleSplitStringExpression<DataElementType> {
+public interface DataElementCreator<DataElementType extends DataElement> {
 
-    public SimpleStringExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
-    }
-
-    @Override
-    protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
-        return endCharacter == '/';
-    }
+    /**
+     * Creates a data element specified by the user.
+     *
+     * @return Node which response to T node item.
+     */
+    DataElementType createDataElement();
 }

@@ -18,39 +18,73 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Basic URI Template implementation.
+ * Generic URI Template implementation.
  *
- **/
+ * @param <DataElementType> Specifically defined Data element type for the parser.
+ * @param <DataType> Data type stored in the data element.
+ * @param <CheckerType> Additional checker for the given data type.
+ */
+public class URITemplate<DataElementType extends DataElement<DataType, CheckerType>, DataType, CheckerType> {
 
-public class URITemplate {
+    private Node<DataElementType> syntaxTree;
+    private URITemplateParser<DataElementType, DataType, CheckerType> parser;
+    private DataElementCreator<DataElementType> nodeCreator;
+    private final Map<String, Node<DataElementType>> uriTemplateToNodeMap = new HashMap<>();
 
-    private Node syntaxTree;
-
-    public URITemplate(Node syntaxTree) {
+    public URITemplate(Node<DataElementType> syntaxTree, DataElementCreator<DataElementType> nodeCreator) {
         this.syntaxTree = syntaxTree;
+        this.nodeCreator = nodeCreator;
+        parser = new URITemplateParser<>(syntaxTree, this.nodeCreator);
     }
 
     public String expand(Map<String, String> variables) {
         return null;
     }
 
-    public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
-        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
+    public DataType matches(String uri, Map<String, String> variables, CheckerType checker) {
+        DataElementType nodeItem = syntaxTree.matchAll(uri, variables, 0);
+        if (nodeItem == null) {
+            return null;
+        }
+        return nodeItem.getData(checker);
     }
 
-    public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
+    public void parse(String uriTemplate, DataType item) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
+        Node<DataElementType> node = parser.parse(uriTemplate, item);
+        uriTemplateToNodeMap.put(uriTemplate, node);
+    }
 
-        URITemplateParser parser = new URITemplateParser(syntaxTree);
-        parser.parse(uriTemplate, resource);
+    public void remove(String uriTemplate) throws URITemplateException {
+        uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
+        Node<DataElementType> currentNode = uriTemplateToNodeMap.remove(uriTemplate);
+        if (currentNode == null) {
+            return;
+        }
+        if (currentNode.getChildNodesList().size() == 0) {
+            Node<DataElementType> parentNode = currentNode.getParentNode();
+            parentNode.getChildNodesList().remove(currentNode);
+            currentNode = parentNode;
+            while (currentNode.getChildNodesList().size() == 0 && !currentNode.equals(syntaxTree)) {
+                if (!currentNode.getDataElement().isEmpty()) {
+                    break;
+                }
+                parentNode = currentNode.getParentNode();
+                parentNode.getChildNodesList().remove(currentNode);
+                currentNode = parentNode;
+            }
+        } else {
+            currentNode.getDataElement().clearData();
+        }
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

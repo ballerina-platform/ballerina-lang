@@ -50,7 +50,8 @@ public class GetParentConnection extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         String parentConnectionID = (String) wsConnection.getNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID);
-        BStruct parentConnection = WebSocketConnectionManager.getInstance().getConnection(parentConnectionID);
+        BStruct parentConnection =
+                WebSocketConnectionManager.getInstance().getConnectionInfo(parentConnectionID).getWsConnection();
         return getBValues(parentConnection);
     }
 }

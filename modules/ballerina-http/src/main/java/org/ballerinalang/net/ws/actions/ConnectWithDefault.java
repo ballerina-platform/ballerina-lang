@@ -80,7 +80,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
             public void onSuccess(Session session) {
                 BStruct wsConnection = createWsConnectionStruct(context, session, null);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
-                storeWsConnection(session.getId(), wsConnection);
+                storeWsConnection(session.getId(), wsConnection, wsService);
                 connectorFuture.notifySuccess();
             }
 

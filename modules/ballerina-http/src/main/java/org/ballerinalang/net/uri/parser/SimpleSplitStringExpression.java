@@ -21,25 +21,28 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * SimpleSplitStringExpression represents path segments that have multiple path params.
  * ex - /{foo}+{bar}/
+ *
+ * @param <DataElementType> Specific data element type created by the user.
  */
-public class SimpleSplitStringExpression extends Expression {
+public class SimpleSplitStringExpression<DataElementType extends DataElement> extends Expression<DataElementType> {
 
     protected static final char[] RESERVED = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleSplitStringExpression(String token) throws URITemplateException {
-        super(token);
+    public SimpleSplitStringExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         boolean emptyString = false;
         StringBuffer buffer = new StringBuffer();
         for (Variable var : variableList) {
@@ -68,11 +71,11 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
-            if (isReserved(ch) || isEndCharacter(ch)) {
+            if (isReserved(ch) || isEndCharacter(childNodesList, ch)) {
                 if (ch == getSeparator() && variableList.size() > 0) {
                     continue;
                 }
@@ -135,7 +138,7 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return '\u0001';
     }
 
@@ -148,7 +151,7 @@ public class SimpleSplitStringExpression extends Expression {
         return false;
     }
 
-    protected boolean isEndCharacter(Character endCharacter) {
+    protected boolean isEndCharacter(List<? extends Node> childNodesList, Character endCharacter) {
         for (Node childNode : childNodesList) {
             if (endCharacter == childNode.getFirstCharacter()) {
                 return true;

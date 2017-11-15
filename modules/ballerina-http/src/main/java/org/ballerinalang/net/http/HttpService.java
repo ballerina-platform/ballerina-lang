@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class HttpService {
     private List<String> allAllowMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
-    private URITemplate uriTemplate;
+    private URITemplate<HttpResourceElement, HttpResource, HTTPCarbonMessage> uriTemplate;
 
     public HttpService(Service service) {
         this.balService = service;
@@ -85,9 +86,11 @@ public class HttpService {
         this.corsHeaders = corsHeaders;
     }
 
-    public URITemplate getUriTemplate() throws URITemplateException {
+    public URITemplate<HttpResourceElement, HttpResource, HTTPCarbonMessage> getUriTemplate()
+            throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate(new Literal("/"));
+            HttpResourceElementCreator elementCreator = new HttpResourceElementCreator();
+            uriTemplate = new URITemplate<>(new Literal<>(elementCreator.createDataElement(), "/"), elementCreator);
         }
         return uriTemplate;
     }

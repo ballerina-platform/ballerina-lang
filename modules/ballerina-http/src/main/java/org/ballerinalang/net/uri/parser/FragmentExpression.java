@@ -25,15 +25,17 @@ import java.util.Map;
 
 /**
  * FragmentExpression represents a fragment in the path segment of the uri.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class FragmentExpression extends ReservedStringExpression {
+public class FragmentExpression<DataElementType extends DataElement> extends ReservedStringExpression<DataElementType> {
 
-    public FragmentExpression(String token) throws URITemplateException {
-        super(token);
+    public FragmentExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         String result = super.expand(variables);
         if (result != null) {
             return getFirstCharacter() + result;
@@ -42,7 +44,7 @@ public class FragmentExpression extends ReservedStringExpression {
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (uriFragment.startsWith(String.valueOf(getFirstCharacter()))) {
             return super.match(uriFragment.substring(1), variables) + 1;
         }
@@ -50,7 +52,7 @@ public class FragmentExpression extends ReservedStringExpression {
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return '#';
     }
 }

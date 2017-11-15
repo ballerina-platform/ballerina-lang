@@ -49,7 +49,7 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
 
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        WebSocketServicesRegistry.getInstance().deployServices();
         HttpUtil.startPendingHttpConnectors();
     }
 }

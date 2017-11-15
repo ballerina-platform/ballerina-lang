@@ -25,15 +25,17 @@ import java.util.Map;
 
 /**
  * LabelExpression represents path segments that start with ..
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class LabelExpression extends SimpleStringExpression {
+public class LabelExpression<DataElementType extends DataElement> extends SimpleStringExpression<DataElementType> {
 
-    public LabelExpression(String token) throws URITemplateException {
-        super(token);
+    public LabelExpression(DataElementType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override
-    String expand(Map<String, String> variables) {
+    public String expand(Map<String, String> variables) {
         String result = super.expand(variables);
         if (result != null) {
             return getSeparator() + result;
@@ -42,7 +44,7 @@ public class LabelExpression extends SimpleStringExpression {
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    public int match(String uriFragment, Map<String, String> variables) {
         if (uriFragment.startsWith(String.valueOf(getSeparator()))) {
             return super.match(uriFragment.substring(1), variables) + 1;
         }
@@ -55,7 +57,7 @@ public class LabelExpression extends SimpleStringExpression {
     }
 
     @Override
-    char getFirstCharacter() {
+    public char getFirstCharacter() {
         return getSeparator();
     }
 }
