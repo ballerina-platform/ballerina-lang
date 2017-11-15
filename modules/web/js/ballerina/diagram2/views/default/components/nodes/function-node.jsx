@@ -27,7 +27,7 @@ import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
-import FunctionNodeDetails from './function-node-details';
+import ReceiverNode from './receiver-node';
 
 class FunctionNode extends React.Component {
 
@@ -95,7 +95,7 @@ class FunctionNode extends React.Component {
                     />);
             });
         const nodeDetails = ({ x, y }) => (
-            <FunctionNodeDetails
+            <ReceiverNode
                 x={x}
                 y={y}
                 model={model}

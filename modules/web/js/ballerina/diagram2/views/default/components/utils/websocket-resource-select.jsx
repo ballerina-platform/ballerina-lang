@@ -19,7 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import './websocket-resource-select.css';
+import './abstract-drop-down.css';
 import TreeUtil from './../../../../../model/tree-util';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
 /**

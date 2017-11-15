@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import './websocket-resource-select.css';
+import './abstract-drop-down.css';
 /**
  * React component for a drop down menu
  *

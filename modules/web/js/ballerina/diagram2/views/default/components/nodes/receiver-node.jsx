@@ -19,13 +19,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import './function-node-details.css';
+import './receiver-node.css';
 import { util } from '../../sizing-util_bk';
 import TreeUtils from './../../../../../model/tree-util';
 import ImageUtil from '../../../../image-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
 
-class FunctionNodeDetails extends React.Component {
+class ReceiverNode extends React.Component {
 
     constructor(props) {
         super(props);
@@ -127,8 +127,8 @@ class FunctionNodeDetails extends React.Component {
     }
 }
 
-FunctionNodeDetails.contextTypes = {
+ReceiverNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
-export default FunctionNodeDetails;
+export default ReceiverNode;
