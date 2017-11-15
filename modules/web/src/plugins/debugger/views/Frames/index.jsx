@@ -127,8 +127,8 @@ class Frames extends React.Component {
                     {frames.map((frame, i) => {
                         return (
                             <div className="" key={frame.frameName}>
-                                <div className="">
-                                    <h4 className="panel-title">
+                                <div className="frame-title">
+                                    <h4>
                 
                                             {`${frame.frameName}`}
                                             <div className="debug-frame-pkg-name">

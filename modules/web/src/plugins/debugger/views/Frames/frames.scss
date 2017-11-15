@@ -98,8 +98,17 @@
     font-size: 14px;
     line-height: 23px;
 
-    .debug-frame-pkg-name{
+    .frame-title h4{
+        border-bottom: solid 1px #5f5f5f;
+        font-size: 14px;
+    }
+
+    .debug-frame-pkg-name {
         color: #03a9f4;
+    }
+
+    .fw-package {
+        padding: 5px;
     }
 
     .panel-title{
