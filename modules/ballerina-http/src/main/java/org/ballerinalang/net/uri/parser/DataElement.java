@@ -46,4 +46,11 @@ public interface DataElement<DataType, CheckerType> {
      */
     void clearData();
 
+    /**
+     * Check whether the data element empty or not.
+     *
+     * @return true if node element is empty.
+     */
+    boolean isEmpty();
+
 }

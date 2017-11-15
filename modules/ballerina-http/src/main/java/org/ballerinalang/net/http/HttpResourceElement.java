@@ -87,6 +87,11 @@ public class HttpResourceElement implements DataElement<HttpResource, HTTPCarbon
         resources = null;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return resources.isEmpty();
+    }
+
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
         HttpResource resource = null;
         boolean isOptionsRequest = false;

@@ -54,12 +54,15 @@ public class WebSocketServicesRegistry {
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
 
+    // Map<ServiceName, List<BasePath>>
+    private final Map<String, List<String>> serviceBoundedURIMap = new HashMap<>();
+
+
     // Map<ServiceEndpointName, ServiceEndpoint>
     private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
     // Map<serviceInterface, Map<uri, serviceName>>
     private final Map<String, Map<String, String>> slaveEndpoints = new HashMap<>();
 
-    private final Map<String, List<String>> serviceBoundedURIMap = new HashMap<>();
 
 
 
@@ -120,8 +123,6 @@ public class WebSocketServicesRegistry {
                                       service.getName());
                 throw new BallerinaConnectorException(errorMsg);
             }
-            List<String> uriList = serviceBoundedURIMap.computeIfAbsent(service.getName(),k -> new ArrayList<String>());
-            uriList.add(basePath);
             Set<ListenerConfiguration> listenerConfigurationSet =
                     HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
             listenerConfigurationSet.forEach(listenerConfiguration -> {
@@ -134,8 +135,13 @@ public class WebSocketServicesRegistry {
                 }
                 HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             });
+            List<String> uriList = serviceBoundedURIMap.computeIfAbsent(service.getName(), k -> new ArrayList<>());
+            uriList.add(basePath);
+
             logger.info("Service deployed : " + service.getName() + " with context " + basePath);
         });
+        deployedSlaveServiceSet.clear();
+        serviceEndpoints.clear();
     }
 
     private Set<WebSocketService> deploySlaveServices() {
@@ -143,7 +149,7 @@ public class WebSocketServicesRegistry {
         slaveEndpoints.entrySet().forEach(slaveEntry -> {
             String serviceInterface = slaveEntry.getKey();
             slaveEntry.getValue().entrySet().forEach(serviceEntry -> {
-                String uri = serviceEntry.getKey();
+                String uri = refactorUri(serviceEntry.getKey());
                 String serviceName = serviceEntry.getValue();
                 if (!serviceEndpoints.containsKey(serviceName)) {
                     throw new BallerinaConnectorException("Could not find a WebSocket service for " +
@@ -153,7 +159,7 @@ public class WebSocketServicesRegistry {
                 try {
                     addUriTemplate(serviceInterface, uri, service);
                     List<String> uriList = serviceBoundedURIMap.
-                            computeIfAbsent(service.getName(),k -> new ArrayList<String>());
+                            computeIfAbsent(service.getName(), k -> new ArrayList<>());
                     uriList.add(uri);
                 } catch (Exception e) {
                     throw new BallerinaConnectorException("Invalid URI template.");
@@ -203,17 +209,14 @@ public class WebSocketServicesRegistry {
             return;
         }
         if (serviceBoundedURIMap.containsKey(service.getName())) {
-            serviceBoundedURIMap.get(service.getName()).forEach(
-                    basePath -> serviceEndpointsMap.entrySet().forEach(
-                            serviceInterface -> {
-                                try {
-                                    serviceInterface.getValue().remove(basePath);
-                                } catch (URITemplateException e) {
-                                    throw new BallerinaConnectorException("Invalid URI template " + basePath + " to remove service");
-                                }
-                            }
-                    )
-            );
+            serviceBoundedURIMap.remove(service.getName()).forEach(
+                basePath -> serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
+                try {
+                    serviceInterface.getValue().remove(basePath);
+                } catch (URITemplateException e) {
+                    throw new BallerinaConnectorException(e.getMessage());
+                }
+            }));
         }
     }
 

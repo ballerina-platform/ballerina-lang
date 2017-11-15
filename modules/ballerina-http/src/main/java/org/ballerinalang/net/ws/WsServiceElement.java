@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
@@ -46,5 +45,10 @@ public class WsServiceElement implements DataElement<WebSocketService, WebSocket
     @Override
     public void clearData() {
         wsService = null;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return wsService == null;
     }
 }

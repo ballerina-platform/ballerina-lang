@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
