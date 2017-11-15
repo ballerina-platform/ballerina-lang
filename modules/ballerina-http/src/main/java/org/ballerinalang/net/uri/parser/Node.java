@@ -188,10 +188,10 @@ public abstract class Node {
     abstract char getFirstCharacter();
 
     private Node getExistingChildNode(Node prospectiveChild, String token, List<Node> childList) {
-        boolean isParamType = prospectiveChild instanceof SimpleSplitStringExpression;
+        boolean isParamType = prospectiveChild instanceof Expression;
 
         for (Node node : childList) {
-            if (isParamType && node instanceof SimpleSplitStringExpression) {
+            if (isParamType && node instanceof Expression) {
                 return node;
             }
             if (node.getToken().equals(token)) {
