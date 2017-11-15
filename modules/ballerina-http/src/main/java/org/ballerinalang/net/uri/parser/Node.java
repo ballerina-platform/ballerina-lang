@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.uri.parser;
 
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,22 +32,15 @@ import java.util.Map;
  */
 public abstract class Node<DataElementType extends DataElement> {
 
+    protected Node<DataElementType> parentNode = null;
+    protected DataElementType nodeItem;
     protected final String token;
-    protected final DataElementType nodeItem;
     protected final List<Node<DataElementType>> childNodesList = new LinkedList<>();
 
     public Node(DataElementType dataElement, String token) {
         this.token = token;
         this.nodeItem = dataElement;
     }
-
-    abstract String expand(Map<String, String> variables);
-
-    abstract int match(String uriFragment, Map<String, String> variables);
-
-    abstract String getToken();
-
-    abstract char getFirstCharacter();
 
     public Node<DataElementType> addChild(String segment, Node<DataElementType> childNode) {
         Node<DataElementType> node = childNode;
@@ -59,10 +54,6 @@ public abstract class Node<DataElementType extends DataElement> {
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
 
         return node;
-    }
-
-    public DataElementType getDataElement() {
-        return this.nodeItem;
     }
 
     public DataElementType matchAll(String uriFragment, Map<String, String> variables, int start) {
@@ -110,6 +101,30 @@ public abstract class Node<DataElementType extends DataElement> {
         }
         return null;
     }
+
+    public DataElementType getDataElement() {
+        return this.nodeItem;
+    }
+
+    public void setParentNode(Node<DataElementType> parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    public Node<DataElementType> getParentNode() {
+        return this.parentNode;
+    }
+
+    public List<Node<DataElementType>> getChildNodesList() {
+        return childNodesList;
+    }
+
+    abstract String expand(Map<String, String> variables);
+
+    abstract int match(String uriFragment, Map<String, String> variables);
+
+    abstract String getToken();
+
+    abstract char getFirstCharacter();
 
     private Node<DataElementType> isAlreadyExist(String token, List<Node<DataElementType>> childList) {
         for (Node<DataElementType> node : childList) {

@@ -35,9 +35,13 @@ import java.util.Map;
 public class URITemplate<DataElementType extends DataElement<DataType, CheckerType>, DataType, CheckerType> {
 
     private Node<DataElementType> syntaxTree;
+    private URITemplateParser<DataElementType, DataType, CheckerType> parser;
+    private DataElementCreator<DataElementType> nodeCreator;
 
-    public URITemplate(Node<DataElementType> syntaxTree) {
+    public URITemplate(Node<DataElementType> syntaxTree, DataElementCreator<DataElementType> nodeCreator) {
         this.syntaxTree = syntaxTree;
+        this.nodeCreator = nodeCreator;
+        parser = new URITemplateParser<>(syntaxTree, this.nodeCreator);
     }
 
     public String expand(Map<String, String> variables) {
@@ -52,13 +56,13 @@ public class URITemplate<DataElementType extends DataElement<DataType, CheckerTy
         return nodeItem.getData(checker);
     }
 
-    public void parse(String uriTemplate, DataType item, DataElementCreator<DataElementType> nodeCreator)
-            throws URITemplateException {
+    public void parse(String uriTemplate, DataType item) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
-
-        URITemplateParser<DataElementType, DataType, CheckerType> parser =
-                new URITemplateParser<>(syntaxTree, nodeCreator);
         parser.parse(uriTemplate, item);
+    }
+
+    public void remove(String uriTemplate) throws URITemplateException {
+        parser.remove(uriTemplate);
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

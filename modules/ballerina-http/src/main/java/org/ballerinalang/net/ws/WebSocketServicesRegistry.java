@@ -32,8 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,15 +48,20 @@ public class WebSocketServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
+    // Map <interface, URITemplate>
     private final Map<String, URITemplate<WsServiceElement, WebSocketService, WebSocketMessage>> serviceEndpointsMap
             = new ConcurrentHashMap<>();
-
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
 
     // Map<ServiceEndpointName, ServiceEndpoint>
     private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
+    // Map<serviceInterface, Map<uri, serviceName>>
     private final Map<String, Map<String, String>> slaveEndpoints = new HashMap<>();
+
+    private final Map<String, List<String>> serviceBoundedURIMap = new HashMap<>();
+
+
 
     private WebSocketServicesRegistry() {
     }
@@ -113,7 +120,8 @@ public class WebSocketServicesRegistry {
                                       service.getName());
                 throw new BallerinaConnectorException(errorMsg);
             }
-
+            List<String> uriList = serviceBoundedURIMap.computeIfAbsent(service.getName(),k -> new ArrayList<String>());
+            uriList.add(basePath);
             Set<ListenerConfiguration> listenerConfigurationSet =
                     HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
             listenerConfigurationSet.forEach(listenerConfiguration -> {
@@ -144,6 +152,9 @@ public class WebSocketServicesRegistry {
                 WebSocketService service = serviceEndpoints.get(serviceName);
                 try {
                     addUriTemplate(serviceInterface, uri, service);
+                    List<String> uriList = serviceBoundedURIMap.
+                            computeIfAbsent(service.getName(),k -> new ArrayList<String>());
+                    uriList.add(uri);
                 } catch (Exception e) {
                     throw new BallerinaConnectorException("Invalid URI template.");
                 }
@@ -157,15 +168,15 @@ public class WebSocketServicesRegistry {
     private void addUriTemplate(String serviceInterface, String uri, WebSocketService service)
             throws URITemplateException {
         URITemplate<WsServiceElement, WebSocketService, WebSocketMessage> uriTemplate;
-        WsServiceElementCreator nodeCreator = new WsServiceElementCreator();
+        WsServiceElementCreator elementCreator = new WsServiceElementCreator();
         if (!serviceEndpointsMap.containsKey(serviceInterface)) {
-            uriTemplate = new URITemplate<>(new Literal<>(nodeCreator.createDataElement(), "/"));
+            uriTemplate = new URITemplate<>(new Literal<>(elementCreator.createDataElement(), "/"), elementCreator);
             serviceEndpointsMap.put(serviceInterface, uriTemplate);
         } else {
             uriTemplate = serviceEndpointsMap.get(serviceInterface);
         }
 
-        uriTemplate.parse(uri, service, nodeCreator);
+        uriTemplate.parse(uri, service);
     }
 
     /**
@@ -187,25 +198,23 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(WebSocketService service) {
-        // TODO: 11/9/17 Need to rethink of unregistering service with URI template tree.
-//        if (serviceEndpoints.containsKey(service.getName())) {
-//            serviceEndpoints.remove(service.getName());
-//            serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
-//                List<String> uriList = new LinkedList<>();
-//                Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
-//                uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
-//                    if (uriToServiceName.getValue().equals(service.getName())) {
-//                        uriList.add(uriToServiceName.getKey());
-//                    }
-//                });
-//                Iterator<String> uriListIterator = uriList.iterator();
-//                while (uriListIterator.hasNext()) {
-//                    uriToServiceNameMap.remove(uriListIterator.next());
-//                }
-//            });
-//        } else {
-//            clientServices.remove(service.getName());
-//        }
+        if (WebSocketServiceValidator.isWebSocketClientService(service)) {
+            clientServices.remove(service.getName());
+            return;
+        }
+        if (serviceBoundedURIMap.containsKey(service.getName())) {
+            serviceBoundedURIMap.get(service.getName()).forEach(
+                    basePath -> serviceEndpointsMap.entrySet().forEach(
+                            serviceInterface -> {
+                                try {
+                                    serviceInterface.getValue().remove(basePath);
+                                } catch (URITemplateException e) {
+                                    throw new BallerinaConnectorException("Invalid URI template " + basePath + " to remove service");
+                                }
+                            }
+                    )
+            );
+        }
     }
 
     /**

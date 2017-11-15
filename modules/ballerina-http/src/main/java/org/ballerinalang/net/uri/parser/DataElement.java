@@ -41,4 +41,9 @@ public interface DataElement<DataType, CheckerType> {
      */
     DataType getData(CheckerType checker);
 
+    /**
+     * Remove the data of the data element.
+     */
+    void clearData();
+
 }

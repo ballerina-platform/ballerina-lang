@@ -33,53 +33,58 @@ import java.util.stream.Collectors;
  */
 public class HttpResourceElement implements DataElement<HttpResource, HTTPCarbonMessage> {
 
-    private List<HttpResource> resource;
+    private List<HttpResource> resources;
     private boolean isFirstTraverse = true;
 
     @Override
-    public void setData(HttpResource data) {
+    public void setData(HttpResource resource) {
         if (isFirstTraverse) {
-            this.resource = new ArrayList<>();
-            this.resource.add(data);
+            this.resources = new ArrayList<>();
+            this.resources.add(resource);
             isFirstTraverse = false;
             return;
         }
-        List<String> newMethods = data.getMethods();
+        List<String> newMethods = resource.getMethods();
         if (newMethods == null) {
-            for (HttpResource previousResource : this.resource) {
+            for (HttpResource previousResource : this.resources) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                                                          + previousResource.getName() + " and " +
-                                                         data.getName());
+                                                         resource.getName());
                 }
             }
-            this.resource.add(data);
+            this.resources.add(resource);
             return;
         }
-        this.resource.forEach(r -> {
+        this.resources.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
-                                                         + r.getName() + " and " + data.getName());
+                                                         + r.getName() + " and " + resource.getName());
                 }
             }
         });
-        this.resource.add(data);
+        this.resources.add(resource);
     }
 
     @Override
     public HttpResource getData(HTTPCarbonMessage carbonMessage) {
-        if (this.resource == null) {
+        if (this.resources == null) {
             return null;
         }
-        HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
+        HttpResource resource = validateHTTPMethod(this.resources, carbonMessage);
         if (resource == null) {
             return null;
         }
         validateConsumes(resource, carbonMessage);
         validateProduces(resource, carbonMessage);
         return resource;
+    }
+
+    @Override
+    public void clearData() {
+        resources = null;
     }
 
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
@@ -120,7 +125,7 @@ public class HttpResourceElement implements DataElement<HttpResource, HTTPCarbon
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(resource, cMsg));
+            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(resources, cMsg));
             return true;
         }
         return false;

@@ -18,7 +18,9 @@
 
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
 /**
@@ -26,15 +28,23 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
  */
 public class WsServiceElement implements DataElement<WebSocketService, WebSocketMessage> {
 
-    private WebSocketService wsService;
+    private WebSocketService wsService = null;
     
     @Override
     public void setData(WebSocketService data) {
+        if (wsService != null) {
+            throw new BallerinaException("Base path for " + data.getName() + " is already exists");
+        }
         this.wsService = data;
     }
 
     @Override
     public WebSocketService getData(WebSocketMessage webSocketMessage) {
         return wsService;
+    }
+
+    @Override
+    public void clearData() {
+        wsService = null;
     }
 }
