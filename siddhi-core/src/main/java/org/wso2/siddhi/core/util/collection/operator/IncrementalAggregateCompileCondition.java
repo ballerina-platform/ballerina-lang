@@ -51,12 +51,11 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private final StreamEventCloner tableEventCloner;
     private final StreamEventPool streamEventPoolForAggregateMeta;
     private final StreamEventCloner aggregateEventCloner;
-    private final int[] metaStreamArraySizes;
 
     public IncrementalAggregateCompileCondition(
             Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,
             CompiledCondition inMemoryStoreCompileCondition, CompiledCondition onCompiledCondition,
-            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent, int[] metaStreamArraySizes) {
+            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent) {
         this.withinTableCompiledConditions = withinTableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.onCompiledCondition = onCompiledCondition;
@@ -68,7 +67,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
         this.streamEventPoolForAggregateMeta = new StreamEventPool(aggregateMetaSteamEvent, 10);
         this.aggregateEventCloner = new StreamEventCloner(aggregateMetaSteamEvent, streamEventPoolForAggregateMeta);
-        this.metaStreamArraySizes = metaStreamArraySizes;
     }
 
     @Override
@@ -79,8 +77,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         }
         return new IncrementalAggregateCompileCondition(copyOfWithinTableCompiledConditions,
                 inMemoryStoreCompileCondition.cloneCompiledCondition(key),
-                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
-                metaStreamArraySizes);
+                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent);
     }
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
@@ -93,21 +90,36 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
         StreamEvent incomingMatchingStreamEvent = matchingEvent.getStreamEvent(0); // TODO: 11/13/17 is this always 0?
         StateEvent newMatchingStateEvent = new StateEvent(matchingEvent.getStreamEvents().length, 0);
-        StreamEvent newMatchingStreamEvent = new StreamEvent(metaStreamArraySizes[0], metaStreamArraySizes[1],
-                metaStreamArraySizes[2]);
+        int beforeWindowSize = 0;
+        int onAfterWindowSize = 0;
+        int outputWindowSize = 2;
 
-        if (metaStreamArraySizes[0] > 0) {
+        if (incomingMatchingStreamEvent.getBeforeWindowData() != null) {
+            beforeWindowSize = incomingMatchingStreamEvent.getBeforeWindowData().length;
+        }
+        if (incomingMatchingStreamEvent.getOnAfterWindowData() != null) {
+            onAfterWindowSize = incomingMatchingStreamEvent.getOnAfterWindowData().length;
+        }
+        if (incomingMatchingStreamEvent.getOutputData() != null) {
+            outputWindowSize = incomingMatchingStreamEvent.getOutputData().length + outputWindowSize;
+        }
+
+        StreamEvent newMatchingStreamEvent = new StreamEvent(beforeWindowSize, onAfterWindowSize, outputWindowSize);
+
+        if (beforeWindowSize > 0) {
             newMatchingStreamEvent.setBeforeWindowData(incomingMatchingStreamEvent.getBeforeWindowData());
         }
-        if (metaStreamArraySizes[1] > 0) {
+        if (onAfterWindowSize > 0) {
             newMatchingStreamEvent.setOnAfterWindowData(incomingMatchingStreamEvent.getOnAfterWindowData());
         }
-        if (metaStreamArraySizes[2] > 2) {
-            newMatchingStreamEvent.setOutputData(incomingMatchingStreamEvent.getOutputData());
+        if (outputWindowSize > 2) {
+            for (int i = 0; i < incomingMatchingStreamEvent.getOutputData().length; i++) {
+                newMatchingStreamEvent.setOutputData(incomingMatchingStreamEvent.getOutputData()[i], i);
+            }
         }
 
-        newMatchingStreamEvent.setOutputData(startTimeEndTime[0], metaStreamArraySizes[2] - 2);
-        newMatchingStreamEvent.setOutputData(startTimeEndTime[1], metaStreamArraySizes[2] - 1);
+        newMatchingStreamEvent.setOutputData(startTimeEndTime[0], outputWindowSize - 2);
+        newMatchingStreamEvent.setOutputData(startTimeEndTime[1], outputWindowSize - 1);
         newMatchingStateEvent.setEvent(0, newMatchingStreamEvent); // TODO: 11/13/17 always 0?
 
         // Get all the aggregates within the given duration, from table corresponding to "per" duration

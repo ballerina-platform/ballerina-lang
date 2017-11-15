@@ -72,7 +72,6 @@ public class AggregationRuntime {
     private List<ExpressionExecutor> baseExecutors;
     private ExpressionExecutor timestampExecutor;
     private List<ExpressionExecutor> outputExpressionExecutors;
-    private static int[] metaStreamArraySizes = {0, 0, 2};
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition,
                               Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
@@ -124,18 +123,15 @@ public class AggregationRuntime {
             for (Attribute attribute : matchingStreamEvent.getBeforeWindowData()) {
                 newMatchingStreamEvent.addData(attribute);
                 newMatchingStreamDefinition.attribute(attribute.getName(), attribute.getType());
-                metaStreamArraySizes[0] = ++metaStreamArraySizes[0];
             }
             newMatchingStreamEvent.initializeAfterWindowData();
             for (Attribute attribute : matchingStreamEvent.getOnAfterWindowData()) {
                 newMatchingStreamEvent.addData(attribute);
                 newMatchingStreamDefinition.attribute(attribute.getName(), attribute.getType());
-                metaStreamArraySizes[1] = ++metaStreamArraySizes[1];
             }
             for (Attribute attribute : matchingStreamEvent.getOutputData()) {
                 newMatchingStreamEvent.addOutputData(attribute);
                 newMatchingStreamDefinition.attribute(attribute.getName(), attribute.getType());
-                metaStreamArraySizes[2] = ++metaStreamArraySizes[2];
             }
 
             newMatchingStreamEvent.addOutputData(new Attribute("_START", Attribute.Type.LONG));
@@ -305,6 +301,6 @@ public class AggregationRuntime {
         
 
         return new IncrementalAggregateCompileCondition(withinTableCompiledConditions, withinInMemoryCompileCondition,
-                onCompiledCondition, tableMetaStreamEvent, aggregateMetaSteamEvent, metaStreamArraySizes);
+                onCompiledCondition, tableMetaStreamEvent, aggregateMetaSteamEvent);
     }
 }
