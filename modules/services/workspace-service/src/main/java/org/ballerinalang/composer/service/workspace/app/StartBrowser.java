@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.composer.service.workspace.app;
 
+import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import java.io.IOException;
-import java.util.Locale;
 
 /**
  * Starting the default browser once the composer starts
@@ -24,16 +24,15 @@ import java.util.Locale;
 public class StartBrowser {
 
     public static void startInDefaultBrowser(String url) throws IOException {
-        Locale locale = Locale.ENGLISH;
-        String os = System.getProperty("os.name").toLowerCase(locale);
+
         Runtime rt = Runtime.getRuntime();
-            if (os.indexOf("win") >= 0) {
+            if (LaunchUtils.isWindows()) {
                 rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
 
-            } else if (os.indexOf("mac") >= 0) {
+            } else if (LaunchUtils.isMac()) {
                 rt.exec("open " + url);
 
-            } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
+            } else if (LaunchUtils.isUnix()) {
                 rt.exec("xdg-open " + url);
 
             } else {
