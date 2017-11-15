@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -133,7 +134,7 @@ public class Command {
         }
 
         if (this.commandArgs != null) {
-            commandList.add(this.commandArgs);
+            commandList.addAll(Arrays.asList(this.commandArgs.split(" ")));
         }
 
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
