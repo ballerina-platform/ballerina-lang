@@ -48,10 +48,10 @@ class FunctionNode extends React.Component {
     }
 
     onMouseLeave() {
-        if (!TreeUtil.isMainFunction(this.props.model)) {
-            setTimeout(() => {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
+            if (!TreeUtil.isMainFunction(this.props.model)) {
                 this.setState({ showStructBinding: false });
-            }, 350);
+            }
         }
     }
 
