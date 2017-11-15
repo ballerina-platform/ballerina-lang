@@ -48,7 +48,7 @@ public abstract class Node {
 
     public Node addChild(String segment, Node childNode) {
         Node node = childNode;
-        Node existingNode = isAlreadyExist(childNode, segment, childNodesList);
+        Node existingNode = getExistingChildNode(childNode, segment, childNodesList);
         if (existingNode != null) {
             node = existingNode;
         } else {
@@ -187,7 +187,7 @@ public abstract class Node {
 
     abstract char getFirstCharacter();
 
-    private Node isAlreadyExist(Node prospectiveChild, String token, List<Node> childList) {
+    private Node getExistingChildNode(Node prospectiveChild, String token, List<Node> childList) {
         boolean isParamType = prospectiveChild instanceof SimpleSplitStringExpression;
 
         for (Node node : childList) {
