@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * (string) a
+ * (string) a.
  *
  * @since 0.94
  */

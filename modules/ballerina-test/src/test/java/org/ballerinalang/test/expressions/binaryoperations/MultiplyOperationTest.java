@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of multiply operator.
+ */
 public class MultiplyOperationTest {
 
     CompileResult result;

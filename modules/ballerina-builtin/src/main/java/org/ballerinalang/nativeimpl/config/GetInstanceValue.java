@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.config:getInstanceValue
+ * Native function ballerina.config:getInstanceValue.
  *
  * @since 0.95
  */

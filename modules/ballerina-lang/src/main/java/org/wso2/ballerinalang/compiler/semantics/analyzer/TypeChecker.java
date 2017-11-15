@@ -107,7 +107,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
 
     /**
-     * Expected types or inherited types
+     * Expected types or inherited types.
      */
     private List<BType> expTypes;
 

@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import java.util.List;
 
 /**
- * i = foo:getName(a, b);
+ * i = foo:getName(a, b);.
  *
  * @since 0.94
  */

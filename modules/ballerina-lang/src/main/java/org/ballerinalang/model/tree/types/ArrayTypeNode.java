@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * int[][][][]
+ * int[][][][].
  *
  * @since 0.94
  */

@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 /**
- * Test cases for the log API
+ * Test cases for the log API.
  *
  * @since 0.94
  */

@@ -21,7 +21,7 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * typeof string
+ * typeof string.
  *
  * @since 0.95
  */

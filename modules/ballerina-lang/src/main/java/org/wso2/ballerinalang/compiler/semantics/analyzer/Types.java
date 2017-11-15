@@ -488,7 +488,7 @@ public class Types {
     }
 
     /**
-     * Check whether a given struct can be converted into a JSON
+     * Check whether a given struct can be converted into a JSON.
      *
      * @param type struct type
      * @return flag indicating possibility of conversion

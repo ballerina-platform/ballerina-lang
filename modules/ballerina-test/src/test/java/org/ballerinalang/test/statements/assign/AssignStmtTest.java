@@ -30,6 +30,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of assignment operation.
+ */
 public class AssignStmtTest {
 
     CompileResult result;
