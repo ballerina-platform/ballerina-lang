@@ -59,7 +59,13 @@ struct ResultCount {
     int COUNTVAL;
 }
 
-
+struct ResultSignedInt {
+    int ID;
+    int TINYINTDATA;
+    int SMALLINTDATA;
+    int INTDATA;
+    int BIGINTDATA;
+}
 
 function testToJson () (json) {
     endpoint<sql:ClientConnector> testDB {
@@ -527,6 +533,60 @@ function testGetFloatTypes () (float f, float d, float num, float dec) {
         d = rs.DOUBLE_TYPE;
         num = rs.NUMERIC_TYPE;
         dec = rs.DECIMAL_TYPE;
+    }
+    testDB.close();
+    return;
+}
+
+function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullInsert, string jsonStr, string xmlStr,
+                                       string str) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
+    }
+    string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)";
+    string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
+
+    //Insert signed max
+    sql:Parameter para1 = {sqlType:"INTEGER", value:1, direction:0};
+    sql:Parameter para2 = {sqlType:"TINYINT", value:127, direction:0};
+    sql:Parameter para3 = {sqlType:"SMALLINT", value:32767, direction:0};
+    sql:Parameter para4 = {sqlType:"INTEGER", value:2147483647, direction:0};
+    sql:Parameter para5 = {sqlType:"BIGINT", value:9223372036854775807, direction:0};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+    maxInsert = testDB.update(insertSQL, parameters);
+
+    //Insert signed min
+    para1 = {sqlType:"INTEGER", value:2, direction:0};
+    para2 = {sqlType:"TINYINT", value:-128, direction:0};
+    para3 = {sqlType:"SMALLINT", value:-32768, direction:0};
+    para4 = {sqlType:"INTEGER", value:-2147483648, direction:0};
+    para5 = {sqlType:"BIGINT", value:-9223372036854775808, direction:0};
+    parameters = [para1, para2, para3, para4, para5];
+    minInsert = testDB.update(insertSQL, parameters);
+
+    //Insert null
+    para1 = {sqlType:"INTEGER", value:3, direction:0};
+    para2 = {sqlType:"TINYINT", value:null, direction:0};
+    para3 = {sqlType:"SMALLINT", value:null, direction:0};
+    para4 = {sqlType:"INTEGER", value:null, direction:0};
+    para5 = {sqlType:"BIGINT", value:null, direction:0};
+    parameters = [para1, para2, para3, para4, para5];
+    nullInsert = testDB.update(insertSQL, parameters);
+
+    datatable dt = testDB.select(selectSQL, null);
+    var j, _ = <json>dt;
+    jsonStr = j.toString();
+
+    dt = testDB.select(selectSQL, null);
+    var x, _ = <xml>dt;
+    xmlStr = <string>x;
+
+    dt = testDB.select(selectSQL, null);
+    while (dt.hasNext()) {
+        var result, _ = (ResultSignedInt)dt.getNext();
+        str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
+              result.BIGINTDATA + "#";
     }
     testDB.close();
     return;

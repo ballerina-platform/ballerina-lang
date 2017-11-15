@@ -374,6 +374,30 @@ public class DatatableTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34);
     }
 
+    @Test(groups = "DatatableTest", description = "Check get float and double types.")
+    public void testSignedIntMaxMinValues() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues", args);
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+        Assert.assertEquals((returns[3]).stringValue(), "[{\"ID\":1,\"TINYINTDATA\":127,\"SMALLINTDATA\":32767,"
+                + "\"INTDATA\":2147483647,\"BIGINTDATA\":9223372036854775807},"
+                + "{\"ID\":2,\"TINYINTDATA\":-128,\"SMALLINTDATA\":-32768,\"INTDATA\":-2147483648,"
+                + "\"BIGINTDATA\":-9223372036854775808},"
+                + "{\"ID\":3,\"TINYINTDATA\":0,\"SMALLINTDATA\":0,\"INTDATA\":0,\"BIGINTDATA\":0}]");
+        Assert.assertEquals((returns[4]).stringValue(), "<results><result><ID>1</ID><TINYINTDATA>127</TINYINTDATA>"
+                + "<SMALLINTDATA>32767</SMALLINTDATA><INTDATA>2147483647</INTDATA>"
+                + "<BIGINTDATA>9223372036854775807</BIGINTDATA></result>"
+                + "<result><ID>2</ID><TINYINTDATA>-128</TINYINTDATA><SMALLINTDATA>-32768</SMALLINTDATA>"
+                + "<INTDATA>-2147483648</INTDATA><BIGINTDATA>-9223372036854775808</BIGINTDATA></result>"
+                + "<result><ID>3</ID><TINYINTDATA>0</TINYINTDATA><SMALLINTDATA>0</SMALLINTDATA><INTDATA>0</INTDATA>"
+                + "<BIGINTDATA>0</BIGINTDATA></result></results>");
+        Assert.assertEquals((returns[5]).stringValue(), "1|127|32767|2147483647|9223372036854775807#2|-128|-32768|"
+                + "-2147483648|-9223372036854775808#3|0|0|0|0#");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
