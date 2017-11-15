@@ -113,19 +113,16 @@ public class Command {
         this.commandArgs = commandArgs;
     }
 
-    @Override
-    public String toString() {
-        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "",
+    public String[] getCommandArray() {
+        String ballerinaBin, ballerinaCommand = "run", programType, scriptLocation, debugSwitch = "",
                 commandArgs = "";
         int port = -1;
 
-        // path to bin directory
-        ballerinaBin = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator;
+        // path to ballerina
+        ballerinaBin = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator + "ballerina";
 
         if (LaunchUtils.isWindows()) {
-            ballerinaCommand = "ballerina.bat run ";
-        } else {
-            ballerinaCommand = "ballerina run ";
+            ballerinaBin += ".bat";
         }
 
         if (type == LauncherConstants.ProgramType.RUN) {
@@ -165,10 +162,11 @@ public class Command {
             }
         }
         if (packagePath == null) {
-            return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
+            return new String[] {ballerinaBin, ballerinaCommand,
+                                 programType + scriptLocation + debugSwitch + commandArgs};
         } else {
-            return ballerinaBin + ballerinaCommand + programType + " " + packagePath + debugSwitch
-                    + commandArgs;
+            return new String[] {ballerinaBin, ballerinaCommand,
+                                 programType + " " + packagePath + debugSwitch + commandArgs};
         }
 
     }
