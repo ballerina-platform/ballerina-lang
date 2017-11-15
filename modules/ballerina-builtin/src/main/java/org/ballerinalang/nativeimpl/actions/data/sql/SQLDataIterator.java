@@ -37,6 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -88,6 +89,9 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public boolean next() {
+        if (rs == null) {
+            return false;
+        }
         try {
             return rs.next();
         } catch (SQLException e) {
@@ -256,8 +260,6 @@ public class SQLDataIterator implements DataIterator {
                         bStruct.setIntField(++longRegIndex, lValue);
                         break;
                     case Types.REAL:
-                    case Types.NUMERIC:
-                    case Types.DECIMAL:
                     case Types.FLOAT:
                         double fValue = rs.getFloat(columnName);
                         bStruct.setFloatField(++doubleRegIndex, fValue);
@@ -265,6 +267,15 @@ public class SQLDataIterator implements DataIterator {
                     case Types.DOUBLE:
                         double dValue = rs.getDouble(columnName);
                         bStruct.setFloatField(++doubleRegIndex, dValue);
+                        break;
+                    case Types.NUMERIC:
+                    case Types.DECIMAL:
+                        double decimalValue = 0;
+                        BigDecimal bigDecimalValue = rs.getBigDecimal(columnName);
+                        if (bigDecimalValue != null) {
+                            decimalValue = bigDecimalValue.doubleValue();
+                        }
+                        bStruct.setFloatField(++doubleRegIndex, decimalValue);
                         break;
                     case Types.BIT:
                     case Types.BOOLEAN:

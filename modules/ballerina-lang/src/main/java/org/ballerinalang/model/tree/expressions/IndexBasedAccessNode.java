@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * i[0]
+ * i[0].
  *
  * @since 0.94
  */

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:printTrace
+ * Native function ballerina.log:printTrace.
  *
  * @since 0.89
  */

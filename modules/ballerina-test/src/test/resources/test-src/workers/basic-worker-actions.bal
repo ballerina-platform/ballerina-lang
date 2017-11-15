@@ -132,7 +132,7 @@ function forkJoinWithSomeJoin() (map) {
 function workerReturnTest() (int) {
     worker wx {
 	    int x = 50;
-	    return x;
+	    return x + 1;
     }
 }
 

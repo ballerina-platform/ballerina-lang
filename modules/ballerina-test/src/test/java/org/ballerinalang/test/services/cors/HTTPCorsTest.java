@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Test cases related to HTTP CORS
+ * Test cases related to HTTP CORS.
  */
 public class HTTPCorsTest {
 
