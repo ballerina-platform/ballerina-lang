@@ -26,7 +26,7 @@ module.exports = {
     startComposerProcess: function () {
         console.log("Starting Composer...");
         childProcess.spawn('node', ['src/test-setup-scripts/start-composer.js'], {
-            stdio: 'ignore',
+            stdio: 'inherit',
             detached: true
         }).unref();
     },
@@ -38,7 +38,7 @@ module.exports = {
     startSeleniumProcess: function () {
         console.log("Starting Selenium...");
         spawn('node', ['src/test-setup-scripts/start-selenium.js'], {
-            stdio: 'ignore',
+            stdio: 'inherit',
             detached: true
         }).unref();
     },
@@ -50,7 +50,7 @@ module.exports = {
     killChildProcess: function () {
         console.log("Terminating UI test related processes...");
         spawn('node', ['src/test-setup-scripts/stop-composer.js'], {
-            stdio: 'ignore',
+            stdio: 'inherit',
             detached: true
         }).unref();
         

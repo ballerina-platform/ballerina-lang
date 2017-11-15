@@ -58,11 +58,11 @@ class SwaggerParser {
     mergeToService(serviceDefinition) {
         try {
             // Set service name if missing
-            if (_.isNil(serviceDefinition.getName()) || _.isNil(serviceDefinition.getName().getValue())) {
+            if (!_.isNil(this._swaggerJson.info.title)) {
                 const serviceNameLiteral = NodeFactory.createIdentifier({
                     value: this._swaggerJson.info.title.replace(/[^0-9a-z]/gi, ''),
                 });
-                serviceDefinition.setName(serviceNameLiteral);
+                serviceDefinition.setName(serviceNameLiteral, DISABLE_EVENT_FIRING);
             }
 
             // Creating ServiceInfo annotation.
@@ -141,6 +141,7 @@ class SwaggerParser {
                 });
             });
         } catch (err) {
+            debugger;
             log.error(err);
             throw new Error('Unable to parse swagger definition.');
         }

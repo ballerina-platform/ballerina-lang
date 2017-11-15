@@ -3,10 +3,10 @@ import ballerina.net.http.swagger;
 
 @swagger:ServiceInfo {
 title: "Service1",
-version: "1.0.0"
+serviceVersion: "1.0.0"
 }
 @swagger:Swagger {
-version: "2.0"
+swaggerVersion: "2.0"
 }
 @swagger:ServiceConfig {}
 @http:configuration {
@@ -26,7 +26,6 @@ code: "200",
 description: "Successful"
 }]
 }
-    resource Resource1 (message m) {
-        reply m;
+    resource Resource1 (http:Request req,http:Response res) {
     }
 }
