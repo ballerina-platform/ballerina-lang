@@ -489,7 +489,7 @@ class PropertyWindow extends React.Component {
                                 }}
                             >
                                 <i
-                                    className="fw fw-configarations connector-init-configure"
+                                    className="fw fw-configurations connector-init-configure"
                                 />
                             </button>
                         </span>

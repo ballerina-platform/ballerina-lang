@@ -23,6 +23,9 @@
   * [editors](#editors)
     + [Contributing an editor for a file type](#contributing-an-editor-for-a-file-type)
 - [APIs available to React Components via React Context](#apis-available-to-react-components-via-react-context)
+- [Reusable Components](#reusable-components)
+  * [Context Menu Trigger](#context-menu-trigger)
+  * [Scrollbars with a helper API](#scrollbars-with-a-helper-api)
 
 <!-- tocstop -->
 
@@ -871,5 +874,60 @@ To all React components contributed via plugins, below APIs are available via re
 }
 ```
 
+# Reusable Components
+
+There are several [view](./../../modules/web/src/core/view/) components which can be re-used.
+
+## Context Menu Trigger
+
+This can be used to enable a context menu for the wrapping components.
+
+[ContextMenuTrigger](./../../modules/web/src/core/view/context-menu/ContextMenuTrigger.jsx) accepts following props.
+
+```javascript
+
+const MenuItem = PropTypes.shape({
+    divider: PropTypes.bool,
+    icon: PropTypes.string,
+    label: PropTypes.string,
+    handler: PropTypes.func,
+    isActive: PropTypes.func,
+    children: PropTypes.arrayOf(Object),
+});
+
+ContextMenuTrigger.propTypes = {
+    id: PropTypes.string,
+    children: PropTypes.node,
+    menu: PropTypes.arrayOf(MenuItem),
+    onShow: PropTypes.func,
+    onHide: PropTypes.func,
+};
+
+```
+
+Menu items can have a handler function which can be used to execute some logic upon click.
+
+[example](./../../modules/web/src/core/workspace/components/ExplorerItem.jsx#L141) usage of context menu for explorer items.
+
+## Scrollbars with a helper API
+
+[ScrollBarsWithContextAPI](./../../modules/web/src/core/view/scroll-bars/ScrollBarsWithContextAPI.jsx) is a wrapper component for [react-custom-scrollbars](https://github.com/malte-wessel/react-custom-scrollbars) and it exposes several methods to work with scrollbar via React Context.
+
+[Here](./../../modules/web/src/core/view/tree-view/TreeNode.jsx#L87) is how TreeNode uses these helper methods to scroll to a particular node programtically if it is not already visible.
+
+Below is the complete list of available methods.
+
+```javascript
+
+scrollTop(top)
+scrollLeft(left)
+scrollToElement(element)
+getScrollWidth()
+getScrollHeight()
+isTopVisible(top)
+isLeftVisible(left)
+isElementVisible(element)
+
+```
 
 

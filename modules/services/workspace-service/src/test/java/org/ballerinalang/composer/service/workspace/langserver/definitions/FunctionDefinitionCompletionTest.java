@@ -15,43 +15,46 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.composer.service.workspace.langserver.definitions;
 
 import org.ballerinalang.composer.service.workspace.langserver.FileUtils;
 import org.ballerinalang.composer.service.workspace.langserver.MessageUtil;
 import org.ballerinalang.composer.service.workspace.langserver.ServerManager;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * Test the completion items in a function definition
  */
 public class FunctionDefinitionCompletionTest {
 
-    public static final String MESSAGE_ID = "1111-1111-1111";
-
     /**
      * Test the completion items suggested when the cursor is at the first line
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
+    @Test
     public void testFunctionBlockStatementEmptyFirstLine() throws IOException, URISyntaxException {
         String balPath = "definitions" + File.separator + "functions" + File.separator + "blockStmtEmptyFirstLine.bal";
         String expectedResultPath =  "definitions" + File.separator + "functions" + File.separator
                 + "blockStmtEmptyFirstLine.exp";
         String content = FileUtils.fileContent(balPath);
-        String expectedResult = FileUtils.fileContent(expectedResultPath);
+        List<CompletionItem> expectedList = MessageUtil.getExpectedItemList(expectedResultPath);
+
         Position position = new Position();
         position.setLine(2);
         position.setCharacter(4);
-        RequestMessage requestMessage = MessageUtil.getRequestMessage(content, position, MESSAGE_ID);
-        Assert.assertEquals(expectedResult, ServerManager.getCompletions(requestMessage));
+        RequestMessage requestMessage = MessageUtil.getRequestMessage(content, position, MessageUtil.MESSAGE_ID);
+        List<CompletionItem> responseItemList = ServerManager.getCompletions(requestMessage);
+        Assert.assertEquals(true, MessageUtil.listMatches(expectedList, responseItemList));
     }
 
     /**
@@ -59,17 +62,42 @@ public class FunctionDefinitionCompletionTest {
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
+    @Test
     public void testFunctionBlockStatementNonEmptyFirstLine() throws IOException, URISyntaxException {
         String balPath = "definitions" + File.separator + "functions" + File.separator
                 + "blockStmtNonEmptyFirstLine.bal";
         String expectedResultPath =  "definitions" + File.separator + "functions" + File.separator
                 + "blockStmtNonEmptyFirstLine.exp";
         String content = FileUtils.fileContent(balPath);
-        String expectedResult = FileUtils.fileContent(expectedResultPath);
+        List<CompletionItem> expectedList = MessageUtil.getExpectedItemList(expectedResultPath);
+
         Position position = new Position();
         position.setLine(2);
         position.setCharacter(5);
-        RequestMessage requestMessage = MessageUtil.getRequestMessage(content, position, MESSAGE_ID);
-        Assert.assertEquals(expectedResult, ServerManager.getCompletions(requestMessage));
+        RequestMessage requestMessage = MessageUtil.getRequestMessage(content, position, MessageUtil.MESSAGE_ID);
+        List<CompletionItem> responseItemList = ServerManager.getCompletions(requestMessage);
+        Assert.assertEquals(true, MessageUtil.listMatches(expectedList, responseItemList));
+    }
+
+    /**
+     * Test the completion items suggested when the cursor is at a middle line and the line is non empty
+     * @throws IOException ioException
+     * @throws URISyntaxException URISyntaxException
+     */
+    @Test
+    public void testFunctionBlockStatementNonEmptyMiddleLine() throws IOException, URISyntaxException {
+        String balPath = "definitions" + File.separator + "functions" + File.separator
+                + "blockStmtNonEmptyMiddleLine.bal";
+        String expectedResultPath =  "definitions" + File.separator + "functions" + File.separator
+                + "blockStmtNonEmptyMiddleLine.exp";
+        String content = FileUtils.fileContent(balPath);
+        List<CompletionItem> expectedList = MessageUtil.getExpectedItemList(expectedResultPath);
+
+        Position position = new Position();
+        position.setLine(2);
+        position.setCharacter(5);
+        RequestMessage requestMessage = MessageUtil.getRequestMessage(content, position, MessageUtil.MESSAGE_ID);
+        List<CompletionItem> responseItemList = ServerManager.getCompletions(requestMessage);
+        Assert.assertEquals(true, MessageUtil.listMatches(expectedList, responseItemList));
     }
 }

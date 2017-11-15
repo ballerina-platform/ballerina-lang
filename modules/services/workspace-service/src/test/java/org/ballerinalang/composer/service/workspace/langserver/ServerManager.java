@@ -59,7 +59,7 @@ public class ServerManager {
      * @param message Request message
      * @return {@link String}
      */
-    public static String getCompletions(RequestMessage message) {
+    public static List<CompletionItem> getCompletions(RequestMessage message) {
         Gson gson = new GsonBuilder().serializeNulls().create();
         CompilerOptions options;
         String compilationUnitId = getRandomCompilationUnitId();
@@ -109,7 +109,7 @@ public class ServerManager {
         responseMessage.setId(message.getId());
         responseMessage.setResult(completionItems.toArray(new CompletionItem[0]));
 
-        return gson.toJson(responseMessage);
+        return completionItems;
     }
 
     private static String getRandomCompilationUnitId() {
