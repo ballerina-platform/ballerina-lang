@@ -160,12 +160,12 @@ class DebuggerPlugin extends Plugin {
                     propsProvider: () => {
                         const activeEditor = this.appContext.editor.getActiveEditor();
                         const uniqueID = this.getFileUniqueID(activeEditor.file);
-                        const configArguments = this.getArgumentConfigs().split(' ') || [];
+                        const configArguments = this.getArgumentConfigs() || [];
                         return {
                             debuggerPlugin: this,
                             configArguments,
                             onSaveConfigs: (newConfigArguments = []) => {
-                                this.appContext.pref.put(`launcher-app-configs-${uniqueID}`, newConfigArguments.join(' '));
+                                this.appContext.pref.put(`launcher-app-configs-${uniqueID}`, newConfigArguments);
                             },
                         };
                     },

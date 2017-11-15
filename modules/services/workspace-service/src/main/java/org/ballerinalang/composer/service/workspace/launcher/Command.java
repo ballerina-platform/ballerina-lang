@@ -41,7 +41,7 @@ public class Command {
     private String fileName;
     private String filePath;
     private boolean debug = false;
-    private String commandArgs;
+    private String[] commandArgs;
     private int port;
     private Process program;
     private boolean errorOutputEnabled = true;
@@ -59,7 +59,7 @@ public class Command {
         }
     }
 
-    public Command(String fileName, String filePath, String commandArgs, boolean debug) {
+    public Command(String fileName, String filePath, String[] commandArgs, boolean debug) {
         this(fileName, filePath, debug);
         this.commandArgs = commandArgs;
     }
@@ -96,11 +96,11 @@ public class Command {
         this.port = port;
     }
 
-    public String getCommandArgs() {
+    public String[] getCommandArgs() {
         return commandArgs;
     }
 
-    public void setCommandArgs(String commandArgs) {
+    public void setCommandArgs(String[] commandArgs) {
         this.commandArgs = commandArgs;
     }
 
@@ -134,7 +134,7 @@ public class Command {
         }
 
         if (this.commandArgs != null) {
-            commandList.addAll(Arrays.asList(this.commandArgs.split(" ")));
+            commandList.addAll(Arrays.asList(this.commandArgs));
         }
 
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
