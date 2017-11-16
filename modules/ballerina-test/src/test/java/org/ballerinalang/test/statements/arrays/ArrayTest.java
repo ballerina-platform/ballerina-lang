@@ -468,7 +468,7 @@ public class ArrayTest {
     @Test(description = "Test arrays with errors")
     public void testConnectorNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0, "function invocation on int[] not supported", 3, 18);
-        BAssertUtil.validateError(resultNegative, 1, "function invocation on string[] not supported", 8, 21);
+        BAssertUtil.validateError(resultNegative, 0, "function invocation on type 'int[]' is not supported", 3, 18);
+        BAssertUtil.validateError(resultNegative, 1, "function invocation on type 'string[]' is not supported", 8, 21);
     }
 }
