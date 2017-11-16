@@ -1096,7 +1096,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
-        //TODO do we need to load connector as function param and action param?
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
