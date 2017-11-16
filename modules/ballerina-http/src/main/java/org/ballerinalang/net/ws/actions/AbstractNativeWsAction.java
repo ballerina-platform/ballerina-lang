@@ -28,6 +28,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WebSocketService;
+import org.ballerinalang.net.ws.WebSocketServiceInfo;
+import org.ballerinalang.net.ws.WsConnectionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -94,7 +97,10 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
         return bConnector.getStringField(1);
     }
 
-    public void storeWsConnection(String sessionID, BStruct wsConnection) {
-        WebSocketConnectionManager.getInstance().addConnection(sessionID, wsConnection);
+    public void storeWsConnection(String sessionID, BStruct wsConnection, WebSocketService wsService) {
+        Map<String, String> variables = new HashMap<>();
+        WsConnectionInfo connectionInfo = new WsConnectionInfo(wsConnection,
+                                                               new WebSocketServiceInfo(wsService, variables));
+        WebSocketConnectionManager.getInstance().addConnection(sessionID, connectionInfo);
     }
 }

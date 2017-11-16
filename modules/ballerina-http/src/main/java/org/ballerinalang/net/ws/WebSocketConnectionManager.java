@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.model.values.BStruct;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,7 +29,7 @@ public class WebSocketConnectionManager {
     private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
 
     // Map <sessionId, WebSocketConnectionStruct>
-    private final Map<String, BStruct> wsConnecionsMap = new ConcurrentHashMap<>();
+    private final Map<String, WsConnectionInfo> wsConnecionsMap = new ConcurrentHashMap<>();
 
     private WebSocketConnectionManager() {
     }
@@ -40,15 +38,15 @@ public class WebSocketConnectionManager {
         return CONNECTION_MANAGER;
     }
 
-    public BStruct getConnection(String connectionID) {
+    public WsConnectionInfo getConnectionInfo(String connectionID) {
         return wsConnecionsMap.get(connectionID);
     }
 
-    public void addConnection(String connectionID, BStruct wsConnection) {
+    public void addConnection(String connectionID, WsConnectionInfo wsConnection) {
         wsConnecionsMap.put(connectionID, wsConnection);
     }
 
-    public BStruct removeConnection(String connectionID) {
+    public WsConnectionInfo removeConnection(String connectionID) {
         return wsConnecionsMap.remove(connectionID);
     }
 }

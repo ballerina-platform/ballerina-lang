@@ -100,7 +100,7 @@ public class Connect extends AbstractNativeWsAction {
             public void onSuccess(Session session) {
                 BStruct wsConnection = createWsConnectionStruct(context, session, wsParentConnectionID);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
-                storeWsConnection(session.getId(), wsConnection);
+                storeWsConnection(session.getId(), wsConnection, wsService);
                 connectorFuture.notifySuccess();
             }
 
