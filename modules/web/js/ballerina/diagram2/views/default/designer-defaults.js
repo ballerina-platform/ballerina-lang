@@ -338,3 +338,19 @@ export const variablesPane = {
     xGutterSize: 15,
     badgeWidth: 150,
 };
+
+export const enumIdentifierStatement = {
+    height: 25,
+    padding: {
+        top: 5,
+        left: 10,
+        bottom: 2,
+        right: 2,
+    },
+    textPadding: {
+        top: 5,
+        left: 5,
+        bottom: 5,
+        right: 5,
+    },
+};

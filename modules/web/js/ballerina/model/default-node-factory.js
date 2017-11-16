@@ -420,6 +420,22 @@ class DefaultNodeFactory {
         `));
     }
 
+    createEnum() {
+        return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
+            enum name {
+                ENUMERATOR
+            }
+        `))
+    }
+
+    createEnumerator(enumerator) {
+        return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
+        enum name {
+         ${enumerator}
+        }
+        `))
+    }
+
     createConnectorDeclaration(args) {
         const { connector, packageName, fullPackageName } = args;
 

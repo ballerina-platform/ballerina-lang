@@ -20,7 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
-import DesignerDefault from './../../../../ballerina/configs/designer-defaults';
+import * as DesignerDefault from './../../../../ballerina/configs/designer-defaults';
 
 class PositioningUtil {
 
@@ -173,7 +173,8 @@ class PositioningUtil {
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
             return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child) || TreeUtil.isTransformer(child);
+                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child)
+                || TreeUtil.isTransformer(child) || TreeUtil.isEnum(child);
         });
 
         children.forEach((child) => {
@@ -223,7 +224,7 @@ class PositioningUtil {
         node.viewState.components.globalsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
         node.viewState.components.globalsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35 + 10;
 
-         // Position imports
+        // Position imports
         const imports = node.filterTopLevelNodes((child) => {
             return TreeUtil.isImport(child);
         });
@@ -254,8 +255,8 @@ class PositioningUtil {
         if (node.viewState.packageDefExpanded) {
             node.viewState.components.importsBbox.x += packageDefTextWidth;
             node.viewState.components.globalsBbox.x += packageDefTextWidth;
-        } else if (node.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
-            const pkgDecNodes = node.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+        } else if (node.filterTopLevelNodes({kind: 'PackageDeclaration'}).length > 0) {
+            const pkgDecNodes = node.filterTopLevelNodes({kind: 'PackageDeclaration'});
             if (node.getPackageName(pkgDecNodes[0])) {
                 node.viewState.components.importsBbox.x += packageDefTextWidth;
                 node.viewState.components.globalsBbox.x += packageDefTextWidth;
@@ -274,7 +275,7 @@ class PositioningUtil {
                 globalElementY += 30;
             });
             node.viewState.components.globalsBbox.x -= (this.config.variablesPane.badgeWidth +
-            this.config.variablesPane.xGutterSize);
+                this.config.variablesPane.xGutterSize);
         }
     }
 
@@ -304,7 +305,57 @@ class PositioningUtil {
      * @param {object} node Enum object
      */
     positionEnumNode(node) {
-        // Not implemented.
+        const bBox = node.viewState.bBox;
+        const enumerators = node.getEnumerators();
+        const enumMaxWidth = bBox.w - DesignerDefault.panel.body.padding.right
+            - DesignerDefault.panel.body.padding.left;
+        const defaultEnumeratorX = bBox.x + DesignerDefault.panel.body.padding.left;
+        const defaultEnumeratorY = bBox.y + DesignerDefault.contentOperations.height
+            + DesignerDefault.panel.body.padding.top
+            + node.viewState.components.annotation.h + 10;
+
+        if (enumerators && enumerators.length > 0) {
+            let previousX = defaultEnumeratorX;
+            let previousY = defaultEnumeratorY;
+            let previousWidth = 120;
+            enumerators.forEach((enumerator) => {
+                if (TreeUtil.isEnumerator(enumerator)) {
+                    // If identifiers exceeded the panel width push them to a new line
+                    // else continue on the same line till meeting the max width.
+                    if (previousWidth > enumMaxWidth
+                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
+                        previousX = defaultEnumeratorX;
+                        previousY += enumerator.viewState.h
+                            + DesignerDefault.enumIdentifierStatement.padding.top;
+                        previousWidth = enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + DesignerDefault.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.bBox.x = defaultEnumeratorX;
+                        enumerator.viewState.bBox.y = previousY;
+                        previousX += enumerator.viewState.w
+                            + DesignerDefault.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.components.deleteIcon.x = previousX
+                            - DesignerDefault.enumIdentifierStatement.padding.left
+                            - enumerator.viewState.components.deleteIcon.w;
+                        enumerator.viewState.components.deleteIcon.y = previousY
+                            - DesignerDefault.enumIdentifierStatement.padding.top
+                            + DesignerDefault.enumIdentifierStatement.padding.top;
+                    } else {
+                        enumerator.viewState.bBox.x = previousX;
+                        enumerator.viewState.bBox.y = previousY;
+                        previousWidth += enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + DesignerDefault.enumIdentifierStatement.padding.left;
+                        previousX += enumerator.viewState.w
+                            + DesignerDefault.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.components.deleteIcon.x = previousX
+                            - DesignerDefault.enumIdentifierStatement.padding.left
+                            - enumerator.viewState.components.deleteIcon.w;
+                        enumerator.viewState.components.deleteIcon.y = previousY;
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -402,7 +453,7 @@ class PositioningUtil {
         // ========== End of Header ==========
 
         let xindex = (workers.length > 0) ? cmp.defaultWorker.x :
-                        cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+            cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
 
         let maxLifeLineHeight = cmp.defaultWorker.h;
         // Position Workers
@@ -450,6 +501,7 @@ class PositioningUtil {
 
         return viewState.components.deleteIcon.x + viewState.components.deleteIcon.w;
     }
+
     /**
      * Calculate position of Identifier nodes.
      *
@@ -530,7 +582,7 @@ class PositioningUtil {
 
         // Position the transport nodes
         const transportLine = !_.isNil(viewState.components.transportLine) ?
-            viewState.components.transportLine : { x: 0, y: 0 };
+            viewState.components.transportLine : {x: 0, y: 0};
         transportLine.x = viewState.bBox.x - 5;
         transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
 
@@ -574,12 +626,12 @@ class PositioningUtil {
             y += child.viewState.bBox.h;
             // expand the resource to match service.
             child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2) -
-            viewState.components.connectors.w;
+                viewState.components.connectors.w;
         });
 
         // Position Connectors
         const widthOffsetForConnectors = children.length > 0 ?
-                (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
+            (viewState.bBox.w - viewState.components.connectors.w) : this.config.innerPanel.wrapper.gutter.h;
         let xIndex = viewState.bBox.x + widthOffsetForConnectors;
         const yIndex = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h +
             viewState.components.initFunction.h + 40;
@@ -1503,6 +1555,7 @@ class PositioningUtil {
     positionEndpointTypeNode(node) {
         // Not implemented.
     }
+
     /**
      * Calculate position of ValueType nodes.
      *

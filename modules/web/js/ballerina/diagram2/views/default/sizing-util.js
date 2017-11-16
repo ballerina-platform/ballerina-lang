@@ -256,26 +256,104 @@ class SizingUtil {
     }
 
 
-
     /**
      * Calculate dimention of Enum nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeEnumNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const enumerators = node.getEnumerators();
+        const components = {};
+        // Initial statement height include panel heading and panel padding and minus 100 as this is a enum.
+        const bodyHeight = this.config.innerPanel.body.height - 100;
+        // Set the width initial value to the padding left and right
+        const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
+
+        let textWidth = this.getTextWidth(name);
+        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
+            + this.config.panelHeading.iconSize.width;
+        viewState.trimmedTitle = textWidth.text;
+        components.heading = new SimpleBBox();
+        components.body = new SimpleBBox();
+        components.annotation = new SimpleBBox();
+        components.heading.h = this.config.panel.heading.height;
+        if (node.viewState.collapsed) {
+            components.body.h = 0;
+        } else {
+            components.body.h = bodyHeight;
+        }
+
+        if (_.isNil(node.viewState.showAnnotationContainer)) {
+            node.viewState.showAnnotationContainer = true;
+        }
+
+        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
+
+        components.body.w = bodyWidth;
+        components.annotation.w = bodyWidth;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
+        viewState.components = components;
+        viewState.components.heading.w += viewState.titleWidth + 100;
+        viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
+        textWidth = this.getTextWidth(node.getName().value);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
+        if (!node.viewState.collapsed) {
+            viewState.bBox.h += this.config.panel.body.padding.top;
+        }
+        const enumMaxWidth = viewState.bBox.w - this.config.panel.body.padding.right
+            - this.config.panel.body.padding.left;
+
+        const identifierHeight = viewState.bBox.h - (this.config.panel.body.padding.top
+            + this.config.contentOperations.height + 10 + components.heading.h + components.annotation.h);
+
+        if (enumerators && enumerators.length > 0) {
+            let previousHeight = 25;
+            let previousWidth = 120;
+            enumerators.forEach((enumerator) => {
+                if (TreeUtil.isEnumerator(enumerator)) {
+                    // Adjust the container height as to the enumerator list.
+                    if (previousWidth > enumMaxWidth
+                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
+                        previousHeight += enumerator.viewState.h
+                            + this.config.enumIdentifierStatement.padding.top;
+                        previousWidth = enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + this.config.enumIdentifierStatement.padding.left;
+
+                        if (previousHeight >= identifierHeight && !node.viewState.collapsed) {
+                            node.viewState.bBox.h += enumerator.viewState.h;
+                        }
+                    } else {
+                        previousWidth += enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + this.config.enumIdentifierStatement.padding.left;
+                    }
+                }
+            });
+        }
     }
 
 
     /**
-     * Calculate dimention of Enum nodes.
+     * Calculate dimention of Enumerator nodes.
      *
      * @param {object} node
      *
      */
-    sizeEnumNode(node) {
-        // Not implemented.
+    sizeEnumeratorNode(node) {
+        // For argument parameters and return types in the panel decorator
+        const paramViewState = node.viewState;
+        paramViewState.w = this.getTextWidth(node.getSource(), 0).w + 15;
+        paramViewState.h = this.config.enumIdentifierStatement.height;
+        paramViewState.components.expression = this.getTextWidth(node.getSource(), 0);
+
+        // Creating component for delete icon.
+        paramViewState.components.deleteIcon = {};
+        paramViewState.components.deleteIcon.w = 15;
+        paramViewState.components.deleteIcon.h = 15;
     }
 
 

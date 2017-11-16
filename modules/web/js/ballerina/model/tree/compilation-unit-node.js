@@ -133,7 +133,8 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             || TreeUtils.isService(node)
             || TreeUtils.isStruct(node)
             || TreeUtils.isAnnotation(node)
-            || TreeUtils.isTransformer(node);
+            || TreeUtils.isTransformer(node)
+            || TreeUtils.isEnum(node);
     }
 
     /**

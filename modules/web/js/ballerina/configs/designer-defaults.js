@@ -320,3 +320,19 @@ export const variablesPane = {
     globalDeclarationWidth: 310,
     globalDefDecorationWidth: 3,
 };
+
+export const enumIdentifierStatement = {
+    height: 25,
+    padding: {
+        top: 5,
+        left: 10,
+        bottom: 2,
+        right: 2,
+    },
+    textPadding: {
+        top: 5,
+        left: 5,
+        bottom: 5,
+        right: 5,
+    },
+};
