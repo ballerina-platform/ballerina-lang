@@ -25,10 +25,13 @@ import java.util.Map;
 
 /**
  * ReservedStringExpression represents path segments that have RESERVED characters.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class ReservedStringExpression<DataType extends DataElement> extends SimpleStringExpression<DataType> {
+public class ReservedStringExpression<DataElementType extends DataElement>
+        extends SimpleStringExpression<DataElementType> {
 
-    public ReservedStringExpression(DataType dataElement, String token) throws URITemplateException {
+    public ReservedStringExpression(DataElementType dataElement, String token) throws URITemplateException {
         super(dataElement, token);
     }
 

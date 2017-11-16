@@ -25,10 +25,12 @@ import java.util.Map;
 
 /**
  * FragmentExpression represents a fragment in the path segment of the uri.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class FragmentExpression<DataType extends DataElement> extends ReservedStringExpression<DataType> {
+public class FragmentExpression<DataElementType extends DataElement> extends ReservedStringExpression<DataElementType> {
 
-    public FragmentExpression(DataType dataElement,String token) throws URITemplateException {
+    public FragmentExpression(DataElementType dataElement, String token) throws URITemplateException {
         super(dataElement, token);
     }
 

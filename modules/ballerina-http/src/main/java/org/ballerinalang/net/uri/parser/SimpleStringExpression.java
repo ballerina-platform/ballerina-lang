@@ -24,10 +24,13 @@ import org.ballerinalang.net.uri.URITemplateException;
 /**
  * SimpleStringExpression represents path segments that have single path param.
  * ex - /{foo}/
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class SimpleStringExpression<DataType extends DataElement> extends SimpleSplitStringExpression<DataType> {
+public class SimpleStringExpression<DataElementType extends DataElement>
+        extends SimpleSplitStringExpression<DataElementType> {
 
-    public SimpleStringExpression(DataType dataElement, String token) throws URITemplateException {
+    public SimpleStringExpression(DataElementType dataElement, String token) throws URITemplateException {
         super(dataElement, token);
     }
 

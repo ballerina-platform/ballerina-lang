@@ -28,13 +28,14 @@ import java.util.Map;
 /**
  * Basic URI Template implementation.
  *
+ * @param <DataType> Data type stored in the data element.
+ * @param <CheckerType> Additional checker for data element.
  **/
+public class URITemplate<DataType, CheckerType> {
 
-public class URITemplate<Data, Checker> {
+    private Node<DataElement<DataType, CheckerType>> syntaxTree;
 
-    private Node<DataElement<Data, Checker>> syntaxTree;
-
-    public URITemplate(Node<DataElement<Data, Checker>> syntaxTree) {
+    public URITemplate(Node<DataElement<DataType, CheckerType>> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -42,19 +43,20 @@ public class URITemplate<Data, Checker> {
         return null;
     }
 
-    public Data matches(String uri, Map<String, String> variables, Checker checker) {
-        DataElement<Data, Checker> dataElement = syntaxTree.matchAll(uri, variables, 0);
+    public DataType matches(String uri, Map<String, String> variables, CheckerType checker) {
+        DataElement<DataType, CheckerType> dataElement = syntaxTree.matchAll(uri, variables, 0);
         if (dataElement == null) {
             return null;
         }
         return dataElement.getData(checker);
     }
 
-    public void parse(String uriTemplate, Data resource, DataElementCreator<? extends DataElement<Data, Checker>>
-            elementCreator) throws URITemplateException {
+    public void parse(String uriTemplate, DataType resource,
+                      DataElementCreator<? extends DataElement<DataType, CheckerType>>
+                              elementCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<Data, Checker> parser = new URITemplateParser<>(syntaxTree, elementCreator);
+        URITemplateParser<DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
         parser.parse(uriTemplate, resource);
     }
 

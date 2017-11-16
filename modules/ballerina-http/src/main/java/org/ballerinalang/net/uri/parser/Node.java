@@ -25,25 +25,27 @@ import java.util.Map;
 
 /**
  * Node represents different types of path segments in the uri-template.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public abstract class Node<DataType extends DataElement> {
+public abstract class Node<DataElementType extends DataElement> {
 
     protected String token;
-    protected DataType dataElement;
-    protected List<Node<DataType>> childNodesList = new LinkedList<>();
+    protected DataElementType dataElement;
+    protected List<Node<DataElementType>> childNodesList = new LinkedList<>();
 
-    protected Node(DataType dataElement, String token) {
+    protected Node(DataElementType dataElement, String token) {
         this.dataElement = dataElement;
         this.token = token;
     }
 
-    public DataType getDataElement() {
+    public DataElementType getDataElement() {
         return dataElement;
     }
 
-    public Node<DataType> addChild(Node<DataType> childNode) {
-        Node<DataType> node = childNode;
-        Node<DataType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
+    public Node<DataElementType> addChild(Node<DataElementType> childNode) {
+        Node<DataElementType> node = childNode;
+        Node<DataElementType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
         if (matchingChildNode != null) {
             node = matchingChildNode;
         } else {
@@ -55,7 +57,7 @@ public abstract class Node<DataType extends DataElement> {
         return node;
     }
 
-    public DataType matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public DataElementType matchAll(String uriFragment, Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -69,8 +71,8 @@ public abstract class Node<DataType extends DataElement> {
         String subUriFragment = nextURIFragment(uriFragment, matchLength);
         String subPath = nextSubPath(subUriFragment);
 
-        DataType dataElement;
-        for (Node<DataType> childNode : childNodesList) {
+        DataElementType dataElement;
+        for (Node<DataElementType> childNode : childNodesList) {
             if (childNode instanceof Literal) {
                 String regex = childNode.getToken();
                 if (regex.equals("*")) {
@@ -78,7 +80,7 @@ public abstract class Node<DataType extends DataElement> {
                     if (!subPath.matches(regex)) {
                         continue;
                     }
-                    dataElement = childNode.matchAll(subUriFragment, variables,start + matchLength);
+                    dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
                     if (dataElement != null) {
                         return dataElement;
                     }
@@ -109,11 +111,12 @@ public abstract class Node<DataType extends DataElement> {
 
     abstract char getFirstCharacter();
 
-    private Node<DataType> getMatchingChildNode(Node<DataType> prospectiveChild, List<Node<DataType>> existingChildren) {
+    private Node<DataElementType> getMatchingChildNode(Node<DataElementType> prospectiveChild,
+                                                       List<Node<DataElementType>> existingChildren) {
         boolean isExpression = prospectiveChild instanceof Expression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
-        for (Node<DataType> existingChild : existingChildren) {
+        for (Node<DataElementType> existingChild : existingChildren) {
             if (isExpression && existingChild instanceof Expression) {
                 return existingChild;
             }

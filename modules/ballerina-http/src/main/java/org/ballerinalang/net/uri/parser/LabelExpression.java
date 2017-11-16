@@ -25,10 +25,12 @@ import java.util.Map;
 
 /**
  * LabelExpression represents path segments that start with ..
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public class LabelExpression<DataType extends DataElement> extends SimpleStringExpression<DataType> {
+public class LabelExpression<DataElementType extends DataElement> extends SimpleStringExpression<DataElementType> {
 
-    public LabelExpression(DataType dataElement, String token) throws URITemplateException {
+    public LabelExpression(DataElementType dataElement, String token) throws URITemplateException {
         super(dataElement, token);
     }
 

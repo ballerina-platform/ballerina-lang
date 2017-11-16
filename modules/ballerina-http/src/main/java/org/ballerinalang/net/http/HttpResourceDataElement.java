@@ -51,7 +51,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
-                                                         + previousResource.getName() + " and " + newResource.getName());
+                                                     + previousResource.getName() + " and " + newResource.getName());
                 }
             }
             this.resource.add(newResource);
