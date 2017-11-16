@@ -644,13 +644,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Variable':
             if (node.endpoint && node.typeNode && node.name.value
                          && node.initialExpression) {
-                return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{' + indent()
-                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w()
-                 + ';' + outdent() + w() + '}';
+                return dent() + dent() + w() + 'endpoint'
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{'
+                 + indent() + dent()
+                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';' + outdent() + w() + '}';
             } else if (node.endpoint && node.typeNode && node.name.value) {
-                return getSourceOf(node.typeNode, pretty, l, replaceLambda)
-                 + w(' ') + node.name.value + w() + '{' + indent() + outdent() + w()
-                 + '}';
+                return dent() + w() + 'endpoint'
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{' + indent()
+                 + outdent() + w() + '}';
             } else if (node.global && node.annotationAttachments && node.typeNode
                          && node.name.value && node.initialExpression) {
                 return dent()
@@ -677,8 +678,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'VariableDef':
             if (node.endpoint && node.variable) {
-                return dent() + w() + 'endpoint'
-                 + getSourceOf(node.variable, pretty, l, replaceLambda);
+                return getSourceOf(node.variable, pretty, l, replaceLambda);
             } else {
                 return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
                  + w() + ';';
