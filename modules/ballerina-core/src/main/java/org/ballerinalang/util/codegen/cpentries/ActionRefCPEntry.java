@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.util.codegen.ActionInfo;
-
 import java.util.Objects;
 
 /**
@@ -36,19 +34,9 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     private int nameCPIndex;
     private String actionName;
 
-    // Index to a valid connector ref index in the constant pool
-    private int connectorRefCPIndex;
-    private StructureRefCPEntry connectorRefCPEntry;
-
-    private ActionInfo actionInfo;
-
-    public ActionRefCPEntry(int packageCPIndex, String packagePath, int connectorRefCPIndex,
-                            StructureRefCPEntry connectorRefCPEntry,
-                            int nameCPIndex, String actionName) {
+    public ActionRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String actionName) {
         this.packageCPIndex = packageCPIndex;
         this.packagePath = packagePath;
-        this.connectorRefCPIndex = connectorRefCPIndex;
-        this.connectorRefCPEntry = connectorRefCPEntry;
         this.nameCPIndex = nameCPIndex;
         this.actionName = actionName;
     }
@@ -69,22 +57,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
         return actionName;
     }
 
-    public int getConnectorRefCPIndex() {
-        return connectorRefCPIndex;
-    }
-
-    public StructureRefCPEntry getConnectorRefCPEntry() {
-        return connectorRefCPEntry;
-    }
-
-    public ActionInfo getActionInfo() {
-        return actionInfo;
-    }
-
-    public void setActionInfo(ActionInfo actionInfo) {
-        this.actionInfo = actionInfo;
-    }
-
     public EntryType getEntryType() {
         return EntryType.CP_ENTRY_ACTION_REF;
     }
@@ -97,7 +69,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ActionRefCPEntry && packageCPIndex == (((ActionRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex &&
-                connectorRefCPIndex == ((ActionRefCPEntry) obj).connectorRefCPIndex;
+                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex;
     }
 }

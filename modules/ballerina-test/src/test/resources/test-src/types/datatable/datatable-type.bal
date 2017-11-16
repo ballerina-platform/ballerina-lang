@@ -300,6 +300,46 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
     return;
 }
 
+function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longArrLen, int floatArrLen, int boolArrLen,
+                                         int strArrLen) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    int[] dataint = [1, 2, 3];
+    float[] datafloat = [33.4, 55.4];
+    string[] datastring = ["hello", "world"];
+    boolean[] databoolean = [true, false, false, true, true];
+
+    sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
+    sql:Parameter paraInt = {sqlType:"array", value:dataint};
+    sql:Parameter paraLong = {sqlType:"array", value:dataint};
+    sql:Parameter paraFloat = {sqlType:"array", value:datafloat};
+    sql:Parameter paraString = {sqlType:"array", value:datastring};
+    sql:Parameter paraBool = {sqlType:"array", value:databoolean};
+    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
+
+    updateRet = testDB.update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
+                                string_array, boolean_array) values (?,?,?,?,?,?)", parameters);
+    datatable dt = testDB.select("SELECT int_array, long_array, float_array, boolean_array, string_array
+                                 from ArrayTypes where row_id = 4", null);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultMap)dt.getNext();
+        println(rs.INT_ARRAY);
+        intArrLen = rs.INT_ARRAY.length();
+        println(rs.LONG_ARRAY);
+        longArrLen = rs.LONG_ARRAY.length();
+        println(rs.FLOAT_ARRAY);
+        floatArrLen = rs.FLOAT_ARRAY.length();
+        println(rs.BOOLEAN_ARRAY);
+        boolArrLen = rs.BOOLEAN_ARRAY.length();
+        println(rs.STRING_ARRAY);
+        strArrLen = rs.STRING_ARRAY.length();
+    }
+    testDB.close();
+    return;
+}
+
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
     endpoint<sql:ClientConnector> testDB {

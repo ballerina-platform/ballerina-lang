@@ -144,7 +144,7 @@ public class SQLDatasourceUtils {
                 if (value == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setString(index + 1, value.stringValue());
+                    stmt.setNString(index + 1, value.stringValue());
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
