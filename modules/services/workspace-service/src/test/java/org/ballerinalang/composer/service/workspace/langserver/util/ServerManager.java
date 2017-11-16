@@ -16,13 +16,15 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver;
+package org.ballerinalang.composer.service.workspace.langserver.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
+import org.ballerinalang.composer.service.workspace.langserver.TreeVisitor;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
