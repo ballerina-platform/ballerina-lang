@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Test command for ballerina launcher
+ * Test command for ballerina launcher.
  */
 @Parameters(commandNames = "test", commandDescription = "test Ballerina program")
 public class TestCmd implements BLauncherCmd {
