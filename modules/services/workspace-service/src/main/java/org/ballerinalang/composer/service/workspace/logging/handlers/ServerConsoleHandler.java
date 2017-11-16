@@ -1,4 +1,4 @@
-package org.ballerinalang.composer.service.workspace.logging;
+package org.ballerinalang.composer.service.workspace.logging.handlers;
 
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
