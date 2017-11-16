@@ -25,7 +25,6 @@ import org.ballerinalang.net.uri.parser.URITemplateParser;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.crypto.Data;
 
 /**
  * Basic URI Template implementation.
@@ -70,22 +69,19 @@ public class URITemplate<DataType, CheckerType> {
         if (currentNode == null) {
             return;
         }
-        if (currentNode.getChildNodesList().size() == 0) {
-            currentNode.getDataElement().clearData();
-            while (currentNode.getChildNodesList().size() == 0) {
-                if (!currentNode.getDataElement().isEmpty()) {
-                    break;
-                }
-                Node<DataElement<DataType, CheckerType>> parentNode = currentNode.getParentNode();
-                if (parentNode == null) {
-                    break;
-                }
-                parentNode.getChildNodesList().remove(currentNode);
-                currentNode = parentNode;
+        currentNode.getDataElement().clearData();
+        while (currentNode.getChildNodesList().size() == 0) {
+            if (!currentNode.getDataElement().isEmpty()) {
+                break;
             }
-        } else {
-            currentNode.getDataElement().clearData();
+            Node<DataElement<DataType, CheckerType>> parentNode = currentNode.getParentNode();
+            if (parentNode == null) {
+                break;
+            }
+            parentNode.getChildNodesList().remove(currentNode);
+            currentNode = parentNode;
         }
+
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

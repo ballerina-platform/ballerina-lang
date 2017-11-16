@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import javafx.scene.Parent;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;

@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class WebSocketServiceRegistrationTestCase {
 
-    @Test
+    @Test(priority = 1)
     public void testRegistration() {
         CompileResult compileResult1 =
                 BServiceUtil.setupProgramFile(this,
@@ -43,7 +44,7 @@ public class WebSocketServiceRegistrationTestCase {
         BServiceUtil.cleanup(compileResult2);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(priority = 2, expectedExceptions = BallerinaException.class)
     public void testRegistrationOfServiceWithoutUnregistering() {
         CompileResult compileResult1 =
                 BServiceUtil.setupProgramFile(this,
@@ -53,6 +54,13 @@ public class WebSocketServiceRegistrationTestCase {
                 BServiceUtil.setupProgramFile(this,
                                               "test-src/net/ws/service-registering-unregistering-test.bal");
         WebSocketServicesRegistry.getInstance().deployServices();
+        BServiceUtil.cleanup(compileResult1);
+        BServiceUtil.cleanup(compileResult2);
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        WebSocketServicesRegistry.getInstance().cleanRegistry();
     }
 
 }

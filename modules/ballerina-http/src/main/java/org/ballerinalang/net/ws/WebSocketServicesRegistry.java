@@ -96,6 +96,14 @@ public class WebSocketServicesRegistry {
         deployServiceEndpoints(deployedSlaveServiceSet);
     }
 
+    public void cleanRegistry() {
+        serviceEndpointsMap.clear();
+        clientServices.clear();
+        serviceBoundedURIMap.clear();
+        serviceEndpoints.clear();
+        slaveEndpoints.clear();
+    }
+
     private void deployServiceEndpoints(Set<WebSocketService> deployedSlaveServiceSet) {
         serviceEndpoints.entrySet().forEach(serviceEntry -> {
             WebSocketService service = serviceEntry.getValue();

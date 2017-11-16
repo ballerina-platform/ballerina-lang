@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 /**
@@ -74,5 +75,10 @@ public class HttpToWebSocketUpgradeTestCase {
                 this, "test-src/net/ws/http-to-websocket-upgrade-host-port-without-basepath-negative.bal");
         WebSocketServicesRegistry.getInstance().deployServices();
         BServiceUtil.cleanup(compileResult);
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        WebSocketServicesRegistry.getInstance().cleanRegistry();
     }
 }

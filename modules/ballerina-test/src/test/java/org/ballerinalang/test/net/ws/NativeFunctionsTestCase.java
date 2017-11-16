@@ -166,7 +166,7 @@ public class NativeFunctionsTestCase {
         String testSessionID = "test_session_id";
         MockWebSocketSession testSession = new MockWebSocketSession(testSessionID);
         BStruct testParentWsConnection = BCompileUtil.createAndGetStruct(programFile,
-                                                                         Constants.WEBSOCKET_PACKAGE_NAME, Constants.STRUCT_WEBSOCKET_CONNECTION);
+                                         Constants.WEBSOCKET_PACKAGE_NAME, Constants.STRUCT_WEBSOCKET_CONNECTION);
         testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
         WsConnectionInfo connectionInfo = new WsConnectionInfo(testParentWsConnection, null);
