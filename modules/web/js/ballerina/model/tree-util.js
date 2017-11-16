@@ -152,6 +152,27 @@ class TreeUtil extends AbstractTreeUtil {
                 node.getName().setValue(`${structDefaultName}1`, true);
                 node.setName(node.getName(), true);
             }
+        } else if (this.isEnum(node)) {
+            const enumDefaultName = 'name';
+            const enumNodes = root.filterTopLevelNodes(this.isEnum);
+            const names = {};
+
+            for (let i = 0; i < enumNodes.length; i++) {
+                const name = enumNodes[i].getName().value;
+                names[name] = name;
+            }
+
+            if (enumNodes.length > 0) {
+                for (let i = 1; i <= enumNodes.length + 1; i++) {
+                    if (!names[`${enumDefaultName}${i}`]) {
+                        node.getName().setValue(`${enumDefaultName}${i}`, true);
+                        node.setName(node.getName(), true);
+                    }
+                }
+            } else {
+                node.getName().setValue(`${enumDefaultName}1`, true);
+                node.setName(node.getName(), true);
+            }
         }
         return undefined;
     }

@@ -338,3 +338,28 @@ export const variablesPane = {
     xGutterSize: 15,
     badgeWidth: 150,
 };
+
+export const enumPanel = {
+    width: 600,
+    height: 200,
+    contentOperations: {
+        w: 300,
+    },
+    titleWidthOffset: 100,
+};
+
+export const enumIdentifierStatement = {
+    height: 25,
+    padding: {
+        top: 5,
+        left: 10,
+        bottom: 2,
+        right: 2,
+    },
+    textPadding: {
+        top: 5,
+        left: 5,
+        bottom: 5,
+        right: 5,
+    },
+};

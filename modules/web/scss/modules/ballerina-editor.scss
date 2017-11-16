@@ -585,6 +585,11 @@
         opacity: 0.4;
         cursor: pointer;
     }
+
+    .parameter-delete-icon-disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
     
     .parameter-delete-icon:hover {
         opacity: 1;

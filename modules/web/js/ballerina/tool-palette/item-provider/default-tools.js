@@ -93,6 +93,14 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTransformer,
         description: 'Custom type conversion for transforming data',
     },
+    {
+        id: 'enum',
+        name: 'Enum',
+        icon: 'struct',
+        title: 'Enum',
+        nodeFactoryMethod: DefaultNodeFactory.createEnum,
+        description: 'User defined enums',
+    },
     //////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'main_tool_seperator',

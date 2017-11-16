@@ -172,7 +172,8 @@ class PositioningUtil {
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
             return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child) || TreeUtil.isTransformer(child);
+                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child)
+                || TreeUtil.isTransformer(child) || TreeUtil.isEnum(child);
         });
 
         children.forEach((child) => {
@@ -303,7 +304,57 @@ class PositioningUtil {
      * @param {object} node Enum object
      */
     positionEnumNode(node) {
-        // Not implemented.
+        const bBox = node.viewState.bBox;
+        const enumerators = node.getEnumerators();
+        const enumMaxWidth = bBox.w - this.config.panel.body.padding.right
+            - this.config.panel.body.padding.left;
+        const defaultEnumeratorX = bBox.x + this.config.panel.body.padding.left;
+        const defaultEnumeratorY = bBox.y + this.config.contentOperations.height
+            + this.config.panel.body.padding.top
+            + node.viewState.components.annotation.h + 10;
+
+        if (enumerators && enumerators.length > 0) {
+            let previousX = defaultEnumeratorX;
+            let previousY = defaultEnumeratorY;
+            let previousWidth = 120;
+            enumerators.forEach((enumerator) => {
+                if (TreeUtil.isEnumerator(enumerator)) {
+                    // If identifiers exceeded the panel width push them to a new line
+                    // else continue on the same line till meeting the max width.
+                    if (previousWidth > enumMaxWidth
+                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
+                        previousX = defaultEnumeratorX;
+                        previousY += enumerator.viewState.h
+                            + this.config.enumIdentifierStatement.padding.top;
+                        previousWidth = enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + this.config.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.bBox.x = defaultEnumeratorX;
+                        enumerator.viewState.bBox.y = previousY;
+                        previousX += enumerator.viewState.w
+                            + this.config.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.components.deleteIcon.x = previousX
+                            - this.config.enumIdentifierStatement.padding.left
+                            - enumerator.viewState.components.deleteIcon.w;
+                        enumerator.viewState.components.deleteIcon.y = previousY
+                            - this.config.enumIdentifierStatement.padding.top
+                            + this.config.enumIdentifierStatement.padding.top;
+                    } else {
+                        enumerator.viewState.bBox.x = previousX;
+                        enumerator.viewState.bBox.y = previousY;
+                        previousWidth += enumerator.viewState.w
+                            + enumerator.viewState.components.deleteIcon.w
+                            + this.config.enumIdentifierStatement.padding.left;
+                        previousX += enumerator.viewState.w
+                            + this.config.enumIdentifierStatement.padding.left;
+                        enumerator.viewState.components.deleteIcon.x = previousX
+                            - this.config.enumIdentifierStatement.padding.left
+                            - enumerator.viewState.components.deleteIcon.w;
+                        enumerator.viewState.components.deleteIcon.y = previousY;
+                    }
+                }
+            });
+        }
     }
 
     /**
