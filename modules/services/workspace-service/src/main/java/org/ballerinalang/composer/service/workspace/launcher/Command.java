@@ -105,7 +105,7 @@ public class Command {
     }
 
     /**
-     * Construct the command array to be executed
+     * Construct the command array to be executed.
      * @return String[] command array
      */
     public String[] getCommandArray() {

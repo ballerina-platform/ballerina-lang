@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.rest.typelattice;
 
 /**
- * Holds simple source target and safe status of a type edge
+ * Holds simple source target and safe status of a type edge.
  */
 public class SimpleTypeEdge {
 

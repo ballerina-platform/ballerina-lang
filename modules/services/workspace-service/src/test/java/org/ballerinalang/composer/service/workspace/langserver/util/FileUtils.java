@@ -30,7 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * File utils for reading the file content
+ * File utils for reading the file content.
  */
 public class FileUtils {
     private static final ClassLoader CLASS_LOADER = FileUtils.class.getClassLoader();
@@ -39,7 +39,7 @@ public class FileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     /**
-     * Get the file content
+     * Get the file content.
      * @param filePath path to the file
      * @return {@link JsonObject} file content as a jsonObject
      */
@@ -57,7 +57,7 @@ public class FileUtils {
     }
 
     /**
-     * Get the file content
+     * Get the file content.
      * @param filePath path to the file
      * @return {@link JsonObject} file content as a jsonObject
      */

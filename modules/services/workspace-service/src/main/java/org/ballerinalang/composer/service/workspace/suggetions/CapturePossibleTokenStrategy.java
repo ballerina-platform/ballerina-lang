@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Capture possible errors from source
+ * Capture possible errors from source.
  */
 public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
@@ -83,7 +83,7 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
     }
     /**
-     * Checks whether cursor is within the whitespace region between current token to last token
+     * Checks whether cursor is within the whitespace region between current token to last token.
      * @param token Token to be evaluated
      * @param parser Parser Instance
      * @return true|false

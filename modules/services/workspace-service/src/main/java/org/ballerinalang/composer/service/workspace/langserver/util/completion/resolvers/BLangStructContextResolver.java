@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Item Resolver for the BLangStruct node context
+ * Item Resolver for the BLangStruct node context.
  */
 public class BLangStructContextResolver extends AbstractItemResolver {
     @Override

@@ -21,7 +21,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.List;
 
 /**
- * Class which contains Ballerina model and Diagnostic information
+ * Class which contains Ballerina model and Diagnostic information.
  */
 public class BallerinaFile {
 

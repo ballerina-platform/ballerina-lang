@@ -75,7 +75,7 @@ public class ConfigServiceImpl {
     }
 
     /**
-     * Generates an error message for the given exception
+     * Generates an error message for the given exception.
      * @param ex throwable error
      * @return Response
      */
@@ -91,7 +91,7 @@ public class ConfigServiceImpl {
     }
 
     /**
-     * function to get the configuration for composer
+     * function to get the configuration for composer.
      *
      * @param request to get host name
      * @return config json object

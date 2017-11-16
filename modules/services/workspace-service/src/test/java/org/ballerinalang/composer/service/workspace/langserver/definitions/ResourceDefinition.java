@@ -23,7 +23,7 @@ import org.testng.annotations.DataProvider;
 import java.io.File;
 
 /**
- * Completion item tests for resource definition
+ * Completion item tests for resource definition.
  */
 public class ResourceDefinition extends CompletionTest {
     @DataProvider(name = "completion-data-provider")

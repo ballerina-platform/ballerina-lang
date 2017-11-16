@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * AnnotationAttachmentResolver
+ * AnnotationAttachmentResolver.
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
@@ -46,7 +46,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
     }
 
     /**
-     * Filter the annotations from the data model
+     * Filter the annotations from the data model.
      * @param dataModel - Suggestions filter Data model
      * @return {@link List}
      */
@@ -87,7 +87,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
     }
 
     /**
-     * Get the last string part to append
+     * Get the last string part to append.
      *
      * @param packagePath - package path
      * @return {@link String}

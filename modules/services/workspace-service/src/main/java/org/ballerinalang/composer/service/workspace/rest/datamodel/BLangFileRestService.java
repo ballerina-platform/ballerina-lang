@@ -310,7 +310,7 @@ public class BLangFileRestService {
     }
 
     /**
-     * Validates a given ballerina input
+     * Validates a given ballerina input.
      *
      * @param bFileRequest - Object which holds data about Ballerina content.
      * @return List of errors if any
@@ -413,7 +413,7 @@ public class BLangFileRestService {
     }
 
     /**
-     * Enum for Error Category
+     * Enum for Error Category.
      */
     public enum ErrorCategory {
         SYNTAX,

@@ -32,7 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
- * Utility for parsing BLang source fragments
+ * Utility for parsing BLang source fragments.
  */
 public class BLangFragmentParser {
 

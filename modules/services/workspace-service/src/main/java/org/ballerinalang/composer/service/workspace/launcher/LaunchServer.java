@@ -33,7 +33,7 @@ import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
 
 /**
  * Launch Server , websocket server which handles launch requests and stream
- * application output back to the client
+ * application output back to the client.
  */
 public class LaunchServer {
 
@@ -44,7 +44,7 @@ public class LaunchServer {
     }
 
     /**
-     *  Debug server initializer class
+     *  Debug server initializer class.
      */
     static class LaunchServerInitializer extends ChannelInitializer<SocketChannel> {
 

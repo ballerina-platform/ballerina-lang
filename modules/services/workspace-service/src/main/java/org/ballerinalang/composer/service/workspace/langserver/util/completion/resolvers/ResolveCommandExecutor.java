@@ -39,14 +39,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * ResolveCommandExecutor will accept the command to execute
+ * ResolveCommandExecutor will accept the command to execute.
  */
 public class ResolveCommandExecutor {
     private static final HashMap<Class, AbstractItemResolver> resolvers = new HashMap<>();
     private static final DefaultResolver DEFAULT_RESOLVER = new DefaultResolver();
 
     /**
-     * Constructor for the Resolve command executor
+     * Constructor for the Resolve command executor.
      */
     public ResolveCommandExecutor() {
         StatementContextResolver statementContextResolver = new StatementContextResolver();
@@ -107,7 +107,7 @@ public class ResolveCommandExecutor {
     }
 
     /**
-     * Resolve the completion items based on the criteria
+     * Resolve the completion items based on the criteria.
      * @param resolveCriteria - resolving criteria
      * @param dataModel - SuggestionsFilterDataModel
      * @param symbols - Symbols list

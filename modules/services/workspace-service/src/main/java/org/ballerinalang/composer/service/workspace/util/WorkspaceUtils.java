@@ -81,18 +81,18 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_PACKAGE_VALIDAT
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
- * Utility methods for workspace service
+ * Utility methods for workspace service.
  */
 public class WorkspaceUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceUtils.class);
 
     /**
-     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file
+     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file.
      * saved in the file-system.
      *
      *
-     * @param programDir - Path of the program directory
+     * @param programDir - Path of the program directory.
      * @param compilationUnitName - compilationUnitName name.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
@@ -144,7 +144,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Returns an object which contains Ballerina model and Diagnostic information
+     * Returns an object which contains Ballerina model and Diagnostic information.
      *
      * @param fileName - File name
      * @param context  - CompilerContext
@@ -170,7 +170,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Get All Native Packages
+     * Get All Native Packages.
      *
      * @return {@link Map} Package name, package functions and connectors
      */
@@ -215,7 +215,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Get the builtin types
+     * Get the builtin types.
      *
      * @return {@link List} list of builtin types
      */
@@ -297,7 +297,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Extract annotations from ballerina lang
+     * Extract annotations from ballerina lang.
      *
      * @param packages   packages to send
      * @param annotation annotation
@@ -318,7 +318,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Extract connectors from ballerina lang
+     * Extract connectors from ballerina lang.
      *
      * @param packages  packages to send
      * @param connector connector
@@ -408,7 +408,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Extract receiverType from the function receiver
+     * Extract receiverType from the function receiver.
      *
      * @param receiver receiver
      * @return receiverType
@@ -466,7 +466,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Add annotations to a list from ballerina lang annotation list
+     * Add annotations to a list from ballerina lang annotation list.
      *
      * @param annotations               annotations list to be sent
      * @param bLangAnnotationAttachment annotations
@@ -506,7 +506,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Create new action
+     * Create new action.
      *
      * @param name         action name
      * @param params       list of params
@@ -525,7 +525,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Create new parameter
+     * Create new parameter.
      *
      * @param name parameter name
      * @param type parameter type
@@ -544,7 +544,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Create new function
+     * Create new function.
      *
      * @param name         name of the function
      * @param annotations  list of annotations
@@ -566,7 +566,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Create new struct
+     * Create new struct.
      *
      * @param name   name of the struct
      * @param fields field definiton statements
@@ -587,7 +587,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * create a new struct field
+     * create a new struct field.
      *
      * @param name name of the field
      * @param type type of the field
@@ -599,7 +599,7 @@ public class WorkspaceUtils {
     }
 
     /**
-     * Create new connector
+     * Create new connector.
      *
      * @param name         name of the connector
      * @param annotations  list of annotation

@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Workspace symbol params dto
+ * Workspace symbol params dto.
  */
 public class WorkspaceSymbolParams {
     private String query;

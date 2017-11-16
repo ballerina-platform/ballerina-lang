@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This is the data model, which holds the data items required for filtering the suggestions
+ * This is the data model, which holds the data items required for filtering the suggestions.
  */
 public class SuggestionsFilterDataModel {
 
@@ -45,7 +45,7 @@ public class SuggestionsFilterDataModel {
     private SymbolTable symbolTable;
 
     /**
-     * Constructor for SuggestionsFilterDataModel
+     * Constructor for SuggestionsFilterDataModel.
      */
     public SuggestionsFilterDataModel(){
     }
@@ -62,7 +62,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Get the Context
+     * Get the Context.
      * @return {@link ParserRuleContext} parserRuleContext instance
      */
     public ParserRuleContext getParserRuleContext() {
@@ -70,7 +70,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Get the possible tokens list
+     * Get the possible tokens list.
      * @return {@link List}
      */
     public List<PossibleToken> getPossibleTokens() {
@@ -78,7 +78,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Set the possible token list
+     * Set the possible token list.
      * @param possibleTokens - possible tokens
      */
     public void setPossibleTokens(List<PossibleToken> possibleTokens) {
@@ -86,7 +86,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Get the token stream
+     * Get the token stream.
      * @return {@link TokenStream}
      */
     public TokenStream getTokenStream() {
@@ -94,7 +94,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Get the vocabulary
+     * Get the vocabulary.
      * @return {@link Vocabulary}
      */
     public Vocabulary getVocabulary() {
@@ -102,7 +102,7 @@ public class SuggestionsFilterDataModel {
     }
 
     /**
-     * Get the token index
+     * Get the token index.
      * @return {@link int}
      */
     public int getTokenIndex() {

@@ -22,7 +22,7 @@ import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramConten
 import java.util.Map;
 
 /**
- *  Class with common utility functions used by workspace services
+ *  Class with common utility functions used by workspace services.
  */
 public class Utils {
     /**
@@ -41,7 +41,7 @@ public class Utils {
     }
 
     /**
-     * Get all the ballerina packages associated with the runtime
+     * Get all the ballerina packages associated with the runtime.
      * @return - packages set
      */
     public static Map<String, ModelPackage> getAllPackages() {

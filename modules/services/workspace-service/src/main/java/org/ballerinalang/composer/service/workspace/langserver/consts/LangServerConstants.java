@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace.langserver.consts;
  */
 public class LangServerConstants {
     /**
-     * The minimum server port number. Lets start with 5006 which is the default port number
+     * The minimum server port number. Lets start with 5006 which is the default port number.
      */
     public static final int MIN_PORT_NUMBER = 5006;
 
@@ -35,7 +35,7 @@ public class LangServerConstants {
     public static final String B_LANGSERVER_PORT = "9093";
 
     /**
-     * Error Codes
+     * Error Codes.
      */
     public static final int PARSE_ERROR = -32700;
     public static final int INVALID_REQUEST = -32600;
@@ -49,7 +49,7 @@ public class LangServerConstants {
     public static final int REQUEST_CANCELLED = -32800;
 
     /**
-     * Error messages
+     * Error messages.
      */
     public static final String PARSE_ERROR_LINE = "Parse error";
     public static final String INVALID_REQUEST_LINE = "Invalid Request";
@@ -59,7 +59,7 @@ public class LangServerConstants {
     public static final String SERVER_NOT_INITIALIZED_LINE = "Server not initialized";
 
     /**
-     * Message methods
+     * Message methods.
      */
     public static final String INITIALIZE = "initialize";
     public static final String SHUTDOWN = "shutdown";
@@ -75,7 +75,7 @@ public class LangServerConstants {
     public static final String WORKSPACE_SYMBOL = "workspace/symbol";
 
     /**
-     * Workspace symbol query string
+     * Workspace symbol query string.
      */
     public static final String BUILTIN_TYPES = "builtinTypes";
     public static final String PACKAGES = "packages";

@@ -36,7 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Service for getting type cast and conversion lattice
+ * Service for getting type cast and conversion lattice.
  *
  * @since 0.92
  */
@@ -80,7 +80,7 @@ public class TypeLatticeService {
     }
 
     /**
-     * Generates an error message for the given exception
+     * Generates an error message for the given exception.
      * @param ex
      * @return Response
      */

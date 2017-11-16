@@ -76,7 +76,7 @@ public class TopLevelResolver extends AbstractItemResolver {
     }
 
     /**
-     * Add top level items to the given completionItems List
+     * Add top level items to the given completionItems List.
      *
      * @param completionItems - completionItems List
      * @param resolvers       - resolvers

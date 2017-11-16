@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * PackageActionsAndFunctionsResolver
+ * PackageActionsAndFunctionsResolver.
  */
 public class PackageActionsAndFunctionsResolver extends AbstractItemResolver {
     @Override

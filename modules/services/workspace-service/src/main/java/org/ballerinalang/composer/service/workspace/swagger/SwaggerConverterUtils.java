@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class SwaggerConverterUtils {
     
     /**
-     * Generate ballerina fine from the String definition
+     * Generate ballerina fine from the String definition.
      *
      * @param bFile ballerina string definition
      * @return ballerina file created from ballerina string definition

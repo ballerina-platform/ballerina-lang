@@ -110,7 +110,7 @@ public class LangServerManager {
     private Map<String, ModelPackage> builtInNativePackages;
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private LangServerManager() {
         this.initialized = false;
@@ -118,7 +118,7 @@ public class LangServerManager {
     }
 
     /**
-     * Launch manager singleton
+     * Launch manager singleton.
      *
      * @return LangServerManager instance
      */
@@ -173,7 +173,7 @@ public class LangServerManager {
     }
 
     /**
-     * Process the received Requests
+     * Process the received Requests.
      *
      * @param message Message
      */
@@ -207,7 +207,7 @@ public class LangServerManager {
     }
 
     /**
-     * Send Ping Reply
+     * Send Ping Reply.
      */
     private void sendPong() {
         ResponseMessage responseMessage = new ResponseMessage();
@@ -216,7 +216,7 @@ public class LangServerManager {
     }
 
     /**
-     * Process received notifications
+     * Process received notifications.
      *
      * @param message Message
      */
@@ -263,7 +263,7 @@ public class LangServerManager {
     }
 
     /**
-     * Process Invalid Method found
+     * Process Invalid Method found.
      *
      * @param message Message
      */
@@ -273,7 +273,7 @@ public class LangServerManager {
     }
 
     /**
-     * Send error response to invalid requests
+     * Send error response to invalid requests.
      *
      * @param errorMessage Error Message
      * @param errorCode    Error code
@@ -301,7 +301,7 @@ public class LangServerManager {
     // Start Request Handlers
 
     /**
-     * Process initialize request
+     * Process initialize request.
      *
      * @param message Request Message
      */
@@ -324,7 +324,7 @@ public class LangServerManager {
     // Start Notification handlers
 
     /**
-     * Handle Document did open notification
+     * Handle Document did open notification.
      *
      * @param message Request Message
      */
@@ -346,7 +346,7 @@ public class LangServerManager {
     }
 
     /**
-     * Handle Document did close notification
+     * Handle Document did close notification.
      *
      * @param message Request Message
      */
@@ -409,7 +409,7 @@ public class LangServerManager {
     }
 
     /**
-     * Handle the get workspace symbol requests
+     * Handle the get workspace symbol requests.
      *
      * @param message Request Message
      */
@@ -427,7 +427,7 @@ public class LangServerManager {
     }
 
     /**
-     * Process Shutdown notification
+     * Process Shutdown notification.
      *
      * @param message Request Message
      */
@@ -438,7 +438,7 @@ public class LangServerManager {
     }
 
     /**
-     * Handle exit notification
+     * Handle exit notification.
      *
      * @param message Request Message
      */
@@ -478,7 +478,7 @@ public class LangServerManager {
     }
 
     /**
-     * Get the completion items
+     * Get the completion items.
      *
      * @param message - Request Message
      */
@@ -552,7 +552,7 @@ public class LangServerManager {
     }
 
     /**
-     * Get packages
+     * Get packages.
      *
      * @return a map contains package details
      */
@@ -561,7 +561,7 @@ public class LangServerManager {
     }
 
     /**
-     * Set packages
+     * Set packages.
      *
      * @param packages - packages set
      */

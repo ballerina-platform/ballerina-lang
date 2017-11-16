@@ -39,6 +39,9 @@ import java.net.URL;
 import java.util.Scanner;
 import javax.ws.rs.HttpMethod;
 
+/**
+ * Tests for JSON model.
+ */
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;

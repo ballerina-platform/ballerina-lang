@@ -26,11 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Interface for filtering the symbols
+ * Interface for filtering the symbols.
  */
 public interface SymbolFilter {
     /**
-     * Filters the symbolInfo from the list based on a particular filter criteria
+     * Filters the symbolInfo from the list based on a particular filter criteria.
      * @param dataModel - Suggestion filter data model
      * @param symbols - Symbol info list
      * @param properties - Additional Parameters Map

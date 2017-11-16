@@ -35,7 +35,7 @@ import org.testng.log4testng.Logger;
 import java.util.List;
 
 /**
- * Completion Test Interface
+ * Completion Test Interface.
  */
 public abstract class CompletionTest {
 

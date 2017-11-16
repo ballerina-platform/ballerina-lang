@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Provides the statement templates
+ * Provides the statement templates.
  */
 public class StatementTemplateFilter implements SymbolFilter {
     @Override

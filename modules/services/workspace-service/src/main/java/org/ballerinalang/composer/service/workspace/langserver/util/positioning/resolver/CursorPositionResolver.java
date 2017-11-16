@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
- * Cursor position resolver interface
+ * Cursor position resolver interface.
  */
 public interface CursorPositionResolver {
     boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor);

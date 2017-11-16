@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Filter the BTypes
+ * Filter the BTypes.
  */
 public class BTypeFilter implements SymbolFilter {
     @Override

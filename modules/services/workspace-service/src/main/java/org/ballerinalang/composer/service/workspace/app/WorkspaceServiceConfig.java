@@ -16,7 +16,7 @@
 package org.ballerinalang.composer.service.workspace.app;
 
 /**
- * Model class for workspace-service-config.yaml
+ * Model class for workspace-service-config.yaml.
  * Eg:
  * apiPath: http://localhost:8289
  * launcherPath: ws://localhost:8290

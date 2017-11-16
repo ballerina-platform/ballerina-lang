@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for Did sve text document notification params
+ * DTO for Did sve text document notification params.
  */
 public class DidSaveTextDocumentParams {
 

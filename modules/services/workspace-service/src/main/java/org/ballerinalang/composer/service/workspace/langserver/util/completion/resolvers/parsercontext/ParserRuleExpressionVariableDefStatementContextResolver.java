@@ -29,7 +29,7 @@ import java.util.HashMap;
 
 /**
  * Expression Variable Definition Context resolver for the completion items. This is mainly supposed to be used when
- * there is a variable definition inside a transaction statement
+ * there is a variable definition inside a transaction statement.
  */
 public class ParserRuleExpressionVariableDefStatementContextResolver extends AbstractItemResolver {
     @Override

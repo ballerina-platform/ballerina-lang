@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.rest.typelattice;
 
 /**
- * Holds simple input types and output type of a operator edge
+ * Holds simple input types and output type of a operator edge.
  */
 public class OperatorEdge {
 

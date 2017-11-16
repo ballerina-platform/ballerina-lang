@@ -32,12 +32,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 /**
- * Test the completion items in a action definition
+ * Test the completion items in a action definition.
  */
 public class ActionDefinitionCompletionTest {
 
     /**
-     * Test the completion items suggested when the cursor is at the first line
+     * Test the completion items suggested when the cursor is at the first line.
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
@@ -58,7 +58,7 @@ public class ActionDefinitionCompletionTest {
     }
 
     /**
-     * Test the completion items suggested when the cursor is at the first line and the line is non empty
+     * Test the completion items suggested when the cursor is at the first line and the line is non empty.
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */
@@ -80,7 +80,7 @@ public class ActionDefinitionCompletionTest {
     }
 
     /**
-     * Test the completion items suggested when the cursor is at a middle line and the line is non empty
+     * Test the completion items suggested when the cursor is at a middle line and the line is non empty.
      * @throws IOException ioException
      * @throws URISyntaxException URISyntaxException
      */

@@ -55,7 +55,7 @@ public class TerminatorUnix implements Terminator {
     }
 
     /**
-     * Terminate running ballerina program
+     * Terminate running ballerina program.
      */
     public void terminate() {
         String cmd = command.getCommandIdentifier();
@@ -87,7 +87,7 @@ public class TerminatorUnix implements Terminator {
     }
 
     /**
-     * Terminate running ballerina program
+     * Terminate running ballerina program.
      *
      * @param pid - process id
      */
@@ -106,7 +106,7 @@ public class TerminatorUnix implements Terminator {
     }
 
     /**
-     * Terminate running all child processes for a given pid
+     * Terminate running all child processes for a given pid.
      *
      * @param pid - process id
      */

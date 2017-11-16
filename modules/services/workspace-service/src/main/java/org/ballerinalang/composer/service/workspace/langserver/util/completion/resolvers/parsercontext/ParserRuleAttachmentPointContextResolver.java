@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * annotation body context resolver for the completion items
+ * annotation body context resolver for the completion items.
  */
 public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolver {
     @Override

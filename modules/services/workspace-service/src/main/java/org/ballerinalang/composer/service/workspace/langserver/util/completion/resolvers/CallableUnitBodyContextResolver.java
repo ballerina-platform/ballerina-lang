@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Callable Unit Body Context Resolver
+ * Callable Unit Body Context Resolver.
  */
 public class CallableUnitBodyContextResolver extends AbstractItemResolver {
     @Override

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Message utils for manipulating the Message objects
+ * Message utils for manipulating the Message objects.
  */
 public class MessageUtil {
     private static final String METHOD_COMPLETION = "textDocument/completion";
@@ -41,7 +41,7 @@ public class MessageUtil {
     public static final String MESSAGE_ID = "tests.ballerina.message.id";
 
     /**
-     * Get a new request message from the content
+     * Get a new request message from the content.
      * @param balContent text content
      * @param position position of the cursor
      * @param id message id
@@ -112,7 +112,7 @@ public class MessageUtil {
     }
 
     /**
-     * Check whether list1 is a subset of list2
+     * Check whether list1 is a subset of list2.
      * @param list1 - completion item list being checked
      * @param list2 - completion item list being checked against
      * @return whether list1 is a subset of list2

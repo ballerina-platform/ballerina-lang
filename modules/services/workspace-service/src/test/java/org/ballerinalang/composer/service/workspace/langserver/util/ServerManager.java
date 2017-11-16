@@ -50,14 +50,14 @@ import java.util.UUID;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
- * Server manager mimics the completion item resolving logic
+ * Server manager mimics the completion item resolving logic.
  */
 public class ServerManager {
 
     private static final String BAL_EXTENSION = ".bal";
 
     /**
-     * Get completions as a string payload
+     * Get completions as a string payload.
      * @param message Request message
      * @return {@link String}
      */

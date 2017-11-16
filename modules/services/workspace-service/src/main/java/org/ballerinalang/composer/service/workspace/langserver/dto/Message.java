@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * {@link Message} JSON-RPC message
+ * {@link Message} JSON-RPC message.
  *
  */
 public class Message {

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Statement context resolver for resolving the items of the statement context
+ * Statement context resolver for resolving the items of the statement context.
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override

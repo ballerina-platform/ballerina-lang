@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * ServiceContextResolver
+ * ServiceContextResolver.
  */
 public class ServiceContextResolver extends AbstractItemResolver {
 

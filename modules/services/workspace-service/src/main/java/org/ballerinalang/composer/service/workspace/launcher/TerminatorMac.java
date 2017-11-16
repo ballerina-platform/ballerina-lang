@@ -49,7 +49,7 @@ public class TerminatorMac extends TerminatorUnix {
     }
 
     /**
-     * Terminate running ballerina program
+     * Terminate running ballerina program.
      */
     public void terminate() {
         String cmd = command.getCommandIdentifier();

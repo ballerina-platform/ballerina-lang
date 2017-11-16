@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Parser rule based Item resolver for the Worker invoke statement
+ * Parser rule based Item resolver for the Worker invoke statement.
  */
 public class ParserRuleTriggerWorkerContext extends AbstractItemResolver {
     @Override

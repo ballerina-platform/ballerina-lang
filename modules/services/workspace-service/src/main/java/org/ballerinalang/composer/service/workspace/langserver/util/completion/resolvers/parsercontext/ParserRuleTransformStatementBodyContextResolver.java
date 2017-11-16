@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Parser rule based Item resolver for the transform statement
+ * Parser rule based Item resolver for the transform statement.
  */
 public class ParserRuleTransformStatementBodyContextResolver extends AbstractItemResolver {
     @Override

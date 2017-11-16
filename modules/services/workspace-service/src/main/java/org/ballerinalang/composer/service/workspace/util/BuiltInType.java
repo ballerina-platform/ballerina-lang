@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.util;
 
 /**
- * Builtin type constants
+ * Builtin type constants.
  */
 public class BuiltInType {
     public static final String INT = "int";

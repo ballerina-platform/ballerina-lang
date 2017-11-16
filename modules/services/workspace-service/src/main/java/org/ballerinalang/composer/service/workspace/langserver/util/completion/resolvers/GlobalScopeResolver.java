@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Completion item resolver for the global scope
+ * Completion item resolver for the global scope.
  */
 public class GlobalScopeResolver extends AbstractItemResolver {
 

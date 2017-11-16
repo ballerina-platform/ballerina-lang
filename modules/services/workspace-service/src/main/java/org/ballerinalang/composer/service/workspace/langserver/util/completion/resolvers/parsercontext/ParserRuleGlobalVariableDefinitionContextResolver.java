@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Global Variable Definition Context resolver for the completion items
+ * Global Variable Definition Context resolver for the completion items.
  */
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * InMemoryPackageRepository
+ * InMemoryPackageRepository.
  */
 public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
@@ -70,7 +70,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
     }
 
     /**
-     * InMemoryPackageSource
+     * InMemoryPackageSource.
      */
     public class InMemoryPackageSource extends FSPackageSource {
 
@@ -95,7 +95,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
         }
 
         /**
-         * InMemorySourceEntry
+         * InMemorySourceEntry.
          */
         public class InMemorySourceEntry implements PackageSourceEntry {
 

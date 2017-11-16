@@ -488,7 +488,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     // Private methods
 
     /**
-     * Resolve all visible symbols
+     * Resolve all visible symbols.
      * @param symbolEnv symbol environment
      * @return all visible symbols for current scope
      */
@@ -497,7 +497,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     /**
-     * Populate the symbols
+     * Populate the symbols.
      * @param symbolEntries symbol entries
      */
     public void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
@@ -514,7 +514,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     /**
-     * Get the symbol table
+     * Get the symbol table.
      * @return current symbol table
      */
     public SymbolTable getSymTable() {

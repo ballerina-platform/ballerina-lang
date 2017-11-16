@@ -23,7 +23,7 @@ import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
 import java.util.Locale;
 
 /**
- * Utility functions used by launcher
+ * Utility functions used by launcher.
  */
 public class LaunchUtils {
 

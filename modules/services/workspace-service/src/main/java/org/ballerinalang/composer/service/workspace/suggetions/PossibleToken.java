@@ -20,7 +20,7 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
- * Represents a possible token for current position
+ * Represents a possible token for current position.
  */
 public class PossibleToken {
 

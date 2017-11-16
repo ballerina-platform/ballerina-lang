@@ -21,11 +21,11 @@ import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
- * Resource parameter scope position resolver
+ * Resource parameter scope position resolver.
  */
 public class ResourceParamScopeResolver implements CursorPositionResolver {
     /**
-     * Check whether the cursor position is located before the evaluating statement node
+     * Check whether the cursor position is located before the evaluating statement node.
      * @param nodePosition position of the node
      * @param node statement being evaluated
      * @return true|false

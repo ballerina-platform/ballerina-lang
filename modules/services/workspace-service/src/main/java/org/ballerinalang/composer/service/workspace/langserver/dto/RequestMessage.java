@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Request message DTO
+ * Request message DTO.
  */
 public class RequestMessage extends Message {
 

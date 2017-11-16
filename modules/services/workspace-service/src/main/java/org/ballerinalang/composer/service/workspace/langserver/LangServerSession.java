@@ -26,7 +26,7 @@ public class LangServerSession {
     private Channel channel = null;
 
     /**
-     * Constructor
+     * Constructor.
      * @param channel netty channel
      */
     public LangServerSession(Channel channel) {
@@ -34,7 +34,7 @@ public class LangServerSession {
     }
 
     /**
-     * Get the channel
+     * Get the channel.
      * @return channel
      */
     public Channel getChannel() {
@@ -42,7 +42,7 @@ public class LangServerSession {
     }
 
     /**
-     * Set the channel
+     * Set the channel.
      * @param channel netty channel
      */
     public void setChannel(Channel channel) {
