@@ -203,7 +203,7 @@ public class SQLDataIterator implements DataIterator {
                     int sqlType = def.getSqlType();
                     switch (sqlType) {
                     case Types.ARRAY:
-                        BMap<BString, BValue> bMapvalue = getDataArray(columnName);
+                        BMap<String, BValue> bMapvalue = getDataArray(columnName);
                         bStruct.setRefField(++refRegIndex, bMapvalue);
                         break;
                     case Types.CHAR:
@@ -301,12 +301,12 @@ public class SQLDataIterator implements DataIterator {
         return this.columnDefs;
     }
 
-    private BMap<BString, BValue> getDataArray(String columnName) {
+    private BMap<String, BValue> getDataArray(String columnName) {
         Map<String, Object> arrayMap = getArray(columnName);
-        BMap<BString, BValue> returnMap = new BMap<>();
+        BMap<String, BValue> returnMap = new BMap<>();
         if (!arrayMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
-                BString key = new BString(entry.getKey());
+                String key = entry.getKey();
                 Object obj = entry.getValue();
                 if (obj instanceof String) {
                     returnMap.put(key, new BString(String.valueOf(obj)));
