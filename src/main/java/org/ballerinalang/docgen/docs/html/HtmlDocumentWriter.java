@@ -147,7 +147,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     }
 
     /**
-     * Write HTML document using a data object
+     * Write HTML document using a data object.
      *
      * @param object           object to be passed to hbs template
      * @param templateName     hbs template name without the extension
@@ -514,7 +514,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         return builder.append("}").toString();
     }
     /**
-     * Holds the current object which is processed by Handlebars
+     * Holds the current object which is processed by Handlebars.
      */
     static class DataHolder {
 

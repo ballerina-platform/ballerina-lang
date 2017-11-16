@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Holds ballerina doc generation data
+ * Holds ballerina doc generation data.
  */
 public class BallerinaDocDataHolder {
 
@@ -34,8 +34,8 @@ public class BallerinaDocDataHolder {
         return instance;
     }
     /**
-     * Key - package name
-     * Value - {@link BLangPackage}
+     * Key - package name.
+     * Value - {@link BLangPackage}.
      */
     private Map<String, BLangPackage> packageMap;
 

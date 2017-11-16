@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * Util class for doc generation.
+ */
 public class BallerinaDocGenTestUtils {
 
     private static final PrintStream out = System.out;

@@ -29,6 +29,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Tests for function doc generation.
+ */
 public class BallerinaFunctionDocGenTest {
 
     private String sourceRoot;

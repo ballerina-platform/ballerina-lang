@@ -26,6 +26,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ *  Ballerina doc generation tests.
+ */
 public class BallerinaDocGenTest {
 
     private String testResourceRoot;
