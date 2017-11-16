@@ -12,16 +12,16 @@
 }
 
 .bal-source-editor .ace_search {
-    background-color: #707276 !important;
-    border-color: #707276 !important;
+    background-color: #707276;
+    border-color: #707276;
     padding-left: 13px;
     padding-bottom: 10px;
-    border-radius: 5px 5px 5px 5px !important;
-    max-width: 355px !important;
+    border-radius: 5px;
+    max-width: 355px;
 }
 
 .bal-source-editor .ace_search_options .ace_button.checked{
-    border-color: #979797 !important;
+    border-color: #979797;
     background-color: #9c9c9c;
 }
 
@@ -34,8 +34,8 @@
 }
 
 .ace_editor .ace_marker-layer .ace_selected-word {
-    background: transparent !important;
-    border: 1px solid #ffefd5 !important;
+    background: transparent;
+    border: 1px solid #ffefd5;
 }
 
 .bal-source-editor .ace_search .ace_searchbtn_close {
@@ -50,17 +50,17 @@
 
 .bal-source-editor .ace_search .ace_searchbtn{
     background-color: #949597;
-    width: 40px !important;
+    width: 40px;
 }
 
 .bal-source-editor .ace_search .ace_searchbtn.next{
     background-color: #949597;
-    width: 26px !important;
+    width: 26px;
 }
 
 .bal-source-editor .ace_search .ace_searchbtn.prev{
     background-color: #949597;
-    width: 26px !important;
+    width: 26px;
 }
 
 .bal-source-editor .ace_search .ace_replacebtn {
