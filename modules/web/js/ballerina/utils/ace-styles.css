@@ -20,7 +20,7 @@
     max-width: 355px;
 }
 
-.bal-source-editor .ace_search_options .ace_button.checked{
+.bal-source-editor .ace_search_options .ace_button.checked {
     border-color: #979797;
     background-color: #9c9c9c;
 }
@@ -42,23 +42,23 @@
     background-color: #949994;
 }
 
-.bal-source-editor .ace_search .ace_search_options{
+.bal-source-editor .ace_search .ace_search_options {
     margin-right: 30px;
     position: absolute;
     right: 0;
 }
 
-.bal-source-editor .ace_search .ace_searchbtn{
+.bal-source-editor .ace_search .ace_searchbtn {
     background-color: #949597;
     width: 40px;
 }
 
-.bal-source-editor .ace_search .ace_searchbtn.next{
+.bal-source-editor .ace_search .ace_searchbtn.next {
     background-color: #949597;
     width: 26px;
 }
 
-.bal-source-editor .ace_search .ace_searchbtn.prev{
+.bal-source-editor .ace_search .ace_searchbtn.prev {
     background-color: #949597;
     width: 26px;
 }
