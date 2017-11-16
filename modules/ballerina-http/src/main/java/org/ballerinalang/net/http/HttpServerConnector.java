@@ -28,6 +28,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -68,7 +69,8 @@ public class HttpServerConnector implements BallerinaServerConnector {
             HttpResource httpResource = buildHttpResource(resource);
             validateResourceSignature(httpResource);
             try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource);
+                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
+                                                   new HttpResourceElementCreator());
             } catch (URITemplateException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }

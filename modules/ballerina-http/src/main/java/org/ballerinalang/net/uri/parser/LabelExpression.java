@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * LabelExpression represents path segments that start with ..
  */
-public class LabelExpression<DataType extends DataElement> extends SimpleStringExpression<DataElement> {
+public class LabelExpression<DataType extends DataElement> extends SimpleStringExpression<DataType> {
 
     public LabelExpression(DataType dataElement, String token) throws URITemplateException {
         super(dataElement, token);

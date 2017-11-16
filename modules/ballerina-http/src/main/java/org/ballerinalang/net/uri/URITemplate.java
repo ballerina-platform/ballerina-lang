@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
@@ -30,11 +30,11 @@ import java.util.Map;
  *
  **/
 
-public class URITemplate {
+public class URITemplate<Data, Checker> {
 
-    private Node syntaxTree;
+    private Node<DataElement<Data, Checker>> syntaxTree;
 
-    public URITemplate(Node syntaxTree) {
+    public URITemplate(Node<DataElement<Data, Checker>> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -42,14 +42,19 @@ public class URITemplate {
         return null;
     }
 
-    public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
-        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
+    public Data matches(String uri, Map<String, String> variables, Checker checker) {
+        DataElement<Data, Checker> dataElement = syntaxTree.matchAll(uri, variables, 0);
+        if (dataElement == null) {
+            return null;
+        }
+        return dataElement.getData(checker);
     }
 
-    public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
+    public void parse(String uriTemplate, Data resource, DataElementCreator<? extends DataElement<Data, Checker>>
+            elementCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser parser = new URITemplateParser(syntaxTree);
+        URITemplateParser<Data, Checker> parser = new URITemplateParser<>(syntaxTree, elementCreator);
         parser.parse(uriTemplate, resource);
     }
 

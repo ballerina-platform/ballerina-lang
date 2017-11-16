@@ -37,6 +37,10 @@ public abstract class Node<DataType extends DataElement> {
         this.token = token;
     }
 
+    public DataType getDataElement() {
+        return dataElement;
+    }
+
     public Node<DataType> addChild(Node<DataType> childNode) {
         Node<DataType> node = childNode;
         Node<DataType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
