@@ -25,7 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for {@link org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt}
+ * Test cases for {@link org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt}.
  */
 public class ExpressionStmtTest {
 

@@ -33,12 +33,8 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
 
-    // Index to a valid connector ref index in the constant pool
-    private int connectorRefCPIndex;
-
-    public ActionRefCPEntry(int packageCPIndex, int connectorRefCPIndex, int nameCPIndex) {
+    public ActionRefCPEntry(int packageCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
-        this.connectorRefCPIndex = connectorRefCPIndex;
         this.nameCPIndex = nameCPIndex;
     }
 
@@ -48,10 +44,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
 
     public int getNameCPIndex() {
         return nameCPIndex;
-    }
-
-    public int getConnectorRefCPIndex() {
-        return connectorRefCPIndex;
     }
 
     public EntryType getEntryType() {
@@ -66,7 +58,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ActionRefCPEntry && packageCPIndex == (((ActionRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex &&
-                connectorRefCPIndex == ((ActionRefCPEntry) obj).connectorRefCPIndex;
+                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex;
     }
 }

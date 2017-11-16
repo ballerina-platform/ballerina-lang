@@ -18,7 +18,8 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * json&lt;Person&gt; , map&lt;int&gt;
+ * json&lt;Person&gt; , map&lt;int&gt;.
+ *
  * @since 0.94
  */
 public interface ConstrainedTypeNode extends TypeNode {

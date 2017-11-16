@@ -300,37 +300,37 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
 
         Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<BString, BInteger> intArray = (BMap) returns[1];
-        Assert.assertEquals(intArray.get(new BString("0")).intValue(), 1);
+        BMap<String, BInteger> intArray = (BMap) returns[1];
+        Assert.assertEquals(intArray.get("0").intValue(), 1);
 
         Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<BString, BInteger> longArray = (BMap) returns[2];
-        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 1503383034226L);
-        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 1503383034224L);
-        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 1503383034225L);
+        BMap<String, BInteger> longArray = (BMap) returns[2];
+        Assert.assertEquals(longArray.get("0").intValue(), 1503383034226L);
+        Assert.assertEquals(longArray.get("1").intValue(), 1503383034224L);
+        Assert.assertEquals(longArray.get("2").intValue(), 1503383034225L);
 
         Assert.assertTrue(returns[3] instanceof BMap);
-        BMap<BString, BFloat> doubleArray = (BMap) returns[3];
-        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 1503383034226.23D);
-        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 1503383034224.43D);
-        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 1503383034225.123D);
+        BMap<String, BFloat> doubleArray = (BMap) returns[3];
+        Assert.assertEquals(doubleArray.get("0").floatValue(), 1503383034226.23D);
+        Assert.assertEquals(doubleArray.get("1").floatValue(), 1503383034224.43D);
+        Assert.assertEquals(doubleArray.get("2").floatValue(), 1503383034225.123D);
 
         Assert.assertTrue(returns[4] instanceof BMap);
-        BMap<BString, BString> stringArray = (BMap) returns[4];
-        Assert.assertEquals(stringArray.get(new BString("0")).stringValue(), "Hello");
-        Assert.assertEquals(stringArray.get(new BString("1")).stringValue(), "Ballerina");
+        BMap<String, BString> stringArray = (BMap) returns[4];
+        Assert.assertEquals(stringArray.get("0").stringValue(), "Hello");
+        Assert.assertEquals(stringArray.get("1").stringValue(), "Ballerina");
 
         Assert.assertTrue(returns[5] instanceof BMap);
-        BMap<BString, BBoolean> booleanArray = (BMap) returns[5];
-        Assert.assertEquals(booleanArray.get(new BString("0")).booleanValue(), true);
-        Assert.assertEquals(booleanArray.get(new BString("1")).booleanValue(), false);
-        Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
+        BMap<String, BBoolean> booleanArray = (BMap) returns[5];
+        Assert.assertEquals(booleanArray.get("0").booleanValue(), true);
+        Assert.assertEquals(booleanArray.get("1").booleanValue(), false);
+        Assert.assertEquals(booleanArray.get("2").booleanValue(), true);
 
         Assert.assertTrue(returns[6] instanceof BMap);
-        BMap<BString, BFloat> floatArray = (BMap) returns[6];
-        Assert.assertEquals(floatArray.get(new BString("0")).floatValue(), 245.23);
-        Assert.assertEquals(floatArray.get(new BString("1")).floatValue(), 5559.49);
-        Assert.assertEquals(floatArray.get(new BString("2")).floatValue(), 8796.123);
+        BMap<String, BFloat> floatArray = (BMap) returns[6];
+        Assert.assertEquals(floatArray.get("0").floatValue(), 245.23);
+        Assert.assertEquals(floatArray.get("1").floatValue(), 5559.49);
+        Assert.assertEquals(floatArray.get("2").floatValue(), 8796.123);
     }
 
     @Test(groups = "ConnectorTest")
