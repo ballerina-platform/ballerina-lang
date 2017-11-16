@@ -17,12 +17,12 @@
 */
 package org.ballerinalang.composer.service.workspace.langserver.definitions;
 
-import org.ballerinalang.composer.service.workspace.langserver.FileUtils;
-import org.ballerinalang.composer.service.workspace.langserver.MessageUtil;
-import org.ballerinalang.composer.service.workspace.langserver.ServerManager;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
+import org.ballerinalang.composer.service.workspace.langserver.util.FileUtils;
+import org.ballerinalang.composer.service.workspace.langserver.util.MessageUtil;
+import org.ballerinalang.composer.service.workspace.langserver.util.ServerManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

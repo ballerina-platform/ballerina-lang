@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.langserver;
+package org.ballerinalang.composer.service.workspace.langserver.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -72,7 +72,6 @@ public class MessageUtil {
                 completionItem.getDetail() + "," +
                 completionItem.getDocumentation() + "," +
                 completionItem.getKind() + "," +
-                completionItem.getSortText() + "," +
                 completionItem.getLabel() +
                 "}";
     }
@@ -100,5 +99,25 @@ public class MessageUtil {
         });
 
         return expectedList;
+    }
+
+    public static List<CompletionItem> getExpectedItemList(JsonArray expectedItems) {
+        List<CompletionItem> expectedList = new ArrayList<>();
+        expectedItems.forEach(jsonElement -> {
+            CompletionItem completionItem = GSON.fromJson(jsonElement, CompletionItem.class);
+            expectedList.add(completionItem);
+        });
+
+        return expectedList;
+    }
+
+    /**
+     * Check whether list1 is a subset of list2
+     * @param list1 - completion item list being checked
+     * @param list2 - completion item list being checked against
+     * @return whether list1 is a subset of list2
+     */
+    public static boolean isSubList(List<CompletionItem> list1, List<CompletionItem> list2) {
+        return getStringListForEvaluation(list2).containsAll(getStringListForEvaluation(list1));
     }
 }
