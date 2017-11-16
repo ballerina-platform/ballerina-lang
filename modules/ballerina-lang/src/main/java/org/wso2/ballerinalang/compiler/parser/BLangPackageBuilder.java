@@ -212,6 +212,10 @@ public class BLangPackageBuilder {
     
     private Set<BLangImportPackage> imports = new HashSet<>();
 
+    private Set<Whitespace> endpointVarWs;
+
+    private Set<Whitespace> endpointKeywordWs;
+
     /**
      * Keep the number of anonymous structs found so far in the current package.
      * This field is used to generate a name for an anonymous struct.
@@ -325,6 +329,8 @@ public class BLangPackageBuilder {
         BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
         endpointTypeNode.pos = pos;
         endpointTypeNode.constraint = constraintType;
+        endpointVarWs = removeNthFromStart(ws, 3);
+        endpointKeywordWs = removeNthFromStart(ws, 0);
         endpointTypeNode.addWS(ws);
 
         addType(endpointTypeNode);
@@ -479,9 +485,20 @@ public class BLangPackageBuilder {
     public void addVariableDefStatement(DiagnosticPos pos,
                                         Set<Whitespace> ws,
                                         String identifier,
-                                        boolean exprAvailable) {
+                                        boolean exprAvailable,
+                                        boolean endpoint) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
-        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
+        BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
+
+        Set<Whitespace> wsOfSemiColon = null;
+        if (endpoint) {
+            var.addWS(endpointVarWs);
+            var.addWS(endpointKeywordWs);
+            endpointVarWs = null;
+            endpointKeywordWs = null;
+        } else {
+            wsOfSemiColon = removeNthFromLast(ws, 0);
+        }
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
@@ -490,7 +507,6 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
-        BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
@@ -1221,8 +1237,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.addWS(ws);
-        varRef.addWS(ws);
+        varRef.addWS(removeNthFromLast(ws, 1));
         varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
         varRef.variableName = (BLangIdentifier) createIdentifier(varName);
 
@@ -1231,7 +1246,6 @@ public class BLangPackageBuilder {
         bindNode.setExpression(rExprNode);
         bindNode.pos = pos;
         bindNode.addWS(ws);
-//        bindNode.addWS(commaWsStack.pop());
         bindNode.setVariable(varRef);
         addStmtToCurrentBlock(bindNode);
     }
