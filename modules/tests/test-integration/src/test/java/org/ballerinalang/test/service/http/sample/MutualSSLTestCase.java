@@ -32,8 +32,8 @@ import java.io.File;
 /**
  * Testing Mutual SSL
  */
-
 public class MutualSSLTestCase extends IntegrationTestCase {
+
     private static final Logger log = LoggerFactory.getLogger(MutualSSLTestCase.class);
     private ServerInstance ballerinaServer;
     private ServerInstance ballerinaClient;
@@ -73,5 +73,4 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         ballerinaServer.stopServer();
         ballerinaClient.stopServer();
     }
-
 }
