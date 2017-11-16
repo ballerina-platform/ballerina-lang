@@ -65,7 +65,7 @@ public class ItemResolverConstants {
     public static final String RESOURCE = "resource";
 
 
-    public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
+    public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n\t${3}\n}";
     public static final String TRANSFORMER_TEMPLATE = "transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}";
     public static final String ENDPOINT_TEMPLATE = "endpoint <${1:constraint}> ${2:__endpoint} {\n\t${3}\n}";
     public static final String SERVICE_TEMPLATE = "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
@@ -75,8 +75,8 @@ public class ItemResolverConstants {
     public static final String CONNECTOR_DEFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
     public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
     public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
-    public static final String STRUCT_DEFINITION_TEMPLATE = "struct ${1:name}{\n    ${2}\n}";
-    public static final String ANNOTATION_DEFINITION_TEMPLATE = "annotation ${1:name}{\n    ${2 }\n}";
+    public static final String STRUCT_DEFINITION_TEMPLATE = "struct ${1:name}{\n\t${2}\n}";
+    public static final String ANNOTATION_DEFINITION_TEMPLATE = "annotation ${1:name}{\n\t${2 }\n}";
     public static final String IF_TEMPLATE = "if (${1:true}) {\n\t${2}\n}";
     public static final String ITERATE_TEMPLATE = "iterate (${1}) {\n\t${2}\n}";
     public static final String WHILE_TEMPLATE = "while (${1:true}) {\n\t${2}\n}";

@@ -517,7 +517,7 @@ public class TreeVisitor extends BLangNodeVisitor {
      * Get the symbol table
      * @return current symbol table
      */
-    SymbolTable getSymTable() {
+    public SymbolTable getSymTable() {
         return this.symTable;
     }
 

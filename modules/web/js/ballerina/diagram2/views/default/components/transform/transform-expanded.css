@@ -72,42 +72,40 @@
 .variable-edit-name {
     text-anchor: middle;
     dominant-baseline: central;
-    width: calc(33% - 12px);
-    max-width: 250px;
+    width: 70px;
     background-color: #f3f3f3;
     border: 1px solid;
     border-color: #bababb;
+    padding-left: 5px;
 }
 
 .variable-edit-val {
     text-anchor: middle;
     dominant-baseline: central;
-    width: calc(33% - 12px);
-    max-width: 250px;
+    width: 70px;
     background-color: #f3f3f3;
     border: 1px solid;
     border-color: #bababb;
-}
-
-.transform-edit-panel {
-    width: calc(100% - 60px);
-    position: absolute;
-    z-index: 40;
+    padding-left: 5px;
 }
 
 .transform-edit-panel .react-autosuggest__input {
-    padding-left: 10px;
+    padding-left: 5px;
     height: 22px;
-    width: 100%;
+    width: 80px;
     background-color: #f3f3f3;
     border: 1px solid;
     border-color: #bababb;
 }
 
 .transform-edit-panel .react-autosuggest__container {
-    width: calc(33% - 12px);
-    float: left;
+    float: none;
     padding-top: 4px;
+    display: inline;
+}
+
+.transform-edit-panel .react-autosuggest__suggestions-container {
+    display: inline;
 }
 
 .transform-edit-panel .react-autosuggest__suggestion {
@@ -121,7 +119,8 @@
     margin: 0;
     list-style-type: none;
     border: 1px solid #e4e4e4;
-    width: calc(33% - 12px);
+    width: 80px;
+    overflow: hidden;
 }
 
 .select-source, .select-target {

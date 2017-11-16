@@ -120,23 +120,23 @@
     font-weight: bold;
 }
 
-.transform-source .transform-endpoint-root .endpoint-content {
+.transform-source .transform-endpoint-root .endpoint-content-container {
     margin-right: 65px;
 }
 
-.transform-source .endpoint-content {
+.transform-source .endpoint-content-container {
     margin-right: 35px;
 }
 
-.transform-return .endpoint-content {
+.transform-return .endpoint-content-container {
     margin-right: 35px;
 }
 
-.transform-target .transform-endpoint-root .endpoint-content {
+.transform-target .transform-endpoint-root .endpoint-content-container {
     margin-right: 35px;
 }
 
-.endpoint-content {
+.endpoint-content-container {
     margin-right: 5px;
 }
 
