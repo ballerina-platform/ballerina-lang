@@ -63,11 +63,6 @@
     width: 26px !important;
 }
 
-.bal-source-editor .ace_search .ace_searchbtn.prev{
-    background-color: #949597;
-    width: 26px !important;
-}
-
 .bal-source-editor .ace_search .ace_replacebtn {
     background-color: #949597;
 }
