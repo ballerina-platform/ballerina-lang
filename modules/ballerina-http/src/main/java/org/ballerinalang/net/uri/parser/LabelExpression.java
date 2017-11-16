@@ -26,10 +26,10 @@ import java.util.Map;
 /**
  * LabelExpression represents path segments that start with ..
  */
-public class LabelExpression extends SimpleStringExpression {
+public class LabelExpression<DataType extends DataElement> extends SimpleStringExpression<DataElement> {
 
-    public LabelExpression(String token) throws URITemplateException {
-        super(token);
+    public LabelExpression(DataType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override

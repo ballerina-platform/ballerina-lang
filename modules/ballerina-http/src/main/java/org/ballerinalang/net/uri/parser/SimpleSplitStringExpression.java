@@ -28,14 +28,14 @@ import java.util.regex.Pattern;
  * SimpleSplitStringExpression represents path segments that have multiple path params.
  * ex - /{foo}+{bar}/
  */
-public class SimpleSplitStringExpression extends Expression {
+public class SimpleSplitStringExpression<DataType extends DataElement> extends Expression<DataType> {
 
     protected static final char[] RESERVED = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleSplitStringExpression(String token) throws URITemplateException {
-        super(token);
+    public SimpleSplitStringExpression(DataType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override

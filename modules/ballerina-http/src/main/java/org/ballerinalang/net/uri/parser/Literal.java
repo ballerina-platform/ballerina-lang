@@ -26,12 +26,12 @@ import java.util.Map;
 /**
  * Literal represents literal path segments in the uri-template.
  */
-public class Literal extends Node {
+public class Literal<DataType extends DataElement> extends Node<DataType> {
 
     private int tokenLength = 0;
 
-    public Literal(String token) throws URITemplateException {
-        super(token);
+    public Literal(DataType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
         tokenLength = token.length();
         if (tokenLength == 0) {
             throw new URITemplateException("Invalid literal token with zero length");

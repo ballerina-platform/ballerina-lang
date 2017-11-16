@@ -24,10 +24,10 @@ import org.ballerinalang.net.uri.URITemplateException;
 /**
  * PathSegmentExpression represents path segments that have RESERVED characters.
  */
-public class PathSegmentExpression extends LabelExpression {
+public class PathSegmentExpression<DataType extends DataElement> extends LabelExpression<DataType> {
 
-    public PathSegmentExpression(String token) throws URITemplateException {
-        super(token);
+    public PathSegmentExpression(DataType dataElement, String token) throws URITemplateException {
+        super(dataElement, token);
     }
 
     @Override
