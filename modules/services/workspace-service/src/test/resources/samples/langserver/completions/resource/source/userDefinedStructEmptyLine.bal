@@ -1,8 +1,14 @@
 import ballerina.net.http;
 service<http> service1 {
     resource echo1 (http:Request req,http:Response res) {
-        int a = 12;
-        f
-        int c = 12;
+        
     }
+}
+
+struct testStruct1 {
+    int test1A = 12;
+}
+
+struct testStruct2 {
+    int test2A = 12;
 }

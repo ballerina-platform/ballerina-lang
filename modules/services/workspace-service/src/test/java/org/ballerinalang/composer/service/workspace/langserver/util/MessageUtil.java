@@ -67,11 +67,11 @@ public class MessageUtil {
 
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
+        // TODO: Need to add kind and sort text as well
         return "{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
                 completionItem.getDocumentation() + "," +
-                completionItem.getKind() + "," +
                 completionItem.getLabel() +
                 "}";
     }
