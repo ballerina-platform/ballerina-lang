@@ -345,6 +345,7 @@ export const enumPanel = {
     contentOperations: {
         w: 300,
     },
+    titleWidthOffset: 100,
 };
 
 export const enumIdentifierStatement = {

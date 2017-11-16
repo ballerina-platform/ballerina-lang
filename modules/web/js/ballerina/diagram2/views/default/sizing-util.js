@@ -295,7 +295,7 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
-        viewState.components.heading.w += viewState.titleWidth + 100;
+        viewState.components.heading.w += viewState.titleWidth + this.config.enumPanel.titleWidthOffset;
         viewState.bBox.w = this.config.enumPanel.width + (this.config.panel.wrapper.gutter.h * 2);
         textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
