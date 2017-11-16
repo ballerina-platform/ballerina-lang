@@ -12,7 +12,7 @@ service<http> sample {
         map params = req.getQueryParams();
         var bar, _ = (string)params.bar;
         // Create json payload with the extracted values.
-        json responseJson = {"queryParam":foo, "pathParam":bar};
+        json responseJson = {"pathParam":foo, "queryParam":bar};
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.
