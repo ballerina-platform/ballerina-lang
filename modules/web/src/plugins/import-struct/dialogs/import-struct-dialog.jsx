@@ -42,7 +42,6 @@ class ImportStructDialog extends React.Component {
         this.onImportJson = this.onImportJson.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
         this.textChange = this.textChange.bind(this);
-        this.onValidate = this.onValidate.bind(this);
     }
 
     /**
@@ -56,13 +55,16 @@ class ImportStructDialog extends React.Component {
      * Called when user clicks 'Import Struct' menu item.
      */
     onImportJson() {
-        this.props.onImport(this.state.json);
-        this.setState({
-            error: '',
-            json: '',
-            isValid: false,
-            showDialog: false,
-        });
+        if (this.props.onImport(this.state.json)) {
+            this.setState({
+                error: '',
+                json: '',
+                isError: false,
+                showDialog: false,
+            });
+        } else {
+            this.setState({ isError: true });
+        }
     }
 
     /**
@@ -72,31 +74,25 @@ class ImportStructDialog extends React.Component {
         this.setState({
             error: '',
             json: '',
-            isValid: false,
+            isError: false,
             showDialog: false,
         });
     }
-
-    /**
-     * [onValidate description]
-     * @param  {array} errors List of validation errors on the editor
-     */
-    onValidate(errors) {
-        this.setState({ isValid: errors.length === 0 });
-    }
-
     /**
      * Called when user types on the editor.
      * @param  {string} newValue changed text value
      */
     textChange(newValue) {
-        this.setState({ json: newValue });
+        this.setState({ json: newValue, isError: false });
     }
 
     /**
      * @inheritdoc
      */
     render() {
+        const errorStyle = {
+            color: '#d9534f',
+        };
         return (
             <Dialog
                 show={this.state.showDialog}
@@ -105,7 +101,7 @@ class ImportStructDialog extends React.Component {
                     <Button
                         bsStyle="primary"
                         onClick={this.onImportJson}
-                        disabled={!this.state.isValid || this.state.json === ''}
+                        disabled={this.state.json === ''}
                     >
                         Import
                     </Button>
@@ -119,7 +115,6 @@ class ImportStructDialog extends React.Component {
                     mode='json'
                     theme='monokai'
                     onChange={this.textChange}
-                    onValidate={this.onValidate}
                     value={this.state.json}
                     name='json'
                     editorProps={{
@@ -130,11 +125,15 @@ class ImportStructDialog extends React.Component {
                     }}
                     maxLines={30}
                     minLines={10}
+                    showGutter={this.state.isError}
                     width='auto'
                     showPrintMargin={false}
                 />
-
-
+                {(this.state.isError) &&
+                    <div className='alert alert-danger'>
+                        <p style={errorStyle}> Struct cannot be generated for the JSON provided </p>
+                    </div>
+                }
             </Dialog>
         );
     }
