@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for initialize request params
+ * DTO for initialize request params.
  */
 public class InitializeParams {
 

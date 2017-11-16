@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Parser rule based variable definition statement context resolver
+ * Parser rule based variable definition statement context resolver.
  */
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override

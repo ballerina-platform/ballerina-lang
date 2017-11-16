@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Parser rule based statement context resolver
+ * Parser rule based statement context resolver.
  */
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override

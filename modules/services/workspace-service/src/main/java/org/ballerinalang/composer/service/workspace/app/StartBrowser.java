@@ -19,7 +19,7 @@ import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import java.io.IOException;
 
 /**
- * Starting the default browser once the composer starts
+ * Starting the default browser once the composer starts.
  */
 public class StartBrowser {
 

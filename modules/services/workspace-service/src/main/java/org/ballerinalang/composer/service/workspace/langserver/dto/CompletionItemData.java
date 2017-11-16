@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class to represent Completion Item Data
+ * Class to represent Completion Item Data.
  */
 public class CompletionItemData {
 

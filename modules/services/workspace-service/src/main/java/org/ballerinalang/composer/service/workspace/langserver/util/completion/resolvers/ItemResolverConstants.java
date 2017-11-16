@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.util.completion.resolvers;
 
 /**
- * Constants for Item Resolver
+ * Constants for Item Resolver.
  */
 public class ItemResolverConstants {
 

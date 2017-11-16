@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Parser Rule based item resolver for Type Name Context
+ * Parser Rule based item resolver for Type Name Context.
  */
 public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
     @Override

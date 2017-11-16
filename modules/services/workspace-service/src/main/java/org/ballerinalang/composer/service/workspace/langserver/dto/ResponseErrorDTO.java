@@ -17,7 +17,7 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
  */
 
 /**
- * Response error dto
+ * Response error dto.
  */
 public class ResponseErrorDTO {
 

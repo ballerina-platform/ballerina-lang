@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.consts;
 
 /**
- * Symbol kind Constants
+ * Symbol kind Constants.
  */
 public class SymbolKind {
     public static final int FILE = 1;

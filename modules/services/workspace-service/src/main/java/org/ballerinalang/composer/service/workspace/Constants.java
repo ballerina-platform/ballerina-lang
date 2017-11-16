@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace;
  */
 public class Constants {
     /**
-     * Arguments for Service Runner
+     * Arguments for Service Runner.
      */
     public static final String CLOUD_MODE_INDICATOR_ARG = "cloudMode";
     public static final String CLOUD_MODE_INDICATOR_ARG_DESC = "Enable Cloud Mode.";

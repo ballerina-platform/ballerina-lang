@@ -172,7 +172,7 @@ public class SwaggerResourceMapper {
     
     
     /**
-     * This method will convert ballerina @Resource to ballerina @OperationAdaptor
+     * This method will convert ballerina @Resource to ballerina @OperationAdaptor.
      *
      * @param resource Resource array to be convert.
      * @return @OperationAdaptor of string and swagger path objects.

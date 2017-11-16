@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for error data
+ * DTO for error data.
  */
 public class ErrorData {
 

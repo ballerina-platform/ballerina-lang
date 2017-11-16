@@ -41,14 +41,14 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 
 /**
- * Try it client for http protocol
+ * Try it client for http protocol.
  */
 public class HttpTryItClient extends TryItClient {
     private Gson gson;
     private boolean calculateTime = true;
     
     /**
-     * Initializes the client
+     * Initializes the client.
      * @param serviceUrl The service url. Example: hostname:port.
      * @param clientArgs client args
      */

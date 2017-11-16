@@ -28,7 +28,7 @@ import java.util.HashMap;
 
 
 /**
- * Completion Item Resolver for the Package name context
+ * Completion Item Resolver for the Package name context.
  */
 class PackageNameContextResolver extends AbstractItemResolver {
     @Override

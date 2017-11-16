@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * assignment statement context resolver for the completion items
+ * assignment statement context resolver for the completion items.
  */
 public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override

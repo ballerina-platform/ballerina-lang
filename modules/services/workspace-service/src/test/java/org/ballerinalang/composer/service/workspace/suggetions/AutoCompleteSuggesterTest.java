@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 import java.io.IOException;
 
 /**
- * Tests for the auto complete suggester
+ * Tests for the auto complete suggester.
  */
 public class AutoCompleteSuggesterTest {
 

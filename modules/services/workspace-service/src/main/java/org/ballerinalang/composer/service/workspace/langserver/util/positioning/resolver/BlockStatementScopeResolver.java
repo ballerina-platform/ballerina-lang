@@ -35,11 +35,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Block statement scope position resolver
+ * Block statement scope position resolver.
  */
 public class BlockStatementScopeResolver implements CursorPositionResolver {
     /**
-     * Check whether the cursor position is located before the evaluating statement node
+     * Check whether the cursor position is located before the evaluating statement node.
      * @param nodePosition position of the node
      * @param node statement being evaluated
      * @return true|false
@@ -178,7 +178,7 @@ public class BlockStatementScopeResolver implements CursorPositionResolver {
     }
 
     /**
-     * Calculate the end line of the BLangIf node
+     * Calculate the end line of the BLangIf node.
      * @param bLangIf {@link BLangIf}
      * @return end line of the if node
      */

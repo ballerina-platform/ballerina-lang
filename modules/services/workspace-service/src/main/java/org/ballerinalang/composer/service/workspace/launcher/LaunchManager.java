@@ -60,7 +60,7 @@ public class LaunchManager {
     }
 
     /**
-     * Launch manager singleton
+     * Launch manager singleton.
      *
      * @return LaunchManager instance
      */
@@ -196,7 +196,7 @@ public class LaunchManager {
     }
 
     /**
-     * Stop a running ballerina program
+     * Stop a running ballerina program.
      */
     public void stopProcess() {
         int pid = -1;
@@ -295,7 +295,7 @@ public class LaunchManager {
 
     /**
      * Gets the port of the from console log that starts with
-     * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL
+     * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL.
      *
      * @param line The log line.
      */

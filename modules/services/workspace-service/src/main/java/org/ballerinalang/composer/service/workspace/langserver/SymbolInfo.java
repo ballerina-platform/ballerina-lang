@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 /**
- * Represents the symbol information
+ * Represents the symbol information.
  */
 public class SymbolInfo {
     private String symbolName;

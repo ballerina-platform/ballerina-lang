@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Parameter context resolver for resolving the items of the parameter context
+ * Parameter context resolver for resolving the items of the parameter context.
  */
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override

@@ -20,7 +20,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import java.util.List;
 
 /**
- * This Diagnostic Listener can be used to collect all the Diagnostic information
+ * This Diagnostic Listener can be used to collect all the Diagnostic information.
  */
 public class ComposerDiagnosticListener implements DiagnosticListener {
 

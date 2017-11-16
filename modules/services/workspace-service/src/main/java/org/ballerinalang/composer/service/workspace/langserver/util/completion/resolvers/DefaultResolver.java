@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Default resolver for the completion items
+ * Default resolver for the completion items.
  */
 class DefaultResolver extends AbstractItemResolver {
     @Override

@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Text document DTO
+ * Text document DTO.
  */
 public class TextDocumentItem {
 

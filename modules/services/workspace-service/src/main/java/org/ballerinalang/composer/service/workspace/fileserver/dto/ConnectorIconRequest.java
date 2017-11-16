@@ -18,7 +18,7 @@
 package org.ballerinalang.composer.service.workspace.fileserver.dto;
 
 /**
- * DTO for Connector Icon Request
+ * DTO for Connector Icon Request.
  */
 public class ConnectorIconRequest {
 

@@ -146,7 +146,7 @@ public class Function {
 
 
     /**
-     * Get ReceiverType
+     * Get ReceiverType.
      *
      * @return receiverType
      */
@@ -159,7 +159,7 @@ public class Function {
     }
 
     /**
-     * Returns true if the function is public else false
+     * Returns true if the function is public else false.
      * @return
      */
     public boolean isPublic() {

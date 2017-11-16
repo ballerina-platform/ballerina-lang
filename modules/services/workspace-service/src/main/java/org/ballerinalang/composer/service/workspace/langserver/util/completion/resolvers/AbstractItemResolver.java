@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Interface for completion item resolvers
+ * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
     public abstract ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel,
@@ -49,7 +49,7 @@ public abstract class AbstractItemResolver {
             AbstractItemResolver> resolvers);
 
     /**
-     * Populate the completion item list by considering the
+     * Populate the completion item list by considering the.
      * @param symbolInfoList - list of symbol information
      * @param completionItems - completion item list to populate
      */
@@ -75,7 +75,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the Client Connector Completion Item
+     * Populate the Client Connector Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -92,7 +92,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the Ballerina Function Completion Item
+     * Populate the Ballerina Function Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -117,7 +117,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the Native Package Completion Item
+     * Populate the Native Package Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -134,7 +134,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the Variable Definition Completion Item
+     * Populate the Variable Definition Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -173,7 +173,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the BType Completion Item
+     * Populate the BType Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -189,7 +189,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the Namespace declaration Completion Item
+     * Populate the Namespace declaration Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
@@ -204,7 +204,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Get the function signature
+     * Get the function signature.
      * @param bInvokableSymbol - ballerina function instance
      * @return {@link String}
      */
@@ -254,7 +254,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Check whether the token stream corresponds to a action invocation or a function invocation
+     * Check whether the token stream corresponds to a action invocation or a function invocation.
      * @param dataModel - Suggestions filter data model
      * @return {@link Boolean}
      */
@@ -291,7 +291,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Check whether the token stream contains an annotation start (@)
+     * Check whether the token stream contains an annotation start (@).
      * @param dataModel - Suggestions filter data model
      * @return {@link Boolean}
      */
@@ -300,7 +300,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Get the index of the equal sign
+     * Get the index of the equal sign.
      * @param dataModel - suggestions filter data model
      * @return {@link Integer}
      */
@@ -335,7 +335,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction
+     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction.
      * Signature Completion Item
      */
     private static class FunctionSignature {
@@ -388,7 +388,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Assign the Priorities to the completion items
+     * Assign the Priorities to the completion items.
      * @param itemPriorityMap - Map of item priorities against the Item type
      * @param completionItems - list of completion items
      */
@@ -401,7 +401,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate a completion item with the given data and return it
+     * Populate a completion item with the given data and return it.
      * @param insertText insert text
      * @param type type of the completion item
      * @param priority completion item priority
@@ -428,7 +428,7 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Type class for the variable def data
+     * Type class for the variable def data.
      */
     public static class Type {
         private boolean isArrayType;

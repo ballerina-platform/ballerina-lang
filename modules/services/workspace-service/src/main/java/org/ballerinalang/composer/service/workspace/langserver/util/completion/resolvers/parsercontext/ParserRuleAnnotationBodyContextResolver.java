@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * annotation body context resolver for the completion items
+ * annotation body context resolver for the completion items.
  */
 public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolver {
 
     /**
-     * here we provide the attach keyword completion item
+     * here we provide the attach keyword completion item.
      * @param dataModel suggestions filter data model
      * @param symbols symbols list
      * @param resolvers item resolvers map

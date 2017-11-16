@@ -18,7 +18,7 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 /**
- * Wraps a particular source fragment of BLang
+ * Wraps a particular source fragment of BLang.
  */
 public class BLangSourceFragment {
 

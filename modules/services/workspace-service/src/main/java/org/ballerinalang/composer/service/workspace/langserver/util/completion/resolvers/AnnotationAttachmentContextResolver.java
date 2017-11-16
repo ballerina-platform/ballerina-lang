@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * AnnotationAttachments resolver for the completion Items
+ * AnnotationAttachments resolver for the completion Items.
  */
 public class AnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override

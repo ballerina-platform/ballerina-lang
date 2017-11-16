@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * ResourceContextResolver
+ * ResourceContextResolver.
  */
 public class ResourceContextResolver extends AbstractItemResolver {
 

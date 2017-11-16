@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Class to represent Completion Item
+ * Class to represent Completion Item.
  */
 public class CompletionItem {
     private String label;

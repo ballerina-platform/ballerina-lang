@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * constant definition context resolver for the completion items
+ * constant definition context resolver for the completion items.
  */
 public class ParserRuleConstantDefinitionContextResolver extends AbstractItemResolver {
     @Override

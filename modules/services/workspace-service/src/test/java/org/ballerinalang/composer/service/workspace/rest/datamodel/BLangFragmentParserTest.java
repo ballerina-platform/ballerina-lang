@@ -30,6 +30,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tests for fragment parser.
+ */
 public class BLangFragmentParserTest {
 
     public static final ClassLoader CLASS_LOADER = BLangFragmentParserTest.class.getClassLoader();

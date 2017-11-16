@@ -18,7 +18,7 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 /**
- * Constants related to fragment parser
+ * Constants related to fragment parser.
  */
 public class BLangFragmentParserConstants {
     // expected node types

@@ -30,7 +30,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 
 /**
  * Language Server , websocket server which handles language server requests and stream
- * application output back to the client
+ * application output back to the client.
  */
 public class LangServer {
 
@@ -41,7 +41,7 @@ public class LangServer {
     }
 
     /**
-     *  Language server initializer class
+     *  Language server initializer class.
      */
     static class LaunchServerInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -55,7 +55,7 @@ public class LangServer {
     }
 
     /**
-     * Start Language server
+     * Start Language server.
      */
     void startServer() {
         //lets start the server in a new thread.
@@ -68,7 +68,7 @@ public class LangServer {
     }
 
     /**
-     * Language server starts listening
+     * Language server starts listening.
      */
     private void startListening() {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);

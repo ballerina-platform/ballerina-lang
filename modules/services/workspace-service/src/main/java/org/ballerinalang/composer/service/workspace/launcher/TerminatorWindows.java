@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Launcher Terminator Implementation for Windows. ( Xp professional SP2++)
+ * Launcher Terminator Implementation for Windows. ( Xp professional SP2++).
  */
 public class TerminatorWindows implements Terminator {
 
@@ -34,7 +34,7 @@ public class TerminatorWindows implements Terminator {
 
     /**
      *
-     * @return file process command
+     * @return file process command.
      */
     private String getFindProcessCommand() {
         // escape forward slashes
@@ -43,7 +43,7 @@ public class TerminatorWindows implements Terminator {
     }
 
     /**
-     * Terminate running ballerina program
+     * Terminate running ballerina program.
      */
     public void terminate() {
         String scriptLocation = command.getScriptLocation();

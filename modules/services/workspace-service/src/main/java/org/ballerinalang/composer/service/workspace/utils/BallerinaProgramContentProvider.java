@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * BLang program content provider
+ * BLang program content provider.
  */
 public class BallerinaProgramContentProvider {
     private static BallerinaProgramContentProvider instance = null;
@@ -36,7 +36,7 @@ public class BallerinaProgramContentProvider {
     }
 
     /**
-     * Returns native types
+     * Returns native types.
      * @return JsonArray
      */
     public List<SymbolInformation> builtinTypes() {

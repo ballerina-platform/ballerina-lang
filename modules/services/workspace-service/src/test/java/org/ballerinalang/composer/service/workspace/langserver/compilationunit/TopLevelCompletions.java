@@ -23,7 +23,7 @@ import org.testng.annotations.DataProvider;
 import java.io.File;
 
 /**
- * Top level completion tests (compilation unit level)
+ * Top level completion tests (compilation unit level).
  */
 public class TopLevelCompletions extends CompletionTest {
     @DataProvider(name = "completion-data-provider")

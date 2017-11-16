@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for Symbol information
+ * DTO for Symbol information.
  */
 public class SymbolInformation {
     private String name;

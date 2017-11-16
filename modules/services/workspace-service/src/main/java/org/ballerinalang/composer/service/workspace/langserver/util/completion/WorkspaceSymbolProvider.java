@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provider for the workspace symbols
+ * Provider for the workspace symbols.
  */
 public class WorkspaceSymbolProvider {
 
@@ -37,13 +37,13 @@ public class WorkspaceSymbolProvider {
     private static BallerinaProgramContentProvider contentProvider = BallerinaProgramContentProvider.getInstance();
 
     /**
-     * Constructor
+     * Constructor.
      */
     public WorkspaceSymbolProvider() {
     }
 
     /**
-     * Router to get the particular symbol type
+     * Router to get the particular symbol type.
      * @param query symbol query string
      * @return SymbolInformation array
      */
@@ -60,7 +60,7 @@ public class WorkspaceSymbolProvider {
     }
 
     /**
-     * Get the builtin types
+     * Get the builtin types.
      * @return SymbolInformation array
      */
     private SymbolInformation[] getBuiltinTypes() {
@@ -69,7 +69,7 @@ public class WorkspaceSymbolProvider {
     }
 
     /**
-     * Get the packages
+     * Get the packages.
      * @return SymbolInformation array
      */
     public SymbolInformation[] getPackages() {

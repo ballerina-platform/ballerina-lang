@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
- * Package node scope position resolver
+ * Package node scope position resolver.
  */
 public class PackageNodeScopeResolver implements CursorPositionResolver {
     @Override

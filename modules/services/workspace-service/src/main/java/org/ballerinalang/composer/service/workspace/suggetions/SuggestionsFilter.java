@@ -28,14 +28,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import java.util.ArrayList;
 
 /**
- * Filter out the suggestions from the data model
+ * Filter out the suggestions from the data model.
  */
 public class SuggestionsFilter {
 
     private ResolveCommandExecutor resolveCommandExecutor = new ResolveCommandExecutor();
 
     /**
-     * Get the completion items list
+     * Get the completion items list.
      *
      * @param dataModel - Suggestion filter data model
      * @param symbols   - Symbols list

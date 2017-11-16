@@ -19,7 +19,7 @@
 package org.ballerinalang.composer.service.workspace.lattice;
 
 /**
- * Latice generator for Transform
+ * Latice generator for Transform.
  */
 public class LatticeGenerator {
 

@@ -18,12 +18,12 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for Text document positionDTO parameters
+ * DTO for Text document positionDTO parameters.
  */
 public class TextDocumentPositionParams {
 
     /**
-     * Here at the moment we keep the full text
+     * Here at the moment we keep the full text.
      *
      * TODO: Need to refactor this to keep track of the document identifier. we need to issue didChange notifications
      */

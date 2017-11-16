@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Parser rule based Item resolver for the Worker reply statement
+ * Parser rule based Item resolver for the Worker reply statement.
  */
 public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
     @Override

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Resolver for Connector definition context
+ * Resolver for Connector definition context.
  */
 public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
     @Override

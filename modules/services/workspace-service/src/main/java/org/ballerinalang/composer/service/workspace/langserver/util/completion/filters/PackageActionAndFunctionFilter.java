@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Filter the actions and the functions in a package
+ * Filter the actions and the functions in a package.
  */
 public class PackageActionAndFunctionFilter implements SymbolFilter {
     @Override
@@ -167,7 +167,7 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
     }
 
     /**
-     * Get the index of a certain token
+     * Get the index of a certain token.
      * @param tokenString - token string
      * @param from - start searching from
      * @param dataModel - suggestions filter data model

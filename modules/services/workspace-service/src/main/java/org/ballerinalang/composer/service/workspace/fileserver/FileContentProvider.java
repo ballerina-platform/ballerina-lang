@@ -42,7 +42,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * File server Entry point
+ * File server Entry point.
  *
  * @since 0.94
  */
