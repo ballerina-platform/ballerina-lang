@@ -47,10 +47,10 @@ class TransformerTestUtils {
     }
 
     /**
-     * Get transform stmt from tree
+     * Get transformer from tree
      * @param {any} tree node tree
-     * @param {any} index index of transform statement
-     * @returns transform statement
+     * @param {any} index index of transformer
+     * @returns transformer
      */
     static getTransformer(tree, index) {
         return tree.topLevelNodes[index];

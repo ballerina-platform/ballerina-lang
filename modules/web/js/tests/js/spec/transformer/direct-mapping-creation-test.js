@@ -17,55 +17,13 @@
  */
 /* eslint-env es6 */
 
-import fs from 'fs';
-import path from 'path';
-import { fetchConfigs, parseContent } from 'api-client/api-client';
+import { fetchConfigs } from 'api-client/api-client';
 import { expect } from 'chai';
-import TreeBuilder from '../../../../ballerina/model/tree-builder';
+import TransformerTestUtils from './transformer-test-utils';
 import TransformManager from '../../../../ballerina/diagram2/views/default/components/transform/transform-node-manager';
 import environment from '../../../../ballerina/env/environment';
 
-const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
-const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transformer');
 let transformManager;
-
-/**
- * Converts a ballerina source to JSON model
- *
- * @param {string} fileContent The ballerina file content.
- * @returns {Object} A JSON model.
- */
-function getTree(fileContent) {
-    return new Promise((resolve, reject) => {
-        parseContent(fileContent)
-            .then((parsedJson) => {
-                const tree = TreeBuilder.build(parsedJson.model);
-                resolve(tree);
-            })
-            .catch(reject);
-    });
-}
-
-/**
- * Get transformer from tree
- * @param {any} tree node tree
- * @param {any} index index of transformer
- * @returns transformer
- */
-function getTransformer(tree, index) {
-    return tree.topLevelNodes[index];
-}
-
-/**
- * Read ballerina source
- * @param {any} testDir test directory
- * @param {any} balFile bal file
- * @returns ballerina source
- */
-function readSource(testDir, balFile) {
-    const file = path.resolve(transformBalDir, testDir, balFile + '.bal');
-    return fs.readFileSync(file, 'utf8');
-}
 
 /* global describe */
 /* global it */
@@ -89,11 +47,11 @@ describe('Transform Direct Mapping Creation', () => {
     const testDir = 'direct-mapping-creation';
 
     it('Direct mapping with primitive variables', (done) => {
-        const testSource = readSource(testDir, 'direct-with-primitive-vars');
-        const expectedSource = readSource(testDir, 'direct-with-primitive-vars-expected');
-        getTree(testSource)
+        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-primitive-vars');
+        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-primitive-vars-expected');
+        TransformerTestUtils.getTree(testSource)
             .then((tree) => {
-                const transformer = getTransformer(tree, 0);
+                const transformer = TransformerTestUtils.getTransformer(tree, 0);
                 transformManager.setTransformStmt(transformer);
                 const connection = {
                     source: {
@@ -116,12 +74,12 @@ describe('Transform Direct Mapping Creation', () => {
     }).timeout(5000);
 
     it('Direct mapping with casting and conversion', (done) => {
-        const testSource = readSource(testDir, 'direct-with-cast-conversion');
-        const expectedSource = readSource(testDir, 'direct-with-cast-conversion-expected');
-        getTree(testSource)
+        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-cast-conversion');
+        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-cast-conversion-expected');
+        TransformerTestUtils.getTree(testSource)
             .then((tree) => {
                 // Create implicit cast : any -> string
-                const implitTransformer = getTransformer(tree, 0);
+                const implitTransformer = TransformerTestUtils.getTransformer(tree, 0);
                 transformManager.setTransformStmt(implitTransformer);
                 let connection = {
                     source: {
@@ -138,7 +96,7 @@ describe('Transform Direct Mapping Creation', () => {
                 transformManager.createStatementEdge(connection);
 
                 // Create unsafe cast : any -> boolean
-                const unsafeCastTransformer = getTransformer(tree, 1);
+                const unsafeCastTransformer = TransformerTestUtils.getTransformer(tree, 1);
                 transformManager.setTransformStmt(unsafeCastTransformer);
                 connection = {
                     source: {
@@ -155,7 +113,7 @@ describe('Transform Direct Mapping Creation', () => {
                 transformManager.createStatementEdge(connection);
 
                 // Create safe conversion : float -> int
-                const safeConversionTransformer = getTransformer(tree, 2);
+                const safeConversionTransformer = TransformerTestUtils.getTransformer(tree, 2);
                 transformManager.setTransformStmt(safeConversionTransformer);
                 connection = {
                     source: {
@@ -172,7 +130,7 @@ describe('Transform Direct Mapping Creation', () => {
                 transformManager.createStatementEdge(connection);
 
                 // Create safe unsafe conversion : string -> float
-                const unsafeConversionTransformer = getTransformer(tree, 3);
+                const unsafeConversionTransformer = TransformerTestUtils.getTransformer(tree, 3);
                 transformManager.setTransformStmt(unsafeConversionTransformer);
                 connection = {
                     source: {
