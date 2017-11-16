@@ -11,6 +11,7 @@
     font: 12px/normal 'Droid Sans Mono', monospace;
 }
 
+/* Customizing the find in source view*/
 .bal-source-editor .ace_search {
     background-color: #707276;
     border-color: #707276;
