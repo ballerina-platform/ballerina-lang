@@ -19,7 +19,6 @@ package org.ballerinalang.composer.service.workspace.langserver;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.composer.service.workspace.langserver.definitions.FunctionDefinition;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
